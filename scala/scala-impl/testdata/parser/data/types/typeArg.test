@@ -32,9 +32,10 @@ ScalaFile
                     PsiElement(identifier)('c')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: d
-                    CodeReferenceElement: d
-                      PsiElement(identifier)('d')
+                  TypeArgument
+                    SimpleType: d
+                      CodeReferenceElement: d
+                        PsiElement(identifier)('d')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

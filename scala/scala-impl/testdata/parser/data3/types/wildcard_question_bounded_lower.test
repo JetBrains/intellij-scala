@@ -19,14 +19,15 @@ ScalaFile
           PsiElement(identifier)('Class')
       TypeArgumentsList
         PsiElement([)('[')
-        WildcardType: ? >: Test
-          PsiElement(?)('?')
-          PsiWhiteSpace(' ')
-          PsiElement(>:)('>:')
-          PsiWhiteSpace(' ')
-          SimpleType: Test
-            CodeReferenceElement: Test
-              PsiElement(identifier)('Test')
+        TypeArgument
+          WildcardType: ? >: Test
+            PsiElement(?)('?')
+            PsiWhiteSpace(' ')
+            PsiElement(>:)('>:')
+            PsiWhiteSpace(' ')
+            SimpleType: Test
+              CodeReferenceElement: Test
+                PsiElement(identifier)('Test')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

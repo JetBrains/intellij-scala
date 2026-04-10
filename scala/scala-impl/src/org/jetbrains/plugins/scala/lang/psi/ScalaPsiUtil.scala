@@ -1809,7 +1809,6 @@ object ScalaPsiUtil {
 
     def transformInner(te: ScTypeElement): String = transform(isRoot = false)(te)
     def transform(isRoot: Boolean)(te: ScTypeElement): String = te match {
-      case dft: ScDependentFunctionTypeElement => ""
       case _: ScLiteralTypeElement | _: ScWildcardTypeElement => ""
       case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
       case tt: ScNamedTupleTypeElement => tt.components.flatMap(_.typeElement).map(transformInner).mkString("_")

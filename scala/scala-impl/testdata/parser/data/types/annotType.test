@@ -50,9 +50,10 @@ ScalaFile
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Byte
-                            CodeReferenceElement: Byte
-                              PsiElement(identifier)('Byte')
+                          TypeArgument
+                            SimpleType: Byte
+                              CodeReferenceElement: Byte
+                                PsiElement(identifier)('Byte')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       AnnotationsList

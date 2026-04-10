@@ -259,8 +259,9 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |                Generified call -> Value read
         |                  Reference expression[summon] -> Value read
         |                  type arguments -> Type parameter
-        |                    simple type -> Type parameter
-        |                      reference[MyClass] -> Type parameter
+        |                    type argument -> Type parameter
+        |                      simple type -> Type parameter
+        |                        reference[MyClass] -> Type parameter
         |""".stripMargin
     )
   }

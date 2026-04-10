@@ -440,9 +440,10 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: T
-      |                        CodeReferenceElement: T
-      |                          PsiElement(identifier)('T')
+      |                      TypeArgument
+      |                        SimpleType: T
+      |                          CodeReferenceElement: T
+      |                            PsiElement(identifier)('T')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace('\n    ')

@@ -26,23 +26,25 @@ ScalaFile
           PsiElement(identifier)('PartialFunction')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: (Int, Int)
-          PsiElement(()('(')
-          TypesList
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-          PsiElement())(')')
+        TypeArgument
+          TupleType: (Int, Int)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

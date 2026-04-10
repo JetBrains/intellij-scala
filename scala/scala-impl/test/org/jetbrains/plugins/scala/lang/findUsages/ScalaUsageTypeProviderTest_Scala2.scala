@@ -338,8 +338,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                  simple type -> New instance creation
       |                    reference[ScalaClass] -> New instance creation
       |                  type arguments -> Type parameter
-      |                    simple type -> Type parameter
-      |                      reference[Int] -> Type parameter
+      |                    type argument -> Type parameter
+      |                      simple type -> Type parameter
+      |                        reference[Int] -> Type parameter
       |                arguments of function
       |                  Reference expression[MY_CONSTANT] -> Value read
       |                    Reference expression[JavaClass] -> Value read
@@ -418,8 +419,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read
@@ -508,8 +510,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
@@ -595,8 +598,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read
@@ -676,8 +680,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        function definition[bar0] -> Value read
         |          Method call -> Value read
@@ -755,8 +760,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
@@ -767,8 +773,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |          Reference expression[???] -> Value read
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read
@@ -860,8 +867,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
@@ -872,8 +880,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |          Reference expression[???] -> Value read
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
@@ -963,8 +972,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Usage in extends/implements clause
         |              reference[MyBaseClass] -> Usage in extends/implements clause
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
@@ -975,8 +985,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
         |            type arguments -> Type parameter
-        |              simple type -> Type parameter
-        |                reference[String] -> Type parameter
+        |              type argument -> Type parameter
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
         |          Reference expression[???] -> Value read
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read

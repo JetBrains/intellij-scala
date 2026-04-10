@@ -32,9 +32,10 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

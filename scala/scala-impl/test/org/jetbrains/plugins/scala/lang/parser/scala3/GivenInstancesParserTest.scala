@@ -221,9 +221,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |        PsiWhiteSpace(' ')
       |        PsiElement(with)('with')
@@ -295,9 +296,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -311,9 +313,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -357,9 +360,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -373,9 +377,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -415,9 +420,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: Int
-      |                  CodeReferenceElement: Int
-      |                    PsiElement(identifier)('Int')
+      |                TypeArgument
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -431,9 +437,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Double
-      |                CodeReferenceElement: Double
-      |                  PsiElement(identifier)('Double')
+      |              TypeArgument
+      |                SimpleType: Double
+      |                  CodeReferenceElement: Double
+      |                    PsiElement(identifier)('Double')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -478,9 +485,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -524,9 +532,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: T
-      |                CodeReferenceElement: T
-      |                  PsiElement(identifier)('T')
+      |              TypeArgument
+      |                SimpleType: T
+      |                  CodeReferenceElement: T
+      |                    PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -566,9 +575,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -634,9 +644,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -717,9 +728,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -730,9 +742,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -775,9 +788,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -788,9 +802,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -829,9 +844,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: Int
-      |                  CodeReferenceElement: Int
-      |                    PsiElement(identifier)('Int')
+      |                TypeArgument
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -842,9 +858,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Double
-      |          CodeReferenceElement: Double
-      |            PsiElement(identifier)('Double')
+      |        TypeArgument
+      |          SimpleType: Double
+      |            CodeReferenceElement: Double
+      |              PsiElement(identifier)('Double')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -885,9 +902,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -927,9 +945,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: T
-      |          CodeReferenceElement: T
-      |            PsiElement(identifier)('T')
+      |        TypeArgument
+      |          SimpleType: T
+      |            CodeReferenceElement: T
+      |              PsiElement(identifier)('T')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -965,9 +984,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -1000,9 +1020,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -1075,9 +1096,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -1088,9 +1110,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1128,9 +1151,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: T
-      |                  CodeReferenceElement: T
-      |                    PsiElement(identifier)('T')
+      |                TypeArgument
+      |                  SimpleType: T
+      |                    CodeReferenceElement: T
+      |                      PsiElement(identifier)('T')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -1141,9 +1165,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1177,9 +1202,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: Int
-      |                  CodeReferenceElement: Int
-      |                    PsiElement(identifier)('Int')
+      |                TypeArgument
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
@@ -1190,9 +1216,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Double
-      |          CodeReferenceElement: Double
-      |            PsiElement(identifier)('Double')
+      |        TypeArgument
+      |          SimpleType: Double
+      |            CodeReferenceElement: Double
+      |              PsiElement(identifier)('Double')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1228,9 +1255,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1265,9 +1293,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: T
-      |          CodeReferenceElement: T
-      |            PsiElement(identifier)('T')
+      |        TypeArgument
+      |          SimpleType: T
+      |            CodeReferenceElement: T
+      |              PsiElement(identifier)('T')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1315,9 +1344,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |                      PsiElement(identifier)('test')
       |                  TypeArgumentsList
       |                    PsiElement([)('[')
-      |                    SimpleType: T
-      |                      CodeReferenceElement: T
-      |                        PsiElement(identifier)('T')
+      |                    TypeArgument
+      |                      SimpleType: T
+      |                        CodeReferenceElement: T
+      |                          PsiElement(identifier)('T')
       |                    PsiElement(])(']')
       |                ArgumentList
       |                  PsiElement(()('(')
@@ -1599,9 +1629,10 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
@@ -1655,9 +1686,10 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
