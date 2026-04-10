@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgument, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScAccessModifier, ScAnnotationExpr, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -199,6 +199,7 @@ object ScalaUsageTypeProvider {
   val PackageClause: UsageType             = ScalaBundle.message("usage.package.clause")
   val FunctionExpression: UsageType        = ScalaBundle.message("usage.function.expression")
   val NamedParameter: UsageType            = ScalaBundle.message("usage.named.parameter")
+  val NamedTypeArgument: UsageType         = ScalaBundle.message("usage.named.type.argument")
   val PrefixInterpolatedString: UsageType  = ScalaBundle.message("usage.interpolated.string.prefix")
   val ParameterInPattern: UsageType        = ScalaBundle.message("usage.parameter.in.pattern")
   val SelfType: UsageType                  = ScalaBundle.message("usage.self.type")
@@ -241,6 +242,7 @@ object ScalaUsageTypeProvider {
 
     element match {
       case _: ScImportExpr => CLASS_IMPORT
+      case typeArg: ScTypeArgument if typeArg.nameElement.exists(isAppropriate) => NamedTypeArgument
       case typeArgs: ScTypeArgs => typeArgsUsageType(typeArgs)
       case constructorInvocation: ScConstructorInvocation =>
         usageTypeOfConstructorInvocation(constructorInvocation)
