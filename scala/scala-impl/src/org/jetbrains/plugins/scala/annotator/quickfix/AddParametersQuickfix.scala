@@ -78,6 +78,7 @@ final class AddParametersQuickfix(argExprList: SmartPsiElementPointer[ScArgument
     if (argExprList == null || !argExprList.isValid || argExprList.isBlockArgs) return None
 
     val methodCall = PsiTreeUtil.getParentOfType(argExprList, classOf[ScMethodCall])
+    if (methodCall == null) return None
 
     // Find the actual function and the parameter clause that corresponds to the edited argument list
     val (fun, clause) = findParamList(methodCall) match {
