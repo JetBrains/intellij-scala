@@ -5,6 +5,7 @@ import com.intellij.psi.impl.light.LightDefaultConstructor
 import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.quickfix.ImportNamedTypeArgumentsFeatureFlagQuickFix
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
@@ -42,7 +43,8 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
       typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
         holder.createErrorAnnotation(
           firstNamedTypeArgName,
-          ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments")
+          ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments"),
+          new ImportNamedTypeArgumentsFeatureFlagQuickFix(firstNamedTypeArgName)
         )
       }
     }
