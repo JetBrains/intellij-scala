@@ -27,9 +27,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')""".stripMargin
   )
 
@@ -55,9 +56,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
+      |        TypeArgument
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |        PsiElement(])(']')
       |""".stripMargin
   )
@@ -85,9 +87,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -163,9 +166,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -251,16 +255,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -291,9 +297,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -312,9 +319,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -363,16 +371,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -403,9 +413,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -424,9 +435,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -465,9 +477,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: A
-      |                  CodeReferenceElement: A
-      |                    PsiElement(identifier)('A')
+      |                TypeArgument
+      |                  SimpleType: A
+      |                    CodeReferenceElement: A
+      |                      PsiElement(identifier)('A')
       |                PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(=>)('=>')
@@ -481,16 +494,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -521,9 +536,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -542,9 +558,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -591,9 +608,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: A
-      |                  CodeReferenceElement: A
-      |                    PsiElement(identifier)('A')
+      |                TypeArgument
+      |                  SimpleType: A
+      |                    CodeReferenceElement: A
+      |                      PsiElement(identifier)('A')
       |                PsiElement(])(']')
       |        PsiElement())(')')
       |      PsiWhiteSpace(' ')
@@ -608,16 +626,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -648,9 +668,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -669,9 +690,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -713,9 +735,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Ord')
       |              TypeArgumentsList
       |                PsiElement([)('[')
-      |                SimpleType: A
-      |                  CodeReferenceElement: A
-      |                    PsiElement(identifier)('A')
+      |                TypeArgument
+      |                  SimpleType: A
+      |                    CodeReferenceElement: A
+      |                      PsiElement(identifier)('A')
       |                PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(=>)('=>')
@@ -729,16 +752,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      ScTemplateBody
       |        PsiElement(:)(':')
@@ -769,9 +794,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -790,9 +816,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -836,16 +863,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        ParametrizedType: List[A]
-      |          SimpleType: List
-      |            CodeReferenceElement: List
-      |              PsiElement(identifier)('List')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: A
-      |              CodeReferenceElement: A
-      |                PsiElement(identifier)('A')
-      |            PsiElement(])(']')
+      |        TypeArgument
+      |          ParametrizedType: List[A]
+      |            SimpleType: List
+      |              CodeReferenceElement: List
+      |                PsiElement(identifier)('List')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              TypeArgument
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
+      |              PsiElement(])(']')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -855,9 +884,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(identifier)('ListOrd')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: A
-      |          CodeReferenceElement: A
-      |            PsiElement(identifier)('A')
+      |        TypeArgument
+      |          SimpleType: A
+      |            CodeReferenceElement: A
+      |              PsiElement(identifier)('A')
       |        PsiElement(])(']')""".stripMargin
   )
 
@@ -898,16 +928,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('Ord')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        ParametrizedType: List[A]
-      |          SimpleType: List
-      |            CodeReferenceElement: List
-      |              PsiElement(identifier)('List')
-      |          TypeArgumentsList
-      |            PsiElement([)('[')
-      |            SimpleType: A
-      |              CodeReferenceElement: A
-      |                PsiElement(identifier)('A')
-      |            PsiElement(])(']')
+      |        TypeArgument
+      |          ParametrizedType: List[A]
+      |            SimpleType: List
+      |              CodeReferenceElement: List
+      |                PsiElement(identifier)('List')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              TypeArgument
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
+      |              PsiElement(])(']')
       |        PsiElement(])(']')
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
@@ -917,9 +949,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(identifier)('ListOrd')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        SimpleType: A
-      |          CodeReferenceElement: A
-      |            PsiElement(identifier)('A')
+      |        TypeArgument
+      |          SimpleType: A
+      |            CodeReferenceElement: A
+      |              PsiElement(identifier)('A')
       |        PsiElement(])(']')""".stripMargin
   )
 
@@ -990,16 +1023,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: List[A]
-      |                SimpleType: List
-      |                  CodeReferenceElement: List
-      |                    PsiElement(identifier)('List')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  SimpleType: A
-      |                    CodeReferenceElement: A
-      |                      PsiElement(identifier)('A')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: List[A]
+      |                  SimpleType: List
+      |                    CodeReferenceElement: List
+      |                      PsiElement(identifier)('List')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      SimpleType: A
+      |                        CodeReferenceElement: A
+      |                          PsiElement(identifier)('A')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      ScTemplateBody
@@ -1031,9 +1066,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
@@ -1052,9 +1088,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                        PsiElement(identifier)('List')
       |                    TypeArgumentsList
       |                      PsiElement([)('[')
-      |                      SimpleType: A
-      |                        CodeReferenceElement: A
-      |                          PsiElement(identifier)('A')
+      |                      TypeArgument
+      |                        SimpleType: A
+      |                          CodeReferenceElement: A
+      |                            PsiElement(identifier)('A')
       |                      PsiElement(])(']')
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
@@ -1124,9 +1161,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Ord')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: A
-      |                CodeReferenceElement: A
-      |                  PsiElement(identifier)('A')
+      |              TypeArgument
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
       |              PsiElement(])(']')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
@@ -1137,9 +1175,10 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Show')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: B
-      |                CodeReferenceElement: B
-      |                  PsiElement(identifier)('B')
+      |              TypeArgument
+      |                SimpleType: B
+      |                  CodeReferenceElement: B
+      |                    PsiElement(identifier)('B')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      ScTemplateBody

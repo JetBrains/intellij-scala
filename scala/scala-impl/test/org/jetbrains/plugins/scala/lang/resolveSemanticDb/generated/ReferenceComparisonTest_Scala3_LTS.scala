@@ -198,7 +198,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part2 extends ReferenceComparison
   def test_consume(): Unit = doTest("consume", false) // #extension
   def test_contextbounds_implicits_old(): Unit = doTest("contextbounds-implicits-old", true)
   def test_contrib467(): Unit = doTest("contrib467", true)
-  def test_conversion_function_prototype(): Unit = doTest("conversion-function-prototype", false) // #opaque
+  def test_conversion_function_prototype(): Unit = doTest("conversion-function-prototype", true) // #opaque
   def test_convert(): Unit = doTest("convert", true)
   def test_covariant_opaque(): Unit = doTest("covariant-opaque", true) // #opaque
   def test_creators(): Unit = doTest("creators", true)
@@ -315,7 +315,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part3 extends ReferenceComparison
   def test_gadt_EQK(): Unit = doTest("gadt-EQK", true)
   def test_gadt_eval(): Unit = doTest("gadt-eval", true)
   def test_gadt_foo(): Unit = doTest("gadt-foo", true)
-  def test_gadt_GadtStlc(): Unit = doTest("gadt-GadtStlc", false)
+  def test_gadt_GadtStlc(): Unit = doTest("gadt-GadtStlc", true)
   def test_gadt_hk_ordering(): Unit = doTest("gadt-hk-ordering", true) // #enum
   def test_gadt_hkt_hi_bounds(): Unit = doTest("gadt-hkt-hi-bounds", true) // #typeLambda
   def test_gadt_hkt_lo_bounds(): Unit = doTest("gadt-hkt-lo-bounds", true) // #typeLambda
@@ -327,7 +327,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part3 extends ReferenceComparison
   def test_gadt_simpleEQ(): Unit = doTest("gadt-simpleEQ", true)
   def test_gadt_strip_refinement(): Unit = doTest("gadt-strip-refinement", true)
   def test_gadt_TailCalls(): Unit = doTest("gadt-TailCalls", true)
-  def test_gadt_TypeSafeLambda(): Unit = doTest("gadt-TypeSafeLambda", false)
+  def test_gadt_TypeSafeLambda(): Unit = doTest("gadt-TypeSafeLambda", true)
   def test_gadt_upcast(): Unit = doTest("gadt-upcast", true)
   def test_gadt_variant_hkt(): Unit = doTest("gadt-variant-hkt", true) // #enum
   def test_gadts2(): Unit = doTest("gadts2", true)
@@ -659,7 +659,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part7 extends ReferenceComparison
   def test_i3909(): Unit = doTest("i3909", true)
   def test_i3917(): Unit = doTest("i3917", true)
   def test_i3945(): Unit = doTest("i3945", true)
-  def test_i3955(): Unit = doTest("i3955", false)
+  def test_i3955(): Unit = doTest("i3955", true)
   def test_i3956(): Unit = doTest("i3956", true)
   def test_i3965(): Unit = doTest("i3965", true)
   def test_i3965a(): Unit = doTest("i3965a", true)
@@ -750,7 +750,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part7 extends ReferenceComparison
   def test_i5288(): Unit = doTest("i5288", false) // #intersectionType
   def test_i5295(): Unit = doTest("i5295", false)
   def test_i5309(): Unit = doTest("i5309", true)
-  def test_i5328(): Unit = doTest("i5328", false)
+  def test_i5328(): Unit = doTest("i5328", true)
   def test_i5338(): Unit = doTest("i5338", true)
   def test_i5402(): Unit = doTest("i5402", true)
   def test_i5411(): Unit = doTest("i5411", true) // #unionType
@@ -1911,7 +1911,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part18 extends ReferenceCompariso
   def test_KillLambdaLift(): Unit = doTest("KillLambdaLift", true)
   def test_kind_projector(): Unit = doTest("kind-projector", false)
   def test_kind_projector_underscores(): Unit = doTest("kind-projector-underscores", false)
-  def test_kindPolySemiGroup(): Unit = doTest("kindPolySemiGroup", false) // #anykind
+  def test_kindPolySemiGroup(): Unit = doTest("kindPolySemiGroup", true) // #anykind
   def test_kinds(): Unit = doTest("kinds", true)
   def test_kinzer(): Unit = doTest("kinzer", true)
   def test_ksbug1(): Unit = doTest("ksbug1", true)
@@ -1983,7 +1983,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part19 extends ReferenceCompariso
   def test_multiLineOps(): Unit = doTest("multiLineOps", true)
   def test_multiple_additional_imports(): Unit = doTest("multiple-additional-imports", false)
   def test_multiversal(): Unit = doTest("multiversal", true)
-  def test_named_typeargs(): Unit = doTest("named-typeargs", false)
+  def test_named_typeargs(): Unit = doTest("named-typeargs", true)
   def test_nameddefaults(): Unit = doTest("nameddefaults", false)
   def test_namedTypeParams(): Unit = doTest("namedTypeParams", false)
   def test_native_warning(): Unit = doTest("native-warning", true)
@@ -2484,8 +2484,8 @@ final class ReferenceComparisonTest_Scala3_LTS_Part24 extends ReferenceCompariso
   def test_t1439(): Unit = doTest("t1439", true)
   def test_t1480(): Unit = doTest("t1480", true)
   def test_t1500a(): Unit = doTest("t1500a", true)
-  def test_t1513a(): Unit = doTest("t1513a", false)
-  def test_t1513b(): Unit = doTest("t1513b", false)
+  def test_t1513a(): Unit = doTest("t1513a", true)
+  def test_t1513b(): Unit = doTest("t1513b", true)
   def test_t1560(): Unit = doTest("t1560", true)
   def test_t1565(): Unit = doTest("t1565", true)
   def test_t1569(): Unit = doTest("t1569", true)

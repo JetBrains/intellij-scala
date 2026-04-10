@@ -464,7 +464,6 @@ private object TextToTextTestConfig {
       ),
       withSources = true,
       sourceExceptions = Set(
-        "scala.CanThrow", // no annotations
         "scala.IArray", // cannot resolve IArray
         "scala.caps", // `*`
         "scala.annotation.MacroAnnotation", // x$1.reflect.Definition

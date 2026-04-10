@@ -55,9 +55,10 @@ ScalaFile
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Byte
-                            CodeReferenceElement: Byte
-                              PsiElement(identifier)('Byte')
+                          TypeArgument
+                            SimpleType: Byte
+                              CodeReferenceElement: Byte
+                                PsiElement(identifier)('Byte')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       AnnotationsList
@@ -148,9 +149,10 @@ ScalaFile
                         PsiElement(identifier)('BoxedArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Byte
-                        CodeReferenceElement: Byte
-                          PsiElement(identifier)('Byte')
+                      TypeArgument
+                        SimpleType: Byte
+                          CodeReferenceElement: Byte
+                            PsiElement(identifier)('Byte')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -178,9 +180,10 @@ ScalaFile
                                           PsiElement(identifier)('Array')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: Byte
-                                          CodeReferenceElement: Byte
-                                            PsiElement(identifier)('Byte')
+                                        TypeArgument
+                                          SimpleType: Byte
+                                            CodeReferenceElement: Byte
+                                              PsiElement(identifier)('Byte')
                                         PsiElement(])(']')
                                     ArgumentList
                                       PsiElement(()('(')
@@ -219,9 +222,10 @@ ScalaFile
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Short
-                            CodeReferenceElement: Short
-                              PsiElement(identifier)('Short')
+                          TypeArgument
+                            SimpleType: Short
+                              CodeReferenceElement: Short
+                                PsiElement(identifier)('Short')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       AnnotationsList
@@ -312,9 +316,10 @@ ScalaFile
                         PsiElement(identifier)('BoxedArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Short
-                        CodeReferenceElement: Short
-                          PsiElement(identifier)('Short')
+                      TypeArgument
+                        SimpleType: Short
+                          CodeReferenceElement: Short
+                            PsiElement(identifier)('Short')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -342,9 +347,10 @@ ScalaFile
                                           PsiElement(identifier)('Array')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: Short
-                                          CodeReferenceElement: Short
-                                            PsiElement(identifier)('Short')
+                                        TypeArgument
+                                          SimpleType: Short
+                                            CodeReferenceElement: Short
+                                              PsiElement(identifier)('Short')
                                         PsiElement(])(']')
                                     ArgumentList
                                       PsiElement(()('(')

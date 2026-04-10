@@ -15,19 +15,22 @@ ScalaFile
                     PsiElement(identifier)('X')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     TypeArgumentsList
       PsiElement([)('[')
-      SimpleType: Boolean
-        CodeReferenceElement: Boolean
-          PsiElement(identifier)('Boolean')
+      TypeArgument
+        SimpleType: Boolean
+          CodeReferenceElement: Boolean
+            PsiElement(identifier)('Boolean')
       PsiElement(])(']')

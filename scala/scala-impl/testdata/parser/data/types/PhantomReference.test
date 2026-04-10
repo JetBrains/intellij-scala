@@ -61,9 +61,10 @@ ScalaFile
                     PsiElement(identifier)('ReferenceQueue')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -78,9 +79,10 @@ ScalaFile
                 PsiElement(identifier)('ReferenceWrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -113,14 +115,15 @@ ScalaFile
                 PsiElement(identifier)('PhantomReference')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: T
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                WildcardType: _ <: T
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -146,9 +149,10 @@ ScalaFile
                         PsiElement(identifier)('PhantomReference')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -167,25 +171,27 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: java.lang.ref.ReferenceQueue[T]
-                          SimpleType: java.lang.ref.ReferenceQueue
-                            CodeReferenceElement: java.lang.ref.ReferenceQueue
-                              CodeReferenceElement: java.lang.ref
-                                CodeReferenceElement: java.lang
-                                  CodeReferenceElement: java
-                                    PsiElement(identifier)('java')
+                        TypeArgument
+                          ParametrizedType: java.lang.ref.ReferenceQueue[T]
+                            SimpleType: java.lang.ref.ReferenceQueue
+                              CodeReferenceElement: java.lang.ref.ReferenceQueue
+                                CodeReferenceElement: java.lang.ref
+                                  CodeReferenceElement: java.lang
+                                    CodeReferenceElement: java
+                                      PsiElement(identifier)('java')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('lang')
                                   PsiElement(.)('.')
-                                  PsiElement(identifier)('lang')
+                                  PsiElement(identifier)('ref')
                                 PsiElement(.)('.')
-                                PsiElement(identifier)('ref')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('ReferenceQueue')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                                PsiElement(identifier)('ReferenceQueue')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement())(')')
         PsiWhiteSpace('\n')

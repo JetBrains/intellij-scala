@@ -123,9 +123,10 @@ ScalaFile
                         PsiElement(identifier)('TestEnum')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: MyTypeParameterInner
-                        CodeReferenceElement: MyTypeParameterInner
-                          PsiElement(identifier)('MyTypeParameterInner')
+                      TypeArgument
+                        SimpleType: MyTypeParameterInner
+                          CodeReferenceElement: MyTypeParameterInner
+                            PsiElement(identifier)('MyTypeParameterInner')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')

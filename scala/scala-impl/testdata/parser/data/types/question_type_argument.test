@@ -19,9 +19,10 @@ ScalaFile
           PsiElement(identifier)('Class')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ?
-          CodeReferenceElement: ?
-            PsiElement(identifier)('?')
+        TypeArgument
+          SimpleType: ?
+            CodeReferenceElement: ?
+              PsiElement(identifier)('?')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

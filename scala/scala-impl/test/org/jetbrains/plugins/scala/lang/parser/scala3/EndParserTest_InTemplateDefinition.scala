@@ -299,14 +299,16 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |                PsiElement(identifier)('Conversion')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
-      |              SimpleType: String
-      |                CodeReferenceElement: String
-      |                  PsiElement(identifier)('String')
+      |              TypeArgument
+      |                SimpleType: String
+      |                  CodeReferenceElement: String
+      |                    PsiElement(identifier)('String')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')
@@ -341,14 +343,16 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |                PsiElement(identifier)('Conversion')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
       |              PsiElement(,)(',')
       |              PsiWhiteSpace(' ')
-      |              SimpleType: String
-      |                CodeReferenceElement: String
-      |                  PsiElement(identifier)('String')
+      |              TypeArgument
+      |                SimpleType: String
+      |                  CodeReferenceElement: String
+      |                    PsiElement(identifier)('String')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(with)('with')

@@ -33,12 +33,14 @@ ScalaFile
                   PsiElement(identifier)('Tuple2')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeVariable: a
-                  PsiElement(identifier)('a')
+                TypeArgument
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                TypeVariable: b
-                  PsiElement(identifier)('b')
+                TypeArgument
+                  TypeVariable: b
+                    PsiElement(identifier)('b')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
