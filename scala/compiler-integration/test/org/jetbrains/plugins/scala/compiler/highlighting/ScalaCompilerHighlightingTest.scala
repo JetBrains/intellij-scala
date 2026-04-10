@@ -942,6 +942,46 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
   def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestTooManyParameter()
   }
+
+  // SCL-25244
+  private def runTestMultipleErrors(alreadyDefinedStartOffset: Int): Unit = runTestCase(
+    fileName = "MultipleErrors.scala",
+    content =
+      """object MultipleErrors:
+        |  class C(x: Int)
+        |  class Text(str: String)
+        |  case class C(x: Text)
+        |  def Test() =
+        |    val c = C("a")
+        |    val d = new C("b")
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(alreadyDefinedStartOffset, 90)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "C is already defined as class C"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(120, 123)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Found:"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(143, 146)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Found:"
+      )
+    )
+  )
+
+  def testMultipleErrors(): Unit = runTestMultipleErrors(alreadyDefinedStartOffset = 69)
+
+  def testMultipleErrors_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestMultipleErrors(alreadyDefinedStartOffset = 80)
+  }
 }
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
