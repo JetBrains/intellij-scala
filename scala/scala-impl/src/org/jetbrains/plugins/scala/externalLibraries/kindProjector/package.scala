@@ -27,7 +27,7 @@ package object kindProjector {
         gc.referencedExpr match {
           case ref: ScReferenceExpression
               if !ref.isQualified && polyLambdaIds.contains(ref.getText) =>
-            gc.argumentsWithNamed.flatMap(_.typeElement) match {
+            gc.typeArguments.flatMap(_.typeElement) match {
               case Seq(infix @ ScInfixTypeElement(lhs, _, Some(rhs))) => Option((infix, lhs, rhs))
               case Seq(tpe @ ScParameterizedTypeElement(_, Seq(lhs, rhs))) =>
                 Option((tpe, lhs, rhs))

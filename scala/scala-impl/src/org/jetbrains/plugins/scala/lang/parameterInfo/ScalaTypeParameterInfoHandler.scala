@@ -29,7 +29,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
   override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] =
-    o.typeArgsWithNamed.flatMap(_.typeElement).toArray
+    o.typeArguments.flatMap(_.typeElement).toArray
 
   override def getArgumentListClass: Class[ScTypeArgs] = classOf[ScTypeArgs]
 
@@ -88,7 +88,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   }
 
   private def remapIndexForNamedTypeArgs(typeArgsOwner: ScTypeArgs, currentIndex: Int, parameterInfo: Any): Option[Int] = {
-    val typeArgs                  = typeArgsOwner.typeArgsWithNamed
+    val typeArgs                  = typeArgsOwner.typeArguments
     val currentArg                = typeArgs.lift(currentIndex)
     val hasNamedArgs              = typeArgs.exists(_.isNamed)
     val hasPositionalArgs         = typeArgs.exists(!_.isNamed)
@@ -236,7 +236,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
             }
             context.setItemsToShow(res.toArray)
           case context: UpdateParameterInfoContext =>
-            val typeArgs = args.typeArgsWithNamed
+            val typeArgs = args.typeArguments
             val maybeCurrentTypeArg = typeArgs.find(typeArg =>
               typeArg.typeElement.exists(_.getTextRange.containsOffset(offset)) ||
                 typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))

@@ -132,7 +132,7 @@ object TypeCheckCanBeMatchInspection {
       }
     }
 
-    val typeArgs = isInstOfCall.typeArgs.typeArgsWithNamed
+    val typeArgs = isInstOfCall.typeArgs.typeArguments
 
     for {
       condition <- ifStmt.condition
@@ -277,7 +277,7 @@ object TypeCheckCanBeMatchInspection {
 
       def baseAndType(call: ScGenericCall) = for {
         base <- baseExpr(call)
-        typeArgs = call.typeArgs.typeArgsWithNamed
+        typeArgs = call.typeArgs.typeArguments
         if typeArgs.size == 1
         te <- typeArgs.head.typeElement
       } yield (base, te.calcType)

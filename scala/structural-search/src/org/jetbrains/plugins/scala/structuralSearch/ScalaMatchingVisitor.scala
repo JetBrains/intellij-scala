@@ -427,11 +427,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def nameMatch = matchTextOrVariable(identPat, identOther, handler)
     def parameterizedMatch = {
       val patternArgs = te match {
-        case patternDef: ScParameterizedTypeElement => Some(patternDef.typeArgList.typeArgsWithNamed.flatMap(_.typeElement))
+        case patternDef: ScParameterizedTypeElement => Some(patternDef.typeArgList.typeArguments.flatMap(_.typeElement))
         case _ => None
       }
       val matchArgs = other match {
-        case otherDef: ScParameterizedTypeElement => Some(otherDef.typeArgList.typeArgsWithNamed.flatMap(_.typeElement))
+        case otherDef: ScParameterizedTypeElement => Some(otherDef.typeArgList.typeArguments.flatMap(_.typeElement))
         case _ => None
       }
       (patternArgs, matchArgs) match {
@@ -492,8 +492,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     def elementMatch = globalVisitor.`match`(parameterized.typeElement, other.typeElement)
     def parametersMatch = matchSequentially(
-      parameterized.typeArgList.typeArgsWithNamed.flatMap(_.typeElement),
-      other.typeArgList.typeArgsWithNamed.flatMap(_.typeElement)
+      parameterized.typeArgList.typeArguments.flatMap(_.typeElement),
+      other.typeArgList.typeArguments.flatMap(_.typeElement)
     )
     globalVisitor.setResult(elementMatch && parametersMatch)
   }
@@ -845,7 +845,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScGenericCall]
 
     def refMatch = globalVisitor.`match`(call.referencedExpr, other.referencedExpr)
-    def argsMatch = if call.argumentsWithNamed.isEmpty then true else matchSequentially(call.argumentsWithNamed, other.argumentsWithNamed)
+    def argsMatch = if call.typeArguments.isEmpty then true else matchSequentially(call.typeArguments, other.typeArguments)
     globalVisitor.setResult(refMatch && argsMatch)
   }
 

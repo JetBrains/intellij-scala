@@ -11,9 +11,7 @@ trait ScGenericCall extends ScExpression {
 
   def typeArgs: ScTypeArgs = findChild[ScTypeArgs].get
 
-//  def arguments: Seq[ScTypeElement] = typeArgs.typeArgs
-
-  def argumentsWithNamed: Seq[ScTypeArgument] = typeArgs.typeArgsWithNamed
+  def typeArguments: Seq[ScTypeArgument] = typeArgs.typeArguments
 
   def shapeType: TypeResult
 
@@ -35,7 +33,7 @@ trait ScGenericCall extends ScExpression {
 object ScGenericCall {
   def unapply(call: ScGenericCall): Option[(ScReferenceExpression, Seq[ScTypeArgument])] =
     Option(call.referencedExpr).collect {
-      case reference: ScReferenceExpression => (reference, call.argumentsWithNamed)
+      case reference: ScReferenceExpression => (reference, call.typeArguments)
     }
 }
 

@@ -62,7 +62,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       if (!isKindProjectorLambda) {
         annotateTypeArgs[ScTypeArgument](
           typeParams,
-          element.typeArgList.typeArgsWithNamed,
+          element.typeArgList.typeArguments,
           element.typeArgList.getTextRange,
           projSubstitutor,
           tpe.presentableText,

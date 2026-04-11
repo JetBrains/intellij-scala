@@ -175,7 +175,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         case ScReferenceExpression.withQualifier(q) => q.`type`().map(_.tryExtractDesignatorSingleton).toOption
         case _ => None
       }
-      val argType = call.argumentsWithNamed.headOption.flatMap(_.`type`().toOption)
+      val argType = call.typeArguments.headOption.flatMap(_.`type`().toOption)
       for {
         t1 <- qualType
         t2 <- argType

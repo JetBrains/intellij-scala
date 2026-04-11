@@ -8,13 +8,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 class ScTypeArgsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeArgs {
   override def toString: String = "TypeArgumentsList"
 
-  override def typeArgsWithNamed: Seq[ScTypeArgument] =
+  override def typeArguments: Seq[ScTypeArgument] =
     getChildren.toSeq.collect {
       case typeArg: ScTypeArgument => typeArg
     }
 
   override def deleteChildInternal(child: ASTNode): Unit = {
-    val args = this.typeArgsWithNamed
+    val args = this.typeArguments
     val childIsTypeArg = args.exists(_.getNode == child)
     def childIsLastArgToBeDeleted = args.lengthIs == 1 && childIsTypeArg
 
