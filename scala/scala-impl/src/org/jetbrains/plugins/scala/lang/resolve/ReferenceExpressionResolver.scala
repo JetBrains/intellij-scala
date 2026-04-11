@@ -78,7 +78,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   ): ContextInfo = {
     e.getContext match {
       case generic: ScGenericCall if typeArgs.isEmpty && generic.referencedExpr == ref =>
-        getContextInfo(ref, generic, typeArgs = generic.argumentsWithNamed)
+        getContextInfo(ref, generic, typeArgs = generic.typeArguments)
       case call: ScMethodCall if !call.isUpdateCall && call.getInvokedExpr == e =>
 
         ContextInfo(
@@ -594,7 +594,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             invocation,
             "this",
             arguments.map(_.exprs),
-            invocation.typeArgList.fold(Seq.empty[ScTypeArgument])(_.typeArgsWithNamed),
+            invocation.typeArgList.fold(Seq.empty[ScTypeArgument])(_.typeArguments),
             Seq.empty /* todo: ? */ ,
             constructorResolve = true,
             enableTupling = true

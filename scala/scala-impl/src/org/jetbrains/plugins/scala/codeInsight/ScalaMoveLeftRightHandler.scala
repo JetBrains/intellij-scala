@@ -20,7 +20,7 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
       case paramClause: ScParameterClause =>
         paramClause.parameters.toArray
       case ta: ScTypeArgs =>
-        ta.typeArgsWithNamed.toArray
+        ta.typeArguments.toArray
       case tp: ScTypeParamClause =>
         tp.typeParameters.toArray
       case pa: ScPatternArgumentList =>

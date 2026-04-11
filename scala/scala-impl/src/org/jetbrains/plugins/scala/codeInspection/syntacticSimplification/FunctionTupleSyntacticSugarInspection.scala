@@ -46,10 +46,10 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                     if (ref.refName.startsWith("Tuple") || ref.refName.startsWith("Function") && ref.isValid) {
                       val referredElement = ref.bind().map(_.getElement)
                       referredElement match {
-                        case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgsWithNamed.length == (n.toInt + 1) =>
+                        case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArguments.length == (n.toInt + 1) =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
-                        case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgsWithNamed.length == n.toInt) && n.toInt != 1 =>
+                        case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArguments.length == n.toInt) && n.toInt != 1 =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
                         case _ =>
@@ -94,8 +94,8 @@ object FunctionTupleSyntacticSugarInspection {
 
     override protected def doApplyFix(typeElement: ScParameterizedTypeElement)
                                      (implicit project: Project): Unit = {
-      val paramTypes = typeElement.typeArgList.typeArgsWithNamed.dropRight(1)
-      val returnType = typeElement.typeArgList.typeArgsWithNamed.last
+      val paramTypes = typeElement.typeArgList.typeArguments.dropRight(1)
+      val returnType = typeElement.typeArgList.typeArguments.last
       val elemsInParamTypes = if (paramTypes.isEmpty) Seq.empty else ScalaPsiUtil.getElementsRange(paramTypes.head, paramTypes.last)
 
       val returnTypeTextWithParens = {
@@ -104,7 +104,7 @@ object FunctionTupleSyntacticSugarInspection {
           case _: ScInfixTypeElement      => true
           case _                          => false
         }
-        
+
         returnType.getText.parenthesize(returnTypeNeedParens)
       }
 

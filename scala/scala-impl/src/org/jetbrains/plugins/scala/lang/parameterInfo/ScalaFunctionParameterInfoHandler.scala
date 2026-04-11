@@ -675,10 +675,10 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             case notExpr if !notExpr.is[ScExpression] || notExpr.is[ScBlockExpr] => true
             case _ => false
           }
-          
+
           val count = args.invocationCount
           val gen   = args.callGeneric.getOrElse(null: ScGenericCall)
-          
+
           def collectSubstitutor(element: PsiElement): ScSubstitutor = {
             if (gen == null) return ScSubstitutor.empty
             val typeParams = element match {
@@ -686,8 +686,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters
               case _ => return ScSubstitutor.empty
             }
-            
-            ScSubstitutor.bind(typeParams, gen.argumentsWithNamed)
+
+            ScSubstitutor.bind(typeParams, gen.typeArguments)
           }
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {

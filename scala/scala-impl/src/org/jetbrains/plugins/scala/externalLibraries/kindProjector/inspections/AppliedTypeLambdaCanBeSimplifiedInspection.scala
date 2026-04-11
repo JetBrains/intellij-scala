@@ -48,7 +48,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
     ): Unit = {
       val typeArgs = parameterized.typeArgList
 
-      if (alias.typeParameters.size == typeArgs.typeArgsWithNamed.size) {
+      if (alias.typeParameters.size == typeArgs.typeArguments.size) {
         val fix = new SimplifyAppliedTypeLambdaQuickFix(parameterized, simplifyTypeProjection(alias, typeArgs)(parameterized))
         val problem = holder.getManager.createProblemDescriptor(
           parameterized,

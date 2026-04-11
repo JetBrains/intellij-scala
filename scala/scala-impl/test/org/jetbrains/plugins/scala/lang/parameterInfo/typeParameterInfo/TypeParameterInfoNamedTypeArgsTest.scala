@@ -90,7 +90,7 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
     val typeArgs = PsiTreeUtil.getParentOfType(elementAtCaret, classOf[ScTypeArgs])
     assertNotNull("Expected ScTypeArgs at caret", typeArgs)
 
-    val currentArgIndex = typeArgs.typeArgsWithNamed.indexWhere(typeArg =>
+    val currentArgIndex = typeArgs.typeArguments.indexWhere(typeArg =>
       typeArg.typeElement.exists(_.getTextRange.containsOffset(offset)) ||
         typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))
     )

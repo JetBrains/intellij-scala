@@ -244,7 +244,7 @@ object ScSubstitutor {
   }
 
   def bind[T: TypeParamId](typeParamsLike: Iterable[T], typeArgs: ScTypeArgs): ScSubstitutor = {
-    val typeArguments = typeArgs.typeArgsWithNamed
+    val typeArguments = typeArgs.typeArguments
     bind(typeParamsLike, typeArguments)
   }
 
