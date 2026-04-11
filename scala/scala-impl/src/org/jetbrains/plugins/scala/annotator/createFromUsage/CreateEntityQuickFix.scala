@@ -228,7 +228,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
   private def genericParametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
     case genCall: ScGenericCall =>
-      genCall.argumentsWithNamed match {
+      genCall.typeArguments match {
         case args if args.size == 1 => "[T]"
         case args => args.indices.map(i => s"T$i").mkString("[", ", ", "]")
       }

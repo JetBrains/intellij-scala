@@ -82,7 +82,7 @@ class StableCodeReferenceResolver(
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr   = ref.getConstructorInvocation.get
-      val typeArgs = constr.typeArgList.map(_.typeArgsWithNamed).getOrElse(Seq.empty)
+      val typeArgs = constr.typeArgList.map(_.typeArguments).getOrElse(Seq.empty)
 
       val effectiveArgs = constr.arguments.toList.map(_.exprs) match {
         case List() => List(List())

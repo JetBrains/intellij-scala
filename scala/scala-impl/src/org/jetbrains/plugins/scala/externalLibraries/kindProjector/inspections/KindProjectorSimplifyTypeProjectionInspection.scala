@@ -38,7 +38,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
                 val aliasParam = alias.typeParameters
                 projection.parent match {
                   //should be handled by AppliedTypeLambdaCanBeSimplifiedInspection
-                  case Some(p: ScParameterizedTypeElement) if p.typeArgList.typeArgsWithNamed.size == aliasParam.size => ()
+                  case Some(p: ScParameterizedTypeElement) if p.typeArgList.typeArguments.size == aliasParam.size => ()
                   case _ if aliasParam.nonEmpty && aliasParam.forall(canConvertBounds) =>
                     val fix = new KindProjectorSimplifyTypeProjectionQuickFix(projection, convertToKindProjectorSyntax(alias))
                     holder.registerProblem(projection, inspectionName, fix)

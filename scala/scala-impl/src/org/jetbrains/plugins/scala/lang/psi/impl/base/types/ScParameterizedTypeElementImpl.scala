@@ -31,7 +31,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       def convertParameterized(param: ScParameterizedTypeElement): String = {
         param.typeElement.getText match {
           case v@("+" | "-") => //λ[(-[A], +[B]) => Function2[A, Int, B]]
-            param.typeArgList.typeArgsWithNamed match {
+            param.typeArgList.typeArguments match {
               case Seq(simple) => v ++ simple.getText
               case _           => "" //should have only one type arg
             }
@@ -74,7 +74,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       }
 
       val (paramOpt: Seq[Option[String]], body: Seq[String]) = {
-        val typeArgTypeElements = typeArgList.typeArgsWithNamed.flatMap(_.typeElement)
+        val typeArgTypeElements = typeArgList.typeArguments.flatMap(_.typeElement)
 
         typeArgTypeElements.zipWithIndex.map {
           case (simple: ScSimpleTypeElement, i) if inlineSyntaxIds.contains(simple.getText) =>
@@ -98,7 +98,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       val forSomeBuilder = new StringBuilder
       var count = 1
       forSomeBuilder.append(" forSome {")
-      val typeElements = typeArgList.typeArgsWithNamed.map(_.typeElement).map {
+      val typeElements = typeArgList.typeArguments.map(_.typeElement).map {
         case Some(w: ScWildcardTypeElement) =>
           forSomeBuilder.append("type _" + "$" + count +
             w.lowerTypeElement.fold("")(te => s" >: ${te.getText}") +
@@ -132,7 +132,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       }
     }
 
-    typeArgList.typeArgsWithNamed.flatMap(_.typeElement).find {
+    typeArgList.typeArguments.flatMap(_.typeElement).find {
       case _: ScFunctionalTypeElement if isKindProjectorFunctionSyntax => true
       case e if isKindProjectorInlineSyntax(e)                         => true
       case _: ScWildcardTypeElementImpl                                => true
@@ -191,7 +191,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
 
     //Named arguments are disallowed for types, let's just pretend all args are positional here.
-    val typeArgs = typeArgList.typeArgsWithNamed.flatMap(_.typeElement).map(_.calcType)
+    val typeArgs = typeArgList.typeArguments.flatMap(_.typeElement).map(_.calcType)
 
     if (typeArgs.isEmpty) tr
     else                  Right(ScParameterizedType(res, typeArgs))

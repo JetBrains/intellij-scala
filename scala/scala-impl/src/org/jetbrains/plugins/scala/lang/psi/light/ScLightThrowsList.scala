@@ -32,7 +32,7 @@ private object ScLightThrowsList {
 
     for {
       taList    <- typeArgList
-      typeArg   <- taList.typeArgsWithNamed.headOption
+      typeArg   <- taList.typeArguments.headOption
       te        <- typeArg.typeElement
       tpe       <- te.`type`().toOption
       classType <- tpe.toPsiType.asOptionOf[PsiClassType]

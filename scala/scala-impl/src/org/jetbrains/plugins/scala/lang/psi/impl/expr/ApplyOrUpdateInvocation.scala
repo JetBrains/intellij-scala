@@ -93,7 +93,7 @@ object ApplyOrUpdateInvocation {
       gen.referencedExpr,
       if (stripTypeArgs) unpackPolyType(tp)._1 else tp,
       Seq.empty,
-      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArgsWithNamed,
+      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArguments,
       () => gen.expectedType(),
       isDynamic = isDynamic,
       isUpdate = false
@@ -112,7 +112,7 @@ object ApplyOrUpdateInvocation {
       call.getEffectiveInvokedExpr match {
         case gen: ScGenericCall =>
           if (stripTypeArgs) (gen, unpackPolyType(tp)._1, Seq.empty, Seq.empty)
-          else               (gen.referencedExpr, tp, Seq.empty, gen.argumentsWithNamed)
+          else               (gen.referencedExpr, tp, Seq.empty, gen.typeArguments)
         case expression =>
           val (targetType, curried) = unpackPolyType(tp)
           (expression, targetType, curried, Seq.empty)

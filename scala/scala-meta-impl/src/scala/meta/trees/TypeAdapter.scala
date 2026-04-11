@@ -51,7 +51,7 @@ trait TypeAdapter {
             case param => m.Type.Function(List(param), toType(t.returnTypeElement.get))
           }
         case t: ScParameterizedTypeElement =>
-          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgsWithNamed.map(toType).toList)
+          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArguments.map(toType).toList)
         case t: ScInfixTypeElementImpl =>
           m.Type.ApplyInfix(toType(t.left), m.Type.Name(t.operation.refName), toType(t.rightOption.get))
         case t: ScTupleTypeElement =>

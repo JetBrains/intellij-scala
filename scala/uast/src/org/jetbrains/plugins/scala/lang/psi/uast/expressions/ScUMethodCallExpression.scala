@@ -66,7 +66,7 @@ trait ScUMethodCallCommon
 
   override def getTypeArguments: ju.List[PsiType] = {
     val targsList    = getTypeArgs
-    val targs        = targsList.toSeq.flatMap(_.typeArgsWithNamed)
+    val targs        = targsList.toSeq.flatMap(_.typeArguments)
     val typeElements = targs.flatMap(_.typeElement)
     val types        = typeElements.map(_.calcType.toPsiType)
     types.toList.asJava

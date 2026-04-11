@@ -70,7 +70,7 @@ final class ScUConstructorCallExpression(
 
   override def getTypeArguments: util.List[PsiType] = {
     val targsList    = scElement.typeArgList
-    val targs        = targsList.toSeq.flatMap(_.typeArgsWithNamed)
+    val targs        = targsList.toSeq.flatMap(_.typeArguments)
     val typeElements = targs.flatMap(_.typeElement)
     val types        = typeElements.map(_.calcType.toPsiType)
     types.toList.asJava

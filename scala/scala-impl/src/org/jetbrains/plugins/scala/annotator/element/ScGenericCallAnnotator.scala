@@ -101,7 +101,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
             ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeArgument](
               typeParams,
-              genCall.argumentsWithNamed,
+              genCall.typeArguments,
               genCall.typeArgs.getTextRange,
               rr.substitutor,
               stringPresentation,
