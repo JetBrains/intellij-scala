@@ -27,6 +27,13 @@ object ParamClauses {
         hasValueClauseAfterLastType = true
       } else if (allowInterleavingTypeParamClauses && hasValueClauseAfterLastType && FunTypeParamClause()) {
         hasValueClauseAfterLastType = false
+      } else if (!allowInterleavingTypeParamClauses && hasValueClauseAfterLastType && builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
+        builder error ErrMsg("param.clause.expected")
+        if (FunTypeParamClause()) {
+          hasValueClauseAfterLastType = false
+        } else {
+          continue = false
+        }
       } else if (allowInterleavingTypeParamClauses && !hasValueClauseAfterLastType && builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
         builder error ErrMsg("param.clause.expected")
         if (FunTypeParamClause()) {

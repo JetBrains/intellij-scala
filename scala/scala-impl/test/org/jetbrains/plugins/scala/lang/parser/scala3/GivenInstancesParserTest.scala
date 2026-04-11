@@ -1457,6 +1457,10 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
 class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_5)
 
+  def test_interleaved_type_param_clauses_in_given_signature_are_disallowed(): Unit = checkParseErrors(
+    s"given Test[T](x: T)${err("Parameter clause expected")}[U]: Test[T] with {}"
+  )
+
   def test_incomplete_given_alias_declaration_without_type_annotation(): Unit = checkTree(
     """given value:
       |given value(x: Int):
@@ -1969,6 +1973,10 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
 
 class GivenOldSyntaxParserTest_WithNewSyntax extends GivenOldSyntaxParserTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_6)
+
+  def test_interleaved_type_param_clauses_in_given_signature_are_disallowed(): Unit = checkParseErrors(
+    s"given Test[T](x: T)${err("Parameter clause expected")}[U]"
+  )
 
   def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
     """given value: with MyTrait with {}

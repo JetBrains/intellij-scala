@@ -1,6 +1,16 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
+import com.intellij.psi.PsiErrorElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.junit.Assert.assertNotNull
+
 class TraitParameterParserTest extends SimpleScala3ParserTestBase {
+  private def checkHasParserErrors(text: String): Unit = {
+    val file = parseText(text)
+    val firstError = PsiTreeUtil.findChildOfType(file, classOf[PsiErrorElement])
+    assertNotNull("Expected parser errors", firstError)
+  }
+
   def test_without_params(): Unit = checkParseErrors(
     "trait Test"
   )
@@ -19,6 +29,14 @@ class TraitParameterParserTest extends SimpleScala3ParserTestBase {
 
   def test_two_parameter_clauses(): Unit = checkParseErrors(
     "trait Test(arg: Int)(val member: Int)"
+  )
+
+  def test_interleaved_type_param_clauses_in_trait_constructor_are_disallowed(): Unit = checkHasParserErrors(
+    "trait Test(arg: Int)[A](a: A)"
+  )
+
+  def test_interleaved_type_param_clauses_in_class_constructor_are_disallowed(): Unit = checkHasParserErrors(
+    "class Test(arg: Int)[A](a: A)"
   )
 
   def test_with_extends(): Unit = checkParseErrors(

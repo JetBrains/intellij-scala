@@ -294,6 +294,11 @@ object NewGivenImpl {
 
     GivenParents()
 
+    if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
+      builder.error(ErrMsg("param.clause.expected"))
+      TypeParamClause()
+    }
+
     if (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.error(ScalaBundle.message("expected.more.types"))
       builder.advanceLexer()
@@ -488,7 +493,7 @@ object OldGivenSig extends ParsingRule {
         // except if there was an identifier, then it could be a constructor invocation `given Foo(using 3);`
         isSignatureForSure ||= !hasIdentifier && builder.predict(_.getTokenText == "using")
 
-        ParamClauses()
+        ParamClauses(allowInterleavingTypeParamClauses = false)
       } else false
 
     def addEmptyParamClausesIfNecessary(): Unit =

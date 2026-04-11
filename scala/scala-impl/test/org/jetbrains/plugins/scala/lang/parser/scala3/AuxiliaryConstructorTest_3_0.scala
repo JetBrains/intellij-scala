@@ -159,6 +159,13 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
+  def test_interleaved_type_param_clauses_in_auxiliary_constructor_are_disallowed(): Unit = checkParseErrors(
+    s"""class A {
+       |  def this(x: Int)${err("Parameter clause expected")}[T](t: T) = this()
+       |}
+       |""".stripMargin
+  )
+
   override def test_bad_missing_expr(): Unit = checkTree(
     """
       |class Test {
