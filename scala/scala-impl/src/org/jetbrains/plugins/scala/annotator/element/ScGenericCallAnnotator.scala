@@ -5,9 +5,10 @@ import com.intellij.psi.impl.light.LightDefaultConstructor
 import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.quickfix.ImportNamedTypeArgumentsFeatureFlagQuickFix
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project._
 
 
 object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
@@ -32,6 +34,20 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
   override def annotate(genCall: ScGenericCall, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val context: Context = Context(genCall)
+
+    val typeArgs = genCall.typeArgs
+    if (genCall.isInScala3File &&
+      typeArgs.hasNamedTypeArgs &&
+      !genCall.isNamedTypeArgumentsFeatureImported
+    ) {
+      typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
+        holder.createErrorAnnotation(
+          firstNamedTypeArgName,
+          ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments"),
+          new ImportNamedTypeArgumentsFeatureFlagQuickFix(firstNamedTypeArgName)
+        )
+      }
+    }
 
     if (typeAware) {
       for {
@@ -83,9 +99,9 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
             val stringPresentation = s"method ${typeParamOwner.name}"
             implicit val tpc: TypePresentationContext = typeParamOwner
 
-            ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
+            ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeArgument](
               typeParams,
-              genCall.arguments,
+              genCall.argumentsWithNamed,
               genCall.typeArgs.getTextRange,
               rr.substitutor,
               stringPresentation,

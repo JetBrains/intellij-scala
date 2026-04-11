@@ -108,16 +108,18 @@ ScalaFile
                   PsiElement(identifier)('length')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: to[m]
-                  SimpleType: to
-                    CodeReferenceElement: to
-                      PsiElement(identifier)('to')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: m
-                      CodeReferenceElement: m
-                        PsiElement(identifier)('m')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: to[m]
+                    SimpleType: to
+                      CodeReferenceElement: to
+                        PsiElement(identifier)('to')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: m
+                          CodeReferenceElement: m
+                            PsiElement(identifier)('m')
+                      PsiElement(])(']')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')
@@ -172,9 +174,10 @@ ScalaFile
                   PsiElement(identifier)('Size')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: m
-                  CodeReferenceElement: m
-                    PsiElement(identifier)('m')
+                TypeArgument
+                  SimpleType: m
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')
@@ -269,12 +272,14 @@ ScalaFile
                         PsiElement(identifier)('T0')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: hd
-                        PsiElement(identifier)('hd')
+                      TypeArgument
+                        TypeVariable: hd
+                          PsiElement(identifier)('hd')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      TypeVariable: tl
-                        PsiElement(identifier)('tl')
+                      TypeArgument
+                        TypeVariable: tl
+                          PsiElement(identifier)('tl')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -293,9 +298,10 @@ ScalaFile
                           PsiElement(identifier)('to')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: tl
-                          CodeReferenceElement: tl
-                            PsiElement(identifier)('tl')
+                        TypeArgument
+                          SimpleType: tl
+                            CodeReferenceElement: tl
+                              PsiElement(identifier)('tl')
                         PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 ScMatchTypeCaseImpl(match type case)
@@ -335,14 +341,16 @@ ScalaFile
                   PsiElement(identifier)('UnboundedMonoidal')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Tuple2
-                  CodeReferenceElement: Tuple2
-                    PsiElement(identifier)('Tuple2')
+                TypeArgument
+                  SimpleType: Tuple2
+                    CodeReferenceElement: Tuple2
+                      PsiElement(identifier)('Tuple2')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Unit
-                  CodeReferenceElement: Unit
-                    PsiElement(identifier)('Unit')
+                TypeArgument
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScObject: MonoidalTest
@@ -407,27 +415,29 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: pairs.length[p] =:= 3
-                ParametrizedType: pairs.length[p]
-                  SimpleType: pairs.length
-                    CodeReferenceElement: pairs.length
-                      CodeReferenceElement: pairs
-                        PsiElement(identifier)('pairs')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('length')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: p
-                      CodeReferenceElement: p
-                        PsiElement(identifier)('p')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                LiteralType: 3
-                  IntegerLiteral
-                    PsiElement(integer)('3')
+              TypeArgument
+                InfixType: pairs.length[p] =:= 3
+                  ParametrizedType: pairs.length[p]
+                    SimpleType: pairs.length
+                      CodeReferenceElement: pairs.length
+                        CodeReferenceElement: pairs
+                          PsiElement(identifier)('pairs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('length')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: p
+                          CodeReferenceElement: p
+                            PsiElement(identifier)('p')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
               PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

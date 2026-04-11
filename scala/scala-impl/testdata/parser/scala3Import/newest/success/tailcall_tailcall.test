@@ -265,9 +265,10 @@ ScalaFile
                     PsiElement(identifier)('TypedApply')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T2
-                    CodeReferenceElement: T2
-                      PsiElement(identifier)('T2')
+                  TypeArgument
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -288,9 +289,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

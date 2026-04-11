@@ -74,9 +74,10 @@ ScalaFile
                         PsiElement(identifier)('PingMessage')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: pongBehavior
@@ -115,9 +116,10 @@ ScalaFile
                   PsiElement(identifier)('PingMessage')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: O
-                  CodeReferenceElement: O
-                    PsiElement(identifier)('O')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
                 PsiElement(])(']')
           PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -176,9 +178,10 @@ ScalaFile
                       PsiElement(identifier)('PingMessage')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: P
-                      CodeReferenceElement: P
-                        PsiElement(identifier)('P')
+                    TypeArgument
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace(' ')

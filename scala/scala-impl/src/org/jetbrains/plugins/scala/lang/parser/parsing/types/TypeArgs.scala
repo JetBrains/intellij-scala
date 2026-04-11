@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /*
@@ -47,15 +47,70 @@ trait TypeArgs {
             } else false
           }
 
-          if (checkTypeVariable || parseComponent(isPattern)) {
-            var parsedType = true
-            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
-              !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
-              builder.advanceLexer()
-              parsedType = checkTypeVariable || parseComponent(isPattern)
-              if (!parsedType) builder error ScalaBundle.message("wrong.type")
+          def parseTypeArg(): Boolean =
+            checkTypeVariable || parseComponent(isPattern)
+
+          def parsePositionalTypeArg(): Boolean = {
+            val typeArgMarker = builder.mark()
+            val parsedTypeArg = parseTypeArg()
+            if (parsedTypeArg) typeArgMarker.done(ScalaElementType.TYPE_ARG)
+            else typeArgMarker.drop()
+            parsedTypeArg
+          }
+
+          val mixedTypeArgsError = ScalaBundle.message("named.and.positional.type.arguments.cannot.be.mixed")
+
+          def parseNamedTypeArg(): Boolean =
+            if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
+              val typeArgMarker = builder.mark()
+              val namedRefMarker = builder.mark()
+              builder.advanceLexer() // Ate id
+              namedRefMarker.done(ScalaElementType.REFERENCE)
+              builder.advanceLexer() // Ate =
+              if (!parseTypeArg()) builder error ScalaBundle.message("wrong.type")
+              typeArgMarker.done(ScalaElementType.TYPE_ARG)
+              true
+            } else {
+              val mixedArgMarker = builder.mark()
+              val parsedType = parsePositionalTypeArg()
+              if (parsedType) {
+                // Named and positional type arguments cannot be mixed.
+                mixedArgMarker.error(mixedTypeArgsError)
+              } else {
+                mixedArgMarker.drop()
+                val token = builder.getTokenType
+                builder error ErrMsg("identifier.expected")
+                if (token == ScalaTokenTypes.tASSIGN) {
+                  builder.advanceLexer() // Ate =
+                }
+              }
+              parsedType
             }
-          } else builder error ScalaBundle.message("wrong.type")
+
+          val parseNamedArgs = builder.isScala3 && !isPattern && builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)
+
+          var parsedType =
+            if (parseNamedArgs) parseNamedTypeArg()
+            else parsePositionalTypeArg()
+
+          if (!parsedType) builder error ScalaBundle.message("wrong.type")
+
+          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
+            !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
+            builder.advanceLexer()
+            parsedType =
+              if (parseNamedArgs) parseNamedTypeArg()
+              else if (builder.isScala3 && !isPattern && builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
+                // In positional mode we still consume the named argument for better recovery.
+                val mixedArgMarker = builder.mark()
+                val parsedNamedTypeArg = parseNamedTypeArg()
+                if (parsedNamedTypeArg) mixedArgMarker.error(mixedTypeArgsError)
+                else mixedArgMarker.drop()
+                parsedNamedTypeArg
+              } else parsePositionalTypeArg()
+
+            if (!parsedType) builder error ScalaBundle.message("wrong.type")
+          }
 
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET =>

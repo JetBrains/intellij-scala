@@ -199,14 +199,15 @@ ScalaFile
                         PsiElement(identifier)('A')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: Double
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Double
-                          CodeReferenceElement: Double
-                            PsiElement(identifier)('Double')
+                      TypeArgument
+                        WildcardType: ? <: Double
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Double
+                            CodeReferenceElement: Double
+                              PsiElement(identifier)('Double')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

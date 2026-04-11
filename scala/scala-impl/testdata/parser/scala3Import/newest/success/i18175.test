@@ -263,9 +263,10 @@ ScalaFile
                         PsiElement(identifier)('Sanitizer')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: P
-                        CodeReferenceElement: P
-                          PsiElement(identifier)('P')
+                      TypeArgument
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -276,9 +277,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -349,16 +351,18 @@ ScalaFile
                 PsiElement(identifier)('Regex')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Compile[R]
-                SimpleType: Compile
-                  CodeReferenceElement: Compile
-                    PsiElement(identifier)('Compile')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Compile[R]
+                  SimpleType: Compile
+                    CodeReferenceElement: Compile
+                      PsiElement(identifier)('Compile')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -417,9 +421,10 @@ ScalaFile
                       PsiElement(identifier)('Sanitizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: EmptyTuple
-                      CodeReferenceElement: EmptyTuple
-                        PsiElement(identifier)('EmptyTuple')
+                    TypeArgument
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -465,17 +470,18 @@ ScalaFile
                       PsiElement(identifier)('Sanitizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    InfixType: String *: T
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                    TypeArgument
+                      InfixType: String *: T
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -521,24 +527,26 @@ ScalaFile
                       PsiElement(identifier)('Sanitizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    InfixType: Option[String] *: T
-                      ParametrizedType: Option[String]
-                        SimpleType: Option
-                          CodeReferenceElement: Option
-                            PsiElement(identifier)('Option')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
-                          PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                    TypeArgument
+                      InfixType: Option[String] *: T
+                        ParametrizedType: Option[String]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -561,9 +569,10 @@ ScalaFile
                       PsiElement(identifier)('Sanitizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -586,16 +595,18 @@ ScalaFile
                       PsiElement(identifier)('Sanitizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Option[String]
-                      SimpleType: Option
-                        CodeReferenceElement: Option
-                          PsiElement(identifier)('Option')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Option[String]
+                        SimpleType: Option
+                          CodeReferenceElement: Option
+                            PsiElement(identifier)('Option')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -633,14 +644,16 @@ ScalaFile
                   PsiElement(identifier)('Matches')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: ""
-                  StringLiteral
-                    PsiElement(string content)('""')
+                TypeArgument
+                  LiteralType: ""
+                    StringLiteral
+                      PsiElement(string content)('""')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -660,77 +673,90 @@ ScalaFile
                       PsiElement(identifier)('Reverse')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: EmptyTuple
-                      CodeReferenceElement: EmptyTuple
-                        PsiElement(identifier)('EmptyTuple')
+                    TypeArgument
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]
-                      SimpleType: Loop
-                        CodeReferenceElement: Loop
-                          PsiElement(identifier)('Loop')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 0
-                          IntegerLiteral
-                            PsiElement(integer)('0')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Length[R]
-                          SimpleType: Length
-                            CodeReferenceElement: Length
-                              PsiElement(identifier)('Length')
-                          TypeArgumentsList
-                            PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]
+                        SimpleType: Loop
+                          CodeReferenceElement: Loop
+                            PsiElement(identifier)('Loop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
                             SimpleType: R
                               CodeReferenceElement: R
                                 PsiElement(identifier)('R')
-                            PsiElement(])(']')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: EmptyTuple
-                          CodeReferenceElement: EmptyTuple
-                            PsiElement(identifier)('EmptyTuple')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: IsPiped[R, 0, Length[R], 0]
-                          SimpleType: IsPiped
-                            CodeReferenceElement: IsPiped
-                              PsiElement(identifier)('IsPiped')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
                             LiteralType: 0
                               IntegerLiteral
                                 PsiElement(integer)('0')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
                             ParametrizedType: Length[R]
                               SimpleType: Length
                                 CodeReferenceElement: Length
                                   PsiElement(identifier)('Length')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: R
-                                  CodeReferenceElement: R
-                                    PsiElement(identifier)('R')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
                                 PsiElement(])(']')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 0
-                              IntegerLiteral
-                                PsiElement(integer)('0')
-                            PsiElement(])(']')
-                        PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: EmptyTuple
+                              CodeReferenceElement: EmptyTuple
+                                PsiElement(identifier)('EmptyTuple')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: IsPiped[R, 0, Length[R], 0]
+                              SimpleType: IsPiped
+                                CodeReferenceElement: IsPiped
+                                  PsiElement(identifier)('IsPiped')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  ParametrizedType: Length[R]
+                                    SimpleType: Length
+                                      CodeReferenceElement: Length
+                                        PsiElement(identifier)('Length')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: Loop
@@ -873,14 +899,16 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Lo
-                        CodeReferenceElement: Lo
-                          PsiElement(identifier)('Lo')
+                      TypeArgument
+                        SimpleType: Lo
+                          CodeReferenceElement: Lo
+                            PsiElement(identifier)('Lo')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -904,22 +932,24 @@ ScalaFile
                               PsiElement(identifier)('CharAt')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            InfixType: Lo + 1
-                              SimpleType: Lo
-                                CodeReferenceElement: Lo
-                                  PsiElement(identifier)('Lo')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 1
-                                IntegerLiteral
-                                  PsiElement(integer)('1')
+                            TypeArgument
+                              InfixType: Lo + 1
+                                SimpleType: Lo
+                                  CodeReferenceElement: Lo
+                                    PsiElement(identifier)('Lo')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(match)('match')
@@ -940,49 +970,56 @@ ScalaFile
                                   PsiElement(identifier)('Loop')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: R
-                                  CodeReferenceElement: R
-                                    PsiElement(identifier)('R')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                ParametrizedType: ToClosingQE[R, Lo + 2]
-                                  SimpleType: ToClosingQE
-                                    CodeReferenceElement: ToClosingQE
-                                      PsiElement(identifier)('ToClosingQE')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: R
-                                      CodeReferenceElement: R
-                                        PsiElement(identifier)('R')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    InfixType: Lo + 2
-                                      SimpleType: Lo
-                                        CodeReferenceElement: Lo
-                                          PsiElement(identifier)('Lo')
+                                TypeArgument
+                                  ParametrizedType: ToClosingQE[R, Lo + 2]
+                                    SimpleType: ToClosingQE
+                                      CodeReferenceElement: ToClosingQE
+                                        PsiElement(identifier)('ToClosingQE')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      CodeReferenceElement: +
-                                        PsiElement(identifier)('+')
-                                      PsiWhiteSpace(' ')
-                                      LiteralType: 2
-                                        IntegerLiteral
-                                          PsiElement(integer)('2')
-                                    PsiElement(])(']')
+                                      TypeArgument
+                                        InfixType: Lo + 2
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 2
+                                            IntegerLiteral
+                                              PsiElement(integer)('2')
+                                      PsiElement(])(']')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Hi
-                                  CodeReferenceElement: Hi
-                                    PsiElement(identifier)('Hi')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Acc
-                                  CodeReferenceElement: Acc
-                                    PsiElement(identifier)('Acc')
+                                TypeArgument
+                                  SimpleType: Acc
+                                    CodeReferenceElement: Acc
+                                      PsiElement(identifier)('Acc')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Opt
-                                  CodeReferenceElement: Opt
-                                    PsiElement(identifier)('Opt')
+                                TypeArgument
+                                  SimpleType: Opt
+                                    CodeReferenceElement: Opt
+                                      PsiElement(identifier)('Opt')
                                 PsiElement(])(']')
                           PsiWhiteSpace('\n        ')
                           ScMatchTypeCaseImpl(match type case)
@@ -999,37 +1036,42 @@ ScalaFile
                                   PsiElement(identifier)('Loop')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: R
-                                  CodeReferenceElement: R
-                                    PsiElement(identifier)('R')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                InfixType: Lo + 2
-                                  SimpleType: Lo
-                                    CodeReferenceElement: Lo
-                                      PsiElement(identifier)('Lo')
-                                  PsiWhiteSpace(' ')
-                                  CodeReferenceElement: +
-                                    PsiElement(identifier)('+')
-                                  PsiWhiteSpace(' ')
-                                  LiteralType: 2
-                                    IntegerLiteral
-                                      PsiElement(integer)('2')
+                                TypeArgument
+                                  InfixType: Lo + 2
+                                    SimpleType: Lo
+                                      CodeReferenceElement: Lo
+                                        PsiElement(identifier)('Lo')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Hi
-                                  CodeReferenceElement: Hi
-                                    PsiElement(identifier)('Hi')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Acc
-                                  CodeReferenceElement: Acc
-                                    PsiElement(identifier)('Acc')
+                                TypeArgument
+                                  SimpleType: Acc
+                                    CodeReferenceElement: Acc
+                                      PsiElement(identifier)('Acc')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Opt
-                                  CodeReferenceElement: Opt
-                                    PsiElement(identifier)('Opt')
+                                TypeArgument
+                                  SimpleType: Opt
+                                    CodeReferenceElement: Opt
+                                      PsiElement(identifier)('Opt')
                                 PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -1047,54 +1089,62 @@ ScalaFile
                             PsiElement(identifier)('Loop')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: ToClosingBracket[R, Lo + 1, 0]
-                            SimpleType: ToClosingBracket
-                              CodeReferenceElement: ToClosingBracket
-                                PsiElement(identifier)('ToClosingBracket')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: R
-                                CodeReferenceElement: R
-                                  PsiElement(identifier)('R')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              InfixType: Lo + 1
-                                SimpleType: Lo
-                                  CodeReferenceElement: Lo
-                                    PsiElement(identifier)('Lo')
+                          TypeArgument
+                            ParametrizedType: ToClosingBracket[R, Lo + 1, 0]
+                              SimpleType: ToClosingBracket
+                                CodeReferenceElement: ToClosingBracket
+                                  PsiElement(identifier)('ToClosingBracket')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: +
-                                  PsiElement(identifier)('+')
+                                TypeArgument
+                                  InfixType: Lo + 1
+                                    SimpleType: Lo
+                                      CodeReferenceElement: Lo
+                                        PsiElement(identifier)('Lo')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                LiteralType: 1
-                                  IntegerLiteral
-                                    PsiElement(integer)('1')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 0
-                                IntegerLiteral
-                                  PsiElement(integer)('0')
-                              PsiElement(])(']')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Acc
-                            CodeReferenceElement: Acc
-                              PsiElement(identifier)('Acc')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Opt
-                            CodeReferenceElement: Opt
-                              PsiElement(identifier)('Opt')
+                          TypeArgument
+                            SimpleType: Opt
+                              CodeReferenceElement: Opt
+                                PsiElement(identifier)('Opt')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -1112,57 +1162,64 @@ ScalaFile
                             PsiElement(identifier)('Loop')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: Lo + 1
-                            SimpleType: Lo
-                              CodeReferenceElement: Lo
-                                PsiElement(identifier)('Lo')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Acc
-                            CodeReferenceElement: Acc
-                              PsiElement(identifier)('Acc')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: Max[0, Opt - 1]
-                            SimpleType: Max
-                              CodeReferenceElement: Max
-                                PsiElement(identifier)('Max')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              LiteralType: 0
-                                IntegerLiteral
-                                  PsiElement(integer)('0')
-                              PsiElement(,)(',')
+                          TypeArgument
+                            InfixType: Lo + 1
+                              SimpleType: Lo
+                                CodeReferenceElement: Lo
+                                  PsiElement(identifier)('Lo')
                               PsiWhiteSpace(' ')
-                              InfixType: Opt - 1
-                                SimpleType: Opt
-                                  CodeReferenceElement: Opt
-                                    PsiElement(identifier)('Opt')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Max[0, Opt - 1]
+                              SimpleType: Max
+                                CodeReferenceElement: Max
+                                  PsiElement(identifier)('Max')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: -
-                                  PsiElement(identifier)('-')
-                                PsiWhiteSpace(' ')
-                                LiteralType: 1
-                                  IntegerLiteral
-                                    PsiElement(integer)('1')
-                              PsiElement(])(']')
+                                TypeArgument
+                                  InfixType: Opt - 1
+                                    SimpleType: Opt
+                                      CodeReferenceElement: Opt
+                                        PsiElement(identifier)('Opt')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: -
+                                      PsiElement(identifier)('-')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -1214,44 +1271,50 @@ ScalaFile
                                     PsiElement(identifier)('IsMarked')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: R
-                                    CodeReferenceElement: R
-                                      PsiElement(identifier)('R')
+                                  TypeArgument
+                                    SimpleType: R
+                                      CodeReferenceElement: R
+                                        PsiElement(identifier)('R')
                                   PsiElement(,)(',')
                                   PsiWhiteSpace(' ')
-                                  ParametrizedType: ToClosingParenthesis[R, Lo + 1, 0]
-                                    SimpleType: ToClosingParenthesis
-                                      CodeReferenceElement: ToClosingParenthesis
-                                        PsiElement(identifier)('ToClosingParenthesis')
-                                    TypeArgumentsList
-                                      PsiElement([)('[')
-                                      SimpleType: R
-                                        CodeReferenceElement: R
-                                          PsiElement(identifier)('R')
-                                      PsiElement(,)(',')
-                                      PsiWhiteSpace(' ')
-                                      InfixType: Lo + 1
-                                        SimpleType: Lo
-                                          CodeReferenceElement: Lo
-                                            PsiElement(identifier)('Lo')
+                                  TypeArgument
+                                    ParametrizedType: ToClosingParenthesis[R, Lo + 1, 0]
+                                      SimpleType: ToClosingParenthesis
+                                        CodeReferenceElement: ToClosingParenthesis
+                                          PsiElement(identifier)('ToClosingParenthesis')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
+                                        PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        CodeReferenceElement: +
-                                          PsiElement(identifier)('+')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
+                                        PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        LiteralType: 1
-                                          IntegerLiteral
-                                            PsiElement(integer)('1')
-                                      PsiElement(,)(',')
-                                      PsiWhiteSpace(' ')
-                                      LiteralType: 0
-                                        IntegerLiteral
-                                          PsiElement(integer)('0')
-                                      PsiElement(])(']')
+                                        TypeArgument
+                                          LiteralType: 0
+                                            IntegerLiteral
+                                              PsiElement(integer)('0')
+                                        PsiElement(])(']')
                                   PsiElement(,)(',')
                                   PsiWhiteSpace(' ')
-                                  SimpleType: Hi
-                                    CodeReferenceElement: Hi
-                                      PsiElement(identifier)('Hi')
+                                  TypeArgument
+                                    SimpleType: Hi
+                                      CodeReferenceElement: Hi
+                                        PsiElement(identifier)('Hi')
                                   PsiElement(])(']')
                               PsiWhiteSpace(' ')
                               PsiElement(match)('match')
@@ -1275,22 +1338,24 @@ ScalaFile
                                           PsiElement(identifier)('IsCapturing')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: R
-                                          CodeReferenceElement: R
-                                            PsiElement(identifier)('R')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
                                         PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        InfixType: Lo + 1
-                                          SimpleType: Lo
-                                            CodeReferenceElement: Lo
-                                              PsiElement(identifier)('Lo')
-                                          PsiWhiteSpace(' ')
-                                          CodeReferenceElement: +
-                                            PsiElement(identifier)('+')
-                                          PsiWhiteSpace(' ')
-                                          LiteralType: 1
-                                            IntegerLiteral
-                                              PsiElement(integer)('1')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
                                         PsiElement(])(']')
                                     PsiWhiteSpace(' ')
                                     PsiElement(match)('match')
@@ -1311,37 +1376,42 @@ ScalaFile
                                               PsiElement(identifier)('Loop')
                                           TypeArgumentsList
                                             PsiElement([)('[')
-                                            SimpleType: R
-                                              CodeReferenceElement: R
-                                                PsiElement(identifier)('R')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
                                             PsiElement(,)(',')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Lo + 1
-                                              SimpleType: Lo
-                                                CodeReferenceElement: Lo
-                                                  PsiElement(identifier)('Lo')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: +
-                                                PsiElement(identifier)('+')
-                                              PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Acc
+                                                CodeReferenceElement: Acc
+                                                  PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
                                               LiteralType: 1
                                                 IntegerLiteral
                                                   PsiElement(integer)('1')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Hi
-                                              CodeReferenceElement: Hi
-                                                PsiElement(identifier)('Hi')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Acc
-                                              CodeReferenceElement: Acc
-                                                PsiElement(identifier)('Acc')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            LiteralType: 1
-                                              IntegerLiteral
-                                                PsiElement(integer)('1')
                                             PsiElement(])(']')
                                       PsiWhiteSpace('\n            ')
                                       ScMatchTypeCaseImpl(match type case)
@@ -1359,52 +1429,58 @@ ScalaFile
                                               PsiElement(identifier)('Loop')
                                           TypeArgumentsList
                                             PsiElement([)('[')
-                                            SimpleType: R
-                                              CodeReferenceElement: R
-                                                PsiElement(identifier)('R')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
                                             PsiElement(,)(',')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Lo + 1
-                                              SimpleType: Lo
-                                                CodeReferenceElement: Lo
-                                                  PsiElement(identifier)('Lo')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: +
-                                                PsiElement(identifier)('+')
-                                              PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Option[String] *: Acc
+                                                ParametrizedType: Option[String]
+                                                  SimpleType: Option
+                                                    CodeReferenceElement: Option
+                                                      PsiElement(identifier)('Option')
+                                                  TypeArgumentsList
+                                                    PsiElement([)('[')
+                                                    TypeArgument
+                                                      SimpleType: String
+                                                        CodeReferenceElement: String
+                                                          PsiElement(identifier)('String')
+                                                    PsiElement(])(']')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Acc
+                                                  CodeReferenceElement: Acc
+                                                    PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
                                               LiteralType: 1
                                                 IntegerLiteral
                                                   PsiElement(integer)('1')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Hi
-                                              CodeReferenceElement: Hi
-                                                PsiElement(identifier)('Hi')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            InfixType: Option[String] *: Acc
-                                              ParametrizedType: Option[String]
-                                                SimpleType: Option
-                                                  CodeReferenceElement: Option
-                                                    PsiElement(identifier)('Option')
-                                                TypeArgumentsList
-                                                  PsiElement([)('[')
-                                                  SimpleType: String
-                                                    CodeReferenceElement: String
-                                                      PsiElement(identifier)('String')
-                                                  PsiElement(])(']')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: *:
-                                                PsiElement(identifier)('*:')
-                                              PsiWhiteSpace(' ')
-                                              SimpleType: Acc
-                                                CodeReferenceElement: Acc
-                                                  PsiElement(identifier)('Acc')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            LiteralType: 1
-                                              IntegerLiteral
-                                                PsiElement(integer)('1')
                                             PsiElement(])(']')
                                 PsiWhiteSpace('\n          ')
                                 ScMatchTypeCaseImpl(match type case)
@@ -1425,22 +1501,24 @@ ScalaFile
                                           PsiElement(identifier)('IsCapturing')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: R
-                                          CodeReferenceElement: R
-                                            PsiElement(identifier)('R')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
                                         PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        InfixType: Lo + 1
-                                          SimpleType: Lo
-                                            CodeReferenceElement: Lo
-                                              PsiElement(identifier)('Lo')
-                                          PsiWhiteSpace(' ')
-                                          CodeReferenceElement: +
-                                            PsiElement(identifier)('+')
-                                          PsiWhiteSpace(' ')
-                                          LiteralType: 1
-                                            IntegerLiteral
-                                              PsiElement(integer)('1')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
                                         PsiElement(])(']')
                                     PsiWhiteSpace(' ')
                                     PsiElement(match)('match')
@@ -1461,67 +1539,76 @@ ScalaFile
                                               PsiElement(identifier)('Loop')
                                           TypeArgumentsList
                                             PsiElement([)('[')
-                                            SimpleType: R
-                                              CodeReferenceElement: R
-                                                PsiElement(identifier)('R')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
                                             PsiElement(,)(',')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Lo + 1
-                                              SimpleType: Lo
-                                                CodeReferenceElement: Lo
-                                                  PsiElement(identifier)('Lo')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: +
-                                                PsiElement(identifier)('+')
-                                              PsiWhiteSpace(' ')
-                                              LiteralType: 1
-                                                IntegerLiteral
-                                                  PsiElement(integer)('1')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Hi
-                                              CodeReferenceElement: Hi
-                                                PsiElement(identifier)('Hi')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Acc
-                                              CodeReferenceElement: Acc
-                                                PsiElement(identifier)('Acc')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
-                                              SimpleType: IsPiped
-                                                CodeReferenceElement: IsPiped
-                                                  PsiElement(identifier)('IsPiped')
-                                              TypeArgumentsList
-                                                PsiElement([)('[')
-                                                SimpleType: R
-                                                  CodeReferenceElement: R
-                                                    PsiElement(identifier)('R')
-                                                PsiElement(,)(',')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
                                                 PsiWhiteSpace(' ')
-                                                InfixType: Lo + 1
-                                                  SimpleType: Lo
-                                                    CodeReferenceElement: Lo
-                                                      PsiElement(identifier)('Lo')
-                                                  PsiWhiteSpace(' ')
-                                                  CodeReferenceElement: +
-                                                    PsiElement(identifier)('+')
-                                                  PsiWhiteSpace(' ')
-                                                  LiteralType: 1
-                                                    IntegerLiteral
-                                                      PsiElement(integer)('1')
-                                                PsiElement(,)(',')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
                                                 PsiWhiteSpace(' ')
-                                                SimpleType: Hi
-                                                  CodeReferenceElement: Hi
-                                                    PsiElement(identifier)('Hi')
-                                                PsiElement(,)(',')
-                                                PsiWhiteSpace(' ')
-                                                LiteralType: 0
+                                                LiteralType: 1
                                                   IntegerLiteral
-                                                    PsiElement(integer)('0')
-                                                PsiElement(])(']')
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Acc
+                                                CodeReferenceElement: Acc
+                                                  PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
+                                                SimpleType: IsPiped
+                                                  CodeReferenceElement: IsPiped
+                                                    PsiElement(identifier)('IsPiped')
+                                                TypeArgumentsList
+                                                  PsiElement([)('[')
+                                                  TypeArgument
+                                                    SimpleType: R
+                                                      CodeReferenceElement: R
+                                                        PsiElement(identifier)('R')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    InfixType: Lo + 1
+                                                      SimpleType: Lo
+                                                        CodeReferenceElement: Lo
+                                                          PsiElement(identifier)('Lo')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: +
+                                                        PsiElement(identifier)('+')
+                                                      PsiWhiteSpace(' ')
+                                                      LiteralType: 1
+                                                        IntegerLiteral
+                                                          PsiElement(integer)('1')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    SimpleType: Hi
+                                                      CodeReferenceElement: Hi
+                                                        PsiElement(identifier)('Hi')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    LiteralType: 0
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('0')
+                                                  PsiElement(])(']')
                                             PsiElement(])(']')
                                       PsiWhiteSpace('\n            ')
                                       ScMatchTypeCaseImpl(match type case)
@@ -1539,75 +1626,84 @@ ScalaFile
                                               PsiElement(identifier)('Loop')
                                           TypeArgumentsList
                                             PsiElement([)('[')
-                                            SimpleType: R
-                                              CodeReferenceElement: R
-                                                PsiElement(identifier)('R')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
                                             PsiElement(,)(',')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Lo + 1
-                                              SimpleType: Lo
-                                                CodeReferenceElement: Lo
-                                                  PsiElement(identifier)('Lo')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: +
-                                                PsiElement(identifier)('+')
-                                              PsiWhiteSpace(' ')
-                                              LiteralType: 1
-                                                IntegerLiteral
-                                                  PsiElement(integer)('1')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            SimpleType: Hi
-                                              CodeReferenceElement: Hi
-                                                PsiElement(identifier)('Hi')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            InfixType: String *: Acc
-                                              SimpleType: String
-                                                CodeReferenceElement: String
-                                                  PsiElement(identifier)('String')
-                                              PsiWhiteSpace(' ')
-                                              CodeReferenceElement: *:
-                                                PsiElement(identifier)('*:')
-                                              PsiWhiteSpace(' ')
-                                              SimpleType: Acc
-                                                CodeReferenceElement: Acc
-                                                  PsiElement(identifier)('Acc')
-                                            PsiElement(,)(',')
-                                            PsiWhiteSpace(' ')
-                                            ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
-                                              SimpleType: IsPiped
-                                                CodeReferenceElement: IsPiped
-                                                  PsiElement(identifier)('IsPiped')
-                                              TypeArgumentsList
-                                                PsiElement([)('[')
-                                                SimpleType: R
-                                                  CodeReferenceElement: R
-                                                    PsiElement(identifier)('R')
-                                                PsiElement(,)(',')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
                                                 PsiWhiteSpace(' ')
-                                                InfixType: Lo + 1
-                                                  SimpleType: Lo
-                                                    CodeReferenceElement: Lo
-                                                      PsiElement(identifier)('Lo')
-                                                  PsiWhiteSpace(' ')
-                                                  CodeReferenceElement: +
-                                                    PsiElement(identifier)('+')
-                                                  PsiWhiteSpace(' ')
-                                                  LiteralType: 1
-                                                    IntegerLiteral
-                                                      PsiElement(integer)('1')
-                                                PsiElement(,)(',')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
                                                 PsiWhiteSpace(' ')
-                                                SimpleType: Hi
-                                                  CodeReferenceElement: Hi
-                                                    PsiElement(identifier)('Hi')
-                                                PsiElement(,)(',')
-                                                PsiWhiteSpace(' ')
-                                                LiteralType: 0
+                                                LiteralType: 1
                                                   IntegerLiteral
-                                                    PsiElement(integer)('0')
-                                                PsiElement(])(']')
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: String *: Acc
+                                                SimpleType: String
+                                                  CodeReferenceElement: String
+                                                    PsiElement(identifier)('String')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Acc
+                                                  CodeReferenceElement: Acc
+                                                    PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
+                                                SimpleType: IsPiped
+                                                  CodeReferenceElement: IsPiped
+                                                    PsiElement(identifier)('IsPiped')
+                                                TypeArgumentsList
+                                                  PsiElement([)('[')
+                                                  TypeArgument
+                                                    SimpleType: R
+                                                      CodeReferenceElement: R
+                                                        PsiElement(identifier)('R')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    InfixType: Lo + 1
+                                                      SimpleType: Lo
+                                                        CodeReferenceElement: Lo
+                                                          PsiElement(identifier)('Lo')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: +
+                                                        PsiElement(identifier)('+')
+                                                      PsiWhiteSpace(' ')
+                                                      LiteralType: 1
+                                                        IntegerLiteral
+                                                          PsiElement(integer)('1')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    SimpleType: Hi
+                                                      CodeReferenceElement: Hi
+                                                        PsiElement(identifier)('Hi')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    LiteralType: 0
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('0')
+                                                  PsiElement(])(']')
                                             PsiElement(])(']')
                           PsiWhiteSpace('\n        ')
                           ScMatchTypeCaseImpl(match type case)
@@ -1627,22 +1723,24 @@ ScalaFile
                                     PsiElement(identifier)('IsCapturing')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: R
-                                    CodeReferenceElement: R
-                                      PsiElement(identifier)('R')
+                                  TypeArgument
+                                    SimpleType: R
+                                      CodeReferenceElement: R
+                                        PsiElement(identifier)('R')
                                   PsiElement(,)(',')
                                   PsiWhiteSpace(' ')
-                                  InfixType: Lo + 1
-                                    SimpleType: Lo
-                                      CodeReferenceElement: Lo
-                                        PsiElement(identifier)('Lo')
-                                    PsiWhiteSpace(' ')
-                                    CodeReferenceElement: +
-                                      PsiElement(identifier)('+')
-                                    PsiWhiteSpace(' ')
-                                    LiteralType: 1
-                                      IntegerLiteral
-                                        PsiElement(integer)('1')
+                                  TypeArgument
+                                    InfixType: Lo + 1
+                                      SimpleType: Lo
+                                        CodeReferenceElement: Lo
+                                          PsiElement(identifier)('Lo')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: +
+                                        PsiElement(identifier)('+')
+                                      PsiWhiteSpace(' ')
+                                      LiteralType: 1
+                                        IntegerLiteral
+                                          PsiElement(integer)('1')
                                   PsiElement(])(']')
                               PsiWhiteSpace(' ')
                               PsiElement(match)('match')
@@ -1663,45 +1761,50 @@ ScalaFile
                                         PsiElement(identifier)('Loop')
                                     TypeArgumentsList
                                       PsiElement([)('[')
-                                      SimpleType: R
-                                        CodeReferenceElement: R
-                                          PsiElement(identifier)('R')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Lo + 1
-                                        SimpleType: Lo
-                                          CodeReferenceElement: Lo
-                                            PsiElement(identifier)('Lo')
-                                        PsiWhiteSpace(' ')
-                                        CodeReferenceElement: +
-                                          PsiElement(identifier)('+')
-                                        PsiWhiteSpace(' ')
-                                        LiteralType: 1
-                                          IntegerLiteral
-                                            PsiElement(integer)('1')
+                                      TypeArgument
+                                        InfixType: Lo + 1
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      SimpleType: Hi
-                                        CodeReferenceElement: Hi
-                                          PsiElement(identifier)('Hi')
+                                      TypeArgument
+                                        SimpleType: Hi
+                                          CodeReferenceElement: Hi
+                                            PsiElement(identifier)('Hi')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      SimpleType: Acc
-                                        CodeReferenceElement: Acc
-                                          PsiElement(identifier)('Acc')
+                                      TypeArgument
+                                        SimpleType: Acc
+                                          CodeReferenceElement: Acc
+                                            PsiElement(identifier)('Acc')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Opt + 1
-                                        SimpleType: Opt
-                                          CodeReferenceElement: Opt
-                                            PsiElement(identifier)('Opt')
-                                        PsiWhiteSpace(' ')
-                                        CodeReferenceElement: +
-                                          PsiElement(identifier)('+')
-                                        PsiWhiteSpace(' ')
-                                        LiteralType: 1
-                                          IntegerLiteral
-                                            PsiElement(integer)('1')
+                                      TypeArgument
+                                        InfixType: Opt + 1
+                                          SimpleType: Opt
+                                            CodeReferenceElement: Opt
+                                              PsiElement(identifier)('Opt')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
                                       PsiElement(])(']')
                                 PsiWhiteSpace('\n          ')
                                 ScMatchTypeCaseImpl(match type case)
@@ -1719,60 +1822,66 @@ ScalaFile
                                         PsiElement(identifier)('Loop')
                                     TypeArgumentsList
                                       PsiElement([)('[')
-                                      SimpleType: R
-                                        CodeReferenceElement: R
-                                          PsiElement(identifier)('R')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Lo + 1
-                                        SimpleType: Lo
-                                          CodeReferenceElement: Lo
-                                            PsiElement(identifier)('Lo')
-                                        PsiWhiteSpace(' ')
-                                        CodeReferenceElement: +
-                                          PsiElement(identifier)('+')
-                                        PsiWhiteSpace(' ')
-                                        LiteralType: 1
-                                          IntegerLiteral
-                                            PsiElement(integer)('1')
+                                      TypeArgument
+                                        InfixType: Lo + 1
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      SimpleType: Hi
-                                        CodeReferenceElement: Hi
-                                          PsiElement(identifier)('Hi')
+                                      TypeArgument
+                                        SimpleType: Hi
+                                          CodeReferenceElement: Hi
+                                            PsiElement(identifier)('Hi')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Option[String] *: Acc
-                                        ParametrizedType: Option[String]
-                                          SimpleType: Option
-                                            CodeReferenceElement: Option
-                                              PsiElement(identifier)('Option')
-                                          TypeArgumentsList
-                                            PsiElement([)('[')
-                                            SimpleType: String
-                                              CodeReferenceElement: String
-                                                PsiElement(identifier)('String')
-                                            PsiElement(])(']')
-                                        PsiWhiteSpace(' ')
-                                        CodeReferenceElement: *:
-                                          PsiElement(identifier)('*:')
-                                        PsiWhiteSpace(' ')
-                                        SimpleType: Acc
-                                          CodeReferenceElement: Acc
-                                            PsiElement(identifier)('Acc')
+                                      TypeArgument
+                                        InfixType: Option[String] *: Acc
+                                          ParametrizedType: Option[String]
+                                            SimpleType: Option
+                                              CodeReferenceElement: Option
+                                                PsiElement(identifier)('Option')
+                                            TypeArgumentsList
+                                              PsiElement([)('[')
+                                              TypeArgument
+                                                SimpleType: String
+                                                  CodeReferenceElement: String
+                                                    PsiElement(identifier)('String')
+                                              PsiElement(])(']')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: *:
+                                            PsiElement(identifier)('*:')
+                                          PsiWhiteSpace(' ')
+                                          SimpleType: Acc
+                                            CodeReferenceElement: Acc
+                                              PsiElement(identifier)('Acc')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Opt + 1
-                                        SimpleType: Opt
-                                          CodeReferenceElement: Opt
-                                            PsiElement(identifier)('Opt')
-                                        PsiWhiteSpace(' ')
-                                        CodeReferenceElement: +
-                                          PsiElement(identifier)('+')
-                                        PsiWhiteSpace(' ')
-                                        LiteralType: 1
-                                          IntegerLiteral
-                                            PsiElement(integer)('1')
+                                      TypeArgument
+                                        InfixType: Opt + 1
+                                          SimpleType: Opt
+                                            CodeReferenceElement: Opt
+                                              PsiElement(identifier)('Opt')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
                                       PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -1789,37 +1898,42 @@ ScalaFile
                             PsiElement(identifier)('Loop')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: Lo + 1
-                            SimpleType: Lo
-                              CodeReferenceElement: Lo
-                                PsiElement(identifier)('Lo')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: Lo + 1
+                              SimpleType: Lo
+                                CodeReferenceElement: Lo
+                                  PsiElement(identifier)('Lo')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Acc
-                            CodeReferenceElement: Acc
-                              PsiElement(identifier)('Acc')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Opt
-                            CodeReferenceElement: Opt
-                              PsiElement(identifier)('Opt')
+                          TypeArgument
+                            SimpleType: Opt
+                              CodeReferenceElement: Opt
+                                PsiElement(identifier)('Opt')
                           PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: IsCapturing
@@ -1873,14 +1987,16 @@ ScalaFile
                   PsiElement(identifier)('CharAt')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: At
-                  CodeReferenceElement: At
-                    PsiElement(identifier)('At')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -1906,22 +2022,24 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: At + 1
-                        SimpleType: At
-                          CodeReferenceElement: At
-                            PsiElement(identifier)('At')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -1945,22 +2063,24 @@ ScalaFile
                               PsiElement(identifier)('CharAt')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            InfixType: At + 2
-                              SimpleType: At
-                                CodeReferenceElement: At
-                                  PsiElement(identifier)('At')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 2
-                                IntegerLiteral
-                                  PsiElement(integer)('2')
+                            TypeArgument
+                              InfixType: At + 2
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 2
+                                  IntegerLiteral
+                                    PsiElement(integer)('2')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(match)('match')
@@ -2119,14 +2239,16 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
+                      TypeArgument
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -2171,22 +2293,24 @@ ScalaFile
                               PsiElement(identifier)('CharAt')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            InfixType: At + 1
-                              SimpleType: At
-                                CodeReferenceElement: At
-                                  PsiElement(identifier)('At')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 1
-                                IntegerLiteral
-                                  PsiElement(integer)('1')
+                            TypeArgument
+                              InfixType: At + 1
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(match)('match')
@@ -2341,14 +2465,16 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
+                      TypeArgument
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -2372,22 +2498,24 @@ ScalaFile
                               PsiElement(identifier)('CharAt')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            InfixType: At + 1
-                              SimpleType: At
-                                CodeReferenceElement: At
-                                  PsiElement(identifier)('At')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 1
-                                IntegerLiteral
-                                  PsiElement(integer)('1')
+                            TypeArgument
+                              InfixType: At + 1
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(match)('match')
@@ -2408,44 +2536,50 @@ ScalaFile
                                   PsiElement(identifier)('IsPiped')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: R
-                                  CodeReferenceElement: R
-                                    PsiElement(identifier)('R')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                ParametrizedType: ToClosingQE[R, At + 2]
-                                  SimpleType: ToClosingQE
-                                    CodeReferenceElement: ToClosingQE
-                                      PsiElement(identifier)('ToClosingQE')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: R
-                                      CodeReferenceElement: R
-                                        PsiElement(identifier)('R')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    InfixType: At + 2
-                                      SimpleType: At
-                                        CodeReferenceElement: At
-                                          PsiElement(identifier)('At')
+                                TypeArgument
+                                  ParametrizedType: ToClosingQE[R, At + 2]
+                                    SimpleType: ToClosingQE
+                                      CodeReferenceElement: ToClosingQE
+                                        PsiElement(identifier)('ToClosingQE')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      CodeReferenceElement: +
-                                        PsiElement(identifier)('+')
-                                      PsiWhiteSpace(' ')
-                                      LiteralType: 2
-                                        IntegerLiteral
-                                          PsiElement(integer)('2')
-                                    PsiElement(])(']')
+                                      TypeArgument
+                                        InfixType: At + 2
+                                          SimpleType: At
+                                            CodeReferenceElement: At
+                                              PsiElement(identifier)('At')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 2
+                                            IntegerLiteral
+                                              PsiElement(integer)('2')
+                                      PsiElement(])(']')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Hi
-                                  CodeReferenceElement: Hi
-                                    PsiElement(identifier)('Hi')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Lvl
-                                  CodeReferenceElement: Lvl
-                                    PsiElement(identifier)('Lvl')
+                                TypeArgument
+                                  SimpleType: Lvl
+                                    CodeReferenceElement: Lvl
+                                      PsiElement(identifier)('Lvl')
                                 PsiElement(])(']')
                           PsiWhiteSpace('\n        ')
                           ScMatchTypeCaseImpl(match type case)
@@ -2462,32 +2596,36 @@ ScalaFile
                                   PsiElement(identifier)('IsPiped')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: R
-                                  CodeReferenceElement: R
-                                    PsiElement(identifier)('R')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                InfixType: At + 2
-                                  SimpleType: At
-                                    CodeReferenceElement: At
-                                      PsiElement(identifier)('At')
-                                  PsiWhiteSpace(' ')
-                                  CodeReferenceElement: +
-                                    PsiElement(identifier)('+')
-                                  PsiWhiteSpace(' ')
-                                  LiteralType: 2
-                                    IntegerLiteral
-                                      PsiElement(integer)('2')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Hi
-                                  CodeReferenceElement: Hi
-                                    PsiElement(identifier)('Hi')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: Lvl
-                                  CodeReferenceElement: Lvl
-                                    PsiElement(identifier)('Lvl')
+                                TypeArgument
+                                  SimpleType: Lvl
+                                    CodeReferenceElement: Lvl
+                                      PsiElement(identifier)('Lvl')
                                 PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -2505,49 +2643,56 @@ ScalaFile
                             PsiElement(identifier)('IsPiped')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: ToClosingBracket[R, At + 1, 0]
-                            SimpleType: ToClosingBracket
-                              CodeReferenceElement: ToClosingBracket
-                                PsiElement(identifier)('ToClosingBracket')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: R
-                                CodeReferenceElement: R
-                                  PsiElement(identifier)('R')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              InfixType: At + 1
-                                SimpleType: At
-                                  CodeReferenceElement: At
-                                    PsiElement(identifier)('At')
+                          TypeArgument
+                            ParametrizedType: ToClosingBracket[R, At + 1, 0]
+                              SimpleType: ToClosingBracket
+                                CodeReferenceElement: ToClosingBracket
+                                  PsiElement(identifier)('ToClosingBracket')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: +
-                                  PsiElement(identifier)('+')
+                                TypeArgument
+                                  InfixType: At + 1
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                LiteralType: 1
-                                  IntegerLiteral
-                                    PsiElement(integer)('1')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              LiteralType: 0
-                                IntegerLiteral
-                                  PsiElement(integer)('0')
-                              PsiElement(])(']')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -2565,57 +2710,64 @@ ScalaFile
                             PsiElement(identifier)('IsPiped')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: ToClosingParenthesis[R, At + 1, 0]
-                            SimpleType: ToClosingParenthesis
-                              CodeReferenceElement: ToClosingParenthesis
-                                PsiElement(identifier)('ToClosingParenthesis')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: R
-                                CodeReferenceElement: R
-                                  PsiElement(identifier)('R')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              InfixType: At + 1
-                                SimpleType: At
-                                  CodeReferenceElement: At
-                                    PsiElement(identifier)('At')
+                          TypeArgument
+                            ParametrizedType: ToClosingParenthesis[R, At + 1, 0]
+                              SimpleType: ToClosingParenthesis
+                                CodeReferenceElement: ToClosingParenthesis
+                                  PsiElement(identifier)('ToClosingParenthesis')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: +
-                                  PsiElement(identifier)('+')
+                                TypeArgument
+                                  InfixType: At + 1
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                LiteralType: 1
-                                  IntegerLiteral
-                                    PsiElement(integer)('1')
-                              PsiElement(,)(',')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lvl + 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
                               PsiWhiteSpace(' ')
-                              LiteralType: 0
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
                                 IntegerLiteral
-                                  PsiElement(integer)('0')
-                              PsiElement(])(']')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          InfixType: Lvl + 1
-                            SimpleType: Lvl
-                              CodeReferenceElement: Lvl
-                                PsiElement(identifier)('Lvl')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                                  PsiElement(integer)('1')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -2658,32 +2810,36 @@ ScalaFile
                             PsiElement(identifier)('IsPiped')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 1
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Hi
-                            CodeReferenceElement: Hi
-                              PsiElement(identifier)('Hi')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ToClosingParenthesis
@@ -2750,14 +2906,16 @@ ScalaFile
                   PsiElement(identifier)('CharAt')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: At
-                  CodeReferenceElement: At
-                    PsiElement(identifier)('At')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -2781,22 +2939,24 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: At + 1
-                        SimpleType: At
-                          CodeReferenceElement: At
-                            PsiElement(identifier)('At')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -2817,39 +2977,44 @@ ScalaFile
                             PsiElement(identifier)('ToClosingParenthesis')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: ToClosingQE[R, At + 2]
-                            SimpleType: ToClosingQE
-                              CodeReferenceElement: ToClosingQE
-                                PsiElement(identifier)('ToClosingQE')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: R
-                                CodeReferenceElement: R
-                                  PsiElement(identifier)('R')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              InfixType: At + 2
-                                SimpleType: At
-                                  CodeReferenceElement: At
-                                    PsiElement(identifier)('At')
+                          TypeArgument
+                            ParametrizedType: ToClosingQE[R, At + 2]
+                              SimpleType: ToClosingQE
+                                CodeReferenceElement: ToClosingQE
+                                  PsiElement(identifier)('ToClosingQE')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: +
-                                  PsiElement(identifier)('+')
-                                PsiWhiteSpace(' ')
-                                LiteralType: 2
-                                  IntegerLiteral
-                                    PsiElement(integer)('2')
-                              PsiElement(])(']')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -2866,27 +3031,30 @@ ScalaFile
                             PsiElement(identifier)('ToClosingParenthesis')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 2
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 2
-                              IntegerLiteral
-                                PsiElement(integer)('2')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -2904,44 +3072,50 @@ ScalaFile
                       PsiElement(identifier)('ToClosingParenthesis')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: ToClosingBracket[R, At + 1, 0]
-                      SimpleType: ToClosingBracket
-                        CodeReferenceElement: ToClosingBracket
-                          PsiElement(identifier)('ToClosingBracket')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        InfixType: At + 1
-                          SimpleType: At
-                            CodeReferenceElement: At
-                              PsiElement(identifier)('At')
+                    TypeArgument
+                      ParametrizedType: ToClosingBracket[R, At + 1, 0]
+                        SimpleType: ToClosingBracket
+                          CodeReferenceElement: ToClosingBracket
+                            PsiElement(identifier)('ToClosingBracket')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          CodeReferenceElement: +
-                            PsiElement(identifier)('+')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          LiteralType: 1
-                            IntegerLiteral
-                              PsiElement(integer)('1')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 0
-                          IntegerLiteral
-                            PsiElement(integer)('0')
-                        PsiElement(])(']')
+                          TypeArgument
+                            LiteralType: 0
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                          PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Lvl
-                      CodeReferenceElement: Lvl
-                        PsiElement(identifier)('Lvl')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -2998,35 +3172,38 @@ ScalaFile
                             PsiElement(identifier)('ToClosingParenthesis')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 1
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: Lvl - 1
-                            SimpleType: Lvl
-                              CodeReferenceElement: Lvl
-                                PsiElement(identifier)('Lvl')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: -
-                              PsiElement(identifier)('-')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: Lvl - 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: -
+                                PsiElement(identifier)('-')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3044,35 +3221,38 @@ ScalaFile
                       PsiElement(identifier)('ToClosingParenthesis')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: At + 1
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: Lvl + 1
-                      SimpleType: Lvl
-                        CodeReferenceElement: Lvl
-                          PsiElement(identifier)('Lvl')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: Lvl + 1
+                        SimpleType: Lvl
+                          CodeReferenceElement: Lvl
+                            PsiElement(identifier)('Lvl')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3089,27 +3269,30 @@ ScalaFile
                       PsiElement(identifier)('ToClosingParenthesis')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: At + 1
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Lvl
-                      CodeReferenceElement: Lvl
-                        PsiElement(identifier)('Lvl')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ToClosingBracket
@@ -3175,14 +3358,16 @@ ScalaFile
                   PsiElement(identifier)('CharAt')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: At
-                  CodeReferenceElement: At
-                    PsiElement(identifier)('At')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -3206,22 +3391,24 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: At + 1
-                        SimpleType: At
-                          CodeReferenceElement: At
-                            PsiElement(identifier)('At')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -3242,39 +3429,44 @@ ScalaFile
                             PsiElement(identifier)('ToClosingBracket')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: ToClosingQE[R, At + 2]
-                            SimpleType: ToClosingQE
-                              CodeReferenceElement: ToClosingQE
-                                PsiElement(identifier)('ToClosingQE')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: R
-                                CodeReferenceElement: R
-                                  PsiElement(identifier)('R')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              InfixType: At + 2
-                                SimpleType: At
-                                  CodeReferenceElement: At
-                                    PsiElement(identifier)('At')
+                          TypeArgument
+                            ParametrizedType: ToClosingQE[R, At + 2]
+                              SimpleType: ToClosingQE
+                                CodeReferenceElement: ToClosingQE
+                                  PsiElement(identifier)('ToClosingQE')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                CodeReferenceElement: +
-                                  PsiElement(identifier)('+')
-                                PsiWhiteSpace(' ')
-                                LiteralType: 2
-                                  IntegerLiteral
-                                    PsiElement(integer)('2')
-                              PsiElement(])(']')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -3291,27 +3483,30 @@ ScalaFile
                             PsiElement(identifier)('ToClosingBracket')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 2
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 2
-                              IntegerLiteral
-                                PsiElement(integer)('2')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Lvl
-                            CodeReferenceElement: Lvl
-                              PsiElement(identifier)('Lvl')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3329,35 +3524,38 @@ ScalaFile
                       PsiElement(identifier)('ToClosingBracket')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: At + 1
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: Lvl + 1
-                      SimpleType: Lvl
-                        CodeReferenceElement: Lvl
-                          PsiElement(identifier)('Lvl')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: Lvl + 1
+                        SimpleType: Lvl
+                          CodeReferenceElement: Lvl
+                            PsiElement(identifier)('Lvl')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3414,35 +3612,38 @@ ScalaFile
                             PsiElement(identifier)('ToClosingBracket')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 1
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: Lvl - 1
-                            SimpleType: Lvl
-                              CodeReferenceElement: Lvl
-                                PsiElement(identifier)('Lvl')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: -
-                              PsiElement(identifier)('-')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 1
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                          TypeArgument
+                            InfixType: Lvl - 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: -
+                                PsiElement(identifier)('-')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3459,27 +3660,30 @@ ScalaFile
                       PsiElement(identifier)('ToClosingBracket')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: At + 1
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Lvl
-                      CodeReferenceElement: Lvl
-                        PsiElement(identifier)('Lvl')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ToClosingQE
@@ -3531,14 +3735,16 @@ ScalaFile
                   PsiElement(identifier)('CharAt')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: At
-                  CodeReferenceElement: At
-                    PsiElement(identifier)('At')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -3562,22 +3768,24 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: At + 1
-                        SimpleType: At
-                          CodeReferenceElement: At
-                            PsiElement(identifier)('At')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -3618,22 +3826,24 @@ ScalaFile
                             PsiElement(identifier)('ToClosingQE')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          InfixType: At + 2
-                            SimpleType: At
-                              CodeReferenceElement: At
-                                PsiElement(identifier)('At')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: +
-                              PsiElement(identifier)('+')
-                            PsiWhiteSpace(' ')
-                            LiteralType: 2
-                              IntegerLiteral
-                                PsiElement(integer)('2')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3650,22 +3860,24 @@ ScalaFile
                       PsiElement(identifier)('ToClosingQE')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: At + 1
-                      SimpleType: At
-                        CodeReferenceElement: At
-                          PsiElement(identifier)('At')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: Reverse
@@ -3737,22 +3949,24 @@ ScalaFile
                       PsiElement(identifier)('Reverse')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    InfixType: x *: Acc
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Acc
-                        CodeReferenceElement: Acc
-                          PsiElement(identifier)('Acc')
+                    TypeArgument
+                      InfixType: x *: Acc
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Acc
+                          CodeReferenceElement: Acc
+                            PsiElement(identifier)('Acc')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: xs
-                      CodeReferenceElement: xs
-                        PsiElement(identifier)('xs')
+                    TypeArgument
+                      SimpleType: xs
+                        CodeReferenceElement: xs
+                          PsiElement(identifier)('xs')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -3806,9 +4020,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

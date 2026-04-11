@@ -50,9 +50,10 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: StringContext
-                  CodeReferenceElement: StringContext
-                    PsiElement(identifier)('StringContext')
+                TypeArgument
+                  SimpleType: StringContext
+                    CodeReferenceElement: StringContext
+                      PsiElement(identifier)('StringContext')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -71,16 +72,18 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Seq[Any]
-                  SimpleType: Seq
-                    CodeReferenceElement: Seq
-                      PsiElement(identifier)('Seq')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Any
-                      CodeReferenceElement: Any
-                        PsiElement(identifier)('Any')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Seq[Any]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
       ParametersClause
@@ -101,9 +104,10 @@ ScalaFile
           PsiElement(identifier)('Expr')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -200,16 +204,18 @@ ScalaFile
                                   PsiElement(identifier)('summon')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  ParametrizedType: Show[tp]
-                                    SimpleType: Show
-                                      CodeReferenceElement: Show
-                                        PsiElement(identifier)('Show')
-                                    TypeArgumentsList
-                                      PsiElement([)('[')
-                                      SimpleType: tp
-                                        CodeReferenceElement: tp
-                                          PsiElement(identifier)('tp')
-                                      PsiElement(])(']')
+                                  TypeArgument
+                                    ParametrizedType: Show[tp]
+                                      SimpleType: Show
+                                        CodeReferenceElement: Show
+                                          PsiElement(identifier)('Show')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: tp
+                                            CodeReferenceElement: tp
+                                              PsiElement(identifier)('tp')
+                                        PsiElement(])(']')
                                   PsiElement(])(']')
                               PsiWhiteSpace(' ')
                               PsiElement(match)('match')
@@ -281,16 +287,18 @@ ScalaFile
                                                 PsiElement(identifier)('show')
                                               TypeArgumentsList
                                                 PsiElement([)('[')
-                                                ParametrizedType: Show[tp]
-                                                  SimpleType: Show
-                                                    CodeReferenceElement: Show
-                                                      PsiElement(identifier)('Show')
-                                                  TypeArgumentsList
-                                                    PsiElement([)('[')
-                                                    SimpleType: tp
-                                                      CodeReferenceElement: tp
-                                                        PsiElement(identifier)('tp')
-                                                    PsiElement(])(']')
+                                                TypeArgument
+                                                  ParametrizedType: Show[tp]
+                                                    SimpleType: Show
+                                                      CodeReferenceElement: Show
+                                                        PsiElement(identifier)('Show')
+                                                    TypeArgumentsList
+                                                      PsiElement([)('[')
+                                                      TypeArgument
+                                                        SimpleType: tp
+                                                          CodeReferenceElement: tp
+                                                            PsiElement(identifier)('tp')
+                                                      PsiElement(])(']')
                                                 PsiElement(])(']')
                                             PsiElement(})('}')
                                           PsiElement(interpolated string end)('"')

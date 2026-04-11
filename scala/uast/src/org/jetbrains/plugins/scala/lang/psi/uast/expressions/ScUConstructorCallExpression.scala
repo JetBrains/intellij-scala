@@ -68,11 +68,13 @@ final class ScUConstructorCallExpression(
   override def getTypeArgumentCount: Int =
     scElement.typeArgList.map(_.getArgsCount).getOrElse(0)
 
-  override def getTypeArguments: util.List[PsiType] =
-    scElement.typeArgList
-      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
-      .getOrElse(Seq.empty)
-      .asJava
+  override def getTypeArguments: util.List[PsiType] = {
+    val targsList    = scElement.typeArgList
+    val targs        = targsList.toSeq.flatMap(_.typeArgsWithNamed)
+    val typeElements = targs.flatMap(_.typeElement)
+    val types        = typeElements.map(_.calcType.toPsiType)
+    types.toList.asJava
+  }
 
   override def getValueArgumentCount: Int =
     scElement.arguments.map(_.exprs.size).sum
@@ -80,7 +82,7 @@ final class ScUConstructorCallExpression(
   override def getValueArguments: util.List[UExpression] = {
     Seq.concat(
       scElement.arguments
-        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this))).toSeq: _*
+        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this))): _*
     ).asJava
   }
 

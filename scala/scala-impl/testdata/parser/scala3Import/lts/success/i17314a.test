@@ -72,9 +72,10 @@ ScalaFile
             PsiElement(identifier)('Foo')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(=)('=')
@@ -91,9 +92,10 @@ ScalaFile
                     PsiElement(identifier)('Foo')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
   PsiWhiteSpace('\n\n\n')
   ScPackaging
@@ -124,9 +126,10 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
           PsiElement(})('}')
     PsiWhiteSpace('\n  ')
@@ -158,9 +161,10 @@ ScalaFile
             PsiElement(identifier)('Foo')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(=)('=')
@@ -170,14 +174,16 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Foo[Int]
-            SimpleType: Foo
-              CodeReferenceElement: Foo
-                PsiElement(identifier)('Foo')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Foo[Int]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
           PsiElement(])(']')

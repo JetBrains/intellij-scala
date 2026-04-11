@@ -33,16 +33,18 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Foo2[Qux]
-              SimpleType: Foo2
-                CodeReferenceElement: Foo2
-                  PsiElement(identifier)('Foo2')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Qux
-                  CodeReferenceElement: Qux
-                    PsiElement(identifier)('Qux')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Foo2[Qux]
+                SimpleType: Foo2
+                  CodeReferenceElement: Foo2
+                    PsiElement(identifier)('Foo2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Qux
+                      CodeReferenceElement: Qux
+                        PsiElement(identifier)('Qux')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -50,16 +52,18 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Foo1[Qux]
-              SimpleType: Foo1
-                CodeReferenceElement: Foo1
-                  PsiElement(identifier)('Foo1')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Qux
-                  CodeReferenceElement: Qux
-                    PsiElement(identifier)('Qux')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Foo1[Qux]
+                SimpleType: Foo1
+                  CodeReferenceElement: Foo1
+                    PsiElement(identifier)('Foo1')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Qux
+                      CodeReferenceElement: Qux
+                        PsiElement(identifier)('Qux')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

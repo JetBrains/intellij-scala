@@ -99,15 +99,17 @@ ScalaFile
               PsiElement(identifier)('isInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Seq[?]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: ?
-                    PsiElement(?)('?')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Seq[?]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: f2
@@ -161,8 +163,9 @@ ScalaFile
                           PsiElement(identifier)('Seq')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: ?
-                          PsiElement(?)('?')
+                        TypeArgument
+                          WildcardType: ?
+                            PsiElement(?)('?')
                         PsiElement(])(']')
                 PsiWhiteSpace('  ')
                 PsiElement(=>)('=>')
@@ -236,8 +239,9 @@ ScalaFile
                           PsiElement(identifier)('Array')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: ?
-                          PsiElement(?)('?')
+                        TypeArgument
+                          WildcardType: ?
+                            PsiElement(?)('?')
                         PsiElement(])(']')
                 PsiWhiteSpace('  ')
                 PsiElement(=>)('=>')
@@ -295,15 +299,17 @@ ScalaFile
               PsiElement(identifier)('isInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Iterable[?]
-                SimpleType: Iterable
-                  CodeReferenceElement: Iterable
-                    PsiElement(identifier)('Iterable')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: ?
-                    PsiElement(?)('?')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Iterable[?]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: f5
@@ -404,8 +410,9 @@ ScalaFile
                                   PsiElement(identifier)('Seq')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                WildcardType: ?
-                                  PsiElement(?)('?')
+                                TypeArgument
+                                  WildcardType: ?
+                                    PsiElement(?)('?')
                                 PsiElement(])(']')
                         PsiElement())(')')
                     PsiElement(,)(',')
@@ -453,8 +460,9 @@ ScalaFile
                                   PsiElement(identifier)('List')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                WildcardType: ?
-                                  PsiElement(?)('?')
+                                TypeArgument
+                                  WildcardType: ?
+                                    PsiElement(?)('?')
                                 PsiElement(])(']')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')

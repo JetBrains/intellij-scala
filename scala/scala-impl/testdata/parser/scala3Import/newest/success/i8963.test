@@ -70,13 +70,15 @@ ScalaFile
               PsiElement(identifier)('VarValues')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(,)(',')
-            SimpleType: C
-              CodeReferenceElement: C
-                PsiElement(identifier)('C')
+            TypeArgument
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -119,9 +121,10 @@ ScalaFile
                 PsiElement(identifier)('Array')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -160,9 +163,10 @@ ScalaFile
                     PsiElement(identifier)('Array')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
+                  TypeArgument
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -177,14 +181,16 @@ ScalaFile
                 PsiElement(identifier)('VarValues')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Double
-                CodeReferenceElement: Double
-                  PsiElement(identifier)('Double')
+              TypeArgument
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: VarDoubles
-                CodeReferenceElement: VarDoubles
-                  PsiElement(identifier)('VarDoubles')
+              TypeArgument
+                SimpleType: VarDoubles
+                  CodeReferenceElement: VarDoubles
+                    PsiElement(identifier)('VarDoubles')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: VarInts
@@ -221,9 +227,10 @@ ScalaFile
                     PsiElement(identifier)('Array')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -238,14 +245,16 @@ ScalaFile
                 PsiElement(identifier)('VarValues')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: VarInts
-                CodeReferenceElement: VarInts
-                  PsiElement(identifier)('VarInts')
+              TypeArgument
+                SimpleType: VarInts
+                  CodeReferenceElement: VarInts
+                    PsiElement(identifier)('VarInts')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: VarStrs
@@ -282,9 +291,10 @@ ScalaFile
                     PsiElement(identifier)('Array')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -299,14 +309,16 @@ ScalaFile
                 PsiElement(identifier)('VarValues')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: VarStrs
-                CodeReferenceElement: VarStrs
-                  PsiElement(identifier)('VarStrs')
+              TypeArgument
+                SimpleType: VarStrs
+                  CodeReferenceElement: VarStrs
+                    PsiElement(identifier)('VarStrs')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: check7
@@ -335,11 +347,13 @@ ScalaFile
                   PsiElement(identifier)('VarValues')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(,)(',')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -358,11 +372,13 @@ ScalaFile
                   PsiElement(identifier)('VarValues')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(,)(',')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -456,9 +472,10 @@ ScalaFile
                       PsiElement(identifier)('Iterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Numeric
-                      CodeReferenceElement: Numeric
-                        PsiElement(identifier)('Numeric')
+                    TypeArgument
+                      SimpleType: Numeric
+                        CodeReferenceElement: Numeric
+                          PsiElement(identifier)('Numeric')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -490,9 +507,10 @@ ScalaFile
                       PsiElement(identifier)('Iterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Numeric
-                      CodeReferenceElement: Numeric
-                        PsiElement(identifier)('Numeric')
+                    TypeArgument
+                      SimpleType: Numeric
+                        CodeReferenceElement: Numeric
+                          PsiElement(identifier)('Numeric')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -524,18 +542,19 @@ ScalaFile
                       PsiElement(identifier)('Iterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TupleType: (Numeric, Numeric)
-                      PsiElement(()('(')
-                      TypesList
-                        SimpleType: Numeric
-                          CodeReferenceElement: Numeric
-                            PsiElement(identifier)('Numeric')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Numeric
-                          CodeReferenceElement: Numeric
-                            PsiElement(identifier)('Numeric')
-                      PsiElement())(')')
+                    TypeArgument
+                      TupleType: (Numeric, Numeric)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Numeric
+                            CodeReferenceElement: Numeric
+                              PsiElement(identifier)('Numeric')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Numeric
+                            CodeReferenceElement: Numeric
+                              PsiElement(identifier)('Numeric')
+                        PsiElement())(')')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -572,35 +591,37 @@ ScalaFile
                           PsiElement(identifier)('Iterator')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TupleType: (Numeric, Numeric)
-                          PsiElement(()('(')
-                          TypesList
-                            SimpleType: Numeric
-                              CodeReferenceElement: Numeric
-                                PsiElement(identifier)('Numeric')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: Numeric
-                              CodeReferenceElement: Numeric
-                                PsiElement(identifier)('Numeric')
-                          PsiElement())(')')
+                        TypeArgument
+                          TupleType: (Numeric, Numeric)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Numeric
+                                CodeReferenceElement: Numeric
+                                  PsiElement(identifier)('Numeric')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Numeric
+                                CodeReferenceElement: Numeric
+                                  PsiElement(identifier)('Numeric')
+                            PsiElement())(')')
                         PsiElement(])(']')
                     PsiElement(#)('#')
                     PsiElement(identifier)('GroupedIterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TupleType: (Numeric, Numeric)
-                      PsiElement(()('(')
-                      TypesList
-                        SimpleType: Numeric
-                          CodeReferenceElement: Numeric
-                            PsiElement(identifier)('Numeric')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Numeric
-                          CodeReferenceElement: Numeric
-                            PsiElement(identifier)('Numeric')
-                      PsiElement())(')')
+                    TypeArgument
+                      TupleType: (Numeric, Numeric)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Numeric
+                            CodeReferenceElement: Numeric
+                              PsiElement(identifier)('Numeric')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Numeric
+                            CodeReferenceElement: Numeric
+                              PsiElement(identifier)('Numeric')
+                        PsiElement())(')')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

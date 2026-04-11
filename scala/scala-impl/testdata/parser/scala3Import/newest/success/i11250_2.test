@@ -78,27 +78,29 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: pairs.length[p] =:= 3
-                ParametrizedType: pairs.length[p]
-                  SimpleType: pairs.length
-                    CodeReferenceElement: pairs.length
-                      CodeReferenceElement: pairs
-                        PsiElement(identifier)('pairs')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('length')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: p
-                      CodeReferenceElement: p
-                        PsiElement(identifier)('p')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                LiteralType: 3
-                  IntegerLiteral
-                    PsiElement(integer)('3')
+              TypeArgument
+                InfixType: pairs.length[p] =:= 3
+                  ParametrizedType: pairs.length[p]
+                    SimpleType: pairs.length
+                      CodeReferenceElement: pairs.length
+                        CodeReferenceElement: pairs
+                          PsiElement(identifier)('pairs')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('length')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: p
+                          CodeReferenceElement: p
+                            PsiElement(identifier)('p')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
               PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

@@ -86,14 +86,16 @@ ScalaFile
                     PsiElement(identifier)('MyRelation')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
+                  TypeArgument
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Relation
-                    CodeReferenceElement: Relation
-                      PsiElement(identifier)('Relation')
+                  TypeArgument
+                    SimpleType: Relation
+                      CodeReferenceElement: Relation
+                        PsiElement(identifier)('Relation')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -123,34 +125,38 @@ ScalaFile
                 PsiElement(identifier)('MyRelation')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: Row
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: Row
-                  CodeReferenceElement: Row
-                    PsiElement(identifier)('Row')
+              TypeArgument
+                WildcardType: _ <: Row
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Row
+                    CodeReferenceElement: Row
+                      PsiElement(identifier)('Row')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _ <: MyRelation[_, _]
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                ParametrizedType: MyRelation[_, _]
-                  SimpleType: MyRelation
-                    CodeReferenceElement: MyRelation
-                      PsiElement(identifier)('MyRelation')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(])(']')
+              TypeArgument
+                WildcardType: _ <: MyRelation[_, _]
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: MyRelation[_, _]
+                    SimpleType: MyRelation
+                      CodeReferenceElement: MyRelation
+                        PsiElement(identifier)('MyRelation')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: x, y

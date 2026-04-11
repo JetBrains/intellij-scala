@@ -37,45 +37,27 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Mirror.Of[(
+        TypeArgument
+          ParametrizedType: Mirror.Of[(
   Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple)]
-          SimpleType: Mirror.Of
-            CodeReferenceElement: Mirror.Of
-              CodeReferenceElement: Mirror
-                PsiElement(identifier)('Mirror')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Of')
-          TypeArgumentsList
-            PsiElement([)('[')
-            TypeInParenthesis: (
+            SimpleType: Mirror.Of
+              CodeReferenceElement: Mirror.Of
+                CodeReferenceElement: Mirror
+                  PsiElement(identifier)('Mirror')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Of')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeInParenthesis: (
   Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple)
-              PsiElement(()('(')
-              PsiWhiteSpace('\n  ')
-              InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
-    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
-    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
-    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
-    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: *:
-                    PsiElement(identifier)('*:')
-                  PsiWhiteSpace(' ')
-                  InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n  ')
+                  InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                     SimpleType: Int
@@ -85,7 +67,7 @@ ScalaFile
                     CodeReferenceElement: *:
                       PsiElement(identifier)('*:')
                     PsiWhiteSpace(' ')
-                    InfixType: Int *: Int *: Int *: Int *: Int *: Int
+                    InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                       SimpleType: Int
@@ -95,7 +77,7 @@ ScalaFile
                       CodeReferenceElement: *:
                         PsiElement(identifier)('*:')
                       PsiWhiteSpace(' ')
-                      InfixType: Int *: Int *: Int *: Int *: Int
+                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                         SimpleType: Int
@@ -105,7 +87,7 @@ ScalaFile
                         CodeReferenceElement: *:
                           PsiElement(identifier)('*:')
                         PsiWhiteSpace(' ')
-                        InfixType: Int *: Int *: Int *: Int
+                        InfixType: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                           SimpleType: Int
@@ -115,7 +97,7 @@ ScalaFile
                           CodeReferenceElement: *:
                             PsiElement(identifier)('*:')
                           PsiWhiteSpace(' ')
-                          InfixType: Int *: Int *: Int
+                          InfixType: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                             SimpleType: Int
@@ -125,7 +107,7 @@ ScalaFile
                             CodeReferenceElement: *:
                               PsiElement(identifier)('*:')
                             PsiWhiteSpace(' ')
-                            InfixType: Int *: Int
+                            InfixType: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                               SimpleType: Int
@@ -135,17 +117,18 @@ ScalaFile
                               CodeReferenceElement: *:
                                 PsiElement(identifier)('*:')
                               PsiWhiteSpace(' ')
-                              InfixType: Int
+                              InfixType: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                 SimpleType: Int
                                   CodeReferenceElement: Int
                                     PsiElement(identifier)('Int')
-                                PsiWhiteSpace('\n    ')
+                                PsiWhiteSpace(' ')
                                 CodeReferenceElement: *:
                                   PsiElement(identifier)('*:')
                                 PsiWhiteSpace(' ')
-                                InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+                                InfixType: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                   SimpleType: Int
                                     CodeReferenceElement: Int
@@ -154,16 +137,17 @@ ScalaFile
                                   CodeReferenceElement: *:
                                     PsiElement(identifier)('*:')
                                   PsiWhiteSpace(' ')
-                                  InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+                                  InfixType: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                     SimpleType: Int
                                       CodeReferenceElement: Int
                                         PsiElement(identifier)('Int')
-                                    PsiWhiteSpace(' ')
+                                    PsiWhiteSpace('\n    ')
                                     CodeReferenceElement: *:
                                       PsiElement(identifier)('*:')
                                     PsiWhiteSpace(' ')
-                                    InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
+                                    InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                       SimpleType: Int
                                         CodeReferenceElement: Int
@@ -172,7 +156,7 @@ ScalaFile
                                       CodeReferenceElement: *:
                                         PsiElement(identifier)('*:')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Int *: Int *: Int *: Int *: Int *: Int
+                                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                         SimpleType: Int
                                           CodeReferenceElement: Int
@@ -181,7 +165,7 @@ ScalaFile
                                         CodeReferenceElement: *:
                                           PsiElement(identifier)('*:')
                                         PsiWhiteSpace(' ')
-                                        InfixType: Int *: Int *: Int *: Int *: Int
+                                        InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                           SimpleType: Int
                                             CodeReferenceElement: Int
@@ -190,7 +174,7 @@ ScalaFile
                                           CodeReferenceElement: *:
                                             PsiElement(identifier)('*:')
                                           PsiWhiteSpace(' ')
-                                          InfixType: Int *: Int *: Int *: Int
+                                          InfixType: Int *: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                             SimpleType: Int
                                               CodeReferenceElement: Int
@@ -199,7 +183,7 @@ ScalaFile
                                             CodeReferenceElement: *:
                                               PsiElement(identifier)('*:')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Int *: Int *: Int
+                                            InfixType: Int *: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                               SimpleType: Int
                                                 CodeReferenceElement: Int
@@ -208,7 +192,7 @@ ScalaFile
                                               CodeReferenceElement: *:
                                                 PsiElement(identifier)('*:')
                                               PsiWhiteSpace(' ')
-                                              InfixType: Int *: Int
+                                              InfixType: Int *: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                                 SimpleType: Int
                                                   CodeReferenceElement: Int
@@ -217,16 +201,17 @@ ScalaFile
                                                 CodeReferenceElement: *:
                                                   PsiElement(identifier)('*:')
                                                 PsiWhiteSpace(' ')
-                                                InfixType: Int
+                                                InfixType: Int *: Int *: Int
     *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                                   SimpleType: Int
                                                     CodeReferenceElement: Int
                                                       PsiElement(identifier)('Int')
-                                                  PsiWhiteSpace('\n    ')
+                                                  PsiWhiteSpace(' ')
                                                   CodeReferenceElement: *:
                                                     PsiElement(identifier)('*:')
                                                   PsiWhiteSpace(' ')
-                                                  InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                  InfixType: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                                     SimpleType: Int
                                                       CodeReferenceElement: Int
                                                         PsiElement(identifier)('Int')
@@ -234,15 +219,16 @@ ScalaFile
                                                     CodeReferenceElement: *:
                                                       PsiElement(identifier)('*:')
                                                     PsiWhiteSpace(' ')
-                                                    InfixType: Int *: Int *: Int *: Int *: EmptyTuple
+                                                    InfixType: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                                       SimpleType: Int
                                                         CodeReferenceElement: Int
                                                           PsiElement(identifier)('Int')
-                                                      PsiWhiteSpace(' ')
+                                                      PsiWhiteSpace('\n    ')
                                                       CodeReferenceElement: *:
                                                         PsiElement(identifier)('*:')
                                                       PsiWhiteSpace(' ')
-                                                      InfixType: Int *: Int *: Int *: EmptyTuple
+                                                      InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
                                                         SimpleType: Int
                                                           CodeReferenceElement: Int
                                                             PsiElement(identifier)('Int')
@@ -250,7 +236,7 @@ ScalaFile
                                                         CodeReferenceElement: *:
                                                           PsiElement(identifier)('*:')
                                                         PsiWhiteSpace(' ')
-                                                        InfixType: Int *: Int *: EmptyTuple
+                                                        InfixType: Int *: Int *: Int *: Int *: EmptyTuple
                                                           SimpleType: Int
                                                             CodeReferenceElement: Int
                                                               PsiElement(identifier)('Int')
@@ -258,7 +244,7 @@ ScalaFile
                                                           CodeReferenceElement: *:
                                                             PsiElement(identifier)('*:')
                                                           PsiWhiteSpace(' ')
-                                                          InfixType: Int *: EmptyTuple
+                                                          InfixType: Int *: Int *: Int *: EmptyTuple
                                                             SimpleType: Int
                                                               CodeReferenceElement: Int
                                                                 PsiElement(identifier)('Int')
@@ -266,11 +252,27 @@ ScalaFile
                                                             CodeReferenceElement: *:
                                                               PsiElement(identifier)('*:')
                                                             PsiWhiteSpace(' ')
-                                                            SimpleType: EmptyTuple
-                                                              CodeReferenceElement: EmptyTuple
-                                                                PsiElement(identifier)('EmptyTuple')
-              PsiElement())(')')
-            PsiElement(])(']')
+                                                            InfixType: Int *: Int *: EmptyTuple
+                                                              SimpleType: Int
+                                                                CodeReferenceElement: Int
+                                                                  PsiElement(identifier)('Int')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: *:
+                                                                PsiElement(identifier)('*:')
+                                                              PsiWhiteSpace(' ')
+                                                              InfixType: Int *: EmptyTuple
+                                                                SimpleType: Int
+                                                                  CodeReferenceElement: Int
+                                                                    PsiElement(identifier)('Int')
+                                                                PsiWhiteSpace(' ')
+                                                                CodeReferenceElement: *:
+                                                                  PsiElement(identifier)('*:')
+                                                                PsiWhiteSpace(' ')
+                                                                SimpleType: EmptyTuple
+                                                                  CodeReferenceElement: EmptyTuple
+                                                                    PsiElement(identifier)('EmptyTuple')
+                  PsiElement())(')')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// error')

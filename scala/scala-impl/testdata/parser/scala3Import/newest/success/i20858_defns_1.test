@@ -176,19 +176,22 @@ ScalaFile
                         PsiElement(identifier)('ZIO')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: RIn
-                        CodeReferenceElement: RIn
-                          PsiElement(identifier)('RIn')
+                      TypeArgument
+                        SimpleType: RIn
+                          CodeReferenceElement: RIn
+                            PsiElement(identifier)('RIn')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: ROut
-                        CodeReferenceElement: ROut
-                          PsiElement(identifier)('ROut')
+                      TypeArgument
+                        SimpleType: ROut
+                          CodeReferenceElement: ROut
+                            PsiElement(identifier)('ROut')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -199,19 +202,22 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: RIn
-                CodeReferenceElement: RIn
-                  PsiElement(identifier)('RIn')
+              TypeArgument
+                SimpleType: RIn
+                  CodeReferenceElement: RIn
+                    PsiElement(identifier)('RIn')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ROut
-                CodeReferenceElement: ROut
-                  PsiElement(identifier)('ROut')
+              TypeArgument
+                SimpleType: ROut
+                  CodeReferenceElement: ROut
+                    PsiElement(identifier)('ROut')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -247,19 +253,22 @@ ScalaFile
           PsiElement(identifier)('ZIO')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: R
-          CodeReferenceElement: R
-            PsiElement(identifier)('R')
+        TypeArgument
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Nothing
-          CodeReferenceElement: Nothing
-            PsiElement(identifier)('Nothing')
+        TypeArgument
+          SimpleType: Nothing
+            CodeReferenceElement: Nothing
+              PsiElement(identifier)('Nothing')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: IAnyType
@@ -293,40 +302,43 @@ ScalaFile
           PsiElement(identifier)('Fold')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Any
-          CodeReferenceElement: Any
-            PsiElement(identifier)('Any')
+        TypeArgument
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        TypeLambda: [x, y] =>> x & y
-          TypeParameterClause
-            PsiElement([)('[')
-            TypeParameter: x
-              PsiElement(identifier)('x')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            TypeParameter: y
-              PsiElement(identifier)('y')
-            PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=>>)('=>>')
-          PsiWhiteSpace(' ')
-          InfixType: x & y
-            SimpleType: x
-              CodeReferenceElement: x
+        TypeArgument
+          TypeLambda: [x, y] =>> x & y
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
                 PsiElement(identifier)('x')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: &
-              PsiElement(identifier)('&')
-            PsiWhiteSpace(' ')
-            SimpleType: y
-              CodeReferenceElement: y
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: y
                 PsiElement(identifier)('y')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            InfixType: x & y
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              SimpleType: y
+                CodeReferenceElement: y
+                  PsiElement(identifier)('y')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: UAnyType
@@ -360,40 +372,43 @@ ScalaFile
           PsiElement(identifier)('Fold')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Any
-          CodeReferenceElement: Any
-            PsiElement(identifier)('Any')
+        TypeArgument
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        TypeLambda: [x, y] =>> x | y
-          TypeParameterClause
-            PsiElement([)('[')
-            TypeParameter: x
-              PsiElement(identifier)('x')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            TypeParameter: y
-              PsiElement(identifier)('y')
-            PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=>>)('=>>')
-          PsiWhiteSpace(' ')
-          InfixType: x | y
-            SimpleType: x
-              CodeReferenceElement: x
+        TypeArgument
+          TypeLambda: [x, y] =>> x | y
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
                 PsiElement(identifier)('x')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: |
-              PsiElement(identifier)('|')
-            PsiWhiteSpace(' ')
-            SimpleType: y
-              CodeReferenceElement: y
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: y
                 PsiElement(identifier)('y')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            InfixType: x | y
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: y
+                CodeReferenceElement: y
+                  PsiElement(identifier)('y')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n\n')
   ScTrait: AutoLayer
@@ -451,9 +466,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiWhiteSpace('\n            ')
               PsiElement())(')')
@@ -465,29 +481,33 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: IAnyType[p.MirroredElemTypes]
-                SimpleType: IAnyType
-                  CodeReferenceElement: IAnyType
-                    PsiElement(identifier)('IAnyType')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: p.MirroredElemTypes
-                    CodeReferenceElement: p.MirroredElemTypes
-                      CodeReferenceElement: p
-                        PsiElement(identifier)('p')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('MirroredElemTypes')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: IAnyType[p.MirroredElemTypes]
+                  SimpleType: IAnyType
+                    CodeReferenceElement: IAnyType
+                      PsiElement(identifier)('IAnyType')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: p.MirroredElemTypes
+                        CodeReferenceElement: p.MirroredElemTypes
+                          CodeReferenceElement: p
+                            PsiElement(identifier)('p')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('MirroredElemTypes')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: AutoLayer
@@ -542,9 +562,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -556,9 +577,10 @@ ScalaFile
                 PsiElement(identifier)('AutoLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -584,29 +606,33 @@ ScalaFile
                     PsiElement(identifier)('ZIO')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: IAnyType[p.MirroredElemTypes]
-                    SimpleType: IAnyType
-                      CodeReferenceElement: IAnyType
-                        PsiElement(identifier)('IAnyType')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: p.MirroredElemTypes
-                        CodeReferenceElement: p.MirroredElemTypes
-                          CodeReferenceElement: p
-                            PsiElement(identifier)('p')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('MirroredElemTypes')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: IAnyType[p.MirroredElemTypes]
+                      SimpleType: IAnyType
+                        CodeReferenceElement: IAnyType
+                          PsiElement(identifier)('IAnyType')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: p.MirroredElemTypes
+                            CodeReferenceElement: p.MirroredElemTypes
+                              CodeReferenceElement: p
+                                PsiElement(identifier)('p')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('MirroredElemTypes')
+                        PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
+                  TypeArgument
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -626,9 +652,10 @@ ScalaFile
                           PsiElement(identifier)('AutoLayer')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 ScTemplateBody
                   PsiElement(:)(':')
@@ -665,9 +692,10 @@ ScalaFile
                                   PsiElement(identifier)('ProductOf')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(])(']')
                         PsiWhiteSpace('\n                         ')
                         PsiElement())(')')
@@ -679,29 +707,33 @@ ScalaFile
                           PsiElement(identifier)('ZLayer')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: IAnyType[pp.MirroredElemTypes]
-                          SimpleType: IAnyType
-                            CodeReferenceElement: IAnyType
-                              PsiElement(identifier)('IAnyType')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: pp.MirroredElemTypes
-                              CodeReferenceElement: pp.MirroredElemTypes
-                                CodeReferenceElement: pp
-                                  PsiElement(identifier)('pp')
-                                PsiElement(.)('.')
-                                PsiElement(identifier)('MirroredElemTypes')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: IAnyType[pp.MirroredElemTypes]
+                            SimpleType: IAnyType
+                              CodeReferenceElement: IAnyType
+                                PsiElement(identifier)('IAnyType')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: pp.MirroredElemTypes
+                                  CodeReferenceElement: pp.MirroredElemTypes
+                                    CodeReferenceElement: pp
+                                      PsiElement(identifier)('pp')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('MirroredElemTypes')
+                              PsiElement(])(']')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: Nothing
-                          CodeReferenceElement: Nothing
-                            PsiElement(identifier)('Nothing')
+                        TypeArgument
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -722,36 +754,41 @@ ScalaFile
                               PsiElement(identifier)('asInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: ZIO[IAnyType[pp.MirroredElemTypes], Nothing, A]
-                                SimpleType: ZIO
-                                  CodeReferenceElement: ZIO
-                                    PsiElement(identifier)('ZIO')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  ParametrizedType: IAnyType[pp.MirroredElemTypes]
-                                    SimpleType: IAnyType
-                                      CodeReferenceElement: IAnyType
-                                        PsiElement(identifier)('IAnyType')
-                                    TypeArgumentsList
-                                      PsiElement([)('[')
-                                      SimpleType: pp.MirroredElemTypes
-                                        CodeReferenceElement: pp.MirroredElemTypes
-                                          CodeReferenceElement: pp
-                                            PsiElement(identifier)('pp')
-                                          PsiElement(.)('.')
-                                          PsiElement(identifier)('MirroredElemTypes')
-                                      PsiElement(])(']')
-                                  PsiElement(,)(',')
-                                  PsiWhiteSpace(' ')
-                                  SimpleType: Nothing
-                                    CodeReferenceElement: Nothing
-                                      PsiElement(identifier)('Nothing')
-                                  PsiElement(,)(',')
-                                  PsiWhiteSpace(' ')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: ZIO[IAnyType[pp.MirroredElemTypes], Nothing, A]
+                                  SimpleType: ZIO
+                                    CodeReferenceElement: ZIO
+                                      PsiElement(identifier)('ZIO')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      ParametrizedType: IAnyType[pp.MirroredElemTypes]
+                                        SimpleType: IAnyType
+                                          CodeReferenceElement: IAnyType
+                                            PsiElement(identifier)('IAnyType')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          TypeArgument
+                                            SimpleType: pp.MirroredElemTypes
+                                              CodeReferenceElement: pp.MirroredElemTypes
+                                                CodeReferenceElement: pp
+                                                  PsiElement(identifier)('pp')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('MirroredElemTypes')
+                                          PsiElement(])(']')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: Nothing
+                                        CodeReferenceElement: Nothing
+                                          PsiElement(identifier)('Nothing')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                           PsiWhiteSpace('\n      ')
                           PsiElement(})('}')

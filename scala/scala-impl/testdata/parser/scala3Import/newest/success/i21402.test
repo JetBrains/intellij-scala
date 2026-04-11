@@ -180,8 +180,9 @@ ScalaFile
               PsiElement(identifier)('Aux')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -205,8 +206,9 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -217,9 +219,10 @@ ScalaFile
                 PsiElement(identifier)('ActorRef')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: t
-                CodeReferenceElement: t
-                  PsiElement(identifier)('t')
+              TypeArgument
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: Subscriber
@@ -243,8 +246,9 @@ ScalaFile
               PsiElement(identifier)('Aux')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -268,8 +272,9 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -280,19 +285,21 @@ ScalaFile
                 PsiElement(identifier)('ActorRef')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ReceptionistMessages.Listing[t]
-                SimpleType: ReceptionistMessages.Listing
-                  CodeReferenceElement: ReceptionistMessages.Listing
-                    CodeReferenceElement: ReceptionistMessages
-                      PsiElement(identifier)('ReceptionistMessages')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Listing')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: t
-                    CodeReferenceElement: t
-                      PsiElement(identifier)('t')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ReceptionistMessages.Listing[t]
+                  SimpleType: ReceptionistMessages.Listing
+                    CodeReferenceElement: ReceptionistMessages.Listing
+                      CodeReferenceElement: ReceptionistMessages
+                        PsiElement(identifier)('ReceptionistMessages')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Listing')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: ActorRef
@@ -370,9 +377,10 @@ ScalaFile
                           PsiElement(identifier)('ServiceKey')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -455,18 +463,20 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: K[key.type]
-                SimpleType: K
-                  CodeReferenceElement: K
-                    PsiElement(identifier)('K')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: key.type
-                    CodeReferenceElement: key
-                      PsiElement(identifier)('key')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: K[key.type]
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: key.type
+                        CodeReferenceElement: key
+                          PsiElement(identifier)('key')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -509,18 +519,20 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: K[key.type]
-                SimpleType: K
-                  CodeReferenceElement: K
-                    PsiElement(identifier)('K')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: key.type
-                    CodeReferenceElement: key
-                      PsiElement(identifier)('key')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: K[key.type]
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: key.type
+                        CodeReferenceElement: key
+                          PsiElement(identifier)('key')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -569,11 +581,12 @@ ScalaFile
                         PsiElement(identifier)('K')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: key.type
-                        CodeReferenceElement: key
-                          PsiElement(identifier)('key')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
+                      TypeArgument
+                        SimpleType: key.type
+                          CodeReferenceElement: key
+                            PsiElement(identifier)('key')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -584,14 +597,16 @@ ScalaFile
                 PsiElement(identifier)('TypedMultiMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: K
-                CodeReferenceElement: K
-                  PsiElement(identifier)('K')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -647,14 +662,16 @@ ScalaFile
                           PsiElement(identifier)('TypedMultiMap')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: AbstractServiceKey
-                          CodeReferenceElement: AbstractServiceKey
-                            PsiElement(identifier)('AbstractServiceKey')
+                        TypeArgument
+                          SimpleType: AbstractServiceKey
+                            CodeReferenceElement: AbstractServiceKey
+                              PsiElement(identifier)('AbstractServiceKey')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: Service
-                          CodeReferenceElement: Service
-                            PsiElement(identifier)('Service')
+                        TypeArgument
+                          SimpleType: Service
+                            CodeReferenceElement: Service
+                              PsiElement(identifier)('Service')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace('\n      ')
@@ -673,14 +690,16 @@ ScalaFile
                           PsiElement(identifier)('TypedMultiMap')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: AbstractServiceKey
-                          CodeReferenceElement: AbstractServiceKey
-                            PsiElement(identifier)('AbstractServiceKey')
+                        TypeArgument
+                          SimpleType: AbstractServiceKey
+                            CodeReferenceElement: AbstractServiceKey
+                              PsiElement(identifier)('AbstractServiceKey')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: Subscriber
-                          CodeReferenceElement: Subscriber
-                            PsiElement(identifier)('Subscriber')
+                        TypeArgument
+                          SimpleType: Subscriber
+                            CodeReferenceElement: Subscriber
+                              PsiElement(identifier)('Subscriber')
                         PsiElement(])(']')
                 PsiWhiteSpace('\n  ')
                 PsiElement())(')')
@@ -729,12 +748,13 @@ ScalaFile
                               PsiElement(identifier)('ActorRef')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: key.Protocol
-                              CodeReferenceElement: key.Protocol
-                                CodeReferenceElement: key
-                                  PsiElement(identifier)('key')
-                                PsiElement(.)('.')
-                                PsiElement(identifier)('Protocol')
+                            TypeArgument
+                              SimpleType: key.Protocol
+                                CodeReferenceElement: key.Protocol
+                                  CodeReferenceElement: key
+                                    PsiElement(identifier)('key')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Protocol')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -863,19 +883,21 @@ ScalaFile
                     PsiElement(identifier)('Set')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: ActorRef[key.Protocol]
-                    SimpleType: ActorRef
-                      CodeReferenceElement: ActorRef
-                        PsiElement(identifier)('ActorRef')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: key.Protocol
-                        CodeReferenceElement: key.Protocol
-                          CodeReferenceElement: key
-                            PsiElement(identifier)('key')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Protocol')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: ActorRef[key.Protocol]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: key.Protocol
+                            CodeReferenceElement: key.Protocol
+                              CodeReferenceElement: key
+                                PsiElement(identifier)('key')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Protocol')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -915,19 +937,21 @@ ScalaFile
                     PsiElement(identifier)('Set')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: ActorRef[key.Protocol]
-                    SimpleType: ActorRef
-                      CodeReferenceElement: ActorRef
-                        PsiElement(identifier)('ActorRef')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: key.Protocol
-                        CodeReferenceElement: key.Protocol
-                          CodeReferenceElement: key
-                            PsiElement(identifier)('key')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Protocol')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: ActorRef[key.Protocol]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: key.Protocol
+                            CodeReferenceElement: key.Protocol
+                              CodeReferenceElement: key
+                                PsiElement(identifier)('key')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Protocol')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -967,29 +991,32 @@ ScalaFile
                     PsiElement(identifier)('Set')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
-                    SimpleType: ActorRef
-                      CodeReferenceElement: ActorRef
-                        PsiElement(identifier)('ActorRef')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
-                        SimpleType: ReceptionistMessages.Listing
-                          CodeReferenceElement: ReceptionistMessages.Listing
-                            CodeReferenceElement: ReceptionistMessages
-                              PsiElement(identifier)('ReceptionistMessages')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Listing')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: key.Protocol
-                            CodeReferenceElement: key.Protocol
-                              CodeReferenceElement: key
-                                PsiElement(identifier)('key')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Protocol')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
+                            SimpleType: ReceptionistMessages.Listing
+                              CodeReferenceElement: ReceptionistMessages.Listing
+                                CodeReferenceElement: ReceptionistMessages
+                                  PsiElement(identifier)('ReceptionistMessages')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Listing')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: key.Protocol
+                                  CodeReferenceElement: key.Protocol
+                                    CodeReferenceElement: key
+                                      PsiElement(identifier)('key')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Protocol')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -1029,29 +1056,32 @@ ScalaFile
                     PsiElement(identifier)('Set')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
-                    SimpleType: ActorRef
-                      CodeReferenceElement: ActorRef
-                        PsiElement(identifier)('ActorRef')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
-                        SimpleType: ReceptionistMessages.Listing
-                          CodeReferenceElement: ReceptionistMessages.Listing
-                            CodeReferenceElement: ReceptionistMessages
-                              PsiElement(identifier)('ReceptionistMessages')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Listing')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: key.Protocol
-                            CodeReferenceElement: key.Protocol
-                              CodeReferenceElement: key
-                                PsiElement(identifier)('key')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Protocol')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
+                            SimpleType: ReceptionistMessages.Listing
+                              CodeReferenceElement: ReceptionistMessages.Listing
+                                CodeReferenceElement: ReceptionistMessages
+                                  PsiElement(identifier)('ReceptionistMessages')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Listing')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: key.Protocol
+                                  CodeReferenceElement: key.Protocol
+                                    CodeReferenceElement: key
+                                      PsiElement(identifier)('key')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Protocol')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

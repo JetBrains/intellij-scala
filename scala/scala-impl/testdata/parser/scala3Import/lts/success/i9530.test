@@ -151,9 +151,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Animal
@@ -213,9 +214,10 @@ ScalaFile
                         PsiElement(identifier)('Diet')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -303,9 +305,10 @@ ScalaFile
                         PsiElement(identifier)('Diet')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -363,9 +366,10 @@ ScalaFile
                   PsiElement(identifier)('Diet')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement())(')')
       ParametersClause
@@ -453,9 +457,10 @@ ScalaFile
                   PsiElement(identifier)('Diet')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -515,9 +520,10 @@ ScalaFile
                 PsiElement(identifier)('Diet')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Monkey
-                CodeReferenceElement: Monkey
-                  PsiElement(identifier)('Monkey')
+              TypeArgument
+                SimpleType: Monkey
+                  CodeReferenceElement: Monkey
+                    PsiElement(identifier)('Monkey')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -556,9 +562,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Banana
-                CodeReferenceElement: Banana
-                  PsiElement(identifier)('Banana')
+              TypeArgument
+                SimpleType: Banana
+                  CodeReferenceElement: Banana
+                    PsiElement(identifier)('Banana')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -658,9 +665,10 @@ ScalaFile
                         PsiElement(identifier)('Diet')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -748,9 +756,10 @@ ScalaFile
                         PsiElement(identifier)('Diet')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

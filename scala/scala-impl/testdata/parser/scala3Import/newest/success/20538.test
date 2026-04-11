@@ -84,9 +84,10 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: varchar
@@ -286,46 +287,48 @@ ScalaFile
                 PsiElement(identifier)('InverseMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: relation.type
-                CodeReferenceElement: relation
-                  PsiElement(identifier)('relation')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: relation.type
+                  CodeReferenceElement: relation
+                    PsiElement(identifier)('relation')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeLambda: [X] =>> Column { type Q = X }
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: X
-                    PsiElement(identifier)('X')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                CompoundType: Column { type Q = X }
-                  SimpleType: Column
-                    CodeReferenceElement: Column
-                      PsiElement(identifier)('Column')
+              TypeArgument
+                TypeLambda: [X] =>> Column { type Q = X }
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: X
+                      PsiElement(identifier)('X')
+                    PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  Refinement
-                    PsiElement({)('{')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  CompoundType: Column { type Q = X }
+                    SimpleType: Column
+                      CodeReferenceElement: Column
+                        PsiElement(identifier)('Column')
                     PsiWhiteSpace(' ')
-                    ScTypeAliasDefinition: Q
-                      AnnotationsList
-                        <empty list>
-                      Modifiers
-                        <empty list>
-                      PsiElement(type)('type')
+                    Refinement
+                      PsiElement({)('{')
                       PsiWhiteSpace(' ')
-                      PsiElement(identifier)('Q')
+                      ScTypeAliasDefinition: Q
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('Q')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiWhiteSpace(' ')
-                      PsiElement(=)('=')
-                      PsiWhiteSpace(' ')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                    PsiWhiteSpace(' ')
-                    PsiElement(})('}')
+                      PsiElement(})('}')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -333,26 +336,27 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: RelationTypes =:= (String, String)
-              SimpleType: RelationTypes
-                CodeReferenceElement: RelationTypes
-                  PsiElement(identifier)('RelationTypes')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (String, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+            TypeArgument
+              InfixType: RelationTypes =:= (String, String)
+                SimpleType: RelationTypes
+                  CodeReferenceElement: RelationTypes
+                    PsiElement(identifier)('RelationTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (String, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
             PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Works
@@ -460,46 +464,48 @@ ScalaFile
                 PsiElement(identifier)('InverseMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: relation.type
-                CodeReferenceElement: relation
-                  PsiElement(identifier)('relation')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: relation.type
+                  CodeReferenceElement: relation
+                    PsiElement(identifier)('relation')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeLambda: [X] =>> Column { type Q = X }
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: X
-                    PsiElement(identifier)('X')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                CompoundType: Column { type Q = X }
-                  SimpleType: Column
-                    CodeReferenceElement: Column
-                      PsiElement(identifier)('Column')
+              TypeArgument
+                TypeLambda: [X] =>> Column { type Q = X }
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: X
+                      PsiElement(identifier)('X')
+                    PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  Refinement
-                    PsiElement({)('{')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  CompoundType: Column { type Q = X }
+                    SimpleType: Column
+                      CodeReferenceElement: Column
+                        PsiElement(identifier)('Column')
                     PsiWhiteSpace(' ')
-                    ScTypeAliasDefinition: Q
-                      AnnotationsList
-                        <empty list>
-                      Modifiers
-                        <empty list>
-                      PsiElement(type)('type')
+                    Refinement
+                      PsiElement({)('{')
                       PsiWhiteSpace(' ')
-                      PsiElement(identifier)('Q')
+                      ScTypeAliasDefinition: Q
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('Q')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiWhiteSpace(' ')
-                      PsiElement(=)('=')
-                      PsiWhiteSpace(' ')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                    PsiWhiteSpace(' ')
-                    PsiElement(})('}')
+                      PsiElement(})('}')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -507,24 +513,25 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: RelationTypes =:= (String, String)
-              SimpleType: RelationTypes
-                CodeReferenceElement: RelationTypes
-                  PsiElement(identifier)('RelationTypes')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (String, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+            TypeArgument
+              InfixType: RelationTypes =:= (String, String)
+                SimpleType: RelationTypes
+                  CodeReferenceElement: RelationTypes
+                    PsiElement(identifier)('RelationTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (String, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
             PsiElement(])(']')

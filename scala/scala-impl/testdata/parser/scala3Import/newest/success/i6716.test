@@ -105,9 +105,10 @@ ScalaFile
                       PsiElement(identifier)('Monad')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Foo
-                      CodeReferenceElement: Foo
-                        PsiElement(identifier)('Foo')
+                    TypeArgument
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -177,9 +178,10 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Bar
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
+              TypeArgument
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -189,16 +191,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Monad[Foo]
-                SimpleType: Monad
-                  CodeReferenceElement: Monad
-                    PsiElement(identifier)('Monad')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Foo
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Monad[Foo]
+                  SimpleType: Monad
+                    CodeReferenceElement: Monad
+                      PsiElement(identifier)('Monad')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -235,16 +239,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Monad[Foo]
-                    SimpleType: Monad
-                      CodeReferenceElement: Monad
-                        PsiElement(identifier)('Monad')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Foo
-                        CodeReferenceElement: Foo
-                          PsiElement(identifier)('Foo')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Monad[Foo]
+                      SimpleType: Monad
+                        CodeReferenceElement: Monad
+                          PsiElement(identifier)('Monad')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Foo
+                            CodeReferenceElement: Foo
+                              PsiElement(identifier)('Foo')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('id')
@@ -261,16 +267,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Monad[Bar]
-                    SimpleType: Monad
-                      CodeReferenceElement: Monad
-                        PsiElement(identifier)('Monad')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Bar
-                        CodeReferenceElement: Bar
-                          PsiElement(identifier)('Bar')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Monad[Bar]
+                      SimpleType: Monad
+                        CodeReferenceElement: Monad
+                          PsiElement(identifier)('Monad')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Bar
+                            CodeReferenceElement: Bar
+                              PsiElement(identifier)('Bar')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('id')

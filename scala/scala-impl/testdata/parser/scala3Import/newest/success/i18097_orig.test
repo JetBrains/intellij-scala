@@ -217,14 +217,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: PositiveNumber
-                        CodeReferenceElement: PositiveNumber
-                          PsiElement(identifier)('PositiveNumber')
+                      TypeArgument
+                        SimpleType: PositiveNumber
+                          CodeReferenceElement: PositiveNumber
+                            PsiElement(identifier)('PositiveNumber')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -249,14 +251,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: PositiveNumber
-                CodeReferenceElement: PositiveNumber
-                  PsiElement(identifier)('PositiveNumber')
+              TypeArgument
+                SimpleType: PositiveNumber
+                  CodeReferenceElement: PositiveNumber
+                    PsiElement(identifier)('PositiveNumber')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -341,14 +345,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: PositiveNumber
-                        CodeReferenceElement: PositiveNumber
-                          PsiElement(identifier)('PositiveNumber')
+                      TypeArgument
+                        SimpleType: PositiveNumber
+                          CodeReferenceElement: PositiveNumber
+                            PsiElement(identifier)('PositiveNumber')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -373,14 +379,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: PositiveNumber
-                CodeReferenceElement: PositiveNumber
-                  PsiElement(identifier)('PositiveNumber')
+              TypeArgument
+                SimpleType: PositiveNumber
+                  CodeReferenceElement: PositiveNumber
+                    PsiElement(identifier)('PositiveNumber')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -475,14 +483,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: PositiveNumber
-                        CodeReferenceElement: PositiveNumber
-                          PsiElement(identifier)('PositiveNumber')
+                      TypeArgument
+                        SimpleType: PositiveNumber
+                          CodeReferenceElement: PositiveNumber
+                            PsiElement(identifier)('PositiveNumber')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -507,14 +517,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: PositiveNumber
-                CodeReferenceElement: PositiveNumber
-                  PsiElement(identifier)('PositiveNumber')
+              TypeArgument
+                SimpleType: PositiveNumber
+                  CodeReferenceElement: PositiveNumber
+                    PsiElement(identifier)('PositiveNumber')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

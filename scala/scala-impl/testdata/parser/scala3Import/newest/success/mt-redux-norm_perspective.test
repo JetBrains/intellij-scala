@@ -97,12 +97,13 @@ ScalaFile
             PsiElement(identifier)('constValueTuple')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: m.MirroredElemLabels
-              CodeReferenceElement: m.MirroredElemLabels
-                CodeReferenceElement: m
-                  PsiElement(identifier)('m')
-                PsiElement(.)('.')
-                PsiElement(identifier)('MirroredElemLabels')
+            TypeArgument
+              SimpleType: m.MirroredElemLabels
+                CodeReferenceElement: m.MirroredElemLabels
+                  CodeReferenceElement: m
+                    PsiElement(identifier)('m')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('MirroredElemLabels')
             PsiElement(])(']')
         PsiElement(.)('.')
         PsiElement(identifier)('toList')
@@ -195,18 +196,20 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Mirror.Of[Cat]
-              SimpleType: Mirror.Of
-                CodeReferenceElement: Mirror.Of
-                  CodeReferenceElement: Mirror
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Cat
-                  CodeReferenceElement: Cat
-                    PsiElement(identifier)('Cat')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Mirror.Of[Cat]
+                SimpleType: Mirror.Of
+                  CodeReferenceElement: Mirror.Of
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Cat
+                      CodeReferenceElement: Cat
+                        PsiElement(identifier)('Cat')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiElement())(')')

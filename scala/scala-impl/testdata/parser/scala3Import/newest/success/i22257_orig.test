@@ -179,9 +179,10 @@ ScalaFile
                       PsiElement(identifier)('Seq')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: FBound
-                      CodeReferenceElement: FBound
-                        PsiElement(identifier)('FBound')
+                    TypeArgument
+                      SimpleType: FBound
+                        CodeReferenceElement: FBound
+                          PsiElement(identifier)('FBound')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -352,9 +353,10 @@ ScalaFile
                       PsiElement(identifier)('Iterable')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScTypeAliasDeclaration: _Node
@@ -390,9 +392,10 @@ ScalaFile
                       PsiElement(identifier)('Batch')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: _Node
-                      CodeReferenceElement: _Node
-                        PsiElement(identifier)('_Node')
+                    TypeArgument
+                      SimpleType: _Node
+                        CodeReferenceElement: _Node
+                          PsiElement(identifier)('_Node')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -430,9 +433,10 @@ ScalaFile
                       PsiElement(identifier)('FP')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Node
-                      CodeReferenceElement: Node
-                        PsiElement(identifier)('Node')
+                    TypeArgument
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScTypeAliasDeclaration: FBound

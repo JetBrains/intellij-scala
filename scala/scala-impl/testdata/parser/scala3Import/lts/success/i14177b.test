@@ -80,9 +80,10 @@ ScalaFile
               PsiElement(identifier)('summonAll')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScGivenDefinition: fail2
@@ -137,9 +138,10 @@ ScalaFile
               PsiElement(identifier)('summonAll')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScGivenDefinition: fail3
@@ -198,9 +200,10 @@ ScalaFile
               PsiElement(identifier)('summonAll')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScGivenAliasDefinition: ok1
@@ -258,9 +261,10 @@ ScalaFile
                 PsiElement(identifier)('summonAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
+                TypeArgument
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
                 PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScGivenAliasDefinition: ok2
@@ -323,9 +327,10 @@ ScalaFile
                 PsiElement(identifier)('summonAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
+                TypeArgument
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
                 PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScGivenAliasDefinition: ok3
@@ -392,7 +397,8 @@ ScalaFile
                 PsiElement(identifier)('summonAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
+                TypeArgument
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
                 PsiElement(])(']')

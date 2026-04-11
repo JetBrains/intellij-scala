@@ -160,16 +160,18 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Tuple1[Int]
-                      SimpleType: Tuple1
-                        CodeReferenceElement: Tuple1
-                          PsiElement(identifier)('Tuple1')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Tuple1[Int]
+                        SimpleType: Tuple1
+                          CodeReferenceElement: Tuple1
+                            PsiElement(identifier)('Tuple1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

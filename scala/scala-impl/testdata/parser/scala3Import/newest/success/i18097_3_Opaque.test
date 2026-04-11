@@ -107,9 +107,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Opaque
-                CodeReferenceElement: Opaque
-                  PsiElement(identifier)('Opaque')
+              TypeArgument
+                SimpleType: Opaque
+                  CodeReferenceElement: Opaque
+                    PsiElement(identifier)('Opaque')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

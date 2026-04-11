@@ -78,14 +78,16 @@ ScalaFile
                     PsiElement(identifier)('Map')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Datatype
-                    CodeReferenceElement: Datatype
-                      PsiElement(identifier)('Datatype')
+                  TypeArgument
+                    SimpleType: Datatype
+                      CodeReferenceElement: Datatype
+                        PsiElement(identifier)('Datatype')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -100,9 +102,10 @@ ScalaFile
                 PsiElement(identifier)('Datatype')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: g
@@ -137,8 +140,9 @@ ScalaFile
               PsiElement(identifier)('Datatype')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

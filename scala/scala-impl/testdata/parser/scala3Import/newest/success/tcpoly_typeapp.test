@@ -51,9 +51,10 @@ ScalaFile
                     PsiElement(identifier)('Bound')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
+                  TypeArgument
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -84,23 +85,25 @@ ScalaFile
                 PsiElement(identifier)('t')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: scala.collection.mutable.Stack
-                CodeReferenceElement: scala.collection.mutable.Stack
-                  CodeReferenceElement: scala.collection.mutable
-                    CodeReferenceElement: scala.collection
-                      CodeReferenceElement: scala
-                        PsiElement(identifier)('scala')
+              TypeArgument
+                SimpleType: scala.collection.mutable.Stack
+                  CodeReferenceElement: scala.collection.mutable.Stack
+                    CodeReferenceElement: scala.collection.mutable
+                      CodeReferenceElement: scala.collection
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('collection')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('collection')
+                      PsiElement(identifier)('mutable')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('mutable')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Stack')
+                    PsiElement(identifier)('Stack')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Iterable
-                CodeReferenceElement: Iterable
-                  PsiElement(identifier)('Iterable')
+              TypeArgument
+                SimpleType: Iterable
+                  CodeReferenceElement: Iterable
+                    PsiElement(identifier)('Iterable')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

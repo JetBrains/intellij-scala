@@ -137,9 +137,10 @@ ScalaFile
           PsiElement(identifier)('Tupled')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Day
-          CodeReferenceElement: Day
-            PsiElement(identifier)('Day')
+        TypeArgument
+          SimpleType: Day
+            CodeReferenceElement: Day
+              PsiElement(identifier)('Day')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: foo

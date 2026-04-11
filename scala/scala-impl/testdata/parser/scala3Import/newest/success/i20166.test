@@ -175,9 +175,10 @@ ScalaFile
                 PsiElement(identifier)('MyS')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: I
-                CodeReferenceElement: I
-                  PsiElement(identifier)('I')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -195,9 +196,10 @@ ScalaFile
                 PsiElement(identifier)('S')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: I
-                CodeReferenceElement: I
-                  PsiElement(identifier)('I')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -268,9 +270,10 @@ ScalaFile
           PsiElement(identifier)('M')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 1
-          IntegerLiteral
-            PsiElement(integer)('1')
+        TypeArgument
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -357,22 +360,24 @@ ScalaFile
           PsiElement(identifier)('M2')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 5
-          IntegerLiteral
-            PsiElement(integer)('5')
+        TypeArgument
+          LiteralType: 5
+            IntegerLiteral
+              PsiElement(integer)('5')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        InfixType: 2 + 3
-          LiteralType: 2
-            IntegerLiteral
-              PsiElement(integer)('2')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: +
-            PsiElement(identifier)('+')
-          PsiWhiteSpace(' ')
-          LiteralType: 3
-            IntegerLiteral
-              PsiElement(integer)('3')
+        TypeArgument
+          InfixType: 2 + 3
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            LiteralType: 3
+              IntegerLiteral
+                PsiElement(integer)('3')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

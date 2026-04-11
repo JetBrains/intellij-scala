@@ -43,16 +43,18 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[X]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[X]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScVariableDefinition: y
@@ -104,11 +106,12 @@ ScalaFile
                     PsiElement(identifier)('T')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: x.type
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
+                  TypeArgument
+                    SimpleType: x.type
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
                   PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         AssignStatement

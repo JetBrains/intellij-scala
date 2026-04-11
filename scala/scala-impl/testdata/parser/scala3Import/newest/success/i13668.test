@@ -76,9 +76,10 @@ ScalaFile
                 PsiElement(identifier)('Candidate')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MyType
-                CodeReferenceElement: MyType
-                  PsiElement(identifier)('MyType')
+              TypeArgument
+                SimpleType: MyType
+                  CodeReferenceElement: MyType
+                    PsiElement(identifier)('MyType')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -185,9 +186,10 @@ ScalaFile
                   PsiElement(identifier)('Candidate')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
+                TypeArgument
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n  ')
@@ -223,9 +225,10 @@ ScalaFile
                       PsiElement(identifier)('Fuzzy')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: RW
-                      CodeReferenceElement: RW
-                        PsiElement(identifier)('RW')
+                    TypeArgument
+                      SimpleType: RW
+                        CodeReferenceElement: RW
+                          PsiElement(identifier)('RW')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiElement(:)(':')
@@ -409,9 +412,10 @@ ScalaFile
             PsiElement(identifier)('Fuzzy')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: 1
-              IntegerLiteral
-                PsiElement(integer)('1')
+            TypeArgument
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

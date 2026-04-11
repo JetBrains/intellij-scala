@@ -102,9 +102,10 @@ ScalaFile
                         PsiElement(identifier)('Inlined')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -163,21 +164,24 @@ ScalaFile
                 PsiElement(identifier)('Conversion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Inlined[T]
-                SimpleType: Inlined
-                  CodeReferenceElement: Inlined
-                    PsiElement(identifier)('Inlined')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Inlined[T]
+                  SimpleType: Inlined
+                    CodeReferenceElement: Inlined
+                      PsiElement(identifier)('Inlined')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -231,21 +235,24 @@ ScalaFile
                 PsiElement(identifier)('Conversion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Wide
-                CodeReferenceElement: Wide
-                  PsiElement(identifier)('Wide')
+              TypeArgument
+                SimpleType: Wide
+                  CodeReferenceElement: Wide
+                    PsiElement(identifier)('Wide')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Inlined[Wide]
-                SimpleType: Inlined
-                  CodeReferenceElement: Inlined
-                    PsiElement(identifier)('Inlined')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Wide
-                    CodeReferenceElement: Wide
-                      PsiElement(identifier)('Wide')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Inlined[Wide]
+                  SimpleType: Inlined
+                    CodeReferenceElement: Inlined
+                      PsiElement(identifier)('Inlined')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Wide
+                        CodeReferenceElement: Wide
+                          PsiElement(identifier)('Wide')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -298,9 +305,10 @@ ScalaFile
                 PsiElement(identifier)('Inlined')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -313,9 +321,10 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         Extension on Inlined[T]
@@ -350,9 +359,10 @@ ScalaFile
                         PsiElement(identifier)('Inlined')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -394,9 +404,10 @@ ScalaFile
                             PsiElement(identifier)('Inlined')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: R
-                            CodeReferenceElement: R
-                              PsiElement(identifier)('R')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -408,21 +419,24 @@ ScalaFile
                     PsiElement(identifier)('forced')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Max[T, R]
-                      SimpleType: Max
-                        CodeReferenceElement: Max
-                          PsiElement(identifier)('Max')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Max[T, R]
+                        SimpleType: Max
+                          CodeReferenceElement: Max
+                            PsiElement(identifier)('Max')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

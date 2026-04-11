@@ -93,19 +93,21 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: opaque.Foo[String]
-                SimpleType: opaque.Foo
-                  CodeReferenceElement: opaque.Foo
-                    CodeReferenceElement: opaque
-                      PsiElement(identifier)('opaque')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Foo')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: opaque.Foo[String]
+                  SimpleType: opaque.Foo
+                    CodeReferenceElement: opaque.Foo
+                      CodeReferenceElement: opaque
+                        PsiElement(identifier)('opaque')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Foo')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

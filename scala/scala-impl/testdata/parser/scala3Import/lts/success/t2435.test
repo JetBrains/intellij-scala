@@ -109,11 +109,12 @@ ScalaFile
                               PsiElement(identifier)('FConstant')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: this.type
-                              ThisReference
-                                PsiElement(this)('this')
-                              PsiElement(.)('.')
-                              PsiElement(type)('type')
+                            TypeArgument
+                              SimpleType: this.type
+                                ThisReference
+                                  PsiElement(this)('this')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
                             PsiElement(])(']')
                         ArgumentList
                           PsiElement(()('(')
@@ -415,35 +416,38 @@ ScalaFile
                 PsiElement(identifier)('FConstant')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: FConstant[_ <: FConstant[FNil.type]]
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                ParametrizedType: FConstant[_ <: FConstant[FNil.type]]
-                  SimpleType: FConstant
-                    CodeReferenceElement: FConstant
-                      PsiElement(identifier)('FConstant')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _ <: FConstant[FNil.type]
-                      PsiElement(_)('_')
-                      PsiWhiteSpace(' ')
-                      PsiElement(<:)('<:')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: FConstant[FNil.type]
-                        SimpleType: FConstant
-                          CodeReferenceElement: FConstant
-                            PsiElement(identifier)('FConstant')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: FNil.type
-                            CodeReferenceElement: FNil
-                              PsiElement(identifier)('FNil')
-                            PsiElement(.)('.')
-                            PsiElement(type)('type')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+              TypeArgument
+                WildcardType: _ <: FConstant[_ <: FConstant[FNil.type]]
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: FConstant[_ <: FConstant[FNil.type]]
+                    SimpleType: FConstant
+                      CodeReferenceElement: FConstant
+                        PsiElement(identifier)('FConstant')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _ <: FConstant[FNil.type]
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: FConstant[FNil.type]
+                            SimpleType: FConstant
+                              CodeReferenceElement: FConstant
+                                PsiElement(identifier)('FConstant')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: FNil.type
+                                  CodeReferenceElement: FNil
+                                    PsiElement(identifier)('FNil')
+                                  PsiElement(.)('.')
+                                  PsiElement(type)('type')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

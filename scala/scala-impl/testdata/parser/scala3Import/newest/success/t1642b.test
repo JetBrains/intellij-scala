@@ -55,9 +55,10 @@ ScalaFile
                   PsiElement(identifier)('R')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: P
-                  CodeReferenceElement: P
-                    PsiElement(identifier)('P')
+                TypeArgument
+                  SimpleType: P
+                    CodeReferenceElement: P
+                      PsiElement(identifier)('P')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScFunctionDeclaration: a

@@ -81,8 +81,9 @@ ScalaFile
                 PsiElement(identifier)('Bar')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: ?
-                PsiElement(?)('?')
+              TypeArgument
+                WildcardType: ?
+                  PsiElement(?)('?')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -141,14 +142,15 @@ ScalaFile
                         PsiElement(identifier)('Bar')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? >: Foo
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(>:)('>:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Foo
-                          CodeReferenceElement: Foo
-                            PsiElement(identifier)('Foo')
+                      TypeArgument
+                        WildcardType: ? >: Foo
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(>:)('>:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Foo
+                            CodeReferenceElement: Foo
+                              PsiElement(identifier)('Foo')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -165,26 +167,28 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MatchType[b.type] =:= Nothing
-                  ParametrizedType: MatchType[b.type]
-                    SimpleType: MatchType
-                      CodeReferenceElement: MatchType
-                        PsiElement(identifier)('MatchType')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: b.type
-                        CodeReferenceElement: b
-                          PsiElement(identifier)('b')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
+                TypeArgument
+                  InfixType: MatchType[b.type] =:= Nothing
+                    ParametrizedType: MatchType[b.type]
+                      SimpleType: MatchType
+                        CodeReferenceElement: MatchType
+                          PsiElement(identifier)('MatchType')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: b.type
+                            CodeReferenceElement: b
+                              PsiElement(identifier)('b')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -192,36 +196,39 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MatchType[Bar[? >: Foo]] =:= Nothing
-                  ParametrizedType: MatchType[Bar[? >: Foo]]
-                    SimpleType: MatchType
-                      CodeReferenceElement: MatchType
-                        PsiElement(identifier)('MatchType')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Bar[? >: Foo]
-                        SimpleType: Bar
-                          CodeReferenceElement: Bar
-                            PsiElement(identifier)('Bar')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: ? >: Foo
-                            PsiElement(?)('?')
-                            PsiWhiteSpace(' ')
-                            PsiElement(>:)('>:')
-                            PsiWhiteSpace(' ')
-                            SimpleType: Foo
-                              CodeReferenceElement: Foo
-                                PsiElement(identifier)('Foo')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
+                TypeArgument
+                  InfixType: MatchType[Bar[? >: Foo]] =:= Nothing
+                    ParametrizedType: MatchType[Bar[? >: Foo]]
+                      SimpleType: MatchType
+                        CodeReferenceElement: MatchType
+                          PsiElement(identifier)('MatchType')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Bar[? >: Foo]
+                            SimpleType: Bar
+                              CodeReferenceElement: Bar
+                                PsiElement(identifier)('Bar')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                WildcardType: ? >: Foo
+                                  PsiElement(?)('?')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(>:)('>:')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Foo
+                                    CodeReferenceElement: Foo
+                                      PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Test

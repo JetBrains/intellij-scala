@@ -131,17 +131,18 @@ ScalaFile
                 PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: Nums & A
-                  SimpleType: Nums
-                    CodeReferenceElement: Nums
-                      PsiElement(identifier)('Nums')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                TypeArgument
+                  InfixType: Nums & A
+                    SimpleType: Nums
+                      CodeReferenceElement: Nums
+                        PsiElement(identifier)('Nums')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

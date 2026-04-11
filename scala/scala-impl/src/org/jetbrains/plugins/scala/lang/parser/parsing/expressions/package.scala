@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
@@ -17,6 +17,13 @@ package object expressions {
 
   private[expressions] def parseParam()(implicit builder: ScalaPsiBuilder): PsiBuilder.Marker = {
     val paramMarker = builder.mark()
+
+    val modifierMarker = builder.mark()
+    val hasErasedModifier = builder.isScala3 &&
+      builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER) &&
+      builder.tryParseSoftKeyword(ScalaTokenType.ErasedKeyword)
+    if (hasErasedModifier) modifierMarker.done(ScalaElementType.MODIFIERS)
+    else modifierMarker.drop()
 
     builder.advanceLexer() // ate id
     if (ScalaTokenTypes.tCOLON == builder.getTokenType) {

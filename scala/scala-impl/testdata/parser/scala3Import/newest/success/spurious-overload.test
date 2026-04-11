@@ -155,9 +155,10 @@ ScalaFile
                               PsiElement(identifier)('Susp')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(=)('=')
@@ -174,9 +175,10 @@ ScalaFile
                                       PsiElement(identifier)('SuspImpl')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: A
-                                      CodeReferenceElement: A
-                                        PsiElement(identifier)('A')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
                                     PsiElement(])(']')
                                 ArgumentList
                                   PsiElement(()('(')
@@ -216,9 +218,10 @@ ScalaFile
                                       PsiElement(identifier)('Susp')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: A
-                                      CodeReferenceElement: A
-                                        PsiElement(identifier)('A')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
                                     PsiElement(])(']')
                             PsiElement())(')')
                         PsiElement(:)(':')
@@ -270,9 +273,10 @@ ScalaFile
                                     PsiElement(identifier)('Function0')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
+                                  TypeArgument
+                                    SimpleType: A
+                                      CodeReferenceElement: A
+                                        PsiElement(identifier)('A')
                                   PsiElement(])(']')
                       PsiWhiteSpace('\n\n      ')
                       ScClass: SuspImpl
@@ -323,9 +327,10 @@ ScalaFile
                                     PsiElement(identifier)('Susp')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
+                                  TypeArgument
+                                    SimpleType: A
+                                      CodeReferenceElement: A
+                                        PsiElement(identifier)('A')
                                   PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           ScTemplateBody
@@ -351,9 +356,10 @@ ScalaFile
                                     PsiElement(identifier)('Option')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
+                                  TypeArgument
+                                    SimpleType: A
+                                      CodeReferenceElement: A
+                                        PsiElement(identifier)('A')
                                   PsiElement(])(']')
                               PsiWhiteSpace(' ')
                               PsiElement(=)('=')
@@ -481,9 +487,10 @@ ScalaFile
                         PsiElement(identifier)('Susp')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')

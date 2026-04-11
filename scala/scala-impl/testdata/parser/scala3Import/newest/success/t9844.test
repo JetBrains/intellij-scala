@@ -23,9 +23,10 @@ ScalaFile
               PsiElement(identifier)('X')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -72,9 +73,10 @@ ScalaFile
                 PsiElement(identifier)('X')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Y.type
-                CodeReferenceElement: Y
-                  PsiElement(identifier)('Y')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: Y.type
+                  CodeReferenceElement: Y
+                    PsiElement(identifier)('Y')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')

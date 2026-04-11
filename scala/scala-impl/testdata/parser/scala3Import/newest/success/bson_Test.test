@@ -58,21 +58,24 @@ ScalaFile
                   PsiElement(identifier)('BSONWriter')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Map[String, V]
-                  SimpleType: Map
-                    CodeReferenceElement: Map
-                      PsiElement(identifier)('Map')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: V
-                      CodeReferenceElement: V
-                        PsiElement(identifier)('V')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Map[String, V]
+                    SimpleType: Map
+                      CodeReferenceElement: Map
+                        PsiElement(identifier)('Map')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -83,21 +86,24 @@ ScalaFile
           PsiElement(identifier)('BSONHandler')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Map[String, V]
-          SimpleType: Map
-            CodeReferenceElement: Map
-              PsiElement(identifier)('Map')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: V
-              CodeReferenceElement: V
-                PsiElement(identifier)('V')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Map[String, V]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -138,9 +144,10 @@ ScalaFile
         PsiElement(identifier)('stringMapHandler')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: V
-          CodeReferenceElement: V
-            PsiElement(identifier)('V')
+        TypeArgument
+          SimpleType: V
+            CodeReferenceElement: V
+              PsiElement(identifier)('V')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// warn')

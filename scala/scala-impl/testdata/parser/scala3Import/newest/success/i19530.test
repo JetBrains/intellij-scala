@@ -34,12 +34,13 @@ ScalaFile
               PsiElement(identifier)('classOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: scala.Singleton
-                CodeReferenceElement: scala.Singleton
-                  CodeReferenceElement: scala
-                    PsiElement(identifier)('scala')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Singleton')
+              TypeArgument
+                SimpleType: scala.Singleton
+                  CodeReferenceElement: scala.Singleton
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Singleton')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

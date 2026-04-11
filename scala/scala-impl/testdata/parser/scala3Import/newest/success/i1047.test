@@ -710,12 +710,13 @@ ScalaFile
                           PsiElement(identifier)('newSubAnimal')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: pc.CatDelta
-                            CodeReferenceElement: pc.CatDelta
-                              CodeReferenceElement: pc
-                                PsiElement(identifier)('pc')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('CatDelta')
+                          TypeArgument
+                            SimpleType: pc.CatDelta
+                              CodeReferenceElement: pc.CatDelta
+                                CodeReferenceElement: pc
+                                  PsiElement(identifier)('pc')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('CatDelta')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')
@@ -785,20 +786,21 @@ ScalaFile
                           PsiElement(identifier)('newSubAnimal')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          InfixType: pc.CatDelta & T
-                            SimpleType: pc.CatDelta
-                              CodeReferenceElement: pc.CatDelta
-                                CodeReferenceElement: pc
-                                  PsiElement(identifier)('pc')
-                                PsiElement(.)('.')
-                                PsiElement(identifier)('CatDelta')
-                            PsiWhiteSpace(' ')
-                            CodeReferenceElement: &
-                              PsiElement(identifier)('&')
-                            PsiWhiteSpace(' ')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                          TypeArgument
+                            InfixType: pc.CatDelta & T
+                              SimpleType: pc.CatDelta
+                                CodeReferenceElement: pc.CatDelta
+                                  CodeReferenceElement: pc
+                                    PsiElement(identifier)('pc')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('CatDelta')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')

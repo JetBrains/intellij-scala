@@ -135,9 +135,10 @@ ScalaFile
             PsiElement(identifier)('m')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
+            TypeArgument
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

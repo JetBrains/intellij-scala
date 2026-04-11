@@ -124,9 +124,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TypeSymbol
-                CodeReferenceElement: TypeSymbol
-                  PsiElement(identifier)('TypeSymbol')
+              TypeArgument
+                SimpleType: TypeSymbol
+                  CodeReferenceElement: TypeSymbol
+                    PsiElement(identifier)('TypeSymbol')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: isUnion
@@ -252,9 +253,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: TypeSymbol
-                    CodeReferenceElement: TypeSymbol
-                      PsiElement(identifier)('TypeSymbol')
+                  TypeArgument
+                    SimpleType: TypeSymbol
+                      CodeReferenceElement: TypeSymbol
+                        PsiElement(identifier)('TypeSymbol')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -313,9 +315,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: TypeSymbol
-                    CodeReferenceElement: TypeSymbol
-                      PsiElement(identifier)('TypeSymbol')
+                  TypeArgument
+                    SimpleType: TypeSymbol
+                      CodeReferenceElement: TypeSymbol
+                        PsiElement(identifier)('TypeSymbol')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')

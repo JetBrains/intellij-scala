@@ -248,9 +248,10 @@ ScalaFile
                   PsiElement(identifier)('Service')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -298,8 +299,9 @@ ScalaFile
                   PsiElement(identifier)('CrudService')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')

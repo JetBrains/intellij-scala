@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -35,7 +35,7 @@ class MethodResolveProcessor(
   override val ref:           PsiElement,
   val refName:                String,
   val argumentClauses:        Seq[Seq[Expression]],
-  val typeArgElements:        Seq[ScTypeElement],
+  val typeArgElements:        Seq[ScTypeArgument],
   val prevTypeInfo:           Seq[TypeParameter],
   override val kinds:         Set[ResolveTargets.Value] = StdKinds.methodRef,
   val expectedOption:         () => Option[ScType]      = () => None,
@@ -51,7 +51,7 @@ class MethodResolveProcessor(
     ref:                    PsiElement                = ref,
     refName:                String                    = refName,
     argumentClauses:        Seq[Seq[Expression]]      = argumentClauses,
-    typeArgElements:        Seq[ScTypeElement]        = typeArgElements,
+    typeArgElements:        Seq[ScTypeArgument]       = typeArgElements,
     prevTypeInfo:           Seq[TypeParameter]        = prevTypeInfo,
     kinds:                  Set[ResolveTargets.Value] = kinds,
     expectedOption:         () => Option[ScType]      = expectedOption,
@@ -204,7 +204,7 @@ object MethodResolveProcessor {
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
-    typeArgElements:        Seq[ScTypeElement],
+    typeArgElements:        Seq[ScTypeArgument],
     prevTypeInfo:           Seq[TypeParameter],
     expectedOption:         () => Option[ScType],
     selfConstructorResolve: Boolean,
@@ -275,8 +275,8 @@ object MethodResolveProcessor {
         case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
-        case f: ScFunction => substitutor(f.returnType.getOrNothing)
-        case f: ScSyntheticFunction      => substitutor(f.retType)
+        case f: ScFunction          => substitutor(f.returnType.getOrNothing)
+        case f: ScSyntheticFunction => substitutor(f.retType)
         case m: PsiMethod  =>
           Option(m.getReturnType)
             .map(rt => substitutor(rt.toScType()))
@@ -486,7 +486,8 @@ object MethodResolveProcessor {
 
     def correctTypeArgsSupplied(tparamsLength: Int): Boolean =
       typeArgElements.isEmpty ||
-        typeArgElements.length == tparamsLength
+        typeArgElements.length == tparamsLength ||
+        typeArgElements.forall(_.isNamed)
 
     val result = element match {
       //objects
@@ -577,7 +578,7 @@ object MethodResolveProcessor {
     element:                PsiElement,
     subst:                  ScSubstitutor,
     selfConstructorResolve: Boolean,
-    typeArgElements:        Seq[ScTypeElement],
+    typeArgs:        Seq[ScTypeArgument],
     isExtension:            Boolean,
     exportedInExtension:    Option[ScExtension]
   ): ScSubstitutor = {
@@ -593,12 +594,20 @@ object MethodResolveProcessor {
     }
 
     maybeTypeParameters match {
-      case Some(typeParameters: Seq[PsiTypeParameter]) =>
+      case Some(typeParameters) =>
+        val hasNamedTargs = typeArgs.exists(_.isNamed)
+
         val follower =
-          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length)
-            ScSubstitutor.bind(typeParameters, typeArgElements)(_.calcType)
-          else
-            ScSubstitutor.bind(typeParameters)(UndefinedType(_))
+          if (typeArgs.nonEmpty && typeParameters.length == typeArgs.length)
+            ScSubstitutor.bind(typeParameters, typeArgs)
+          else if (hasNamedTargs) {
+            //case where only some of the type arguments are provided
+            val names             = typeArgs.flatMap(_.name)
+            val targsSubst        = ScSubstitutor.bind(typeParameters, typeArgs)
+            val missingTypeParams = typeParameters.filterNot(tp => names.contains(tp.name))
+            val undefinedSubst    = ScSubstitutor.bind(missingTypeParams)(UndefinedType(_))
+            targsSubst.followed(undefinedSubst)
+          } else ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
         subst.followed(follower)
       case _ => subst
@@ -946,11 +955,11 @@ object MethodResolveProcessor {
       case _ if clauseIdx != 0 => (r.substitutor, Seq.empty)
       case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
         val tparams = owner.typeParameters.map(TypeParameter(_))
-        val subst   = ScSubstitutor.bind(tparams, typeArgElements)(_.calcType)
+        val subst   = ScSubstitutor.bind(tparams, typeArgElements)
         (r.substitutor.followed(subst), tparams)
       case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
         val tparams = owner.getTypeParameters.instantiate
-        val subst   = ScSubstitutor.bind(tparams, typeArgElements)(_.calcType)
+        val subst   = ScSubstitutor.bind(tparams, typeArgElements)
         (r.substitutor.followed(subst), tparams)
       case _ => (r.substitutor, Seq.empty)
     }
@@ -1088,7 +1097,6 @@ object MethodResolveProcessor {
             cand.isExtensionCall,
             cand.exportedInExtension
           )
-
 
       val result = cand.copy(
         problems                 = conformanceResult.problems,

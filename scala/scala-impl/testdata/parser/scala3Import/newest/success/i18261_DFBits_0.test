@@ -117,16 +117,18 @@ ScalaFile
                     PsiElement(identifier)('Foo')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: DFBits[W]
-                    SimpleType: DFBits
-                      CodeReferenceElement: DFBits
-                        PsiElement(identifier)('DFBits')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: W
-                        CodeReferenceElement: W
-                          PsiElement(identifier)('W')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: DFBits[W]
+                      SimpleType: DFBits
+                        CodeReferenceElement: DFBits
+                          PsiElement(identifier)('DFBits')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: W
+                            CodeReferenceElement: W
+                              PsiElement(identifier)('W')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -143,9 +145,10 @@ ScalaFile
                       PsiElement(identifier)('Candidate')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')

@@ -552,16 +552,18 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ref[T]
-                    SimpleType: Ref
-                      CodeReferenceElement: Ref
-                        PsiElement(identifier)('Ref')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ref[T]
+                      SimpleType: Ref
+                        CodeReferenceElement: Ref
+                          PsiElement(identifier)('Ref')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('value')
@@ -724,16 +726,18 @@ ScalaFile
                               PsiElement(identifier)('asInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: Ref[T]
-                                SimpleType: Ref
-                                  CodeReferenceElement: Ref
-                                    PsiElement(identifier)('Ref')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: T
-                                    CodeReferenceElement: T
-                                      PsiElement(identifier)('T')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: Ref[T]
+                                  SimpleType: Ref
+                                    CodeReferenceElement: Ref
+                                      PsiElement(identifier)('Ref')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                           PsiElement(.)('.')
                           PsiElement(identifier)('value')
@@ -800,16 +804,18 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Ref[T]
-                          SimpleType: Ref
-                            CodeReferenceElement: Ref
-                              PsiElement(identifier)('Ref')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Ref[T]
+                            SimpleType: Ref
+                              CodeReferenceElement: Ref
+                                PsiElement(identifier)('Ref')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')
@@ -826,16 +832,18 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Ref[T]
-                          SimpleType: Ref
-                            CodeReferenceElement: Ref
-                              PsiElement(identifier)('Ref')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Ref[T]
+                            SimpleType: Ref
+                              CodeReferenceElement: Ref
+                                PsiElement(identifier)('Ref')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')
@@ -897,16 +905,18 @@ ScalaFile
                           PsiElement(identifier)('asInstanceOf')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: Ref[T]
-                            SimpleType: Ref
-                              CodeReferenceElement: Ref
-                                PsiElement(identifier)('Ref')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: T
-                                CodeReferenceElement: T
-                                  PsiElement(identifier)('T')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Ref[T]
+                              SimpleType: Ref
+                                CodeReferenceElement: Ref
+                                  PsiElement(identifier)('Ref')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                       PsiElement(.)('.')
                       PsiElement(identifier)('value')

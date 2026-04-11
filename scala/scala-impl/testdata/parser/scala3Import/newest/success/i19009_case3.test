@@ -132,14 +132,16 @@ ScalaFile
                       PsiElement(identifier)('SegmentT')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: S
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: SegmentSeqT
@@ -197,9 +199,10 @@ ScalaFile
                         PsiElement(identifier)('Bound')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -211,14 +214,16 @@ ScalaFile
                   PsiElement(identifier)('SegmentT')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: E
-                  CodeReferenceElement: E
-                    PsiElement(identifier)('E')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: S
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -265,14 +270,16 @@ ScalaFile
                 PsiElement(identifier)('SegmentSeqT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: MappedSegmentBase
@@ -331,14 +338,16 @@ ScalaFile
           PsiElement(identifier)('MappedSegment')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: E
-          CodeReferenceElement: E
-            PsiElement(identifier)('E')
+        TypeArgument
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: S
-          CodeReferenceElement: S
-            PsiElement(identifier)('S')
+        TypeArgument
+          SimpleType: S
+            CodeReferenceElement: S
+              PsiElement(identifier)('S')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: AbstractMappedSegmentSeq
@@ -380,26 +389,30 @@ ScalaFile
                   PsiElement(identifier)('SegmentT')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: E
-                  CodeReferenceElement: E
-                    PsiElement(identifier)('E')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                ParametrizedType: MappedSegmentBase[E, S]
-                  SimpleType: MappedSegmentBase
-                    CodeReferenceElement: MappedSegmentBase
-                      PsiElement(identifier)('MappedSegmentBase')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: S
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: MappedSegmentBase[E, S]
+                    SimpleType: MappedSegmentBase
+                      CodeReferenceElement: MappedSegmentBase
+                        PsiElement(identifier)('MappedSegmentBase')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -410,14 +423,16 @@ ScalaFile
                   PsiElement(identifier)('MappedSegmentBase')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: E
-                  CodeReferenceElement: E
-                    PsiElement(identifier)('E')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: S
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: AbstractMappedSegmentSeq
@@ -457,26 +472,30 @@ ScalaFile
                 PsiElement(identifier)('AbstractSegmentSeq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: MappedSegmentBase[E, S]
-                SimpleType: MappedSegmentBase
-                  CodeReferenceElement: MappedSegmentBase
-                    PsiElement(identifier)('MappedSegmentBase')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: MappedSegmentBase[E, S]
+                  SimpleType: MappedSegmentBase
+                    CodeReferenceElement: MappedSegmentBase
+                      PsiElement(identifier)('MappedSegmentBase')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                    PsiElement(])(']')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -499,14 +518,16 @@ ScalaFile
                 PsiElement(identifier)('SegmentSeqT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: getSegmentForBound
@@ -538,9 +559,10 @@ ScalaFile
                         PsiElement(identifier)('Bound')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -551,14 +573,16 @@ ScalaFile
                 PsiElement(identifier)('MappedSegment')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -615,14 +639,16 @@ ScalaFile
                         PsiElement(identifier)('SegmentT')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: S
-                        CodeReferenceElement: S
-                          PsiElement(identifier)('S')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -633,14 +659,16 @@ ScalaFile
                 PsiElement(identifier)('MappedSegment')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -674,14 +702,16 @@ ScalaFile
                     PsiElement(identifier)('WithPrev')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
@@ -692,14 +722,16 @@ ScalaFile
                     PsiElement(identifier)('SegmentT')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')

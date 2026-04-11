@@ -4,7 +4,16 @@ package types
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScTypeArgs extends ScArguments {
-  def typeArgs: Seq[ScTypeElement]
+  def typeArgsWithNamed: Seq[ScTypeArgument]
 
-  override def getArgsCount: Int = typeArgs.length
+//  def typeArgs: Seq[ScTypeElement] =
+//    typeArgsWithNamed.flatMap(_.typeElement)
+
+  def namedTypeArgs: Seq[ScTypeArgument] =
+    typeArgsWithNamed.filter(_.isNamed)
+
+  def hasNamedTypeArgs: Boolean =
+    namedTypeArgs.nonEmpty
+
+  override def getArgsCount: Int = typeArgsWithNamed.length
 }

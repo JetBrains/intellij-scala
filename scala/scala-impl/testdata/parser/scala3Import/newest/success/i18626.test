@@ -92,9 +92,10 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T1
-                        CodeReferenceElement: T1
-                          PsiElement(identifier)('T1')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -105,9 +106,10 @@ ScalaFile
                 PsiElement(identifier)('F1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T1
-                CodeReferenceElement: T1
-                  PsiElement(identifier)('T1')
+              TypeArgument
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -179,9 +181,10 @@ ScalaFile
                         PsiElement(identifier)('F2')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A1
-                        CodeReferenceElement: A1
-                          PsiElement(identifier)('A1')
+                      TypeArgument
+                        SimpleType: A1
+                          CodeReferenceElement: A1
+                            PsiElement(identifier)('A1')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -214,9 +217,10 @@ ScalaFile
                 PsiElement(identifier)('F2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B1
-                CodeReferenceElement: B1
-                  PsiElement(identifier)('B1')
+              TypeArgument
+                SimpleType: B1
+                  CodeReferenceElement: B1
+                    PsiElement(identifier)('B1')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Monad
@@ -272,9 +276,10 @@ ScalaFile
                         PsiElement(identifier)('F3')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A3
-                        CodeReferenceElement: A3
-                          PsiElement(identifier)('A3')
+                      TypeArgument
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -323,9 +328,10 @@ ScalaFile
                     PsiElement(identifier)('F3')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B3
-                    CodeReferenceElement: B3
-                      PsiElement(identifier)('B3')
+                  TypeArgument
+                    SimpleType: B3
+                      CodeReferenceElement: B3
+                        PsiElement(identifier)('B3')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -426,9 +432,10 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Mammal
-          CodeReferenceElement: Mammal
-            PsiElement(identifier)('Mammal')
+        TypeArgument
+          SimpleType: Mammal
+            CodeReferenceElement: Mammal
+              PsiElement(identifier)('Mammal')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -477,9 +484,10 @@ ScalaFile
                     PsiElement(identifier)('Random')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: F4
-                    CodeReferenceElement: F4
-                      PsiElement(identifier)('F4')
+                  TypeArgument
+                    SimpleType: F4
+                      CodeReferenceElement: F4
+                        PsiElement(identifier)('F4')
                   PsiElement(])(']')
           PsiElement())(')')
         ParametersClause
@@ -501,9 +509,10 @@ ScalaFile
                     PsiElement(identifier)('Monad')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: F4
-                    CodeReferenceElement: F4
-                      PsiElement(identifier)('F4')
+                  TypeArgument
+                    SimpleType: F4
+                      CodeReferenceElement: F4
+                        PsiElement(identifier)('F4')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -528,9 +537,10 @@ ScalaFile
                 PsiElement(identifier)('F4')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mammal
-                CodeReferenceElement: Mammal
-                  PsiElement(identifier)('Mammal')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -594,9 +604,10 @@ ScalaFile
                 PsiElement(identifier)('F4')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mammal
-                CodeReferenceElement: Mammal
-                  PsiElement(identifier)('Mammal')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -663,9 +674,10 @@ ScalaFile
                 PsiElement(identifier)('F4')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mammal
-                CodeReferenceElement: Mammal
-                  PsiElement(identifier)('Mammal')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

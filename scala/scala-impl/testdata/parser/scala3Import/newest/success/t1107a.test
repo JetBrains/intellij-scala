@@ -40,8 +40,9 @@ ScalaFile
                 PsiElement(identifier)('Class')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: tryf
@@ -75,9 +76,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: AnyClass
-                        CodeReferenceElement: AnyClass
-                          PsiElement(identifier)('AnyClass')
+                      TypeArgument
+                        SimpleType: AnyClass
+                          CodeReferenceElement: AnyClass
+                            PsiElement(identifier)('AnyClass')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause

@@ -1072,8 +1072,8 @@ object Compatibility {
       case _ => (Seq.empty, ScSubstitutor.empty)
     }
 
-    val typeArgs      = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
-    val typeArgsSubst = ScSubstitutor.bind(typeParameters, typeArgs)(_.calcType)
+    val typeArgs      = constrInvocation.typeArgList
+    val typeArgsSubst = typeArgs.fold(ScSubstitutor.empty)(ScSubstitutor.bind(typeParameters, _))
     val subst         = srr.substitutor.followed(bindSubst).followed(typeArgsSubst)
     val methodType    = subst(cons.methodTypeProvider(constrInvocation.elementScope).methodType())
 

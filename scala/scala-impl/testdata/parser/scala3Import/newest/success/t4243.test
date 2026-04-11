@@ -71,9 +71,10 @@ ScalaFile
                     PsiElement(identifier)('Domain')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -132,21 +133,24 @@ ScalaFile
                       PsiElement(identifier)('DomainLike')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: Domain[B]
-                      SimpleType: Domain
-                        CodeReferenceElement: Domain
-                          PsiElement(identifier)('Domain')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Domain[B]
+                        SimpleType: Domain
+                          CodeReferenceElement: Domain
+                            PsiElement(identifier)('Domain')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTrait: IterableDomainLike
@@ -189,9 +193,10 @@ ScalaFile
                     PsiElement(identifier)('IterableDomain')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  TypeArgument
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -213,14 +218,16 @@ ScalaFile
                       PsiElement(identifier)('DomainLike')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    TypeArgument
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: This
-                      CodeReferenceElement: This
-                        PsiElement(identifier)('This')
+                    TypeArgument
+                      SimpleType: This
+                        CodeReferenceElement: This
+                          PsiElement(identifier)('This')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTrait: IterableDomain
@@ -269,9 +276,10 @@ ScalaFile
                       PsiElement(identifier)('Domain')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: D
-                      CodeReferenceElement: D
-                        PsiElement(identifier)('D')
+                    TypeArgument
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
@@ -283,21 +291,24 @@ ScalaFile
                       PsiElement(identifier)('IterableDomainLike')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: D
-                      CodeReferenceElement: D
-                        PsiElement(identifier)('D')
+                    TypeArgument
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: IterableDomain[D]
-                      SimpleType: IterableDomain
-                        CodeReferenceElement: IterableDomain
-                          PsiElement(identifier)('IterableDomain')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: D
-                          CodeReferenceElement: D
-                            PsiElement(identifier)('D')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: IterableDomain[D]
+                        SimpleType: IterableDomain
+                          CodeReferenceElement: IterableDomain
+                            PsiElement(identifier)('IterableDomain')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: D
+                              CodeReferenceElement: D
+                                PsiElement(identifier)('D')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n')
         PsiElement(})('}')

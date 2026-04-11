@@ -80,9 +80,10 @@ ScalaFile
                 PsiElement(identifier)('ForcedRecompilationToken')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: "x"
-                StringLiteral
-                  PsiElement(string content)('"x"')
+              TypeArgument
+                LiteralType: "x"
+                  StringLiteral
+                    PsiElement(string content)('"x"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -95,16 +96,18 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ForcedRecompilationToken["x"]
-                SimpleType: ForcedRecompilationToken
-                  CodeReferenceElement: ForcedRecompilationToken
-                    PsiElement(identifier)('ForcedRecompilationToken')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  LiteralType: "x"
-                    StringLiteral
-                      PsiElement(string content)('"x"')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ForcedRecompilationToken["x"]
+                  SimpleType: ForcedRecompilationToken
+                    CodeReferenceElement: ForcedRecompilationToken
+                      PsiElement(identifier)('ForcedRecompilationToken')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: "x"
+                        StringLiteral
+                          PsiElement(string content)('"x"')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -149,9 +152,10 @@ ScalaFile
                     PsiElement(identifier)('ForcedRecompilationToken')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

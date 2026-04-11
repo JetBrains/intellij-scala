@@ -102,44 +102,47 @@ ScalaFile
                 PsiElement(identifier)('constValueTuple')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Plus[(true, true, true), (true, true)]
-                  SimpleType: Plus
-                    CodeReferenceElement: Plus
-                      PsiElement(identifier)('Plus')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    TupleType: (true, true, true)
-                      PsiElement(()('(')
-                      TypesList
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                      PsiElement())(')')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    TupleType: (true, true)
-                      PsiElement(()('(')
-                      TypesList
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                      PsiElement())(')')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Plus[(true, true, true), (true, true)]
+                    SimpleType: Plus
+                      CodeReferenceElement: Plus
+                        PsiElement(identifier)('Plus')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TupleType: (true, true, true)
+                          PsiElement(()('(')
+                          TypesList
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        TupleType: (true, true)
+                          PsiElement(()('(')
+                          TypesList
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                          PsiElement())(')')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -155,44 +158,47 @@ ScalaFile
                 PsiElement(identifier)('constValueTuple')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Plus1[(true, true, true), (true, true)]
-                  SimpleType: Plus1
-                    CodeReferenceElement: Plus1
-                      PsiElement(identifier)('Plus1')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    TupleType: (true, true, true)
-                      PsiElement(()('(')
-                      TypesList
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                      PsiElement())(')')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    TupleType: (true, true)
-                      PsiElement(()('(')
-                      TypesList
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: true
-                          BooleanLiteral
-                            PsiElement(true)('true')
-                      PsiElement())(')')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Plus1[(true, true, true), (true, true)]
+                    SimpleType: Plus1
+                      CodeReferenceElement: Plus1
+                        PsiElement(identifier)('Plus1')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TupleType: (true, true, true)
+                          PsiElement(()('(')
+                          TypesList
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        TupleType: (true, true)
+                          PsiElement(()('(')
+                          TypesList
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                          PsiElement())(')')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -209,70 +215,77 @@ ScalaFile
               TypeArgumentsList
                 PsiElement([)('[')
                 PsiWhiteSpace('\n    ')
-                ParametrizedType: Reverse[PlusLoop[Reverse[(true, true, true)], Reverse[(true, true)], false]]
-                  SimpleType: Reverse
-                    CodeReferenceElement: Reverse
-                      PsiElement(identifier)('Reverse')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    ParametrizedType: PlusLoop[Reverse[(true, true, true)], Reverse[(true, true)], false]
-                      SimpleType: PlusLoop
-                        CodeReferenceElement: PlusLoop
-                          PsiElement(identifier)('PlusLoop')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        ParametrizedType: Reverse[(true, true, true)]
-                          SimpleType: Reverse
-                            CodeReferenceElement: Reverse
-                              PsiElement(identifier)('Reverse')
+                TypeArgument
+                  ParametrizedType: Reverse[PlusLoop[Reverse[(true, true, true)], Reverse[(true, true)], false]]
+                    SimpleType: Reverse
+                      CodeReferenceElement: Reverse
+                        PsiElement(identifier)('Reverse')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: PlusLoop[Reverse[(true, true, true)], Reverse[(true, true)], false]
+                          SimpleType: PlusLoop
+                            CodeReferenceElement: PlusLoop
+                              PsiElement(identifier)('PlusLoop')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TupleType: (true, true, true)
-                              PsiElement(()('(')
-                              TypesList
-                                LiteralType: true
-                                  BooleanLiteral
-                                    PsiElement(true)('true')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                LiteralType: true
-                                  BooleanLiteral
-                                    PsiElement(true)('true')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                LiteralType: true
-                                  BooleanLiteral
-                                    PsiElement(true)('true')
-                              PsiElement())(')')
+                            TypeArgument
+                              ParametrizedType: Reverse[(true, true, true)]
+                                SimpleType: Reverse
+                                  CodeReferenceElement: Reverse
+                                    PsiElement(identifier)('Reverse')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    TupleType: (true, true, true)
+                                      PsiElement(()('(')
+                                      TypesList
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                      PsiElement())(')')
+                                  PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Reverse[(true, true)]
+                                SimpleType: Reverse
+                                  CodeReferenceElement: Reverse
+                                    PsiElement(identifier)('Reverse')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    TupleType: (true, true)
+                                      PsiElement(()('(')
+                                      TypesList
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                      PsiElement())(')')
+                                  PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              LiteralType: false
+                                BooleanLiteral
+                                  PsiElement(false)('false')
                             PsiElement(])(']')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Reverse[(true, true)]
-                          SimpleType: Reverse
-                            CodeReferenceElement: Reverse
-                              PsiElement(identifier)('Reverse')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            TupleType: (true, true)
-                              PsiElement(()('(')
-                              TypesList
-                                LiteralType: true
-                                  BooleanLiteral
-                                    PsiElement(true)('true')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                LiteralType: true
-                                  BooleanLiteral
-                                    PsiElement(true)('true')
-                              PsiElement())(')')
-                            PsiElement(])(']')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: false
-                          BooleanLiteral
-                            PsiElement(false)('false')
-                        PsiElement(])(']')
-                    PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             PsiElement())(')')
@@ -380,40 +393,46 @@ ScalaFile
                       PsiElement(identifier)('Reverse')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: PlusLoop[Reverse[A], Reverse[B], false]
-                      SimpleType: PlusLoop
-                        CodeReferenceElement: PlusLoop
-                          PsiElement(identifier)('PlusLoop')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        ParametrizedType: Reverse[A]
-                          SimpleType: Reverse
-                            CodeReferenceElement: Reverse
-                              PsiElement(identifier)('Reverse')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(])(']')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Reverse[B]
-                          SimpleType: Reverse
-                            CodeReferenceElement: Reverse
-                              PsiElement(identifier)('Reverse')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: B
-                              CodeReferenceElement: B
-                                PsiElement(identifier)('B')
-                            PsiElement(])(']')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: false
-                          BooleanLiteral
-                            PsiElement(false)('false')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: PlusLoop[Reverse[A], Reverse[B], false]
+                        SimpleType: PlusLoop
+                          CodeReferenceElement: PlusLoop
+                            PsiElement(identifier)('PlusLoop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: Reverse[A]
+                              SimpleType: Reverse
+                                CodeReferenceElement: Reverse
+                                  PsiElement(identifier)('Reverse')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Reverse[B]
+                              SimpleType: Reverse
+                                CodeReferenceElement: Reverse
+                                  PsiElement(identifier)('Reverse')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: false
+                              BooleanLiteral
+                                PsiElement(false)('false')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: Plus1
@@ -454,40 +473,46 @@ ScalaFile
                 PsiElement(identifier)('Reverse')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: PlusLoop[Reverse[A], Reverse[B], false]
-                SimpleType: PlusLoop
-                  CodeReferenceElement: PlusLoop
-                    PsiElement(identifier)('PlusLoop')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: Reverse[A]
-                    SimpleType: Reverse
-                      CodeReferenceElement: Reverse
-                        PsiElement(identifier)('Reverse')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  ParametrizedType: Reverse[B]
-                    SimpleType: Reverse
-                      CodeReferenceElement: Reverse
-                        PsiElement(identifier)('Reverse')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
-                      PsiElement(])(']')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: false
-                    BooleanLiteral
-                      PsiElement(false)('false')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: PlusLoop[Reverse[A], Reverse[B], false]
+                  SimpleType: PlusLoop
+                    CodeReferenceElement: PlusLoop
+                      PsiElement(identifier)('PlusLoop')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Reverse[A]
+                        SimpleType: Reverse
+                          CodeReferenceElement: Reverse
+                            PsiElement(identifier)('Reverse')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: Reverse[B]
+                        SimpleType: Reverse
+                          CodeReferenceElement: Reverse
+                            PsiElement(identifier)('Reverse')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      LiteralType: false
+                        BooleanLiteral
+                          PsiElement(false)('false')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ReverseLoop
@@ -569,22 +594,24 @@ ScalaFile
                       PsiElement(identifier)('ReverseLoop')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: xs
-                      CodeReferenceElement: xs
-                        PsiElement(identifier)('xs')
+                    TypeArgument
+                      SimpleType: xs
+                        CodeReferenceElement: xs
+                          PsiElement(identifier)('xs')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    InfixType: x *: XS
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: XS
-                        CodeReferenceElement: XS
-                          PsiElement(identifier)('XS')
+                    TypeArgument
+                      InfixType: x *: XS
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: XS
+                          CodeReferenceElement: XS
+                            PsiElement(identifier)('XS')
                     PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -611,14 +638,16 @@ ScalaFile
                 PsiElement(identifier)('ReverseLoop')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: PlusTri
@@ -1040,9 +1069,10 @@ ScalaFile
                               PsiElement(identifier)('Inc')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: as
-                              CodeReferenceElement: as
-                                PsiElement(identifier)('as')
+                            TypeArgument
+                              SimpleType: as
+                                CodeReferenceElement: as
+                                  PsiElement(identifier)('as')
                             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: IncT
@@ -1121,9 +1151,10 @@ ScalaFile
                       PsiElement(identifier)('Inc')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: PlusLoop
@@ -1283,14 +1314,16 @@ ScalaFile
                       PsiElement(identifier)('IncT')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: O
-                      CodeReferenceElement: O
-                        PsiElement(identifier)('O')
+                    TypeArgument
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -1317,14 +1350,16 @@ ScalaFile
                       PsiElement(identifier)('IncT')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: O
-                      CodeReferenceElement: O
-                        PsiElement(identifier)('O')
+                    TypeArgument
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -1365,19 +1400,22 @@ ScalaFile
                         PsiElement(identifier)('PlusTri')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: a
-                        CodeReferenceElement: a
-                          PsiElement(identifier)('a')
+                      TypeArgument
+                        SimpleType: a
+                          CodeReferenceElement: a
+                            PsiElement(identifier)('a')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: b
-                        CodeReferenceElement: b
-                          PsiElement(identifier)('b')
+                      TypeArgument
+                        SimpleType: b
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: O
-                        CodeReferenceElement: O
-                          PsiElement(identifier)('O')
+                      TypeArgument
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -1413,17 +1451,20 @@ ScalaFile
                               PsiElement(identifier)('PlusLoop')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: as
-                              CodeReferenceElement: as
-                                PsiElement(identifier)('as')
+                            TypeArgument
+                              SimpleType: as
+                                CodeReferenceElement: as
+                                  PsiElement(identifier)('as')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: bs
-                              CodeReferenceElement: bs
-                                PsiElement(identifier)('bs')
+                            TypeArgument
+                              SimpleType: bs
+                                CodeReferenceElement: bs
+                                  PsiElement(identifier)('bs')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: x
-                              CodeReferenceElement: x
-                                PsiElement(identifier)('x')
+                            TypeArgument
+                              SimpleType: x
+                                CodeReferenceElement: x
+                                  PsiElement(identifier)('x')
                             PsiElement(])(']')

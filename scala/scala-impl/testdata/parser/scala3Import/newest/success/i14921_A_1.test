@@ -132,8 +132,9 @@ ScalaFile
                       PsiElement(identifier)('IndexedSeq')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: a
-                      PsiElement(identifier)('a')
+                    TypeArgument
+                      TypeVariable: a
+                        PsiElement(identifier)('a')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -215,8 +216,9 @@ ScalaFile
                       PsiElement(identifier)('S')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: n
-                      PsiElement(identifier)('n')
+                    TypeArgument
+                      TypeVariable: n
+                        PsiElement(identifier)('n')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -235,19 +237,22 @@ ScalaFile
                         PsiElement(identifier)('TupleSized')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: n
-                        CodeReferenceElement: n
-                          PsiElement(identifier)('n')
+                      TypeArgument
+                        SimpleType: n
+                          CodeReferenceElement: n
+                            PsiElement(identifier)('n')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -293,19 +298,22 @@ ScalaFile
                         PsiElement(identifier)('TupleSized')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -330,9 +338,10 @@ ScalaFile
                     PsiElement(identifier)('IndexedSeq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -351,16 +360,18 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: IndexedSeq[A]
-                    SimpleType: IndexedSeq
-                      CodeReferenceElement: IndexedSeq
-                        PsiElement(identifier)('IndexedSeq')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: IndexedSeq[A]
+                      SimpleType: IndexedSeq
+                        CodeReferenceElement: IndexedSeq
+                          PsiElement(identifier)('IndexedSeq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -412,26 +423,30 @@ ScalaFile
                 PsiElement(identifier)('TupleSized')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Repr
-                CodeReferenceElement: Repr
-                  PsiElement(identifier)('Repr')
+              TypeArgument
+                SimpleType: Repr
+                  CodeReferenceElement: Repr
+                    PsiElement(identifier)('Repr')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Represented[Repr]
-                SimpleType: Represented
-                  CodeReferenceElement: Represented
-                    PsiElement(identifier)('Represented')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Repr
-                    CodeReferenceElement: Repr
-                      PsiElement(identifier)('Repr')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Represented[Repr]
+                  SimpleType: Represented
+                    CodeReferenceElement: Represented
+                      PsiElement(identifier)('Represented')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Repr
+                        CodeReferenceElement: Repr
+                          PsiElement(identifier)('Repr')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: L
-                CodeReferenceElement: L
-                  PsiElement(identifier)('L')
+              TypeArgument
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScObject: Sized
@@ -484,21 +499,24 @@ ScalaFile
                       PsiElement(identifier)('Sized')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: IndexedSeq[A]
-                      SimpleType: IndexedSeq
-                        CodeReferenceElement: IndexedSeq
-                          PsiElement(identifier)('IndexedSeq')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: IndexedSeq[A]
+                        SimpleType: IndexedSeq
+                          CodeReferenceElement: IndexedSeq
+                            PsiElement(identifier)('IndexedSeq')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
+                    TypeArgument
+                      LiteralType: 1
+                        IntegerLiteral
+                          PsiElement(integer)('1')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

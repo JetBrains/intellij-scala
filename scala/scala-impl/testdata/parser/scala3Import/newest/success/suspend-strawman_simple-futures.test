@@ -196,9 +196,10 @@ ScalaFile
                           PsiElement(identifier)('Future')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -273,9 +274,10 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -303,16 +305,17 @@ ScalaFile
                   PsiElement(identifier)('ListBuffer')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: T => Unit
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                TypeArgument
+                  FunctionalType: T => Unit
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -626,9 +629,10 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
                   PsiElement(])(']')
               ArgumentList
                 BlockExpression
@@ -683,9 +687,10 @@ ScalaFile
                                         PsiElement(identifier)('Future')
                                     TypeArgumentsList
                                       PsiElement([)('[')
-                                      SimpleType: T
-                                        CodeReferenceElement: T
-                                          PsiElement(identifier)('T')
+                                      TypeArgument
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
                                       PsiElement(])(']')
                               PsiElement())(')')
                           PsiElement(:)(':')
@@ -740,14 +745,16 @@ ScalaFile
                                         PsiElement(identifier)('suspend')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: T
-                                          CodeReferenceElement: T
-                                            PsiElement(identifier)('T')
+                                        TypeArgument
+                                          SimpleType: T
+                                            CodeReferenceElement: T
+                                              PsiElement(identifier)('T')
                                         PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        SimpleType: Unit
-                                          CodeReferenceElement: Unit
-                                            PsiElement(identifier)('Unit')
+                                        TypeArgument
+                                          SimpleType: Unit
+                                            CodeReferenceElement: Unit
+                                              PsiElement(identifier)('Unit')
                                         PsiElement(])(']')
                                     ArgumentList
                                       PsiElement(()('(')
@@ -809,9 +816,10 @@ ScalaFile
                     PsiElement(identifier)('Future')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
@@ -830,16 +838,18 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Future[Int]
-                    SimpleType: Future
-                      CodeReferenceElement: Future
-                        PsiElement(identifier)('Future')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Future[Int]
+                      SimpleType: Future
+                        CodeReferenceElement: Future
+                          PsiElement(identifier)('Future')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
                   PsiElement(])(']')
           PsiElement())(')')
       PsiWhiteSpace(' ')

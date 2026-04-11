@@ -183,9 +183,10 @@ ScalaFile
                 PsiElement(identifier)('FromProduct')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: JUSTVAL
@@ -210,16 +211,18 @@ ScalaFile
           PsiElement(identifier)('DFValOf')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Of[T]
-          SimpleType: Of
-            CodeReferenceElement: Of
-              PsiElement(identifier)('Of')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Of[T]
+            SimpleType: Of
+              CodeReferenceElement: Of
+                PsiElement(identifier)('Of')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: FromProduct
@@ -274,24 +277,27 @@ ScalaFile
                 PsiElement(identifier)('DFTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Tuple.Map[T, JUSTVAL]
-                SimpleType: Tuple.Map
-                  CodeReferenceElement: Tuple.Map
-                    CodeReferenceElement: Tuple
-                      PsiElement(identifier)('Tuple')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Map')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: JUSTVAL
-                    CodeReferenceElement: JUSTVAL
-                      PsiElement(identifier)('JUSTVAL')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Tuple.Map[T, JUSTVAL]
+                  SimpleType: Tuple.Map
+                    CodeReferenceElement: Tuple.Map
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Map')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: JUSTVAL
+                        CodeReferenceElement: JUSTVAL
+                          PsiElement(identifier)('JUSTVAL')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Width2
@@ -353,9 +359,10 @@ ScalaFile
                 PsiElement(identifier)('Width2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -372,9 +379,10 @@ ScalaFile
                         PsiElement(identifier)('Width2')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -399,30 +407,33 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Width2[Of[(DFBit, DFBit)]]
-          SimpleType: Width2
-            CodeReferenceElement: Width2
-              PsiElement(identifier)('Width2')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Of[(DFBit, DFBit)]
-              SimpleType: Of
-                CodeReferenceElement: Of
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (DFBit, DFBit)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: DFBit
-                      CodeReferenceElement: DFBit
-                        PsiElement(identifier)('DFBit')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: DFBit
-                      CodeReferenceElement: DFBit
-                        PsiElement(identifier)('DFBit')
-                  PsiElement())(')')
-                PsiElement(])(']')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Width2[Of[(DFBit, DFBit)]]
+            SimpleType: Width2
+              CodeReferenceElement: Width2
+                PsiElement(identifier)('Width2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Of[(DFBit, DFBit)]
+                  SimpleType: Of
+                    CodeReferenceElement: Of
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: (DFBit, DFBit)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: DFBit
+                            CodeReferenceElement: DFBit
+                              PsiElement(identifier)('DFBit')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: DFBit
+                            CodeReferenceElement: DFBit
+                              PsiElement(identifier)('DFBit')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')

@@ -116,9 +116,10 @@ ScalaFile
                         PsiElement(identifier)('Derived')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -190,16 +191,18 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: G[x]
-                  SimpleType: G
-                    CodeReferenceElement: G
-                      PsiElement(identifier)('G')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: x
-                      CodeReferenceElement: x
-                        PsiElement(identifier)('x')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: G[x]
+                    SimpleType: G
+                      CodeReferenceElement: G
+                        PsiElement(identifier)('G')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                      PsiElement(])(']')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScImportStatement
@@ -251,16 +254,18 @@ ScalaFile
           PsiElement(identifier)('Derived')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Alternative[F]
-          SimpleType: Alternative
-            CodeReferenceElement: Alternative
-              PsiElement(identifier)('Alternative')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: F
-              CodeReferenceElement: F
-                PsiElement(identifier)('F')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Alternative[F]
+            SimpleType: Alternative
+              CodeReferenceElement: Alternative
+                PsiElement(identifier)('Alternative')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: DerivedAlternative
@@ -304,9 +309,10 @@ ScalaFile
                 PsiElement(identifier)('Alternative')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -329,16 +335,18 @@ ScalaFile
                   PsiElement(identifier)('summonInline')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: DerivedAlternative[F]
-                    SimpleType: DerivedAlternative
-                      CodeReferenceElement: DerivedAlternative
-                        PsiElement(identifier)('DerivedAlternative')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: DerivedAlternative[F]
+                      SimpleType: DerivedAlternative
+                        CodeReferenceElement: DerivedAlternative
+                          PsiElement(identifier)('DerivedAlternative')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('instance')
@@ -383,17 +391,18 @@ ScalaFile
                 PsiElement(identifier)('DerivedAlternative')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: F <<< G
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: <<<
-                  PsiElement(identifier)('<<<')
-                PsiWhiteSpace(' ')
-                SimpleType: G
-                  CodeReferenceElement: G
-                    PsiElement(identifier)('G')
+              TypeArgument
+                InfixType: F <<< G
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: <<<
+                    PsiElement(identifier)('<<<')
+                  PsiWhiteSpace(' ')
+                  SimpleType: G
+                    CodeReferenceElement: G
+                      PsiElement(identifier)('G')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -456,9 +465,10 @@ ScalaFile
                       PsiElement(identifier)('Alternative')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: F
-                      CodeReferenceElement: F
-                        PsiElement(identifier)('F')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -468,9 +478,10 @@ ScalaFile
                     PsiElement(identifier)('DerivedAlternative')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: F
-                      CodeReferenceElement: F
-                        PsiElement(identifier)('F')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Test
@@ -526,16 +537,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Alternative[OptList]
-                SimpleType: Alternative
-                  CodeReferenceElement: Alternative
-                    PsiElement(identifier)('Alternative')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: OptList
-                    CodeReferenceElement: OptList
-                      PsiElement(identifier)('OptList')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Alternative[OptList]
+                  SimpleType: Alternative
+                    CodeReferenceElement: Alternative
+                      PsiElement(identifier)('Alternative')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: OptList
+                        CodeReferenceElement: OptList
+                          PsiElement(identifier)('OptList')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Test
@@ -574,14 +587,16 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[A]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[A]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')

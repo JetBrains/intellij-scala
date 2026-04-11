@@ -139,9 +139,10 @@ ScalaFile
                       PsiElement(identifier)('Bar')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    TypeArgument
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')
@@ -208,9 +209,10 @@ ScalaFile
                         PsiElement(identifier)('Bar')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 2
-                        IntegerLiteral
-                          PsiElement(integer)('2')
+                      TypeArgument
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -221,24 +223,27 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Max[1, bx.Out]
-                SimpleType: Max
-                  CodeReferenceElement: Max
-                    PsiElement(identifier)('Max')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: bx.Out
-                    CodeReferenceElement: bx.Out
-                      CodeReferenceElement: bx
-                        PsiElement(identifier)('bx')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Out')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Max[1, bx.Out]
+                  SimpleType: Max
+                    CodeReferenceElement: Max
+                      PsiElement(identifier)('Max')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: 1
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: bx.Out
+                        CodeReferenceElement: bx.Out
+                          CodeReferenceElement: bx
+                            PsiElement(identifier)('bx')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Out')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

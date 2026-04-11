@@ -100,9 +100,10 @@ ScalaFile
           PsiElement(identifier)('Lifted')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: O
-          CodeReferenceElement: O
-            PsiElement(identifier)('O')
+        TypeArgument
+          SimpleType: O
+            CodeReferenceElement: O
+              PsiElement(identifier)('O')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -140,9 +141,10 @@ ScalaFile
                   PsiElement(identifier)('Lifted')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: O
-                  CodeReferenceElement: O
-                    PsiElement(identifier)('O')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -186,9 +188,10 @@ ScalaFile
               PsiElement(identifier)('Lifted')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: U
-              CodeReferenceElement: U
-                PsiElement(identifier)('U')
+            TypeArgument
+              SimpleType: U
+                CodeReferenceElement: U
+                  PsiElement(identifier)('U')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -226,9 +229,10 @@ ScalaFile
                   PsiElement(identifier)('Lifted')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: O
-                  CodeReferenceElement: O
-                    PsiElement(identifier)('O')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -266,9 +270,10 @@ ScalaFile
                         PsiElement(identifier)('Lifted')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: U
-                        CodeReferenceElement: U
-                          PsiElement(identifier)('U')
+                      TypeArgument
+                        SimpleType: U
+                          CodeReferenceElement: U
+                            PsiElement(identifier)('U')
                       PsiElement(])(']')
             PsiElement())(')')
         PsiElement(:)(':')
@@ -279,9 +284,10 @@ ScalaFile
               PsiElement(identifier)('Lifted')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: U
-              CodeReferenceElement: U
-                PsiElement(identifier)('U')
+            TypeArgument
+              SimpleType: U
+                CodeReferenceElement: U
+                  PsiElement(identifier)('U')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -333,9 +339,10 @@ ScalaFile
           PsiElement(identifier)('Lifted')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -403,9 +410,10 @@ ScalaFile
           PsiElement(identifier)('Lifted')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

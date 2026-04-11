@@ -32,4 +32,12 @@ class FunctionLikeTypeParserTest extends SimpleScala3ParserTestBase {
         |def table(init: (given Table) => Unit) = ???
         |""".stripMargin
     )
+
+  def testDependentFunctionTypeWithErasedParameter(): Unit =
+    checkParseErrors(
+      """
+        |type Executable[T] = (erased ec: ExecutionContext) => T
+        |def table(init: (erased t: Table) => Unit) = ???
+        |""".stripMargin
+    )
 }

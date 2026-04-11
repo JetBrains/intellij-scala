@@ -60,9 +60,10 @@ ScalaFile
               PsiElement(identifier)('Mapper')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -100,14 +101,16 @@ ScalaFile
               PsiElement(identifier)('KeyedMapper')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: KeyType
-              CodeReferenceElement: KeyType
-                PsiElement(identifier)('KeyType')
+            TypeArgument
+              SimpleType: KeyType
+                CodeReferenceElement: KeyType
+                  PsiElement(identifier)('KeyType')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -129,9 +132,10 @@ ScalaFile
                 PsiElement(identifier)('Mapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n\n')
   ScTrait: KeyedMetaMapper
@@ -159,14 +163,16 @@ ScalaFile
               PsiElement(identifier)('KeyedMapper')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: KeyType
-              CodeReferenceElement: KeyType
-                PsiElement(identifier)('KeyType')
+            TypeArgument
+              SimpleType: KeyType
+                CodeReferenceElement: KeyType
+                  PsiElement(identifier)('KeyType')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -204,9 +210,10 @@ ScalaFile
               PsiElement(identifier)('Mapper')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Owner
-              CodeReferenceElement: Owner
-                PsiElement(identifier)('Owner')
+            TypeArgument
+              SimpleType: Owner
+                CodeReferenceElement: Owner
+                  PsiElement(identifier)('Owner')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -221,14 +228,16 @@ ScalaFile
               PsiElement(identifier)('KeyedMapper')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: KeyType
-              CodeReferenceElement: KeyType
-                PsiElement(identifier)('KeyType')
+            TypeArgument
+              SimpleType: KeyType
+                CodeReferenceElement: KeyType
+                  PsiElement(identifier)('KeyType')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Other
-              CodeReferenceElement: Other
-                PsiElement(identifier)('Other')
+            TypeArgument
+              SimpleType: Other
+                CodeReferenceElement: Other
+                  PsiElement(identifier)('Other')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -279,14 +288,16 @@ ScalaFile
                 PsiElement(identifier)('KeyedMapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: TestSubject
-                CodeReferenceElement: TestSubject
-                  PsiElement(identifier)('TestSubject')
+              TypeArgument
+                SimpleType: TestSubject
+                  CodeReferenceElement: TestSubject
+                    PsiElement(identifier)('TestSubject')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -323,14 +334,16 @@ ScalaFile
                 PsiElement(identifier)('KeyedMapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: TestRun
-                CodeReferenceElement: TestRun
-                  PsiElement(identifier)('TestRun')
+              TypeArgument
+                SimpleType: TestRun
+                  CodeReferenceElement: TestRun
+                    PsiElement(identifier)('TestRun')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -363,19 +376,22 @@ ScalaFile
                       PsiElement(identifier)('MappedForeignKey')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    TypeArgument
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: TestRun
-                      CodeReferenceElement: TestRun
-                        PsiElement(identifier)('TestRun')
+                    TypeArgument
+                      SimpleType: TestRun
+                        CodeReferenceElement: TestRun
+                          PsiElement(identifier)('TestRun')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: TestSubject
-                      CodeReferenceElement: TestSubject
-                        PsiElement(identifier)('TestSubject')
+                    TypeArgument
+                      SimpleType: TestSubject
+                        CodeReferenceElement: TestSubject
+                          PsiElement(identifier)('TestSubject')
                     PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -407,14 +423,16 @@ ScalaFile
                 PsiElement(identifier)('KeyedMetaMapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: TestRun
-                CodeReferenceElement: TestRun
-                  PsiElement(identifier)('TestRun')
+              TypeArgument
+                SimpleType: TestRun
+                  CodeReferenceElement: TestRun
+                    PsiElement(identifier)('TestRun')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: MetaTestSubject
@@ -451,14 +469,16 @@ ScalaFile
                 PsiElement(identifier)('KeyedMetaMapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: TestSubject
-                CodeReferenceElement: TestSubject
-                  PsiElement(identifier)('TestSubject')
+              TypeArgument
+                SimpleType: TestSubject
+                  CodeReferenceElement: TestSubject
+                    PsiElement(identifier)('TestSubject')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: TestSubject
@@ -514,14 +534,16 @@ ScalaFile
                       PsiElement(identifier)('KeyedMapper')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    TypeArgument
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: PType
-                      CodeReferenceElement: PType
-                        PsiElement(identifier)('PType')
+                    TypeArgument
+                      SimpleType: PType
+                        CodeReferenceElement: PType
+                          PsiElement(identifier)('PType')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
@@ -543,14 +565,16 @@ ScalaFile
                       PsiElement(identifier)('KeyedMapper')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    TypeArgument
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: CType
-                      CodeReferenceElement: CType
-                        PsiElement(identifier)('CType')
+                    TypeArgument
+                      SimpleType: CType
+                        CodeReferenceElement: CType
+                          PsiElement(identifier)('CType')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
@@ -578,14 +602,16 @@ ScalaFile
                       PsiElement(identifier)('KeyedMetaMapper')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    TypeArgument
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: CType
-                      CodeReferenceElement: CType
-                        PsiElement(identifier)('CType')
+                    TypeArgument
+                      SimpleType: CType
+                        CodeReferenceElement: CType
+                          PsiElement(identifier)('CType')
                     PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace('\n                   ')
@@ -600,19 +626,22 @@ ScalaFile
                     PsiElement(identifier)('MappedForeignKey')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Long
-                    CodeReferenceElement: Long
-                      PsiElement(identifier)('Long')
+                  TypeArgument
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: PType
-                    CodeReferenceElement: PType
-                      PsiElement(identifier)('PType')
+                  TypeArgument
+                    SimpleType: PType
+                      CodeReferenceElement: PType
+                        PsiElement(identifier)('PType')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: CType
-                    CodeReferenceElement: CType
-                      PsiElement(identifier)('CType')
+                  TypeArgument
+                    SimpleType: CType
+                      CodeReferenceElement: CType
+                        PsiElement(identifier)('CType')
                   PsiElement(])(']')
             PsiElement(])(']')
           PsiWhiteSpace('\n  ')
@@ -634,9 +663,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: PType
-                        CodeReferenceElement: PType
-                          PsiElement(identifier)('PType')
+                      TypeArgument
+                        SimpleType: PType
+                          CodeReferenceElement: PType
+                            PsiElement(identifier)('PType')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -686,14 +716,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: CType
-                CodeReferenceElement: CType
-                  PsiElement(identifier)('CType')
+              TypeArgument
+                SimpleType: CType
+                  CodeReferenceElement: CType
+                    PsiElement(identifier)('CType')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -731,41 +763,48 @@ ScalaFile
                   PsiElement(identifier)('oneToOneJoin')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: TestRun
-                    CodeReferenceElement: TestRun
-                      PsiElement(identifier)('TestRun')
+                  TypeArgument
+                    SimpleType: TestRun
+                      CodeReferenceElement: TestRun
+                        PsiElement(identifier)('TestRun')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: TestSubject
-                    CodeReferenceElement: TestSubject
-                      PsiElement(identifier)('TestSubject')
+                  TypeArgument
+                    SimpleType: TestSubject
+                      CodeReferenceElement: TestSubject
+                        PsiElement(identifier)('TestSubject')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: MetaTestSubject
-                    CodeReferenceElement: MetaTestSubject
-                      PsiElement(identifier)('MetaTestSubject')
+                  TypeArgument
+                    SimpleType: MetaTestSubject
+                      CodeReferenceElement: MetaTestSubject
+                        PsiElement(identifier)('MetaTestSubject')
                   PsiElement(,)(',')
                   PsiWhiteSpace('\n                 ')
-                  ParametrizedType: MappedForeignKey[Long, TestRun, TestSubject]
-                    SimpleType: MappedForeignKey
-                      CodeReferenceElement: MappedForeignKey
-                        PsiElement(identifier)('MappedForeignKey')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Long
-                        CodeReferenceElement: Long
-                          PsiElement(identifier)('Long')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: TestRun
-                        CodeReferenceElement: TestRun
-                          PsiElement(identifier)('TestRun')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: TestSubject
-                        CodeReferenceElement: TestSubject
-                          PsiElement(identifier)('TestSubject')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: MappedForeignKey[Long, TestRun, TestSubject]
+                      SimpleType: MappedForeignKey
+                        CodeReferenceElement: MappedForeignKey
+                          PsiElement(identifier)('MappedForeignKey')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: TestRun
+                            CodeReferenceElement: TestRun
+                              PsiElement(identifier)('TestRun')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: TestSubject
+                            CodeReferenceElement: TestSubject
+                              PsiElement(identifier)('TestSubject')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')

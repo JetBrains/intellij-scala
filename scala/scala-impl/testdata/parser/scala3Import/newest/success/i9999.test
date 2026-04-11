@@ -198,11 +198,12 @@ ScalaFile
           PsiElement(identifier)('M2')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: x.type
-          CodeReferenceElement: x
-            PsiElement(identifier)('x')
-          PsiElement(.)('.')
-          PsiElement(type)('type')
+        TypeArgument
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -354,11 +355,12 @@ ScalaFile
                   PsiElement(identifier)('M2')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: x.type
-                  CodeReferenceElement: x
-                    PsiElement(identifier)('x')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
+                TypeArgument
+                  SimpleType: x.type
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
                 PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')
@@ -401,11 +403,12 @@ ScalaFile
           PsiElement(identifier)('M1')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: x.type
-          CodeReferenceElement: x
-            PsiElement(identifier)('x')
-          PsiElement(.)('.')
-          PsiElement(type)('type')
+        TypeArgument
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -713,39 +716,41 @@ ScalaFile
                 PsiElement(identifier)('Fun')
             TypeArgumentsList
               PsiElement([)('[')
-              DependentFunctionType: (y: More|Stop) => Match1[y.type]
-                ParametersClause
-                  PsiElement(()('(')
-                  Parameter: y
-                    PsiElement(identifier)('y')
-                    PsiElement(:)(':')
-                    PsiWhiteSpace(' ')
-                    ParameterType
-                      InfixType: More|Stop
-                        SimpleType: More
-                          CodeReferenceElement: More
-                            PsiElement(identifier)('More')
-                        CodeReferenceElement: |
-                          PsiElement(identifier)('|')
-                        SimpleType: Stop
-                          CodeReferenceElement: Stop
-                            PsiElement(identifier)('Stop')
-                  PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Match1[y.type]
-                  SimpleType: Match1
-                    CodeReferenceElement: Match1
-                      PsiElement(identifier)('Match1')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: y.type
-                      CodeReferenceElement: y
-                        PsiElement(identifier)('y')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                    PsiElement(])(']')
+              TypeArgument
+                DependentFunctionType: (y: More|Stop) => Match1[y.type]
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: y
+                      PsiElement(identifier)('y')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        InfixType: More|Stop
+                          SimpleType: More
+                            CodeReferenceElement: More
+                              PsiElement(identifier)('More')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          SimpleType: Stop
+                            CodeReferenceElement: Stop
+                              PsiElement(identifier)('Stop')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Match1[y.type]
+                    SimpleType: Match1
+                      CodeReferenceElement: Match1
+                        PsiElement(identifier)('Match1')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: y.type
+                          CodeReferenceElement: y
+                            PsiElement(identifier)('y')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -864,11 +869,12 @@ ScalaFile
           PsiElement(identifier)('Match2')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: x.type
-          CodeReferenceElement: x
-            PsiElement(identifier)('x')
-          PsiElement(.)('.')
-          PsiElement(type)('type')
+        TypeArgument
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -972,11 +978,12 @@ ScalaFile
           PsiElement(identifier)('Match1')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: y.type
-          CodeReferenceElement: y
-            PsiElement(identifier)('y')
-          PsiElement(.)('.')
-          PsiElement(type)('type')
+        TypeArgument
+          SimpleType: y.type
+            CodeReferenceElement: y
+              PsiElement(identifier)('y')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

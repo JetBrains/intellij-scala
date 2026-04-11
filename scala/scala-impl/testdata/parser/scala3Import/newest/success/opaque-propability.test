@@ -117,9 +117,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Probability
-                      CodeReferenceElement: Probability
-                        PsiElement(identifier)('Probability')
+                    TypeArgument
+                      SimpleType: Probability
+                        CodeReferenceElement: Probability
+                          PsiElement(identifier)('Probability')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -365,9 +366,10 @@ ScalaFile
                       PsiElement(identifier)('Ordering')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Probability
-                      CodeReferenceElement: Probability
-                        PsiElement(identifier)('Probability')
+                    TypeArgument
+                      SimpleType: Probability
+                        CodeReferenceElement: Probability
+                          PsiElement(identifier)('Probability')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -377,16 +379,18 @@ ScalaFile
                     PsiElement(identifier)('implicitly')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Ordering[Double]
-                      SimpleType: Ordering
-                        CodeReferenceElement: Ordering
-                          PsiElement(identifier)('Ordering')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Double
-                          CodeReferenceElement: Double
-                            PsiElement(identifier)('Double')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Ordering[Double]
+                        SimpleType: Ordering
+                          CodeReferenceElement: Ordering
+                            PsiElement(identifier)('Ordering')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Double
+                              CodeReferenceElement: Double
+                                PsiElement(identifier)('Double')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScClass: ProbabilityOps

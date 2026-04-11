@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScInfixTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.AliasType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -51,7 +51,7 @@ trait TypeAdapter {
             case param => m.Type.Function(List(param), toType(t.returnTypeElement.get))
           }
         case t: ScParameterizedTypeElement =>
-          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.map(toType).toList)
+          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgsWithNamed.map(toType).toList)
         case t: ScInfixTypeElementImpl =>
           m.Type.ApplyInfix(toType(t.left), m.Type.Name(t.operation.refName), toType(t.rightOption.get))
         case t: ScTupleTypeElement =>
@@ -107,6 +107,8 @@ trait TypeAdapter {
     ProgressManager.checkCanceled()
     psiElementTypeChache.getOrElseUpdate(elem, {
       elem match {
+        case targ: ScTypeArgument =>
+          targ.typeElement.map(toType).getOrElse(toType(Any(elem)))
         case t: typedef.ScTemplateDefinition if dumbMode =>
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>

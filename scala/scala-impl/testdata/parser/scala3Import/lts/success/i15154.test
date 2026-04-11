@@ -65,8 +65,9 @@ ScalaFile
                 PsiElement(identifier)('TypeAdapter')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -150,9 +151,10 @@ ScalaFile
                     PsiElement(identifier)('TypeAdapter')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -167,9 +169,10 @@ ScalaFile
                 PsiElement(identifier)('TypeAdapter')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: JavaOptionalTypeAdapter
@@ -223,9 +226,10 @@ ScalaFile
                     PsiElement(identifier)('TypeAdapter')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -240,9 +244,10 @@ ScalaFile
                 PsiElement(identifier)('TypeAdapter')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: typeAdapterOf
@@ -277,8 +282,9 @@ ScalaFile
           PsiElement(identifier)('TypeAdapter')
       TypeArgumentsList
         PsiElement([)('[')
-        WildcardType: _
-          PsiElement(_)('_')
+        TypeArgument
+          WildcardType: _
+            PsiElement(_)('_')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -334,9 +340,10 @@ ScalaFile
             PsiElement(identifier)('empty')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: RType
-              CodeReferenceElement: RType
-                PsiElement(identifier)('RType')
+            TypeArgument
+              SimpleType: RType
+                CodeReferenceElement: RType
+                  PsiElement(identifier)('RType')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       InfixExpression
@@ -388,8 +395,9 @@ ScalaFile
                               PsiElement(identifier)('OptionTypeAdapter')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TypeVariable: _
-                              PsiElement(_)('_')
+                            TypeArgument
+                              TypeVariable: _
+                                PsiElement(_)('_')
                             PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -428,8 +436,9 @@ ScalaFile
                               PsiElement(identifier)('JavaOptionalTypeAdapter')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TypeVariable: _
-                              PsiElement(_)('_')
+                            TypeArgument
+                              TypeVariable: _
+                                PsiElement(_)('_')
                             PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')

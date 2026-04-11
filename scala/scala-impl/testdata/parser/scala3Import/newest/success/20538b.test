@@ -185,8 +185,9 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: x
-                PsiElement(identifier)('x')
+              TypeArgument
+                TypeVariable: x
+                  PsiElement(identifier)('x')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -212,26 +213,28 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: InvF[C.type] =:= String
-              ParametrizedType: InvF[C.type]
-                SimpleType: InvF
-                  CodeReferenceElement: InvF
-                    PsiElement(identifier)('InvF')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: C.type
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+            TypeArgument
+              InfixType: InvF[C.type] =:= String
+                ParametrizedType: InvF[C.type]
+                  SimpleType: InvF
+                    CodeReferenceElement: InvF
+                      PsiElement(identifier)('InvF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: C.type
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// ok')
@@ -241,24 +244,26 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: InvF[B] =:= String
-              ParametrizedType: InvF[B]
-                SimpleType: InvF
-                  CodeReferenceElement: InvF
-                    PsiElement(identifier)('InvF')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+            TypeArgument
+              InfixType: InvF[B] =:= String
+                ParametrizedType: InvF[B]
+                  SimpleType: InvF
+                    CodeReferenceElement: InvF
+                      PsiElement(identifier)('InvF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
             PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// error: selector B does not uniquely determine parameter x')

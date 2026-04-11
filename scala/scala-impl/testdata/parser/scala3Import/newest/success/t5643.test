@@ -131,9 +131,10 @@ ScalaFile
                         PsiElement(identifier)('M')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T1
-                        CodeReferenceElement: T1
-                          PsiElement(identifier)('T1')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -152,9 +153,10 @@ ScalaFile
                         PsiElement(identifier)('M')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T2
-                        CodeReferenceElement: T2
-                          PsiElement(identifier)('T2')
+                      TypeArgument
+                        SimpleType: T2
+                          CodeReferenceElement: T2
+                            PsiElement(identifier)('T2')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -166,23 +168,25 @@ ScalaFile
                   PsiElement(identifier)('TupledEvidence')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
+                TypeArgument
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                TupleType: (T1, T2)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: T1
-                      CodeReferenceElement: T1
-                        PsiElement(identifier)('T1')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: T2
-                      CodeReferenceElement: T2
-                        PsiElement(identifier)('T2')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (T1, T2)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: T1
+                        CodeReferenceElement: T1
+                          PsiElement(identifier)('T1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T2
+                        CodeReferenceElement: T2
+                          PsiElement(identifier)('T2')
+                    PsiElement())(')')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -270,9 +274,10 @@ ScalaFile
                 PsiElement(identifier)('GetResult')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -289,9 +294,10 @@ ScalaFile
                         PsiElement(identifier)('GetResult')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: getTuple
@@ -328,14 +334,16 @@ ScalaFile
                         PsiElement(identifier)('TupledEvidence')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: GetResult
-                        CodeReferenceElement: GetResult
-                          PsiElement(identifier)('GetResult')
+                      TypeArgument
+                        SimpleType: GetResult
+                          CodeReferenceElement: GetResult
+                            PsiElement(identifier)('GetResult')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -346,12 +354,13 @@ ScalaFile
                 PsiElement(identifier)('GetResult')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: w.T
-                CodeReferenceElement: w.T
-                  CodeReferenceElement: w
-                    PsiElement(identifier)('w')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: w.T
+                  CodeReferenceElement: w.T
+                    CodeReferenceElement: w
+                      PsiElement(identifier)('w')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -402,6 +411,50 @@ ScalaFile
               PsiElement(identifier)('f')
             TypeArgumentsList
               PsiElement([)('[')
+              TypeArgument
+                TupleType: (String,String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: getTuple
+                PsiElement(identifier)('getTuple')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  TupleType: (String, String)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
               TupleType: (String,String)
                 PsiElement(()('(')
                 TypesList
@@ -413,47 +466,6 @@ ScalaFile
                     CodeReferenceElement: String
                       PsiElement(identifier)('String')
                 PsiElement())(')')
-              PsiElement(])(']')
-          ArgumentList
-            PsiElement(()('(')
-            PsiElement(using)('using')
-            PsiWhiteSpace(' ')
-            GenericCall
-              ReferenceExpression: getTuple
-                PsiElement(identifier)('getTuple')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (String, String)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                  PsiElement())(')')
-                PsiElement(])(']')
-            PsiElement())(')')
-        PsiWhiteSpace('\n\n  ')
-        GenericCall
-          ReferenceExpression: f
-            PsiElement(identifier)('f')
-          TypeArgumentsList
-            PsiElement([)('[')
-            TupleType: (String,String)
-              PsiElement(()('(')
-              TypesList
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-                PsiElement(,)(',')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-              PsiElement())(')')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

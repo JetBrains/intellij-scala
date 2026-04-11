@@ -58,9 +58,10 @@ ScalaFile
               PsiElement(identifier)('Show')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
+            TypeArgument
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -89,8 +90,9 @@ ScalaFile
                 PsiElement(identifier)('Show')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: a
-                PsiElement(identifier)('a')
+              TypeArgument
+                TypeVariable: a
+                  PsiElement(identifier)('a')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -135,34 +137,38 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: MT1[Show[String], Int] =:= String
-          ParametrizedType: MT1[Show[String], Int]
-            SimpleType: MT1
-              CodeReferenceElement: MT1
-                PsiElement(identifier)('MT1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Show[String]
-                SimpleType: Show
-                  CodeReferenceElement: Show
-                    PsiElement(identifier)('Show')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
+        TypeArgument
+          InfixType: MT1[Show[String], Int] =:= String
+            ParametrizedType: MT1[Show[String], Int]
+              SimpleType: MT1
+                CodeReferenceElement: MT1
+                  PsiElement(identifier)('MT1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Show[String]
+                    SimpleType: Show
+                      CodeReferenceElement: Show
+                        PsiElement(identifier)('Show')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
         PsiElement(])(']')

@@ -117,9 +117,10 @@ ScalaFile
                         PsiElement(identifier)('Box')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -170,9 +171,10 @@ ScalaFile
                         PsiElement(identifier)('Box')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -232,17 +234,18 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  InfixType: X & Y
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: &
-                      PsiElement(identifier)('&')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Y
-                      CodeReferenceElement: Y
-                        PsiElement(identifier)('Y')
+                  TypeArgument
+                    InfixType: X & Y
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Y
+                        CodeReferenceElement: Y
+                          PsiElement(identifier)('Y')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             MethodCall

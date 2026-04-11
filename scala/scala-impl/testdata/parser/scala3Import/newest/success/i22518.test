@@ -60,8 +60,9 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: ?
-                PsiElement(?)('?')
+              TypeArgument
+                WildcardType: ?
+                  PsiElement(?)('?')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: mkFoo
@@ -87,9 +88,10 @@ ScalaFile
           PsiElement(identifier)('Foo')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

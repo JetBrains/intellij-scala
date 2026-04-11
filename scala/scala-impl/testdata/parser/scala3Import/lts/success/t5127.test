@@ -37,9 +37,10 @@ ScalaFile
                 PsiElement(identifier)('Abstract2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -73,9 +74,10 @@ ScalaFile
                 PsiElement(identifier)('Abstract2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -97,9 +99,10 @@ ScalaFile
                   PsiElement(identifier)('Abstract1')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                TypeArgument
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
                 PsiElement(])(']')
     PsiWhiteSpace('\n  ')
     ScClass: Parametrized1
@@ -134,16 +137,18 @@ ScalaFile
                   PsiElement(identifier)('Abstract1')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Parametrized2[T]
-                  SimpleType: Parametrized2
-                    CodeReferenceElement: Parametrized2
-                      PsiElement(identifier)('Parametrized2')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Parametrized2[T]
+                    SimpleType: Parametrized2
+                      CodeReferenceElement: Parametrized2
+                        PsiElement(identifier)('Parametrized2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -208,8 +213,9 @@ ScalaFile
                               PsiElement(identifier)('Parametrized1')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TypeVariable: _
-                              PsiElement(_)('_')
+                            TypeArgument
+                              TypeVariable: _
+                                PsiElement(_)('_')
                             PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -262,9 +268,10 @@ ScalaFile
                   PsiElement(identifier)('Parametrized1')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(with)('with')
@@ -276,16 +283,18 @@ ScalaFile
                   PsiElement(identifier)('Abstract2')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Parametrized2[T]
-                  SimpleType: Parametrized2
-                    CodeReferenceElement: Parametrized2
-                      PsiElement(identifier)('Parametrized2')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Parametrized2[T]
+                    SimpleType: Parametrized2
+                      CodeReferenceElement: Parametrized2
+                        PsiElement(identifier)('Parametrized2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     PsiElement(})('}')

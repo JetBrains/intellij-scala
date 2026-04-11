@@ -140,9 +140,10 @@ ScalaFile
                             PsiElement(identifier)('Seq')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: AnyRef
-                            CodeReferenceElement: AnyRef
-                              PsiElement(identifier)('AnyRef')
+                          TypeArgument
+                            SimpleType: AnyRef
+                              CodeReferenceElement: AnyRef
+                                PsiElement(identifier)('AnyRef')
                           PsiElement(])(']')
                   PsiElement())(')')
             ExtendsBlock

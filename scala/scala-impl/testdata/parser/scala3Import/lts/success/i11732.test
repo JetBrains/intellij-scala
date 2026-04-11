@@ -182,9 +182,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Prod
-                        CodeReferenceElement: Prod
-                          PsiElement(identifier)('Prod')
+                      TypeArgument
+                        SimpleType: Prod
+                          CodeReferenceElement: Prod
+                            PsiElement(identifier)('Prod')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -195,17 +196,19 @@ ScalaFile
                 PsiElement(identifier)('TupleConversion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Prod
-                CodeReferenceElement: Prod
-                  PsiElement(identifier)('Prod')
+              TypeArgument
+                SimpleType: Prod
+                  CodeReferenceElement: Prod
+                    PsiElement(identifier)('Prod')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: m.MirroredElemTypes
-                CodeReferenceElement: m.MirroredElemTypes
-                  CodeReferenceElement: m
-                    PsiElement(identifier)('m')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('MirroredElemTypes')
+              TypeArgument
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -222,17 +225,19 @@ ScalaFile
                         PsiElement(identifier)('TupleConversion')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Prod
-                        CodeReferenceElement: Prod
-                          PsiElement(identifier)('Prod')
+                      TypeArgument
+                        SimpleType: Prod
+                          CodeReferenceElement: Prod
+                            PsiElement(identifier)('Prod')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: m.MirroredElemTypes
-                        CodeReferenceElement: m.MirroredElemTypes
-                          CodeReferenceElement: m
-                            PsiElement(identifier)('m')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('MirroredElemTypes')
+                      TypeArgument
+                        SimpleType: m.MirroredElemTypes
+                          CodeReferenceElement: m.MirroredElemTypes
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -473,30 +478,33 @@ ScalaFile
                       PsiElement(identifier)('implicitly')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: TupleConversion[Data, (Int, Int)]
-                        SimpleType: TupleConversion
-                          CodeReferenceElement: TupleConversion
-                            PsiElement(identifier)('TupleConversion')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Data
-                            CodeReferenceElement: Data
-                              PsiElement(identifier)('Data')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          TupleType: (Int, Int)
-                            PsiElement(()('(')
-                            TypesList
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                            PsiElement())(')')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: TupleConversion[Data, (Int, Int)]
+                          SimpleType: TupleConversion
+                            CodeReferenceElement: TupleConversion
+                              PsiElement(identifier)('TupleConversion')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Data
+                                CodeReferenceElement: Data
+                                  PsiElement(identifier)('Data')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TupleType: (Int, Int)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement())(')')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n  ')
                 PsiElement(})('}')

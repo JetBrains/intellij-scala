@@ -19,7 +19,8 @@ object Param extends ParsingRule {
 
     val modifiersMarker = builder.mark()
     if (builder.isScala3 && builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)) {
-      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword) ||
+        builder.tryParseSoftKeyword(ScalaTokenType.ErasedKeyword)
     }
     modifiersMarker.done(ScalaElementType.MODIFIERS)
 

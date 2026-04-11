@@ -94,8 +94,9 @@ ScalaFile
                 PsiElement(identifier)('S')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: n1
-                PsiElement(identifier)('n1')
+              TypeArgument
+                TypeVariable: n1
+                  PsiElement(identifier)('n1')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -144,12 +145,14 @@ ScalaFile
                       PsiElement(identifier)('Drop')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: xs
-                      CodeReferenceElement: xs
-                        PsiElement(identifier)('xs')
+                    TypeArgument
+                      SimpleType: xs
+                        CodeReferenceElement: xs
+                          PsiElement(identifier)('xs')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: n1
-                      CodeReferenceElement: n1
-                        PsiElement(identifier)('n1')
+                    TypeArgument
+                      SimpleType: n1
+                        CodeReferenceElement: n1
+                          PsiElement(identifier)('n1')
                     PsiElement(])(']')

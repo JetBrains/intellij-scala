@@ -119,21 +119,24 @@ ScalaFile
                     PsiElement(identifier)('F')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Either[A, B]
-                    SimpleType: Either
-                      CodeReferenceElement: Either
-                        PsiElement(identifier)('Either')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Either[A, B]
+                      SimpleType: Either
+                        CodeReferenceElement: Either
+                          PsiElement(identifier)('Either')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                        PsiElement(])(']')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -179,9 +182,10 @@ ScalaFile
                           PsiElement(identifier)('F')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: D
-                          CodeReferenceElement: D
-                            PsiElement(identifier)('D')
+                        TypeArgument
+                          SimpleType: D
+                            CodeReferenceElement: D
+                              PsiElement(identifier)('D')
                         PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -203,9 +207,10 @@ ScalaFile
                         PsiElement(identifier)('Monad')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -216,19 +221,22 @@ ScalaFile
                 PsiElement(identifier)('EitherT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: D
-                CodeReferenceElement: D
-                  PsiElement(identifier)('D')
+              TypeArgument
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -305,9 +313,10 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -349,9 +358,10 @@ ScalaFile
                 PsiElement(identifier)('Applicative')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: Async
@@ -391,9 +401,10 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: Request
@@ -528,9 +539,10 @@ ScalaFile
                     PsiElement(identifier)('Async')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
+                  TypeArgument
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -605,9 +617,10 @@ ScalaFile
                         PsiElement(identifier)('Async')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: M
-                        CodeReferenceElement: M
-                          PsiElement(identifier)('M')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -618,9 +631,10 @@ ScalaFile
                 PsiElement(identifier)('M')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: CSRFToken
-                CodeReferenceElement: CSRFToken
-                  PsiElement(identifier)('CSRFToken')
+              TypeArgument
+                SimpleType: CSRFToken
+                  CodeReferenceElement: CSRFToken
+                    PsiElement(identifier)('CSRFToken')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -666,9 +680,10 @@ ScalaFile
                         PsiElement(identifier)('Async')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: M
-                        CodeReferenceElement: M
-                          PsiElement(identifier)('M')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -679,19 +694,22 @@ ScalaFile
                 PsiElement(identifier)('EitherT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              TypeArgument
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: CSRFCheckFailed
-                CodeReferenceElement: CSRFCheckFailed
-                  PsiElement(identifier)('CSRFCheckFailed')
+              TypeArgument
+                SimpleType: CSRFCheckFailed
+                  CodeReferenceElement: CSRFCheckFailed
+                    PsiElement(identifier)('CSRFCheckFailed')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: CSRFToken
-                CodeReferenceElement: CSRFToken
-                  PsiElement(identifier)('CSRFToken')
+              TypeArgument
+                SimpleType: CSRFToken
+                  CodeReferenceElement: CSRFToken
+                    PsiElement(identifier)('CSRFToken')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -721,9 +739,10 @@ ScalaFile
                   PsiElement(identifier)('signToken')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: M
-                    CodeReferenceElement: M
-                      PsiElement(identifier)('M')
+                  TypeArgument
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
                   PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace('\n\n  ')
@@ -775,21 +794,24 @@ ScalaFile
                 PsiElement(identifier)('M')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Either[CSRFCheckFailed, String]
-                SimpleType: Either
-                  CodeReferenceElement: Either
-                    PsiElement(identifier)('Either')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: CSRFCheckFailed
-                    CodeReferenceElement: CSRFCheckFailed
-                      PsiElement(identifier)('CSRFCheckFailed')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Either[CSRFCheckFailed, String]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: CSRFCheckFailed
+                        CodeReferenceElement: CSRFCheckFailed
+                          PsiElement(identifier)('CSRFCheckFailed')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

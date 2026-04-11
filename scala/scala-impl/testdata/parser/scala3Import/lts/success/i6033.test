@@ -52,8 +52,9 @@ ScalaFile
                           PsiElement(identifier)('Array')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                     CodeReferenceElement: |
                       PsiElement(identifier)('|')
@@ -93,9 +94,10 @@ ScalaFile
                           PsiElement(identifier)('Array')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

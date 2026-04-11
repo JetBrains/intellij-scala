@@ -38,6 +38,51 @@ class ScalaMoveLeftRightTest extends ScalaMoveLeftRightTestBase {
     )
   }
 
+  def testNamedTypeArgs(): Unit = {
+    doTestFromLeftToRight(
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[A = Int<caret>, B = String]""".stripMargin,
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[B = String, A = Int<caret>]""".stripMargin
+    )
+  }
+
+  def testNamedTypeArgsCaretOnName(): Unit = {
+    doTestFromLeftToRight(
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[A<caret> = Int, B = String]""".stripMargin,
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[B = String, A<caret> = Int]""".stripMargin
+    )
+  }
+
+  def testNamedTypeArgsCaretOnEquals(): Unit = {
+    doTestFromLeftToRight(
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[A<caret>= Int, B = String]""".stripMargin,
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |def construct[A, B]: Unit = ()
+        |
+        |construct[B = String, A<caret>= Int]""".stripMargin
+    )
+  }
+
   def testPatternArgs(): Unit = {
     doTestFromRightToLeft (
       "val List(x, <caret>y) = List(1, 2)",

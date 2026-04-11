@@ -97,8 +97,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -157,8 +158,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -228,8 +230,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -310,8 +313,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -369,8 +373,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -437,8 +442,9 @@ ScalaFile
                         PsiElement(identifier)('HasA')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause

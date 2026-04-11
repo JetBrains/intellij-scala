@@ -166,14 +166,16 @@ ScalaFile
                   PsiElement(identifier)('Concat')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: HNil
-                  CodeReferenceElement: HNil
-                    PsiElement(identifier)('HNil')
+                TypeArgument
+                  SimpleType: HNil
+                    CodeReferenceElement: HNil
+                      PsiElement(identifier)('HNil')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
+                TypeArgument
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -249,14 +251,16 @@ ScalaFile
                           PsiElement(identifier)('Concat')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: L
-                          CodeReferenceElement: L
-                            PsiElement(identifier)('L')
+                        TypeArgument
+                          SimpleType: L
+                            CodeReferenceElement: L
+                              PsiElement(identifier)('L')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     Refinement
@@ -288,26 +292,30 @@ ScalaFile
                   PsiElement(identifier)('Concat')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: HCons[H, T]
-                  SimpleType: HCons
-                    CodeReferenceElement: HCons
-                      PsiElement(identifier)('HCons')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: H
-                      CodeReferenceElement: H
-                        PsiElement(identifier)('H')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: HCons[H, T]
+                    SimpleType: HCons
+                      CodeReferenceElement: HCons
+                        PsiElement(identifier)('HCons')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
+                TypeArgument
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -330,14 +338,16 @@ ScalaFile
                       PsiElement(identifier)('HCons')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: H
-                      CodeReferenceElement: H
-                        PsiElement(identifier)('H')
+                    TypeArgument
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: O
-                      CodeReferenceElement: O
-                        PsiElement(identifier)('O')
+                    TypeArgument
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(})('}')
@@ -379,14 +389,16 @@ ScalaFile
                 PsiElement(identifier)('HCons')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: HNil
-                CodeReferenceElement: HNil
-                  PsiElement(identifier)('HNil')
+              TypeArgument
+                SimpleType: HNil
+                  CodeReferenceElement: HNil
+                    PsiElement(identifier)('HNil')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -394,21 +406,24 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Concat[L1, L1]
-              SimpleType: Concat
-                CodeReferenceElement: Concat
-                  PsiElement(identifier)('Concat')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: L1
-                  CodeReferenceElement: L1
-                    PsiElement(identifier)('L1')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: L1
-                  CodeReferenceElement: L1
-                    PsiElement(identifier)('L1')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Concat[L1, L1]
+                SimpleType: Concat
+                  CodeReferenceElement: Concat
+                    PsiElement(identifier)('Concat')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: L1
+                      CodeReferenceElement: L1
+                        PsiElement(identifier)('L1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: L1
+                      CodeReferenceElement: L1
+                        PsiElement(identifier)('L1')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

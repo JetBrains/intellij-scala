@@ -84,28 +84,32 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Vector[ScoreVsPlayer[P]]
-                SimpleType: Vector
-                  CodeReferenceElement: Vector
-                    PsiElement(identifier)('Vector')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: ScoreVsPlayer[P]
-                    SimpleType: ScoreVsPlayer
-                      CodeReferenceElement: ScoreVsPlayer
-                        PsiElement(identifier)('ScoreVsPlayer')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: P
-                        CodeReferenceElement: P
-                          PsiElement(identifier)('P')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Vector[ScoreVsPlayer[P]]
+                  SimpleType: Vector
+                    CodeReferenceElement: Vector
+                      PsiElement(identifier)('Vector')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: ScoreVsPlayer[P]
+                        SimpleType: ScoreVsPlayer
+                          CodeReferenceElement: ScoreVsPlayer
+                            PsiElement(identifier)('ScoreVsPlayer')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: P
+                              CodeReferenceElement: P
+                                PsiElement(identifier)('P')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: ScoreVsPlayer
@@ -177,16 +181,18 @@ ScalaFile
                   PsiElement(identifier)('IndexedSeq')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: ScoreVsPlayer[P]
-                  SimpleType: ScoreVsPlayer
-                    CodeReferenceElement: ScoreVsPlayer
-                      PsiElement(identifier)('ScoreVsPlayer')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: P
-                      CodeReferenceElement: P
-                        PsiElement(identifier)('P')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: ScoreVsPlayer[P]
+                    SimpleType: ScoreVsPlayer
+                      CodeReferenceElement: ScoreVsPlayer
+                        PsiElement(identifier)('ScoreVsPlayer')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -212,16 +218,18 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Player[P]
-                    SimpleType: Player
-                      CodeReferenceElement: Player
-                        PsiElement(identifier)('Player')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: P
-                        CodeReferenceElement: P
-                          PsiElement(identifier)('P')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Player[P]
+                      SimpleType: Player
+                        CodeReferenceElement: Player
+                          PsiElement(identifier)('Player')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: P
+                            CodeReferenceElement: P
+                              PsiElement(identifier)('P')
+                        PsiElement(])(']')
                   PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -232,9 +240,10 @@ ScalaFile
           PsiElement(identifier)('Player')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: P
-          CodeReferenceElement: P
-            PsiElement(identifier)('P')
+        TypeArgument
+          SimpleType: P
+            CodeReferenceElement: P
+              PsiElement(identifier)('P')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -284,21 +293,24 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Player[P]
-                SimpleType: Player
-                  CodeReferenceElement: Player
-                    PsiElement(identifier)('Player')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: P
-                    CodeReferenceElement: P
-                      PsiElement(identifier)('P')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Player[P]
+                  SimpleType: Player
+                    CodeReferenceElement: Player
+                      PsiElement(identifier)('Player')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: after
@@ -338,14 +350,15 @@ ScalaFile
                         PsiElement(identifier)('RatingPeriod')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: P
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: P
-                          CodeReferenceElement: P
-                            PsiElement(identifier)('P')
+                      TypeArgument
+                        WildcardType: ? <: P
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: P
+                            CodeReferenceElement: P
+                              PsiElement(identifier)('P')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -356,9 +369,10 @@ ScalaFile
                 PsiElement(identifier)('Leaderboard')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P2
-                CodeReferenceElement: P2
-                  PsiElement(identifier)('P2')
+              TypeArgument
+                SimpleType: P2
+                  CodeReferenceElement: P2
+                    PsiElement(identifier)('P2')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -443,9 +457,10 @@ ScalaFile
                               PsiElement(identifier)('updated')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: P
-                                CodeReferenceElement: P
-                                  PsiElement(identifier)('P')
+                              TypeArgument
+                                SimpleType: P
+                                  CodeReferenceElement: P
+                                    PsiElement(identifier)('P')
                               PsiElement(])(']')
                           ArgumentList
                             PsiElement(()('(')

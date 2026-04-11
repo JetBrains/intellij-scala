@@ -239,9 +239,10 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Foo
-                      CodeReferenceElement: Foo
-                        PsiElement(identifier)('Foo')
+                    TypeArgument
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScPatternDefinition: barDirect
@@ -270,9 +271,10 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Bar
-                      CodeReferenceElement: Bar
-                        PsiElement(identifier)('Bar')
+                    TypeArgument
+                      SimpleType: Bar
+                        CodeReferenceElement: Bar
+                          PsiElement(identifier)('Bar')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -351,9 +353,10 @@ ScalaFile
                       PsiElement(identifier)('asInstanceOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Foo
-                        CodeReferenceElement: Foo
-                          PsiElement(identifier)('Foo')
+                      TypeArgument
+                        SimpleType: Foo
+                          CodeReferenceElement: Foo
+                            PsiElement(identifier)('Foo')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(})('}')
@@ -409,9 +412,10 @@ ScalaFile
                       PsiElement(identifier)('asInstanceOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Bar
-                        CodeReferenceElement: Bar
-                          PsiElement(identifier)('Bar')
+                      TypeArgument
+                        SimpleType: Bar
+                          CodeReferenceElement: Bar
+                            PsiElement(identifier)('Bar')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(})('}')
@@ -449,9 +453,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScFunctionDefinition: testGeneric
@@ -500,9 +505,10 @@ ScalaFile
                     PsiElement(identifier)('nullOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Foo
-                      CodeReferenceElement: Foo
-                        PsiElement(identifier)('Foo')
+                    TypeArgument
+                      SimpleType: Foo
+                        CodeReferenceElement: Foo
+                          PsiElement(identifier)('Foo')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScPatternDefinition: barGeneric
@@ -528,9 +534,10 @@ ScalaFile
                     PsiElement(identifier)('nullOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Bar
-                      CodeReferenceElement: Bar
-                        PsiElement(identifier)('Bar')
+                    TypeArgument
+                      SimpleType: Bar
+                        CodeReferenceElement: Bar
+                          PsiElement(identifier)('Bar')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

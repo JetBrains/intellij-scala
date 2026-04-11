@@ -124,9 +124,10 @@ ScalaFile
                   PsiElement(identifier)('implicitly')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  TypeArgument
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                   PsiElement(])(']')
             PsiWhiteSpace('   ')
             PsiComment(comment)('// now ok: shadowing no longer tested')
@@ -163,9 +164,10 @@ ScalaFile
                   PsiElement(identifier)('implicitly')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  TypeArgument
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                   PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiComment(comment)('// now ok: shadowing no longer tested')
@@ -293,16 +295,18 @@ ScalaFile
                     PsiElement(identifier)('implicitly')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: C1[T]
-                      SimpleType: C1
-                        CodeReferenceElement: C1
-                          PsiElement(identifier)('C1')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: C1[T]
+                        SimpleType: C1
+                          CodeReferenceElement: C1
+                            PsiElement(identifier)('C1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace('    ')
                 PsiComment(comment)('// OK: no shadowing for evidence parameters')
@@ -312,16 +316,18 @@ ScalaFile
                     PsiElement(identifier)('implicitly')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: C2[U]
-                      SimpleType: C2
-                        CodeReferenceElement: C2
-                          PsiElement(identifier)('C2')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: U
-                          CodeReferenceElement: U
-                            PsiElement(identifier)('U')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: C2[U]
+                        SimpleType: C2
+                          CodeReferenceElement: C2
+                            PsiElement(identifier)('C2')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: U
+                              CodeReferenceElement: U
+                                PsiElement(identifier)('U')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')
@@ -352,9 +358,10 @@ ScalaFile
                   PsiElement(identifier)('C1')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')
@@ -392,9 +399,10 @@ ScalaFile
                       PsiElement(identifier)('C2')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: U
-                      CodeReferenceElement: U
-                        PsiElement(identifier)('U')
+                    TypeArgument
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(?=>)('?=>')
@@ -413,16 +421,18 @@ ScalaFile
                     PsiElement(identifier)('implicitly')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: C1[T]
-                      SimpleType: C1
-                        CodeReferenceElement: C1
-                          PsiElement(identifier)('C1')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: C1[T]
+                        SimpleType: C1
+                          CodeReferenceElement: C1
+                            PsiElement(identifier)('C1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace('    ')
                 PsiComment(comment)('// OK: no shadowing for evidence parameters')
@@ -432,16 +442,18 @@ ScalaFile
                     PsiElement(identifier)('implicitly')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: C2[U]
-                      SimpleType: C2
-                        CodeReferenceElement: C2
-                          PsiElement(identifier)('C2')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: U
-                          CodeReferenceElement: U
-                            PsiElement(identifier)('U')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: C2[U]
+                        SimpleType: C2
+                          CodeReferenceElement: C2
+                            PsiElement(identifier)('C2')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: U
+                              CodeReferenceElement: U
+                                PsiElement(identifier)('U')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')

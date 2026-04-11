@@ -176,28 +176,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: (Int | Nothing) <:< Int
-          TypeInParenthesis: (Int | Nothing)
-            PsiElement(()('(')
-            InfixType: Int | Nothing
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: (Int | Nothing) <:< Int
+            TypeInParenthesis: (Int | Nothing)
+              PsiElement(()('(')
+              InfixType: Int | Nothing
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: intSub
@@ -218,28 +219,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Int <:< (Int | Nothing)
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (Int | Nothing)
-            PsiElement(()('(')
-            InfixType: Int | Nothing
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: Int <:< (Int | Nothing)
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (Int | Nothing)
+              PsiElement(()('(')
+              InfixType: Int | Nothing
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: intEq
@@ -260,28 +262,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Int =:= (Int | Nothing)
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (Int | Nothing)
-            PsiElement(()('(')
-            InfixType: Int | Nothing
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: Int =:= (Int | Nothing)
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (Int | Nothing)
+              PsiElement(()('(')
+              InfixType: Int | Nothing
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: fooSuper
@@ -302,32 +305,33 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: (Foo.type | Nothing) <:< Foo.type
-          TypeInParenthesis: (Foo.type | Nothing)
-            PsiElement(()('(')
-            InfixType: Foo.type | Nothing
-              SimpleType: Foo.type
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          SimpleType: Foo.type
-            CodeReferenceElement: Foo
-              PsiElement(identifier)('Foo')
-            PsiElement(.)('.')
-            PsiElement(type)('type')
+        TypeArgument
+          InfixType: (Foo.type | Nothing) <:< Foo.type
+            TypeInParenthesis: (Foo.type | Nothing)
+              PsiElement(()('(')
+              InfixType: Foo.type | Nothing
+                SimpleType: Foo.type
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            SimpleType: Foo.type
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: fooSub
@@ -348,32 +352,33 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Foo.type <:< (Foo.type | Nothing)
-          SimpleType: Foo.type
-            CodeReferenceElement: Foo
-              PsiElement(identifier)('Foo')
-            PsiElement(.)('.')
-            PsiElement(type)('type')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (Foo.type | Nothing)
-            PsiElement(()('(')
-            InfixType: Foo.type | Nothing
-              SimpleType: Foo.type
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: Foo.type <:< (Foo.type | Nothing)
+            SimpleType: Foo.type
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (Foo.type | Nothing)
+              PsiElement(()('(')
+              InfixType: Foo.type | Nothing
+                SimpleType: Foo.type
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: fooEq
@@ -394,32 +399,33 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Foo.type =:= (Foo.type | Nothing)
-          SimpleType: Foo.type
-            CodeReferenceElement: Foo
-              PsiElement(identifier)('Foo')
-            PsiElement(.)('.')
-            PsiElement(type)('type')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (Foo.type | Nothing)
-            PsiElement(()('(')
-            InfixType: Foo.type | Nothing
-              SimpleType: Foo.type
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: Foo.type =:= (Foo.type | Nothing)
+            SimpleType: Foo.type
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (Foo.type | Nothing)
+              PsiElement(()('(')
+              InfixType: Foo.type | Nothing
+                SimpleType: Foo.type
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: oneSuper
@@ -440,28 +446,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: (1 | Nothing) <:< 1
-          TypeInParenthesis: (1 | Nothing)
-            PsiElement(()('(')
-            InfixType: 1 | Nothing
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          LiteralType: 1
-            IntegerLiteral
-              PsiElement(integer)('1')
+        TypeArgument
+          InfixType: (1 | Nothing) <:< 1
+            TypeInParenthesis: (1 | Nothing)
+              PsiElement(()('(')
+              InfixType: 1 | Nothing
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: oneSub
@@ -482,28 +489,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: 1 <:< (1 | Nothing)
-          LiteralType: 1
-            IntegerLiteral
-              PsiElement(integer)('1')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: <:<
-            PsiElement(identifier)('<:<')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (1 | Nothing)
-            PsiElement(()('(')
-            InfixType: 1 | Nothing
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: 1 <:< (1 | Nothing)
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (1 | Nothing)
+              PsiElement(()('(')
+              InfixType: 1 | Nothing
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: oneEq
@@ -524,26 +532,27 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: 1 =:= (1 | Nothing)
-          LiteralType: 1
-            IntegerLiteral
-              PsiElement(integer)('1')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: (1 | Nothing)
-            PsiElement(()('(')
-            InfixType: 1 | Nothing
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: 1 =:= (1 | Nothing)
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (1 | Nothing)
+              PsiElement(()('(')
+              InfixType: 1 | Nothing
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement())(')')
         PsiElement(])(']')

@@ -87,9 +87,10 @@ ScalaFile
                 PsiElement(identifier)('Test')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -106,9 +107,10 @@ ScalaFile
                         PsiElement(identifier)('Test')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               ScTemplateBody
                 PsiElement({)('{')
@@ -134,16 +136,18 @@ ScalaFile
         PsiElement(identifier)('implicitly')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Test[1]
-          SimpleType: Test
-            CodeReferenceElement: Test
-              PsiElement(identifier)('Test')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: 1
-              IntegerLiteral
-                PsiElement(integer)('1')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Test[1]
+            SimpleType: Test
+              CodeReferenceElement: Test
+                PsiElement(identifier)('Test')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: tester

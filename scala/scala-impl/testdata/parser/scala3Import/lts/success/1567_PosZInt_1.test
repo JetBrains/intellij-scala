@@ -96,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PosZInt
-                CodeReferenceElement: PosZInt
-                  PsiElement(identifier)('PosZInt')
+              TypeArgument
+                SimpleType: PosZInt
+                  CodeReferenceElement: PosZInt
+                    PsiElement(identifier)('PosZInt')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

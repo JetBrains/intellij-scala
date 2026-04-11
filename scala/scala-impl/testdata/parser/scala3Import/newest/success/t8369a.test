@@ -62,9 +62,10 @@ ScalaFile
                     PsiElement(identifier)('Sys')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -78,9 +79,10 @@ ScalaFile
                 PsiElement(identifier)('read')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: S
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -107,9 +109,10 @@ ScalaFile
                     PsiElement(identifier)('Sys')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -141,9 +144,10 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

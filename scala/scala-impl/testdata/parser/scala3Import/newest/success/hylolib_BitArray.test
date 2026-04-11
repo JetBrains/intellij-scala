@@ -434,9 +434,10 @@ ScalaFile
                       PsiElement(identifier)('HyArray')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace('\n    ')
@@ -1098,9 +1099,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Boolean
-                      CodeReferenceElement: Boolean
-                        PsiElement(identifier)('Boolean')
+                    TypeArgument
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -4711,9 +4713,10 @@ ScalaFile
                                 PsiElement(identifier)('HyArray')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: Int
-                                  CodeReferenceElement: Int
-                                    PsiElement(identifier)('Int')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
                                 PsiElement(])(']')
                             ArgumentList
                               PsiElement(()('(')

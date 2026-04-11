@@ -352,9 +352,10 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |            PsiElement(identifier)('Seq')
       |        TypeArgumentsList
       |          PsiElement([)('[')
-      |          SimpleType: Int
-      |            CodeReferenceElement: Int
-      |              PsiElement(identifier)('Int')
+      |          TypeArgument
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
       |          PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(match)('match')
@@ -371,8 +372,9 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Seq')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              TypeVariable: x
-      |                PsiElement(identifier)('x')
+      |              TypeArgument
+      |                TypeVariable: x
+      |                  PsiElement(identifier)('x')
       |              PsiElement(])(']')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=>)('=>')
@@ -404,16 +406,18 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |            PsiElement(identifier)('Seq')
       |        TypeArgumentsList
       |          PsiElement([)('[')
-      |          ParametrizedType: Seq[Int]
-      |            SimpleType: Seq
-      |              CodeReferenceElement: Seq
-      |                PsiElement(identifier)('Seq')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
-      |              PsiElement(])(']')
+      |          TypeArgument
+      |            ParametrizedType: Seq[Int]
+      |              SimpleType: Seq
+      |                CodeReferenceElement: Seq
+      |                  PsiElement(identifier)('Seq')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                TypeArgument
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |                PsiElement(])(']')
       |          PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(match)('match')
@@ -430,15 +434,17 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Seq')
       |            TypeArgumentsList
       |              PsiElement([)('[')
-      |              ParametrizedType: Seq[x]
-      |                SimpleType: Seq
-      |                  CodeReferenceElement: Seq
-      |                    PsiElement(identifier)('Seq')
-      |                TypeArgumentsList
-      |                  PsiElement([)('[')
-      |                  TypeVariable: x
-      |                    PsiElement(identifier)('x')
-      |                  PsiElement(])(']')
+      |              TypeArgument
+      |                ParametrizedType: Seq[x]
+      |                  SimpleType: Seq
+      |                    CodeReferenceElement: Seq
+      |                      PsiElement(identifier)('Seq')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    TypeArgument
+      |                      TypeVariable: x
+      |                        PsiElement(identifier)('x')
+      |                    PsiElement(])(']')
       |              PsiElement(])(']')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=>)('=>')

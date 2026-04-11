@@ -214,7 +214,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def addGenericParams(clazz: ScTypeDefinition): Unit = ref.getParent.getParent match {
     case pt: ScParameterizedTypeElement =>
-      val paramsText = pt.typeArgList.typeArgs match {
+      val paramsText = pt.typeArgList.typeArgsWithNamed match {
         case args if args.size == 1 => "[T]"
         case args => args.indices.map(i => s"T${i + 1}").mkString("[", ", ", "]")
       }

@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem, ScopeSuggester}
 import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.junit.Assert
@@ -47,9 +47,15 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightCodeInsightFixtureTe
       element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])
     }
 
-    assert(element.is[ScTypeElement], "Selected element should be ScTypeElement")
+    val typeElement = element match {
+      case te: ScTypeElement => Option(te)
+      case ta: ScTypeArgument => ta.typeElement
+      case _ => None
+    }
 
-    val scopes: Array[ScopeItem] = ScopeSuggester.suggestScopes(element.asInstanceOf[ScTypeElement])
+    assert(typeElement.isDefined, "Selected element should be ScTypeElement or ScTypeArgument")
+
+    val scopes: Array[ScopeItem] = ScopeSuggester.suggestScopes(typeElement.get)
     Assert.assertEquals(scopes.map(_.name).sorted.mkString(", "), suggestedScopesNames.sorted.mkString(", "))
   }
 }

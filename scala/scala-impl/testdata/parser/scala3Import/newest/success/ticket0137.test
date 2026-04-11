@@ -78,9 +78,10 @@ ScalaFile
                       PsiElement(identifier)('MonadCompanion')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: AM
-                      CodeReferenceElement: AM
-                        PsiElement(identifier)('AM')
+                    TypeArgument
+                      SimpleType: AM
+                        CodeReferenceElement: AM
+                          PsiElement(identifier)('AM')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody

@@ -283,19 +283,22 @@ ScalaFile
           PsiElement(identifier)('Reduce')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: S
-          CodeReferenceElement: S
-            PsiElement(identifier)('S')
+        TypeArgument
+          SimpleType: S
+            CodeReferenceElement: S
+              PsiElement(identifier)('S')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        LiteralType: 0
-          IntegerLiteral
-            PsiElement(integer)('0')
+        TypeArgument
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -389,14 +392,16 @@ ScalaFile
                   PsiElement(identifier)('Contains')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Axes
-                  CodeReferenceElement: Axes
-                    PsiElement(identifier)('Axes')
+                TypeArgument
+                  SimpleType: Axes
+                    CodeReferenceElement: Axes
+                      PsiElement(identifier)('Axes')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: I
-                  CodeReferenceElement: I
-                    PsiElement(identifier)('I')
+                TypeArgument
+                  SimpleType: I
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -419,39 +424,44 @@ ScalaFile
                       PsiElement(identifier)('Reduce')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: tail
-                      CodeReferenceElement: tail
-                        PsiElement(identifier)('tail')
+                    TypeArgument
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: Remove[Axes, I]
-                      SimpleType: Remove
-                        CodeReferenceElement: Remove
-                          PsiElement(identifier)('Remove')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Axes
-                          CodeReferenceElement: Axes
-                            PsiElement(identifier)('Axes')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: Remove[Axes, I]
+                        SimpleType: Remove
+                          CodeReferenceElement: Remove
+                            PsiElement(identifier)('Remove')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Axes
+                              CodeReferenceElement: Axes
+                                PsiElement(identifier)('Axes')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: I
+                              CodeReferenceElement: I
+                                PsiElement(identifier)('I')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: I + 1
                         SimpleType: I
                           CodeReferenceElement: I
                             PsiElement(identifier)('I')
-                        PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    InfixType: I + 1
-                      SimpleType: I
-                        CodeReferenceElement: I
-                          PsiElement(identifier)('I')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -477,27 +487,30 @@ ScalaFile
                         PsiElement(identifier)('Reduce')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: tail
-                        CodeReferenceElement: tail
-                          PsiElement(identifier)('tail')
+                      TypeArgument
+                        SimpleType: tail
+                          CodeReferenceElement: tail
+                            PsiElement(identifier)('tail')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Axes
-                        CodeReferenceElement: Axes
-                          PsiElement(identifier)('Axes')
+                      TypeArgument
+                        SimpleType: Axes
+                          CodeReferenceElement: Axes
+                            PsiElement(identifier)('Axes')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: I + 1
-                        SimpleType: I
-                          CodeReferenceElement: I
-                            PsiElement(identifier)('I')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: I + 1
+                          SimpleType: I
+                            CodeReferenceElement: I
+                              PsiElement(identifier)('I')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -665,14 +678,16 @@ ScalaFile
                       PsiElement(identifier)('Contains')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: tail
-                      CodeReferenceElement: tail
-                        PsiElement(identifier)('tail')
+                    TypeArgument
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Needle
-                      CodeReferenceElement: Needle
-                        PsiElement(identifier)('Needle')
+                    TypeArgument
+                      SimpleType: Needle
+                        CodeReferenceElement: Needle
+                          PsiElement(identifier)('Needle')
                     PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -789,14 +804,16 @@ ScalaFile
                       PsiElement(identifier)('Remove')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: tail
-                      CodeReferenceElement: tail
-                        PsiElement(identifier)('tail')
+                    TypeArgument
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Value
-                      CodeReferenceElement: Value
-                        PsiElement(identifier)('Value')
+                    TypeArgument
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -821,14 +838,16 @@ ScalaFile
                         PsiElement(identifier)('Remove')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: tail
-                        CodeReferenceElement: tail
-                          PsiElement(identifier)('tail')
+                      TypeArgument
+                        SimpleType: tail
+                          CodeReferenceElement: tail
+                            PsiElement(identifier)('tail')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Value
-                        CodeReferenceElement: Value
-                          PsiElement(identifier)('Value')
+                      TypeArgument
+                        SimpleType: Value
+                          CodeReferenceElement: Value
+                            PsiElement(identifier)('Value')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -917,9 +936,10 @@ ScalaFile
                     PsiElement(identifier)('NumElements')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: From
-                    CodeReferenceElement: From
-                      PsiElement(identifier)('From')
+                  TypeArgument
+                    SimpleType: From
+                      CodeReferenceElement: From
+                        PsiElement(identifier)('From')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               CodeReferenceElement: =:=
@@ -931,9 +951,10 @@ ScalaFile
                     PsiElement(identifier)('NumElements')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: To
-                    CodeReferenceElement: To
-                      PsiElement(identifier)('To')
+                  TypeArgument
+                    SimpleType: To
+                      CodeReferenceElement: To
+                        PsiElement(identifier)('To')
                   PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -1030,9 +1051,10 @@ ScalaFile
                   PsiElement(identifier)('NumElements')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: tail
-                  CodeReferenceElement: tail
-                    PsiElement(identifier)('tail')
+                TypeArgument
+                  SimpleType: tail
+                    CodeReferenceElement: tail
+                      PsiElement(identifier)('tail')
                 PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

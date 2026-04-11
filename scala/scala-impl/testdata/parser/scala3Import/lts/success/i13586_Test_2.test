@@ -67,9 +67,10 @@ ScalaFile
                     PsiElement(identifier)('withPosition')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Unit
-                      CodeReferenceElement: Unit
-                        PsiElement(identifier)('Unit')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

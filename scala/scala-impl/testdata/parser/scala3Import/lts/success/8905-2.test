@@ -75,29 +75,33 @@ ScalaFile
                     PsiElement(identifier)('Function1')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Tuple.Concat[T1, T2]
-                    SimpleType: Tuple.Concat
-                      CodeReferenceElement: Tuple.Concat
-                        CodeReferenceElement: Tuple
-                          PsiElement(identifier)('Tuple')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Concat')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: T1
-                        CodeReferenceElement: T1
-                          PsiElement(identifier)('T1')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: T2
-                        CodeReferenceElement: T2
-                          PsiElement(identifier)('T2')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Tuple.Concat[T1, T2]
+                      SimpleType: Tuple.Concat
+                        CodeReferenceElement: Tuple.Concat
+                          CodeReferenceElement: Tuple
+                            PsiElement(identifier)('Tuple')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Concat')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T1
+                            CodeReferenceElement: T1
+                              PsiElement(identifier)('T1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: T2
+                            CodeReferenceElement: T2
+                              PsiElement(identifier)('T2')
+                        PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -127,21 +131,24 @@ ScalaFile
               PsiElement(identifier)('isInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Function1[Int, Any]
-                SimpleType: Function1
-                  CodeReferenceElement: Function1
-                    PsiElement(identifier)('Function1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Function1[Int, Any]
+                  SimpleType: Function1
+                    CodeReferenceElement: Function1
+                      PsiElement(identifier)('Function1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

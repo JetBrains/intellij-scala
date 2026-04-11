@@ -99,9 +99,10 @@ ScalaFile
                 PsiElement(identifier)('Arr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace('    ')
           PsiElement(=)('=')
@@ -142,9 +143,10 @@ ScalaFile
                 PsiElement(identifier)('Arr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -200,9 +202,10 @@ ScalaFile
                         PsiElement(identifier)('Arr')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('   ')
@@ -214,9 +217,10 @@ ScalaFile
                 PsiElement(identifier)('Traversable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace('    ')
           PsiElement(=)('=')
@@ -251,9 +255,10 @@ ScalaFile
                         PsiElement(identifier)('Arr')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Long
-                        CodeReferenceElement: Long
-                          PsiElement(identifier)('Long')
+                      TypeArgument
+                        SimpleType: Long
+                          CodeReferenceElement: Long
+                            PsiElement(identifier)('Long')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -264,9 +269,10 @@ ScalaFile
                 PsiElement(identifier)('Traversable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -315,9 +321,10 @@ ScalaFile
                         PsiElement(identifier)('Traversable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Any
-                        CodeReferenceElement: Any
-                          PsiElement(identifier)('Any')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

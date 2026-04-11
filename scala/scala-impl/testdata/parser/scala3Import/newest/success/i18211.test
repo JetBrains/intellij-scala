@@ -220,14 +220,16 @@ ScalaFile
                   PsiElement(identifier)('IndexOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: t
-                  CodeReferenceElement: t
-                    PsiElement(identifier)('t')
+                TypeArgument
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -259,8 +261,9 @@ ScalaFile
                       PsiElement(identifier)('AnyInt')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: a
-                      PsiElement(identifier)('a')
+                    TypeArgument
+                      TypeVariable: a
+                        PsiElement(identifier)('a')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -271,9 +274,10 @@ ScalaFile
                       PsiElement(identifier)('S')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: a
-                      CodeReferenceElement: a
-                        PsiElement(identifier)('a')
+                    TypeArgument
+                      SimpleType: a
+                        CodeReferenceElement: a
+                          PsiElement(identifier)('a')
                     PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             PsiElement(})('}')
@@ -355,14 +359,16 @@ ScalaFile
                             PsiElement(identifier)('IndexOf')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       CodeReferenceElement: >=
@@ -398,21 +404,24 @@ ScalaFile
                         PsiElement(identifier)('ValueOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: IndexOf[A, T]
-                        SimpleType: IndexOf
-                          CodeReferenceElement: IndexOf
-                            PsiElement(identifier)('IndexOf')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: IndexOf[A, T]
+                          SimpleType: IndexOf
+                            CodeReferenceElement: IndexOf
+                              PsiElement(identifier)('IndexOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n      ')
@@ -431,48 +440,55 @@ ScalaFile
                         PsiElement(identifier)('Indexes')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: Tuple.Drop[T, S[IndexOf[A, T]]]
-                        SimpleType: Tuple.Drop
-                          CodeReferenceElement: Tuple.Drop
-                            CodeReferenceElement: Tuple
-                              PsiElement(identifier)('Tuple')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Drop')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: S[IndexOf[A, T]]
-                            SimpleType: S
-                              CodeReferenceElement: S
-                                PsiElement(identifier)('S')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              ParametrizedType: IndexOf[A, T]
-                                SimpleType: IndexOf
-                                  CodeReferenceElement: IndexOf
-                                    PsiElement(identifier)('IndexOf')
+                      TypeArgument
+                        ParametrizedType: Tuple.Drop[T, S[IndexOf[A, T]]]
+                          SimpleType: Tuple.Drop
+                            CodeReferenceElement: Tuple.Drop
+                              CodeReferenceElement: Tuple
+                                PsiElement(identifier)('Tuple')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Drop')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: S[IndexOf[A, T]]
+                                SimpleType: S
+                                  CodeReferenceElement: S
+                                    PsiElement(identifier)('S')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
-                                  PsiElement(,)(',')
-                                  PsiWhiteSpace(' ')
-                                  SimpleType: T
-                                    CodeReferenceElement: T
-                                      PsiElement(identifier)('T')
+                                  TypeArgument
+                                    ParametrizedType: IndexOf[A, T]
+                                      SimpleType: IndexOf
+                                        CodeReferenceElement: IndexOf
+                                          PsiElement(identifier)('IndexOf')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: A
+                                            CodeReferenceElement: A
+                                              PsiElement(identifier)('A')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          SimpleType: T
+                                            CodeReferenceElement: T
+                                              PsiElement(identifier)('T')
+                                        PsiElement(])(']')
                                   PsiElement(])(']')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement())(')')
@@ -484,14 +500,16 @@ ScalaFile
                 PsiElement(identifier)('Indexes')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -539,14 +557,16 @@ ScalaFile
                           PsiElement(identifier)('IndexOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     CodeReferenceElement: =:=
@@ -566,14 +586,16 @@ ScalaFile
                 PsiElement(identifier)('Indexes')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -661,14 +683,16 @@ ScalaFile
                         PsiElement(identifier)('Indexes')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -679,9 +703,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -712,9 +737,10 @@ ScalaFile
           PsiElement(identifier)('GetAll')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -731,9 +757,10 @@ ScalaFile
                   PsiElement(identifier)('GetAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: test
@@ -760,9 +787,10 @@ ScalaFile
             PsiElement(identifier)('getAll')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')
@@ -793,9 +821,10 @@ ScalaFile
             PsiElement(identifier)('getAll')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

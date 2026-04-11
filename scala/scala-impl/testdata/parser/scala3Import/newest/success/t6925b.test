@@ -94,23 +94,25 @@ ScalaFile
                 PsiElement(identifier)('M')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (A, B)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (A, B)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -142,9 +144,10 @@ ScalaFile
                 PsiElement(identifier)('Base')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PartialFunction
-                CodeReferenceElement: PartialFunction
-                  PsiElement(identifier)('PartialFunction')
+              TypeArgument
+                SimpleType: PartialFunction
+                  CodeReferenceElement: PartialFunction
+                    PsiElement(identifier)('PartialFunction')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

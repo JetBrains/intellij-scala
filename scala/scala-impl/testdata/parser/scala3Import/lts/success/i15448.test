@@ -128,9 +128,10 @@ ScalaFile
                                       PsiElement(identifier)('Pointer')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: S
-                                      CodeReferenceElement: S
-                                        PsiElement(identifier)('S')
+                                    TypeArgument
+                                      SimpleType: S
+                                        CodeReferenceElement: S
+                                          PsiElement(identifier)('S')
                                     PsiElement(])(']')
                             PsiElement())(')')
                       PsiWhiteSpace(' ')
@@ -295,9 +296,10 @@ ScalaFile
                 PsiElement(identifier)('Pointer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Break
-                CodeReferenceElement: Break
-                  PsiElement(identifier)('Break')
+              TypeArgument
+                SimpleType: Break
+                  CodeReferenceElement: Break
+                    PsiElement(identifier)('Break')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -60,22 +60,24 @@ ScalaFile
           PsiElement(identifier)('InIntersection')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: A & R0
+        TypeArgument
+          InfixType: A & R0
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: R0
+              CodeReferenceElement: R0
+                PsiElement(identifier)('R0')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
           SimpleType: A
             CodeReferenceElement: A
               PsiElement(identifier)('A')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: &
-            PsiElement(identifier)('&')
-          PsiWhiteSpace(' ')
-          SimpleType: R0
-            CodeReferenceElement: R0
-              PsiElement(identifier)('R0')
-        PsiElement(,)(',')
-        PsiWhiteSpace(' ')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -92,22 +94,24 @@ ScalaFile
                   PsiElement(identifier)('InIntersection')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: A & R0
+                TypeArgument
+                  InfixType: A & R0
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R0
+                      CodeReferenceElement: R0
+                        PsiElement(identifier)('R0')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
                   SimpleType: A
                     CodeReferenceElement: A
                       PsiElement(identifier)('A')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
-                  SimpleType: R0
-                    CodeReferenceElement: R0
-                      PsiElement(identifier)('R0')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScVariableDefinition: x
@@ -128,22 +132,24 @@ ScalaFile
           PsiElement(identifier)('InIntersection')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Int & String
+        TypeArgument
+          InfixType: Int & String
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
           SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: &
-            PsiElement(identifier)('&')
-          PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
-        PsiElement(,)(',')
-        PsiWhiteSpace(' ')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

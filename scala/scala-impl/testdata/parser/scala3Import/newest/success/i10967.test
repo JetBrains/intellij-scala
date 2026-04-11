@@ -85,9 +85,10 @@ ScalaFile
                 PsiElement(identifier)('CollCompanion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: CC1
-                CodeReferenceElement: CC1
-                  PsiElement(identifier)('CC1')
+              TypeArgument
+                SimpleType: CC1
+                  CodeReferenceElement: CC1
+                    PsiElement(identifier)('CC1')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -130,14 +131,16 @@ ScalaFile
                 PsiElement(identifier)('CollBase')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Coll
-                CodeReferenceElement: Coll
-                  PsiElement(identifier)('Coll')
+              TypeArgument
+                SimpleType: Coll
+                  CodeReferenceElement: Coll
+                    PsiElement(identifier)('Coll')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: CollCompanion

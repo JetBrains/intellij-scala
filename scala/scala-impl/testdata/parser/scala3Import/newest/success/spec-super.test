@@ -64,9 +64,10 @@ ScalaFile
                 PsiElement(identifier)('Iterable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -113,9 +114,10 @@ ScalaFile
                         PsiElement(identifier)('Iterable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -137,26 +139,30 @@ ScalaFile
                         PsiElement(identifier)('BuildFrom')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Base[A]
-                        SimpleType: Base
-                          CodeReferenceElement: Base
-                            PsiElement(identifier)('Base')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Base[A]
+                          SimpleType: Base
+                            CodeReferenceElement: Base
+                              PsiElement(identifier)('Base')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: That
-                        CodeReferenceElement: That
-                          PsiElement(identifier)('That')
+                      TypeArgument
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -265,9 +271,10 @@ ScalaFile
                 PsiElement(identifier)('Base')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -315,9 +322,10 @@ ScalaFile
                         PsiElement(identifier)('Iterable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -339,26 +347,30 @@ ScalaFile
                         PsiElement(identifier)('BuildFrom')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Base[A]
-                        SimpleType: Base
-                          CodeReferenceElement: Base
-                            PsiElement(identifier)('Base')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Base[A]
+                          SimpleType: Base
+                            CodeReferenceElement: Base
+                              PsiElement(identifier)('Base')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: That
-                        CodeReferenceElement: That
-                          PsiElement(identifier)('That')
+                      TypeArgument
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -403,14 +415,16 @@ ScalaFile
                   PsiElement(identifier)('add')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: That
-                    CodeReferenceElement: That
-                      PsiElement(identifier)('That')
+                  TypeArgument
+                    SimpleType: That
+                      CodeReferenceElement: That
+                        PsiElement(identifier)('That')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')

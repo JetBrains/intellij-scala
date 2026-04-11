@@ -45,7 +45,7 @@ import scala.annotation.tailrec
  *                     |  ‘(’ ExprsInParens ‘)’
  *                     |  SimpleExpr ‘.’ id
  *                     |  SimpleExpr ‘.’ MatchClause
- *                     |  SimpleExpr TypeArgs
+ *                     |  SimpleExpr (TypeArgs | NamedTypeArgs)
  *                     |  SimpleExpr ArgumentExprs
  *                     |  SimpleExpr ColonArgument -- scala 3 fewer braces
  */

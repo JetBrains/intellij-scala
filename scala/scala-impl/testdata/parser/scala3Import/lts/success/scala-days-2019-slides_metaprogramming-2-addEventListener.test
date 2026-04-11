@@ -177,9 +177,10 @@ ScalaFile
                     PsiElement(identifier)('EventTypeOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Tp
-                    CodeReferenceElement: Tp
-                      PsiElement(identifier)('Tp')
+                  TypeArgument
+                    SimpleType: Tp
+                      CodeReferenceElement: Tp
+                        PsiElement(identifier)('Tp')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters

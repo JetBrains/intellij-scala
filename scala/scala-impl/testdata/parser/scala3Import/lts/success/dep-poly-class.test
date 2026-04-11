@@ -210,11 +210,12 @@ ScalaFile
                     PsiElement(identifier)('CCPoly')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: aa.type
-                    CodeReferenceElement: aa
-                      PsiElement(identifier)('aa')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
+                  TypeArgument
+                    SimpleType: aa.type
+                      CodeReferenceElement: aa
+                        PsiElement(identifier)('aa')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

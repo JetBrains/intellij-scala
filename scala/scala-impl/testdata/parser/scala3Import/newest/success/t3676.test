@@ -49,9 +49,10 @@ ScalaFile
                 PsiElement(identifier)('SeqLike')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Seq
-                CodeReferenceElement: Seq
-                  PsiElement(identifier)('Seq')
+              TypeArgument
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: MySeq
@@ -81,9 +82,10 @@ ScalaFile
                 PsiElement(identifier)('SeqLike')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MySub
-                CodeReferenceElement: MySub
-                  PsiElement(identifier)('MySub')
+              TypeArgument
+                SimpleType: MySub
+                  CodeReferenceElement: MySub
+                    PsiElement(identifier)('MySub')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: MySub

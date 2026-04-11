@@ -122,9 +122,10 @@ ScalaFile
                   PsiElement(identifier)('Set')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -155,9 +156,10 @@ ScalaFile
                                 PsiElement(identifier)('Ordering')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: T
-                                CodeReferenceElement: T
-                                  PsiElement(identifier)('T')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
                               PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
@@ -175,9 +177,10 @@ ScalaFile
                                       PsiElement(identifier)('TreeSet')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
+                                    TypeArgument
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
                                     PsiElement(])(']')
                     PsiWhiteSpace('\n    ')
                     CaseClause
@@ -201,9 +204,10 @@ ScalaFile
                                       PsiElement(identifier)('HashSet')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
+                                    TypeArgument
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
                                     PsiElement(])(']')
                   PsiWhiteSpace('\n  ')
                   PsiElement(})('}')
@@ -213,16 +217,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Ordering[String]
-                SimpleType: Ordering
-                  CodeReferenceElement: Ordering
-                    PsiElement(identifier)('Ordering')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Ordering[String]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace('\n\n  ')
           ScPatternDefinition: sf
@@ -243,9 +249,10 @@ ScalaFile
                 PsiElement(identifier)('setFor')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
           PsiWhiteSpace('\n\n  ')
           MethodCall

@@ -98,8 +98,9 @@ ScalaFile
                                 PsiElement(identifier)('Seq')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              TypeVariable: t
-                                PsiElement(identifier)('t')
+                              TypeArgument
+                                TypeVariable: t
+                                  PsiElement(identifier)('t')
                               PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           CodeReferenceElement: =:=
@@ -125,9 +126,10 @@ ScalaFile
                                     PsiElement(identifier)('Seq')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: t
-                                    CodeReferenceElement: t
-                                      PsiElement(identifier)('t')
+                                  TypeArgument
+                                    SimpleType: t
+                                      CodeReferenceElement: t
+                                        PsiElement(identifier)('t')
                                   PsiElement(])(']')
                 PsiWhiteSpace('\n  ')
                 PsiElement(})('}')
@@ -137,16 +139,18 @@ ScalaFile
             PsiElement(identifier)('f')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Seq[Int]
-              SimpleType: Seq
-                CodeReferenceElement: Seq
-                  PsiElement(identifier)('Seq')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Seq[Int]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

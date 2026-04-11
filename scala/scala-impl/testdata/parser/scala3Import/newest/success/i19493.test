@@ -143,9 +143,10 @@ ScalaFile
                     PsiElement(identifier)('T')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -235,16 +236,18 @@ ScalaFile
                   PsiElement(identifier)('Of')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Row[Sc]
-                  SimpleType: Row
-                    CodeReferenceElement: Row
-                      PsiElement(identifier)('Row')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Sc
-                      CodeReferenceElement: Sc
-                        PsiElement(identifier)('Sc')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Row[Sc]
+                    SimpleType: Row
+                      CodeReferenceElement: Row
+                        PsiElement(identifier)('Row')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Sc
+                          CodeReferenceElement: Sc
+                            PsiElement(identifier)('Sc')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -275,12 +278,13 @@ ScalaFile
           PsiElement(identifier)('summonAll')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: m.MirroredElemTypes
-            CodeReferenceElement: m.MirroredElemTypes
-              CodeReferenceElement: m
-                PsiElement(identifier)('m')
-              PsiElement(.)('.')
-              PsiElement(identifier)('MirroredElemTypes')
+          TypeArgument
+            SimpleType: m.MirroredElemTypes
+              CodeReferenceElement: m.MirroredElemTypes
+                CodeReferenceElement: m
+                  PsiElement(identifier)('m')
+                PsiElement(.)('.')
+                PsiElement(identifier)('MirroredElemTypes')
           PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: f
@@ -406,9 +410,10 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiComment(comment)('// ok')
@@ -418,9 +423,10 @@ ScalaFile
                 PsiElement(identifier)('summonInline')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// was error')
@@ -500,9 +506,10 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiComment(comment)('// ok')
@@ -512,9 +519,10 @@ ScalaFile
                       PsiElement(identifier)('summonInline')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// was error')
@@ -596,9 +604,10 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiComment(comment)('// ok')
@@ -608,9 +617,10 @@ ScalaFile
                   PsiElement(identifier)('summonInline')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// was error')

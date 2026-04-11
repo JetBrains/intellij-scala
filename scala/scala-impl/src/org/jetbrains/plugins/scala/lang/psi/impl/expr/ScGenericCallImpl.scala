@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
@@ -24,7 +25,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   //1. `foo.apply[A](b)` or 2. `foo.apply[A].apply(b)` and to resolve apply method correctly,
   //we must provide resolve processor with a correct set of args.
   //Since 1. is probably the more common scenario, let's first try to resolve with args,
-  //and if it fails try 2.
+  //and if it fails, try 2.
   private def processApplyOrUpdateMethod(tp: ScType, shapesOnly: Boolean): ScType = {
     def workWithApplyCandidates(candidates: Array[ScalaResolveResult]): Option[ScType] = candidates match {
       case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
@@ -67,16 +68,43 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   }
 
-
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
+      val targs            = argumentsWithNamed
+      val targNames        = targs.flatMap(_.name)
+      val hasNamedTypeArgs = targNames.nonEmpty
+
       //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
-      val subst = ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
+      val subst =
+        if (hasNamedTypeArgs) ScSubstitutor.bind(tps, targs)
+        else                  ScSubstitutor.bind(tps.takeRight(targs.length), targs)
+
       val substedInternal = subst(internal)
 
-      if (arguments.length < tps.length) ScTypePolymorphicType(subst(internal), tps.dropRight(arguments.length))
-      else                               substedInternal
+      val trimmedTypeParams =
+        if (hasNamedTypeArgs) tps.filterNot(tp => targNames.contains(tp.name))
+        else                  tps.dropRight(targs.length)
+
+      if (targs.length < tps.length) ScTypePolymorphicType(subst(internal), trimmedTypeParams)
+      else                           substedInternal
     case t => t
+  }
+
+  /**
+   * Normally when we have `foo[Int, String]` the type can be completely inferred from the provided
+   * args and is not dependent on the expected type. However, with the addition of named type
+   * arguments, we can now have cases like `foo[A = Int]` (where we have to infer the remaining arguments).
+   */
+  private def updateWithExpected(tpe: ScType): ScType = tpe match {
+    case tpt: ScTypePolymorphicType =>
+      InferUtil.updateAccordingToExpectedType(
+        tpt,
+        filterTypeParams = true,
+        this.expectedType(),
+        this,
+        canThrowSCE = false
+      )
+    case _ => tpe
   }
 
   private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
@@ -88,6 +116,10 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     typeResult
       .map(processNonPolymorphic(isShape))
       .map(substPolymorphicType)
+      .map(tpe =>
+        if (isShape) tpe
+        else         updateWithExpected(tpe)
+      )
   }
 
   private val polymorphicLambdaType = cached("polymorphicLambdaType", ModTracker.physicalPsiChange(getProject), () => {
@@ -107,7 +139,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     polymorphicLambdaType().left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
-        case expr => expr.getNonValueType()
+        case expr                       => expr.getNonValueType()
       }
       convertReferencedType(typeResult, isShape = true)
     }

@@ -58,9 +58,10 @@ ScalaFile
                     PsiElement(identifier)('empty')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -169,16 +170,18 @@ ScalaFile
                 PsiElement(identifier)('JsonFormat')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Seq[String]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Seq[String]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace('  ')
           PsiElement(=)('=')
@@ -205,16 +208,18 @@ ScalaFile
                 PsiElement(identifier)('JsonFormat')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Iterable[String]
-                SimpleType: Iterable
-                  CodeReferenceElement: Iterable
-                    PsiElement(identifier)('Iterable')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Iterable[String]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace('   ')
           PsiElement(=)('=')

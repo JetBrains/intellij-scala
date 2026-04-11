@@ -128,9 +128,10 @@ ScalaFile
                       PsiElement(identifier)('Contextual')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Boolean
-                      CodeReferenceElement: Boolean
-                        PsiElement(identifier)('Boolean')
+                    TypeArgument
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -141,9 +142,10 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Context
-                        CodeReferenceElement: Context
-                          PsiElement(identifier)('Context')
+                      TypeArgument
+                        SimpleType: Context
+                          CodeReferenceElement: Context
+                            PsiElement(identifier)('Context')
                       PsiElement(])(']')
                   PsiElement(.)('.')
                   PsiElement(identifier)('t')

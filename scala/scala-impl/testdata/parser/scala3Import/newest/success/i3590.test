@@ -101,9 +101,10 @@ ScalaFile
                 PsiElement(identifier)('Tagged')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -210,14 +211,16 @@ ScalaFile
                         PsiElement(identifier)('Aux')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -229,9 +232,10 @@ ScalaFile
                   PsiElement(identifier)('Fun')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -299,9 +303,10 @@ ScalaFile
                   PsiElement(identifier)('Fun')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -431,9 +436,10 @@ ScalaFile
                       PsiElement(identifier)('Tagged')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -513,16 +519,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Fun[A]
-                SimpleType: Fun
-                  CodeReferenceElement: Fun
-                    PsiElement(identifier)('Fun')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Fun[A]
+                  SimpleType: Fun
+                    CodeReferenceElement: Fun
+                      PsiElement(identifier)('Fun')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         PsiComment(comment)('// Compiles in scalac: the tagged case wins the implicit search using A.tag')
@@ -539,37 +547,39 @@ ScalaFile
               PsiElement(identifier)('identity')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: Fun[A] { type Out = Int }
-                ParametrizedType: Fun[A]
-                  SimpleType: Fun
-                    CodeReferenceElement: Fun
-                      PsiElement(identifier)('Fun')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
+              TypeArgument
+                CompoundType: Fun[A] { type Out = Int }
+                  ParametrizedType: Fun[A]
+                    SimpleType: Fun
+                      CodeReferenceElement: Fun
+                        PsiElement(identifier)('Fun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  ScTypeAliasDefinition: Out
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
+                  Refinement
+                    PsiElement({)('{')
                     PsiWhiteSpace(' ')
-                    PsiElement(identifier)('Out')
+                    ScTypeAliasDefinition: Out
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Out')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiWhiteSpace(' ')
-                    PsiElement(=)('=')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  PsiElement(})('}')
+                    PsiElement(})('}')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

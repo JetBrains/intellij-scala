@@ -187,9 +187,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -208,9 +209,10 @@ ScalaFile
               PsiElement(identifier)('parse')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Hello.type
-                CodeReferenceElement: Hello
-                  PsiElement(identifier)('Hello')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: Hello.type
+                  CodeReferenceElement: Hello
+                    PsiElement(identifier)('Hello')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')

@@ -152,9 +152,10 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -184,9 +185,10 @@ ScalaFile
                           PsiElement(identifier)('Option')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -197,9 +199,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -239,16 +242,18 @@ ScalaFile
                           PsiElement(identifier)('identity')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: Option[B]
-                            SimpleType: Option
-                              CodeReferenceElement: Option
-                                PsiElement(identifier)('Option')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: B
-                                CodeReferenceElement: B
-                                  PsiElement(identifier)('B')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Option[B]
+                              SimpleType: Option
+                                CodeReferenceElement: Option
+                                  PsiElement(identifier)('Option')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                       PsiElement())(')')
             PsiWhiteSpace('\n  ')

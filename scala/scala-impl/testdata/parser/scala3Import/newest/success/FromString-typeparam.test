@@ -81,9 +81,10 @@ ScalaFile
           PsiElement(identifier)('FromString')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -109,9 +110,10 @@ ScalaFile
           PsiElement(identifier)('FromString')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Double
-          CodeReferenceElement: Double
-            PsiElement(identifier)('Double')
+        TypeArgument
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -206,16 +208,18 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Numeric[N]
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: N
-                  CodeReferenceElement: N
-                    PsiElement(identifier)('N')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Numeric[N]
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: N
@@ -236,16 +240,18 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: FromString[N]
-              SimpleType: FromString
-                CodeReferenceElement: FromString
-                  PsiElement(identifier)('FromString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: N
-                  CodeReferenceElement: N
-                    PsiElement(identifier)('N')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: FromString[N]
+                SimpleType: FromString
+                  CodeReferenceElement: FromString
+                    PsiElement(identifier)('FromString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall

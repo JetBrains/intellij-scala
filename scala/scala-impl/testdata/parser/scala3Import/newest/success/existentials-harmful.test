@@ -245,9 +245,10 @@ ScalaFile
                 PsiElement(identifier)('Tools')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -314,9 +315,10 @@ ScalaFile
                           PsiElement(identifier)('Tools')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -389,9 +391,10 @@ ScalaFile
                         PsiElement(identifier)('TransportBox')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -590,9 +593,10 @@ ScalaFile
                           PsiElement(identifier)('TransportBox')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
+                        TypeArgument
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -706,8 +710,9 @@ ScalaFile
                           PsiElement(identifier)('TransportBox')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: a
-                          PsiElement(identifier)('a')
+                        TypeArgument
+                          TypeVariable: a
+                            PsiElement(identifier)('a')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

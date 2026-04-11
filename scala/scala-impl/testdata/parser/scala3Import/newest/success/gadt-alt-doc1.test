@@ -29,9 +29,10 @@ ScalaFile
               PsiElement(identifier)('Document')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Doc
-              CodeReferenceElement: Doc
-                PsiElement(identifier)('Doc')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -94,9 +95,10 @@ ScalaFile
               PsiElement(identifier)('Document')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Doc
-              CodeReferenceElement: Doc
-                PsiElement(identifier)('Doc')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -120,14 +122,16 @@ ScalaFile
                 PsiElement(identifier)('Conversion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Doc
-                CodeReferenceElement: Doc
-                  PsiElement(identifier)('Doc')
+              TypeArgument
+                SimpleType: Doc
+                  CodeReferenceElement: Doc
+                    PsiElement(identifier)('Doc')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Doc
-                CodeReferenceElement: Doc
-                  PsiElement(identifier)('Doc')
+              TypeArgument
+                SimpleType: Doc
+                  CodeReferenceElement: Doc
+                    PsiElement(identifier)('Doc')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: Test
@@ -151,9 +155,10 @@ ScalaFile
               PsiElement(identifier)('Document')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Doc
-              CodeReferenceElement: Doc
-                PsiElement(identifier)('Doc')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -178,14 +183,16 @@ ScalaFile
                   PsiElement(identifier)('Conversion')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Doc
-                  CodeReferenceElement: Doc
-                    PsiElement(identifier)('Doc')
+                TypeArgument
+                  SimpleType: Doc
+                    CodeReferenceElement: Doc
+                      PsiElement(identifier)('Doc')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: V
-                  CodeReferenceElement: V
-                    PsiElement(identifier)('V')
+                TypeArgument
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')

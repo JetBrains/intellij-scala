@@ -74,7 +74,8 @@ ScalaFile
                 PsiElement(identifier)('C2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Char
-                CodeReferenceElement: Char
-                  PsiElement(identifier)('Char')
+              TypeArgument
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
               PsiElement(])(']')

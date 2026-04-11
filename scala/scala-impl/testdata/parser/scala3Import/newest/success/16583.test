@@ -50,19 +50,22 @@ ScalaFile
           PsiElement(identifier)('Tuple3')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: "one"
-          StringLiteral
-            PsiElement(string content)('"one"')
+        TypeArgument
+          LiteralType: "one"
+            StringLiteral
+              PsiElement(string content)('"one"')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        LiteralType: "two"
-          StringLiteral
-            PsiElement(string content)('"two"')
+        TypeArgument
+          LiteralType: "two"
+            StringLiteral
+              PsiElement(string content)('"two"')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        LiteralType: "three"
-          StringLiteral
-            PsiElement(string content)('"three"')
+        TypeArgument
+          LiteralType: "three"
+            StringLiteral
+              PsiElement(string content)('"three"')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -72,23 +75,24 @@ ScalaFile
         PsiElement(identifier)('constValueTuple')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: ("one", "two", "three")
-          PsiElement(()('(')
-          TypesList
-            LiteralType: "one"
-              StringLiteral
-                PsiElement(string content)('"one"')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: "two"
-              StringLiteral
-                PsiElement(string content)('"two"')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: "three"
-              StringLiteral
-                PsiElement(string content)('"three"')
-          PsiElement())(')')
+        TypeArgument
+          TupleType: ("one", "two", "three")
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "one"
+                StringLiteral
+                  PsiElement(string content)('"one"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "two"
+                StringLiteral
+                  PsiElement(string content)('"two"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "three"
+                StringLiteral
+                  PsiElement(string content)('"three"')
+            PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: ll1
@@ -110,23 +114,24 @@ ScalaFile
           PsiElement(identifier)('constValueTuple')
         TypeArgumentsList
           PsiElement([)('[')
-          TupleType: ("one", "two", "three")
-            PsiElement(()('(')
-            TypesList
-              LiteralType: "one"
-                StringLiteral
-                  PsiElement(string content)('"one"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "two"
-                StringLiteral
-                  PsiElement(string content)('"two"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "three"
-                StringLiteral
-                  PsiElement(string content)('"three"')
-            PsiElement())(')')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
           PsiElement(])(']')
       PsiElement(.)('.')
       PsiElement(identifier)('toList')
@@ -149,39 +154,40 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: "one" | ("two" | ("three" | Nothing))
-          LiteralType: "one"
-            StringLiteral
-              PsiElement(string content)('"one"')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: |
-            PsiElement(identifier)('|')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: ("two" | ("three" | Nothing))
-            PsiElement(()('(')
-            InfixType: "two" | ("three" | Nothing)
-              LiteralType: "two"
-                StringLiteral
-                  PsiElement(string content)('"two"')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              TypeInParenthesis: ("three" | Nothing)
-                PsiElement(()('(')
-                InfixType: "three" | Nothing
-                  LiteralType: "three"
-                    StringLiteral
-                      PsiElement(string content)('"three"')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                PsiElement())(')')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: "one" | ("two" | ("three" | Nothing))
+            LiteralType: "one"
+              StringLiteral
+                PsiElement(string content)('"one"')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("two" | ("three" | Nothing))
+              PsiElement(()('(')
+              InfixType: "two" | ("three" | Nothing)
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: ("three" | Nothing)
+                  PsiElement(()('(')
+                  InfixType: "three" | Nothing
+                    LiteralType: "three"
+                      StringLiteral
+                        PsiElement(string content)('"three"')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                  PsiElement())(')')
+              PsiElement())(')')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -192,23 +198,24 @@ ScalaFile
           PsiElement(identifier)('constValueTuple')
         TypeArgumentsList
           PsiElement([)('[')
-          TupleType: ("one", "two", "three")
-            PsiElement(()('(')
-            TypesList
-              LiteralType: "one"
-                StringLiteral
-                  PsiElement(string content)('"one"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "two"
-                StringLiteral
-                  PsiElement(string content)('"two"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "three"
-                StringLiteral
-                  PsiElement(string content)('"three"')
-            PsiElement())(')')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
           PsiElement(])(']')
       PsiElement(.)('.')
       PsiElement(identifier)('toList')
@@ -231,28 +238,29 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: "one" | ("two" | "three")
-          LiteralType: "one"
-            StringLiteral
-              PsiElement(string content)('"one"')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: |
-            PsiElement(identifier)('|')
-          PsiWhiteSpace(' ')
-          TypeInParenthesis: ("two" | "three")
-            PsiElement(()('(')
-            InfixType: "two" | "three"
-              LiteralType: "two"
-                StringLiteral
-                  PsiElement(string content)('"two"')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: |
-                PsiElement(identifier)('|')
-              PsiWhiteSpace(' ')
-              LiteralType: "three"
-                StringLiteral
-                  PsiElement(string content)('"three"')
-            PsiElement())(')')
+        TypeArgument
+          InfixType: "one" | ("two" | "three")
+            LiteralType: "one"
+              StringLiteral
+                PsiElement(string content)('"one"')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("two" | "three")
+              PsiElement(()('(')
+              InfixType: "two" | "three"
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -263,23 +271,24 @@ ScalaFile
           PsiElement(identifier)('constValueTuple')
         TypeArgumentsList
           PsiElement([)('[')
-          TupleType: ("one", "two", "three")
-            PsiElement(()('(')
-            TypesList
-              LiteralType: "one"
-                StringLiteral
-                  PsiElement(string content)('"one"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "two"
-                StringLiteral
-                  PsiElement(string content)('"two"')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "three"
-                StringLiteral
-                  PsiElement(string content)('"three"')
-            PsiElement())(')')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
           PsiElement(])(']')
       PsiElement(.)('.')
       PsiElement(identifier)('toList')
@@ -328,9 +337,10 @@ ScalaFile
                     PsiElement(identifier)('Union')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Labels
-                    CodeReferenceElement: Labels
-                      PsiElement(identifier)('Labels')
+                  TypeArgument
+                    SimpleType: Labels
+                      CodeReferenceElement: Labels
+                        PsiElement(identifier)('Labels')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               CodeReferenceElement: <:<
@@ -348,9 +358,10 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -375,9 +386,10 @@ ScalaFile
               PsiElement(identifier)('constValueTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Labels
-                CodeReferenceElement: Labels
-                  PsiElement(identifier)('Labels')
+              TypeArgument
+                SimpleType: Labels
+                  CodeReferenceElement: Labels
+                    PsiElement(identifier)('Labels')
               PsiElement(])(']')
           PsiElement(.)('.')
           PsiElement(identifier)('toList')
@@ -412,23 +424,24 @@ ScalaFile
         PsiElement(identifier)('labels')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: ("one", "two", "three")
-          PsiElement(()('(')
-          TypesList
-            LiteralType: "one"
-              StringLiteral
-                PsiElement(string content)('"one"')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: "two"
-              StringLiteral
-                PsiElement(string content)('"two"')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: "three"
-              StringLiteral
-                PsiElement(string content)('"three"')
-          PsiElement())(')')
+        TypeArgument
+          TupleType: ("one", "two", "three")
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "one"
+                StringLiteral
+                  PsiElement(string content)('"one"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "two"
+                StringLiteral
+                  PsiElement(string content)('"two"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "three"
+                StringLiteral
+                  PsiElement(string content)('"three"')
+            PsiElement())(')')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: toList
@@ -463,21 +476,23 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Tuple.Union[x.type]
-          SimpleType: Tuple.Union
-            CodeReferenceElement: Tuple.Union
-              CodeReferenceElement: Tuple
-                PsiElement(identifier)('Tuple')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Union')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: x.type
-              CodeReferenceElement: x
-                PsiElement(identifier)('x')
-              PsiElement(.)('.')
-              PsiElement(type)('type')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Tuple.Union[x.type]
+            SimpleType: Tuple.Union
+              CodeReferenceElement: Tuple.Union
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Union')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: x.type
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

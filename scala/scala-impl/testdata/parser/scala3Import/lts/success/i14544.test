@@ -123,14 +123,16 @@ ScalaFile
           PsiElement(identifier)('CanEqual')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Something
-          CodeReferenceElement: Something
-            PsiElement(identifier)('Something')
+        TypeArgument
+          SimpleType: Something
+            CodeReferenceElement: Something
+              PsiElement(identifier)('Something')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Something
-          CodeReferenceElement: Something
-            PsiElement(identifier)('Something')
+        TypeArgument
+          SimpleType: Something
+            CodeReferenceElement: Something
+              PsiElement(identifier)('Something')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -161,9 +163,10 @@ ScalaFile
             PsiElement(identifier)('MyClass')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Something
-              CodeReferenceElement: Something
-                PsiElement(identifier)('Something')
+            TypeArgument
+              SimpleType: Something
+                CodeReferenceElement: Something
+                  PsiElement(identifier)('Something')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')
@@ -206,9 +209,10 @@ ScalaFile
             PsiElement(identifier)('MyClass')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Something
-              CodeReferenceElement: Something
-                PsiElement(identifier)('Something')
+            TypeArgument
+              SimpleType: Something
+                CodeReferenceElement: Something
+                  PsiElement(identifier)('Something')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

@@ -68,9 +68,10 @@ ScalaFile
               PsiElement(identifier)('Column')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: V
-              CodeReferenceElement: V
-                PsiElement(identifier)('V')
+            TypeArgument
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -153,9 +154,10 @@ ScalaFile
                     PsiElement(identifier)('Column')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
+                  TypeArgument
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -189,14 +191,16 @@ ScalaFile
                 PsiElement(identifier)('ColumnFactory')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

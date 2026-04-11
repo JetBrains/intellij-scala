@@ -102,19 +102,20 @@ ScalaFile
                     PsiElement(identifier)('Outlet')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeWithAnnotation: T @uncheckedVariance
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    AnnotationsList
-                      Annotation
-                        PsiElement(@)('@')
-                        AnnotationExpression
-                          ConstructorInvocation
-                            SimpleType: uncheckedVariance
-                              CodeReferenceElement: uncheckedVariance
-                                PsiElement(identifier)('uncheckedVariance')
+                  TypeArgument
+                    TypeWithAnnotation: T @uncheckedVariance
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            ConstructorInvocation
+                              SimpleType: uncheckedVariance
+                                CodeReferenceElement: uncheckedVariance
+                                  PsiElement(identifier)('uncheckedVariance')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

@@ -42,8 +42,9 @@ ScalaFile
                     PsiElement(identifier)('Ordering')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: ?
-                    PsiElement(?)('?')
+                  TypeArgument
+                    WildcardType: ?
+                      PsiElement(?)('?')
                   PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -51,21 +52,24 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Ordering[Seq[Int]]
-            SimpleType: Ordering
-              CodeReferenceElement: Ordering
-                PsiElement(identifier)('Ordering')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Seq[Int]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Ordering[Seq[Int]]
+              SimpleType: Ordering
+                CodeReferenceElement: Ordering
+                  PsiElement(identifier)('Ordering')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Seq[Int]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
           PsiElement(])(']')

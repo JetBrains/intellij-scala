@@ -76,8 +76,9 @@ ScalaFile
                         PsiElement(identifier)('Vector')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -176,8 +177,9 @@ ScalaFile
                         PsiElement(identifier)('Vector')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -300,9 +302,10 @@ ScalaFile
                             PsiElement(identifier)('Vector')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Double
-                            CodeReferenceElement: Double
-                              PsiElement(identifier)('Double')
+                          TypeArgument
+                            SimpleType: Double
+                              CodeReferenceElement: Double
+                                PsiElement(identifier)('Double')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')

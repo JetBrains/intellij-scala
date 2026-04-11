@@ -42,12 +42,13 @@ ScalaFile
                   PsiElement(identifier)('Seq')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: scala.Int
-                  CodeReferenceElement: scala.Int
-                    CodeReferenceElement: scala
-                      PsiElement(identifier)('scala')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
@@ -68,16 +69,18 @@ ScalaFile
                   PsiElement(identifier)('Map')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeVariable: a
-                  PsiElement(identifier)('a')
+                TypeArgument
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: scala.Int
-                  CodeReferenceElement: scala.Int
-                    CodeReferenceElement: scala
-                      PsiElement(identifier)('scala')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
@@ -98,20 +101,23 @@ ScalaFile
                   PsiElement(identifier)('Tuple3')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeVariable: a
-                  PsiElement(identifier)('a')
+                TypeArgument
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: scala.Int
-                  CodeReferenceElement: scala.Int
-                    CodeReferenceElement: scala
-                      PsiElement(identifier)('scala')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                TypeVariable: c
-                  PsiElement(identifier)('c')
+                TypeArgument
+                  TypeVariable: c
+                    PsiElement(identifier)('c')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')

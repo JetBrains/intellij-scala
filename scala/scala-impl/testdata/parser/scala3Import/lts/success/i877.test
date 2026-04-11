@@ -149,9 +149,10 @@ ScalaFile
                         PsiElement(identifier)('First')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -161,16 +162,18 @@ ScalaFile
                       PsiElement(identifier)('implicitly')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: First[A]
-                        SimpleType: First
-                          CodeReferenceElement: First
-                            PsiElement(identifier)('First')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: First[A]
+                          SimpleType: First
+                            CodeReferenceElement: First
+                              PsiElement(identifier)('First')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: snd
@@ -191,9 +194,10 @@ ScalaFile
                         PsiElement(identifier)('Second')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -203,16 +207,18 @@ ScalaFile
                       PsiElement(identifier)('implicitly')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Second[B]
-                        SimpleType: Second
-                          CodeReferenceElement: Second
-                            PsiElement(identifier)('Second')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: B
-                            CodeReferenceElement: B
-                              PsiElement(identifier)('B')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Second[B]
+                          SimpleType: Second
+                            CodeReferenceElement: Second
+                              PsiElement(identifier)('Second')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')

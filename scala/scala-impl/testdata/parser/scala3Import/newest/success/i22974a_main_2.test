@@ -68,16 +68,18 @@ ScalaFile
                     PsiElement(identifier)('Maybe')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Maybe[Int]
-                    SimpleType: Maybe
-                      CodeReferenceElement: Maybe
-                        PsiElement(identifier)('Maybe')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Maybe[Int]
+                      SimpleType: Maybe
+                        CodeReferenceElement: Maybe
+                          PsiElement(identifier)('Maybe')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

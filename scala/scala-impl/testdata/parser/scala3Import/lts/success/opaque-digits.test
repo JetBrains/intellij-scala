@@ -146,9 +146,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Alphabetic
-                      CodeReferenceElement: Alphabetic
-                        PsiElement(identifier)('Alphabetic')
+                    TypeArgument
+                      SimpleType: Alphabetic
+                        CodeReferenceElement: Alphabetic
+                          PsiElement(identifier)('Alphabetic')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -265,9 +266,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Digits
-                      CodeReferenceElement: Digits
-                        PsiElement(identifier)('Digits')
+                    TypeArgument
+                      SimpleType: Digits
+                        CodeReferenceElement: Digits
+                          PsiElement(identifier)('Digits')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

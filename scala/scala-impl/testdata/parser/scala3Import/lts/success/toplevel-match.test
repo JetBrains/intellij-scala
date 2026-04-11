@@ -178,8 +178,9 @@ ScalaFile
                 PsiElement(identifier)('HNil')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: a
-                PsiElement(identifier)('a')
+              TypeArgument
+                TypeVariable: a
+                  PsiElement(identifier)('a')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -190,9 +191,10 @@ ScalaFile
                 PsiElement(identifier)('HNil')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -204,12 +206,14 @@ ScalaFile
                 PsiElement(identifier)('HCons')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: a
-                PsiElement(identifier)('a')
+              TypeArgument
+                TypeVariable: a
+                  PsiElement(identifier)('a')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeVariable: as
-                PsiElement(identifier)('as')
+              TypeArgument
+                TypeVariable: as
+                  PsiElement(identifier)('as')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -220,21 +224,24 @@ ScalaFile
                 PsiElement(identifier)('HCons')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: AtoB[as]
-                SimpleType: AtoB
-                  CodeReferenceElement: AtoB
-                    PsiElement(identifier)('AtoB')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: as
-                    CodeReferenceElement: as
-                      PsiElement(identifier)('as')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: AtoB[as]
+                  SimpleType: AtoB
+                    CodeReferenceElement: AtoB
+                      PsiElement(identifier)('AtoB')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: as
+                        CodeReferenceElement: as
+                          PsiElement(identifier)('as')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   PsiComment(comment)('//type A2B[Xs <: Tuple] <: Tuple = Xs match')

@@ -50,18 +50,19 @@ ScalaFile
               PsiElement(identifier)('unpair')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: ("msg", 42)
-                PsiElement(()('(')
-                TypesList
-                  LiteralType: "msg"
-                    StringLiteral
-                      PsiElement(string content)('"msg"')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 42
-                    IntegerLiteral
-                      PsiElement(integer)('42')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: ("msg", 42)
+                  PsiElement(()('(')
+                  TypesList
+                    LiteralType: "msg"
+                      StringLiteral
+                        PsiElement(string content)('"msg"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 42
+                      IntegerLiteral
+                        PsiElement(integer)('42')
+                  PsiElement())(')')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

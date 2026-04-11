@@ -126,9 +126,10 @@ ScalaFile
                         PsiElement(identifier)('ActorRef')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Req
-                        CodeReferenceElement: Req
-                          PsiElement(identifier)('Req')
+                      TypeArgument
+                        SimpleType: Req
+                          CodeReferenceElement: Req
+                            PsiElement(identifier)('Req')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -148,9 +149,10 @@ ScalaFile
                           PsiElement(identifier)('ActorRef')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Res
-                          CodeReferenceElement: Res
-                            PsiElement(identifier)('Res')
+                        TypeArgument
+                          SimpleType: Res
+                            CodeReferenceElement: Res
+                              PsiElement(identifier)('Res')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -177,9 +179,10 @@ ScalaFile
                           PsiElement(identifier)('Try')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Res
-                          CodeReferenceElement: Res
-                            PsiElement(identifier)('Res')
+                        TypeArgument
+                          SimpleType: Res
+                            CodeReferenceElement: Res
+                              PsiElement(identifier)('Res')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -233,9 +236,10 @@ ScalaFile
               PsiElement(identifier)('ActorContext')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -261,9 +265,10 @@ ScalaFile
               PsiElement(identifier)('ActorRef')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Request
-              CodeReferenceElement: Request
-                PsiElement(identifier)('Request')
+            TypeArgument
+              SimpleType: Request
+                CodeReferenceElement: Request
+                  PsiElement(identifier)('Request')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -303,9 +308,10 @@ ScalaFile
                         PsiElement(identifier)('ActorRef')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
         ExtendsBlock

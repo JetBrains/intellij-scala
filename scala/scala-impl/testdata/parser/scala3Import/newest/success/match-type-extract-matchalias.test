@@ -90,9 +90,10 @@ ScalaFile
                 PsiElement(identifier)('Head')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: Base
@@ -188,8 +189,9 @@ ScalaFile
                       PsiElement(identifier)('BaseOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: v
-                      PsiElement(identifier)('v')
+                    TypeArgument
+                      TypeVariable: v
+                        PsiElement(identifier)('v')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -238,24 +240,26 @@ ScalaFile
                 PsiElement(identifier)('ExtractValue')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Sub[Int *: EmptyTuple]
-                SimpleType: Sub
-                  CodeReferenceElement: Sub
-                    PsiElement(identifier)('Sub')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  InfixType: Int *: EmptyTuple
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: *:
-                      PsiElement(identifier)('*:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: EmptyTuple
-                      CodeReferenceElement: EmptyTuple
-                        PsiElement(identifier)('EmptyTuple')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Sub[Int *: EmptyTuple]
+                  SimpleType: Sub
+                    CodeReferenceElement: Sub
+                      PsiElement(identifier)('Sub')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      InfixType: Int *: EmptyTuple
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: EmptyTuple
+                          CodeReferenceElement: EmptyTuple
+                            PsiElement(identifier)('EmptyTuple')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

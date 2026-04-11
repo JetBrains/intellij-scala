@@ -134,9 +134,10 @@ ScalaFile
                       PsiElement(identifier)('FoundNode')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: FoundTypeCase
@@ -175,9 +176,10 @@ ScalaFile
                       PsiElement(identifier)('FoundNode')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: f
@@ -198,8 +200,9 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -231,8 +234,9 @@ ScalaFile
                         PsiElement(identifier)('Some')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: t
-                        PsiElement(identifier)('t')
+                      TypeArgument
+                        TypeVariable: t
+                          PsiElement(identifier)('t')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -272,8 +276,9 @@ ScalaFile
                     PsiElement(identifier)('Some')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -283,8 +288,9 @@ ScalaFile
                     PsiElement(identifier)('FoundNode')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -329,8 +335,9 @@ ScalaFile
                             PsiElement(identifier)('Some')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: t
-                            PsiElement(identifier)('t')
+                          TypeArgument
+                            TypeVariable: t
+                              PsiElement(identifier)('t')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -346,8 +353,9 @@ ScalaFile
                             PsiElement(identifier)('FoundNode')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -384,8 +392,9 @@ ScalaFile
                             PsiElement(identifier)('Some')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: t
-                            PsiElement(identifier)('t')
+                          TypeArgument
+                            TypeVariable: t
+                              PsiElement(identifier)('t')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -426,8 +435,9 @@ ScalaFile
                             PsiElement(identifier)('Some')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -488,8 +498,9 @@ ScalaFile
                     PsiElement(identifier)('Foo')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -499,8 +510,9 @@ ScalaFile
                     PsiElement(identifier)('FoundNode')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -543,8 +555,9 @@ ScalaFile
                             PsiElement(identifier)('Foo')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -645,8 +658,9 @@ ScalaFile
                     PsiElement(identifier)('Some')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -694,8 +708,9 @@ ScalaFile
                             PsiElement(identifier)('Some')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: t
-                            PsiElement(identifier)('t')
+                          TypeArgument
+                            TypeVariable: t
+                              PsiElement(identifier)('t')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -730,8 +745,9 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -741,8 +757,9 @@ ScalaFile
                     PsiElement(identifier)('FoundNode')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -785,8 +802,9 @@ ScalaFile
                             PsiElement(identifier)('Option')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')

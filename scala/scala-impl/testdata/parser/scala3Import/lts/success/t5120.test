@@ -136,16 +136,18 @@ ScalaFile
                           PsiElement(identifier)('Seq')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Tuple2[T]
-                          SimpleType: Tuple2
-                            CodeReferenceElement: Tuple2
-                              PsiElement(identifier)('Tuple2')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Tuple2[T]
+                            SimpleType: Tuple2
+                              CodeReferenceElement: Tuple2
+                                PsiElement(identifier)('Tuple2')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -188,9 +190,10 @@ ScalaFile
                           PsiElement(identifier)('ScopedKey')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -209,9 +212,10 @@ ScalaFile
                           PsiElement(identifier)('ScopedKey')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -278,15 +282,17 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Compiled[_]
-                        SimpleType: Compiled
-                          CodeReferenceElement: Compiled
-                            PsiElement(identifier)('Compiled')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Compiled[_]
+                          SimpleType: Compiled
+                            CodeReferenceElement: Compiled
+                              PsiElement(identifier)('Compiled')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -402,15 +408,17 @@ ScalaFile
                             PsiElement(identifier)('Seq')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: ScopedKey[_]
-                            SimpleType: ScopedKey
-                              CodeReferenceElement: ScopedKey
-                                PsiElement(identifier)('ScopedKey')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              WildcardType: _
-                                PsiElement(_)('_')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: ScopedKey[_]
+                              SimpleType: ScopedKey
+                                CodeReferenceElement: ScopedKey
+                                  PsiElement(identifier)('ScopedKey')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  WildcardType: _
+                                    PsiElement(_)('_')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')
@@ -448,9 +456,10 @@ ScalaFile
                         PsiElement(identifier)('ScopedKey')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -469,9 +478,10 @@ ScalaFile
                         PsiElement(identifier)('ScopedKey')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

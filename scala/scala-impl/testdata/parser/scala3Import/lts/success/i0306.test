@@ -51,8 +51,9 @@ ScalaFile
                     PsiElement(identifier)('Seq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -130,8 +131,9 @@ ScalaFile
                           PsiElement(identifier)('C')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: u
-                          PsiElement(identifier)('u')
+                        TypeArgument
+                          TypeVariable: u
+                            PsiElement(identifier)('u')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

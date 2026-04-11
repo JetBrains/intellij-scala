@@ -96,14 +96,16 @@ ScalaFile
                     PsiElement(identifier)('MyMap')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: AttributeValue
-                    CodeReferenceElement: AttributeValue
-                      PsiElement(identifier)('AttributeValue')
+                  TypeArgument
+                    SimpleType: AttributeValue
+                      CodeReferenceElement: AttributeValue
+                        PsiElement(identifier)('AttributeValue')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace('\n')
@@ -131,14 +133,16 @@ ScalaFile
                 PsiElement(identifier)('MyMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: AttributeValue
-                CodeReferenceElement: AttributeValue
-                  PsiElement(identifier)('AttributeValue')
+              TypeArgument
+                SimpleType: AttributeValue
+                  CodeReferenceElement: AttributeValue
+                    PsiElement(identifier)('AttributeValue')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -164,14 +168,16 @@ ScalaFile
                 PsiElement(identifier)('MyMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: AttributeValue
-                CodeReferenceElement: AttributeValue
-                  PsiElement(identifier)('AttributeValue')
+              TypeArgument
+                SimpleType: AttributeValue
+                  CodeReferenceElement: AttributeValue
+                    PsiElement(identifier)('AttributeValue')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -332,9 +338,10 @@ ScalaFile
           PsiElement(identifier)('ColumnDef_')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Type
-          CodeReferenceElement: Type
-            PsiElement(identifier)('Type')
+        TypeArgument
+          SimpleType: Type
+            CodeReferenceElement: Type
+              PsiElement(identifier)('Type')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: ColumnDef_
@@ -393,9 +400,10 @@ ScalaFile
           PsiElement(identifier)('TableDef_')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ColumnDef
-          CodeReferenceElement: ColumnDef
-            PsiElement(identifier)('ColumnDef')
+        TypeArgument
+          SimpleType: ColumnDef
+            CodeReferenceElement: ColumnDef
+              PsiElement(identifier)('ColumnDef')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: TableDef_
@@ -421,8 +429,9 @@ ScalaFile
               PsiElement(identifier)('ColumnDef_')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -448,9 +457,10 @@ ScalaFile
                     PsiElement(identifier)('MySeq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  TypeArgument
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

@@ -54,11 +54,12 @@ ScalaFile
                       PsiElement(identifier)('SymOps')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: ctx.type
-                      CodeReferenceElement: ctx
-                        PsiElement(identifier)('ctx')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
+                    TypeArgument
+                      SimpleType: ctx.type
+                        CodeReferenceElement: ctx
+                          PsiElement(identifier)('ctx')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

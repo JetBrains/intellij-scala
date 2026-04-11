@@ -48,9 +48,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('toInt')
@@ -101,9 +102,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('toInt')
@@ -147,9 +149,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('toInt')

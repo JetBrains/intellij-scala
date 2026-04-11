@@ -650,18 +650,19 @@ ScalaFile
                       PsiElement(identifier)('ALogarithm')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Logarithm
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Logarithm
-                        CodeReferenceElement: Logarithm
-                          PsiElement(identifier)('Logarithm')
+                    TypeArgument
+                      TypeLambda: [x] =>> Logarithm
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScTypeAliasDefinition: ALogD
@@ -681,18 +682,19 @@ ScalaFile
                       PsiElement(identifier)('ALogarithm')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Double
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Double
-                        CodeReferenceElement: Double
-                          PsiElement(identifier)('Double')
+                    TypeArgument
+                      TypeLambda: [x] =>> Double
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScTypeAliasDefinition: ALogN
@@ -712,18 +714,19 @@ ScalaFile
                       PsiElement(identifier)('ALogarithm')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Nothing
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Nothing
-                        CodeReferenceElement: Nothing
-                          PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      TypeLambda: [x] =>> Nothing
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScTypeAliasDefinition: A1Log
@@ -746,18 +749,19 @@ ScalaFile
                       PsiElement(identifier)('ALogarithm')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Logarithm
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Logarithm
-                        CodeReferenceElement: Logarithm
-                          PsiElement(identifier)('Logarithm')
+                    TypeArgument
+                      TypeLambda: [x] =>> Logarithm
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Logarithm
+                          CodeReferenceElement: Logarithm
+                            PsiElement(identifier)('Logarithm')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScTypeAliasDefinition: A1LogN
@@ -782,18 +786,19 @@ ScalaFile
                       PsiElement(identifier)('ALogarithm')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Nothing
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Nothing
-                        CodeReferenceElement: Nothing
-                          PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      TypeLambda: [x] =>> Nothing
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScClass: ALogNested
@@ -922,18 +927,19 @@ ScalaFile
                       PsiElement(identifier)('AValClLogNested')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> ValClLogNested
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: ValClLogNested
-                        CodeReferenceElement: ValClLogNested
-                          PsiElement(identifier)('ValClLogNested')
+                    TypeArgument
+                      TypeLambda: [x] =>> ValClLogNested
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: ValClLogNested
+                          CodeReferenceElement: ValClLogNested
+                            PsiElement(identifier)('ValClLogNested')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScTypeAliasDefinition: AN
@@ -953,18 +959,19 @@ ScalaFile
                       PsiElement(identifier)('AValClLogNested')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeLambda: [x] =>> Nothing
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: x
-                          PsiElement(identifier)('x')
-                        PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Nothing
-                        CodeReferenceElement: Nothing
-                          PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      TypeLambda: [x] =>> Nothing
+                        TypeParameterClause
+                          PsiElement([)('[')
+                          TypeParameter: x
+                            PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>>)('=>>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -1061,18 +1068,19 @@ ScalaFile
                 PsiElement(identifier)('AValClLog')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> ValClLog
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: ValClLog
-                  CodeReferenceElement: ValClLog
-                    PsiElement(identifier)('ValClLog')
+              TypeArgument
+                TypeLambda: [x] =>> ValClLog
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ValClLog
+                    CodeReferenceElement: ValClLog
+                      PsiElement(identifier)('ValClLog')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: AClLogN
@@ -1092,18 +1100,19 @@ ScalaFile
                 PsiElement(identifier)('AValClLog')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: ADouble
@@ -1157,18 +1166,19 @@ ScalaFile
                 PsiElement(identifier)('ADouble')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Double
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+              TypeArgument
+                TypeLambda: [x] =>> Double
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ADN
@@ -1188,18 +1198,19 @@ ScalaFile
                 PsiElement(identifier)('ADouble')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: ALogarithm
@@ -1253,18 +1264,19 @@ ScalaFile
                 PsiElement(identifier)('ALogarithm')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Logarithm
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Logarithm
-                  CodeReferenceElement: Logarithm
-                    PsiElement(identifier)('Logarithm')
+              TypeArgument
+                TypeLambda: [x] =>> Logarithm
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Logarithm
+                    CodeReferenceElement: Logarithm
+                      PsiElement(identifier)('Logarithm')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ALogN
@@ -1284,18 +1296,19 @@ ScalaFile
                 PsiElement(identifier)('ALogarithm')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: A1Log
@@ -1318,18 +1331,19 @@ ScalaFile
                 PsiElement(identifier)('ALogarithm')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Logarithm
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Logarithm
-                  CodeReferenceElement: Logarithm
-                    PsiElement(identifier)('Logarithm')
+              TypeArgument
+                TypeLambda: [x] =>> Logarithm
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Logarithm
+                    CodeReferenceElement: Logarithm
+                      PsiElement(identifier)('Logarithm')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: A1LogN
@@ -1352,18 +1366,19 @@ ScalaFile
                 PsiElement(identifier)('ALogarithm')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -1398,18 +1413,19 @@ ScalaFile
                 PsiElement(identifier)('AUnit')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Unit
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Unit
-                  CodeReferenceElement: Unit
-                    PsiElement(identifier)('Unit')
+              TypeArgument
+                TypeLambda: [x] =>> Unit
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: AUN
@@ -1429,18 +1445,19 @@ ScalaFile
                 PsiElement(identifier)('AUnit')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: AB
@@ -1460,18 +1477,19 @@ ScalaFile
                 PsiElement(identifier)('ABoolean')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Boolean
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Boolean
-                  CodeReferenceElement: Boolean
-                    PsiElement(identifier)('Boolean')
+              TypeArgument
+                TypeLambda: [x] =>> Boolean
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ABN
@@ -1491,18 +1509,19 @@ ScalaFile
                 PsiElement(identifier)('ABoolean')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n\n  ')
         ScTypeAliasDefinition: ABy
@@ -1522,18 +1541,19 @@ ScalaFile
                 PsiElement(identifier)('AByte')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Byte
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Byte
-                  CodeReferenceElement: Byte
-                    PsiElement(identifier)('Byte')
+              TypeArgument
+                TypeLambda: [x] =>> Byte
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Byte
+                    CodeReferenceElement: Byte
+                      PsiElement(identifier)('Byte')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: AByN
@@ -1553,18 +1573,19 @@ ScalaFile
                 PsiElement(identifier)('AByte')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: AC
@@ -1584,18 +1605,19 @@ ScalaFile
                 PsiElement(identifier)('AChar')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Char
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Char
-                  CodeReferenceElement: Char
-                    PsiElement(identifier)('Char')
+              TypeArgument
+                TypeLambda: [x] =>> Char
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ACN
@@ -1615,18 +1637,19 @@ ScalaFile
                 PsiElement(identifier)('AChar')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n\n  ')
         ScTypeAliasDefinition: AS
@@ -1646,18 +1669,19 @@ ScalaFile
                 PsiElement(identifier)('AShort')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Short
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Short
-                  CodeReferenceElement: Short
-                    PsiElement(identifier)('Short')
+              TypeArgument
+                TypeLambda: [x] =>> Short
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Short
+                    CodeReferenceElement: Short
+                      PsiElement(identifier)('Short')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ASN
@@ -1677,18 +1701,19 @@ ScalaFile
                 PsiElement(identifier)('AShort')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: AI
@@ -1708,18 +1733,19 @@ ScalaFile
                 PsiElement(identifier)('AInt')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Int
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+              TypeArgument
+                TypeLambda: [x] =>> Int
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: AIN
@@ -1739,18 +1765,19 @@ ScalaFile
                 PsiElement(identifier)('AInt')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: AL
@@ -1770,18 +1797,19 @@ ScalaFile
                 PsiElement(identifier)('ALong')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Long
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Long
-                  CodeReferenceElement: Long
-                    PsiElement(identifier)('Long')
+              TypeArgument
+                TypeLambda: [x] =>> Long
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ALN
@@ -1801,18 +1829,19 @@ ScalaFile
                 PsiElement(identifier)('ALong')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n\n  ')
         ScTypeAliasDefinition: AF
@@ -1832,18 +1861,19 @@ ScalaFile
                 PsiElement(identifier)('AFloat')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Float
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Float
-                  CodeReferenceElement: Float
-                    PsiElement(identifier)('Float')
+              TypeArgument
+                TypeLambda: [x] =>> Float
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: AFN
@@ -1863,18 +1893,19 @@ ScalaFile
                 PsiElement(identifier)('AFloat')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: AD
@@ -1894,18 +1925,19 @@ ScalaFile
                 PsiElement(identifier)('ADouble')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Double
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+              TypeArgument
+                TypeLambda: [x] =>> Double
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ADN
@@ -1925,18 +1957,19 @@ ScalaFile
                 PsiElement(identifier)('ADouble')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n\n  ')
         ScTypeAliasDefinition: ACU
@@ -1956,18 +1989,19 @@ ScalaFile
                 PsiElement(identifier)('AValClU')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> ValClU
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: ValClU
-                  CodeReferenceElement: ValClU
-                    PsiElement(identifier)('ValClU')
+              TypeArgument
+                TypeLambda: [x] =>> ValClU
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ValClU
+                    CodeReferenceElement: ValClU
+                      PsiElement(identifier)('ValClU')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ACUN
@@ -1987,18 +2021,19 @@ ScalaFile
                 PsiElement(identifier)('AValClU')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ACI
@@ -2018,18 +2053,19 @@ ScalaFile
                 PsiElement(identifier)('AValClI')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> ValClI
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: ValClI
-                  CodeReferenceElement: ValClI
-                    PsiElement(identifier)('ValClI')
+              TypeArgument
+                TypeLambda: [x] =>> ValClI
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ValClI
+                    CodeReferenceElement: ValClI
+                      PsiElement(identifier)('ValClI')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ACIN
@@ -2049,18 +2085,19 @@ ScalaFile
                 PsiElement(identifier)('AValClI')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [x] =>> Nothing
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: x
-                    PsiElement(identifier)('x')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+              TypeArgument
+                TypeLambda: [x] =>> Nothing
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: x
+                      PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

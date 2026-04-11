@@ -256,9 +256,10 @@ ScalaFile
             PsiElement(identifier)('Expr')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Unit
-            CodeReferenceElement: Unit
-              PsiElement(identifier)('Unit')
+          TypeArgument
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(=)('=')
@@ -362,9 +363,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Symbol
-                CodeReferenceElement: Symbol
-                  PsiElement(identifier)('Symbol')
+              TypeArgument
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

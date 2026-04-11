@@ -67,9 +67,10 @@ ScalaFile
                 PsiElement(identifier)('m')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: a
-                CodeReferenceElement: a
-                  PsiElement(identifier)('a')
+              TypeArgument
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// typedTypeApply must use asSeenFrom to adapt the return type')
@@ -169,9 +170,10 @@ ScalaFile
                         PsiElement(identifier)('Rep')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: t
-                        CodeReferenceElement: t
-                          PsiElement(identifier)('t')
+                      TypeArgument
+                        SimpleType: t
+                          CodeReferenceElement: t
+                            PsiElement(identifier)('t')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -217,9 +219,10 @@ ScalaFile
                     PsiElement(identifier)('ShowBin')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: t
-                    CodeReferenceElement: t
-                      PsiElement(identifier)('t')
+                  TypeArgument
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -232,9 +235,10 @@ ScalaFile
                   PsiElement(identifier)('rep')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: ShowBin
-                    CodeReferenceElement: ShowBin
-                      PsiElement(identifier)('ShowBin')
+                  TypeArgument
+                    SimpleType: ShowBin
+                      CodeReferenceElement: ShowBin
+                        PsiElement(identifier)('ShowBin')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             MethodCall

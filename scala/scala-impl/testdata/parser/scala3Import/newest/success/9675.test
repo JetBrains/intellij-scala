@@ -202,21 +202,24 @@ ScalaFile
                 PsiElement(identifier)('S')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: IndexOf[H, t]
-                SimpleType: IndexOf
-                  CodeReferenceElement: IndexOf
-                    PsiElement(identifier)('IndexOf')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: H
-                    CodeReferenceElement: H
-                      PsiElement(identifier)('H')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: t
-                    CodeReferenceElement: t
-                      PsiElement(identifier)('t')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: IndexOf[H, t]
+                  SimpleType: IndexOf
+                    CodeReferenceElement: IndexOf
+                      PsiElement(identifier)('IndexOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: a
@@ -240,44 +243,48 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: ValueOf[IndexOf[List, List ++: Option ++: TNil]]
-            SimpleType: ValueOf
-              CodeReferenceElement: ValueOf
-                PsiElement(identifier)('ValueOf')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: IndexOf[List, List ++: Option ++: TNil]
-                SimpleType: IndexOf
-                  CodeReferenceElement: IndexOf
-                    PsiElement(identifier)('IndexOf')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: List
-                    CodeReferenceElement: List
-                      PsiElement(identifier)('List')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  InfixType: List ++: Option ++: TNil
-                    SimpleType: List
-                      CodeReferenceElement: List
-                        PsiElement(identifier)('List')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: ++:
-                      PsiElement(identifier)('++:')
-                    PsiWhiteSpace(' ')
-                    InfixType: Option ++: TNil
-                      SimpleType: Option
-                        CodeReferenceElement: Option
-                          PsiElement(identifier)('Option')
+          TypeArgument
+            ParametrizedType: ValueOf[IndexOf[List, List ++: Option ++: TNil]]
+              SimpleType: ValueOf
+                CodeReferenceElement: ValueOf
+                  PsiElement(identifier)('ValueOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: IndexOf[List, List ++: Option ++: TNil]
+                    SimpleType: IndexOf
+                      CodeReferenceElement: IndexOf
+                        PsiElement(identifier)('IndexOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      CodeReferenceElement: ++:
-                        PsiElement(identifier)('++:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: TNil
-                        CodeReferenceElement: TNil
-                          PsiElement(identifier)('TNil')
-                  PsiElement(])(']')
-              PsiElement(])(']')
+                      TypeArgument
+                        InfixType: List ++: Option ++: TNil
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ++:
+                            PsiElement(identifier)('++:')
+                          PsiWhiteSpace(' ')
+                          InfixType: Option ++: TNil
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: ++:
+                              PsiElement(identifier)('++:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: TNil
+                              CodeReferenceElement: TNil
+                                PsiElement(identifier)('TNil')
+                      PsiElement(])(']')
+                PsiElement(])(']')
           PsiElement(])(']')
       PsiElement(.)('.')
       PsiElement(identifier)('value')
@@ -303,44 +310,48 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: ValueOf[IndexOf[List, Option ++: List ++: TNil]]
-            SimpleType: ValueOf
-              CodeReferenceElement: ValueOf
-                PsiElement(identifier)('ValueOf')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: IndexOf[List, Option ++: List ++: TNil]
-                SimpleType: IndexOf
-                  CodeReferenceElement: IndexOf
-                    PsiElement(identifier)('IndexOf')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: List
-                    CodeReferenceElement: List
-                      PsiElement(identifier)('List')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  InfixType: Option ++: List ++: TNil
-                    SimpleType: Option
-                      CodeReferenceElement: Option
-                        PsiElement(identifier)('Option')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: ++:
-                      PsiElement(identifier)('++:')
-                    PsiWhiteSpace(' ')
-                    InfixType: List ++: TNil
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
+          TypeArgument
+            ParametrizedType: ValueOf[IndexOf[List, Option ++: List ++: TNil]]
+              SimpleType: ValueOf
+                CodeReferenceElement: ValueOf
+                  PsiElement(identifier)('ValueOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: IndexOf[List, Option ++: List ++: TNil]
+                    SimpleType: IndexOf
+                      CodeReferenceElement: IndexOf
+                        PsiElement(identifier)('IndexOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      CodeReferenceElement: ++:
-                        PsiElement(identifier)('++:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: TNil
-                        CodeReferenceElement: TNil
-                          PsiElement(identifier)('TNil')
-                  PsiElement(])(']')
-              PsiElement(])(']')
+                      TypeArgument
+                        InfixType: Option ++: List ++: TNil
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ++:
+                            PsiElement(identifier)('++:')
+                          PsiWhiteSpace(' ')
+                          InfixType: List ++: TNil
+                            SimpleType: List
+                              CodeReferenceElement: List
+                                PsiElement(identifier)('List')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: ++:
+                              PsiElement(identifier)('++:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: TNil
+                              CodeReferenceElement: TNil
+                                PsiElement(identifier)('TNil')
+                      PsiElement(])(']')
+                PsiElement(])(']')
           PsiElement(])(']')
       PsiElement(.)('.')
       PsiElement(identifier)('value')

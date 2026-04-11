@@ -2010,6 +2010,12 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_function_literal_with_erased_parameter(): Unit = checkParseErrors(
+    """
+      |foo((erased x, y) => y + 1)
+      |""".stripMargin
+  )
+
   // SCL-22135
   def test_second_paren_argument_list_on_next_line(): Unit = checkTree(
     """

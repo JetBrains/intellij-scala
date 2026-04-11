@@ -100,9 +100,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -177,18 +178,19 @@ ScalaFile
                             PsiElement(identifier)('List')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            TupleType: (Any, Any)
-                              PsiElement(()('(')
-                              TypesList
-                                SimpleType: Any
-                                  CodeReferenceElement: Any
-                                    PsiElement(identifier)('Any')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                SimpleType: Any
-                                  CodeReferenceElement: Any
-                                    PsiElement(identifier)('Any')
-                              PsiElement())(')')
+                            TypeArgument
+                              TupleType: (Any, Any)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: Any
+                                    CodeReferenceElement: Any
+                                      PsiElement(identifier)('Any')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Any
+                                    CodeReferenceElement: Any
+                                      PsiElement(identifier)('Any')
+                                PsiElement())(')')
                             PsiElement(])(']')
                         ArgumentList
                           PsiElement(()('(')
@@ -284,9 +286,10 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiComment(BlockComment)('/* Adding this type annotation avoids the compile error.*/')

@@ -88,8 +88,9 @@ ScalaFile
                         PsiElement(identifier)('View')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        TypeVariable: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

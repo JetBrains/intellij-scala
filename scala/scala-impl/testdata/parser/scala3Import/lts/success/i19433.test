@@ -98,16 +98,18 @@ ScalaFile
                     PsiElement(identifier)('ExprMap')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: ExprMap[V2]
-                    SimpleType: ExprMap
-                      CodeReferenceElement: ExprMap
-                        PsiElement(identifier)('ExprMap')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: V2
-                        CodeReferenceElement: V2
-                          PsiElement(identifier)('V2')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: ExprMap[V2]
+                      SimpleType: ExprMap
+                        CodeReferenceElement: ExprMap
+                          PsiElement(identifier)('ExprMap')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: V2
+                            CodeReferenceElement: V2
+                              PsiElement(identifier)('V2')
+                        PsiElement(])(']')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -122,14 +124,16 @@ ScalaFile
                 PsiElement(identifier)('EMImpl')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: V2
-                CodeReferenceElement: V2
-                  PsiElement(identifier)('V2')
+              TypeArgument
+                SimpleType: V2
+                  CodeReferenceElement: V2
+                    PsiElement(identifier)('V2')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: EM
-                CodeReferenceElement: EM
-                  PsiElement(identifier)('EM')
+              TypeArgument
+                SimpleType: EM
+                  CodeReferenceElement: EM
+                    PsiElement(identifier)('EM')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -165,14 +169,16 @@ ScalaFile
                         PsiElement(identifier)('PartialFunction')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: V2
-                        CodeReferenceElement: V2
-                          PsiElement(identifier)('V2')
+                      TypeArgument
+                        SimpleType: V2
+                          CodeReferenceElement: V2
+                            PsiElement(identifier)('V2')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: W
-                        CodeReferenceElement: W
-                          PsiElement(identifier)('W')
+                      TypeArgument
+                        SimpleType: W
+                          CodeReferenceElement: W
+                            PsiElement(identifier)('W')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -257,9 +263,10 @@ ScalaFile
                     PsiElement(identifier)('EM')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
+                  TypeArgument
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
                   PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -279,14 +286,16 @@ ScalaFile
                 PsiElement(identifier)('EMImpl')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ExprMap
-                CodeReferenceElement: ExprMap
-                  PsiElement(identifier)('ExprMap')
+              TypeArgument
+                SimpleType: ExprMap
+                  CodeReferenceElement: ExprMap
+                    PsiElement(identifier)('ExprMap')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -322,14 +331,16 @@ ScalaFile
                         PsiElement(identifier)('PartialFunction')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: V
-                        CodeReferenceElement: V
-                          PsiElement(identifier)('V')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: W
-                        CodeReferenceElement: W
-                          PsiElement(identifier)('W')
+                      TypeArgument
+                        SimpleType: W
+                          CodeReferenceElement: W
+                            PsiElement(identifier)('W')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -340,9 +351,10 @@ ScalaFile
                 PsiElement(identifier)('ExprMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: W
-                CodeReferenceElement: W
-                  PsiElement(identifier)('W')
+              TypeArgument
+                SimpleType: W
+                  CodeReferenceElement: W
+                    PsiElement(identifier)('W')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

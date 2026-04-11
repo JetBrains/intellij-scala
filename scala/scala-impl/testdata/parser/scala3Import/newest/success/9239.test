@@ -342,9 +342,10 @@ ScalaFile
                         PsiElement(identifier)('--')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: d
-                        CodeReferenceElement: d
-                          PsiElement(identifier)('d')
+                      TypeArgument
+                        SimpleType: d
+                          CodeReferenceElement: d
+                            PsiElement(identifier)('d')
                       PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ×
@@ -493,16 +494,18 @@ ScalaFile
                         PsiElement(identifier)('!')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: --[N]
-                        SimpleType: --
-                          CodeReferenceElement: --
-                            PsiElement(identifier)('--')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: N
-                            CodeReferenceElement: N
-                              PsiElement(identifier)('N')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: --[N]
+                          SimpleType: --
+                            CodeReferenceElement: --
+                              PsiElement(identifier)('--')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: N
+                                CodeReferenceElement: N
+                                  PsiElement(identifier)('N')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: ×
@@ -537,16 +540,18 @@ ScalaFile
                         PsiElement(identifier)('!')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: --[N]
-                        SimpleType: --
-                          CodeReferenceElement: --
-                            PsiElement(identifier)('--')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: N
-                            CodeReferenceElement: N
-                              PsiElement(identifier)('N')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: --[N]
+                          SimpleType: --
+                            CodeReferenceElement: --
+                              PsiElement(identifier)('--')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: N
+                                CodeReferenceElement: N
+                                  PsiElement(identifier)('N')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: ×

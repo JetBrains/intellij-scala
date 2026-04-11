@@ -150,19 +150,22 @@ ScalaFile
                 PsiElement(identifier)('ZStream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: IOException
-                CodeReferenceElement: IOException
-                  PsiElement(identifier)('IOException')
+              TypeArgument
+                SimpleType: IOException
+                  CodeReferenceElement: IOException
+                    PsiElement(identifier)('IOException')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Path
-                CodeReferenceElement: Path
-                  PsiElement(identifier)('Path')
+              TypeArgument
+                SimpleType: Path
+                  CodeReferenceElement: Path
+                    PsiElement(identifier)('Path')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: listFile
@@ -200,19 +203,22 @@ ScalaFile
                 PsiElement(identifier)('ZStream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: IOException
-                CodeReferenceElement: IOException
-                  PsiElement(identifier)('IOException')
+              TypeArgument
+                SimpleType: IOException
+                  CodeReferenceElement: IOException
+                    PsiElement(identifier)('IOException')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: File
-                CodeReferenceElement: File
-                  PsiElement(identifier)('File')
+              TypeArgument
+                SimpleType: File
+                  CodeReferenceElement: File
+                    PsiElement(identifier)('File')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -237,26 +243,30 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: ZStream[Any, IOException, Path]
-                      SimpleType: ZStream
-                        CodeReferenceElement: ZStream
-                          PsiElement(identifier)('ZStream')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Any
-                          CodeReferenceElement: Any
-                            PsiElement(identifier)('Any')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: IOException
-                          CodeReferenceElement: IOException
-                            PsiElement(identifier)('IOException')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Path
-                          CodeReferenceElement: Path
-                            PsiElement(identifier)('Path')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: ZStream[Any, IOException, Path]
+                        SimpleType: ZStream
+                          CodeReferenceElement: ZStream
+                            PsiElement(identifier)('ZStream')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Any
+                              CodeReferenceElement: Any
+                                PsiElement(identifier)('Any')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: IOException
+                              CodeReferenceElement: IOException
+                                PsiElement(identifier)('IOException')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Path
+                              CodeReferenceElement: Path
+                                PsiElement(identifier)('Path')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace('\n      ')
               Generator
@@ -376,9 +386,10 @@ ScalaFile
                 PsiElement(identifier)('CanFail')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -461,19 +472,22 @@ ScalaFile
                   PsiElement(identifier)('ZIO')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: E
-                  CodeReferenceElement: E
-                    PsiElement(identifier)('E')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n  ')
@@ -516,9 +530,10 @@ ScalaFile
                       PsiElement(identifier)('CanFail')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiElement(:)(':')
@@ -529,19 +544,22 @@ ScalaFile
               PsiElement(identifier)('ZIO')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: R
-              CodeReferenceElement: R
-                PsiElement(identifier)('R')
+            TypeArgument
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: E1
-              CodeReferenceElement: E1
-                PsiElement(identifier)('E1')
+            TypeArgument
+              SimpleType: E1
+                CodeReferenceElement: E1
+                  PsiElement(identifier)('E1')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -600,19 +618,22 @@ ScalaFile
                 PsiElement(identifier)('ZIO')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Throwable
-                CodeReferenceElement: Throwable
-                  PsiElement(identifier)('Throwable')
+              TypeArgument
+                SimpleType: Throwable
+                  CodeReferenceElement: Throwable
+                    PsiElement(identifier)('Throwable')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -700,19 +721,22 @@ ScalaFile
                 PsiElement(identifier)('ZStream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -778,19 +802,22 @@ ScalaFile
                           PsiElement(identifier)('ZStream')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: R1
-                          CodeReferenceElement: R1
-                            PsiElement(identifier)('R1')
+                        TypeArgument
+                          SimpleType: R1
+                            CodeReferenceElement: R1
+                              PsiElement(identifier)('R1')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: E1
-                          CodeReferenceElement: E1
-                            PsiElement(identifier)('E1')
+                        TypeArgument
+                          SimpleType: E1
+                            CodeReferenceElement: E1
+                              PsiElement(identifier)('E1')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -801,19 +828,22 @@ ScalaFile
                 PsiElement(identifier)('ZStream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R1
-                CodeReferenceElement: R1
-                  PsiElement(identifier)('R1')
+              TypeArgument
+                SimpleType: R1
+                  CodeReferenceElement: R1
+                    PsiElement(identifier)('R1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E1
-                CodeReferenceElement: E1
-                  PsiElement(identifier)('E1')
+              TypeArgument
+                SimpleType: E1
+                  CodeReferenceElement: E1
+                    PsiElement(identifier)('E1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: mapZIO
@@ -874,19 +904,22 @@ ScalaFile
                           PsiElement(identifier)('ZIO')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: R1
-                          CodeReferenceElement: R1
-                            PsiElement(identifier)('R1')
+                        TypeArgument
+                          SimpleType: R1
+                            CodeReferenceElement: R1
+                              PsiElement(identifier)('R1')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: E1
-                          CodeReferenceElement: E1
-                            PsiElement(identifier)('E1')
+                        TypeArgument
+                          SimpleType: E1
+                            CodeReferenceElement: E1
+                              PsiElement(identifier)('E1')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: A1
-                          CodeReferenceElement: A1
-                            PsiElement(identifier)('A1')
+                        TypeArgument
+                          SimpleType: A1
+                            CodeReferenceElement: A1
+                              PsiElement(identifier)('A1')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -897,17 +930,20 @@ ScalaFile
                 PsiElement(identifier)('ZStream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R1
-                CodeReferenceElement: R1
-                  PsiElement(identifier)('R1')
+              TypeArgument
+                SimpleType: R1
+                  CodeReferenceElement: R1
+                    PsiElement(identifier)('R1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E1
-                CodeReferenceElement: E1
-                  PsiElement(identifier)('E1')
+              TypeArgument
+                SimpleType: E1
+                  CodeReferenceElement: E1
+                    PsiElement(identifier)('E1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A1
-                CodeReferenceElement: A1
-                  PsiElement(identifier)('A1')
+              TypeArgument
+                SimpleType: A1
+                  CodeReferenceElement: A1
+                    PsiElement(identifier)('A1')
               PsiElement(])(']')

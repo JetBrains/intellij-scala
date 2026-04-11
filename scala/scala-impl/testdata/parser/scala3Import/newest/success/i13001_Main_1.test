@@ -159,9 +159,10 @@ ScalaFile
                         PsiElement(identifier)('DerivedGen')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -173,9 +174,10 @@ ScalaFile
                 PsiElement(identifier)('Arbitrary')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -206,9 +208,10 @@ ScalaFile
           PsiElement(identifier)('Gen')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: DerivedGen
@@ -291,9 +294,10 @@ ScalaFile
                         PsiElement(identifier)('Generic')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -305,9 +309,10 @@ ScalaFile
                 PsiElement(identifier)('DerivedGen')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -331,9 +336,10 @@ ScalaFile
                     PsiElement(identifier)('DerivedGen')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -487,14 +493,16 @@ ScalaFile
                 PsiElement(identifier)('Kind')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mirror
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
+              TypeArgument
+                SimpleType: Mirror
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: ProductGeneric
@@ -519,17 +527,19 @@ ScalaFile
                 PsiElement(identifier)('Kind')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mirror.Product
-                CodeReferenceElement: Mirror.Product
-                  CodeReferenceElement: Mirror
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Product')
+              TypeArgument
+                SimpleType: Mirror.Product
+                  CodeReferenceElement: Mirror.Product
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Product')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: CoproductGeneric
@@ -554,17 +564,19 @@ ScalaFile
                 PsiElement(identifier)('Kind')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Mirror.Sum
-                CodeReferenceElement: Mirror.Sum
-                  CodeReferenceElement: Mirror
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Sum')
+              TypeArgument
+                SimpleType: Mirror.Sum
+                  CodeReferenceElement: Mirror.Sum
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Sum')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         Extension on Generic[T]
@@ -602,9 +614,10 @@ ScalaFile
                         PsiElement(identifier)('Generic')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -642,9 +655,10 @@ ScalaFile
                                   PsiElement(identifier)('ProductGeneric')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: T
-                                  CodeReferenceElement: T
-                                    PsiElement(identifier)('T')
+                                TypeArgument
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
                                 PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             CodeReferenceElement: &
@@ -665,9 +679,10 @@ ScalaFile
                               PsiElement(identifier)('F')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -692,9 +707,10 @@ ScalaFile
                                   PsiElement(identifier)('CoproductGeneric')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: T
-                                  CodeReferenceElement: T
-                                    PsiElement(identifier)('T')
+                                TypeArgument
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
                                 PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             CodeReferenceElement: &
@@ -715,9 +731,10 @@ ScalaFile
                               PsiElement(identifier)('F')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -728,9 +745,10 @@ ScalaFile
                     PsiElement(identifier)('F')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -761,9 +779,10 @@ ScalaFile
                               PsiElement(identifier)('ProductGeneric')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                     PsiWhiteSpace('   ')
                     PsiElement(=>)('=>')
@@ -798,9 +817,10 @@ ScalaFile
                               PsiElement(identifier)('CoproductGeneric')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')

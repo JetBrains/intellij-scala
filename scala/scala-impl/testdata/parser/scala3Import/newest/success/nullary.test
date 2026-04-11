@@ -142,9 +142,10 @@ ScalaFile
                 PsiElement(identifier)('m')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: x3
@@ -192,14 +193,16 @@ ScalaFile
                 PsiElement(identifier)('NullaryTest')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
+              TypeArgument
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

@@ -140,9 +140,10 @@ ScalaFile
           PsiElement(identifier)('Succ')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Zero
-          CodeReferenceElement: Zero
-            PsiElement(identifier)('Zero')
+        TypeArgument
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: HList
@@ -364,9 +365,10 @@ ScalaFile
                   PsiElement(identifier)('Length')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
+                TypeArgument
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -428,14 +430,16 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: L
-                CodeReferenceElement: L
-                  PsiElement(identifier)('L')
+              TypeArgument
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Out0
-                CodeReferenceElement: Out0
-                  PsiElement(identifier)('Out0')
+              TypeArgument
+                SimpleType: Out0
+                  CodeReferenceElement: Out0
+                    PsiElement(identifier)('Out0')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -452,9 +456,10 @@ ScalaFile
                         PsiElement(identifier)('Length')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: L
-                        CodeReferenceElement: L
-                          PsiElement(identifier)('L')
+                      TypeArgument
+                        SimpleType: L
+                          CodeReferenceElement: L
+                            PsiElement(identifier)('L')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -495,14 +500,16 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: HNil
-                CodeReferenceElement: HNil
-                  PsiElement(identifier)('HNil')
+              TypeArgument
+                SimpleType: HNil
+                  CodeReferenceElement: HNil
+                    PsiElement(identifier)('HNil')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Zero
-                CodeReferenceElement: Zero
-                  PsiElement(identifier)('Zero')
+              TypeArgument
+                SimpleType: Zero
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -554,9 +561,10 @@ ScalaFile
                         PsiElement(identifier)('Length')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -567,36 +575,41 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: HCons[H, T]
-                SimpleType: HCons
-                  CodeReferenceElement: HCons
-                    PsiElement(identifier)('HCons')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: H
-                    CodeReferenceElement: H
-                      PsiElement(identifier)('H')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: HCons[H, T]
+                  SimpleType: HCons
+                    CodeReferenceElement: HCons
+                      PsiElement(identifier)('HCons')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Succ[length.Out]
-                SimpleType: Succ
-                  CodeReferenceElement: Succ
-                    PsiElement(identifier)('Succ')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: length.Out
-                    CodeReferenceElement: length.Out
-                      CodeReferenceElement: length
-                        PsiElement(identifier)('length')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Out')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Succ[length.Out]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: length.Out
+                        CodeReferenceElement: length.Out
+                          CodeReferenceElement: length
+                            PsiElement(identifier)('length')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Out')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -628,34 +641,39 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Length.Aux[HCons[Int, HNil], One]
-          SimpleType: Length.Aux
-            CodeReferenceElement: Length.Aux
-              CodeReferenceElement: Length
-                PsiElement(identifier)('Length')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Aux')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: HCons[Int, HNil]
-              SimpleType: HCons
-                CodeReferenceElement: HCons
-                  PsiElement(identifier)('HCons')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: HNil
-                  CodeReferenceElement: HNil
-                    PsiElement(identifier)('HNil')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: One
-              CodeReferenceElement: One
-                PsiElement(identifier)('One')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Length.Aux[HCons[Int, HNil], One]
+            SimpleType: Length.Aux
+              CodeReferenceElement: Length.Aux
+                CodeReferenceElement: Length
+                  PsiElement(identifier)('Length')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: HCons[Int, HNil]
+                  SimpleType: HCons
+                    CodeReferenceElement: HCons
+                      PsiElement(identifier)('HCons')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: HNil
+                        CodeReferenceElement: HNil
+                          PsiElement(identifier)('HNil')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: One
+                  CodeReferenceElement: One
+                    PsiElement(identifier)('One')
+              PsiElement(])(']')
         PsiElement(])(']')

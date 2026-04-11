@@ -140,14 +140,16 @@ ScalaFile
                             PsiElement(identifier)('CHM')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')
@@ -177,24 +179,27 @@ ScalaFile
               PsiElement(identifier)('assertType')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: concurrent.Map[String, String]
-                SimpleType: concurrent.Map
-                  CodeReferenceElement: concurrent.Map
-                    CodeReferenceElement: concurrent
-                      PsiElement(identifier)('concurrent')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Map')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: concurrent.Map[String, String]
+                  SimpleType: concurrent.Map
+                    CodeReferenceElement: concurrent.Map
+                      CodeReferenceElement: concurrent
+                        PsiElement(identifier)('concurrent')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Map')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

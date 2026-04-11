@@ -623,15 +623,16 @@ ScalaFile
                             PsiElement(identifier)('GADT2')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: _root_.scala.Boolean
-                            CodeReferenceElement: _root_.scala.Boolean
-                              CodeReferenceElement: _root_.scala
-                                CodeReferenceElement: _root_
-                                  PsiElement(identifier)('_root_')
+                          TypeArgument
+                            SimpleType: _root_.scala.Boolean
+                              CodeReferenceElement: _root_.scala.Boolean
+                                CodeReferenceElement: _root_.scala
+                                  CodeReferenceElement: _root_
+                                    PsiElement(identifier)('_root_')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('scala')
                                 PsiElement(.)('.')
-                                PsiElement(identifier)('scala')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Boolean')
+                                PsiElement(identifier)('Boolean')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScClass: Exists
@@ -676,15 +677,16 @@ ScalaFile
                             PsiElement(identifier)('GADT2')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: _root_.scala.Boolean
-                            CodeReferenceElement: _root_.scala.Boolean
-                              CodeReferenceElement: _root_.scala
-                                CodeReferenceElement: _root_
-                                  PsiElement(identifier)('_root_')
+                          TypeArgument
+                            SimpleType: _root_.scala.Boolean
+                              CodeReferenceElement: _root_.scala.Boolean
+                                CodeReferenceElement: _root_.scala
+                                  CodeReferenceElement: _root_
+                                    PsiElement(identifier)('_root_')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('scala')
                                 PsiElement(.)('.')
-                                PsiElement(identifier)('scala')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Boolean')
+                                PsiElement(identifier)('Boolean')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScClass: ReadBytes
@@ -729,28 +731,30 @@ ScalaFile
                             PsiElement(identifier)('GADT2')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: _root_.scala.Array[_root_.scala.Byte]
-                            SimpleType: _root_.scala.Array
-                              CodeReferenceElement: _root_.scala.Array
-                                CodeReferenceElement: _root_.scala
-                                  CodeReferenceElement: _root_
-                                    PsiElement(identifier)('_root_')
-                                  PsiElement(.)('.')
-                                  PsiElement(identifier)('scala')
-                                PsiElement(.)('.')
-                                PsiElement(identifier)('Array')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: _root_.scala.Byte
-                                CodeReferenceElement: _root_.scala.Byte
+                          TypeArgument
+                            ParametrizedType: _root_.scala.Array[_root_.scala.Byte]
+                              SimpleType: _root_.scala.Array
+                                CodeReferenceElement: _root_.scala.Array
                                   CodeReferenceElement: _root_.scala
                                     CodeReferenceElement: _root_
                                       PsiElement(identifier)('_root_')
                                     PsiElement(.)('.')
                                     PsiElement(identifier)('scala')
                                   PsiElement(.)('.')
-                                  PsiElement(identifier)('Byte')
-                              PsiElement(])(']')
+                                  PsiElement(identifier)('Array')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: _root_.scala.Byte
+                                    CodeReferenceElement: _root_.scala.Byte
+                                      CodeReferenceElement: _root_.scala
+                                        CodeReferenceElement: _root_
+                                          PsiElement(identifier)('_root_')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('scala')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Byte')
+                                PsiElement(])(']')
                           PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScClass: CopyOver
@@ -785,15 +789,16 @@ ScalaFile
                                 PsiElement(identifier)('Seq')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: _root_.scala.Byte
-                                CodeReferenceElement: _root_.scala.Byte
-                                  CodeReferenceElement: _root_.scala
-                                    CodeReferenceElement: _root_
-                                      PsiElement(identifier)('_root_')
+                              TypeArgument
+                                SimpleType: _root_.scala.Byte
+                                  CodeReferenceElement: _root_.scala.Byte
+                                    CodeReferenceElement: _root_.scala
+                                      CodeReferenceElement: _root_
+                                        PsiElement(identifier)('_root_')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('scala')
                                     PsiElement(.)('.')
-                                    PsiElement(identifier)('scala')
-                                  PsiElement(.)('.')
-                                  PsiElement(identifier)('Byte')
+                                    PsiElement(identifier)('Byte')
                               PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
@@ -822,9 +827,10 @@ ScalaFile
                             PsiElement(identifier)('GADT2')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
                           PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

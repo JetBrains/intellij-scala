@@ -177,22 +177,24 @@ ScalaFile
                         PsiElement(identifier)('Range')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: Min + 1
-                        SimpleType: Min
-                          CodeReferenceElement: Min
-                            PsiElement(identifier)('Min')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: +
-                          PsiElement(identifier)('+')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: Min + 1
+                          SimpleType: Min
+                            CodeReferenceElement: Min
+                              PsiElement(identifier)('Min')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Max
-                        CodeReferenceElement: Max
-                          PsiElement(identifier)('Max')
+                      TypeArgument
+                        SimpleType: Max
+                          CodeReferenceElement: Max
+                            PsiElement(identifier)('Max')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -292,9 +294,10 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: h
-                        CodeReferenceElement: h
-                          PsiElement(identifier)('h')
+                      TypeArgument
+                        SimpleType: h
+                          CodeReferenceElement: h
+                            PsiElement(identifier)('h')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
@@ -306,19 +309,22 @@ ScalaFile
                         PsiElement(identifier)('TupleMap')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: t
-                        CodeReferenceElement: t
-                          PsiElement(identifier)('t')
+                      TypeArgument
+                        SimpleType: t
+                          CodeReferenceElement: t
+                            PsiElement(identifier)('t')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Bound
-                        CodeReferenceElement: Bound
-                          PsiElement(identifier)('Bound')
+                      TypeArgument
+                        SimpleType: Bound
+                          CodeReferenceElement: Bound
+                            PsiElement(identifier)('Bound')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -427,14 +433,16 @@ ScalaFile
                             PsiElement(identifier)('TupleDedup')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: t
-                            CodeReferenceElement: t
-                              PsiElement(identifier)('t')
+                          TypeArgument
+                            SimpleType: t
+                              CodeReferenceElement: t
+                                PsiElement(identifier)('t')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Mask
-                            CodeReferenceElement: Mask
-                              PsiElement(identifier)('Mask')
+                          TypeArgument
+                            SimpleType: Mask
+                              CodeReferenceElement: Mask
+                                PsiElement(identifier)('Mask')
                           PsiElement(])(']')
                     PsiWhiteSpace('\n      ')
                     ScMatchTypeCaseImpl(match type case)
@@ -459,22 +467,24 @@ ScalaFile
                               PsiElement(identifier)('TupleDedup')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: t
-                              CodeReferenceElement: t
-                                PsiElement(identifier)('t')
+                            TypeArgument
+                              SimpleType: t
+                                CodeReferenceElement: t
+                                  PsiElement(identifier)('t')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            InfixType: h | Mask
-                              SimpleType: h
-                                CodeReferenceElement: h
-                                  PsiElement(identifier)('h')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: |
-                                PsiElement(identifier)('|')
-                              PsiWhiteSpace(' ')
-                              SimpleType: Mask
-                                CodeReferenceElement: Mask
-                                  PsiElement(identifier)('Mask')
+                            TypeArgument
+                              InfixType: h | Mask
+                                SimpleType: h
+                                  CodeReferenceElement: h
+                                    PsiElement(identifier)('h')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Mask
+                                  CodeReferenceElement: Mask
+                                    PsiElement(identifier)('Mask')
                             PsiElement(])(']')
                   PsiWhiteSpace('\n    ')
                   PsiElement(})('}')
@@ -584,26 +594,30 @@ ScalaFile
                 PsiElement(identifier)('Elem')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Board
-                CodeReferenceElement: Board
-                  PsiElement(identifier)('Board')
+              TypeArgument
+                SimpleType: Board
+                  CodeReferenceElement: Board
+                    PsiElement(identifier)('Board')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: CoordToPos[r, c]
-                SimpleType: CoordToPos
-                  CodeReferenceElement: CoordToPos
-                    PsiElement(identifier)('CoordToPos')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: r
-                    CodeReferenceElement: r
-                      PsiElement(identifier)('r')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: c
-                    CodeReferenceElement: c
-                      PsiElement(identifier)('c')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: CoordToPos[r, c]
+                  SimpleType: CoordToPos
+                    CodeReferenceElement: CoordToPos
+                      PsiElement(identifier)('CoordToPos')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: r
+                        CodeReferenceElement: r
+                          PsiElement(identifier)('r')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: c
+                        CodeReferenceElement: c
+                          PsiElement(identifier)('c')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: Col
@@ -644,63 +658,71 @@ ScalaFile
                 PsiElement(identifier)('TupleMap')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Range[0, 9]
-                SimpleType: Range
-                  CodeReferenceElement: Range
-                    PsiElement(identifier)('Range')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  LiteralType: 0
-                    IntegerLiteral
-                      PsiElement(integer)('0')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 9
-                    IntegerLiteral
-                      PsiElement(integer)('9')
-                  PsiElement(])(']')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              TypeLambda: [r <: Int] =>> Cell[r, c, Board]
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: r
-                    PsiElement(identifier)('r')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Cell[r, c, Board]
-                  SimpleType: Cell
-                    CodeReferenceElement: Cell
-                      PsiElement(identifier)('Cell')
+              TypeArgument
+                ParametrizedType: Range[0, 9]
+                  SimpleType: Range
+                    CodeReferenceElement: Range
+                      PsiElement(identifier)('Range')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: r
-                      CodeReferenceElement: r
-                        PsiElement(identifier)('r')
+                    TypeArgument
+                      LiteralType: 0
+                        IntegerLiteral
+                          PsiElement(integer)('0')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: c
-                      CodeReferenceElement: c
-                        PsiElement(identifier)('c')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Board
-                      CodeReferenceElement: Board
-                        PsiElement(identifier)('Board')
+                    TypeArgument
+                      LiteralType: 9
+                        IntegerLiteral
+                          PsiElement(integer)('9')
                     PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                TypeLambda: [r <: Int] =>> Cell[r, c, Board]
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: r
+                      PsiElement(identifier)('r')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Cell[r, c, Board]
+                    SimpleType: Cell
+                      CodeReferenceElement: Cell
+                        PsiElement(identifier)('Cell')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: r
+                          CodeReferenceElement: r
+                            PsiElement(identifier)('r')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: c
+                          CodeReferenceElement: c
+                            PsiElement(identifier)('c')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Board
+                          CodeReferenceElement: Board
+                            PsiElement(identifier)('Board')
+                      PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: ColFromPos
@@ -1178,80 +1200,84 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: Col[ColFromPos[0], Sudoku1] =:= (x, 8, x,  5, x, x,  x, 3, 6)
-              ParametrizedType: Col[ColFromPos[0], Sudoku1]
-                SimpleType: Col
-                  CodeReferenceElement: Col
-                    PsiElement(identifier)('Col')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: ColFromPos[0]
-                    SimpleType: ColFromPos
-                      CodeReferenceElement: ColFromPos
-                        PsiElement(identifier)('ColFromPos')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      LiteralType: 0
-                        IntegerLiteral
-                          PsiElement(integer)('0')
-                      PsiElement(])(']')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Sudoku1
-                    CodeReferenceElement: Sudoku1
-                      PsiElement(identifier)('Sudoku1')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (x, 8, x,  5, x, x,  x, 3, 6)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 8
-                    IntegerLiteral
-                      PsiElement(integer)('8')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace('  ')
-                  LiteralType: 5
-                    IntegerLiteral
-                      PsiElement(integer)('5')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace('  ')
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 3
-                    IntegerLiteral
-                      PsiElement(integer)('3')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 6
-                    IntegerLiteral
-                      PsiElement(integer)('6')
-                PsiElement())(')')
+            TypeArgument
+              InfixType: Col[ColFromPos[0], Sudoku1] =:= (x, 8, x,  5, x, x,  x, 3, 6)
+                ParametrizedType: Col[ColFromPos[0], Sudoku1]
+                  SimpleType: Col
+                    CodeReferenceElement: Col
+                      PsiElement(identifier)('Col')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: ColFromPos[0]
+                        SimpleType: ColFromPos
+                          CodeReferenceElement: ColFromPos
+                            PsiElement(identifier)('ColFromPos')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            LiteralType: 0
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Sudoku1
+                        CodeReferenceElement: Sudoku1
+                          PsiElement(identifier)('Sudoku1')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (x, 8, x,  5, x, x,  x, 3, 6)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 8
+                      IntegerLiteral
+                        PsiElement(integer)('8')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('  ')
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('  ')
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 3
+                      IntegerLiteral
+                        PsiElement(integer)('3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 6
+                      IntegerLiteral
+                        PsiElement(integer)('6')
+                  PsiElement())(')')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -1259,97 +1285,100 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: TupleDedup[(x, 8, x,  5, x, x,  x, 3, 6), Nothing] =:= (x, 8, 5, 3, 6)
-              ParametrizedType: TupleDedup[(x, 8, x,  5, x, x,  x, 3, 6), Nothing]
-                SimpleType: TupleDedup
-                  CodeReferenceElement: TupleDedup
-                    PsiElement(identifier)('TupleDedup')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  TupleType: (x, 8, x,  5, x, x,  x, 3, 6)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 8
-                        IntegerLiteral
-                          PsiElement(integer)('8')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace('  ')
-                      LiteralType: 5
-                        IntegerLiteral
-                          PsiElement(integer)('5')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace('  ')
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 3
-                        IntegerLiteral
-                          PsiElement(integer)('3')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      LiteralType: 6
-                        IntegerLiteral
-                          PsiElement(integer)('6')
-                    PsiElement())(')')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (x, 8, 5, 3, 6)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 8
-                    IntegerLiteral
-                      PsiElement(integer)('8')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 5
-                    IntegerLiteral
-                      PsiElement(integer)('5')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 3
-                    IntegerLiteral
-                      PsiElement(integer)('3')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 6
-                    IntegerLiteral
-                      PsiElement(integer)('6')
-                PsiElement())(')')
+            TypeArgument
+              InfixType: TupleDedup[(x, 8, x,  5, x, x,  x, 3, 6), Nothing] =:= (x, 8, 5, 3, 6)
+                ParametrizedType: TupleDedup[(x, 8, x,  5, x, x,  x, 3, 6), Nothing]
+                  SimpleType: TupleDedup
+                    CodeReferenceElement: TupleDedup
+                      PsiElement(identifier)('TupleDedup')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: (x, 8, x,  5, x, x,  x, 3, 6)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 8
+                            IntegerLiteral
+                              PsiElement(integer)('8')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace('  ')
+                          LiteralType: 5
+                            IntegerLiteral
+                              PsiElement(integer)('5')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace('  ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 3
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 6
+                            IntegerLiteral
+                              PsiElement(integer)('6')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (x, 8, 5, 3, 6)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 8
+                      IntegerLiteral
+                        PsiElement(integer)('8')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 3
+                      IntegerLiteral
+                        PsiElement(integer)('3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 6
+                      IntegerLiteral
+                        PsiElement(integer)('6')
+                  PsiElement())(')')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         PsiComment(comment)('//but this doesn't')
@@ -1359,72 +1388,78 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: TupleDedup[Col[ColFromPos[0], Sudoku1], Nothing] =:= (x, 8, 5, 3, 6)
-              ParametrizedType: TupleDedup[Col[ColFromPos[0], Sudoku1], Nothing]
-                SimpleType: TupleDedup
-                  CodeReferenceElement: TupleDedup
-                    PsiElement(identifier)('TupleDedup')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: Col[ColFromPos[0], Sudoku1]
-                    SimpleType: Col
-                      CodeReferenceElement: Col
-                        PsiElement(identifier)('Col')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: ColFromPos[0]
-                        SimpleType: ColFromPos
-                          CodeReferenceElement: ColFromPos
-                            PsiElement(identifier)('ColFromPos')
+            TypeArgument
+              InfixType: TupleDedup[Col[ColFromPos[0], Sudoku1], Nothing] =:= (x, 8, 5, 3, 6)
+                ParametrizedType: TupleDedup[Col[ColFromPos[0], Sudoku1], Nothing]
+                  SimpleType: TupleDedup
+                    CodeReferenceElement: TupleDedup
+                      PsiElement(identifier)('TupleDedup')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Col[ColFromPos[0], Sudoku1]
+                        SimpleType: Col
+                          CodeReferenceElement: Col
+                            PsiElement(identifier)('Col')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          LiteralType: 0
-                            IntegerLiteral
-                              PsiElement(integer)('0')
+                          TypeArgument
+                            ParametrizedType: ColFromPos[0]
+                              SimpleType: ColFromPos
+                                CodeReferenceElement: ColFromPos
+                                  PsiElement(identifier)('ColFromPos')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Sudoku1
+                              CodeReferenceElement: Sudoku1
+                                PsiElement(identifier)('Sudoku1')
                           PsiElement(])(']')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Sudoku1
-                        CodeReferenceElement: Sudoku1
-                          PsiElement(identifier)('Sudoku1')
-                      PsiElement(])(']')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (x, 8, 5, 3, 6)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: x
-                    CodeReferenceElement: x
-                      PsiElement(identifier)('x')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 8
-                    IntegerLiteral
-                      PsiElement(integer)('8')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 5
-                    IntegerLiteral
-                      PsiElement(integer)('5')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 3
-                    IntegerLiteral
-                      PsiElement(integer)('3')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 6
-                    IntegerLiteral
-                      PsiElement(integer)('6')
-                PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (x, 8, 5, 3, 6)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 8
+                      IntegerLiteral
+                        PsiElement(integer)('8')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 3
+                      IntegerLiteral
+                        PsiElement(integer)('3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 6
+                      IntegerLiteral
+                        PsiElement(integer)('6')
+                  PsiElement())(')')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

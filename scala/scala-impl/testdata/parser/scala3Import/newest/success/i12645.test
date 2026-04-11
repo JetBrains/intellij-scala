@@ -138,9 +138,10 @@ ScalaFile
               PsiElement(identifier)('TBox')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+            TypeArgument
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -175,23 +176,25 @@ ScalaFile
               PsiElement(identifier)('Map')
           TypeArgumentsList
             PsiElement([)('[')
-            TupleType: (EmptyTuple, EmptyTuple)
-              PsiElement(()('(')
-              TypesList
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-              PsiElement())(')')
+            TypeArgument
+              TupleType: (EmptyTuple, EmptyTuple)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+                PsiElement())(')')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: TBox
-              CodeReferenceElement: TBox
-                PsiElement(identifier)('TBox')
+            TypeArgument
+              SimpleType: TBox
+                CodeReferenceElement: TBox
+                  PsiElement(identifier)('TBox')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -239,23 +242,25 @@ ScalaFile
               PsiElement(identifier)('Map')
           TypeArgumentsList
             PsiElement([)('[')
-            TupleType: (1, 2)
-              PsiElement(()('(')
-              TypesList
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 2
-                  IntegerLiteral
-                    PsiElement(integer)('2')
-              PsiElement())(')')
+            TypeArgument
+              TupleType: (1, 2)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                PsiElement())(')')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: IBox
-              CodeReferenceElement: IBox
-                PsiElement(identifier)('IBox')
+            TypeArgument
+              SimpleType: IBox
+                CodeReferenceElement: IBox
+                  PsiElement(identifier)('IBox')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -332,23 +337,25 @@ ScalaFile
               PsiElement(identifier)('FlatMap')
           TypeArgumentsList
             PsiElement([)('[')
-            TupleType: (1, 2)
-              PsiElement(()('(')
-              TypesList
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 2
-                  IntegerLiteral
-                    PsiElement(integer)('2')
-              PsiElement())(')')
+            TypeArgument
+              TupleType: (1, 2)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                PsiElement())(')')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: F
-              CodeReferenceElement: F
-                PsiElement(identifier)('F')
+            TypeArgument
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

@@ -34,9 +34,10 @@ ScalaFile
                     PsiElement(identifier)('Array')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Byte
-                    CodeReferenceElement: Byte
-                      PsiElement(identifier)('Byte')
+                  TypeArgument
+                    SimpleType: Byte
+                      CodeReferenceElement: Byte
+                        PsiElement(identifier)('Byte')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')

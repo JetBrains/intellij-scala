@@ -139,9 +139,10 @@ ScalaFile
                   PsiElement(identifier)('Ast')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScTypeAliasDefinition: DefDef
@@ -164,9 +165,10 @@ ScalaFile
                   PsiElement(identifier)('DefDef')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           End: AstImpl
@@ -194,9 +196,10 @@ ScalaFile
                   PsiElement(identifier)('AstImpl')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Null
-                  CodeReferenceElement: Null
-                    PsiElement(identifier)('Null')
+                TypeArgument
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
                 PsiElement(])(']')
         ScTemplateBody
           PsiElement(:)(':')

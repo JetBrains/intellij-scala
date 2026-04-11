@@ -171,9 +171,10 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Second
-          CodeReferenceElement: Second
-            PsiElement(identifier)('Second')
+        TypeArgument
+          SimpleType: Second
+            CodeReferenceElement: Second
+              PsiElement(identifier)('Second')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: x
@@ -194,18 +195,19 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: s.Out =:= 123
-          SimpleType: s.Out
-            CodeReferenceElement: s.Out
-              CodeReferenceElement: s
-                PsiElement(identifier)('s')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Out')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          LiteralType: 123
-            IntegerLiteral
-              PsiElement(integer)('123')
+        TypeArgument
+          InfixType: s.Out =:= 123
+            SimpleType: s.Out
+              CodeReferenceElement: s.Out
+                CodeReferenceElement: s
+                  PsiElement(identifier)('s')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Out')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            LiteralType: 123
+              IntegerLiteral
+                PsiElement(integer)('123')
         PsiElement(])(']')

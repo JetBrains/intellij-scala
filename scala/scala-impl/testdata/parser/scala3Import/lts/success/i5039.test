@@ -45,9 +45,10 @@ ScalaFile
               PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Null
-                CodeReferenceElement: Null
-                  PsiElement(identifier)('Null')
+              TypeArgument
+                SimpleType: Null
+                  CodeReferenceElement: Null
+                    PsiElement(identifier)('Null')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -66,9 +67,10 @@ ScalaFile
               PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

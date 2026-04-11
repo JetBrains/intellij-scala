@@ -260,16 +260,18 @@ ScalaFile
                                 PsiElement(identifier)('implicitly')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                ParametrizedType: SemiGroup[T]
-                                  SimpleType: SemiGroup
-                                    CodeReferenceElement: SemiGroup
-                                      PsiElement(identifier)('SemiGroup')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
-                                    PsiElement(])(']')
+                                TypeArgument
+                                  ParametrizedType: SemiGroup[T]
+                                    SimpleType: SemiGroup
+                                      CodeReferenceElement: SemiGroup
+                                        PsiElement(identifier)('SemiGroup')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
+                                      PsiElement(])(']')
                                 PsiElement(])(']')
                             PsiElement(.)('.')
                             PsiElement(identifier)('append')
@@ -339,9 +341,10 @@ ScalaFile
                   PsiElement(identifier)('SemiGroup')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -433,9 +436,10 @@ ScalaFile
                   PsiElement(identifier)('Monoid')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -649,16 +653,18 @@ ScalaFile
                                 PsiElement(identifier)('implicitly')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                ParametrizedType: Ring[T]
-                                  SimpleType: Ring
-                                    CodeReferenceElement: Ring
-                                      PsiElement(identifier)('Ring')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
-                                    PsiElement(])(']')
+                                TypeArgument
+                                  ParametrizedType: Ring[T]
+                                    SimpleType: Ring
+                                      CodeReferenceElement: Ring
+                                        PsiElement(identifier)('Ring')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
+                                      PsiElement(])(']')
                                 PsiElement(])(']')
                             PsiElement(.)('.')
                             PsiElement(identifier)('product')
@@ -730,9 +736,10 @@ ScalaFile
                         PsiElement(identifier)('Monoid')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -833,9 +840,10 @@ ScalaFile
                         PsiElement(identifier)('Ring')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody

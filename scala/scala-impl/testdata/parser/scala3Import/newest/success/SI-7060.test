@@ -100,16 +100,18 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Array[Long]
-                      SimpleType: Array
-                        CodeReferenceElement: Array
-                          PsiElement(identifier)('Array')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Long
-                          CodeReferenceElement: Long
-                            PsiElement(identifier)('Long')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Array[Long]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Long
+                              CodeReferenceElement: Long
+                                PsiElement(identifier)('Long')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -131,16 +133,18 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Array[Byte]
-                      SimpleType: Array
-                        CodeReferenceElement: Array
-                          PsiElement(identifier)('Array')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Byte
-                          CodeReferenceElement: Byte
-                            PsiElement(identifier)('Byte')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Array[Byte]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Byte
+                              CodeReferenceElement: Byte
+                                PsiElement(identifier)('Byte')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

@@ -229,9 +229,10 @@ ScalaFile
             PsiElement(identifier)('makeFoo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiElement(.)('.')
         PsiElement(identifier)('ext')
@@ -249,9 +250,10 @@ ScalaFile
               PsiElement(identifier)('makeFoo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiElement())(')')
         PsiElement(.)('.')
@@ -280,9 +282,10 @@ ScalaFile
             PsiElement(identifier)('makeFoo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ReferenceExpression: foo.ext
@@ -302,9 +305,10 @@ ScalaFile
             PsiElement(identifier)('makeFoo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiElement(.)('.')
         PsiElement(identifier)('normal')

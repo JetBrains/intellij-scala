@@ -223,12 +223,13 @@ ScalaFile
                 PsiElement(identifier)('Component')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: ctorType.CT
-                CodeReferenceElement: ctorType.CT
-                  CodeReferenceElement: ctorType
-                    PsiElement(identifier)('ctorType')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('CT')
+              TypeArgument
+                SimpleType: ctorType.CT
+                  CodeReferenceElement: ctorType.CT
+                    CodeReferenceElement: ctorType
+                      PsiElement(identifier)('ctorType')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('CT')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -327,9 +328,10 @@ ScalaFile
                         PsiElement(identifier)('TestDsl')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: TestDsl
@@ -427,12 +429,13 @@ ScalaFile
                 PsiElement(identifier)('Component')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: CtorType.Props
-                CodeReferenceElement: CtorType.Props
-                  CodeReferenceElement: CtorType
-                    PsiElement(identifier)('CtorType')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Props')
+              TypeArgument
+                SimpleType: CtorType.Props
+                  CodeReferenceElement: CtorType.Props
+                    CodeReferenceElement: CtorType
+                      PsiElement(identifier)('CtorType')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Props')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -458,9 +461,10 @@ ScalaFile
             PsiElement(identifier)('is')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Expect
-              CodeReferenceElement: Expect
-                PsiElement(identifier)('Expect')
+            TypeArgument
+              SimpleType: Expect
+                CodeReferenceElement: Expect
+                  PsiElement(identifier)('Expect')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// error')
@@ -502,9 +506,10 @@ ScalaFile
             PsiElement(identifier)('is')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Expect
-              CodeReferenceElement: Expect
-                PsiElement(identifier)('Expect')
+            TypeArgument
+              SimpleType: Expect
+                CodeReferenceElement: Expect
+                  PsiElement(identifier)('Expect')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// ok')

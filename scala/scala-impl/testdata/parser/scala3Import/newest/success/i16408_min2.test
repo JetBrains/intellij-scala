@@ -90,8 +90,9 @@ ScalaFile
                       PsiElement(identifier)('RDF')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: u
-                      PsiElement(identifier)('u')
+                    TypeArgument
+                      TypeVariable: u
+                        PsiElement(identifier)('u')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -110,9 +111,10 @@ ScalaFile
                         PsiElement(identifier)('NodeFun')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Helpers
@@ -164,8 +166,9 @@ ScalaFile
               PsiElement(identifier)('RDF')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -208,9 +211,10 @@ ScalaFile
                         PsiElement(identifier)('URIFun')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -239,12 +243,13 @@ ScalaFile
                 PsiElement(identifier)('RDF')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TraitTypes.UriImpl
-                CodeReferenceElement: TraitTypes.UriImpl
-                  CodeReferenceElement: TraitTypes
-                    PsiElement(identifier)('TraitTypes')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('UriImpl')
+              TypeArgument
+                SimpleType: TraitTypes.UriImpl
+                  CodeReferenceElement: TraitTypes.UriImpl
+                    CodeReferenceElement: TraitTypes
+                      PsiElement(identifier)('TraitTypes')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('UriImpl')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -274,11 +279,12 @@ ScalaFile
                         PsiElement(identifier)('ROps')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: TraitRDF.type
-                        CodeReferenceElement: TraitRDF
-                          PsiElement(identifier)('TraitRDF')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
+                      TypeArgument
+                        SimpleType: TraitRDF.type
+                          CodeReferenceElement: TraitRDF
+                            PsiElement(identifier)('TraitRDF')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -314,11 +320,12 @@ ScalaFile
                                 PsiElement(identifier)('URIFun')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: TraitRDF.type
-                                CodeReferenceElement: TraitRDF
-                                  PsiElement(identifier)('TraitRDF')
-                                PsiElement(.)('.')
-                                PsiElement(type)('type')
+                              TypeArgument
+                                SimpleType: TraitRDF.type
+                                  CodeReferenceElement: TraitRDF
+                                    PsiElement(identifier)('TraitRDF')
+                                  PsiElement(.)('.')
+                                  PsiElement(type)('type')
                               PsiElement(])(']')
                       PsiElement())(')')
                   PsiElement(:)(':')

@@ -63,9 +63,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
@@ -84,9 +85,10 @@ ScalaFile
                     PsiElement(identifier)('B')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -136,45 +138,51 @@ ScalaFile
                         PsiElement(identifier)('Tuple2K')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Option
-                        CodeReferenceElement: Option
-                          PsiElement(identifier)('Option')
+                      TypeArgument
+                        SimpleType: Option
+                          CodeReferenceElement: Option
+                            PsiElement(identifier)('Option')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      TypeLambda: [Y] =>> Tuple2K[Y, Option, Option]
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: Y
-                            PsiElement(identifier)('Y')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=>>)('=>>')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Tuple2K[Y, Option, Option]
-                          SimpleType: Tuple2K
-                            CodeReferenceElement: Tuple2K
-                              PsiElement(identifier)('Tuple2K')
-                          TypeArgumentsList
+                      TypeArgument
+                        TypeLambda: [Y] =>> Tuple2K[Y, Option, Option]
+                          TypeParameterClause
                             PsiElement([)('[')
-                            SimpleType: Y
-                              CodeReferenceElement: Y
-                                PsiElement(identifier)('Y')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: Option
-                              CodeReferenceElement: Option
-                                PsiElement(identifier)('Option')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: Option
-                              CodeReferenceElement: Option
-                                PsiElement(identifier)('Option')
+                            TypeParameter: Y
+                              PsiElement(identifier)('Y')
                             PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>>)('=>>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Tuple2K[Y, Option, Option]
+                            SimpleType: Tuple2K
+                              CodeReferenceElement: Tuple2K
+                                PsiElement(identifier)('Tuple2K')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Option
+                                  CodeReferenceElement: Option
+                                    PsiElement(identifier)('Option')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Option
+                                  CodeReferenceElement: Option
+                                    PsiElement(identifier)('Option')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

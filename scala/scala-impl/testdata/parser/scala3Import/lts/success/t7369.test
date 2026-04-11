@@ -84,9 +84,10 @@ ScalaFile
                     PsiElement(identifier)('Tuple1')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                  TypeArgument
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -276,9 +277,10 @@ ScalaFile
                     PsiElement(identifier)('Tuple1')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')

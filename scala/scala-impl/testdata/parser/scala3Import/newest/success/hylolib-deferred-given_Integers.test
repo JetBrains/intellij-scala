@@ -85,9 +85,10 @@ ScalaFile
                   PsiElement(identifier)('Value')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Boolean
-                  CodeReferenceElement: Boolean
-                    PsiElement(identifier)('Boolean')
+                TypeArgument
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -265,9 +266,10 @@ ScalaFile
                   PsiElement(identifier)('Value')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -432,9 +434,10 @@ ScalaFile
                   PsiElement(identifier)('Comparable')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -639,9 +642,10 @@ ScalaFile
                   PsiElement(identifier)('StringConvertible')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody

@@ -76,9 +76,10 @@ ScalaFile
                             PsiElement(identifier)('Seq')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Failure
-                            CodeReferenceElement: Failure
-                              PsiElement(identifier)('Failure')
+                          TypeArgument
+                            SimpleType: Failure
+                              CodeReferenceElement: Failure
+                                PsiElement(identifier)('Failure')
                           PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -101,9 +102,10 @@ ScalaFile
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Value
-                        CodeReferenceElement: Value
-                          PsiElement(identifier)('Value')
+                      TypeArgument
+                        SimpleType: Value
+                          CodeReferenceElement: Value
+                            PsiElement(identifier)('Value')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScEnumCases: Failure
@@ -148,9 +150,10 @@ ScalaFile
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Nothing
-                        CodeReferenceElement: Nothing
-                          PsiElement(identifier)('Nothing')
+                      TypeArgument
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
                       PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: v

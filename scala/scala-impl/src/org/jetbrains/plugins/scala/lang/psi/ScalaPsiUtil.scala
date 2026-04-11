@@ -1831,6 +1831,15 @@ object ScalaPsiUtil {
       case ScMatchTypeElement(te, _) => transform(isRoot)(te)
       case ScFunctionalTypeElement(pte: ScParenthesisedTypeElement, retTe) if pte.innerElement.isEmpty => retTe.fold("")(transform(isRoot))
       case ScFunctionalTypeElement(argTe, retTe) => transformInner(argTe) + "_to_" + retTe.fold("")(transform(isRoot))
+      case depFun: ScDependentFunctionTypeElement =>
+        val argTes = depFun.parameterClause.parameters.flatMap(_.typeElement)
+
+        val params = argTes
+          .map(transformInner)
+          .mkString("_")
+
+        val ret    = depFun.returnTypeElement.fold("")(transform(isRoot))
+        if (params.isEmpty) ret else s"${params}_to_$ret"
       case proj: ScTypeProjection => proj.refName
       case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
       case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))

@@ -183,12 +183,13 @@ ScalaFile
             PsiElement(identifier)('constValue')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: c.N
-              CodeReferenceElement: c.N
-                CodeReferenceElement: c
-                  PsiElement(identifier)('c')
-                PsiElement(.)('.')
-                PsiElement(identifier)('N')
+            TypeArgument
+              SimpleType: c.N
+                CodeReferenceElement: c.N
+                  CodeReferenceElement: c
+                    PsiElement(identifier)('c')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('N')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: n

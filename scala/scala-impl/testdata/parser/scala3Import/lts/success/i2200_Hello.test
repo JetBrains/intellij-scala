@@ -66,16 +66,18 @@ ScalaFile
                       PsiElement(identifier)('F')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Fix[F]
-                      SimpleType: Fix
-                        CodeReferenceElement: Fix
-                          PsiElement(identifier)('Fix')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: F
-                          CodeReferenceElement: F
-                            PsiElement(identifier)('F')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Fix[F]
+                        SimpleType: Fix
+                          CodeReferenceElement: Fix
+                            PsiElement(identifier)('Fix')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: F
+                              CodeReferenceElement: F
+                                PsiElement(identifier)('F')
+                          PsiElement(])(']')
                     PsiElement(])(']')
             PsiElement())(')')
       ExtendsBlock
@@ -120,9 +122,10 @@ ScalaFile
                           PsiElement(identifier)('StreamTree')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: DocTree
-                          CodeReferenceElement: DocTree
-                            PsiElement(identifier)('DocTree')
+                        TypeArgument
+                          SimpleType: DocTree
+                            CodeReferenceElement: DocTree
+                              PsiElement(identifier)('DocTree')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -155,9 +158,10 @@ ScalaFile
                               PsiElement(identifier)('StreamTree')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: DocTree
-                              CodeReferenceElement: DocTree
-                                PsiElement(identifier)('DocTree')
+                            TypeArgument
+                              SimpleType: DocTree
+                                CodeReferenceElement: DocTree
+                                  PsiElement(identifier)('DocTree')
                             PsiElement(])(']')
                       PsiElement())(')')
           PsiWhiteSpace('\n')

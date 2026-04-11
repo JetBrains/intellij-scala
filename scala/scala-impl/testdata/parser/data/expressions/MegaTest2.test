@@ -209,118 +209,119 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: D
-                    CodeReferenceElement: D
-                      PsiElement(identifier)('D')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: G
-                    CodeReferenceElement: G
-                      PsiElement(identifier)('G')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: H
-                    CodeReferenceElement: H
-                      PsiElement(identifier)('H')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: I
-                    CodeReferenceElement: I
-                      PsiElement(identifier)('I')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: J
-                    CodeReferenceElement: J
-                      PsiElement(identifier)('J')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: K
-                    CodeReferenceElement: K
-                      PsiElement(identifier)('K')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: L
-                    CodeReferenceElement: L
-                      PsiElement(identifier)('L')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: M
-                    CodeReferenceElement: M
-                      PsiElement(identifier)('M')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: N
-                    CodeReferenceElement: N
-                      PsiElement(identifier)('N')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: O
-                    CodeReferenceElement: O
-                      PsiElement(identifier)('O')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: P
-                    CodeReferenceElement: P
-                      PsiElement(identifier)('P')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Q
-                    CodeReferenceElement: Q
-                      PsiElement(identifier)('Q')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: U
-                    CodeReferenceElement: U
-                      PsiElement(identifier)('U')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: D
+                      CodeReferenceElement: D
+                        PsiElement(identifier)('D')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: G
+                      CodeReferenceElement: G
+                        PsiElement(identifier)('G')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: I
+                      CodeReferenceElement: I
+                        PsiElement(identifier)('I')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: J
+                      CodeReferenceElement: J
+                        PsiElement(identifier)('J')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: L
+                      CodeReferenceElement: L
+                        PsiElement(identifier)('L')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: O
+                      CodeReferenceElement: O
+                        PsiElement(identifier)('O')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Q
+                      CodeReferenceElement: Q
+                        PsiElement(identifier)('Q')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: U
+                      CodeReferenceElement: U
+                        PsiElement(identifier)('U')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                  PsiElement())(')')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -332,114 +333,136 @@ ScalaFile
                 PsiElement(identifier)('EqProduct22')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: D
-                CodeReferenceElement: D
-                  PsiElement(identifier)('D')
+              TypeArgument
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: G
-                CodeReferenceElement: G
-                  PsiElement(identifier)('G')
+              TypeArgument
+                SimpleType: G
+                  CodeReferenceElement: G
+                    PsiElement(identifier)('G')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: H
-                CodeReferenceElement: H
-                  PsiElement(identifier)('H')
+              TypeArgument
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: I
-                CodeReferenceElement: I
-                  PsiElement(identifier)('I')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: J
-                CodeReferenceElement: J
-                  PsiElement(identifier)('J')
+              TypeArgument
+                SimpleType: J
+                  CodeReferenceElement: J
+                    PsiElement(identifier)('J')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: K
-                CodeReferenceElement: K
-                  PsiElement(identifier)('K')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: L
-                CodeReferenceElement: L
-                  PsiElement(identifier)('L')
+              TypeArgument
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              TypeArgument
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: N
-                CodeReferenceElement: N
-                  PsiElement(identifier)('N')
+              TypeArgument
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Q
-                CodeReferenceElement: Q
-                  PsiElement(identifier)('Q')
+              TypeArgument
+                SimpleType: Q
+                  CodeReferenceElement: Q
+                    PsiElement(identifier)('Q')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: U
-                CodeReferenceElement: U
-                  PsiElement(identifier)('U')
+              TypeArgument
+                SimpleType: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -464,9 +487,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure2
@@ -488,9 +512,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure3
@@ -512,9 +537,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure4
@@ -536,9 +562,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: D
-                CodeReferenceElement: D
-                  PsiElement(identifier)('D')
+              TypeArgument
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure5
@@ -560,9 +587,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure6
@@ -584,9 +612,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure7
@@ -608,9 +637,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: G
-                CodeReferenceElement: G
-                  PsiElement(identifier)('G')
+              TypeArgument
+                SimpleType: G
+                  CodeReferenceElement: G
+                    PsiElement(identifier)('G')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure8
@@ -632,9 +662,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: H
-                CodeReferenceElement: H
-                  PsiElement(identifier)('H')
+              TypeArgument
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure9
@@ -656,9 +687,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: I
-                CodeReferenceElement: I
-                  PsiElement(identifier)('I')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure10
@@ -680,9 +712,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: J
-                CodeReferenceElement: J
-                  PsiElement(identifier)('J')
+              TypeArgument
+                SimpleType: J
+                  CodeReferenceElement: J
+                    PsiElement(identifier)('J')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure11
@@ -704,9 +737,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: K
-                CodeReferenceElement: K
-                  PsiElement(identifier)('K')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure12
@@ -728,9 +762,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: L
-                CodeReferenceElement: L
-                  PsiElement(identifier)('L')
+              TypeArgument
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure13
@@ -752,9 +787,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              TypeArgument
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure14
@@ -776,9 +812,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: N
-                CodeReferenceElement: N
-                  PsiElement(identifier)('N')
+              TypeArgument
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure15
@@ -800,9 +837,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure16
@@ -824,9 +862,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure17
@@ -848,9 +887,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Q
-                CodeReferenceElement: Q
-                  PsiElement(identifier)('Q')
+              TypeArgument
+                SimpleType: Q
+                  CodeReferenceElement: Q
+                    PsiElement(identifier)('Q')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure18
@@ -872,9 +912,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure19
@@ -896,9 +937,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure20
@@ -920,9 +962,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure21
@@ -944,9 +987,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: U
-                CodeReferenceElement: U
-                  PsiElement(identifier)('U')
+              TypeArgument
+                SimpleType: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: structure22
@@ -968,9 +1012,10 @@ ScalaFile
                 PsiElement(identifier)('Order')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: compare

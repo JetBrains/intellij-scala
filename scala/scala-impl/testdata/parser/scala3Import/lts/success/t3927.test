@@ -61,9 +61,10 @@ ScalaFile
                     PsiElement(identifier)('Equiv')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -85,16 +86,18 @@ ScalaFile
                 PsiElement(identifier)('implicitly')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Equiv[Int]
-                  SimpleType: Equiv
-                    CodeReferenceElement: Equiv
-                      PsiElement(identifier)('Equiv')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Equiv[Int]
+                    SimpleType: Equiv
+                      CodeReferenceElement: Equiv
+                        PsiElement(identifier)('Equiv')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

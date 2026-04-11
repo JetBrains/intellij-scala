@@ -134,9 +134,10 @@ ScalaFile
                       PsiElement(identifier)('S')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(})('}')
@@ -213,31 +214,35 @@ ScalaFile
                     PsiElement(identifier)('Either')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Transaction.of[State]
-                    SimpleType: Transaction.of
-                      CodeReferenceElement: Transaction.of
-                        CodeReferenceElement: Transaction
-                          PsiElement(identifier)('Transaction')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('of')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: State
-                        CodeReferenceElement: State
-                          PsiElement(identifier)('State')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Transaction.of[State]
+                      SimpleType: Transaction.of
+                        CodeReferenceElement: Transaction.of
+                          CodeReferenceElement: Transaction
+                            PsiElement(identifier)('Transaction')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('of')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: State
+                            CodeReferenceElement: State
+                              PsiElement(identifier)('State')
+                        PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  ParametrizedType: DynamicScope[State]
-                    SimpleType: DynamicScope
-                      CodeReferenceElement: DynamicScope
-                        PsiElement(identifier)('DynamicScope')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: State
-                        CodeReferenceElement: State
-                          PsiElement(identifier)('State')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: DynamicScope[State]
+                      SimpleType: DynamicScope
+                        CodeReferenceElement: DynamicScope
+                          PsiElement(identifier)('DynamicScope')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: State
+                            CodeReferenceElement: State
+                              PsiElement(identifier)('State')
+                        PsiElement(])(']')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -280,9 +285,10 @@ ScalaFile
                           PsiElement(identifier)('of')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: State
-                          CodeReferenceElement: State
-                            PsiElement(identifier)('State')
+                        TypeArgument
+                          SimpleType: State
+                            CodeReferenceElement: State
+                              PsiElement(identifier)('State')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')

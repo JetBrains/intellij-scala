@@ -206,9 +206,10 @@ ScalaFile
                 PsiElement(identifier)('One')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   PsiComment(comment)('// Because mixin forwarders are generated before erasure, we get:')

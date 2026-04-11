@@ -76,9 +76,10 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Byte
-                CodeReferenceElement: Byte
-                  PsiElement(identifier)('Byte')
+              TypeArgument
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: z

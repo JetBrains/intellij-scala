@@ -116,9 +116,10 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Position
-                CodeReferenceElement: Position
-                  PsiElement(identifier)('Position')
+              TypeArgument
+                SimpleType: Position
+                  CodeReferenceElement: Position
+                    PsiElement(identifier)('Position')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

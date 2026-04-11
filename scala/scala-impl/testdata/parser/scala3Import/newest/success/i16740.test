@@ -120,14 +120,16 @@ ScalaFile
                       PsiElement(identifier)('Ref')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: S
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -162,14 +164,16 @@ ScalaFile
               PsiElement(identifier)('require')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              LiteralType: "t1"
-                StringLiteral
-                  PsiElement(string content)('"t1"')
+              TypeArgument
+                LiteralType: "t1"
+                  StringLiteral
+                    PsiElement(string content)('"t1"')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: t2
@@ -190,12 +194,14 @@ ScalaFile
               PsiElement(identifier)('require')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Double
-                CodeReferenceElement: Double
-                  PsiElement(identifier)('Double')
+              TypeArgument
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              LiteralType: "t2"
-                StringLiteral
-                  PsiElement(string content)('"t2"')
+              TypeArgument
+                LiteralType: "t2"
+                  StringLiteral
+                    PsiElement(string content)('"t2"')
               PsiElement(])(']')

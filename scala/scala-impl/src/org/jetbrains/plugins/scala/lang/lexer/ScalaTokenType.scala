@@ -41,6 +41,7 @@ object ScalaTokenType {
 
   // soft modifiers (Scala 3)
   val InlineKeyword      = ScalaModifierTokenType(Inline)
+  val ErasedKeyword      = ScalaModifierTokenType(Erased)
   val TransparentKeyword = ScalaModifierTokenType(Transparent)
   val OpaqueKeyword      = ScalaModifierTokenType(Opaque)
   val OpenKeyword        = ScalaModifierTokenType(Open)

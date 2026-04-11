@@ -49,9 +49,10 @@ ScalaFile
                 PsiElement(identifier)('Equiv')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -127,9 +128,10 @@ ScalaFile
                         PsiElement(identifier)('Equiv')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -140,9 +142,10 @@ ScalaFile
                 PsiElement(identifier)('Equiv')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -164,16 +167,18 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Equiv[Boolean]
-              SimpleType: Equiv
-                CodeReferenceElement: Equiv
-                  PsiElement(identifier)('Equiv')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Boolean
-                  CodeReferenceElement: Boolean
-                    PsiElement(identifier)('Boolean')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Equiv[Boolean]
+                SimpleType: Equiv
+                  CodeReferenceElement: Equiv
+                    PsiElement(identifier)('Equiv')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -250,9 +255,10 @@ ScalaFile
                         PsiElement(identifier)('Equiv')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -263,9 +269,10 @@ ScalaFile
                 PsiElement(identifier)('Equiv')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -301,9 +308,10 @@ ScalaFile
                 PsiElement(identifier)('Equiv')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -325,16 +333,18 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Equiv[Boolean]
-              SimpleType: Equiv
-                CodeReferenceElement: Equiv
-                  PsiElement(identifier)('Equiv')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Boolean
-                  CodeReferenceElement: Boolean
-                    PsiElement(identifier)('Boolean')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Equiv[Boolean]
+                SimpleType: Equiv
+                  CodeReferenceElement: Equiv
+                    PsiElement(identifier)('Equiv')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

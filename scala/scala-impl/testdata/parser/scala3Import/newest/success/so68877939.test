@@ -37,9 +37,10 @@ ScalaFile
               PsiElement(identifier)('Quantity')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -74,9 +75,10 @@ ScalaFile
               PsiElement(identifier)('Quantity')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -116,9 +118,10 @@ ScalaFile
                 PsiElement(identifier)('Quantity')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: Minutes
@@ -141,9 +144,10 @@ ScalaFile
                 PsiElement(identifier)('UnitOfMeasure')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: PowerRamp
@@ -173,9 +177,10 @@ ScalaFile
                 PsiElement(identifier)('Quantity')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PowerRamp
-                CodeReferenceElement: PowerRamp
-                  PsiElement(identifier)('PowerRamp')
+              TypeArgument
+                SimpleType: PowerRamp
+                  CodeReferenceElement: PowerRamp
+                    PsiElement(identifier)('PowerRamp')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: KilowattsPerHour
@@ -198,9 +203,10 @@ ScalaFile
                 PsiElement(identifier)('UnitOfMeasure')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PowerRamp
-                CodeReferenceElement: PowerRamp
-                  PsiElement(identifier)('PowerRamp')
+              TypeArgument
+                SimpleType: PowerRamp
+                  CodeReferenceElement: PowerRamp
+                    PsiElement(identifier)('PowerRamp')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: Test
@@ -224,8 +230,9 @@ ScalaFile
               PsiElement(identifier)('UnitOfMeasure')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -249,8 +256,9 @@ ScalaFile
                 PsiElement(identifier)('UnitOfMeasure')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -285,26 +293,28 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Test[Minutes.type] =:= Time
-            ParametrizedType: Test[Minutes.type]
-              SimpleType: Test
-                CodeReferenceElement: Test
-                  PsiElement(identifier)('Test')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Minutes.type
-                  CodeReferenceElement: Minutes
-                    PsiElement(identifier)('Minutes')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            SimpleType: Time
-              CodeReferenceElement: Time
-                PsiElement(identifier)('Time')
+          TypeArgument
+            InfixType: Test[Minutes.type] =:= Time
+              ParametrizedType: Test[Minutes.type]
+                SimpleType: Test
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Minutes.type
+                      CodeReferenceElement: Minutes
+                        PsiElement(identifier)('Minutes')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: Time
+                CodeReferenceElement: Time
+                  PsiElement(identifier)('Time')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -312,24 +322,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Test[KilowattsPerHour.type] =:= PowerRamp
-            ParametrizedType: Test[KilowattsPerHour.type]
-              SimpleType: Test
-                CodeReferenceElement: Test
-                  PsiElement(identifier)('Test')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: KilowattsPerHour.type
-                  CodeReferenceElement: KilowattsPerHour
-                    PsiElement(identifier)('KilowattsPerHour')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            SimpleType: PowerRamp
-              CodeReferenceElement: PowerRamp
-                PsiElement(identifier)('PowerRamp')
+          TypeArgument
+            InfixType: Test[KilowattsPerHour.type] =:= PowerRamp
+              ParametrizedType: Test[KilowattsPerHour.type]
+                SimpleType: Test
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: KilowattsPerHour.type
+                      CodeReferenceElement: KilowattsPerHour
+                        PsiElement(identifier)('KilowattsPerHour')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: PowerRamp
+                CodeReferenceElement: PowerRamp
+                  PsiElement(identifier)('PowerRamp')
           PsiElement(])(']')

@@ -65,27 +65,55 @@ package object params {
 
   implicit class TypeParamIdOwner[T](private val t: T) extends AnyVal {
     def typeParamId(implicit ev: TypeParamId[T]): Long = ev.typeParamId(t)
+    def typeParamName(implicit ev: TypeParamId[T]): Option[String] = ev.typeParamName(t)
   }
 
   trait TypeParamId[-T] {
     def typeParamId(t: T): Long
+    def typeParamName(t: T): Option[String]
   }
 
   object TypeParamId {
-    implicit val psi: TypeParamId[PsiTypeParameter] = {
-      case sc: ScTypeParam => sc.typeParamId
-      case null            => -1
-      case p               => cachedId(p)
+    implicit val psi: TypeParamId[PsiTypeParameter] = new TypeParamId[PsiTypeParameter] {
+      override def typeParamId(t: PsiTypeParameter): Long = t match {
+        case sc: ScTypeParam => sc.typeParamId
+        case null            => -1
+        case p               => cachedId(p)
+      }
+
+      override def typeParamName(t: PsiTypeParameter): Option[String] = Option(t).map(_.name)
     }
 
-    implicit val typeParam: TypeParamId[TypeParameter] = t => psi.typeParamId(t.psiTypeParameter)
+    implicit val typeParam: TypeParamId[TypeParameter] = new TypeParamId[TypeParameter] {
+      override def typeParamId(t: TypeParameter): Long =
+        psi.typeParamId(t.psiTypeParameter)
 
-    implicit val typeParamType: TypeParamId[TypeParameterType] = t => psi.typeParamId(t.psiTypeParameter)
+      override def typeParamName(t: TypeParameter): Option[String] =
+        Option(t.name)
+    }
 
-    implicit val long: TypeParamId[Long] = identity(_)
+    implicit val typeParamType: TypeParamId[TypeParameterType] = new TypeParamId[TypeParameterType] {
+      override def typeParamId(t: TypeParameterType): Long =
+        psi.typeParamId(t.psiTypeParameter)
+
+      override def typeParamName(t: TypeParameterType): Option[String] =
+        Option(t.name)
+    }
+
+    implicit val long: TypeParamId[Long] = new TypeParamId[Long] {
+      override def typeParamId(t: Long): Long = t
+
+      override def typeParamName(t: Long): Option[String] = None
+    }
 
     //I'd rather avoid implicit usages of this one
-    val nameBased: TypeParamId[String] = name => nameBasedIdBaseline + name.hashCode
+    val nameBased: TypeParamId[String] = new TypeParamId[String] {
+      override def typeParamId(name: String): Long =
+        nameBasedIdBaseline + name.hashCode
+
+      override def typeParamName(name: String): Option[String] =
+        Option(name)
+    }
   }
 
 }

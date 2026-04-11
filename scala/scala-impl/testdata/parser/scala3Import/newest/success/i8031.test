@@ -133,8 +133,9 @@ ScalaFile
                           PsiElement(identifier)('Has')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                   PsiElement(])(']')
                 Parameters
@@ -156,14 +157,16 @@ ScalaFile
                               PsiElement(identifier)('ZLayer')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R0
-                              CodeReferenceElement: R0
-                                PsiElement(identifier)('R0')
+                            TypeArgument
+                              SimpleType: R0
+                                CodeReferenceElement: R0
+                                  PsiElement(identifier)('R0')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: R1
-                              CodeReferenceElement: R1
-                                PsiElement(identifier)('R1')
+                            TypeArgument
+                              SimpleType: R1
+                                CodeReferenceElement: R1
+                                  PsiElement(identifier)('R1')
                             PsiElement(])(']')
                     PsiWhiteSpace('\n    ')
                     PsiElement())(')')
@@ -200,9 +203,10 @@ ScalaFile
                       PsiElement(identifier)('ZIO')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R0
-                      CodeReferenceElement: R0
-                        PsiElement(identifier)('R0')
+                    TypeArgument
+                      SimpleType: R0
+                        CodeReferenceElement: R0
+                          PsiElement(identifier)('R0')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -239,8 +243,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -286,8 +291,9 @@ ScalaFile
                           PsiElement(identifier)('Has')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -302,8 +308,9 @@ ScalaFile
                           PsiElement(identifier)('Has')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                   PsiElement(])(']')
                 Parameters
@@ -325,14 +332,16 @@ ScalaFile
                               PsiElement(identifier)('ZLayer')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: RIn2
-                              CodeReferenceElement: RIn2
-                                PsiElement(identifier)('RIn2')
+                            TypeArgument
+                              SimpleType: RIn2
+                                CodeReferenceElement: RIn2
+                                  PsiElement(identifier)('RIn2')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: ROut2
-                              CodeReferenceElement: ROut2
-                                PsiElement(identifier)('ROut2')
+                            TypeArgument
+                              SimpleType: ROut2
+                                CodeReferenceElement: ROut2
+                                  PsiElement(identifier)('ROut2')
                             PsiElement(])(']')
                     PsiWhiteSpace('\n    ')
                     PsiElement())(')')
@@ -344,28 +353,30 @@ ScalaFile
                       PsiElement(identifier)('ZLayer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    CompoundType: RIn with RIn2
-                      SimpleType: RIn
-                        CodeReferenceElement: RIn
-                          PsiElement(identifier)('RIn')
-                      PsiWhiteSpace(' ')
-                      PsiElement(with)('with')
-                      PsiWhiteSpace(' ')
-                      SimpleType: RIn2
-                        CodeReferenceElement: RIn2
-                          PsiElement(identifier)('RIn2')
+                    TypeArgument
+                      CompoundType: RIn with RIn2
+                        SimpleType: RIn
+                          CodeReferenceElement: RIn
+                            PsiElement(identifier)('RIn')
+                        PsiWhiteSpace(' ')
+                        PsiElement(with)('with')
+                        PsiWhiteSpace(' ')
+                        SimpleType: RIn2
+                          CodeReferenceElement: RIn2
+                            PsiElement(identifier)('RIn2')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    CompoundType: ROut1 with ROut2
-                      SimpleType: ROut1
-                        CodeReferenceElement: ROut1
-                          PsiElement(identifier)('ROut1')
-                      PsiWhiteSpace(' ')
-                      PsiElement(with)('with')
-                      PsiWhiteSpace(' ')
-                      SimpleType: ROut2
-                        CodeReferenceElement: ROut2
-                          PsiElement(identifier)('ROut2')
+                    TypeArgument
+                      CompoundType: ROut1 with ROut2
+                        SimpleType: ROut1
+                          CodeReferenceElement: ROut1
+                            PsiElement(identifier)('ROut1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(with)('with')
+                        PsiWhiteSpace(' ')
+                        SimpleType: ROut2
+                          CodeReferenceElement: ROut2
+                            PsiElement(identifier)('ROut2')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -414,9 +425,10 @@ ScalaFile
                 PsiElement(identifier)('Has')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: RandomService
-                CodeReferenceElement: RandomService
-                  PsiElement(identifier)('RandomService')
+              TypeArgument
+                SimpleType: RandomService
+                  CodeReferenceElement: RandomService
+                    PsiElement(identifier)('RandomService')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: Sized
@@ -436,9 +448,10 @@ ScalaFile
                 PsiElement(identifier)('Has')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: SizedService
-                CodeReferenceElement: SizedService
-                  PsiElement(identifier)('SizedService')
+              TypeArgument
+                SimpleType: SizedService
+                  CodeReferenceElement: SizedService
+                    PsiElement(identifier)('SizedService')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: random
@@ -459,14 +472,16 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Random
-                CodeReferenceElement: Random
-                  PsiElement(identifier)('Random')
+              TypeArgument
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Random
-                CodeReferenceElement: Random
-                  PsiElement(identifier)('Random')
+              TypeArgument
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -492,14 +507,16 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Sized
-                CodeReferenceElement: Sized
-                  PsiElement(identifier)('Sized')
+              TypeArgument
+                SimpleType: Sized
+                  CodeReferenceElement: Sized
+                    PsiElement(identifier)('Sized')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -526,16 +543,17 @@ ScalaFile
                 PsiElement(identifier)('ZIO')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: Random with Sized
-                SimpleType: Random
-                  CodeReferenceElement: Random
-                    PsiElement(identifier)('Random')
-                PsiWhiteSpace(' ')
-                PsiElement(with)('with')
-                PsiWhiteSpace(' ')
-                SimpleType: Sized
-                  CodeReferenceElement: Sized
-                    PsiElement(identifier)('Sized')
+              TypeArgument
+                CompoundType: Random with Sized
+                  SimpleType: Random
+                    CodeReferenceElement: Random
+                      PsiElement(identifier)('Random')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Sized
+                    CodeReferenceElement: Sized
+                      PsiElement(identifier)('Sized')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -564,9 +582,10 @@ ScalaFile
                 PsiElement(identifier)('ZIO')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Random
-                CodeReferenceElement: Random
-                  PsiElement(identifier)('Random')
+              TypeArgument
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -611,9 +630,10 @@ ScalaFile
                 PsiElement(identifier)('ZIO')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Random
-                CodeReferenceElement: Random
-                  PsiElement(identifier)('Random')
+              TypeArgument
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -627,21 +647,23 @@ ScalaFile
                 PsiElement(identifier)('provideLayer')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Random
-                  CodeReferenceElement: Random
-                    PsiElement(identifier)('Random')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                CompoundType: Random with Sized
+                TypeArgument
                   SimpleType: Random
                     CodeReferenceElement: Random
                       PsiElement(identifier)('Random')
-                  PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Sized
-                    CodeReferenceElement: Sized
-                      PsiElement(identifier)('Sized')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  CompoundType: Random with Sized
+                    SimpleType: Random
+                      CodeReferenceElement: Random
+                        PsiElement(identifier)('Random')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Sized
+                      CodeReferenceElement: Sized
+                        PsiElement(identifier)('Sized')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

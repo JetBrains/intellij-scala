@@ -106,9 +106,10 @@ ScalaFile
                       PsiElement(identifier)('TypedExpression')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -171,9 +172,10 @@ ScalaFile
                               PsiElement(identifier)('TypedExpression')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: A2
-                              CodeReferenceElement: A2
-                                PsiElement(identifier)('A2')
+                            TypeArgument
+                              SimpleType: A2
+                                CodeReferenceElement: A2
+                                  PsiElement(identifier)('A2')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -347,9 +349,10 @@ ScalaFile
                       PsiElement(identifier)('Equalizer')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

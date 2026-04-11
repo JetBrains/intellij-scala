@@ -86,9 +86,10 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -188,14 +189,16 @@ ScalaFile
                 PsiElement(identifier)('Bla')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -242,47 +245,50 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: ({type L[X] = Bla[F, X]})#L
-                TypeInParenthesis: ({type L[X] = Bla[F, X]})
-                  PsiElement(()('(')
-                  CompoundType: {type L[X] = Bla[F, X]}
-                    Refinement
-                      PsiElement({)('{')
-                      ScTypeAliasDefinition: L
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(type)('type')
-                        PsiWhiteSpace(' ')
-                        PsiElement(identifier)('L')
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: X
-                            PsiElement(identifier)('X')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=)('=')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Bla[F, X]
-                          SimpleType: Bla
-                            CodeReferenceElement: Bla
-                              PsiElement(identifier)('Bla')
-                          TypeArgumentsList
+              TypeArgument
+                TypeProjection: ({type L[X] = Bla[F, X]})#L
+                  TypeInParenthesis: ({type L[X] = Bla[F, X]})
+                    PsiElement(()('(')
+                    CompoundType: {type L[X] = Bla[F, X]}
+                      Refinement
+                        PsiElement({)('{')
+                        ScTypeAliasDefinition: L
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('L')
+                          TypeParameterClause
                             PsiElement([)('[')
-                            SimpleType: F
-                              CodeReferenceElement: F
-                                PsiElement(identifier)('F')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: X
-                              CodeReferenceElement: X
-                                PsiElement(identifier)('X')
+                            TypeParameter: X
+                              PsiElement(identifier)('X')
                             PsiElement(])(']')
-                      PsiElement(})('}')
-                  PsiElement())(')')
-                PsiElement(#)('#')
-                PsiElement(identifier)('L')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Bla[F, X]
+                            SimpleType: Bla
+                              CodeReferenceElement: Bla
+                                PsiElement(identifier)('Bla')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: F
+                                  CodeReferenceElement: F
+                                    PsiElement(identifier)('F')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                              PsiElement(])(']')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('L')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -309,9 +315,10 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -386,14 +393,16 @@ ScalaFile
                 PsiElement(identifier)('Bla')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -446,9 +455,10 @@ ScalaFile
                         PsiElement(identifier)('Monad')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -459,47 +469,50 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: ({type L[X] = Bla[F, X]})#L
-                TypeInParenthesis: ({type L[X] = Bla[F, X]})
-                  PsiElement(()('(')
-                  CompoundType: {type L[X] = Bla[F, X]}
-                    Refinement
-                      PsiElement({)('{')
-                      ScTypeAliasDefinition: L
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(type)('type')
-                        PsiWhiteSpace(' ')
-                        PsiElement(identifier)('L')
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: X
-                            PsiElement(identifier)('X')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=)('=')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Bla[F, X]
-                          SimpleType: Bla
-                            CodeReferenceElement: Bla
-                              PsiElement(identifier)('Bla')
-                          TypeArgumentsList
+              TypeArgument
+                TypeProjection: ({type L[X] = Bla[F, X]})#L
+                  TypeInParenthesis: ({type L[X] = Bla[F, X]})
+                    PsiElement(()('(')
+                    CompoundType: {type L[X] = Bla[F, X]}
+                      Refinement
+                        PsiElement({)('{')
+                        ScTypeAliasDefinition: L
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('L')
+                          TypeParameterClause
                             PsiElement([)('[')
-                            SimpleType: F
-                              CodeReferenceElement: F
-                                PsiElement(identifier)('F')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: X
-                              CodeReferenceElement: X
-                                PsiElement(identifier)('X')
+                            TypeParameter: X
+                              PsiElement(identifier)('X')
                             PsiElement(])(']')
-                      PsiElement(})('}')
-                  PsiElement())(')')
-                PsiElement(#)('#')
-                PsiElement(identifier)('L')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Bla[F, X]
+                            SimpleType: Bla
+                              CodeReferenceElement: Bla
+                                PsiElement(identifier)('Bla')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: F
+                                  CodeReferenceElement: F
+                                    PsiElement(identifier)('F')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                              PsiElement(])(']')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('L')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -526,9 +539,10 @@ ScalaFile
                 PsiElement(identifier)('Monad')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

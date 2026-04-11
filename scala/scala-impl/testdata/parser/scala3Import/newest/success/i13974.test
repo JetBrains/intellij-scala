@@ -97,9 +97,10 @@ ScalaFile
                       PsiElement(identifier)('Use')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    TypeArgument
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: ConversionTarget
@@ -187,9 +188,10 @@ ScalaFile
                         PsiElement(identifier)('Use')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')

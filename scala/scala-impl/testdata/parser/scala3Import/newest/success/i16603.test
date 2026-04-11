@@ -194,9 +194,10 @@ ScalaFile
                         PsiElement(identifier)('MyTag')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: MyData
-                        CodeReferenceElement: MyData
-                          PsiElement(identifier)('MyData')
+                      TypeArgument
+                        SimpleType: MyData
+                          CodeReferenceElement: MyData
+                            PsiElement(identifier)('MyData')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScEnumCases: MyClassTag
@@ -220,9 +221,10 @@ ScalaFile
                         PsiElement(identifier)('MyTag')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: MyClass
-                        CodeReferenceElement: MyClass
-                          PsiElement(identifier)('MyClass')
+                      TypeArgument
+                        SimpleType: MyClass
+                          CodeReferenceElement: MyClass
+                            PsiElement(identifier)('MyClass')
                       PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: callExtension
@@ -256,9 +258,10 @@ ScalaFile
                   PsiElement(identifier)('MyTag')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')

@@ -182,6 +182,12 @@ private class ScalaModuleSettings private(
       case _                          => false
     }
 
+  val hasNamedTypeArguments: Boolean =
+    additionalCompilerOptions.exists {
+      case "-language:experimental.namedTypeArguments" => true
+      case _                                           => false
+    }
+
   def isSource3: Boolean = source3Options.isSource3Enabled
 
   val features: SerializableScalaFeatures =

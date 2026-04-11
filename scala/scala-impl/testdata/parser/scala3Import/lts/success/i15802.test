@@ -97,19 +97,22 @@ ScalaFile
                 PsiElement(identifier)('ZIO')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -213,19 +216,22 @@ ScalaFile
                           PsiElement(identifier)('ZIO')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
+                        TypeArgument
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: ERROR_OUTPUT
-                          CodeReferenceElement: ERROR_OUTPUT
-                            PsiElement(identifier)('ERROR_OUTPUT')
+                        TypeArgument
+                          SimpleType: ERROR_OUTPUT
+                            CodeReferenceElement: ERROR_OUTPUT
+                              PsiElement(identifier)('ERROR_OUTPUT')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: OUTPUT
-                          CodeReferenceElement: OUTPUT
-                            PsiElement(identifier)('OUTPUT')
+                        TypeArgument
+                          SimpleType: OUTPUT
+                            CodeReferenceElement: OUTPUT
+                              PsiElement(identifier)('OUTPUT')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -236,9 +242,10 @@ ScalaFile
                 PsiElement(identifier)('ZServerEndpoint')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -289,18 +296,21 @@ ScalaFile
               PsiElement(identifier)('Endpoint')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Unit
-              CodeReferenceElement: Unit
-                PsiElement(identifier)('Unit')
+            TypeArgument
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Unit
-              CodeReferenceElement: Unit
-                PsiElement(identifier)('Unit')
+            TypeArgument
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -317,9 +327,10 @@ ScalaFile
             PsiElement(identifier)('zServerLogic')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

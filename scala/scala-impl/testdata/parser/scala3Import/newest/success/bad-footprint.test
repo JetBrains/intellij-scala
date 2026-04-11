@@ -266,16 +266,18 @@ ScalaFile
                         PsiElement(identifier)('Union')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: DropNames[X]
-                        SimpleType: DropNames
-                          CodeReferenceElement: DropNames
-                            PsiElement(identifier)('DropNames')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: DropNames[X]
+                          SimpleType: DropNames
+                            CodeReferenceElement: DropNames
+                              PsiElement(identifier)('DropNames')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement(])(']')
@@ -288,43 +290,49 @@ ScalaFile
                 PsiElement(identifier)('NamedTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Names[X]
-                SimpleType: Names
-                  CodeReferenceElement: Names
-                    PsiElement(identifier)('Names')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
-                  PsiElement(])(']')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              ParametrizedType: Tuple.Map[DropNames[X], F]
-                SimpleType: Tuple.Map
-                  CodeReferenceElement: Tuple.Map
-                    CodeReferenceElement: Tuple
-                      PsiElement(identifier)('Tuple')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Map')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: DropNames[X]
-                    SimpleType: DropNames
-                      CodeReferenceElement: DropNames
-                        PsiElement(identifier)('DropNames')
-                    TypeArgumentsList
-                      PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Names[X]
+                  SimpleType: Names
+                    CodeReferenceElement: Names
+                      PsiElement(identifier)('Names')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
                       SimpleType: X
                         CodeReferenceElement: X
                           PsiElement(identifier)('X')
-                      PsiElement(])(']')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Tuple.Map[DropNames[X], F]
+                  SimpleType: Tuple.Map
+                    CodeReferenceElement: Tuple.Map
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Map')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: DropNames[X]
+                        SimpleType: DropNames
+                          CodeReferenceElement: DropNames
+                            PsiElement(identifier)('DropNames')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n')
         End: NamedTuple
@@ -407,12 +415,14 @@ ScalaFile
                       PsiElement(identifier)('NamedTuple')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: n
-                      PsiElement(identifier)('n')
+                    TypeArgument
+                      TypeVariable: n
+                        PsiElement(identifier)('n')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    TypeVariable: _
-                      PsiElement(_)('_')
+                    TypeArgument
+                      TypeVariable: _
+                        PsiElement(_)('_')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -475,12 +485,14 @@ ScalaFile
                       PsiElement(identifier)('NamedTuple')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: _
-                      PsiElement(_)('_')
+                    TypeArgument
+                      TypeVariable: _
+                        PsiElement(_)('_')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    TypeVariable: x
-                      PsiElement(identifier)('x')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -570,9 +582,10 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: StripExpr
@@ -612,8 +625,9 @@ ScalaFile
                       PsiElement(identifier)('Of')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: b
-                      PsiElement(identifier)('b')
+                    TypeArgument
+                      TypeVariable: b
+                        PsiElement(identifier)('b')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -677,9 +691,10 @@ ScalaFile
                       PsiElement(identifier)('Of')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: Join
@@ -738,24 +753,27 @@ ScalaFile
                       PsiElement(identifier)('Of')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: NamedTuple.Map[A, StripExpr]
-                      SimpleType: NamedTuple.Map
-                        CodeReferenceElement: NamedTuple.Map
-                          CodeReferenceElement: NamedTuple
-                            PsiElement(identifier)('NamedTuple')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Map')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: StripExpr
-                          CodeReferenceElement: StripExpr
-                            PsiElement(identifier)('StripExpr')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: NamedTuple.Map[A, StripExpr]
+                        SimpleType: NamedTuple.Map
+                          CodeReferenceElement: NamedTuple.Map
+                            CodeReferenceElement: NamedTuple
+                              PsiElement(identifier)('NamedTuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Map')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: StripExpr
+                              CodeReferenceElement: StripExpr
+                                PsiElement(identifier)('StripExpr')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Expr
@@ -826,9 +844,10 @@ ScalaFile
                         PsiElement(identifier)('Query')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -868,9 +887,10 @@ ScalaFile
                               PsiElement(identifier)('Ref')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
@@ -884,9 +904,10 @@ ScalaFile
                               PsiElement(identifier)('Of')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: B
-                              CodeReferenceElement: B
-                                PsiElement(identifier)('B')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
                             PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -897,9 +918,10 @@ ScalaFile
                     PsiElement(identifier)('Query')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -1027,9 +1049,10 @@ ScalaFile
                 PsiElement(identifier)('Query')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: City
-                CodeReferenceElement: City
-                  PsiElement(identifier)('City')
+              TypeArgument
+                SimpleType: City
+                  CodeReferenceElement: City
+                    PsiElement(identifier)('City')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1090,52 +1113,56 @@ ScalaFile
                         TypeArgumentsList
                           PsiElement([)('[')
                           PsiWhiteSpace('\n        ')
-                          TupleType: ("name", "zipCode")
-                            PsiElement(()('(')
-                            TypesList
-                              LiteralType: "name"
-                                StringLiteral
-                                  PsiElement(string content)('"name"')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              LiteralType: "zipCode"
-                                StringLiteral
-                                  PsiElement(string content)('"zipCode"')
-                            PsiElement())(')')
+                          TypeArgument
+                            TupleType: ("name", "zipCode")
+                              PsiElement(()('(')
+                              TypesList
+                                LiteralType: "name"
+                                  StringLiteral
+                                    PsiElement(string content)('"name"')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                LiteralType: "zipCode"
+                                  StringLiteral
+                                    PsiElement(string content)('"zipCode"')
+                              PsiElement())(')')
                           PsiElement(,)(',')
                           PsiWhiteSpace('\n        ')
-                          TupleType: (Expr.Of[String], Expr.Of[Int])
-                            PsiElement(()('(')
-                            TypesList
-                              ParametrizedType: Expr.Of[String]
-                                SimpleType: Expr.Of
-                                  CodeReferenceElement: Expr.Of
-                                    CodeReferenceElement: Expr
-                                      PsiElement(identifier)('Expr')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('Of')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: String
-                                    CodeReferenceElement: String
-                                      PsiElement(identifier)('String')
-                                  PsiElement(])(']')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              ParametrizedType: Expr.Of[Int]
-                                SimpleType: Expr.Of
-                                  CodeReferenceElement: Expr.Of
-                                    CodeReferenceElement: Expr
-                                      PsiElement(identifier)('Expr')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('Of')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: Int
-                                    CodeReferenceElement: Int
-                                      PsiElement(identifier)('Int')
-                                  PsiElement(])(']')
-                            PsiElement())(')')
+                          TypeArgument
+                            TupleType: (Expr.Of[String], Expr.Of[Int])
+                              PsiElement(()('(')
+                              TypesList
+                                ParametrizedType: Expr.Of[String]
+                                  SimpleType: Expr.Of
+                                    CodeReferenceElement: Expr.Of
+                                      CodeReferenceElement: Expr
+                                        PsiElement(identifier)('Expr')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Of')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: String
+                                        CodeReferenceElement: String
+                                          PsiElement(identifier)('String')
+                                    PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ParametrizedType: Expr.Of[Int]
+                                  SimpleType: Expr.Of
+                                    CodeReferenceElement: Expr.Of
+                                      CodeReferenceElement: Expr
+                                        PsiElement(identifier)('Expr')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Of')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
+                                    PsiElement(])(']')
+                              PsiElement())(')')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')

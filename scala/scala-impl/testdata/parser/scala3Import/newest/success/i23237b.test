@@ -353,14 +353,16 @@ ScalaFile
                       PsiElement(identifier)('Shader')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: In
-                      CodeReferenceElement: In
-                        PsiElement(identifier)('In')
+                    TypeArgument
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Out
-                      CodeReferenceElement: Out
-                        PsiElement(identifier)('Out')
+                    TypeArgument
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -413,14 +415,16 @@ ScalaFile
                       PsiElement(identifier)('Shader')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: In
-                      CodeReferenceElement: In
-                        PsiElement(identifier)('In')
+                    TypeArgument
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Unit
-                      CodeReferenceElement: Unit
-                        PsiElement(identifier)('Unit')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
                     PsiElement(])(']')
                 PsiWhiteSpace('    ')
                 PsiElement(=)('=')
@@ -463,14 +467,16 @@ ScalaFile
                       PsiElement(identifier)('Shader')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Unit
-                      CodeReferenceElement: Unit
-                        PsiElement(identifier)('Unit')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Unit
-                      CodeReferenceElement: Unit
-                        PsiElement(identifier)('Unit')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -579,14 +585,16 @@ ScalaFile
                 PsiElement(identifier)('Shader')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: FragEnv
-                CodeReferenceElement: FragEnv
-                  PsiElement(identifier)('FragEnv')
+              TypeArgument
+                SimpleType: FragEnv
+                  CodeReferenceElement: FragEnv
+                    PsiElement(identifier)('FragEnv')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: vec4
-                CodeReferenceElement: vec4
-                  PsiElement(identifier)('vec4')
+              TypeArgument
+                SimpleType: vec4
+                  CodeReferenceElement: vec4
+                    PsiElement(identifier)('vec4')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

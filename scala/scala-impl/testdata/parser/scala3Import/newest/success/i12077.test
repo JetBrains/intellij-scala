@@ -84,23 +84,25 @@ ScalaFile
                   PsiElement(identifier)('Wrapper')
               TypeArgumentsList
                 PsiElement([)('[')
-                CompoundType: Has0[String] with R
-                  ParametrizedType: Has0[String]
-                    SimpleType: Has0
-                      CodeReferenceElement: Has0
-                        PsiElement(identifier)('Has0')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
-                  PsiWhiteSpace(' ')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
+                TypeArgument
+                  CompoundType: Has0[String] with R
+                    ParametrizedType: Has0[String]
+                      SimpleType: Has0
+                        CodeReferenceElement: Has0
+                          PsiElement(identifier)('Has0')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -130,30 +132,33 @@ ScalaFile
           PsiElement(identifier)('Wrapper')
       TypeArgumentsList
         PsiElement([)('[')
-        CompoundType: Has0[String] with Has0[Int]
-          ParametrizedType: Has0[String]
-            SimpleType: Has0
-              CodeReferenceElement: Has0
-                PsiElement(identifier)('Has0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(with)('with')
-          PsiWhiteSpace(' ')
-          ParametrizedType: Has0[Int]
-            SimpleType: Has0
-              CodeReferenceElement: Has0
-                PsiElement(identifier)('Has0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
+        TypeArgument
+          CompoundType: Has0[String] with Has0[Int]
+            ParametrizedType: Has0[String]
+              SimpleType: Has0
+                CodeReferenceElement: Has0
+                  PsiElement(identifier)('Has0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Has0[Int]
+              SimpleType: Has0
+                CodeReferenceElement: Has0
+                  PsiElement(identifier)('Has0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

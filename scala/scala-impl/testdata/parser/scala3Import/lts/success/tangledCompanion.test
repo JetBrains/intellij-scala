@@ -163,9 +163,10 @@ ScalaFile
                           PsiElement(identifier)('Evaluated')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -191,9 +192,10 @@ ScalaFile
                       PsiElement(identifier)('IterableFactory')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: LazyList
-                      CodeReferenceElement: LazyList
-                        PsiElement(identifier)('LazyList')
+                    TypeArgument
+                      SimpleType: LazyList
+                        CodeReferenceElement: LazyList
+                          PsiElement(identifier)('LazyList')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -222,25 +224,27 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TupleType: (A, LazyList[A])
-                      PsiElement(()('(')
-                      TypesList
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: LazyList[A]
-                          SimpleType: LazyList
-                            CodeReferenceElement: LazyList
-                              PsiElement(identifier)('LazyList')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(])(']')
-                      PsiElement())(')')
+                    TypeArgument
+                      TupleType: (A, LazyList[A])
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: LazyList[A]
+                            SimpleType: LazyList
+                              CodeReferenceElement: LazyList
+                                PsiElement(identifier)('LazyList')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                        PsiElement())(')')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScObject: Empty
@@ -263,9 +267,10 @@ ScalaFile
                             PsiElement(identifier)('LazyList')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Nothing
-                            CodeReferenceElement: Nothing
-                              PsiElement(identifier)('Nothing')
+                          TypeArgument
+                            SimpleType: Nothing
+                              CodeReferenceElement: Nothing
+                                PsiElement(identifier)('Nothing')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')
@@ -317,9 +322,10 @@ ScalaFile
                                     PsiElement(identifier)('LazyList')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
+                                  TypeArgument
+                                    SimpleType: A
+                                      CodeReferenceElement: A
+                                        PsiElement(identifier)('A')
                                   PsiElement(])(']')
                           PsiElement())(')')
                       PsiElement(:)(':')
@@ -330,9 +336,10 @@ ScalaFile
                             PsiElement(identifier)('Evaluated')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')

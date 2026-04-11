@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScGivenPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.SingleCodeTestData
 import org.jetbrains.plugins.scala.util.GeneratedSimpleParameterizedTest
 
@@ -27,7 +27,7 @@ class GenerateGivenNameTest extends GeneratedSimpleParameterizedTest(ScalaVersio
     val givenElement = givens.head
     givenElement.name shouldBe td.expectedGivenName
   }
-  
+
   override def testData: Seq[TD] = GenerateGivenNameTest.testData
 }
 

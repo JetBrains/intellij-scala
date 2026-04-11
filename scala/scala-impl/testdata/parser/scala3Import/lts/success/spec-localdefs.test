@@ -97,16 +97,18 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: List[Bar]
-                  SimpleType: List
-                    CodeReferenceElement: List
-                      PsiElement(identifier)('List')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Bar
-                      CodeReferenceElement: Bar
-                        PsiElement(identifier)('Bar')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: List[Bar]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Bar
+                          CodeReferenceElement: Bar
+                            PsiElement(identifier)('Bar')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -117,9 +119,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
+                TypeArgument
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
                 PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

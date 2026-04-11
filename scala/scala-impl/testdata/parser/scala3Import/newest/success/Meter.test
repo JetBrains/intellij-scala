@@ -739,14 +739,16 @@ ScalaFile
                   PsiElement(identifier)('BoxingConversions')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Meter
-                  CodeReferenceElement: Meter
-                    PsiElement(identifier)('Meter')
+                TypeArgument
+                  SimpleType: Meter
+                    CodeReferenceElement: Meter
+                      PsiElement(identifier)('Meter')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+                TypeArgument
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -763,14 +765,16 @@ ScalaFile
                           PsiElement(identifier)('BoxingConversions')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Meter
-                          CodeReferenceElement: Meter
-                            PsiElement(identifier)('Meter')
+                        TypeArgument
+                          SimpleType: Meter
+                            CodeReferenceElement: Meter
+                              PsiElement(identifier)('Meter')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: Double
-                          CodeReferenceElement: Double
-                            PsiElement(identifier)('Double')
+                        TypeArgument
+                          SimpleType: Double
+                            CodeReferenceElement: Double
+                              PsiElement(identifier)('Double')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -1020,14 +1024,16 @@ ScalaFile
                   PsiElement(identifier)('BoxingConversions')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Foot
-                  CodeReferenceElement: Foot
-                    PsiElement(identifier)('Foot')
+                TypeArgument
+                  SimpleType: Foot
+                    CodeReferenceElement: Foot
+                      PsiElement(identifier)('Foot')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+                TypeArgument
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -1044,14 +1050,16 @@ ScalaFile
                           PsiElement(identifier)('BoxingConversions')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Foot
-                          CodeReferenceElement: Foot
-                            PsiElement(identifier)('Foot')
+                        TypeArgument
+                          SimpleType: Foot
+                            CodeReferenceElement: Foot
+                              PsiElement(identifier)('Foot')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: Double
-                          CodeReferenceElement: Double
-                            PsiElement(identifier)('Double')
+                        TypeArgument
+                          SimpleType: Double
+                            CodeReferenceElement: Double
+                              PsiElement(identifier)('Double')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -1332,9 +1340,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Object
-                  CodeReferenceElement: Object
-                    PsiElement(identifier)('Object')
+                TypeArgument
+                  SimpleType: Object
+                    CodeReferenceElement: Object
+                      PsiElement(identifier)('Object')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScPatternDefinition: y
@@ -1363,9 +1372,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Meter
-                  CodeReferenceElement: Meter
-                    PsiElement(identifier)('Meter')
+                TypeArgument
+                  SimpleType: Meter
+                    CodeReferenceElement: Meter
+                      PsiElement(identifier)('Meter')
                 PsiElement(])(']')
           PsiWhiteSpace('\n\n  ')
           ScPatternDefinition: u
@@ -1415,9 +1425,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Object
-                  CodeReferenceElement: Object
-                    PsiElement(identifier)('Object')
+                TypeArgument
+                  SimpleType: Object
+                    CodeReferenceElement: Object
+                      PsiElement(identifier)('Object')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScPatternDefinition: v
@@ -1446,9 +1457,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+                TypeArgument
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
@@ -1567,9 +1579,10 @@ ScalaFile
                   PsiElement(identifier)('isInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Meter
-                    CodeReferenceElement: Meter
-                      PsiElement(identifier)('Meter')
+                  TypeArgument
+                    SimpleType: Meter
+                      CodeReferenceElement: Meter
+                        PsiElement(identifier)('Meter')
                   PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n\n\n  ')
@@ -1837,9 +1850,10 @@ ScalaFile
                           PsiElement(identifier)('Array')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace(' ')

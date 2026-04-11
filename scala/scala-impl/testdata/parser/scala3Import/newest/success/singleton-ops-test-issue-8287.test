@@ -115,9 +115,10 @@ ScalaFile
                               PsiElement(identifier)('Vec')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: RS
-                              CodeReferenceElement: RS
-                                PsiElement(identifier)('RS')
+                            TypeArgument
+                              SimpleType: RS
+                                CodeReferenceElement: RS
+                                  PsiElement(identifier)('RS')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -129,17 +130,18 @@ ScalaFile
                       PsiElement(identifier)('Vec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    InfixType: S + RS
-                      SimpleType: S
-                        CodeReferenceElement: S
-                          PsiElement(identifier)('S')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: +
-                        PsiElement(identifier)('+')
-                      PsiWhiteSpace(' ')
-                      SimpleType: RS
-                        CodeReferenceElement: RS
-                          PsiElement(identifier)('RS')
+                    TypeArgument
+                      InfixType: S + RS
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        SimpleType: RS
+                          CodeReferenceElement: RS
+                            PsiElement(identifier)('RS')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -156,17 +158,18 @@ ScalaFile
                               PsiElement(identifier)('Vec')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            InfixType: S + RS
-                              SimpleType: S
-                                CodeReferenceElement: S
-                                  PsiElement(identifier)('S')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              SimpleType: RS
-                                CodeReferenceElement: RS
-                                  PsiElement(identifier)('RS')
+                            TypeArgument
+                              InfixType: S + RS
+                                SimpleType: S
+                                  CodeReferenceElement: S
+                                    PsiElement(identifier)('S')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                SimpleType: RS
+                                  CodeReferenceElement: RS
+                                    PsiElement(identifier)('RS')
                             PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -196,9 +199,10 @@ ScalaFile
                         PsiElement(identifier)('Vec')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: v2
@@ -226,9 +230,10 @@ ScalaFile
                         PsiElement(identifier)('Vec')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 2
-                        IntegerLiteral
-                          PsiElement(integer)('2')
+                      TypeArgument
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: v3
@@ -250,9 +255,10 @@ ScalaFile
                 PsiElement(identifier)('Vec')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 3
-                IntegerLiteral
-                  PsiElement(integer)('3')
+              TypeArgument
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -309,9 +315,10 @@ ScalaFile
                 PsiElement(identifier)('Vec')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 3
-                IntegerLiteral
-                  PsiElement(integer)('3')
+              TypeArgument
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

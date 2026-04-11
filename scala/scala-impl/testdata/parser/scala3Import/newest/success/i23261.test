@@ -491,17 +491,18 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: 0.0 =:= 0.0
-            LiteralType: 0.0
-              DoubleLiteral
-                PsiElement(double)('0.0')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: 0.0
-              DoubleLiteral
-                PsiElement(double)('0.0')
+          TypeArgument
+            InfixType: 0.0 =:= 0.0
+              LiteralType: 0.0
+                DoubleLiteral
+                  PsiElement(double)('0.0')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: 0.0
+                DoubleLiteral
+                  PsiElement(double)('0.0')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -509,19 +510,20 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: -0.0 =:= -0.0
-            LiteralType: -0.0
-              DoubleLiteral
-                PsiElement(identifier)('-')
-                PsiElement(double)('0.0')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: -0.0
-              DoubleLiteral
-                PsiElement(identifier)('-')
-                PsiElement(double)('0.0')
+          TypeArgument
+            InfixType: -0.0 =:= -0.0
+              LiteralType: -0.0
+                DoubleLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(double)('0.0')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: -0.0
+                DoubleLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(double)('0.0')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -529,24 +531,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString[0.0] =:= "0.0"
-            ParametrizedType: DoubleToString[0.0]
-              SimpleType: DoubleToString
-                CodeReferenceElement: DoubleToString
-                  PsiElement(identifier)('DoubleToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0
-                  DoubleLiteral
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "0.0"
-              StringLiteral
-                PsiElement(string content)('"0.0"')
+          TypeArgument
+            InfixType: DoubleToString[0.0] =:= "0.0"
+              ParametrizedType: DoubleToString[0.0]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0"
+                StringLiteral
+                  PsiElement(string content)('"0.0"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -554,25 +558,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString[-0.0] =:= "-0.0"
-            ParametrizedType: DoubleToString[-0.0]
-              SimpleType: DoubleToString
-                CodeReferenceElement: DoubleToString
-                  PsiElement(identifier)('DoubleToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0
-                  DoubleLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "-0.0"
-              StringLiteral
-                PsiElement(string content)('"-0.0"')
+          TypeArgument
+            InfixType: DoubleToString[-0.0] =:= "-0.0"
+              ParametrizedType: DoubleToString[-0.0]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0"
+                StringLiteral
+                  PsiElement(string content)('"-0.0"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -580,24 +586,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString[3.14] =:= "_"
-            ParametrizedType: DoubleToString[3.14]
-              SimpleType: DoubleToString
-                CodeReferenceElement: DoubleToString
-                  PsiElement(identifier)('DoubleToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 3.14
-                  DoubleLiteral
-                    PsiElement(double)('3.14')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: DoubleToString[3.14] =:= "_"
+              ParametrizedType: DoubleToString[3.14]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 3.14
+                      DoubleLiteral
+                        PsiElement(double)('3.14')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -605,24 +613,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString2[0.0] =:= "0.0"
-            ParametrizedType: DoubleToString2[0.0]
-              SimpleType: DoubleToString2
-                CodeReferenceElement: DoubleToString2
-                  PsiElement(identifier)('DoubleToString2')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0
-                  DoubleLiteral
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "0.0"
-              StringLiteral
-                PsiElement(string content)('"0.0"')
+          TypeArgument
+            InfixType: DoubleToString2[0.0] =:= "0.0"
+              ParametrizedType: DoubleToString2[0.0]
+                SimpleType: DoubleToString2
+                  CodeReferenceElement: DoubleToString2
+                    PsiElement(identifier)('DoubleToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0"
+                StringLiteral
+                  PsiElement(string content)('"0.0"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -630,25 +640,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString2[-0.0] =:= "_"
-            ParametrizedType: DoubleToString2[-0.0]
-              SimpleType: DoubleToString2
-                CodeReferenceElement: DoubleToString2
-                  PsiElement(identifier)('DoubleToString2')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0
-                  DoubleLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: DoubleToString2[-0.0] =:= "_"
+              ParametrizedType: DoubleToString2[-0.0]
+                SimpleType: DoubleToString2
+                  CodeReferenceElement: DoubleToString2
+                    PsiElement(identifier)('DoubleToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -656,25 +668,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString3[-0.0] =:= "-0.0"
-            ParametrizedType: DoubleToString3[-0.0]
-              SimpleType: DoubleToString3
-                CodeReferenceElement: DoubleToString3
-                  PsiElement(identifier)('DoubleToString3')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0
-                  DoubleLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "-0.0"
-              StringLiteral
-                PsiElement(string content)('"-0.0"')
+          TypeArgument
+            InfixType: DoubleToString3[-0.0] =:= "-0.0"
+              ParametrizedType: DoubleToString3[-0.0]
+                SimpleType: DoubleToString3
+                  CodeReferenceElement: DoubleToString3
+                    PsiElement(identifier)('DoubleToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0"
+                StringLiteral
+                  PsiElement(string content)('"-0.0"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -682,24 +696,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: DoubleToString3[0.0] =:= "_"
-            ParametrizedType: DoubleToString3[0.0]
-              SimpleType: DoubleToString3
-                CodeReferenceElement: DoubleToString3
-                  PsiElement(identifier)('DoubleToString3')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0
-                  DoubleLiteral
-                    PsiElement(double)('0.0')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: DoubleToString3[0.0] =:= "_"
+              ParametrizedType: DoubleToString3[0.0]
+                SimpleType: DoubleToString3
+                  CodeReferenceElement: DoubleToString3
+                    PsiElement(identifier)('DoubleToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -707,17 +723,18 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: 0.0f =:= 0.0f
-            LiteralType: 0.0f
-              FloatLiteral
-                PsiElement(float)('0.0f')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: 0.0f
-              FloatLiteral
-                PsiElement(float)('0.0f')
+          TypeArgument
+            InfixType: 0.0f =:= 0.0f
+              LiteralType: 0.0f
+                FloatLiteral
+                  PsiElement(float)('0.0f')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: 0.0f
+                FloatLiteral
+                  PsiElement(float)('0.0f')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -725,19 +742,20 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: -0.0f =:= -0.0f
-            LiteralType: -0.0f
-              FloatLiteral
-                PsiElement(identifier)('-')
-                PsiElement(float)('0.0f')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: -0.0f
-              FloatLiteral
-                PsiElement(identifier)('-')
-                PsiElement(float)('0.0f')
+          TypeArgument
+            InfixType: -0.0f =:= -0.0f
+              LiteralType: -0.0f
+                FloatLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(float)('0.0f')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: -0.0f
+                FloatLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(float)('0.0f')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -745,24 +763,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString[0.0f] =:= "0.0f"
-            ParametrizedType: FloatToString[0.0f]
-              SimpleType: FloatToString
-                CodeReferenceElement: FloatToString
-                  PsiElement(identifier)('FloatToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0f
-                  FloatLiteral
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "0.0f"
-              StringLiteral
-                PsiElement(string content)('"0.0f"')
+          TypeArgument
+            InfixType: FloatToString[0.0f] =:= "0.0f"
+              ParametrizedType: FloatToString[0.0f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0f"
+                StringLiteral
+                  PsiElement(string content)('"0.0f"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -770,25 +790,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString[-0.0f] =:= "-0.0f"
-            ParametrizedType: FloatToString[-0.0f]
-              SimpleType: FloatToString
-                CodeReferenceElement: FloatToString
-                  PsiElement(identifier)('FloatToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0f
-                  FloatLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "-0.0f"
-              StringLiteral
-                PsiElement(string content)('"-0.0f"')
+          TypeArgument
+            InfixType: FloatToString[-0.0f] =:= "-0.0f"
+              ParametrizedType: FloatToString[-0.0f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0f"
+                StringLiteral
+                  PsiElement(string content)('"-0.0f"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -796,24 +818,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString[3.14f] =:= "_"
-            ParametrizedType: FloatToString[3.14f]
-              SimpleType: FloatToString
-                CodeReferenceElement: FloatToString
-                  PsiElement(identifier)('FloatToString')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 3.14f
-                  FloatLiteral
-                    PsiElement(float)('3.14f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: FloatToString[3.14f] =:= "_"
+              ParametrizedType: FloatToString[3.14f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 3.14f
+                      FloatLiteral
+                        PsiElement(float)('3.14f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -821,24 +845,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString2[0.0f] =:= "0.0f"
-            ParametrizedType: FloatToString2[0.0f]
-              SimpleType: FloatToString2
-                CodeReferenceElement: FloatToString2
-                  PsiElement(identifier)('FloatToString2')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0f
-                  FloatLiteral
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "0.0f"
-              StringLiteral
-                PsiElement(string content)('"0.0f"')
+          TypeArgument
+            InfixType: FloatToString2[0.0f] =:= "0.0f"
+              ParametrizedType: FloatToString2[0.0f]
+                SimpleType: FloatToString2
+                  CodeReferenceElement: FloatToString2
+                    PsiElement(identifier)('FloatToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0f"
+                StringLiteral
+                  PsiElement(string content)('"0.0f"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -846,25 +872,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString2[-0.0f] =:= "_"
-            ParametrizedType: FloatToString2[-0.0f]
-              SimpleType: FloatToString2
-                CodeReferenceElement: FloatToString2
-                  PsiElement(identifier)('FloatToString2')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0f
-                  FloatLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: FloatToString2[-0.0f] =:= "_"
+              ParametrizedType: FloatToString2[-0.0f]
+                SimpleType: FloatToString2
+                  CodeReferenceElement: FloatToString2
+                    PsiElement(identifier)('FloatToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -872,25 +900,27 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString3[-0.0f] =:= "-0.0f"
-            ParametrizedType: FloatToString3[-0.0f]
-              SimpleType: FloatToString3
-                CodeReferenceElement: FloatToString3
-                  PsiElement(identifier)('FloatToString3')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: -0.0f
-                  FloatLiteral
-                    PsiElement(identifier)('-')
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "-0.0f"
-              StringLiteral
-                PsiElement(string content)('"-0.0f"')
+          TypeArgument
+            InfixType: FloatToString3[-0.0f] =:= "-0.0f"
+              ParametrizedType: FloatToString3[-0.0f]
+                SimpleType: FloatToString3
+                  CodeReferenceElement: FloatToString3
+                    PsiElement(identifier)('FloatToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0f"
+                StringLiteral
+                  PsiElement(string content)('"-0.0f"')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -898,24 +928,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: FloatToString3[0.0f] =:= "_"
-            ParametrizedType: FloatToString3[0.0f]
-              SimpleType: FloatToString3
-                CodeReferenceElement: FloatToString3
-                  PsiElement(identifier)('FloatToString3')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 0.0f
-                  FloatLiteral
-                    PsiElement(float)('0.0f')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            LiteralType: "_"
-              StringLiteral
-                PsiElement(string content)('"_"')
+          TypeArgument
+            InfixType: FloatToString3[0.0f] =:= "_"
+              ParametrizedType: FloatToString3[0.0f]
+                SimpleType: FloatToString3
+                  CodeReferenceElement: FloatToString3
+                    PsiElement(identifier)('FloatToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
           PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

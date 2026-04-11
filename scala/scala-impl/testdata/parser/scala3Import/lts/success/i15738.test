@@ -107,9 +107,10 @@ ScalaFile
                 PsiElement(identifier)('Transactional')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -122,9 +123,10 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Transaction
-                  CodeReferenceElement: Transaction
-                    PsiElement(identifier)('Transaction')
+                TypeArgument
+                  SimpleType: Transaction
+                    CodeReferenceElement: Transaction
+                      PsiElement(identifier)('Transaction')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ReferenceExpression: x
@@ -164,9 +166,10 @@ ScalaFile
                 PsiElement(identifier)('Transactional')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -179,9 +182,10 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Transaction
-                  CodeReferenceElement: Transaction
-                    PsiElement(identifier)('Transaction')
+                TypeArgument
+                  SimpleType: Transaction
+                    CodeReferenceElement: Transaction
+                      PsiElement(identifier)('Transaction')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ScPatternDefinition: x1

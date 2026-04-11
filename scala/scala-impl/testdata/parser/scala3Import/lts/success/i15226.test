@@ -150,28 +150,29 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (pj.a.type, pj.b.type)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: pj.a.type
-                    CodeReferenceElement: pj.a
-                      CodeReferenceElement: pj
-                        PsiElement(identifier)('pj')
+              TypeArgument
+                TupleType: (pj.a.type, pj.b.type)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: pj.a.type
+                      CodeReferenceElement: pj.a
+                        CodeReferenceElement: pj
+                          PsiElement(identifier)('pj')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('a')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('a')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: pj.b.type
-                    CodeReferenceElement: pj.b
-                      CodeReferenceElement: pj
-                        PsiElement(identifier)('pj')
+                      PsiElement(type)('type')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: pj.b.type
+                      CodeReferenceElement: pj.b
+                        CodeReferenceElement: pj
+                          PsiElement(identifier)('pj')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('b')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('b')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                PsiElement())(')')
+                      PsiElement(type)('type')
+                  PsiElement())(')')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -74,9 +74,10 @@ ScalaFile
                           PsiElement(identifier)('Iterator')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: NodeType
-                          CodeReferenceElement: NodeType
-                            PsiElement(identifier)('NodeType')
+                        TypeArgument
+                          SimpleType: NodeType
+                            CodeReferenceElement: NodeType
+                              PsiElement(identifier)('NodeType')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -87,14 +88,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: NodeType
-                CodeReferenceElement: NodeType
-                  PsiElement(identifier)('NodeType')
+              TypeArgument
+                SimpleType: NodeType
+                  CodeReferenceElement: NodeType
+                    PsiElement(identifier)('NodeType')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace('  ')
           PsiElement(=)('=')
@@ -198,9 +201,10 @@ ScalaFile
               PsiElement(identifier)('Iterator')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: CfgNode
-              CodeReferenceElement: CfgNode
-                PsiElement(identifier)('CfgNode')
+            TypeArgument
+              SimpleType: CfgNode
+                CodeReferenceElement: CfgNode
+                  PsiElement(identifier)('CfgNode')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

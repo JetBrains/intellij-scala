@@ -211,9 +211,10 @@ ScalaFile
                           PsiElement(identifier)('Foo')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
                         PsiElement(])(']')
             PsiWhiteSpace('\n      ')
             ScClass: Baz
@@ -248,9 +249,10 @@ ScalaFile
                           PsiElement(identifier)('Foo')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Y
-                          CodeReferenceElement: Y
-                            PsiElement(identifier)('Y')
+                        TypeArgument
+                          SimpleType: Y
+                            CodeReferenceElement: Y
+                              PsiElement(identifier)('Y')
                         PsiElement(])(']')
             PsiWhiteSpace('\n      ')
             IfStatement
@@ -275,9 +277,10 @@ ScalaFile
                   PsiElement(identifier)('Baz')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             PsiElement(})('}')

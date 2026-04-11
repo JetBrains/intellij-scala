@@ -76,9 +76,10 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -136,9 +137,10 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T1
-                        CodeReferenceElement: T1
-                          PsiElement(identifier)('T1')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -156,9 +158,10 @@ ScalaFile
                         PsiElement(identifier)('E')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -217,16 +220,18 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: E[Ordering]
-          SimpleType: E
-            CodeReferenceElement: E
-              PsiElement(identifier)('E')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Ordering
-              CodeReferenceElement: Ordering
-                PsiElement(identifier)('Ordering')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: E[Ordering]
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -246,9 +251,10 @@ ScalaFile
                 PsiElement(identifier)('Ordering')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiElement())(')')
         PsiElement())(')')

@@ -184,9 +184,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Logarithm
-                      CodeReferenceElement: Logarithm
-                        PsiElement(identifier)('Logarithm')
+                    TypeArgument
+                      SimpleType: Logarithm
+                        CodeReferenceElement: Logarithm
+                          PsiElement(identifier)('Logarithm')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -720,9 +721,10 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Logarithm
-                CodeReferenceElement: Logarithm
-                  PsiElement(identifier)('Logarithm')
+              TypeArgument
+                SimpleType: Logarithm
+                  CodeReferenceElement: Logarithm
+                    PsiElement(identifier)('Logarithm')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

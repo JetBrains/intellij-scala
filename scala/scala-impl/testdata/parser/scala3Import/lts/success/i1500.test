@@ -169,9 +169,10 @@ ScalaFile
                 PsiElement(identifier)('Size')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: HNil
-                CodeReferenceElement: HNil
-                  PsiElement(identifier)('HNil')
+              TypeArgument
+                SimpleType: HNil
+                  CodeReferenceElement: HNil
+                    PsiElement(identifier)('HNil')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -229,9 +230,10 @@ ScalaFile
                         PsiElement(identifier)('Size')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -242,17 +244,18 @@ ScalaFile
                 PsiElement(identifier)('Size')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: H :: T
-                SimpleType: H
-                  CodeReferenceElement: H
-                    PsiElement(identifier)('H')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: ::
-                  PsiElement(identifier)('::')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: H :: T
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -317,9 +320,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -345,16 +349,18 @@ ScalaFile
                         PsiElement(identifier)('implicitly')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Size[HNil]
-                          SimpleType: Size
-                            CodeReferenceElement: Size
-                              PsiElement(identifier)('Size')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: HNil
-                              CodeReferenceElement: HNil
-                                PsiElement(identifier)('HNil')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Size[HNil]
+                            SimpleType: Size
+                              CodeReferenceElement: Size
+                                PsiElement(identifier)('Size')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: HNil
+                                  CodeReferenceElement: HNil
+                                    PsiElement(identifier)('HNil')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')
@@ -378,24 +384,26 @@ ScalaFile
                         PsiElement(identifier)('implicitly')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Size[Int :: HNil]
-                          SimpleType: Size
-                            CodeReferenceElement: Size
-                              PsiElement(identifier)('Size')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            InfixType: Int :: HNil
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: ::
-                                PsiElement(identifier)('::')
-                              PsiWhiteSpace(' ')
-                              SimpleType: HNil
-                                CodeReferenceElement: HNil
-                                  PsiElement(identifier)('HNil')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Size[Int :: HNil]
+                            SimpleType: Size
+                              CodeReferenceElement: Size
+                                PsiElement(identifier)('Size')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: Int :: HNil
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: HNil
+                                    CodeReferenceElement: HNil
+                                      PsiElement(identifier)('HNil')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')
@@ -419,32 +427,34 @@ ScalaFile
                         PsiElement(identifier)('implicitly')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Size[Int :: Int :: HNil]
-                          SimpleType: Size
-                            CodeReferenceElement: Size
-                              PsiElement(identifier)('Size')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            InfixType: Int :: Int :: HNil
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: ::
-                                PsiElement(identifier)('::')
-                              PsiWhiteSpace(' ')
-                              InfixType: Int :: HNil
-                                SimpleType: Int
-                                  CodeReferenceElement: Int
-                                    PsiElement(identifier)('Int')
-                                PsiWhiteSpace(' ')
-                                CodeReferenceElement: ::
-                                  PsiElement(identifier)('::')
-                                PsiWhiteSpace(' ')
-                                SimpleType: HNil
-                                  CodeReferenceElement: HNil
-                                    PsiElement(identifier)('HNil')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Size[Int :: Int :: HNil]
+                            SimpleType: Size
+                              CodeReferenceElement: Size
+                                PsiElement(identifier)('Size')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: Int :: Int :: HNil
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: ::
+                                    PsiElement(identifier)('::')
+                                  PsiWhiteSpace(' ')
+                                  InfixType: Int :: HNil
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: ::
+                                      PsiElement(identifier)('::')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: HNil
+                                      CodeReferenceElement: HNil
+                                        PsiElement(identifier)('HNil')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')
@@ -468,29 +478,15 @@ ScalaFile
                         PsiElement(identifier)('implicitly')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Size[Int :: Int :: Int :: HNil]
-                          SimpleType: Size
-                            CodeReferenceElement: Size
-                              PsiElement(identifier)('Size')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            InfixType: Int :: Int :: Int :: HNil
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: ::
-                                PsiElement(identifier)('::')
-                              PsiWhiteSpace(' ')
-                              InfixType: Int :: Int :: HNil
-                                SimpleType: Int
-                                  CodeReferenceElement: Int
-                                    PsiElement(identifier)('Int')
-                                PsiWhiteSpace(' ')
-                                CodeReferenceElement: ::
-                                  PsiElement(identifier)('::')
-                                PsiWhiteSpace(' ')
-                                InfixType: Int :: HNil
+                        TypeArgument
+                          ParametrizedType: Size[Int :: Int :: Int :: HNil]
+                            SimpleType: Size
+                              CodeReferenceElement: Size
+                                PsiElement(identifier)('Size')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: Int :: Int :: Int :: HNil
                                   SimpleType: Int
                                     CodeReferenceElement: Int
                                       PsiElement(identifier)('Int')
@@ -498,10 +494,26 @@ ScalaFile
                                   CodeReferenceElement: ::
                                     PsiElement(identifier)('::')
                                   PsiWhiteSpace(' ')
-                                  SimpleType: HNil
-                                    CodeReferenceElement: HNil
-                                      PsiElement(identifier)('HNil')
-                            PsiElement(])(']')
+                                  InfixType: Int :: Int :: HNil
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: ::
+                                      PsiElement(identifier)('::')
+                                    PsiWhiteSpace(' ')
+                                    InfixType: Int :: HNil
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: ::
+                                        PsiElement(identifier)('::')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: HNil
+                                        CodeReferenceElement: HNil
+                                          PsiElement(identifier)('HNil')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('value')

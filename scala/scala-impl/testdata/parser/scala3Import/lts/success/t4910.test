@@ -47,11 +47,12 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: foo.type
-              CodeReferenceElement: foo
-                PsiElement(identifier)('foo')
-              PsiElement(.)('.')
-              PsiElement(type)('type')
+            TypeArgument
+              SimpleType: foo.type
+                CodeReferenceElement: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

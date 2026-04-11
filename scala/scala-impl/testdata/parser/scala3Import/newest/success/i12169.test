@@ -84,15 +84,17 @@ ScalaFile
                     PsiElement(identifier)('empty')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Property[?]
-                      SimpleType: Property
-                        CodeReferenceElement: Property
-                          PsiElement(identifier)('Property')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        WildcardType: ?
-                          PsiElement(?)('?')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Property[?]
+                        SimpleType: Property
+                          CodeReferenceElement: Property
+                            PsiElement(identifier)('Property')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            WildcardType: ?
+                              PsiElement(?)('?')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('collect')
@@ -117,8 +119,9 @@ ScalaFile
                                 PsiElement(identifier)('Property')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              WildcardType: ?
-                                PsiElement(?)('?')
+                              TypeArgument
+                                WildcardType: ?
+                                  PsiElement(?)('?')
                               PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')

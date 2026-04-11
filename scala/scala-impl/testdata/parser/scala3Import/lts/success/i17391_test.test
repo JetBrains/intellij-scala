@@ -52,19 +52,21 @@ ScalaFile
               PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: mypkg.Bar[String]
-              SimpleType: mypkg.Bar
-                CodeReferenceElement: mypkg.Bar
-                  CodeReferenceElement: mypkg
-                    PsiElement(identifier)('mypkg')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Bar')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: mypkg.Bar[String]
+                SimpleType: mypkg.Bar
+                  CodeReferenceElement: mypkg.Bar
+                    CodeReferenceElement: mypkg
+                      PsiElement(identifier)('mypkg')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Bar')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -93,9 +95,10 @@ ScalaFile
               PsiElement(identifier)('Bar')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

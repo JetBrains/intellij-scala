@@ -36,9 +36,10 @@ ScalaFile
                 PsiElement(identifier)('Txn')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -76,9 +77,10 @@ ScalaFile
                     PsiElement(identifier)('Txn')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: ~
-                    CodeReferenceElement: ~
-                      PsiElement(identifier)('~')
+                  TypeArgument
+                    SimpleType: ~
+                      CodeReferenceElement: ~
+                        PsiElement(identifier)('~')
                   PsiElement(])(']')
             PsiElement(])(']')
         PsiElement(])(']')
@@ -112,9 +114,10 @@ ScalaFile
                   PsiElement(identifier)('Extension')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Repr
-                  CodeReferenceElement: Repr
-                    PsiElement(identifier)('Repr')
+                TypeArgument
+                  SimpleType: Repr
+                    CodeReferenceElement: Repr
+                      PsiElement(identifier)('Repr')
                 PsiElement(])(']')
           PsiWhiteSpace('  ')
           PsiComment(comment)('// Huh!')
@@ -146,9 +149,10 @@ ScalaFile
                     PsiElement(identifier)('Txn')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: ~
-                    CodeReferenceElement: ~
-                      PsiElement(identifier)('~')
+                  TypeArgument
+                    SimpleType: ~
+                      CodeReferenceElement: ~
+                        PsiElement(identifier)('~')
                   PsiElement(])(']')
             PsiElement(])(']')
         PsiElement(])(']')

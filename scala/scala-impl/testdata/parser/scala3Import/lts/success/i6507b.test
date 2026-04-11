@@ -69,9 +69,10 @@ ScalaFile
                 PsiElement(identifier)('erasedValue')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -129,9 +130,10 @@ ScalaFile
                         PsiElement(identifier)('constValue')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: a
-                          CodeReferenceElement: a
-                            PsiElement(identifier)('a')
+                        TypeArgument
+                          SimpleType: a
+                            CodeReferenceElement: a
+                              PsiElement(identifier)('a')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     ReferenceExpression: *:
@@ -142,9 +144,10 @@ ScalaFile
                         PsiElement(identifier)('summonValues')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: b
-                          CodeReferenceElement: b
-                            PsiElement(identifier)('b')
+                        TypeArgument
+                          SimpleType: b
+                            CodeReferenceElement: b
+                              PsiElement(identifier)('b')
                         PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -154,23 +157,24 @@ ScalaFile
             PsiElement(identifier)('summonValues')
           TypeArgumentsList
             PsiElement([)('[')
-            TupleType: (96, 97, 98)
-              PsiElement(()('(')
-              TypesList
-                LiteralType: 96
-                  IntegerLiteral
-                    PsiElement(integer)('96')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 97
-                  IntegerLiteral
-                    PsiElement(integer)('97')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 98
-                  IntegerLiteral
-                    PsiElement(integer)('98')
-              PsiElement())(')')
+            TypeArgument
+              TupleType: (96, 97, 98)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: 96
+                    IntegerLiteral
+                      PsiElement(integer)('96')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 97
+                    IntegerLiteral
+                      PsiElement(integer)('97')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 98
+                    IntegerLiteral
+                      PsiElement(integer)('98')
+                PsiElement())(')')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

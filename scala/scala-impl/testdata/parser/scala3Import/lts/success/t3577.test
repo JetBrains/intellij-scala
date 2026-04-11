@@ -84,8 +84,9 @@ ScalaFile
                     PsiElement(identifier)('Check')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiElement(identifier)('*')
           PsiElement())(')')

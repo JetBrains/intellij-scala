@@ -69,14 +69,16 @@ ScalaFile
                 PsiElement(identifier)('ZSet')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Natural
-                CodeReferenceElement: Natural
-                  PsiElement(identifier)('Natural')
+              TypeArgument
+                SimpleType: Natural
+                  CodeReferenceElement: Natural
+                    PsiElement(identifier)('Natural')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: MultiSet

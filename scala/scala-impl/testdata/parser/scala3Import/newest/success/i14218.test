@@ -300,16 +300,18 @@ ScalaFile
                   PsiElement(identifier)('eat')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Z1[Pet]
-                    SimpleType: Z1
-                      CodeReferenceElement: Z1
-                        PsiElement(identifier)('Z1')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Pet
-                        CodeReferenceElement: Pet
-                          PsiElement(identifier)('Pet')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Z1[Pet]
+                      SimpleType: Z1
+                        CodeReferenceElement: Z1
+                          PsiElement(identifier)('Z1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Pet
+                            CodeReferenceElement: Pet
+                              PsiElement(identifier)('Pet')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')
@@ -373,16 +375,18 @@ ScalaFile
                   PsiElement(identifier)('eat')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Z2[Pet]
-                    SimpleType: Z2
-                      CodeReferenceElement: Z2
-                        PsiElement(identifier)('Z2')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Pet
-                        CodeReferenceElement: Pet
-                          PsiElement(identifier)('Pet')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Z2[Pet]
+                      SimpleType: Z2
+                        CodeReferenceElement: Z2
+                          PsiElement(identifier)('Z2')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Pet
+                            CodeReferenceElement: Pet
+                              PsiElement(identifier)('Pet')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')
@@ -446,16 +450,18 @@ ScalaFile
                   PsiElement(identifier)('eat')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Z3[Pet]
-                    SimpleType: Z3
-                      CodeReferenceElement: Z3
-                        PsiElement(identifier)('Z3')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Pet
-                        CodeReferenceElement: Pet
-                          PsiElement(identifier)('Pet')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Z3[Pet]
+                      SimpleType: Z3
+                        CodeReferenceElement: Z3
+                          PsiElement(identifier)('Z3')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Pet
+                            CodeReferenceElement: Pet
+                              PsiElement(identifier)('Pet')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')
@@ -519,16 +525,18 @@ ScalaFile
                   PsiElement(identifier)('eat')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Z1[Cat]
-                    SimpleType: Z1
-                      CodeReferenceElement: Z1
-                        PsiElement(identifier)('Z1')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Cat
-                        CodeReferenceElement: Cat
-                          PsiElement(identifier)('Cat')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Z1[Cat]
+                      SimpleType: Z1
+                        CodeReferenceElement: Z1
+                          PsiElement(identifier)('Z1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Cat
+                            CodeReferenceElement: Cat
+                              PsiElement(identifier)('Cat')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')

@@ -26,14 +26,16 @@ ScalaFile
               PsiElement(identifier)('Tuple2')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -48,19 +50,21 @@ ScalaFile
           PsiElement(identifier)('Head')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Tuple.Tail[X]
-          SimpleType: Tuple.Tail
-            CodeReferenceElement: Tuple.Tail
-              CodeReferenceElement: Tuple
-                PsiElement(identifier)('Tuple')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Tail')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Tuple.Tail[X]
+            SimpleType: Tuple.Tail
+              CodeReferenceElement: Tuple.Tail
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Tail')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: a
@@ -81,36 +85,40 @@ ScalaFile
         PsiElement(identifier)('implicitly')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: SecondOfTwo[Tuple2[Int, String]] =:= String
-          ParametrizedType: SecondOfTwo[Tuple2[Int, String]]
-            SimpleType: SecondOfTwo
-              CodeReferenceElement: SecondOfTwo
-                PsiElement(identifier)('SecondOfTwo')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Tuple2[Int, String]
-                SimpleType: Tuple2
-                  CodeReferenceElement: Tuple2
-                    PsiElement(identifier)('Tuple2')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
+        TypeArgument
+          InfixType: SecondOfTwo[Tuple2[Int, String]] =:= String
+            ParametrizedType: SecondOfTwo[Tuple2[Int, String]]
+              SimpleType: SecondOfTwo
+                CodeReferenceElement: SecondOfTwo
+                  PsiElement(identifier)('SecondOfTwo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Tuple2[Int, String]
+                    SimpleType: Tuple2
+                      CodeReferenceElement: Tuple2
+                        PsiElement(identifier)('Tuple2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: LastOfThree
@@ -134,19 +142,22 @@ ScalaFile
               PsiElement(identifier)('Tuple3')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            TypeArgument
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -161,19 +172,21 @@ ScalaFile
           PsiElement(identifier)('Tail')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Tuple.Tail[X]
-          SimpleType: Tuple.Tail
-            CodeReferenceElement: Tuple.Tail
-              CodeReferenceElement: Tuple
-                PsiElement(identifier)('Tuple')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Tail')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Tuple.Tail[X]
+            SimpleType: Tuple.Tail
+              CodeReferenceElement: Tuple.Tail
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Tail')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: b
@@ -194,46 +207,52 @@ ScalaFile
         PsiElement(identifier)('implicitly')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: LastOfThree[Tuple3[Int, String, Boolean]] =:= Tuple1[Boolean]
-          ParametrizedType: LastOfThree[Tuple3[Int, String, Boolean]]
-            SimpleType: LastOfThree
-              CodeReferenceElement: LastOfThree
-                PsiElement(identifier)('LastOfThree')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Tuple3[Int, String, Boolean]
-                SimpleType: Tuple3
-                  CodeReferenceElement: Tuple3
-                    PsiElement(identifier)('Tuple3')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
+        TypeArgument
+          InfixType: LastOfThree[Tuple3[Int, String, Boolean]] =:= Tuple1[Boolean]
+            ParametrizedType: LastOfThree[Tuple3[Int, String, Boolean]]
+              SimpleType: LastOfThree
+                CodeReferenceElement: LastOfThree
+                  PsiElement(identifier)('LastOfThree')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Tuple3[Int, String, Boolean]
+                    SimpleType: Tuple3
+                      CodeReferenceElement: Tuple3
+                        PsiElement(identifier)('Tuple3')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Tuple1[Boolean]
+              SimpleType: Tuple1
+                CodeReferenceElement: Tuple1
+                  PsiElement(identifier)('Tuple1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
                   SimpleType: Boolean
                     CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
-                  PsiElement(])(']')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          ParametrizedType: Tuple1[Boolean]
-            SimpleType: Tuple1
-              CodeReferenceElement: Tuple1
-                PsiElement(identifier)('Tuple1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
-              PsiElement(])(']')
+                PsiElement(])(']')
         PsiElement(])(']')

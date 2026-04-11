@@ -194,31 +194,32 @@ ScalaFile
           PsiElement(identifier)('Head')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: E.Foo1 *: E.Foo2 *: EmptyTuple
-          SimpleType: E.Foo1
-            CodeReferenceElement: E.Foo1
-              CodeReferenceElement: E
-                PsiElement(identifier)('E')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Foo1')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: *:
-            PsiElement(identifier)('*:')
-          PsiWhiteSpace(' ')
-          InfixType: E.Foo2 *: EmptyTuple
-            SimpleType: E.Foo2
-              CodeReferenceElement: E.Foo2
+        TypeArgument
+          InfixType: E.Foo1 *: E.Foo2 *: EmptyTuple
+            SimpleType: E.Foo1
+              CodeReferenceElement: E.Foo1
                 CodeReferenceElement: E
                   PsiElement(identifier)('E')
                 PsiElement(.)('.')
-                PsiElement(identifier)('Foo2')
+                PsiElement(identifier)('Foo1')
             PsiWhiteSpace(' ')
             CodeReferenceElement: *:
               PsiElement(identifier)('*:')
             PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+            InfixType: E.Foo2 *: EmptyTuple
+              SimpleType: E.Foo2
+                CodeReferenceElement: E.Foo2
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Foo2')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: H
@@ -241,20 +242,21 @@ ScalaFile
           PsiElement(identifier)('Head')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: o.Inner *: EmptyTuple
-          SimpleType: o.Inner
-            CodeReferenceElement: o.Inner
-              CodeReferenceElement: o
-                PsiElement(identifier)('o')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Inner')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: *:
-            PsiElement(identifier)('*:')
-          PsiWhiteSpace(' ')
-          SimpleType: EmptyTuple
-            CodeReferenceElement: EmptyTuple
-              PsiElement(identifier)('EmptyTuple')
+        TypeArgument
+          InfixType: o.Inner *: EmptyTuple
+            SimpleType: o.Inner
+              CodeReferenceElement: o.Inner
+                CodeReferenceElement: o
+                  PsiElement(identifier)('o')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Inner')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: I
@@ -277,17 +279,18 @@ ScalaFile
           PsiElement(identifier)('Last')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: E *: EmptyTuple
-          SimpleType: E
-            CodeReferenceElement: E
-              PsiElement(identifier)('E')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: *:
-            PsiElement(identifier)('*:')
-          PsiWhiteSpace(' ')
-          SimpleType: EmptyTuple
-            CodeReferenceElement: EmptyTuple
-              PsiElement(identifier)('EmptyTuple')
+        TypeArgument
+          InfixType: E *: EmptyTuple
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: local
@@ -345,17 +348,18 @@ ScalaFile
               PsiElement(identifier)('Head')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: Bar *: EmptyTuple
-              SimpleType: Bar
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: *:
-                PsiElement(identifier)('*:')
-              PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+            TypeArgument
+              InfixType: Bar *: EmptyTuple
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -363,17 +367,19 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Mirror.Of[B]
-            SimpleType: Mirror.Of
-              CodeReferenceElement: Mirror.Of
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Of')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Mirror.Of[B]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                PsiElement(])(']')
           PsiElement(])(']')

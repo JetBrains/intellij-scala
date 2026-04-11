@@ -80,14 +80,16 @@ ScalaFile
                         PsiElement(identifier)('PartialFunction')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Out
-                        CodeReferenceElement: Out
-                          PsiElement(identifier)('Out')
+                      TypeArgument
+                        SimpleType: Out
+                          CodeReferenceElement: Out
+                            PsiElement(identifier)('Out')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -98,14 +100,16 @@ ScalaFile
                 PsiElement(identifier)('Flow')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: In
-                CodeReferenceElement: In
-                  PsiElement(identifier)('In')
+              TypeArgument
+                SimpleType: In
+                  CodeReferenceElement: In
+                    PsiElement(identifier)('In')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -150,14 +154,16 @@ ScalaFile
                 PsiElement(identifier)('Flow')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -264,14 +270,16 @@ ScalaFile
                 PsiElement(identifier)('PartialFunction')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -292,9 +300,10 @@ ScalaFile
                         PsiElement(identifier)('classOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Exception
-                          CodeReferenceElement: Exception
-                            PsiElement(identifier)('Exception')
+                        TypeArgument
+                          SimpleType: Exception
+                            CodeReferenceElement: Exception
+                              PsiElement(identifier)('Exception')
                         PsiElement(])(']')
                     PsiElement())(')')
           Modifiers

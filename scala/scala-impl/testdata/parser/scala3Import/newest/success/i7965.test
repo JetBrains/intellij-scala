@@ -160,9 +160,10 @@ ScalaFile
                   PsiElement(identifier)('Has')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
+                TypeArgument
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             CodeReferenceElement: |
@@ -177,9 +178,10 @@ ScalaFile
                       PsiElement(identifier)('Has')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Y
-                      CodeReferenceElement: Y
-                        PsiElement(identifier)('Y')
+                    TypeArgument
+                      SimpleType: Y
+                        CodeReferenceElement: Y
+                          PsiElement(identifier)('Y')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 CodeReferenceElement: &
@@ -191,9 +193,10 @@ ScalaFile
                       PsiElement(identifier)('Has')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Z
-                      CodeReferenceElement: Z
-                        PsiElement(identifier)('Z')
+                    TypeArgument
+                      SimpleType: Z
+                        CodeReferenceElement: Z
+                          PsiElement(identifier)('Z')
                     PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -218,8 +221,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -294,8 +298,9 @@ ScalaFile
               PsiElement(identifier)('Has')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -341,8 +346,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -363,19 +369,22 @@ ScalaFile
                         PsiElement(identifier)('ZLayer')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: ROut
-                        CodeReferenceElement: ROut
-                          PsiElement(identifier)('ROut')
+                      TypeArgument
+                        SimpleType: ROut
+                          CodeReferenceElement: ROut
+                            PsiElement(identifier)('ROut')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: E1
-                        CodeReferenceElement: E1
-                          PsiElement(identifier)('E1')
+                      TypeArgument
+                        SimpleType: E1
+                          CodeReferenceElement: E1
+                            PsiElement(identifier)('E1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: ROut2
-                        CodeReferenceElement: ROut2
-                          PsiElement(identifier)('ROut2')
+                      TypeArgument
+                        SimpleType: ROut2
+                          CodeReferenceElement: ROut2
+                            PsiElement(identifier)('ROut2')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -386,19 +395,22 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: RIn
-                CodeReferenceElement: RIn
-                  PsiElement(identifier)('RIn')
+              TypeArgument
+                SimpleType: RIn
+                  CodeReferenceElement: RIn
+                    PsiElement(identifier)('RIn')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E1
-                CodeReferenceElement: E1
-                  PsiElement(identifier)('E1')
+              TypeArgument
+                SimpleType: E1
+                  CodeReferenceElement: E1
+                    PsiElement(identifier)('E1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ROut2
-                CodeReferenceElement: ROut2
-                  PsiElement(identifier)('ROut2')
+              TypeArgument
+                SimpleType: ROut2
+                  CodeReferenceElement: ROut2
+                    PsiElement(identifier)('ROut2')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: ++
@@ -442,8 +454,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -458,8 +471,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -480,19 +494,22 @@ ScalaFile
                         PsiElement(identifier)('ZLayer')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: RIn2
-                        CodeReferenceElement: RIn2
-                          PsiElement(identifier)('RIn2')
+                      TypeArgument
+                        SimpleType: RIn2
+                          CodeReferenceElement: RIn2
+                            PsiElement(identifier)('RIn2')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: E1
-                        CodeReferenceElement: E1
-                          PsiElement(identifier)('E1')
+                      TypeArgument
+                        SimpleType: E1
+                          CodeReferenceElement: E1
+                            PsiElement(identifier)('E1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: ROut2
-                        CodeReferenceElement: ROut2
-                          PsiElement(identifier)('ROut2')
+                      TypeArgument
+                        SimpleType: ROut2
+                          CodeReferenceElement: ROut2
+                            PsiElement(identifier)('ROut2')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -503,33 +520,36 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: RIn with RIn2
-                SimpleType: RIn
-                  CodeReferenceElement: RIn
-                    PsiElement(identifier)('RIn')
-                PsiWhiteSpace(' ')
-                PsiElement(with)('with')
-                PsiWhiteSpace(' ')
-                SimpleType: RIn2
-                  CodeReferenceElement: RIn2
-                    PsiElement(identifier)('RIn2')
+              TypeArgument
+                CompoundType: RIn with RIn2
+                  SimpleType: RIn
+                    CodeReferenceElement: RIn
+                      PsiElement(identifier)('RIn')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: RIn2
+                    CodeReferenceElement: RIn2
+                      PsiElement(identifier)('RIn2')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E1
-                CodeReferenceElement: E1
-                  PsiElement(identifier)('E1')
+              TypeArgument
+                SimpleType: E1
+                  CodeReferenceElement: E1
+                    PsiElement(identifier)('E1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              CompoundType: ROut1 with ROut2
-                SimpleType: ROut1
-                  CodeReferenceElement: ROut1
-                    PsiElement(identifier)('ROut1')
-                PsiWhiteSpace(' ')
-                PsiElement(with)('with')
-                PsiWhiteSpace(' ')
-                SimpleType: ROut2
-                  CodeReferenceElement: ROut2
-                    PsiElement(identifier)('ROut2')
+              TypeArgument
+                CompoundType: ROut1 with ROut2
+                  SimpleType: ROut1
+                    CodeReferenceElement: ROut1
+                      PsiElement(identifier)('ROut1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ROut2
+                    CodeReferenceElement: ROut2
+                      PsiElement(identifier)('ROut2')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -574,8 +594,9 @@ ScalaFile
                     PsiElement(identifier)('Has')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -587,19 +608,22 @@ ScalaFile
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -621,12 +645,13 @@ ScalaFile
           PsiElement(identifier)('Has')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ServiceA.Service
-          CodeReferenceElement: ServiceA.Service
-            CodeReferenceElement: ServiceA
-              PsiElement(identifier)('ServiceA')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Service')
+        TypeArgument
+          SimpleType: ServiceA.Service
+            CodeReferenceElement: ServiceA.Service
+              CodeReferenceElement: ServiceA
+                PsiElement(identifier)('ServiceA')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Service')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: ServiceA
@@ -674,14 +699,16 @@ ScalaFile
                 PsiElement(identifier)('NoDeps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ServiceA
-                CodeReferenceElement: ServiceA
-                  PsiElement(identifier)('ServiceA')
+              TypeArgument
+                SimpleType: ServiceA
+                  CodeReferenceElement: ServiceA
+                    PsiElement(identifier)('ServiceA')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -708,12 +735,13 @@ ScalaFile
           PsiElement(identifier)('Has')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ServiceB.Service
-          CodeReferenceElement: ServiceB.Service
-            CodeReferenceElement: ServiceB
-              PsiElement(identifier)('ServiceB')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Service')
+        TypeArgument
+          SimpleType: ServiceB.Service
+            CodeReferenceElement: ServiceB.Service
+              CodeReferenceElement: ServiceB
+                PsiElement(identifier)('ServiceB')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Service')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: ServiceB
@@ -761,14 +789,16 @@ ScalaFile
                 PsiElement(identifier)('NoDeps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ServiceB
-                CodeReferenceElement: ServiceB
-                  PsiElement(identifier)('ServiceB')
+              TypeArgument
+                SimpleType: ServiceB
+                  CodeReferenceElement: ServiceB
+                    PsiElement(identifier)('ServiceB')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -795,12 +825,13 @@ ScalaFile
           PsiElement(identifier)('Has')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ServiceC.Service
-          CodeReferenceElement: ServiceC.Service
-            CodeReferenceElement: ServiceC
-              PsiElement(identifier)('ServiceC')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Service')
+        TypeArgument
+          SimpleType: ServiceC.Service
+            CodeReferenceElement: ServiceC.Service
+              CodeReferenceElement: ServiceC
+                PsiElement(identifier)('ServiceC')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Service')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: ServiceC
@@ -848,14 +879,16 @@ ScalaFile
                 PsiElement(identifier)('NoDeps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ServiceC
-                CodeReferenceElement: ServiceC
-                  PsiElement(identifier)('ServiceC')
+              TypeArgument
+                SimpleType: ServiceC
+                  CodeReferenceElement: ServiceC
+                    PsiElement(identifier)('ServiceC')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -882,12 +915,13 @@ ScalaFile
           PsiElement(identifier)('Has')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: ServiceD.Service
-          CodeReferenceElement: ServiceD.Service
-            CodeReferenceElement: ServiceD
-              PsiElement(identifier)('ServiceD')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Service')
+        TypeArgument
+          SimpleType: ServiceD.Service
+            CodeReferenceElement: ServiceD.Service
+              CodeReferenceElement: ServiceD
+                PsiElement(identifier)('ServiceD')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Service')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: ServiceD
@@ -935,21 +969,23 @@ ScalaFile
                 PsiElement(identifier)('NoDeps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: ServiceC
-                CodeReferenceElement: ServiceC
-                  PsiElement(identifier)('ServiceC')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              CompoundType: ServiceD with ServiceC
-                SimpleType: ServiceD
-                  CodeReferenceElement: ServiceD
-                    PsiElement(identifier)('ServiceD')
-                PsiWhiteSpace(' ')
-                PsiElement(with)('with')
-                PsiWhiteSpace(' ')
+              TypeArgument
                 SimpleType: ServiceC
                   CodeReferenceElement: ServiceC
                     PsiElement(identifier)('ServiceC')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                CompoundType: ServiceD with ServiceC
+                  SimpleType: ServiceD
+                    CodeReferenceElement: ServiceD
+                      PsiElement(identifier)('ServiceD')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ServiceC
+                    CodeReferenceElement: ServiceC
+                      PsiElement(identifier)('ServiceC')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -59,14 +59,16 @@ ScalaFile
                 PsiElement(identifier)('HashMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: T
@@ -103,29 +105,33 @@ ScalaFile
                 PsiElement(identifier)('HashMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: mutable.HashMap[Int, Double]
-                SimpleType: mutable.HashMap
-                  CodeReferenceElement: mutable.HashMap
-                    CodeReferenceElement: mutable
-                      PsiElement(identifier)('mutable')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('HashMap')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: mutable.HashMap[Int, Double]
+                  SimpleType: mutable.HashMap
+                    CodeReferenceElement: mutable.HashMap
+                      CodeReferenceElement: mutable
+                        PsiElement(identifier)('mutable')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('HashMap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -312,9 +318,10 @@ ScalaFile
                       PsiElement(identifier)('Tree')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: Apply
@@ -355,9 +362,10 @@ ScalaFile
                       PsiElement(identifier)('Tree')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: x
@@ -379,9 +387,10 @@ ScalaFile
                   PsiElement(identifier)('Ident')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Symbol
-                  CodeReferenceElement: Symbol
-                    PsiElement(identifier)('Symbol')
+                TypeArgument
+                  SimpleType: Symbol
+                    CodeReferenceElement: Symbol
+                      PsiElement(identifier)('Symbol')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             CodeReferenceElement: |
@@ -393,9 +402,10 @@ ScalaFile
                   PsiElement(identifier)('Apply')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Symbol
-                  CodeReferenceElement: Symbol
-                    PsiElement(identifier)('Symbol')
+                TypeArgument
+                  SimpleType: Symbol
+                    CodeReferenceElement: Symbol
+                      PsiElement(identifier)('Symbol')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -51,14 +51,16 @@ ScalaFile
           PsiElement(identifier)('OK')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Unit
-          CodeReferenceElement: Unit
-            PsiElement(identifier)('Unit')
+        TypeArgument
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScFunctionDefinition: get0
@@ -79,9 +81,10 @@ ScalaFile
           PsiElement(identifier)('Handler')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Get0
-          CodeReferenceElement: Get0
-            PsiElement(identifier)('Get0')
+        TypeArgument
+          SimpleType: Get0
+            CodeReferenceElement: Get0
+              PsiElement(identifier)('Get0')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -92,9 +95,10 @@ ScalaFile
           PsiElement(identifier)('IO')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Unit
-            CodeReferenceElement: Unit
-              PsiElement(identifier)('Unit')
+          TypeArgument
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')
@@ -137,9 +141,10 @@ ScalaFile
                     PsiElement(identifier)('Handler')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -170,9 +175,10 @@ ScalaFile
           PsiElement(identifier)('Go')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: API
-          CodeReferenceElement: API
-            PsiElement(identifier)('API')
+        TypeArgument
+          SimpleType: API
+            CodeReferenceElement: API
+              PsiElement(identifier)('API')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: IO
@@ -285,9 +291,10 @@ ScalaFile
                       PsiElement(identifier)('HandlerSingle')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: API
-                      CodeReferenceElement: API
-                        PsiElement(identifier)('API')
+                    TypeArgument
+                      SimpleType: API
+                        CodeReferenceElement: API
+                          PsiElement(identifier)('API')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: HandlerSingle
@@ -325,12 +332,14 @@ ScalaFile
                       PsiElement(identifier)('OK')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: _
-                      PsiElement(_)('_')
+                    TypeArgument
+                      TypeVariable: _
+                        PsiElement(_)('_')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    TypeVariable: response
-                      PsiElement(identifier)('response')
+                    TypeArgument
+                      TypeVariable: response
+                        PsiElement(identifier)('response')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -341,9 +350,10 @@ ScalaFile
                       PsiElement(identifier)('IO')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: response
-                      CodeReferenceElement: response
-                        PsiElement(identifier)('response')
+                    TypeArgument
+                      SimpleType: response
+                        CodeReferenceElement: response
+                          PsiElement(identifier)('response')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Minimized
@@ -396,9 +406,10 @@ ScalaFile
                           PsiElement(identifier)('M2')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -446,9 +457,10 @@ ScalaFile
                       PsiElement(identifier)('M2')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

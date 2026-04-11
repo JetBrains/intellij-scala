@@ -614,7 +614,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             case Some(constructor: ScPrimaryConstructor) if i < constructor.effectiveParameterClauses.length =>
               maybeTypeArgs match {
                 case Some(typeArgs) =>
-                  val substitutor = ScSubstitutor.bind(constructorOwner.typeParameters, typeArgs.typeArgs)(_.calcType)
+                  val substitutor = ScSubstitutor.bind(constructorOwner.typeParameters, typeArgs)
                   resultBuilder += ((constructor, substitutor.followed(subst), i))
                 case _ => resultBuilder += ((constructor, subst, i))
               }
@@ -638,7 +638,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           psiClass.getConstructors.foreach { constructor =>
             maybeTypeArgs match {
               case Some(typeArgs) =>
-                val substitutor = ScSubstitutor.bind(psiClass.getTypeParameters, typeArgs.typeArgs)(_.calcType)
+                val substitutor = ScSubstitutor.bind(psiClass.getTypeParameters, typeArgs)
                 val signature = new PhysicalMethodSignature(constructor, substitutor.followed(subst))
                 resultBuilder += ((signature, i))
               case _ =>
@@ -675,8 +675,10 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             case notExpr if !notExpr.is[ScExpression] || notExpr.is[ScBlockExpr] => true
             case _ => false
           }
+          
           val count = args.invocationCount
-          val gen = args.callGeneric.getOrElse(null: ScGenericCall)
+          val gen   = args.callGeneric.getOrElse(null: ScGenericCall)
+          
           def collectSubstitutor(element: PsiElement): ScSubstitutor = {
             if (gen == null) return ScSubstitutor.empty
             val typeParams = element match {
@@ -684,7 +686,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters
               case _ => return ScSubstitutor.empty
             }
-            ScSubstitutor.bind(typeParams, gen.arguments)(_.calcType)
+            
+            ScSubstitutor.bind(typeParams, gen.argumentsWithNamed)
           }
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {

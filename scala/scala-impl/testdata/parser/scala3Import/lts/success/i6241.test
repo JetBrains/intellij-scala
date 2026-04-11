@@ -42,9 +42,10 @@ ScalaFile
               PsiElement(identifier)('valueOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         GenericCall
@@ -52,9 +53,10 @@ ScalaFile
             PsiElement(identifier)('v')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: "foo"
-              StringLiteral
-                PsiElement(string content)('"foo"')
+            TypeArgument
+              LiteralType: "foo"
+                StringLiteral
+                  PsiElement(string content)('"foo"')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

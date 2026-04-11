@@ -83,14 +83,15 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _ <: Int
-                  PsiElement(_)('_')
-                  PsiWhiteSpace(' ')
-                  PsiElement(<:)('<:')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  WildcardType: _ <: Int
+                    PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -237,9 +238,10 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Quux
-                        CodeReferenceElement: Quux
-                          PsiElement(identifier)('Quux')
+                      TypeArgument
+                        SimpleType: Quux
+                          CodeReferenceElement: Quux
+                            PsiElement(identifier)('Quux')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')

@@ -97,9 +97,10 @@ ScalaFile
                 PsiElement(identifier)('Container')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -187,9 +188,10 @@ ScalaFile
                   PsiElement(identifier)('Container')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Dog
-                  CodeReferenceElement: Dog
-                    PsiElement(identifier)('Dog')
+                TypeArgument
+                  SimpleType: Dog
+                    CodeReferenceElement: Dog
+                      PsiElement(identifier)('Dog')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -200,9 +202,10 @@ ScalaFile
           PsiElement(identifier)('Container')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Animal
-          CodeReferenceElement: Animal
-            PsiElement(identifier)('Animal')
+        TypeArgument
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

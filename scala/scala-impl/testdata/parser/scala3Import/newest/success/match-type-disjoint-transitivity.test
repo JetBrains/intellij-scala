@@ -113,9 +113,10 @@ ScalaFile
                 PsiElement(identifier)('Parent')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: ChildTrait
@@ -150,9 +151,10 @@ ScalaFile
                 PsiElement(identifier)('Parent')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: OtherClass
@@ -228,9 +230,10 @@ ScalaFile
                 PsiElement(identifier)('Common')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: Right
@@ -265,9 +268,10 @@ ScalaFile
                 PsiElement(identifier)('Common')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Test1
@@ -319,9 +323,10 @@ ScalaFile
                       PsiElement(identifier)('Parent')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
                 PsiWhiteSpace('     ')
                 PsiElement(=>)('=>')
@@ -339,9 +344,10 @@ ScalaFile
                       PsiElement(identifier)('Parent')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Boolean
-                      CodeReferenceElement: Boolean
-                        PsiElement(identifier)('Boolean')
+                    TypeArgument
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -376,31 +382,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Parent[Int]] =:= Int
-                  ParametrizedType: MT[Parent[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Parent[Int]
-                        SimpleType: Parent
-                          CodeReferenceElement: Parent
-                            PsiElement(identifier)('Parent')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  InfixType: MT[Parent[Int]] =:= Int
+                    ParametrizedType: MT[Parent[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Parent[Int]
+                            SimpleType: Parent
+                              CodeReferenceElement: Parent
+                                PsiElement(identifier)('Parent')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -408,31 +417,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Parent[Boolean]] =:= Boolean
-                  ParametrizedType: MT[Parent[Boolean]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Parent[Boolean]
-                        SimpleType: Parent
-                          CodeReferenceElement: Parent
-                            PsiElement(identifier)('Parent')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Boolean
-                            CodeReferenceElement: Boolean
-                              PsiElement(identifier)('Boolean')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Parent[Boolean]] =:= Boolean
+                    ParametrizedType: MT[Parent[Boolean]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Parent[Boolean]
+                            SimpleType: Parent
+                              CodeReferenceElement: Parent
+                                PsiElement(identifier)('Parent')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Boolean
+                                  CodeReferenceElement: Boolean
+                                    PsiElement(identifier)('Boolean')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
             PsiWhiteSpace('\n\n    ')
             GenericCall
@@ -440,31 +452,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Child[Int]] =:= Int
-                  ParametrizedType: MT[Child[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Child[Int]
-                        SimpleType: Child
-                          CodeReferenceElement: Child
-                            PsiElement(identifier)('Child')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  InfixType: MT[Child[Int]] =:= Int
+                    ParametrizedType: MT[Child[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Child[Int]
+                            SimpleType: Child
+                              CodeReferenceElement: Child
+                                PsiElement(identifier)('Child')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -472,31 +487,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Child[Boolean]] =:= Boolean
-                  ParametrizedType: MT[Child[Boolean]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Child[Boolean]
-                        SimpleType: Child
-                          CodeReferenceElement: Child
-                            PsiElement(identifier)('Child')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Boolean
-                            CodeReferenceElement: Boolean
-                              PsiElement(identifier)('Boolean')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Child[Boolean]] =:= Boolean
+                    ParametrizedType: MT[Child[Boolean]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Child[Boolean]
+                            SimpleType: Child
+                              CodeReferenceElement: Child
+                                PsiElement(identifier)('Child')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Boolean
+                                  CodeReferenceElement: Boolean
+                                    PsiElement(identifier)('Boolean')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           End: test
@@ -571,9 +589,10 @@ ScalaFile
                       PsiElement(identifier)('Parent')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -608,24 +627,26 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[OtherClass] =:= Int
-                  ParametrizedType: MT[OtherClass]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: OtherClass
-                        CodeReferenceElement: OtherClass
-                          PsiElement(identifier)('OtherClass')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  InfixType: MT[OtherClass] =:= Int
+                    ParametrizedType: MT[OtherClass]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: OtherClass
+                            CodeReferenceElement: OtherClass
+                              PsiElement(identifier)('OtherClass')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -633,31 +654,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Parent[Int]] =:= Boolean
-                  ParametrizedType: MT[Parent[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Parent[Int]
-                        SimpleType: Parent
-                          CodeReferenceElement: Parent
-                            PsiElement(identifier)('Parent')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Parent[Int]] =:= Boolean
+                    ParametrizedType: MT[Parent[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Parent[Int]
+                            SimpleType: Parent
+                              CodeReferenceElement: Parent
+                                PsiElement(identifier)('Parent')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
             PsiWhiteSpace('\n\n    ')
             GenericCall
@@ -665,31 +689,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Child[Int]] =:= Boolean
-                  ParametrizedType: MT[Child[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Child[Int]
-                        SimpleType: Child
-                          CodeReferenceElement: Child
-                            PsiElement(identifier)('Child')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Child[Int]] =:= Boolean
+                    ParametrizedType: MT[Child[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Child[Int]
+                            SimpleType: Child
+                              CodeReferenceElement: Child
+                                PsiElement(identifier)('Child')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -697,31 +724,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[ChildTrait[Int]] =:= Boolean
-                  ParametrizedType: MT[ChildTrait[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: ChildTrait[Int]
-                        SimpleType: ChildTrait
-                          CodeReferenceElement: ChildTrait
-                            PsiElement(identifier)('ChildTrait')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[ChildTrait[Int]] =:= Boolean
+                    ParametrizedType: MT[ChildTrait[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: ChildTrait[Int]
+                            SimpleType: ChildTrait
+                              CodeReferenceElement: ChildTrait
+                                PsiElement(identifier)('ChildTrait')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           End: test
@@ -783,9 +813,10 @@ ScalaFile
                       PsiElement(identifier)('Right')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Boolean
-                      CodeReferenceElement: Boolean
-                        PsiElement(identifier)('Boolean')
+                    TypeArgument
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -833,31 +864,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Common[Int]] =:= Boolean
-                  ParametrizedType: MT[Common[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Common[Int]
-                        SimpleType: Common
-                          CodeReferenceElement: Common
-                            PsiElement(identifier)('Common')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Common[Int]] =:= Boolean
+                    ParametrizedType: MT[Common[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Common[Int]
+                            SimpleType: Common
+                              CodeReferenceElement: Common
+                                PsiElement(identifier)('Common')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -865,31 +899,34 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: MT[Left[Int]] =:= Boolean
-                  ParametrizedType: MT[Left[Int]]
-                    SimpleType: MT
-                      CodeReferenceElement: MT
-                        PsiElement(identifier)('MT')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: Left[Int]
-                        SimpleType: Left
-                          CodeReferenceElement: Left
-                            PsiElement(identifier)('Left')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: =:=
-                    PsiElement(identifier)('=:=')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Boolean
-                    CodeReferenceElement: Boolean
-                      PsiElement(identifier)('Boolean')
+                TypeArgument
+                  InfixType: MT[Left[Int]] =:= Boolean
+                    ParametrizedType: MT[Left[Int]]
+                      SimpleType: MT
+                        CodeReferenceElement: MT
+                          PsiElement(identifier)('MT')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Left[Int]
+                            SimpleType: Left
+                              CodeReferenceElement: Left
+                                PsiElement(identifier)('Left')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           End: test

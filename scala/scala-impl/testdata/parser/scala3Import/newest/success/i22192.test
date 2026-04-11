@@ -162,16 +162,17 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                NamedTupleType: (name: String)
-                  PsiElement(()('(')
-                  NamedTupleTypeComponent: name: String
-                    PsiElement(identifier)('name')
-                    PsiElement(:)(':')
-                    PsiWhiteSpace(' ')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                  PsiElement())(')')
+                TypeArgument
+                  NamedTupleType: (name: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: name: String
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -243,25 +244,26 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                NamedTupleType: (name: String, population: Int)
-                  PsiElement(()('(')
-                  NamedTupleTypeComponent: name: String
-                    PsiElement(identifier)('name')
-                    PsiElement(:)(':')
+                TypeArgument
+                  NamedTupleType: (name: String, population: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: name: String
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  NamedTupleTypeComponent: population: Int
-                    PsiElement(identifier)('population')
-                    PsiElement(:)(':')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                    NamedTupleTypeComponent: population: Int
+                      PsiElement(identifier)('population')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')

@@ -66,16 +66,18 @@ ScalaFile
                 PsiElement(identifier)('X')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: B[D]
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: D
-                    CodeReferenceElement: D
-                      PsiElement(identifier)('D')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: B[D]
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: B

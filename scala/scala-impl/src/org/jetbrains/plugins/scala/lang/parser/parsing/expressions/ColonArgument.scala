@@ -150,6 +150,15 @@ object ColonArgument {
       }
 
       builder.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER if builder.isScala3 &&
+          builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER) &&
+          builder.tryParseSoftKeyword(ScalaTokenType.ErasedKeyword) =>
+          builder.getTokenType match {
+            case ScalaTokenTypes.tIDENTIFIER =>
+              builder.advanceLexer()
+              followingIsArrow
+            case _ => false
+          }
         case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
           followingIsArrow

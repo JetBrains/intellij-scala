@@ -132,12 +132,13 @@ object TypeCheckCanBeMatchInspection {
       }
     }
 
-    val typeArgs = isInstOfCall.typeArgs.typeArgs
+    val typeArgs = isInstOfCall.typeArgs.typeArgsWithNamed
+
     for {
       condition <- ifStmt.condition
       if typeArgs.size == 1
+      typeElem <- typeArgs.head.typeElement
     } yield {
-      val typeElem = typeArgs.head
       val typeName0 = typeElem.getText
       val typeName = PsiTreeUtil.getChildOfType(typeElem, classOf[ScExistentialClause]) match {
         case null => typeName0
@@ -276,10 +277,10 @@ object TypeCheckCanBeMatchInspection {
 
       def baseAndType(call: ScGenericCall) = for {
         base <- baseExpr(call)
-
-        typeElements = call.typeArgs.typeArgs
-        if typeElements.size == 1
-      } yield (base, typeElements.head.calcType)
+        typeArgs = call.typeArgs.typeArgsWithNamed
+        if typeArgs.size == 1
+        te <- typeArgs.head.typeElement
+      } yield (base, te.calcType)
 
       val result = mutable.ArrayBuffer.empty[ScGenericCall]
       val visitor = new ScalaRecursiveElementVisitor {

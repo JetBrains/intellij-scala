@@ -67,14 +67,16 @@ ScalaFile
                 PsiElement(identifier)('T')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -168,22 +170,25 @@ ScalaFile
                 PsiElement(identifier)('Pure')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: PartialType[State, X]#Apply
-                ParametrizedType: PartialType[State, X]
-                  SimpleType: PartialType
-                    CodeReferenceElement: PartialType
-                      PsiElement(identifier)('PartialType')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: State
-                      CodeReferenceElement: State
-                        PsiElement(identifier)('State')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
-                    PsiElement(])(']')
-                PsiElement(#)('#')
-                PsiElement(identifier)('Apply')
+              TypeArgument
+                TypeProjection: PartialType[State, X]#Apply
+                  ParametrizedType: PartialType[State, X]
+                    SimpleType: PartialType
+                      CodeReferenceElement: PartialType
+                        PsiElement(identifier)('PartialType')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: State
+                          CodeReferenceElement: State
+                            PsiElement(identifier)('State')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement(])(']')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('Apply')
               PsiElement(])(']')
