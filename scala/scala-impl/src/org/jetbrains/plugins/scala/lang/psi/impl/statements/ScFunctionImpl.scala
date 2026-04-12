@@ -110,7 +110,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
      */
     if (shouldProcessParameters(lastParent))
       processParameters(processor, state)
-    else processNamedContextBounds(typeParameters, processor, state)
+    else processNamedContextBounds(processor, state, place)
   }
 
   // to resolve parameters in return type, type parameter context bounds and body;

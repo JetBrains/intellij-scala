@@ -56,6 +56,19 @@ class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  def testNamedContextBoundInLaterTermClause(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait TC[A]
+      |  given tcInt: TC[Int] = new TC[Int] {}
+      |
+      |  def foo[T: TC as tc](x: Int)(y: tc.type): Int = x
+      |
+      |  val v: Int = foo[Int](1)(using tcInt)(tcInt)
+      |}
+      |""".stripMargin
+  )
+
     //@TODO: fix, see https://youtrack.jetbrains.com/issue/SCL-23347 comment
 //  def testSCL23347(): Unit = checkTextHasNoErrors(
 //    """
@@ -131,4 +144,5 @@ class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
       |  }
       |""".stripMargin
   )
+
 }

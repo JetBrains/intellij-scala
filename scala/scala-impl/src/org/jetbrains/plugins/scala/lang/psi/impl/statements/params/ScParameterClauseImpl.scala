@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -39,46 +39,63 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   override def effectiveParameters: Seq[ScParameter] =
     cachedInUserData("effectiveParameters", this, BlockModificationTracker(this)) {
       if (isImplicit) {
-        val syntheticParameters = getSyntheticParameters
+        val syntheticParameters = syntheticContextBoundsParameters
         syntheticParameters ++ parameters
       } else
         parameters
     }
 
-  private def getSyntheticParameters: Seq[ScParameter] = {
-    //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
-    //which is ok, it will not add anything more
+  /**
+   * Builds synthetic parameters for context bounds that should be prepended to this implicit/using clause.
+   *
+   * We rely on clause-level metadata (`PrependedContextBoundTypeParametersKey`) computed during owner
+   * `effectiveParameterClauses` construction (via `insertSyntheticParameterClauseInterleaved`) instead of
+   * re-deriving clause placement here.
+   *
+   * `ensurePrependedContextBoundMetadataInitialized()` ensures that metadata exists even if
+   * `effectiveParameters` is queried directly from a clause before owner-level effective clauses are requested.
+   */
+  private def syntheticContextBoundsParameters: Seq[ScParameter] = {
+    ensurePrependedContextBoundMetadataInitialized()
+    val prependedTypeParameters = ScParameterOwner.prependedContextBoundTypeParameters(this)
+    if (prependedTypeParameters.isEmpty) return Seq.empty
+
+    val isClassParameter = owner match {
+      case constructor: ScPrimaryConstructor =>
+        constructor.containingClass match {
+          case _: ScClass => true
+          case _          => false
+        }
+      case _ => false
+    }
+
     val maybeSyntheticClause = getParent match {
       case clauses: ScParameters =>
-        val maybeOwner = clauses.getParent match {
-          case f: ScFunction => Some((f, false))
-          case g: ScGivenDefinition => Some((g, false))
-          case p: ScPrimaryConstructor =>
-            p.containingClass match {
-              case c: ScClass => Some((c, true))
-              case _          => None
-            }
-          case _ => None
-        }
-
-        maybeOwner.flatMap {
-          case (owner, isClassParameter) =>
-            ScalaPsiUtil.syntheticParamClause(
-              owner.typeParameters,
-              clauses,
-              isClassParameter,
-              hasImplicit = false
-            )
-        }
+        ScalaPsiUtil.syntheticParamClause(
+          prependedTypeParameters,
+          clauses,
+          isClassParameter,
+          hasImplicit = false
+        )
       case _ => None
     }
 
     val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
+
     syntheticParameters.foreach {
       _.context = this
     }
+
     syntheticParameters
   }
+
+  private def ensurePrependedContextBoundMetadataInitialized(): Unit =
+    owner match {
+      case withContextBoundsOwner: ScParameterOwner.WithContextBounds =>
+        // Populates clause-level context-bound metadata used below.
+        withContextBoundsOwner.effectiveParameterClauses
+      case _ => ()
+    }
 
   override def hasParenthesis: Boolean =
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&

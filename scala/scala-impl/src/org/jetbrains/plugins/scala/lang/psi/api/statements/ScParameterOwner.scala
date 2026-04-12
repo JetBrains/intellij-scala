@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.ResolveState
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
@@ -21,8 +24,44 @@ trait ScParameterOwner extends ScalaPsiElement {
     }
 }
 
+trait ScInterleavedClausesOwner extends ScParameterOwner with ScTypeParametersOwner {
+  import ScSignatureClause._
+
+  def signatureClauses: Seq[ScSignatureClause] = _signatureClauses()
+
+  private val _signatureClauses = cached("signatureClauses", ModTracker.anyScalaPsiChange, () => {
+    val clausesFromParameters = clauses.toSeq.flatMap { parameters =>
+      val clausesInLexicalOrder = parameters.stubOrPsiChildren.collect {
+        case clause: ScTypeParamClause => TypeClause(clause)
+        case clause: ScParameterClause => TermClause(clause)
+      }.toSeq
+
+      clausesInLexicalOrder
+    }
+
+    leadingTypeParametersClause.toSeq.map(TypeClause) ++ clausesFromParameters
+  })
+
+  def typeParametersInScopeFor(place: PsiElement): Seq[ScTypeParam] = {
+    val clauses = signatureClauses
+
+    val clausesInScope = clauses.takeWhile {
+      case TypeClause(clause) => !PsiTreeUtil.isAncestor(clause, place, false)
+      case TermClause(clause) => !PsiTreeUtil.isAncestor(clause, place, false)
+    }
+
+    clausesInScope.flatMap {
+      case TypeClause(clause) => clause.typeParameters
+      case _                  => Seq.empty
+    }
+  }
+}
+
 object ScParameterOwner {
-  trait WithContextBounds extends ScParameterOwner with ScTypeParametersOwner {
+  private val PrependedContextBoundTypeParametersKey: Key[Seq[ScTypeParam]] =
+    Key.create("scala.prepended.context.bound.type.parameters")
+
+  trait WithContextBounds extends ScInterleavedClausesOwner {
     def effectiveParameterClauses: Seq[ScParameterClause] =
       cachedInUserData(
         "effectiveParameterClauses",
@@ -55,11 +94,11 @@ object ScParameterOwner {
     }
 
     def processNamedContextBounds(
-      typeParameters: Seq[ScTypeParam],
-      processor:      PsiScopeProcessor,
-      state:          ResolveState
+      processor: PsiScopeProcessor,
+      state:     ResolveState,
+      place:     PsiElement
     ): Boolean = {
-      val bounds = boundNames(typeParameters)
+      val bounds = boundNames(typeParametersInScopeFor(place))
       for {
         clause <- effectiveParameterClauses
         param <- clause.effectiveParameters
@@ -86,8 +125,10 @@ object ScParameterOwner {
     val visitor =
       new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReference): Unit = {
-          boundUsageFound =
-            contextBoundsNames.exists(name => ref.qualifier.exists(_.textMatches(name)))
+          boundUsageFound ||= contextBoundsNames.exists {
+            name =>
+              ref.textMatches(name) || ref.qualifier.exists(_.textMatches(name))
+          }
         }
       }
 
@@ -108,27 +149,127 @@ object ScParameterOwner {
       }
   }
 
+  private def contextBoundIsUsedInTypeParameterClause(
+    clause:  ScTypeParamClause,
+    tparams: Seq[ScTypeParam]
+  ): Boolean = {
+    val contextBoundsNames = boundNames(tparams)
+    var boundUsageFound    = false
+
+    val visitor =
+      new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReference): Unit = {
+          boundUsageFound ||= contextBoundsNames.exists {
+            name =>
+              ref.textMatches(name) || ref.qualifier.exists(_.textMatches(name))
+          }
+        }
+      }
+
+    if (contextBoundsNames.isEmpty)
+      false
+    else {
+      clause.accept(visitor)
+      boundUsageFound
+    }
+  }
+
   def insertSyntheticParameterClause(
     parameters:       ScParameters,
-    clauses:          Seq[ScParameterClause],
+    effectiveClauses: Seq[ScParameterClause],
     typeParameters:   Seq[ScTypeParam],
     isClassParameter: Boolean
   ): Seq[ScParameterClause] = {
-    val clauseIdxWithBoundUsage = contextBoundUsageInParameterListIndex(clauses, typeParameters)
-
-    val syntheticClause =
-      ScalaPsiUtil.syntheticParamClause(
-        typeParameters,
-        parameters,
-        isClassParameter,
-        parameters.clauses.exists(_.isImplicit)
-      )
-
-    if (clauseIdxWithBoundUsage == -1)
-      clauses ++ syntheticClause
-    else {
-      val (before, after) = clauses.splitAt(clauseIdxWithBoundUsage)
-      before ++ syntheticClause ++ after
+    val signatureClauses = parameters.getContext match {
+      case owner: ScInterleavedClausesOwner => owner.signatureClauses
+      case _                                => effectiveClauses.map(ScSignatureClause.TermClause)
     }
+
+    insertSyntheticParameterClauseInterleaved(
+      parameters,
+      effectiveClauses,
+      signatureClauses,
+      typeParameters,
+      isClassParameter
+    )
   }
+
+  private def insertSyntheticParameterClauseInterleaved(
+    parameters:       ScParameters,
+    effectiveClauses: Seq[ScParameterClause],
+    signatureClauses: Seq[ScSignatureClause],
+    typeParameters:   Seq[ScTypeParam],
+    isClassParameter: Boolean
+  ): Seq[ScParameterClause] = {
+    import ScSignatureClause._
+
+    effectiveClauses.foreach(setPrependedContextBoundTypeParameters(_, Seq.empty))
+
+    val clausesTypeParameters = signatureClauses
+      .flatMap {
+        case TypeClause(clause) => clause.typeParameters
+        case TermClause(_)      => Seq.empty
+      }
+
+    val clausesInSignature = signatureClauses.flatMap {
+      case TypeClause(_)      => Seq.empty
+      case TermClause(clause) => Seq(clause)
+    }
+
+    // Type params not represented in the local signature clauses (e.g. extension owner type params)
+    // are treated as in scope from the beginning.
+    val pendingTypeParameters = scala.collection.mutable.ArrayBuffer.from(
+      typeParameters.filterNot(clausesTypeParameters.contains)
+    )
+
+    val orphanClauses = effectiveClauses.filterNot(clausesInSignature.contains)
+    val resultClauses = scala.collection.mutable.ArrayBuffer.from(orphanClauses)
+
+    def flushPendingTypeParameters(): Unit = {
+      if (pendingTypeParameters.nonEmpty) {
+        ScalaPsiUtil.syntheticParamClause(
+          pendingTypeParameters.toSeq,
+          parameters,
+          isClassParameter,
+          hasImplicit = false
+        ).foreach(resultClauses += _)
+        pendingTypeParameters.clear()
+      }
+    }
+
+    signatureClauses.foreach {
+      case TypeClause(clause) =>
+        if (contextBoundIsUsedInTypeParameterClause(clause, pendingTypeParameters.toSeq))
+          flushPendingTypeParameters()
+        pendingTypeParameters ++= clause.typeParameters
+
+      case TermClause(clause) =>
+        val hasPendingBoundUsageInClause =
+          contextBoundUsageInParameterListIndex(Seq(clause), pendingTypeParameters.toSeq) != -1
+
+        if (hasPendingBoundUsageInClause)
+          flushPendingTypeParameters()
+        else if (clause.isImplicit && pendingTypeParameters.nonEmpty) {
+          setPrependedContextBoundTypeParameters(clause, pendingTypeParameters.toSeq)
+          pendingTypeParameters.clear()
+        }
+        resultClauses += clause
+    }
+
+    flushPendingTypeParameters()
+    resultClauses.toSeq
+  }
+
+  private def setPrependedContextBoundTypeParameters(
+    clause: ScParameterClause,
+    prependedTypeParams: Seq[ScTypeParam]
+  ): Unit = {
+    val value =
+      if (prependedTypeParams.nonEmpty) prependedTypeParams
+      else null
+    clause.putUserData(PrependedContextBoundTypeParametersKey, value)
+  }
+
+  private[psi] def prependedContextBoundTypeParameters(clause: ScParameterClause): Seq[ScTypeParam] =
+    Option(clause.getUserData(PrependedContextBoundTypeParametersKey)).getOrElse(Seq.empty)
 }

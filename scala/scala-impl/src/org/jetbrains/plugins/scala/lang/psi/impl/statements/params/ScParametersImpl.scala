@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClausesOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -39,38 +41,47 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-    if (lastParent != null) {
-      val clausesIterator = clauses.iterator
-      var break           = false
+    if (lastParent == null) return true
 
-      //In scala 3, you are allowed to reference parameters from the same clause.
-      val isScala3        = lastParent.isInScala3File
-
-      while (clausesIterator.hasNext && !break) {
-        val clause = clausesIterator.next()
-        val isCurrentClause = clause == lastParent
-
-        if (isCurrentClause && !isScala3) break = true
-        else {
-          val paramsIterator = clause.parameters.iterator
-
-          while (paramsIterator.hasNext && !break) {
-            val param = paramsIterator.next()
-
-            //Disallow forward references in the same param clause.
-            val isForwardReference =
-              isCurrentClause &&
-                PsiTreeUtil.isContextAncestor(param, place, true)
-
-            if (isForwardReference) break = true
-            else if (!processor.execute(param, state)) return false
-          }
-
-          break = isCurrentClause
-        }
-      }
+    val signatureClauses: Seq[ScSignatureClause] = getContext match {
+      case owner: ScInterleavedClausesOwner => owner.signatureClauses
+      case _                                => clauses.map(TermClause)
     }
 
+    val clausesIterator = signatureClauses.iterator
+    var break           = false
+
+    //In scala 3, you are allowed to reference value parameters from the same clause.
+    val isScala3        = lastParent.isInScala3File
+
+    while (clausesIterator.hasNext && !break) {
+      clausesIterator.next() match {
+        case TypeClause(clause) =>
+          break = clause == lastParent
+
+        case TermClause(clause) =>
+          val isCurrentClause = clause == lastParent
+
+          if (isCurrentClause && !isScala3) break = true
+          else {
+            val paramsIterator = clause.parameters.iterator
+
+            while (paramsIterator.hasNext && !break) {
+              val param = paramsIterator.next()
+
+              //Disallow forward references in the same param clause.
+              val isForwardReference =
+                isCurrentClause &&
+                  PsiTreeUtil.isContextAncestor(param, place, true)
+
+              if (isForwardReference) break = true
+              else if (!processor.execute(param, state)) return false
+            }
+
+            break = isCurrentClause
+          }
+      }
+    }
     true
   }
 
