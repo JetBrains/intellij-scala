@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
@@ -187,8 +187,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           AssignmentText +
             LookupItemPresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
         else
-          typeParametersText(fun) +
-            parametersText(fun.parameterList) +
+          signatureClausesText(fun) +
             locationText
       case fun: ScSyntheticFunction =>
         val paramClausesText = fun.paramClauses.map { clause =>
@@ -224,22 +223,41 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         LookupItemPresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
       }.commaSeparated(Model.SquareBrackets)
 
+  private def typeParametersText(typeParametersClause: ScTypeParamClause)
+                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    LookupItemPresentationUtil.presentationStringForPsiElement(typeParametersClause, substitutor)
+
   private def typeParametersText(owner: PsiTypeParameterListOwner)
                                 (implicit project: Project, tpc: TypePresentationContext, context: Context): String = owner match {
     case owner: ScTypeParametersOwner =>
-      owner.typeParametersClause.fold("") {
-        LookupItemPresentationUtil.presentationStringForPsiElement(_, substitutor)
-      }
+      owner.typeParameterClauses.map(typeParametersText).mkString
     case owner =>
       typeParametersText(owner.getTypeParameters.toSeq)
   }
 
+  private def parametersText(parameterClause: ScParameterClause)
+                            (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    if (shouldRenderEllipsisParameterText)
+      "(...)"
+    else
+      LookupItemPresentationUtil.presentationStringForPsiElement(parameterClause, substitutor)
+
+  private def signatureClausesText(function: ScFunction)
+                                  (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    function.signatureClauses.map {
+      case ScSignatureClause.TypeClause(clause) => typeParametersText(clause)
+      case ScSignatureClause.TermClause(clause) => parametersText(clause)
+    }.mkString
+
   private def parametersText(parametersList: PsiParameterList)
                             (implicit project: Project, tpc: TypePresentationContext, context: Context) =
-    if (Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1))
+    if (shouldRenderEllipsisParameterText)
       "(...)"
     else
       LookupItemPresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
+
+  private def shouldRenderEllipsisParameterText: Boolean =
+    Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1)
 
   private def locationText: String =
     if (isClassName && containingClass != null)
