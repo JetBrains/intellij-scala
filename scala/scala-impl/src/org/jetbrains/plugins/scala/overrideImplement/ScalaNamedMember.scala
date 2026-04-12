@@ -84,11 +84,11 @@ object ScMethodMember {
  *     def extMethod1: String = ???
  *     def extMethod2: String = ???
  * }}}
- * each "extension method" will be represented by it's own signature, but there will be no signature for "extension"
+ * each "extension method" will be represented by its own signature, but there will be no signature for "extension"
  *
- * We create an instance of this class class only after analyzing signatures is finished to group related extension method.<br>
+ * We create an instance of this class only after analyzing signatures is finished to group related extension method.<br>
  * This is done to generate a nicer result during overriding/implementing extension members.<br>
- * If extension methods were grouped in same extension in base class, we wan't them to be grouped in the child class.
+ * If extension methods were grouped in the same extension in base class, we want them to be grouped in the child class.
  *
  * It's implied that it will be later used by [[org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo]]
  *
@@ -134,27 +134,56 @@ object ScExtensionMethodMember {
 
   /**
    * Created by analogy with  [[org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.methodPresentableText]]<br>
-   * This text is presented in "override/implement" dialog
+   * This text is presented in the "override/implement" dialog
    */
-  private def extensionMethodPresentableText( 
+  private def extensionMethodPresentableText(
     signature: PhysicalMethodSignature,
   ): String = {
     assert(signature.isExtensionMethod)
     val extensionSignature = signature.extensionSignature.get
-    val extensionTypeParamsText = typeParamsRenderer.renderParams(extensionSignature.typeParams)
-    val extensionParamsText = parametersRenderer.renderClauses(extensionSignature.paramClauses)
-    val extensionSignatureText = s"$extensionTypeParamsText$extensionParamsText"
-    val extensionMethodText = ScalaPsiPresentationUtils.methodPresentableText(signature.method)
+
+    val extensionSignatureText = renderSignatureClauses(
+      extensionSignature.extension.signatureClauses,
+      extensionParametersRenderer
+    )
+
+    val extensionMethodText = signature.method match {
+      case function: ScFunction => renderMethodPresentableText(function)
+      case method               => ScalaPsiPresentationUtils.methodPresentableText(method)
+    }
+
     s"$extensionSignatureText $extensionMethodText"
   }
 
+  private def renderMethodPresentableText(function: ScFunction): String = {
+    val buffer = new StringBuilder(function.name)
+    buffer.append(renderSignatureClauses(function.signatureClauses, methodParametersRenderer))
+    typeAnnotationRenderer.render(buffer, function)
+    buffer.result()
+  }
+
+  private def renderSignatureClauses(
+    signatureClauses: Seq[ScSignatureClause],
+    parametersRenderer: ParametersRenderer
+  ): String =
+    signatureClauses.map {
+      case ScSignatureClause.TypeClause(clause) => typeParamsRenderer.render(clause)
+      case ScSignatureClause.TermClause(clause) => parametersRenderer.renderClause(clause)
+    }.mkString
+
   private val typeRenderer: TypeRenderer = _.presentableText(TypePresentationContext.emptyContext, Context.Empty)
+  private val typeAnnotationRenderer = new TypeAnnotationRenderer(typeRenderer)
   private val typeParamsRenderer = new TypeParamsRenderer(typeRenderer)
-  private val parametersRenderer = new ParametersRenderer(new ParameterRenderer(
+  private val extensionParametersRenderer = new ParametersRenderer(new ParameterRenderer(
     typeRenderer,
     ModifiersRenderer.SimpleText(),
-    new TypeAnnotationRenderer(typeRenderer)
+    typeAnnotationRenderer
   ), shouldRenderImplicitModifier = true)
+  private val methodParametersRenderer = new ParametersRenderer(new ParameterRenderer(
+    typeRenderer,
+    ModifiersRenderer.SimpleText(),
+    typeAnnotationRenderer
+  ), shouldRenderImplicitModifier = false)
 }
 
 sealed trait ScalaFieldMember extends ScalaTypedMember

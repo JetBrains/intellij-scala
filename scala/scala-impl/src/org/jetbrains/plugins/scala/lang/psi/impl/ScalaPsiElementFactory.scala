@@ -1146,37 +1146,31 @@ object ScalaPsiElementFactory {
       .append(" ")
       .append(escapeKeyword(method.name))
 
-    val typeParameters = method match {
-      case function: ScFunction if function.typeParameters.nonEmpty =>
-        val renderer = new TypeParamsRenderer(substitutor(_).canonicalText, stripContextTypeArgs = true)
-
-        def buildText(typeParam: ScTypeParam): String =
-          renderer.render(typeParam)
-
-        function.typeParameters.map(buildText)
-      case _ if method.hasTypeParameters =>
-        for {
-          param <- method.getTypeParameters.toSeq
-          extendsTypes = param.getExtendsListTypes
-          extendsTypesText = if (extendsTypes.nonEmpty) {
-            extendsTypes.map { classType =>
-              substitutor(classType.toScType()).canonicalText
-            }.mkString(" <: ", " with ", "")
-          } else ""
-        } yield param.name + extendsTypesText
-      case _ => Seq.empty
-    }
-
-    if (typeParameters.nonEmpty) {
-      val typeParametersText = typeParameters.mkString(tLSQBRACKET.toString, ", ", tRSQBRACKET.toString)
-      myBuilder.append(typeParametersText)
-    }
-
-    // do not substitute aliases
     method match {
-      case method: ScFunction if method.paramClauses != null =>
-        appendParameterClausesText(myBuilder, method.paramClauses.clauses, substitutor)
-      case _ if !method.isParameterless || !method.hasQueryLikeName =>
+      // Preserve lexical order for Scala 3 interleaved signatures.
+      case function: ScFunction =>
+        appendSignatureClausesText(myBuilder, function.signatureClauses, substitutor)
+
+      case _ =>
+        val typeParameters =
+          if (method.hasTypeParameters) {
+            for {
+              param <- method.getTypeParameters.toSeq
+              extendsTypes = param.getExtendsListTypes
+              extendsTypesText = if (extendsTypes.nonEmpty) {
+                extendsTypes.map { classType =>
+                  substitutor(classType.toScType()).canonicalText
+                }.mkString(" <: ", " with ", "")
+              } else ""
+            } yield param.name + extendsTypesText
+          } else Seq.empty
+
+        if (typeParameters.nonEmpty) {
+          val typeParametersText = typeParameters.mkString(tLSQBRACKET.toString, ", ", tRSQBRACKET.toString)
+          myBuilder.append(typeParametersText)
+        }
+
+        if (!method.isParameterless || !method.hasQueryLikeName) {
         val params = for (param <- method.parameters) yield {
           val paramName = param.name match {
             case null => param match {
@@ -1204,7 +1198,7 @@ object ScalaPsiElementFactory {
         }
 
         myBuilder.append(params.mkString("(", ", ", ")"))
-      case _ =>
+        }
     }
 
     val maybeReturnType = method match {
@@ -1233,33 +1227,64 @@ object ScalaPsiElementFactory {
     }
   }
 
+  private def appendSignatureClausesText(
+    builder:          StringBuilder,
+    signatureClauses: Seq[ScSignatureClause],
+    substitutor:      ScSubstitutor
+  )(implicit project: ProjectContext): Unit = {
+    val renderer = new TypeParamsRenderer(substitutor(_).canonicalText, stripContextTypeArgs = true)
+
+    signatureClauses.foreach {
+      case ScSignatureClause.TypeClause(typeClause)  => appendTypeParameterClauseText(builder, typeClause, renderer)
+      case ScSignatureClause.TermClause(paramClause) => appendParameterClauseText(builder, paramClause, substitutor)
+    }
+  }
+
+  private def appendTypeParameterClauseText(
+    builder:    StringBuilder,
+    typeClause: ScTypeParamClause,
+    renderer:   TypeParamsRenderer
+  ): Unit = {
+    val typeParameters = typeClause.typeParameters.map(renderer.render)
+
+    if (typeParameters.nonEmpty) {
+      val typeParametersText = typeParameters.mkString(tLSQBRACKET.toString, ", ", tRSQBRACKET.toString)
+      builder.append(typeParametersText)
+    }
+  }
+
   private def appendParameterClausesText(
-    builder: StringBuilder,
+    builder:      StringBuilder,
     paramClauses: Seq[ScParameterClause],
+    substitutor:  ScSubstitutor
+  )(implicit project: ProjectContext): Unit =
+    paramClauses.foreach(appendParameterClauseText(builder, _, substitutor))
+
+  private def appendParameterClauseText(
+    builder:     StringBuilder,
+    paramClause: ScParameterClause,
     substitutor: ScSubstitutor
   )(implicit project: ProjectContext): Unit = {
-    for (paramClause <- paramClauses) {
-      val parameters = paramClause.parameters.map { param =>
-        val arrow = if (param.isCallByNameParameter) functionArrow else ""
-        val asterisk = if (param.isRepeatedParameter) "*" else ""
+    val parameters = paramClause.parameters.map { param =>
+      val arrow = if (param.isCallByNameParameter) functionArrow else ""
+      val asterisk = if (param.isRepeatedParameter) "*" else ""
 
-        val name = param.name
-        val tpe = param.`type`().map(substitutor).getOrAny
+      val name = param.name
+      val tpe = param.`type`().map(substitutor).getOrAny
 
-        if (param.isAnonymous)
-          s"$arrow${tpe.canonicalText}"
-        else
-          s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
-      }
-
-      builder.append("(")
-      if (paramClause.hasImplicitKeyword)
-        builder.append("implicit ")
-      else if (paramClause.hasUsingKeyword)
-        builder.append("using ")
-      builder.append(parameters.mkString(", "))
-      builder.append(")")
+      if (param.isAnonymous)
+        s"$arrow${tpe.canonicalText}"
+      else
+        s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
     }
+
+    builder.append("(")
+    if (paramClause.hasImplicitKeyword)
+      builder.append("implicit ")
+    else if (paramClause.hasUsingKeyword)
+      builder.append("using ")
+    builder.append(parameters.mkString(", "))
+    builder.append(")")
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, needsOverride: Boolean)(implicit context: Context): String =

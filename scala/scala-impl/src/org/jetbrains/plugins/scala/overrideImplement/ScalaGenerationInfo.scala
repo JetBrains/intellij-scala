@@ -13,8 +13,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, types}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
@@ -167,20 +168,43 @@ object ScalaGenerationInfo {
 
     val methodName = ScalaNamesUtil.escapeKeyword(method.name)
     val parametersText: String = {
-      method match {
-        case fun: ScFunction =>
-          //When we delegate to super extension call, we need to pass receiver/target argument as well
-          val extensionParams: Seq[ScParameterClause] = fun match {
-            case Parent(Parent(extension: ScExtension)) =>
-              extension.clauses.toSeq.flatMap(_.clauses)
-            case _ => Nil
-          }
-          val paramClauses: Seq[ScParameterClause] = extensionParams ++ fun.paramClauses.clauses
-          val clauses = paramClauses.filter(!_.isImplicit)
-          clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
-        case method: PsiMethod =>
-          if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
-          else method.parameters.map(paramText).mkString("(", ", ", ")")
+      def renderTermClauseArguments(clause: ScParameterClause): String =
+        clause.parameters.map(_.name).mkString("(", ", ", ")")
+
+      def renderTypeClauseArguments(clause: ScTypeParamClause): String =
+        clause.typeParameters.map(_.name).mkString("[", ", ", "]")
+
+      // When we delegate to super extension call, we need to pass receiver/target argument as well.
+      // Extension signature has a classic shape (leading type params + term clauses), so we keep old behavior.
+      val extensionArgumentsText: String = method match {
+        case Parent(Parent(extension: ScExtension)) =>
+          extension
+            .allClauses
+            .filterNot(_.isImplicit)
+            .map(renderTermClauseArguments)
+            .mkString
+        case _ => ""
+      }
+
+      val methodArgumentsText = method match {
+        case function: ScFunction =>
+          function.signatureClauses.map {
+            case TermClause(clause) =>
+              if (clause.isImplicit) ""
+              else                   renderTermClauseArguments(clause)
+            case TypeClause(clause) => renderTypeClauseArguments(clause)
+          }.mkString
+        case _ => ""
+      }
+
+      if (methodArgumentsText.nonEmpty) extensionArgumentsText + methodArgumentsText
+      else method match {
+        case _: ScFunction => extensionArgumentsText
+        case javaMethod =>
+          val javaArgumentsText =
+            if (javaMethod.isAccessor && javaMethod.getParameterList.getParametersCount == 0) ""
+            else javaMethod.parameters.map(paramText).mkString("(", ", ", ")")
+          extensionArgumentsText + javaArgumentsText
       }
     }
 

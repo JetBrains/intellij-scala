@@ -737,7 +737,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |object B extends A {
-         |  override def foo[M[X], N[X[_]] : TC]: String = ${SELECTION_START_TAG}super.foo$SELECTION_END_TAG
+         |  override def foo[M[X], N[X[_]] : TC]: String = ${SELECTION_START_TAG}super.foo[M, N]$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
