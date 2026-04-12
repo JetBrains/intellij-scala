@@ -101,4 +101,24 @@ class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
       )
     )
   }
+
+  @Test
+  def testInterleavedTypeClausesInLookupTailText(): Unit = {
+    if (!version.isScala3) return
+
+    doTest(
+      fileText =
+        s"""object Declarations:
+           |  def foo[T](x: T)[U](u: U): U = u
+           |
+           |object Test:
+           |  Declarations.fo$CARET
+           |""".stripMargin,
+      itemFilter = hasItemText(_, "foo")(
+        itemTextBold = true,
+        tailText = "[T](x: T)[U](u: U)",
+        typeText = "U"
+      )
+    )
+  }
 }
