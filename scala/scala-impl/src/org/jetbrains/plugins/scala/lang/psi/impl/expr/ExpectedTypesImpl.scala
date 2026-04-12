@@ -268,7 +268,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           //   [tyParams..] => ...
           // so
           // substitute bodyType[pParams.. -> tyParams..]
-          val pParams = sig.typeParams
+          val pParams = sig.typeParams.headOption.getOrElse(Seq.empty)
 
           val bodyType = {
             val paramTypes = sig.substitutedTypes.head.map(_.apply())
