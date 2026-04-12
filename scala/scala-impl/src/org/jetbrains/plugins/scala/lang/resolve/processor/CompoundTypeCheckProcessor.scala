@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Unit, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, PsiTypeParameterListOwnerExt, TypeParameter, TypeParameterType, Unit, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -47,9 +47,9 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
 
     var undef = constraints
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
-      tp1 match {
-        case tp1: ScTypeParam =>
+    def checkTypeParameters(tp1: TypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
+      tp1.psiTypeParameter match {
+        case _: ScTypeParam =>
           if (tp1.typeParameters.length != tp2.typeParameters.length) return false
           val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
@@ -57,20 +57,20 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
             if (!checkTypeParameters(tp1, tp2, -v)) return false
           }
           //lower type
-          val lower1 = tp1.lowerBound.getOrNothing
+          val lower1 = tp1.lowerType
           val lower2 = tp2.lowerType
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
-            else lower2.conforms(lower1, undef)
+            else                lower2.conforms(lower1, undef)
 
           if (lowerConformance.isLeft) return false
           undef = lowerConformance.constraints
 
-          val upper1 = tp1.upperBound.getOrAny
+          val upper1 = tp1.upperType
           val upper2 = tp2.upperType
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
-            else upper1.conforms(upper2, undef)
+            else                upper1.conforms(upper2, undef)
 
           if (upperConformance.isLeft) return false
           undef = upperConformance.constraints
@@ -86,19 +86,20 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
 
     //let's check type parameters
     namedElement match {
-      case o: ScTypeParametersOwner =>
-        if (o.typeParameters.length != s.typeParamsLength) return true
-        val iter = o.typeParameters.zip(s.typeParams).iterator
-        while (iter.hasNext) {
-          val (tp1, tp2) = iter.next()
-          if (!checkTypeParameters(tp1, tp2)) return true
-        }
-      case p: PsiTypeParameterListOwner =>
-        if (p.getTypeParameters.length != s.typeParams.length) return true
-        val iter = p.getTypeParameters.toSeq.zip(s.typeParams).iterator
-        while (iter.hasNext) {
-          val (tp1, tp2) = iter.next()
-          if (!checkTypeParameters(tp1, tp2)) return true
+      case owner: PsiTypeParameterListOwner =>
+        val ownerTypeParamsByClause = owner.typeParametersByClause
+        if (ownerTypeParamsByClause.flatten.length != s.typeParams.flatten.length) return true
+
+        val clauseIterator = ownerTypeParamsByClause.zip(s.typeParams).iterator
+        while (clauseIterator.hasNext) {
+          val (typeParamsClause, signatureTypeParamsClause) = clauseIterator.next()
+          if (typeParamsClause.length != signatureTypeParamsClause.length) return true
+
+          val iter = typeParamsClause.zip(signatureTypeParamsClause).iterator
+          while (iter.hasNext) {
+            val (tp1, tp2) = iter.next()
+            if (!checkTypeParameters(tp1, tp2)) return true
+          }
         }
       case _ => if (s.typeParamsLength > 0) return true
     }
@@ -114,8 +115,8 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
       undef = t.constraints
       innerConstraints = undef
 
-      val typeParams = sign1.typeParams
-      val otherTypeParams = s.typeParams
+      val typeParams = sign1.typeParams.flatten
+      val otherTypeParams = s.typeParams.flatten
       val unified1 = subst.withBindings(typeParams, typeParams)
       val unified2 = ScSubstitutor.bind(otherTypeParams, typeParams.map(TypeParameterType(_)))
 
