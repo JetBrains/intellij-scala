@@ -171,6 +171,10 @@ class ScalaTypePresentationTest_Scala3 extends ScalaTypePresentationTestBase {
     expected = "HCT[Int => *]"
   )
 
+  def testInterleavedMethodClausesInRefinement(): Unit = assertPresentationIs(
+    "AnyRef { def foo[T](x: T)[U](u: U): U }"
+  )
+
   def testOpaqueTypeInt(): Unit = {
     assertPresentationIs(
       "Inside.T", "Inside.T", "object Inside { opaque type T = Int }")
