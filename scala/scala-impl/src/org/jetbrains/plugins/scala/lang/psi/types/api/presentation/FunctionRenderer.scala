@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
 
 class FunctionRenderer(
   typeParamsRenderer: Option[TypeParamsRenderer],
@@ -20,8 +21,12 @@ class FunctionRenderer(
     val buffer = new StringBuilder
     if (renderDefKeyword) buffer.append("def ")
     buffer.append(function.name)
-    typeParamsRenderer.foreach(_.renderParams(buffer, function))
-    Option(function.paramClauses).foreach(params => parametersRenderer.renderClauses(buffer, params.clauses))
+    function.signatureClauses.foreach {
+      case ScSignatureClause.TypeClause(clause) =>
+        typeParamsRenderer.foreach(renderer => buffer.append(renderer.render(clause)))
+      case ScSignatureClause.TermClause(clause) =>
+        buffer.append(parametersRenderer.renderClause(clause))
+    }
     typeAnnotationRenderer.render(buffer, function)
     buffer.result()
   }
