@@ -583,6 +583,35 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
   }
 
+  def testOverrideWithInterleavedTypeClauseAfterTermClause(): Unit = {
+    val fileText =
+      s"""
+         |trait Base:
+         |  def foo[T](x: T)[U]: U = ???
+         |
+         |class Child extends Base:
+         |  $CARET_TAG
+         |""".stripMargin
+
+    val expectedText =
+      s"""
+         |trait Base:
+         |  def foo[T](x: T)[U]: U = ???
+         |
+         |class Child extends Base:
+         |  override def foo[T](x: T)[U]: U = ${SELECTION_START_TAG}super.foo[T](x)[U]$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
+
+    runTest(
+      methodName = "foo",
+      fileText = fileText,
+      expectedText = expectedText,
+      isImplement = false,
+      settings = settingsWithIndentationBasedSyntax
+    )
+  }
+
   def test_SCL_20350_ImplementUsingIndentationBasedSyntaxInsideAnEmptyGivenTemplateBody_Inner(): Unit = {
     val fileText =
       s"""
@@ -1092,7 +1121,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |
          |class MyChildClass extends MyBaseClass[MyClass]:
          |  extension [T <: MyClass, T2 <: MyTrait](using MyClass, Long)(target: MyClass)(using mt: MyCaseClass[_], cs: CharSequence)
-         |    override def myExtComplex[E <: MyClass, E2 <: MyTrait](a: MyClass)(using b: MyClass, e: E)(t: T): String = super.myExtComplex(target)(a)(t)
+         |    override def myExtComplex[E <: MyClass, E2 <: MyTrait](a: MyClass)(using b: MyClass, e: E)(t: T): String = super.myExtComplex(target)[E, E2](a)(t)
          |""".stripMargin
     addHelperClassesForExtensionTests()
     runTest("myExtComplex", before, after, isImplement = false, settings = settingsWithIndentationBasedSyntax)
@@ -1226,6 +1255,21 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     )
   }
 
+  def testExtensionMethodMemberPresentableText_InterleavedMethodClauses(): Unit = {
+    val fileText =
+      """class MyClass:
+        |  extension (target: String)
+        |    def myExt[T](value: T)[U <: value.type](u: U): U = ???
+        |""".stripMargin
+
+    assertMembersPresentableText[ScExtensionMethodMember](
+      fileText,
+      "MyClass",
+      _ => true,
+      """(target: String) myExt[T](value: T)[U <: value.type](u: U): U""",
+    )
+  }
+
   def testOpaqueTypeAlias(): Unit = runTest("foo",
     s"""
        |object Inside {
@@ -1250,4 +1294,29 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
        |  override def foo(x: Int): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
        |}""".stripMargin,
     isImplement = true)
+
+  def testImplementInterleavedTypeParameterClauses(): Unit = {
+    val before =
+      s"""trait Base:
+         |  def foo[T](x: T)[U <: x.type](u: U): U
+         |
+         |class ${CARET_TAG}Child extends Base
+         |""".stripMargin
+
+    val after =
+      s"""trait Base:
+         |  def foo[T](x: T)[U <: x.type](u: U): U
+         |
+         |class Child extends Base:
+         |  override def foo[T](x: T)[U <: x.type](u: U): U = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |""".stripMargin
+
+    runTest(
+      methodName = "foo",
+      fileText = before,
+      expectedText = after,
+      isImplement = true,
+      settings = settingsWithIndentationBasedSyntax
+    )
+  }
 }
