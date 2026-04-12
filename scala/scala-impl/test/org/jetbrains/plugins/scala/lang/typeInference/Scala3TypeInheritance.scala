@@ -24,4 +24,21 @@ class Scala3TypeInheritance extends ScalaLightCodeInsightFixtureTestCase {
       """.stripMargin
     )
   }
+
+  // TODO[SCL]: enable as a regular `test*` once interleaved super-call synthesis is implemented.
+  def pendingInterleavedClausesInOverrideReturnTypeInference(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Base:
+        |  def method[A](a: A)[B](b: B): (A, B) = (a, b)
+        |
+        |class Child extends Base:
+        |  override def method[A](a: A)[B](b: B) = ???
+        |
+        |  def use[A](a: A)[B](b: B): A =
+        |    val tuple = method(a)(b)
+        |    tuple._1
+      """.stripMargin
+    )
+  }
 }

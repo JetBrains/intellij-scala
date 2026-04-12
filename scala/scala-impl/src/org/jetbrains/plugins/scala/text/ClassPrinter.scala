@@ -5,7 +5,9 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
@@ -128,8 +130,11 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val modifiers = textOf(pc.getModifierList)
     val inPrivateConstructor = isPrivate(pc)
     val clauses = {
-      val cs = pc.clauses.map(_.clauses).getOrElse(Seq.empty)
-      (cs.take(1).map(textOf(_, inPrivateConstructor, inCaseClass)) ++ cs.drop(1).map(textOf(_, inPrivateConstructor, inCaseClass = false))).mkString
+      val signatureClausesInParameterList = pc.signatureClauses.filter {
+        case TypeClause(clause) => !pc.leadingTypeParametersClause.contains(clause)
+        case TermClause(_)      => true
+      }
+      textOf(signatureClausesInParameterList, inPrivateConstructor, inCaseClass)
     }
     val annotations = pc.annotations.map(textOf(_, emptyParens = clauses.nonEmpty && modifiers.isEmpty)).mkString(" ")
     val s = (if (annotations.isEmpty) "" else " " + annotations) +
@@ -152,18 +157,16 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val modifiers = textOf(f.getModifierList)
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else normalized(f.name)
-    val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
-    val clauses = f.paramClauses.clauses.map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
+    val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
+    val tpe = if (f.isConstructor) "" else (if (signature.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && signature.isEmpty) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
-    annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
+    annotations + "\n" + indent + "  " + modifiers + keyword + name + signature + tpe + rhs + "\n"
   }
 
   private def textOf(e: ScExtension, indent: String): String = {
-    val tps = if (e.typeParameters.isEmpty) "" else e.typeParameters.map(textOf).mkString("[", ", ", "]")
-    val clauses = e.clauses.toSeq.flatMap(_.clauses).map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString
+    val signature = textOf(e.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
     val methods = e.extensionMethods.map(textOf(_, indent + "  ")).mkString
-    "\n" + indent + "  " + "extension " + tps + clauses + methods
+    "\n" + indent + "  " + "extension " + signature + methods
   }
 
   private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = {
@@ -223,6 +226,26 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(clause: ScParameterClause, inPrivateConstructor: Boolean, inCaseClass: Boolean): String = {
     val ps = clause.parameters.filter(p => withPrivate || !inPrivateConstructor || ((inCaseClass || p.isVal || p.isVar) && !isPrivate(p)))
     ps.map(textOf(_, inCaseClass)).mkString(if (ps.nonEmpty) (if (clause.hasImplicitKeyword) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(") else "(", ", ", ")")
+  }
+
+  private def textOf(clause: ScTypeParamClause): String =
+    clause.typeParameters.map(textOf).mkString("[", ", ", "]")
+
+  private def textOf(
+    signatureClauses: Seq[ScSignatureClause],
+    inPrivateConstructor: Boolean,
+    inCaseClass: Boolean
+  ): String = {
+    var isFirstTermClause = true
+
+    signatureClauses.map {
+      case TypeClause(clause) =>
+        textOf(clause)
+      case TermClause(clause) =>
+        val text = textOf(clause, inPrivateConstructor, inCaseClass && isFirstTermClause)
+        isFirstTermClause = false
+        text
+    }.mkString
   }
 
   private def textOf(p: ScParameter, inCaseClass: Boolean): String = {
