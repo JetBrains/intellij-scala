@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINIT
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
@@ -107,15 +108,15 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
   override private[psi] def superMethodCall: ScExpression = _superMethodCall()
 
   private val _superMethodCall = cached("superMethodCall", BlockModificationTracker(this), () => {
-    val typeArguments = if (typeParameters.isEmpty) ""
-    else typeParameters.map(_.name).mkString("[", ", ", "]")
-
-    val arguments = allClauses.map { clause =>
-      if (clause.parameters.isEmpty) "()"
-      else clause.parameters.map(_.name).mkString(if (clause.hasUsingKeyword) "(using " else "(", ", ", ")")
+    val signatureArguments = signatureClauses.map {
+      case TypeClause(clause) =>
+        clause.typeParameters.map(_.name).mkString("[", ", ", "]")
+      case TermClause(clause) =>
+        if (clause.parameters.isEmpty) "()"
+        else clause.parameters.map(_.name).mkString(if (clause.hasUsingKeyword) "(using " else "(", ", ", ")")
     }.mkString
 
-    val text = "super." + name + typeArguments + arguments
+    val text = "super." + name + signatureArguments
 
     val call = ScalaPsiElementFactory.createExpressionFromText(text, this.features)
     call.context = body.getOrElse(this)
