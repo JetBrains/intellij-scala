@@ -13,6 +13,7 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jdom.Element
@@ -26,6 +27,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import java.nio.file.Path
 import java.util
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.*
 
 /**
  * Run configuration of sbt tasks.
@@ -102,8 +104,10 @@ class SbtRunConfiguration(
     useSbtShell = params.isUseSbtShell
   }
 
-  protected def preprocessTasks(): String =
-    StringUtil.unquoteString(tasks.trim)
+  protected def preprocessTasks(): String = if (!useSbtShell || tasks.trim.startsWith(";")) tasks else {
+    val commands = ParametersListUtil.parse(tasks, false).asScala
+    if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
+  }
 }
 
 class SbtCommandLineState(
@@ -166,7 +170,7 @@ class SbtCommandLineState(
     }
 
     params.getVMParametersList.addParametersString(configuration.vmparams)
-    params.getProgramParametersList.add(processedCommands)
+    params.getProgramParametersList.addParametersString(processedCommands)
 
     params
   }
