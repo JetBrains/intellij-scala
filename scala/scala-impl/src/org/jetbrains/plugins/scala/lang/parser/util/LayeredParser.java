@@ -10,6 +10,7 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.impl.source.DummyHolderElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.diff.FlyweightCapableTreeStructure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -689,6 +690,7 @@ public abstract class LayeredParser implements PsiParser {
       BufferedTokenInfo validTokenBeforeAdvance = tokenBeforeAdvance.isWhitespace()
           ? getValidTokenInfo(currentTokenNumber)
           : tokenBeforeAdvance;
+
       advanceMarker(endMarker);
 
       if (validTokenBeforeAdvance == fakeEndToken && checkEofExtendedElement(astElementType, fakeStartMarker.getStartOffset())) {
@@ -725,7 +727,55 @@ public abstract class LayeredParser implements PsiParser {
         }
       }
 
+      final var adjustedTokenBeforeAdvance = adjustEndMarkerToken(validTokenBeforeAdvance, fakeStartMarker.getMyTokenNum());
+      if (adjustedTokenBeforeAdvance.isPresent()) {
+        validTokenBeforeAdvance = adjustedTokenBeforeAdvance.get();
+      }
+
       validTokenBeforeAdvance.addProductionMarker(endMarker);
+    }
+
+    // Sometimes between the markers there can be a foreign token.
+    // Closing the marker results in containing that foreign token inside the tree, which is wrong.
+    // For example, consider `<div @if(...){attr}></div>`.
+    // Before the adjustment, there is a marker with type `XmlAttribute` starting in `attr` and ending in `>`.
+    // Therefore, the `}` token becomes under the marker, which is incorrect. Normally, `XmlAttribute` should only
+    // contain `attr` token in this case.
+    //
+    // The general fix is that, whenever there are foreign tokens in between the marker ends
+    // the end marker should be attached to the leftmost foreign token before the previous filtered token.
+    private Optional<BufferedTokenInfo> adjustEndMarkerToken(
+      BufferedTokenInfo validTokenBeforeAdvance,
+      int startMarkerTokenIndex
+    ) {
+      if (validTokenBeforeAdvance == fakeEndToken) {
+        return Optional.empty();
+      }
+
+      if (currentTokenNumber <= 0) {
+        return Optional.empty();
+      }
+      final var lastFilteredBeforeCurrent = getValidTokenNum(currentTokenNumber - 1);
+
+      // If the start marker is before the last filtered token, adjustment would be invalid
+      // e.g., end marker would be before the start marker.
+      if (lastFilteredBeforeCurrent < startMarkerTokenIndex) {
+        return Optional.empty();
+      }
+
+      var leftMostTokenNumBeforePrevFiltered = lastFilteredBeforeCurrent + 1;
+      // Ensure not all foreign tokens in between are whitespace
+      while (
+        leftMostTokenNumBeforePrevFiltered < getValidTokenNum(currentTokenNumber) &&
+          originalTokens.get(leftMostTokenNumBeforePrevFiltered).isWhitespace()
+      ) {
+        leftMostTokenNumBeforePrevFiltered += 1;
+      }
+      if (leftMostTokenNumBeforePrevFiltered >= getValidTokenNum(currentTokenNumber)) {
+        return Optional.empty();
+      }
+
+      return Optional.of(originalTokens.get(leftMostTokenNumBeforePrevFiltered));
     }
 
     private void collapse(FakeMarker marker, IElementType astElementType) {
