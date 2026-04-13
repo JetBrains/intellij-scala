@@ -102,9 +102,6 @@ class SbtRunConfiguration(
     useSbtShell = params.isUseSbtShell
   }
 
-  // In sbt batch mode quotes are used to group a command with its arguments (e.g., sbt "testOnly MyTest").
-  // In theory, we don't need to unquote the string here because the "Commands" text field
-  // is not expected to contain quoted style input. We do it for extra safety, but in principle it can be removed.
   protected def preprocessTasks(): String =
     StringUtil.unquoteString(tasks.trim)
 }
