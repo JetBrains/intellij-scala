@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgument, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeArgument, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -29,6 +29,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   ): Unit = {
     val typeArgs = element.typeArgList
     if (element.isInScala3File && typeArgs.hasNamedTypeArgs) {
+      annotateDuplicatedNamedTypeArguments(typeArgs)
+
       typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
         holder.createErrorAnnotation(
           firstNamedTypeArgName,
@@ -69,6 +71,27 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           _.`type`()
         )
       }
+    }
+  }
+
+  def annotateDuplicatedNamedTypeArguments(typeArgs: ScTypeArgs)(implicit holder: ScalaAnnotationHolder): Unit = {
+    val (_, duplicatedNames) = typeArgs.namedTypeArgs.foldLeft(List.empty[String] -> List.empty[(ScTypeArgument, String)]) {
+      case ((seenNames, duplicates), typeArg) =>
+        typeArg.name match {
+          case Some(name) if seenNames.exists(ScalaNamesUtil.equivalent(_, name)) =>
+            seenNames -> ((typeArg, name) :: duplicates)
+          case Some(name) =>
+            (name :: seenNames) -> duplicates
+          case None =>
+            seenNames -> duplicates
+        }
+    }
+
+    duplicatedNames.reverse.foreach { case (typeArg, argName) =>
+      holder.createErrorAnnotation(
+        typeArg.nameElement.getOrElse(typeArg),
+        ScalaBundle.message("duplicate.named.type.argument", argName)
+      )
     }
   }
 

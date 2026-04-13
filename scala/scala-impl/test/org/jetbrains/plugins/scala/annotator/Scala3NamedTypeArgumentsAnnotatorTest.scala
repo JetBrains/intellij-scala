@@ -56,4 +56,15 @@ class Scala3NamedTypeArgumentsAnnotatorTest extends ScalaHighlightingTestBase {
     Error("Unknown", "Cannot resolve symbol Unknown"),
     Error("1", "Type mismatch, expected: Elem, actual: Int")
   )
+
+  def testMethodCallDuplicateNamedTypeArg(): Unit = assertErrors(
+    """
+      |import scala.language.experimental.namedTypeArguments
+      |
+      |def construct[A, B](): Unit = ()
+      |
+      |construct[A = Int, A = String]()
+      |""".stripMargin,
+    Error("A", "Duplicate named type argument: A")
+  )
 }
