@@ -36,16 +36,17 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
     implicit val context: Context = Context(genCall)
 
     val typeArgs = genCall.typeArgs
-    if (genCall.isInScala3File &&
-      typeArgs.hasNamedTypeArgs &&
-      !genCall.isNamedTypeArgumentsFeatureImported
-    ) {
-      typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
-        holder.createErrorAnnotation(
-          firstNamedTypeArgName,
-          ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments"),
-          new ImportNamedTypeArgumentsFeatureFlagQuickFix(firstNamedTypeArgName)
-        )
+    if (genCall.isInScala3File && typeArgs.hasNamedTypeArgs) {
+      ScParameterizedTypeElementAnnotator.annotateDuplicatedNamedTypeArguments(typeArgs)
+
+      if (!genCall.isNamedTypeArgumentsFeatureImported) {
+        typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
+          holder.createErrorAnnotation(
+            firstNamedTypeArgName,
+            ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments"),
+            new ImportNamedTypeArgumentsFeatureFlagQuickFix(firstNamedTypeArgName)
+          )
+        }
       }
     }
 
