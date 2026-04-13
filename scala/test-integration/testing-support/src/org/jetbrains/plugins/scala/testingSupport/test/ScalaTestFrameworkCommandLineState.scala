@@ -219,7 +219,7 @@ class ScalaTestFrameworkCommandLineState(
   }
 
   /**
-   * @note This is a simplified version of `JavaTestFrameworkRunnableState#creatHandler`.
+   * @note This is a simplified version of `JavaTestFrameworkRunnableState#createHandler`.
    *       Calling `getEnvironment.getPreparedTargetEnvironment` and `getTargetedCommandLine`
    *       sets up the run configuration for a remote execution target, such as eel/WSL.
    *       It handles automatic translation of the run configuration parameters to match

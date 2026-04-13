@@ -2,13 +2,18 @@ package org.jetbrains.plugins.scala.console.configuration
 
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
+import com.intellij.execution.process.{KillableColoredProcessHandler, ProcessTerminatedListener}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.target.java.{JavaLanguageRuntimeConfiguration, JavaLanguageRuntimeType}
+import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration, TargetProgressIndicator}
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
@@ -16,6 +21,7 @@ import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaReplBundle}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
@@ -40,7 +46,8 @@ class ScalaConsoleRunConfiguration(
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) with EnvFilesOptions {
+) with EnvFilesOptions
+  with TargetEnvironmentAwareRunProfile {
 
   //language=Scala
   private val Scala2MainClass = "scala.tools.nsc.MainGenericRunner"
@@ -111,6 +118,56 @@ class ScalaConsoleRunConfiguration(
   //overriding the method as a workaround for https://github.com/lampepfl/dotty/issues/19007
   override def clone(): ModuleBasedConfiguration[? <: RunConfigurationModule, ?] = super.clone()
 
+  /*
+   * The following methods implement the `TargetEnvironmentAwareRunProfile` interface which allows automatic
+   * translation of the run configuration parameters to what a possible remote (eel/WSL) target expects.
+   *
+   * The implementation is the same as in `com.intellij.execution.junit.JUnitConfiguration`.
+   */
+
+  override def canRunOn(target: TargetEnvironmentConfiguration): Boolean =
+    target.getRuntimes.findByType(classOf[JavaLanguageRuntimeConfiguration]) != null
+
+  override def getDefaultLanguageRuntimeType: LanguageRuntimeType[?] =
+    LanguageRuntimeType.EXTENSION_NAME.findExtension(classOf[JavaLanguageRuntimeType])
+
+  override def getDefaultTargetName: String = getOptions.getRemoteTarget
+
+  override def setDefaultTargetName(targetName: String): Unit = {
+    getOptions.setRemoteTarget(targetName)
+  }
+
+  override def needPrepareTarget(): Boolean =
+    super.needPrepareTarget() || runsUnderRemoteJdk()
+
+  /**
+   * Same as `com.intellij.execution.JavaRunConfigurationBase#runsUnderRemoteJdk`.
+   */
+  private def runsUnderRemoteJdk(): Boolean = {
+    //noinspection ApiStatus,UnstableApiUsage
+    val pathNotLocal: Path => Boolean = !EelPathUtils.isPathLocal(_)
+    val stringToPath: String => Path = Path.of(_)
+    jdkHomeSatisfies(stringToPath andThen pathNotLocal)
+  }
+
+  /**
+   * Same as `com.intellij.execution.JavaRunConfigurationBase#jdkHomeSatisfies`.
+   */
+  private def jdkHomeSatisfies(predicate: String => Boolean): Boolean = {
+    val module = getConfigurationModule.getModule
+    if (module != null) {
+      val sdk = try {
+        JavaParameters.getValidJdkToRunModule(module, /* productionOnly = */ false)
+      } catch {
+        case _: CantRunException => return false
+      }
+      val sdkHomePath = sdk.getHomePath
+      return sdkHomePath != null && predicate(sdkHomePath)
+    }
+
+    false
+  }
+
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
     getModule match {
       case Some(module) =>
@@ -135,16 +192,51 @@ class ScalaConsoleRunConfiguration(
       params
     }
 
+    /**
+     * @note Written according to [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]].
+     */
     override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
       val params: JavaParameters = getJavaParameters
       val classPath = params.getClassPath
 
       val module = requireModule
       val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaLanguageConsole.ScalaConsoleTitle)
-      if (success)
-        super.execute(executor, runner)
-      else
-        null
+      if (!success)
+        return null
+
+      val processHandler = createHandler()
+
+      val console = createConsole(executor)
+      if (console != null) {
+        console.attachToProcess(processHandler)
+      }
+
+      new DefaultExecutionResult(console, processHandler)
+    }
+
+    /**
+     * @note This is a simplified version of `JavaTestFrameworkRunnableState#createHandler`.
+     *       Calling `getEnvironment.getPreparedTargetEnvironment` and `getTargetedCommandLine`
+     *       sets up the run configuration for a remote execution target, such as eel/WSL.
+     *       It handles automatic translation of the run configuration parameters to match
+     *       the expectations of the target machine.
+     */
+    private def createHandler(): KillableColoredProcessHandler = {
+      val remoteEnvironment = getEnvironment.getPreparedTargetEnvironment(this, TargetProgressIndicator.EMPTY)
+      val targetedCommandLineBuilder = getTargetedCommandLine
+      val targetedCommandLine = targetedCommandLineBuilder.build()
+
+      val process = remoteEnvironment.createProcess(targetedCommandLine, new EmptyProgressIndicator())
+
+      val processHandler = new KillableColoredProcessHandler.Silent(
+        process,
+        targetedCommandLine.getCommandPresentation(remoteEnvironment),
+        targetedCommandLine.getCharset,
+        targetedCommandLineBuilder.getFilesToDeleteOnTermination
+      )
+
+      ProcessTerminatedListener.attach(processHandler)
+      processHandler
     }
 
     private def ensureJLineInClassPathOrShowErrorNotification(classPathList: PathsList, module: Module, @Nls subsystemName: String): Boolean = {
@@ -174,6 +266,9 @@ class ScalaConsoleRunConfiguration(
       "-Xnojline"
   }
 
+  private def addScalaCompilerClassPath(classPath: PathsList, module: Module): Unit =
+    module.scalaCompilerClasspath.foreach(jar => classPath.add(jar.toCanonicalPath.toString))
+
   private def createParams: JavaParameters = {
     val module = requireModule
 
@@ -184,7 +279,7 @@ class ScalaConsoleRunConfiguration(
     }
 
     new JavaParameters().tap { params =>
-      params.getClassPath.addScalaCompilerClassPath(module)
+      addScalaCompilerClassPath(params.getClassPath, module)
       module.replClasspath match {
         case ReplClasspath.Bundled =>
         case ReplClasspath.Provided(classpath) =>
@@ -195,7 +290,6 @@ class ScalaConsoleRunConfiguration(
 
       params.getVMParametersList.addParametersString(javaOptions)
       params.setShortenCommandLine(getShortenCommandLineMethod(Option(params.getJdk)), project)
-      params.getClassPath.addRunners()
       params.setWorkingDirectory(workingDirectory)
 
       val envVars = new java.util.HashMap(environmentVariables)

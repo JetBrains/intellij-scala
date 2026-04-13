@@ -18,7 +18,7 @@ import com.intellij.platform.workspace.jps.entities.{DependencyScope, _}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.jps.model.serialization.library.JpsLibraryTableSerializer
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -879,6 +879,9 @@ package object project {
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
 
+    @deprecated("Not eel-aware. Use eel-aware path translation instead. No direct replacement.", "2026.1")
+    @Deprecated(forRemoval = true, since = "2026.1")
+    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
     def addScalaCompilerClassPath(module: Module): Unit =
       try {
         val files = module.scalaCompilerClasspath.map(_.toFile).asJava

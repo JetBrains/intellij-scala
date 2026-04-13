@@ -259,7 +259,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         .getOrElse {
           throw new ExecutionException("No modules with Scala SDK are configured")
         }
-    jp.getClassPath.addScalaCompilerClassPath(moduleWithScalaSdk)
+    jp.getClassPath.addScalaCompilerClassPath(moduleWithScalaSdk): @scala.annotation.nowarn("cat=deprecation")
     if (moduleWithScalaSdk.hasScala3) {
       throw new ExecutionException(
         s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
