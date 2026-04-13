@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala.console.configuration
 
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
-import com.intellij.execution.process.{KillableColoredProcessHandler, ProcessTerminatedListener}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.target.java.{JavaLanguageRuntimeConfiguration, JavaLanguageRuntimeType}
-import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration, TargetProgressIndicator}
+import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration}
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -23,6 +21,7 @@ import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{Jli
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaReplBundle}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.*
+import org.jetbrains.plugins.scala.runner.ScalaTargetAwareCommandLineState
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import java.nio.file.Path
@@ -168,7 +167,7 @@ class ScalaConsoleRunConfiguration(
     false
   }
 
-  private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
+  private class ScalaCommandLineState(env: ExecutionEnvironment) extends ScalaTargetAwareCommandLineState(env) {
     getModule match {
       case Some(module) =>
         setConsoleBuilder(ScalaLanguageConsole.builderFor(module))
@@ -212,31 +211,6 @@ class ScalaConsoleRunConfiguration(
       }
 
       new DefaultExecutionResult(console, processHandler)
-    }
-
-    /**
-     * @note This is a simplified version of `JavaTestFrameworkRunnableState#createHandler`.
-     *       Calling `getEnvironment.getPreparedTargetEnvironment` and `getTargetedCommandLine`
-     *       sets up the run configuration for a remote execution target, such as eel/WSL.
-     *       It handles automatic translation of the run configuration parameters to match
-     *       the expectations of the target machine.
-     */
-    private def createHandler(): KillableColoredProcessHandler = {
-      val remoteEnvironment = getEnvironment.getPreparedTargetEnvironment(this, TargetProgressIndicator.EMPTY)
-      val targetedCommandLineBuilder = getTargetedCommandLine
-      val targetedCommandLine = targetedCommandLineBuilder.build()
-
-      val process = remoteEnvironment.createProcess(targetedCommandLine, new EmptyProgressIndicator())
-
-      val processHandler = new KillableColoredProcessHandler.Silent(
-        process,
-        targetedCommandLine.getCommandPresentation(remoteEnvironment),
-        targetedCommandLine.getCharset,
-        targetedCommandLineBuilder.getFilesToDeleteOnTermination
-      )
-
-      ProcessTerminatedListener.attach(processHandler)
-      processHandler
     }
 
     private def ensureJLineInClassPathOrShowErrorNotification(classPathList: PathsList, module: Module, @Nls subsystemName: String): Boolean = {
