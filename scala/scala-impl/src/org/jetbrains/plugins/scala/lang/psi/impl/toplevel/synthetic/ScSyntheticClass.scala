@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
@@ -39,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 
 import javax.swing.Icon
 import scala.collection.mutable
@@ -75,7 +71,7 @@ object SyntheticNamedElement {
   ): Option[ScMember] = cachedInUserData(
     "getNavigationElementForSyntheticScalaLibraryDefinition",
     element,
-    ProjectRootManager.getInstance(project)
+    projectLevelModificationTracker(project)
   ) {
     for {
       scalaPackagePsiDirectory <-
@@ -88,10 +84,10 @@ object SyntheticNamedElement {
 
 
   //TODO: current implementation might not work in a project with multiple scala versions. It depends on SCL-22349.
-  private def findScala2LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala2LibrarySourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
+  private def findScala2LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala2LibrarySourcesPsiDirectory", project, projectLevelModificationTracker(project)) {
     findScalaLibrarySourcesPsiDirectoryInner(project, "scala.Array")
   }
-  private def findScala3LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala3LibrarySourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
+  private def findScala3LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala3LibrarySourcesPsiDirectory", project, projectLevelModificationTracker(project)) {
     findScalaLibrarySourcesPsiDirectoryInner(project, "scala.Tuple")
   }
 
@@ -292,7 +288,7 @@ sealed class ScSyntheticFunction(
     null
   }
 
-  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticFunction.getNavigationElement", this, ProjectRootManager.getInstance(projectContext.project)) {
+  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticFunction.getNavigationElement", this, projectLevelModificationTracker(projectContext.project)) {
     val syntheticFunctionSourceMirror = containingSyntheticClass.flatMap(_.getNavigationElement match {
       case classInSources: ScTemplateDefinition =>
         //NOTE: we search for the function with the same name ignoring overloaded functions
@@ -539,6 +535,39 @@ final class SyntheticClasses(project: Project) {
     )
 
     classesInitialized = true
+
+    dropCachesAndRestartHighlighting()
+  }
+
+  /**
+   * Make sure the highlighting in the editor is restarted after synthetic classes
+   *
+   * In theory, it's for the edge cases when an IDE is opened and for some reason the synthetic class registration
+   * takes a long time (10, 20, 30 seconds? see SCL-25281).
+   * If some editors were already opened, and the IDE was in smart mode and the editors were highlighted
+   * before the synthetic classes registration, wrong results could be cached so we need to drop them.
+   *
+   * DISCLAIMER: It's not clear if this is 100% actual in practice.
+   * At least when I add synthetic thread sleep for Dev IDE, I can observe this issue.
+   * Ideally, until the synthetic classes registration is finished, the IDE shouldn't be in smart mode.<br>
+   * But currently AFAIU it doesn't work like that  (see [[RegisterSyntheticClassesStartupActivity]])
+   */
+  private def dropCachesAndRestartHighlighting(): Unit = {
+    if (project.isDisposed)
+      return
+
+    // Drop caches of any scala elements in editors
+    ScalaPsiManager.instance(project).clearOnNonScalaChange()
+    // Drop caches of Synthetic classes types
+    projectLevelModificationTracker(project).incModificationCount()
+
+    invokeLater {
+      if (!project.isDisposed) {
+        DaemonCodeAnalyzer
+          .getInstance(project)
+          .restart("Restart after synthetic classes registration")
+      }
+    }
   }
 
   def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
