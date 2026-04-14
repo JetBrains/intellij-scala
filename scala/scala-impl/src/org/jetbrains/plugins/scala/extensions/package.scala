@@ -1532,9 +1532,21 @@ package object extensions {
                              (implicit project: Project): T =
     WriteCommandAction.runWriteCommandAction(project, body)
 
-  def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {
-    case application if application.isReadAccessAllowed => body
-    case application => application.runReadAction(body)
+  /**
+   * Executes the given body of code within a read action.
+   *
+   * Delegates to [[com.intellij.openapi.application.Application#runReadAction]]
+   *
+   * ATTENTION:<br>
+   * The action executed under the hood is non-cancellable.
+   * To achieve better responsiveness and less UI Freezes, consider using [[com.intellij.openapi.application.ReadAction#nonBlocking]]
+   */
+  def inReadAction[T](body: => T): T = {
+    val application = ApplicationManager.getApplication
+    if (application.isReadAccessAllowed)
+      body
+    else
+      application.runReadAction(body)
   }
 
   //use only for defining toString method

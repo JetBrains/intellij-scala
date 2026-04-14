@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.containers.MultiMap
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.TestOnly
@@ -37,9 +39,11 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Resolv
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 
+import java.util.concurrent.Callable
 import javax.swing.Icon
 import scala.collection.mutable
 import scala.util.Using
+import scala.util.control.NonFatal
 
 abstract sealed class SyntheticNamedElement(name: String)
                                            (implicit projectContext: ProjectContext)
@@ -305,6 +309,8 @@ sealed class ScSyntheticFunction(
 final class SyntheticClasses(project: Project) {
   implicit def ctx: ProjectContext = project
 
+  private val Log = Logger.getInstance(this.getClass)
+
   private[synthetic] def clear(): Unit = {
     if (classesInitialized) {
       sharedClasses.clear()
@@ -335,17 +341,95 @@ final class SyntheticClasses(project: Project) {
   private[synthetic]
   var file : PsiFile = _
 
+
   /**
-   * @note read lock is required under the hood in tons of places when parsing files, marking elements as generated, traversing, etc...
+   * A small utility to simplify debugging the process of registering synthetic classes (SCL-25281)
    */
-  @RequiresReadLock
-  def registerClasses(): Unit = {
+  private final class StagedLogger(logger: Logger) {
+    private val startedAtMillis = System.currentTimeMillis()
+    private var previousStageLoggedAtMillis = startedAtMillis
+
+    def stageFinished(stageName: String): Unit = {
+      val now = System.currentTimeMillis()
+      val elapsedMs = now - previousStageLoggedAtMillis
+      logger.debug(s"registerClasses: stage $stageName took ${elapsedMs}ms")
+      previousStageLoggedAtMillis = now
+    }
+
+    def subStepCancelledAndRestarted(stepDebugName: String): Unit = {
+      logger.debug(s"registerClasses: sub step was cancelled and restarted: $stepDebugName")
+    }
+
+    def allStagesFinished(): Unit = {
+      val elapsedMs = System.currentTimeMillis() - startedAtMillis
+      logger.info(s"registerClasses: all stages took ${elapsedMs}ms")
+    }
+  }
+
+  /**
+   * NOTE:<br>
+   * Under the hood it acquires read lock multiple times, where it's required, and runs a cancellable read action.
+   * The read action is needed to create a synthetic file using factories and to traverse AST in several places.
+   *
+   * It's better to do it like this instead of wrappign the entire [[registerClasses]] method with one big read action.
+   * This is needed to achieve a better responsiveness of the IDE and avoid freezes (SCL-25281).
+   *
+   * Under the hood all read actions are cancellable (see docs of [[com.intellij.openapi.application.NonBlockingReadAction]].
+   * If there are some write actions on initialization, those computations might be restarted.
+   * As a result, the total time of the method might be longer than with non-cancellable computations.
+   * However, the IDE responsiveness should be better.
+   *
+   * @todo An ideal alternative fix for this would be: (as per discussion with Yuriy Artamonov)
+   *       Use pull-semantics, evaluate the data lazily when the client needs it
+   *       Don't use custom push-semantics, but reuse WSM infrastructure to store synthetic classes
+   *       Contribute roots and files to WSM when it asks for it.
+   *       Consider using approach used in `JSPredefinedLibraryProvider` (that has somehow similar use case).
+   *       There is also some old API `AdditionalLibraryRootsProvider` that we could consider
+   */
+  private[synthetic] def registerClasses(): Unit = {
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      /** See comments about unit tests in [[RegisterSyntheticClassesProjectActivity]] */
+      ThreadingAssertions.assertBackgroundThread()
+    }
+
+    val stagedLogger = new StagedLogger(Log)
+
     val stdTypes = ctx.stdTypes
     import stdTypes._
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
-    val fileName = s"dummy-synthetics.scala"
-    val emptyScalaFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, ScalaFileType.INSTANCE, "")
+    /** See docs of [[registerClasses]] */
+    def inCancellableReadAction[T](debugName: String)(body: => T): T = {
+      val task: Callable[_ <: T] = () => {
+        try {
+          body
+        } catch {
+          case ex: ProcessCanceledException =>
+            stagedLogger.subStepCancelledAndRestarted(debugName)
+            throw ex
+          case NonFatal(ex) =>
+            throw ex
+        }
+      }
+      ReadAction.nonBlocking[T](task).executeSynchronously()
+    }
+
+    /**
+     * @note Read action is needed because [[PsiFileFactory#createFileFromText]] requires it under the hood
+     */
+    def createDummyScalaFile(debugFileName: String, fileText: String) = {
+      val fileName = s"$debugFileName.scala"
+      inCancellableReadAction(s"createDummyScalaFile($fileName)") {
+        ProgressManager.checkCanceled()
+        PsiFileFactory.getInstance(project).createFileFromText(fileName, ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]
+      }
+    }
+
+    def createDummyScalaSubFile(debugName: String, fileText: String) = {
+      createDummyScalaFile(s"dummy-synthetic-$debugName", fileText)
+    }
+
+    val emptyScalaFile = createDummyScalaFile(debugFileName = s"dummy-synthetics.scala", fileText = "")
     file = emptyScalaFile
 
     //
@@ -376,15 +460,8 @@ final class SyntheticClasses(project: Project) {
     registerClass(Singleton, "Singleton")
     registerClass(Unit, "Unit")
 
+    stagedLogger.stageFinished("core definitions")
     stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
-
-    def createDummyFile(debugName: String, fileText: String) = {
-      val fileName = s"dummy-synthetic-$debugName.scala"
-      PsiFileFactory
-        .getInstance(project)
-        .createFileFromText(fileName, ScalaFileType.INSTANCE, fileText)
-        .asInstanceOf[ScalaFile]
-    }
 
     def toStdType(te: ScTypeElement): StdType =
       stdTypes.QualNameToType.getOrElse("scala." + te.getText, throw new AssertionError("Cant find StdType $qualifiedTypeText"))
@@ -432,10 +509,19 @@ final class SyntheticClasses(project: Project) {
         }
       }
 
-      def registerAnyValSource(anyValSource: (StdType, String)): Unit = {
+      def createAnyValDummyFile(anyValSource: (StdType, String)): (StdType, ScalaFile) = {
         val (typ, fileText) = anyValSource
-        val dummyFile = createDummyFile(typ.name.toLowerCase, fileText)
+        val dummyFile = createDummyScalaSubFile(typ.name.toLowerCase, fileText)
+        (typ, dummyFile)
+      }
 
+      /**
+       * @note Read action is needed because tree traversal happening in [[ScalaFile#typeDefinitions]] requires it
+       */
+      def registerAnyValDummyFile(anyValDummyFile: (StdType, ScalaFile)): Unit = inCancellableReadAction(s"registerAnyValDummyFile(${anyValDummyFile._2.name})") {
+        ProgressManager.checkCanceled()
+
+        val (typ, dummyFile) = anyValDummyFile
         val classes = dummyFile.typeDefinitions.filterByType[ScClass]
         val objects = dummyFile.typeDefinitions.filterByType[ScObject]
 
@@ -449,36 +535,50 @@ final class SyntheticClasses(project: Project) {
       }
 
       val anyValSources: Seq[(StdType, String)] = stdTypes.allAnyValTypes.flatMap(readAnyValSource)
-      anyValSources.foreach(registerAnyValSource)
+      val anyValDummyFiles: Seq[(StdType, ScalaFile)] = anyValSources.map(createAnyValDummyFile)
+      anyValDummyFiles.foreach(registerAnyValDummyFile)
     }
 
     registerAnyValClasses()
+    stagedLogger.stageFinished("AnyVal classes")
 
-    def registerContextFunctionClass(debugName: String, fileText: String): Unit = {
-      val dummyFile = createDummyFile(debugName, fileText)
+    /**
+     * @note Read action is needed because tree traversal happening in [[ScalaFile#typeDefinitions]] requires it
+     */
+    def registerContextFunctionClass(debugName: String, fileText: String): Unit = inCancellableReadAction(s"registerContextFunctionClass($debugName)") {
+      ProgressManager.checkCanceled()
+
+      val dummyFile = createDummyScalaSubFile(debugName, fileText)
       val cls = dummyFile.typeDefinitions.head.asInstanceOf[PsiClass]
       scala3Classes.put(cls.name, cls)
     }
 
-    (1 to 22).foreach { n =>
-      val typeParameters    = (1 to n).map(i => s"-T$i").mkString(", ")
-      val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
+    def registerContextFunctionClasses(): Unit = {
+      (1 to 22).foreach { n =>
+        val typeParameters    = (1 to n).map(i => s"-T$i").mkString(", ")
+        val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
 
-      registerContextFunctionClass("ContextFunction",
-        s"""
-           |package scala
-           |
-           |trait ContextFunction$n[$typeParameters, +R] {
-           |  def apply(implicit $contextParameters): R
-           |}
-           |""".stripMargin
-      )
+        registerContextFunctionClass("ContextFunction",
+          s"""
+             |package scala
+             |
+             |trait ContextFunction$n[$typeParameters, +R] {
+             |  def apply(implicit $contextParameters): R
+             |}
+             |""".stripMargin
+        )
+      }
     }
+
+    registerContextFunctionClasses()
+    stagedLogger.stageFinished("context function classes")
 
     def registerAlias(
       @Language("Scala") text: String,
       sourceFileName: String,
-    ): Unit = {
+    ): Unit = inCancellableReadAction(s"registerAlias($sourceFileName)") {
+      ProgressManager.checkCanceled()
+
       val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val alias = file.members.head.asInstanceOf[ScTypeAlias]
       val isScala3 = true
@@ -489,7 +589,9 @@ final class SyntheticClasses(project: Project) {
     def registerVal(
       @Language("Scala") text: String,
       sourceFileName: String,
-    ): Unit = {
+    ): Unit = inCancellableReadAction(s"registerVal($sourceFileName)") {
+      ProgressManager.checkCanceled()
+
       val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val valDef = file.members.head.asInstanceOf[ScPatternDefinition].bindings.head
       val isScala3 = true
@@ -534,40 +636,10 @@ final class SyntheticClasses(project: Project) {
       "orType.scala"
     )
 
+    stagedLogger.stageFinished("other scala 3")
+    stagedLogger.allStagesFinished()
+
     classesInitialized = true
-
-    dropCachesAndRestartHighlighting()
-  }
-
-  /**
-   * Make sure the highlighting in the editor is restarted after synthetic classes
-   *
-   * In theory, it's for the edge cases when an IDE is opened and for some reason the synthetic class registration
-   * takes a long time (10, 20, 30 seconds? see SCL-25281).
-   * If some editors were already opened, and the IDE was in smart mode and the editors were highlighted
-   * before the synthetic classes registration, wrong results could be cached so we need to drop them.
-   *
-   * DISCLAIMER: It's not clear if this is 100% actual in practice.
-   * At least when I add synthetic thread sleep for Dev IDE, I can observe this issue.
-   * Ideally, until the synthetic classes registration is finished, the IDE shouldn't be in smart mode.<br>
-   * But currently AFAIU it doesn't work like that  (see [[RegisterSyntheticClassesStartupActivity]])
-   */
-  private def dropCachesAndRestartHighlighting(): Unit = {
-    if (project.isDisposed)
-      return
-
-    // Drop caches of any scala elements in editors
-    ScalaPsiManager.instance(project).clearOnNonScalaChange()
-    // Drop caches of Synthetic classes types
-    projectLevelModificationTracker(project).incModificationCount()
-
-    invokeLater {
-      if (!project.isDisposed) {
-        DaemonCodeAnalyzer
-          .getInstance(project)
-          .restart("Restart after synthetic classes registration")
-      }
-    }
   }
 
   def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
