@@ -39,12 +39,7 @@ object ScalaSyntaxHighlighterFactory {
     @Nullable file: VirtualFile,
     language: Language
   ): ScalaSyntaxHighlighter = {
-    val scalaLexer = LanguageParserDefinitions.INSTANCE
-      .forLanguage(language)
-      .createLexer(project)
-      .asInstanceOf[ScalaLexer]
-
-    import SyntaxHighlighterFactory.{getSyntaxHighlighter => findByLanguage}
+    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
     val featuresFromFile = getScalaFeaturesForFile(project, file)
     val featuresFromFileOrLanguageDefault = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
@@ -52,16 +47,21 @@ object ScalaSyntaxHighlighterFactory {
     val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
 
     val isScala3 = language.isKindOf(Scala3Language.INSTANCE)
-    val customScalaLexer = new ScalaSyntaxHighlighter.CustomScalaLexer(
-      scalaLexer,
-      isScala3 = isScala3,
-      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings
-    )
+    def createScalaLexer() =
+      new ScalaSyntaxHighlighter.CustomScalaLexer(
+        parserDefinition.createLexer(project).asInstanceOf[ScalaLexer],
+        isScala3 = isScala3,
+        noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings
+      )
+
+    import SyntaxHighlighterFactory.getSyntaxHighlighter
+
     new ScalaSyntaxHighlighter(
-      customScalaLexer,
-      findByLanguage(ScalaDocLanguage.INSTANCE, project, file), // TODO: Switch highlighting lexer depending on markdown/wikidoc
-      findByLanguage(ScalaDirectiveLanguage.INSTANCE, project, file),
-      findByLanguage(HTMLLanguage.INSTANCE, project, file)
+      createScalaLexer,
+      getSyntaxHighlighter(ScalaDocLanguage.INSTANCE, project, file), // TODO: Switch highlighting lexer depending on markdown/wikidoc
+      getSyntaxHighlighter(ScalaDirectiveLanguage.INSTANCE, project, file),
+      getSyntaxHighlighter(HTMLLanguage.INSTANCE, project, file),
+      isScala3 = isScala3,
     )
   }
 
