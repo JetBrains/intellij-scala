@@ -4,8 +4,6 @@ import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.target.java.{JavaLanguageRuntimeConfiguration, JavaLanguageRuntimeType}
-import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration}
 import com.intellij.execution.testframework.actions.ConsolePropertiesProvider
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.openapi.application.ReadAction
@@ -14,8 +12,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
 import com.intellij.util.xmlb.XmlSerializer
@@ -26,6 +22,7 @@ import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.runner.ScalaTargetAwareRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.TestingSupportBundle
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
 import org.jetbrains.plugins.scala.testingSupport.test.munit.DelegateCommonJavaRunConfigurationParameters
@@ -33,7 +30,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, 
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 
-import java.nio.file.Path
 import java.{util => ju}
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
@@ -49,14 +45,13 @@ abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,
   val name: String
-) extends ModuleBasedConfiguration[JavaRunConfigurationModule, Element](
+) extends ScalaTargetAwareRunConfiguration[JavaRunConfigurationModule, Element](
   name,
   new JavaRunConfigurationModule(project, true),
   configurationFactory
 ) with ConfigurationWithCommandLineShortener
   with ConsolePropertiesProvider
   with CommonJavaRunConfigurationParameters
-  with TargetEnvironmentAwareRunProfile
   with DelegateCommonJavaRunConfigurationParameters //see scaladoc
   with exceptions {
 
@@ -70,27 +65,7 @@ abstract class AbstractTestRunConfiguration(
     else new ScalaTestFrameworkConsoleProperties(this, testFramework.getName, executor)
   }
 
-  /*
-   * The following methods implement the `TargetEnvironmentAwareRunProfile` interface which allows automatic
-   * translation of the test run configuration parameters to what a possible remote (eel/WSL) target expects.
-   *
-   * The implementation is the same as in `com.intellij.execution.junit.JUnitConfiguration`.
-   */
-
-  override def canRunOn(target: TargetEnvironmentConfiguration): Boolean =
-    target.getRuntimes.findByType(classOf[JavaLanguageRuntimeConfiguration]) != null
-
-  override def getDefaultLanguageRuntimeType: LanguageRuntimeType[?] =
-    LanguageRuntimeType.EXTENSION_NAME.findExtension(classOf[JavaLanguageRuntimeType])
-
-  override def getDefaultTargetName: String = getOptions.getRemoteTarget
-
-  override def setDefaultTargetName(targetName: String): Unit = {
-    getOptions.setRemoteTarget(targetName)
-  }
-
-  override def needPrepareTarget(): Boolean =
-    super.needPrepareTarget() || runsUnderRemoteJdk()
+  override protected def alternativeJrePath: Option[String] = Option(getAlternativeJrePath)
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: AbstractTestFramework
@@ -297,47 +272,6 @@ abstract class AbstractTestRunConfiguration(
     JdomExternalizerMigrationHelper(element) { helper =>
       helper.migrateString("testKind")(x => testKind = TestKind.parse(x))
     }
-
-  /**
-   * Same as `com.intellij.execution.JavaRunConfigurationBase#runsUnderRemoteJdk`.
-   */
-  private def runsUnderRemoteJdk(): Boolean = {
-    //noinspection ApiStatus,UnstableApiUsage
-    val pathNotLocal: Path => Boolean = !EelPathUtils.isPathLocal(_)
-    val stringToPath: String => Path = Path.of(_)
-    jdkHomeSatisfies(stringToPath andThen pathNotLocal)
-  }
-
-  /**
-   * Same as `com.intellij.execution.JavaRunConfigurationBase#jdkHomeSatisfies`.
-   * @note The code is very Java-esque, it is just a straight translation.
-   */
-  private def jdkHomeSatisfies(predicate: String => Boolean): Boolean = {
-    val path = getAlternativeJrePath
-    if (path != null) {
-      val sdk = ProjectJdkTable.getInstance().findJdk(path)
-      if (sdk != null) {
-        val homePath = sdk.getHomePath
-        if (homePath != null) {
-          return predicate(homePath)
-        }
-      }
-      return predicate(path)
-    }
-
-    val module = getConfigurationModule.getModule
-    if (module != null) {
-      val sdk = try {
-        JavaParameters.getValidJdkToRunModule(module, /* productionOnly = */ false)
-      } catch {
-        case _: CantRunException => return false
-      }
-      val sdkHomePath = sdk.getHomePath
-      return sdkHomePath != null && predicate(sdkHomePath)
-    }
-
-    false
-  }
 }
 
 object AbstractTestRunConfiguration {
