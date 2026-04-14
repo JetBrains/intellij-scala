@@ -32,17 +32,18 @@ import java.{util => ju}
  * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaSyntaxHighlighter(
-  scalaLexer: CustomScalaLexer,
+  createScalaLexer: () => CustomScalaLexer,
   scalaDocHighlighter: SyntaxHighlighter,
   scalaDirectiveHighlighter: SyntaxHighlighter,
   htmlHighlighter: SyntaxHighlighter,
+  isScala3: Boolean,
 ) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
 
   override def getHighlightingLexer: LayeredLexer =
     new CompoundLexer(
-      scalaLexer,
+      createScalaLexer(),
       scalaDocHighlighter.getHighlightingLexer,
       scalaDirectiveHighlighter.getHighlightingLexer,
       htmlHighlighter.getHighlightingLexer,
@@ -58,7 +59,7 @@ final class ScalaSyntaxHighlighter(
     case VALUE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
     case VARIABLE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
     case TYPE_IDENTIFIER => Array(DefaultHighlighter.TYPE_ALIAS)
-    case _: ScalaDocElementType if scalaLexer.isScala3 =>
+    case _: ScalaDocElementType if isScala3 =>
       // Do not highlight any special syntax in Scala 3
       // Instead [[ScalaSyntaxHighlightingVisitor]] will highlight it based on the psi tree
       SyntaxHighlighterBase.pack(DefaultHighlighter.DOC_COMMENT)
