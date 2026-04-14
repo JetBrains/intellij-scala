@@ -3,15 +3,12 @@ package org.jetbrains.plugins.scala.console.configuration
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.target.java.{JavaLanguageRuntimeConfiguration, JavaLanguageRuntimeType}
-import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration}
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
@@ -21,7 +18,7 @@ import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{Jli
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaReplBundle}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.*
-import org.jetbrains.plugins.scala.runner.ScalaTargetAwareCommandLineState
+import org.jetbrains.plugins.scala.runner.{ScalaTargetAwareCommandLineState, ScalaTargetAwareRunConfiguration}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import java.nio.file.Path
@@ -41,12 +38,11 @@ class ScalaConsoleRunConfiguration(
   project: Project,
   configurationFactory: ConfigurationFactory,
   name: String
-) extends ModuleBasedConfiguration[RunConfigurationModule, Element](
+) extends ScalaTargetAwareRunConfiguration[RunConfigurationModule, Element](
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) with EnvFilesOptions
-  with TargetEnvironmentAwareRunProfile {
+) with EnvFilesOptions {
 
   //language=Scala
   private val Scala2MainClass = "scala.tools.nsc.MainGenericRunner"
@@ -116,56 +112,6 @@ class ScalaConsoleRunConfiguration(
 
   //overriding the method as a workaround for https://github.com/lampepfl/dotty/issues/19007
   override def clone(): ModuleBasedConfiguration[? <: RunConfigurationModule, ?] = super.clone()
-
-  /*
-   * The following methods implement the `TargetEnvironmentAwareRunProfile` interface which allows automatic
-   * translation of the run configuration parameters to what a possible remote (eel/WSL) target expects.
-   *
-   * The implementation is the same as in `com.intellij.execution.junit.JUnitConfiguration`.
-   */
-
-  override def canRunOn(target: TargetEnvironmentConfiguration): Boolean =
-    target.getRuntimes.findByType(classOf[JavaLanguageRuntimeConfiguration]) != null
-
-  override def getDefaultLanguageRuntimeType: LanguageRuntimeType[?] =
-    LanguageRuntimeType.EXTENSION_NAME.findExtension(classOf[JavaLanguageRuntimeType])
-
-  override def getDefaultTargetName: String = getOptions.getRemoteTarget
-
-  override def setDefaultTargetName(targetName: String): Unit = {
-    getOptions.setRemoteTarget(targetName)
-  }
-
-  override def needPrepareTarget(): Boolean =
-    super.needPrepareTarget() || runsUnderRemoteJdk()
-
-  /**
-   * Same as `com.intellij.execution.JavaRunConfigurationBase#runsUnderRemoteJdk`.
-   */
-  private def runsUnderRemoteJdk(): Boolean = {
-    //noinspection ApiStatus,UnstableApiUsage
-    val pathNotLocal: Path => Boolean = !EelPathUtils.isPathLocal(_)
-    val stringToPath: String => Path = Path.of(_)
-    jdkHomeSatisfies(stringToPath andThen pathNotLocal)
-  }
-
-  /**
-   * Same as `com.intellij.execution.JavaRunConfigurationBase#jdkHomeSatisfies`.
-   */
-  private def jdkHomeSatisfies(predicate: String => Boolean): Boolean = {
-    val module = getConfigurationModule.getModule
-    if (module != null) {
-      val sdk = try {
-        JavaParameters.getValidJdkToRunModule(module, /* productionOnly = */ false)
-      } catch {
-        case _: CantRunException => return false
-      }
-      val sdkHomePath = sdk.getHomePath
-      return sdkHomePath != null && predicate(sdkHomePath)
-    }
-
-    false
-  }
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends ScalaTargetAwareCommandLineState(env) {
     getModule match {
