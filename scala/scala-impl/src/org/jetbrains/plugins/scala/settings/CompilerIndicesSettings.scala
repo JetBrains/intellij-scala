@@ -50,7 +50,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
         case t                         => List(t)
       }
 
-      try moduleBuildTasks.forall(runner.canRun(project, _))
+      try moduleBuildTasks.forall(runner.canRun(project, _, null))
       catch { case NonFatal(_) => false }
     }.exists {
       case _: JpsProjectTaskRunner => true
