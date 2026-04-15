@@ -13,7 +13,6 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
@@ -77,13 +76,13 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
         override def updateToolTipText(): Unit = {
           HelpTooltip.dispose(this)
           new HelpTooltip()
-            .setPlainTextTitle(
+            .setTitle(
               if (ScalaHintsSettings.xRayMode)
                 if (ScalaHintsSettings.xRayModePinned) ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.exit")
                 else ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.pin")
               else
                 ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.enter"))
-            .setDescription(if (ScalaHintsSettings.xRayMode) null else HtmlChunk.raw("(" + ScalaHintsSettings.xRayModeShortcut + ")"))
+            .setDescription(if (ScalaHintsSettings.xRayMode) null else "(" + ScalaHintsSettings.xRayModeShortcut + ")")
             .setLink(
               ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"),
               () => ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[XRayModeSettingsSectionConfigurable])
