@@ -10,17 +10,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.testFramework.IdeaTestUtil
-import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.{FixturesKt, TestFixture}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.MockScalaSDKLoader
+import org.jetbrains.plugins.scala.testFramework.junit5.ScalaTestApplication
 import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertNotNull, assertTrue}
 import org.junit.jupiter.api.{BeforeEach, Test}
 
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
-@TestApplication
+@ScalaTestApplication
 class ScalaConsoleRunConfigurationTest:
 
   private val pf: TestFixture[Project] = FixturesKt.projectFixture()
