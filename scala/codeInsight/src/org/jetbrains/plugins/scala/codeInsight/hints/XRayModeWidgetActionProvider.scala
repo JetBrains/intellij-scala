@@ -26,6 +26,7 @@ import java.awt.event.{InputEvent, MouseAdapter, MouseEvent}
 import java.awt.{Component, Insets, Toolkit}
 import javax.swing.JComponent
 import javax.swing.plaf.FontUIResource
+import scala.annotation.nowarn
 
 class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
   override def createAction(editor: Editor): AnAction = {
@@ -87,7 +88,7 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
               ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"),
               () => ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[XRayModeSettingsSectionConfigurable])
             )
-            .installOn(this)
+            .installOn(this): @nowarn("cat=deprecation")
         }
 
         override def iconTextSpace: Int = JBUI.scale(2)
