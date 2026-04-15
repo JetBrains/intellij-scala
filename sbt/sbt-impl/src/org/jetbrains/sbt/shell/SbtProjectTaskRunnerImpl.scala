@@ -7,21 +7,21 @@ import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.notification.{NotificationAction, NotificationType}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import org.jetbrains.plugins.scala.build.BuildToolWindowReporter
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil as ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task.*
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.concurrency.{AsyncPromise, Promise as JPromise}
+import org.jetbrains.concurrency.{AsyncPromise, Promise as IJPromise}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.build.{BuildMessages, CompositeReporter, IndicatorReporter, TaskRunnerResult}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter, CompositeReporter, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -30,16 +30,54 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
+import java.util
 import java.util.UUID
 import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
+/**
+ * This task runner is responsible for delegating the "Build" tasks to sbt shell when it's enabled.
+ *
+ * When this is activated via `canRun`, this is used to build the project instead of other task runner implementations.
+ *
+ * Other task runners:
+ *  - [[com.intellij.task.impl.JpsProjectTaskRunner]]<br>
+ *    the default JPS build task runner that is used in SBT proejcts unless "Use sbt shell for builds" is enabled
+ *  - [[org.jetbrains.bsp.project.BspProjectTaskRunner]]<br>
+ *    used in BSP projects
+ *  - [[org.jetbrains.idea.maven.execution.build.MavenProjectTaskRunner]]<br>
+ *    used in Maven projects when delegation to the build tool is enabled
+ *  - [[org.jetbrains.plugins.gradle.execution.build.GradleProjectTaskRunner]]<br>
+ *    used in Gradle projects when delegation to the build tool is enabled (by default)
+ *  - [[org.jetbrains.bazel.buildTask.BazelProjectTaskRunner]]<br>
+ *    used in Bazel projects when delegation to the build tool is enabled (by default)
+ */
 final class SbtProjectTaskRunnerImpl
   extends ProjectTaskRunner
     with SbtProjectTaskRunner {
 
+  private val Log = Logger.getInstance(this.getClass)
+
+  //noinspection UsagesOfObsoleteApi
+  //The method is not supposed to be unused by the platform and exists only to satisfy the interface and not break any old clients relying on this
+  override def canRun(projectTask: ProjectTask): Boolean = {
+    Log.error("Method `canRun(ProjectTask)` is obsolete. Use `canRun(Project, ProjectTask, ProjectTaskContext)` instead.")
+    this.canRunImpl(null, projectTask, null)
+  }
+
   // will override the usual jps build thingies
-  override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
+  override def canRun(
+    project: Project,
+    projectTask: ProjectTask,
+    @Nullable context: ProjectTaskContext
+  ): Boolean = canRunImpl(project, projectTask, context)
+
+  // will override the usual jps build thingies
+  private def canRunImpl(
+    @Nullable project: Project,
+    projectTask: ProjectTask,
+    @Nullable context: ProjectTaskContext
+  ): Boolean = projectTask match {
     case task: ModuleBuildTask =>
       isUseSbtShellForBuildEnabled(task.getModule)
     case _: ExecuteRunConfigurationTask =>
@@ -67,87 +105,131 @@ final class SbtProjectTaskRunnerImpl
     project: Project,
     context: ProjectTaskContext,
     tasks: ProjectTask*
-  ): JPromise[ProjectTaskRunner.Result] = {
-    val validTasks = tasks.collect {
+  ): IJPromise[ProjectTaskRunner.Result] = {
+    val supportedTasks: Seq[ModuleBuildTask] = tasks.collect {
       // TODO Android AARs are currently imported as modules. need a way to filter them away before building
-      case task: ModuleBuildTask
-        // SbtModuleType actually denotes `-build` modules, which are not part of the regular build
-        if ModuleType.get(task.getModule).getId != SbtModuleType.Id =>
-          task
+      // Filter out modules representing sbt meta-build projects (`-build` modules)
+      case task: ModuleBuildTask if !isBuildModule(task)=>
+        task
     }
 
-    val sbtVersion: SbtVersion = SbtProcessManager.instanceIfCreated(project)
-      .flatMap(_.sbtVersionUsedDuringProcessStart)
-      .getOrElse(SbtVersionDetector.detectSbtVersion(project))
+    val taskModules: Seq[Module] =
+      supportedTasks.map(_.getModule)
+    val scopesPerModule: Map[SbtModuleData, Set[SbtScope]] =
+      groupTasksPerModule(taskModules)
 
-    // Collect the sbt scopes (main/test) per sbt module. This is done to:
-    //   - Avoid duplicate commands. Triggering "Build project" for a project with a single sbt module
-    //     results in 3 ProjectTasks — one for the parent module, one for the main module, and one for the
-    //     test module. For this only 2 `products` commands are needed (one for Compile scope, one for Test scope in the given sbt module).
-    //     The logic below ensures duplicates are filtered out.
-    //   - Run the `products` task only in the relevant scope. When a build is triggered for a main or test module,
-    //     only the `products` task in the Compile or Test scope (respectively) should be executed.
-    val scopesPerModule = validTasks.foldLeft(Map.empty[SbtModuleData, Set[SbtScope]]) { (acc, task) =>
-      val module = task.getModule
-      SbtUtil.getSbtModuleData(module) match
-        case Some(sbtModuleData) =>
-          val scopes =
-            if !module.isSbtSourceSetModule then Set(SbtScope.Main, SbtScope.Test)
-            else if module.isMain then Set(SbtScope.Main)
-            else Set(SbtScope.Test)
+    // The "build" button in IDEA always runs the build for all individual modules.
+    // This may work differently than just calling the "products" sbt task from the main module in sbt
+    val sbtBuildCommands: Seq[String] =
+      buildSbtBuildCommands(project, scopesPerModule)
 
-          val merged = acc.getOrElse(sbtModuleData, Set.empty) ++ scopes
-          acc.updated(sbtModuleData, merged)
-        case None => acc
+    runSbtBuildTasks(project, supportedTasks, sbtBuildCommands)
+  }
+
+  private def isBuildModule(task: ModuleBuildTask): Boolean = {
+    val moduleType = ModuleType.get(task.getModule)
+    moduleType.getId == SbtModuleType.Id
+  }
+
+  private def runSbtBuildTasks(project: Project, validTasks: Seq[ModuleBuildTask], sbtBuildCommands: Seq[String]): AsyncPromise[ProjectTaskRunner.Result] = {
+    if (sbtBuildCommands.isEmpty) {
+      // don't run anything if there's no module to run a build for
+      if (validTasks.nonEmpty) {
+        showNotificationThatExternalSystemHasLostModuleData(project)
       }
 
-    // the "build" button in IDEA always runs the build for all individual modules,
-    // and may work differently than just calling the products task from the main module in sbt
-    val moduleCommands = buildCommands(sbtVersion, scopesPerModule)
-
-    if (moduleCommands.isEmpty && validTasks.nonEmpty) {
-      // sometimes external system loses information about sbt modules
-      // since it is very confusing to users, when build task silently does nothing
-      // we detect such cases and suggest project refresh
-      val notification = ScalaNotificationGroups.sbtShell.createNotification(
-        SbtBundle.message("sbt.shell.sbt.build.failed"),
-        SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
-        NotificationType.ERROR
-      )
-
-      notification.addAction(
-        NotificationAction.createSimple(
-          SbtBundle.message("sbt.shell.refresh.sbt.project"),
-          (() => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))): Runnable
-        )
-      )
-
-      notification.notify(project)
-    }
-
-    val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]()
-
-    // don't run anything if there's no module to run a build for
-    // TODO user feedback
-    if (moduleCommands.isEmpty){
-      val result = TaskRunnerResult(isAborted = false, hasErrors = false)
-      promiseResult.setResult(result)
+      createDonePromise(TaskRunnerResult(isAborted = false, hasErrors = false))
     } else {
+      val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]()
 
-      val command =
-        if (moduleCommands.size == 1) moduleCommands.head
-        else moduleCommands.mkString("all ", " ", "")
-
-      extensions.invokeAndWait {
+      // Ensure all documents are saved to disk before running the SBT compilation
+      invokeAndWait {
         FileDocumentManager.getInstance().saveAllDocuments()
       }
 
-      // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, command, promiseResult)
-      ProgressManager.getInstance().run(task)
-    }
+      val commandFinal: String =
+        if (sbtBuildCommands.size == 1) sbtBuildCommands.head
+        else sbtBuildCommands.mkString("all ", " ", "")
 
-    promiseResult
+      // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
+      val task = new CommandTask(project, commandFinal, promiseResult)
+      ProgressManager.getInstance().run(task)
+
+      promiseResult
+    }
+  }
+
+  private def createDonePromise(result: TaskRunnerResult): AsyncPromise[ProjectTaskRunner.Result] = {
+    val promise = new AsyncPromise[ProjectTaskRunner.Result]()
+    promise.setResult(result)
+    promise
+  }
+
+  /**
+   * Collect the sbt scopes (main/test) per sbt module.<br>
+   * This is done to:
+   *  1. Avoid duplicate commands:<br>
+   *     Triggering "Build project" for a project with a single sbt module results in 3 ProjectTasks:
+   *     1. for the parent module
+   *     2. for the main module
+   *     3. for the test module
+   *
+   *     For our use case, only 2 "products" commands are needed:
+   *     1. one for Compile scope in the given sbt module
+   *     2. one for Test scope in the given sbt module
+   *
+   * The logic in this method ensures duplicates are filtered out.
+   *  2. Run the "products" task only in the relevant scope:<br>
+   *     When a build is triggered for a main or test module, only the "products" task in the Compile or Test scope (respectively) should be executed.
+   */
+  private def groupTasksPerModule(modules: Seq[Module]): Map[SbtModuleData, Set[SbtScope]] = {
+    val acc = mutable.Map.empty[SbtModuleData, Set[SbtScope]].withDefaultValue(Set.empty)
+
+    for
+      module <- modules
+      data <- SbtUtil.getSbtModuleData(module)
+    do
+      val newScopes = moduleScopes(module)
+      val existingScopes = acc(data)
+      acc.update(data, existingScopes ++ newScopes)
+
+    acc.toMap
+  }
+
+  private def moduleScopes(module: Module): Set[SbtScope] =
+    if !module.isSbtSourceSetModule then Set(SbtScope.Main, SbtScope.Test)
+    else if module.isMain then Set(SbtScope.Main)
+    else Set(SbtScope.Test)
+
+  private def getOrDetectSbtVersion(project: Project): SbtVersion =
+    SbtProcessManager.instanceIfCreated(project)
+      .flatMap(_.sbtVersionUsedDuringProcessStart)
+      .getOrElse(SbtVersionDetector.detectSbtVersion(project))
+
+  /**
+   * Sometimes the external system loses information about sbt modules.
+   * It would be very confusing to users if a build task silently did nothing.
+   * We detect such cases and suggest project refresh.
+   *
+   * @see SCL-15118
+   * @todo Add information on how actual it still is in 2026?
+   *       What are potential reasons the eternal system information is lost?
+   */
+  private def showNotificationThatExternalSystemHasLostModuleData(project: Project): Unit = {
+    val notification = ScalaNotificationGroups.sbtShell.createNotification(
+      SbtBundle.message("sbt.shell.sbt.build.failed"),
+      SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
+      NotificationType.ERROR
+    )
+
+    notification.addAction(
+      NotificationAction.createSimple(
+        SbtBundle.message("sbt.shell.refresh.sbt.project"),
+        (() => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))): Runnable
+      )
+    )
+
+    notification.notify(project)
   }
 
   /**
@@ -156,17 +238,25 @@ final class SbtProjectTaskRunnerImpl
    * @todo sensible way to find out what scopes to run it for besides compile and test?
    * @todo make tasks should be user-configurable
    */
-  private def buildCommands(sbtVersion: SbtVersion, scopesPerModule: Map[SbtModuleData, Set[SbtScope]]): Seq[String] =
+  private def buildSbtBuildCommands(
+    project: Project,
+    scopesPerModule: Map[SbtModuleData, Set[SbtScope]]
+  ): Seq[String] = {
+    val sbtVersion: SbtVersion = getOrDetectSbtVersion(project)
     scopesPerModule.toSeq.flatMap { case (sbtModuleData, scopes) =>
       val projectScope = SbtUtil.makeSbtProjectId(sbtModuleData)
       // `products` task is a little more general than just `compile`
       scopes.map {
-        case SbtScope.Main => s"$projectScope/products"
+        case SbtScope.Main =>
+          s"$projectScope/products"
         case SbtScope.Test =>
-          if SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion) then s"$projectScope/Test/products"
-          else s"$projectScope/test:products"
+          if SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion) then
+            s"$projectScope/Test/products"
+          else
+            s"$projectScope/test:products"
       }
     }
+  }
 
   @Nullable
   override def createExecutionEnvironment(project: Project,
