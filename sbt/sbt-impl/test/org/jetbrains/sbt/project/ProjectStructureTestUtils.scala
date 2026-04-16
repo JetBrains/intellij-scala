@@ -8,7 +8,7 @@ import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
-import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.settings.DisplayModuleName
 import org.junit.Assert.{assertEquals, fail}
 
@@ -87,11 +87,26 @@ object ProjectStructureTestUtils {
       case "3.0.2" => Seq(expectedScalaLibrary(useEnv)("2.13.6", projectSystemId))
       case "3.3.3" => Seq(expectedScalaLibrary(useEnv)("2.13.12", projectSystemId))
       case "3.6.2" => Seq(expectedScalaLibrary(useEnv)("2.13.15", projectSystemId))
+      case "3.8.2" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.2", projectSystemId))
       case _ => Nil
     }
     val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId)
 
     scalaSdkLibrary +: scalaLibraryTransitive :+ scalaLibrary
+  }
+
+  /**
+   * Since Scala 3.8 the scala library format was redesigned (SCL-24347)
+   *
+   * Example libraries in Scala 3.8.3:
+   *  - scala3-library_3:3.8.3:jar
+   *  - scala-library:3.8.3:jar
+   */
+  private def expectedTransitiveScalaLibraryFromCoursier(useEnv: Boolean)(version: String, projectSystemId: ProjectSystemId): library = {
+    new library(s"${projectSystemId.getReadableName}: org.scala-lang:scala-library:$version:jar") {
+      libClasses := coursierCacheArtifacts(useEnv)(s"org/scala-lang/scala-library/$version/scala-library-$version.jar")
+      libSources := coursierCacheArtifacts(useEnv)(s"org/scala-lang/scala-library/$version/scala-library-$version-sources.jar")
+    }
   }
 
   private def expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, libraryName: String): library = {

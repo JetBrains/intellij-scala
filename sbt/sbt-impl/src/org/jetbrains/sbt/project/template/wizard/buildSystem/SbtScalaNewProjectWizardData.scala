@@ -26,6 +26,9 @@ trait SbtScalaNewProjectWizardData extends ScalaNewProjectWizardData {
 
   @TestOnly
   private[project] def setPackagePrefix(prefix: String): Unit
+
+  @TestOnly
+  private[project] def setRunImportAfterProjectCreation(value: Boolean): Unit
 }
 
 object SbtScalaNewProjectWizardData {
