@@ -107,31 +107,37 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
 
     siblings match {
-      case Seq(firstSibling, _*) if ApplicationManager.getApplication.isUnitTestMode =>
-        val targetOffset = Option(dataContext).flatMap(_.getData(ChosenTargetScopeKey).toOption)
-        val targetScope = targetOffset
-          .flatMap(smallestScopeEnclosingTarget(siblings))
-          .getOrElse(firstSibling)
-        invokeDialog(
-          elements, hasReturn, lastReturn, targetScope,
-          smallestScope = siblings.length == 1,
-          lastExprType  = lastExprType
-        )
       case Seq() =>
       case Seq(sibling) =>
         invokeDialog(elements, hasReturn, lastReturn, sibling, smallestScope = true, lastExprType)
       case siblings =>
-        showPsiChooser(siblings, { (selectedValue: PsiElement) =>
+        // try to select the smallest class-like scope if possible
+        val selection = siblings.findLast(_.parent.exists(_.is[ScTemplateBody]))
+
+        if (ApplicationManager.getApplication.isUnitTestMode) {
+          val targetOffset = Option(dataContext).flatMap(_.getData(ChosenTargetScopeKey).toOption)
+          val targetScope = targetOffset
+            .flatMap(smallestScopeEnclosingTarget(siblings))
+            .orElse(selection)
+            .getOrElse(siblings.head)
           invokeDialog(
-            elements, hasReturn, lastReturn, selectedValue,
-            smallestScope = siblings.last == selectedValue,
+            elements, hasReturn, lastReturn, targetScope,
+            smallestScope = siblings.last == targetScope,
             lastExprType  = lastExprType
           )
-        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, _.getParent)
+        } else {
+          showPsiChooser(siblings, { (selectedValue: PsiElement) =>
+            invokeDialog(
+              elements, hasReturn, lastReturn, selectedValue,
+              smallestScope = siblings.last == selectedValue,
+              lastExprType  = lastExprType
+            )
+          }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, _.getParent, selection)
+        }
     }
   }
 
-  def smallestScopeEnclosingTarget(scopeElements: Seq[PsiElement])(targetOffset: Int): Option[PsiElement] =
+  private def smallestScopeEnclosingTarget(scopeElements: Seq[PsiElement])(targetOffset: Int): Option[PsiElement] =
     scopeElements
         .filter(_.getContext.getTextRange.containsOffset(targetOffset))
         .minByOption(_.getContext.getTextLength)
@@ -140,7 +146,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     def isInScala2(file: PsiFile): Boolean =
       file.getViewProvider.getBaseLanguage == ScalaLanguage.INSTANCE
 
-    def isParentOk(prev: PsiElement, parent: PsiElement): Boolean = (prev, parent) match {
+    def isParentOk(prev: PsiElement, @Nullable parent: PsiElement): Boolean = (prev, parent) match {
       case (_, null)                                                                    => false
       case (_, file: ScalaFile)               if isInScala2(file)                       => false
       case (_, pkg: ScPackaging)              if pkg.containingFile.forall(isInScala2)  => false
@@ -222,7 +228,6 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
     Option(result)
   }
-
 
   private def invokeDialog(elements: Seq[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,

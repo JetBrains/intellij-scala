@@ -1,5 +1,5 @@
 object NoSearchGeneric {
-
+/*inThisScope*/
   abstract class GenericParamInput[T] {
 
     val x: T
