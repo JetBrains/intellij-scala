@@ -1587,7 +1587,7 @@ object ScalaPsiElementFactory {
     element.getChildren.apply(2).getFirstChild.asInstanceOf[ScWildcardPattern]
   }
 
-  def createTemplateDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
+  def createTemplateDefinitionFromText(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScTemplateDefinition =
     createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef.parse(_))
 
   def createTemplateDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement, features: ScalaFeatures)
