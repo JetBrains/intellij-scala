@@ -8,7 +8,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.junit5.fixture.{FixturesKt, TestFixture}
 import com.intellij.util.lang.JavaVersion
@@ -34,10 +34,11 @@ class ScalaConsoleRunConfigurationTest:
     val jdk = IdeaTestUtil.getMockJdk(JavaVersion.compose(17))
     val jdkTable = ProjectJdkTable.getInstance()
 
-    if !jdkTable.getAllJdks.contains(jdk) then
-      WriteAction.runAndWait(() => jdkTable.addJdk(jdk, project))
-
-    ModuleManager.getInstance(project).getModules.foreach(ModuleRootModificationUtil.setModuleSdk(_, jdk))
+    WriteAction.runAndWait: () =>
+      if !jdkTable.getAllJdks.contains(jdk) then
+        jdkTable.addJdk(jdk, project)
+      ProjectRootManager.getInstance(project).setProjectSdk(jdk)
+      ModuleManager.getInstance(project).getModules.foreach(ModuleRootModificationUtil.setModuleSdk(_, jdk))
   end registerJdk
 
   // --- Main class ---
@@ -157,6 +158,7 @@ class ScalaConsoleRunConfigurationTest:
     val params = state.asInstanceOf[JavaCommandLineState].getJavaParameters
     assertNotNull(params, "JavaParameters should not be null")
     params
+  end buildJavaParameters
 
   extension (s: String)
     def scalaVersion: ScalaVersion =
