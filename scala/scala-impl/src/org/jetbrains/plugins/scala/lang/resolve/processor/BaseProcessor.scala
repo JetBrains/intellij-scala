@@ -210,13 +210,30 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
           if (!execute(method, state)) break = false
         }
+        val staticInnerClassNames = {
+          val names = new java.util.HashSet[String]()
+          for (cl <- e.getInnerClasses if cl.hasModifierProperty("static")) {
+            names.add(cl.getName)
+          }
+          names
+        }
         for (cl <- e.getInnerClasses if break && cl.hasModifierProperty("static")) {
           if (!execute(cl, state)) break = false
         }
-        for (field <- e.getFields if break && field.hasModifierProperty("static")) {
+        //SCL-25317: Kotlin companion objects generate both a static inner class and a static
+        //field with the same name (e.g. "Companion"). Skip fields that shadow inner classes,
+        //otherwise the duplicate causes ambiguous resolution in type reference contexts.
+        for (field <- e.getFields if break && field.hasModifierProperty("static") &&
+          !staticInnerClassNames.contains(field.getName)) {
           if (!execute(field, state)) break = false
         }
         if (!break) return false
+        //SCL-23032, SCL-25317: Kotlin objects distribute members across static (const val,
+        //@JvmStatic) and instance (regular methods/properties). Process instance members too
+        //so that all members are accessible from Scala.
+        if (isKotlinObjectClass(e)) {
+          if (!processElement(e, ScSubstitutor.empty, place, state)) return false
+        }
         processEnum(e, execute(_, state))
       case ScDesignatorType(o: ScObject) =>
         processElement(o, ScSubstitutor.empty, place, state)
@@ -409,5 +426,23 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
 
     inputWithoutShadowed
+  }
+
+  //SCL-23032, SCL-25317: Kotlin `object` declarations (singletons) distribute their members
+  //across static (const val, @JvmStatic) and instance (regular methods). We detect them by:
+  // - Regular/nested objects have a `static INSTANCE` field on the class itself
+  // - Companion objects don't have INSTANCE; instead the outer class has a static field
+  //   whose name matches the companion class name (e.g. `Companion`)
+  private def isKotlinObjectClass(clazz: PsiClass): Boolean =
+    clazz.getLanguage.getID == "kotlin" && (hasInstanceField(clazz) || isCompanionObjectOf(clazz))
+
+  private def hasInstanceField(clazz: PsiClass): Boolean =
+    clazz.getFields.exists(f => f.getName == "INSTANCE" && f.hasModifierProperty("static"))
+
+  private def isCompanionObjectOf(clazz: PsiClass): Boolean = {
+    val outer = clazz.getContainingClass
+    val name = clazz.getName
+    outer != null && name != null &&
+      outer.getFields.exists(f => f.getName == name && f.hasModifierProperty("static"))
   }
 }
