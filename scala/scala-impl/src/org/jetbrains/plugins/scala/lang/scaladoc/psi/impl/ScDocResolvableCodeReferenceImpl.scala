@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -46,6 +46,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
       def isTerm(rr: ScalaResolveResult): Boolean = rr.element match {
         case _: ScObject => true
         case _: ScTypeDefinitionLike => false
+        case _: PsiClass => false
         case _ => true
       }
 
