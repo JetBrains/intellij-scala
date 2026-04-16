@@ -138,15 +138,12 @@ object LatestScalaVersions {
     Scala_2_13
   )
 
-  val allScala3: Seq[ScalaVersion] = Seq(
+  val allScala3WithoutScalaNext: Seq[ScalaVersion] = Seq(
     Scala_3_0,
     Scala_3_1,
     Scala_3_2,
     Scala_3_3
   )
-
-  val allStableWithoutScalaNext: Seq[ScalaVersion] =
-    allScala2 ++ allScala3
 
   val allScalaNext: Seq[ScalaVersion] = Seq(
     Scala_3_4,
@@ -155,6 +152,12 @@ object LatestScalaVersions {
     Scala_3_7,
     Scala_3_8
   )
+
+  val allScala3: Seq[ScalaVersion] =
+    allScala3WithoutScalaNext ++ allScalaNext
+
+  val allStableWithoutScalaNext: Seq[ScalaVersion] =
+    allScala2 ++ allScala3WithoutScalaNext
 
   val allReleaseCandidates: Seq[ScalaVersion] = Seq(
     Scala_3_LTS_RC,

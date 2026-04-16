@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.project
 
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
+import org.jetbrains.plugins.scala.LatestScalaVersions
 
 class VersionsTest {
 
@@ -34,5 +35,15 @@ class VersionsTest {
       versionsFilteredExpected.sorted.reverse,
       versionsFilteredActual.sorted.reverse,
     )
+  }
+
+  //SCL-24309
+  @Test
+  def testScala3HardcodedVersionsContainLatestScalaNextVersions(): Unit = {
+    val hardcodedVersions = Versions.scala3HardcodedVersions
+    val expectedLatestScalaNextVersions = LatestScalaVersions.allScalaNext.map(_.minor)
+    expectedLatestScalaNextVersions.foreach { version =>
+      assertTrue(s"Hardcoded Scala 3 versions should contain $version", hardcodedVersions.contains(version))
+    }
   }
 }

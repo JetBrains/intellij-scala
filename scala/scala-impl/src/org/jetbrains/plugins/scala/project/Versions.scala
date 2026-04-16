@@ -5,9 +5,8 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.LatestScalaVersions._
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, isInternalMode}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion, isInternalMode}
 import org.jetbrains.sbt.{MinorVersionGenerator, SbtVersion, SbtVersionCapabilities}
 
 import java.net.URI
@@ -260,14 +259,14 @@ object Versions {
 
     val ScalaEntity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-      minVersion = Scala_2_10.major + ".0",
-      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala2, (v: ScalaVersion) => v.minor),
+      minVersion = LatestScalaVersions.Scala_2_10.major + ".0",
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(LatestScalaVersions.allScala2, (v: ScalaVersion) => v.minor),
       versionPattern = ScalaVersionItemPattern
     )
     val Scala3Entity: DownloadableEntity = DownloadableEntity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
-      minVersion = Scala_3_0.major + ".0",
-      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(allScala3, (v: ScalaVersion) => v.minor),
+      minVersion = LatestScalaVersions.Scala_3_0.major + ".0",
+      hardcodedVersions = MinorVersionGenerator.generateAllMinorVersions(LatestScalaVersions.allScala3, (v: ScalaVersion) => v.minor),
       versionPattern = ScalaVersionItemPattern
     )
 
