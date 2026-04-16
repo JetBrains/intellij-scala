@@ -144,12 +144,9 @@ object SbtModuleBuilder {
     rootProjectSettings: Seq[String]
   ): String = {
     //TODO: don't add "version" in all sbt versions, not only in SBT 2
-    val version = """0.1.0-SNAPSHOT"""
     val rootProjectSettingsText = formatRootProjectSettings(rootProjectSettings)
 
-    s"""ThisBuild / version := "$version"
-       |
-       |ThisBuild / scalaVersion := "$scalaVersion"
+    s"""ThisBuild / scalaVersion := "$scalaVersion"
        |
        |lazy val root = (project in file("."))
        |  .settings(
@@ -168,12 +165,9 @@ object SbtModuleBuilder {
     @NonNls scalaVersion: String,
     rootProjectSettings: Seq[String]
   ): String = {
-    val version = """0.1.0-SNAPSHOT"""
     val rootProjectSettingsText = formatRootProjectSettings(rootProjectSettings)
 
-    s"""version in ThisBuild := "$version"
-       |
-       |scalaVersion in ThisBuild := "$scalaVersion"
+    s"""scalaVersion in ThisBuild := "$scalaVersion"
        |
        |lazy val root = (project in file("."))
        |  .settings(
