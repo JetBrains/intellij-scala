@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.refactoring.extractMethod
 
+import com.intellij.idea.TestFor
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.Path
@@ -14,4 +16,17 @@ class ScalaExtractMethodScopeTest extends ScalaExtractMethodTestBase {
   def testNewClassScope5(): Unit = doTest()
   def testNewClassScope6(): Unit = doTest()
   def testNewClassScope7(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-25158"))
+  def testDefaultClassScope(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-25158"))
+  def testDefaultClassScope2(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-25158"))
+  def testDefaultClassScope3(): Unit = doTest()
+}
+
+class Scala3ExtractMethodScopeTest extends ScalaExtractMethodScopeTest {
+  override def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 }
