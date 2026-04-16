@@ -91,7 +91,7 @@ public class SbtRunConfigurationForm {
     }
 
     public void apply(SbtRunConfiguration configuration) {
-        tasksEditor.setText(configuration.getTasks());
+        tasksEditor.setText(configuration.getCommands());
         javaOptionsEditor.setText(configuration.getVmparams());
         environmentVariables.setEnvs(configuration.environmentVariables());
         environmentVariables.setEnvFilePaths(configuration.envFilePaths());
