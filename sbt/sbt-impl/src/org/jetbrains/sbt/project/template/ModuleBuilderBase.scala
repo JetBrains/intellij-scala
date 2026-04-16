@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.{NotNull, TestOnly}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.template.{DefaultModuleContentEntryFolders, ModuleBuilderUtil}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
@@ -28,6 +28,12 @@ abstract class ModuleBuilderBase[T <: ExternalProjectSettings](
 
   protected val Log: Logger = Logger.getInstance(getClass)
   var openFileEditorAfterProjectOpened: Seq[VirtualFile] = Nil
+
+  /**
+   * ATTENTION: should be modified in tests only
+   */
+  @TestOnly
+  var runExternalSystemProjectRefreshOnProjectOpen: Boolean = true
 
   //TODO: why is it JavaModuleType and not SbtModuleType?
   override def getModuleType: ModuleType[?] = JavaModuleType.getModuleType
@@ -54,7 +60,15 @@ abstract class ModuleBuilderBase[T <: ExternalProjectSettings](
 
   override def setupModule(module: Module): Unit = {
     super.setupModule(module)
-    Option(getContentEntryPath).foreach(ModuleBuilderUtil.tryToSetupModule(module, getExternalProjectSettings, _, projectSystemId))
+    ModuleBuilderUtil.setRunExternalSystemProjectRefreshOnProjectOpen(module, runExternalSystemProjectRefreshOnProjectOpen)
+    Option(getContentEntryPath).foreach { contentEntryPath =>
+      ModuleBuilderUtil.tryToSetupModule(
+        module = module,
+        externalProjectSettings = getExternalProjectSettings,
+        contentEntryPath = contentEntryPath,
+        projectSystemId = projectSystemId
+      )
+    }
   }
 
   /**

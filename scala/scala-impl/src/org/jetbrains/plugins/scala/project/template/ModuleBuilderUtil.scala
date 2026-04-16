@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.ide.util.EditorHelper
-import com.intellij.openapi.application.{ModalityState, ReadAction}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState, ReadAction}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
+import com.intellij.openapi.externalSystem.model.{ExternalSystemDataKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalProjectSettings}
@@ -15,6 +16,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
 import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -27,25 +29,53 @@ import java.nio.file.{Files, Path}
 
 @ApiStatus.Internal
 object ModuleBuilderUtil {
+  private val Log = Logger.getInstance(this.getClass)
 
   @deprecated
   def doSetupModule(module: Module, externalProjectSettings: SbtProjectSettings, @Nullable contentEntryPath: String, projectSystemId: ProjectSystemId): Unit = {
     Option(contentEntryPath).foreach(tryToSetupModule(module, externalProjectSettings, _, projectSystemId))
   }
 
-  def tryToSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentEntryPath: String, projectSystemId: ProjectSystemId): Unit = {
+  def tryToSetupModule[T <: ExternalProjectSettings](
+    module: Module,
+    externalProjectSettings: T,
+    contentEntryPath: String,
+    projectSystemId: ProjectSystemId
+  ): Unit = {
     val dir = getOrCreateDir(contentEntryPath)
-    dir.foreach(doSetupModule(module, externalProjectSettings, _, projectSystemId))
+    dir.foreach { contentRootDir =>
+      doSetupModule(
+        module = module,
+        externalProjectSettings = externalProjectSettings,
+        contentRootDir = contentRootDir,
+        projectSystemId = projectSystemId
+      )
+    }
   }
 
   @deprecated(message = "Use doSetupModule which takes a java.nio.file.Path argument", since = "2026.1")
   @Deprecated(since = "2026.1", forRemoval = true)
   @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def doSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentRootDir: java.io.File, projectSystemId: ProjectSystemId): Unit = {
-    doSetupModule(module, externalProjectSettings, contentRootDir.toPath, projectSystemId)
+  def doSetupModule[T <: ExternalProjectSettings](
+    module: Module,
+    externalProjectSettings: T,
+    contentRootDir: java.io.File,
+    projectSystemId: ProjectSystemId
+  ): Unit = {
+    doSetupModule(
+      module = module,
+      externalProjectSettings = externalProjectSettings,
+      contentRootDir = contentRootDir.toPath,
+      projectSystemId = projectSystemId
+    )
   }
 
-  def doSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentRootDir: Path, projectSystemId: ProjectSystemId): Unit = {
+  def doSetupModule[T <: ExternalProjectSettings](
+    module: Module,
+    externalProjectSettings: T,
+    contentRootDir: Path,
+    projectSystemId: ProjectSystemId
+  ): Unit = {
     val rootPath = contentRootDir.toRealPath().toString
 
     // hack some dummy data so that external system realizes it can remove this module after sbt import
@@ -65,6 +95,7 @@ object ModuleBuilderUtil {
     settings.linkProject(externalProjectSettings)
 
     FileDocumentManager.getInstance.saveAllDocuments()
+    val runExternalSystemProjectRefreshOnProjectOpen = shouldRunExternalSystemProjectRefreshOnProjectOpen(module)
 
     StartupManager.getInstance(project).runAfterOpened { () =>
       /** similar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
@@ -83,12 +114,32 @@ object ModuleBuilderUtil {
       manager.init()
 
       ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
-        ExternalSystemUtil.refreshProjects(
-          new ImportSpecBuilder(project, projectSystemId)
-            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-        )
+        if (runExternalSystemProjectRefreshOnProjectOpen) {
+          ExternalSystemUtil.refreshProjects(
+            new ImportSpecBuilder(project, projectSystemId)
+              .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+          )
+        } else {
+          // Project import is skiped in those NPW tests that only test the generated files, without imporintgthe full project
+          Log.assertTrue(ApplicationManager.getApplication.isUnitTestMode, "Project import cant be skipped in tests only")
+          project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, null)
+          project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, null)
+        }
       }
     }
+  }
+
+
+  private val RunExternalSystemProjectRefreshOnProjectOpenKey: Key[java.lang.Boolean] =
+    Key.create("scala.module.builder.run.external.system.project.refresh.on.project.open")
+
+  private def shouldRunExternalSystemProjectRefreshOnProjectOpen(module: Module): Boolean = {
+    val valueOpt = Option(module.getUserData(RunExternalSystemProjectRefreshOnProjectOpenKey))
+    valueOpt.forall(_.booleanValue())
+  }
+
+  def setRunExternalSystemProjectRefreshOnProjectOpen(module: Module, value: Boolean): Unit = {
+    module.putUserData(RunExternalSystemProjectRefreshOnProjectOpenKey, value: java.lang.Boolean)
   }
 
   @deprecated

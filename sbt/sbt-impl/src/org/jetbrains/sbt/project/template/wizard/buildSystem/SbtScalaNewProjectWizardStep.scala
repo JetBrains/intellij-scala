@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.components.JBTextField
-import com.intellij.ui.dsl.builder._
+import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.{DocumentAdapter, UIBundle}
@@ -52,8 +52,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
+  private var runImportAfterProjectCreation: Boolean = true
 
   @TestOnly override private[project] def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
+  @TestOnly override private[project] def setRunImportAfterProjectCreation(value: Boolean): Unit = runImportAfterProjectCreation = value
 
   @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override def setUseIndentationBasedSyntax(use: Boolean): Unit = setUseIndentationBasedSyntaxProperty(use)
@@ -104,6 +106,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     }
 
     sdk.foreach(scheduleDownloadSdk(_, project))
+    builder.runExternalSystemProjectRefreshOnProjectOpen = runImportAfterProjectCreation
     builder.commit(project)
   }
 

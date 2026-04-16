@@ -265,6 +265,20 @@ object ScalaSdkExpectedClasspath {
         |""".stripMargin,
     )
 
+    createAndRegister(
+      "3.8.2",
+      """org/scala-lang/modules/scala-asm/9.9.0-scala-1/scala-asm-9.9.0-scala-1.jar
+        |org/scala-lang/scala-library/3.8.2/scala-library-3.8.2.jar
+        |org/scala-lang/scala3-compiler_3/3.8.2/scala3-compiler_3-3.8.2.jar
+        |org/scala-lang/scala3-interfaces/3.8.2/scala3-interfaces-3.8.2.jar
+        |org/scala-lang/scala3-library_3/3.8.2/scala3-library_3-3.8.2.jar
+        |org/scala-lang/tasty-core_3/3.8.2/tasty-core_3-3.8.2.jar
+        |org/scala-sbt/compiler-interface/1.10.7/compiler-interface-1.10.7.jar
+        |org/scala-sbt/util-interface/1.10.7/util-interface-1.10.7.jar
+        |""".stripMargin,
+      "",
+    )
+
     def getForVersion(scalaVersion: ScalaVersion): ScalaSdkExpectedClasspath = VersionToData.getOrElse(scalaVersion.minor, {
       throw new IllegalArgumentException(s"No expected scala sdk classpath for version: $scalaVersion (Coursier/Maven)")
     })
@@ -288,8 +302,21 @@ object ScalaSdkExpectedClasspath {
       extraClasspath = Nil
     )
 
+    private val Scala_2_13_14 = ScalaSdkExpectedClasspath(
+      classpath = Seq(
+        "io.github.java-diff-utils/java-diff-utils/jars/java-diff-utils-4.12.jar",
+        "net.java.dev.jna/jna/jars/jna-5.14.0.jar",
+        "org.jline/jline/jars/jline-3.25.1.jar",
+        "org.scala-lang/scala-compiler/jars/scala-compiler-2.13.14.jar",
+        "org.scala-lang/scala-library/jars/scala-library-2.13.14.jar",
+        "org.scala-lang/scala-reflect/jars/scala-reflect-2.13.14.jar",
+      ),
+      extraClasspath = Nil
+    )
+
     def getForVersion(scalaVersion: ScalaVersion): ScalaSdkExpectedClasspath = scalaVersion.minor match {
       case "2.12.10" => Scala_2_12_10
+      case "2.13.14" => Scala_2_13_14
       case _ => throw new IllegalArgumentException(s"No expected scala sdk classpath for version: $scalaVersion (Ivy)")
     }
   }

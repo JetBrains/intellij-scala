@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.project.Version
 
 import scala.math.Ordering.Implicits.infixOrderingOps
 
-final case class SbtVersion(value: Version) extends MinorVersionGenerator[Version] {
+final case class SbtVersion(value: Version) extends MinorVersionGenerator[Version] with Ordered[Version] {
   override def minor: String = value.presentation
 
   override def generateNewVersion(version: String): Option[Version] = Some(Version(version))
@@ -21,6 +21,8 @@ final case class SbtVersion(value: Version) extends MinorVersionGenerator[Versio
 
   def inRange(atLeast: Version, lessThan: Version): Boolean =
     value.inRange(atLeast, lessThan)
+
+  override def compare(that: Version): Int = value.compare(that)
 }
 
 object SbtVersion {
