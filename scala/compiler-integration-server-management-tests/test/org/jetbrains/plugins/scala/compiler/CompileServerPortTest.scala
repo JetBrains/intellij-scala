@@ -13,24 +13,23 @@ import java.nio.file.{Files, Path}
 
 class CompileServerPortTest:
 
-  @TempDir
-  var temporaryDirectory: Path = scala.compiletime.uninitialized
-
-  private def systemDir: Path =
+  private def systemDir(temporaryDirectory: Path): Path =
     temporaryDirectory / "compile-server-port-test" / "system" / "scala-compile-server"
 
   @Test
-  def portFilePath(): Unit =
-    val expected = systemDir / CompileServerPort.PortFileName
-    val actual = CompileServerPort.portFilePath(systemDir)
+  def portFilePath(@TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    val expected = sysDir / CompileServerPort.PortFileName
+    val actual = CompileServerPort.portFilePath(sysDir)
     assertEquals(expected, actual)
 
   @ParameterizedTest(name = "port = {0}")
   @ValueSource(ints = Array(3200, 6400, 10501, 50005, 55055))
-  def portNumber(port: Int): Unit =
-    Files.createDirectories(systemDir)
-    val portFilePath = systemDir / CompileServerPort.PortFileName
+  def portNumber(port: Int, @TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    Files.createDirectories(sysDir)
+    val portFilePath = sysDir / CompileServerPort.PortFileName
     import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING}
     Files.writeString(portFilePath, port.toString, StandardCharsets.UTF_8, TRUNCATE_EXISTING, CREATE)
-    val actual = CompileServerPort.readPortFile(systemDir)
+    val actual = CompileServerPort.readPortFile(sysDir)
     assertEquals(Some(port), actual)
