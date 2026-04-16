@@ -17,9 +17,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt013ProjectConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """version in ThisBuild := "0.1.0-SNAPSHOT"
-            |
-            |scalaVersion in ThisBuild := "2.13.14"
+          """scalaVersion in ThisBuild := "2.13.14"
             |
             |lazy val root = (project in file("."))
             |  .settings(
@@ -39,9 +37,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt10ProjectConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """version in ThisBuild := "0.1.0-SNAPSHOT"
-            |
-            |scalaVersion in ThisBuild := "2.13.14"
+          """scalaVersion in ThisBuild := "2.13.14"
             |
             |lazy val root = (project in file("."))
             |  .settings(
@@ -61,9 +57,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt1LatestProjectConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """ThisBuild / version := "0.1.0-SNAPSHOT"
-            |
-            |ThisBuild / scalaVersion := "2.13.14"
+          """ThisBuild / scalaVersion := "2.13.14"
             |
             |lazy val root = (project in file("."))
             |  .settings(
@@ -83,9 +77,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt1LatestProjectWithPackagePrefixConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """ThisBuild / version := "0.1.0-SNAPSHOT"
-            |
-            |ThisBuild / scalaVersion := "2.13.14"
+          """ThisBuild / scalaVersion := "2.13.14"
             |
             |lazy val root = (project in file("."))
             |  .settings(
