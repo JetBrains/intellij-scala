@@ -466,11 +466,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_))))
-      case ScalaResolveResult(clazz: PsiClass, _) =>
-        //Kotlin companion objects are singletons whose members are instance methods.
-        //Treat as non-static so instance members are accessible (SCL-23032).
-        if (isKotlinCompanionObjectClass(clazz)) ScDesignatorType(clazz)
-        else                                     ScDesignatorType.static(clazz) //static Java class
+      case ScalaResolveResult(clazz: PsiClass, _) => ScDesignatorType.static(clazz) //static non-Scala class
       case ScalaResolveResult(field: PsiField, s) =>
         s(field.getType.toScType())
       case ScalaResolveResult(c: ScNamedTupleComponent, s) =>
@@ -601,12 +597,4 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
-
-  //SCL-23032: Kotlin companion objects are compiled as static inner classes, but they are
-  //singletons whose members are instance methods. The Kotlin light class may not expose
-  //the corresponding static `Companion` field via `getFields()`, so the Scala plugin
-  //resolves the inner class instead. We treat it as an instance type so that companion
-  //object members are accessible.
-  private def isKotlinCompanionObjectClass(clazz: PsiClass): Boolean =
-    clazz.getContainingClass != null && clazz.getLanguage.getID == "kotlin"
 }

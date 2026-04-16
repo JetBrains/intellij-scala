@@ -565,9 +565,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s(field.getType.toScType()), this)
       case ScalaResolveResult(clazz: PsiClass, _) =>
-        processor.processType(ScDesignatorType.static(clazz), this) // static Java import
+        processor.processType(ScDesignatorType.static(clazz), this) // static non-Scala class
         if (isForScalaDoc) {
-          processor.processType(ScDesignatorType(clazz), this);
+          processor.processType(ScDesignatorType(clazz), this)
         }
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ScalaResolveState.withSubstitutor(s), null, this)
