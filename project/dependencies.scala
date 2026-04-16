@@ -207,6 +207,7 @@ object Dependencies {
   val intellijTestFrameworkCommon: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-common" % IntellijTestFrameworkVersion).notTransitive()
   val intellijTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework" % IntellijTestFrameworkVersion).notTransitive()
   val intellijJUnit5TestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-junit5" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijJUnit5EelTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-junit5-eel" % IntellijTestFrameworkVersion).notTransitive()
   val intellijJavaTestFrameworkShared: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-shared" % IntellijTestFrameworkVersion).notTransitive()
   val intellijJavaTestFrameworkBackend: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-backend" % IntellijTestFrameworkVersion).notTransitive()
   val intellijJavaTestFramework: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework" % IntellijTestFrameworkVersion).notTransitive()

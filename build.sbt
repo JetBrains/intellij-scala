@@ -343,6 +343,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.intellijTestFrameworkCommon % Test,
         Dependencies.intellijTestFramework % Test,
         Dependencies.intellijJUnit5TestFramework % Test,
+        Dependencies.intellijJUnit5EelTestFramework % Test,
         Dependencies.intellijJavaTestFrameworkShared % Test,
         Dependencies.intellijJavaTestFrameworkBackend % Test,
         Dependencies.intellijJavaTestFramework % Test,
@@ -519,7 +520,7 @@ lazy val compilerIntegrationServerManagementTests =
   newProject("compiler-integration-server-management-tests", file("scala/compiler-integration-server-management-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      compilerIntegrationServerManagement
+      compilerIntegrationServerManagement % "test->test;compile->compile"
     )
     .settings(
       scalaVersion := Versions.scala3Version,
