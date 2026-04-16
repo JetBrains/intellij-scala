@@ -14,34 +14,34 @@ import scala.jdk.CollectionConverters.SetHasAsScala
 
 class CompileServerTokenTest:
 
-  @TempDir
-  var temporaryDirectory: Path = scala.compiletime.uninitialized
-
-  private def systemDir: Path =
+  private def systemDir(temporaryDirectory: Path): Path =
     temporaryDirectory / "compile-server-token-test" / "system" / "scala-compile-server"
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def tokenPathForPort(port: Int): Unit =
-    val expected = systemDir / CompileServerToken.Tokens / port.toString
-    val actual = CompileServerToken.tokenPathForPort(systemDir, port)
+  def tokenPathForPort(port: Int, @TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    val expected = sysDir / CompileServerToken.Tokens / port.toString
+    val actual = CompileServerToken.tokenPathForPort(sysDir, port)
     assertEquals(expected, actual)
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def tokenForPort(port: Int): Unit =
-    val tokensDirectory = systemDir / CompileServerToken.Tokens
+  def tokenForPort(port: Int, @TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    val tokensDirectory = sysDir / CompileServerToken.Tokens
     Files.createDirectories(tokensDirectory)
     val tokenFilePath = tokensDirectory / port.toString
     val tokenString = "some string that might be a token"
     Files.writeString(tokenFilePath, tokenString, StandardCharsets.UTF_8)
-    val actual = CompileServerToken.tokenForPort(systemDir, port)
+    val actual = CompileServerToken.tokenForPort(sysDir, port)
     assertEquals(Some(tokenString), actual)
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def generateAndWriteTokenForPort(port: Int): Unit =
-    val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
+  def generateAndWriteTokenForPort(port: Int, @TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(sysDir, port)
 
     assertTrue(tokenFilePath.exists, "The token file was not created")
 
@@ -57,12 +57,13 @@ class CompileServerTokenTest:
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def removeTokenFileForPortIsIdempotent(port: Int): Unit =
-    val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
+  def removeTokenFileForPortIsIdempotent(port: Int, @TempDir temporaryDirectory: Path): Unit =
+    val sysDir = systemDir(temporaryDirectory)
+    val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(sysDir, port)
     assertTrue(tokenFilePath.exists, "The token file was not created")
 
     for _ <- 1 to 5 do
-      CompileServerToken.removeTokenFileForPort(systemDir, port)
+      CompileServerToken.removeTokenFileForPort(sysDir, port)
 
     assertFalse(tokenFilePath.exists, "The token file should have been removed")
 
