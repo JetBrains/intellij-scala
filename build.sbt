@@ -493,11 +493,17 @@ lazy val compilerIntegration =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
+lazy val eelTunnelsUtil =
+  newProjectWithKotlin("eel-tunnels-util", file("scala/eel-tunnels-util"))
+    .settings(
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+    )
+
 lazy val compilerIntegrationServerManagement =
   newProject("compiler-integration-server-management", file("scala/compiler-integration-server-management"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      kotlinUtils
+      eelTunnelsUtil
     )
     .settings(
       // It's fine to merge it into the same module

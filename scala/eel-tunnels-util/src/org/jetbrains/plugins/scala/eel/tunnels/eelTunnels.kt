@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage", "OPT_IN_USAGE")
+@file:JvmName("EelTunnels")
 
-package org.jetbrains.plugins.scala.kotlin.util
+package org.jetbrains.plugins.scala.eel.tunnels
 
 import com.intellij.platform.eel.EelConnectionError
 import com.intellij.platform.eel.EelTunnelsApi
