@@ -92,7 +92,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
     assert(filePath.exists, s"file $filePath not found")
     var fileText = filePath.readAllBytesToString(StandardCharsets.UTF_8).withNormalizedSeparator
 
-    val scopeOffset = fileText.indexOf(scopeMarker)
+    var scopeOffset = fileText.indexOf(scopeMarker)
 
     if (scopeOffset != -1)
       fileText = fileText.replace(scopeMarker, "")
@@ -100,10 +100,12 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
     val startOffset = fileText.indexOf(startMarker)
     assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     fileText = fileText.replace(startMarker, "")
+    if (scopeOffset > startOffset) scopeOffset -= startMarker.length
 
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
     fileText = fileText.replace(endMarker, "")
+    if (scopeOffset > endOffset) scopeOffset -= endMarker.length
 
     (fileText, scopeOffset, startOffset, endOffset)
   }

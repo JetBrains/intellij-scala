@@ -545,10 +545,12 @@ object ScalaRefactoringUtil {
                                       onChosen: T => Unit,
                                       @Nls title: String,
                                       presentation: T => String,
-                                      toHighlight: PsiElement => PsiElement = identity)
+                                      toHighlight: PsiElement => PsiElement = identity,
+                                      selection: Option[T] = None)
                                      (implicit project: Project, editor: Editor): Unit =
     showChooserImpl(onChosen) { chooserModel =>
       new PsiTargetNavigator(elements.asJava)
+        .selection(selection.orNull)
         .presentationProvider((element: T) => TargetPresentation.builder(presentation(element)).presentation())
         .builderConsumer { builder =>
           builder

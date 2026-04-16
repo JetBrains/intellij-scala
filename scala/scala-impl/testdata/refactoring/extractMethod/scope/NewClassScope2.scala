@@ -13,10 +13,10 @@ class OutmostScope {
   val member = Container(1)
   val outerScope = new {
     testMethodName
-  }
 
-  def testMethodName: Int = {
-    member.innerValue
+    def testMethodName: Int = {
+      member.innerValue
+    }
   }
 }
 */
