@@ -12,25 +12,24 @@ import java.nio.file.{Files, Path}
 import java.util.stream.IntStream
 import scala.jdk.CollectionConverters.SetHasAsScala
 
-class CompileServerTokenTest {
+class CompileServerTokenTest:
 
   @TempDir
-  var temporaryDirectory: Path = _
+  var temporaryDirectory: Path = scala.compiletime.uninitialized
 
   private def systemDir: Path =
     temporaryDirectory / "compile-server-token-test" / "system" / "scala-compile-server"
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def tokenPathForPort(port: Int): Unit = {
+  def tokenPathForPort(port: Int): Unit =
     val expected = systemDir / CompileServerToken.Tokens / port.toString
     val actual = CompileServerToken.tokenPathForPort(systemDir, port)
     assertEquals(expected, actual)
-  }
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def tokenForPort(port: Int): Unit = {
+  def tokenForPort(port: Int): Unit =
     val tokensDirectory = systemDir / CompileServerToken.Tokens
     Files.createDirectories(tokensDirectory)
     val tokenFilePath = tokensDirectory / port.toString
@@ -38,41 +37,34 @@ class CompileServerTokenTest {
     Files.writeString(tokenFilePath, tokenString, StandardCharsets.UTF_8)
     val actual = CompileServerToken.tokenForPort(systemDir, port)
     assertEquals(Some(tokenString), actual)
-  }
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def generateAndWriteTokenForPort(port: Int): Unit = {
+  def generateAndWriteTokenForPort(port: Int): Unit =
     val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
 
     assertTrue(tokenFilePath.exists, "The token file was not created")
 
     val isPosix = tokenFilePath.getFileSystem.supportedFileAttributeViews().contains("posix")
-    if (isPosix) {
+    if isPosix then
       import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
       val permissions = Files.getPosixFilePermissions(tokenFilePath).asScala.toSet
       assertEquals(Set(OWNER_READ, OWNER_WRITE), permissions, "The token file was created with wrong posix filesystem permissions")
-    } else {
+    else
       val file = tokenFilePath.toFile
       assertTrue(file.canRead, "The token file on Windows must be readable")
       assertTrue(file.canWrite, "The token file on Windows must be writable")
-    }
-  }
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
-  def removeTokenFileForPortIsIdempotent(port: Int): Unit = {
+  def removeTokenFileForPortIsIdempotent(port: Int): Unit =
     val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
     assertTrue(tokenFilePath.exists, "The token file was not created")
 
-    for (_ <- 1 to 5) {
+    for _ <- 1 to 5 do
       CompileServerToken.removeTokenFileForPort(systemDir, port)
-    }
 
     assertFalse(tokenFilePath.exists, "The token file should have been removed")
-  }
-}
 
-private object CompileServerTokenTest {
+private object CompileServerTokenTest:
   def ports(): IntStream = IntStream.of(3200, 6400, 10501, 50005, 55055)
-}
