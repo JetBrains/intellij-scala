@@ -24,7 +24,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.kotlin.util.EelTunnelsKt
+import org.jetbrains.plugins.scala.eel.tunnels.EelTunnels
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
@@ -257,7 +257,7 @@ object CompileServerLauncher {
                 val eelApi = EelProviderUtil.toEelApiBlocking(eelDescriptor)
                 val tunnels = eelApi.getTunnels
                 val scope = CoroutineScopeProvider.scope(project)
-                val forwardedLocalPort = EelTunnelsKt.forwardLocalPort(scope, tunnels, portReportedByServer)
+                val forwardedLocalPort = EelTunnels.forwardLocalPort(scope, tunnels, portReportedByServer)
                 CompileServerPort.Remote(forwardedLocalPort, portReportedByServer)
               }
             }
