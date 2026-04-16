@@ -194,4 +194,25 @@ class ScalaDocumentationProviderTest_Links
         |psi_element://TypeLink.T -> TypeLink.T
         |""".stripMargin
     )
+
+  def test_ref_to_java(): Unit =
+    runTest(
+      s"""
+         |/**
+         | * [[java.lang.Thread]]
+         | * [[java.lang.Thread.dumpStack()]]
+         | * [[java.lang.Thread.run]]
+         | * [[java.lang.Thread!.getClass]]
+         | *
+         | * @syntax
+         | */
+         |class Te${CARET}st
+         |""".stripMargin,
+      """
+        |psi_element://java.lang.Thread -> java.lang.Thread
+        |psi_element://java.lang.Thread.dumpStack() -> java.lang.Thread.dumpStack()
+        |psi_element://java.lang.Thread.run -> java.lang.Thread.run
+        |psi_element://java.lang.Thread!.getClass -> java.lang.Thread!.getClass
+        |""".stripMargin
+    )
 }

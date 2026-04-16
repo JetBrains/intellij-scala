@@ -512,6 +512,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     isExportInExtension: Boolean
   ): Array[ScalaResolveResult] = {
     var withDynamicResult: Option[Array[ScalaResolveResult]] = None
+    def isForScalaDoc = qualifier.is[ScDocRefQuery, ScDocResolvableCodeReference]
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
         val state = ScalaResolveState.withSubstitutor(substitutor)
@@ -564,11 +565,13 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s(field.getType.toScType()), this)
       case ScalaResolveResult(clazz: PsiClass, _) =>
-        processor.processType(ScDesignatorType.static(clazz), this) //static Java import
+        processor.processType(ScDesignatorType.static(clazz), this) // static Java import
+        if (isForScalaDoc) {
+          processor.processType(ScDesignatorType(clazz), this);
+        }
       case ScalaResolveResult(pack: ScPackage, s) =>
-        pack.processDeclarations(processor, ScalaResolveState.withSubstitutor(s),
-          null, this)
-      case ScalaResolveResult(ta: ScTypeAlias, substitutor) if qualifier.is[ScDocRefQuery, ScDocResolvableCodeReference] =>
+        pack.processDeclarations(processor, ScalaResolveState.withSubstitutor(s), null, this)
+      case ScalaResolveResult(ta: ScTypeAlias, substitutor) if isForScalaDoc =>
         val upperBound = ta.upperBound.getOrAny
         processor.processType(substitutor(upperBound), this, ScalaResolveState.withSubstitutor(substitutor))
       case other: ScalaResolveResult =>
