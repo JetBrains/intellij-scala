@@ -4,6 +4,7 @@ import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.FixtureRuleKt.useProject
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizardData.scalaSbtData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaSampleCodeNewProjectWizardData.scalaSampleCodeData
@@ -60,7 +61,7 @@ abstract class NewSbtProjectWizardTestBase extends NewScalaProjectWizardTestBase
 
       val sbtData = scalaSbtData(step)
       sbtData.setScalaVersion(config.scalaVersion)
-      sbtData.setSbtVersion(config.sbtVersion)
+      sbtData.setSbtVersion(config.sbtVersion.minor)
       sbtData.setPackagePrefix(config.packagePrefix.getOrElse(""))
       sbtData.setUseIndentationBasedSyntax(config.useIndentationBasedSyntax)
       sbtData.setRunImportAfterProjectCreation(runImportAfterProjectCreation)
@@ -106,12 +107,11 @@ abstract class NewSbtProjectWizardTestBase extends NewScalaProjectWizardTestBase
 }
 
 object NewSbtProjectWizardTestBase {
-  import org.jetbrains.plugins.scala.project.Versions
 
   final case class SbtWizardProjectConfig(
     projectName: String,
     scalaVersion: String,
-    sbtVersion: String = Versions.SBT.LatestSbtVersion,
+    sbtVersion: SbtVersion,
     packagePrefix: Option[String] = None,
     useIndentationBasedSyntax: Boolean = false,
   )
