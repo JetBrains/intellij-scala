@@ -1367,6 +1367,7 @@ import java.nio.file.Files
           },
         )
       },
+      //TODO: adopt once SCL-24645 is fixed
       optionsModifier = _.copy(checkExtraClasspath = false)
     )
 
