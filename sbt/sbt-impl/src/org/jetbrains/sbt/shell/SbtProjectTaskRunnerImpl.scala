@@ -15,6 +15,8 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.packaging.artifacts.Artifact
+import com.intellij.packaging.impl.artifacts.ArtifactUtil
 import com.intellij.task.*
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise as IJPromise}
@@ -32,7 +34,9 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities
 
 import java.util
 import java.util.UUID
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
+import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.util.{Failure, Success}
 
 /**
@@ -51,7 +55,10 @@ import scala.util.{Failure, Success}
  *    used in Gradle projects when delegation to the build tool is enabled (by default)
  *  - [[org.jetbrains.bazel.buildTask.BazelProjectTaskRunner]]<br>
  *    used in Bazel projects when delegation to the build tool is enabled (by default)
+ *
+ * @see [[com.intellij.task.impl.ProjectTaskManagerImpl#run]]
  */
+//noinspection UsagesOfObsoleteApi (the API is used by the base class)
 final class SbtProjectTaskRunnerImpl
   extends ProjectTaskRunner
     with SbtProjectTaskRunner {
@@ -62,29 +69,41 @@ final class SbtProjectTaskRunnerImpl
   //The method is not supposed to be unused by the platform and exists only to satisfy the interface and not break any old clients relying on this
   override def canRun(projectTask: ProjectTask): Boolean = {
     Log.error("Method `canRun(ProjectTask)` is obsolete. Use `canRun(Project, ProjectTask, ProjectTaskContext)` instead.")
-    this.canRunImpl(null, projectTask, null)
+    false
   }
 
-  // will override the usual jps build thingies
   override def canRun(
     project: Project,
     projectTask: ProjectTask,
     @Nullable context: ProjectTaskContext
   ): Boolean = canRunImpl(project, projectTask, context)
 
-  // will override the usual jps build thingies
   private def canRunImpl(
-    @Nullable project: Project,
+    project: Project,
     projectTask: ProjectTask,
     @Nullable context: ProjectTaskContext
-  ): Boolean = projectTask match {
-    case task: ModuleBuildTask =>
-      isUseSbtShellForBuildEnabled(task.getModule)
-    case _: ExecuteRunConfigurationTask =>
-      // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
+  ): Boolean = {
+    val collected = collectSupportedBuildTasks(Seq(projectTask))
+
+    val hasSupportedTasks = collected.moduleBuildTasks.nonEmpty || collected.artifactBuildTasks.nonEmpty
+    if (hasSupportedTasks) {
+      // Checks if the "Use sbt shell for build" is enabled for one of the modules included in the given artifact.
+      // In practice the "Use sbt shell for build" is actually a per-linked-external-project setting, not global per-project.
+      // However, here we assume that if "Use sbt shell for build enabled" is enabled for some modules, then we should use it for all modules.
+      // Technically, it's not 100% correct - we could construct a project with multiple linked sbt projects with different settings.
+      // But in practice I would expect this to be a rare edge case, in combination of using "Build Artifact" IntelliJ IDEA feature
+      // that I don't expect to be widely used in SBT projects. It's mostly a legacy thing that it's used in Scala Plugin.
+      // Ideally, users should use sbt tasks.
+      //
+      // NOTE:
+      // In practice, when "Build Project" is invoked, there is only one module because `projectTask` is just `ModuleBuildTask` with a `getModule` method.
+      //
+      // Related: SCL-24287
+      val taskModules = extractModulesFromBuildTasks(project, collected)
+      taskModules.exists(isUseSbtShellForBuildEnabled)
+    } else {
       false
-    case _ =>
-      false
+    }
   }
 
   private def isUseSbtShellForBuildEnabled(module: Module): Boolean = {
@@ -106,15 +125,12 @@ final class SbtProjectTaskRunnerImpl
     context: ProjectTaskContext,
     tasks: ProjectTask*
   ): IJPromise[ProjectTaskRunner.Result] = {
-    val supportedTasks: Seq[ModuleBuildTask] = tasks.collect {
-      // TODO Android AARs are currently imported as modules. need a way to filter them away before building
-      // Filter out modules representing sbt meta-build projects (`-build` modules)
-      case task: ModuleBuildTask if !isBuildModule(task)=>
-        task
-    }
+    val supportedBuildTasks = collectSupportedBuildTasks(tasks)
 
-    val taskModules: Seq[Module] =
-      supportedTasks.map(_.getModule)
+    val buildTasks: Seq[BuildTask] =
+      supportedBuildTasks.moduleBuildTasks ++
+        supportedBuildTasks.artifactBuildTasks.map(_._1)
+    val taskModules = extractModulesFromBuildTasks(project, supportedBuildTasks)
     val scopesPerModule: Map[SbtModuleData, Set[SbtScope]] =
       groupTasksPerModule(taskModules)
 
@@ -122,19 +138,88 @@ final class SbtProjectTaskRunnerImpl
     // This may work differently than just calling the "products" sbt task from the main module in sbt
     val sbtBuildCommands: Seq[String] =
       buildSbtBuildCommands(project, scopesPerModule)
+    Log.debug(s"Running delegated sbt build: supportedTasks=${buildTasks.size}, artifactTasks=${supportedBuildTasks.artifactBuildTasks.size}, sbt commands=${sbtBuildCommands.size}")
 
-    runSbtBuildTasks(project, supportedTasks, sbtBuildCommands)
+    val sbtBuildPromise = runSbtBuildTasks(project, buildTasks, sbtBuildCommands)
+    val needToBuildArtifactAfter = supportedBuildTasks.artifactBuildTasks.nonEmpty
+    if (needToBuildArtifactAfter)
+      // Unlike plain JPS runner, sbt compile is a separate async phase here.
+      // Artifact packaging is chained explicitly and starts only after successful sbt completion.
+      SbtJpsArtifactPackagingUtil.chainSbtBuildAndJpsArtifactPackaging(project, context, sbtBuildPromise, supportedBuildTasks.artifactBuildTasks)
+    else
+      sbtBuildPromise
   }
+
+  private final case class CollectedBuildTasks(
+    moduleBuildTasks: Seq[ModuleBuildTask],
+    artifactBuildTasks: Seq[(ProjectModelBuildTask[?], Artifact)],
+  )
+
+  private def collectSupportedBuildTasks(tasks: Seq[ProjectTask]): CollectedBuildTasks = {
+    val moduleBuildTasks = mutable.ArrayBuffer.empty[ModuleBuildTask]
+    val artifactBuildTasks = mutable.ArrayBuffer.empty[(ProjectModelBuildTask[?], Artifact)]
+
+    // TODO Android AARs are currently imported as modules. need a way to filter them away before building
+    // (NOTE: this comment is form ancient time, not sure how actual it still is)
+    tasks.foreach {
+      case moduleTask: ModuleBuildTask =>
+        // Filter out modules representing sbt meta-build projects (`-build` modules)
+        if (!isBuildModule(moduleTask)) {
+          moduleBuildTasks += moduleTask
+        }
+      case artifactTask: ProjectModelBuildTask[_] =>
+        // "Build Artifact":
+        // Handle the case when the project build is invoked transitively via "Build Artifact" action
+        // It can happen when:
+        //  - A user invokes "Build Artifact" from the context menu of an artifact in the Artifacts view
+        //  - Build Artifact is used in the "Before launch" step of a "Run Configuration".
+        //    This is mostly actual in the Scala Plugin repo when sbt-shell is used and we run ide using scalaUltimate/scalaCommunity run configuration
+        // ATTENTION: This code should be in sync with the code inside `canRun` and `run` methods
+        artifactTask.getBuildableElement match {
+          case artifact: Artifact =>
+            artifactBuildTasks += (artifactTask -> artifact)
+          case _ =>
+        }
+      case _: ExecuteRunConfigurationTask =>
+        // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
+        //  (NOTE: this comment is originally form 2016)
+        false
+      case _ =>
+    }
+
+    CollectedBuildTasks(
+      moduleBuildTasks = moduleBuildTasks.toSeq,
+      artifactBuildTasks = artifactBuildTasks.toSeq,
+    )
+  }
+
+  private def extractModulesFromBuildTasks(
+    project: Project,
+    collected: CollectedBuildTasks
+  ): Seq[Module] = {
+    val buildTasksModules = collected.moduleBuildTasks.map(_.getModule)
+
+    val artifacts = collected.artifactBuildTasks.map(_._2)
+    val artifactBuildTasksModules =  artifacts.flatMap(getModulesIncludedInArtifact(project, _))
+    buildTasksModules ++ artifactBuildTasksModules
+  }
+
+  private def getModulesIncludedInArtifact(project: Project, artifact: Artifact): Set[Module] =
+    ArtifactUtil.getModulesIncludedInArtifacts(util.Arrays.asList(artifact), project).asScala.toSet
 
   private def isBuildModule(task: ModuleBuildTask): Boolean = {
     val moduleType = ModuleType.get(task.getModule)
     moduleType.getId == SbtModuleType.Id
   }
 
-  private def runSbtBuildTasks(project: Project, validTasks: Seq[ModuleBuildTask], sbtBuildCommands: Seq[String]): AsyncPromise[ProjectTaskRunner.Result] = {
+  private def runSbtBuildTasks(
+    project: Project,
+    supportedBuildTasks: Seq[BuildTask],
+    sbtBuildCommands: Seq[String]
+  ): AsyncPromise[ProjectTaskRunner.Result] = {
     if (sbtBuildCommands.isEmpty) {
       // don't run anything if there's no module to run a build for
-      if (validTasks.nonEmpty) {
+      if (supportedBuildTasks.nonEmpty) {
         showNotificationThatExternalSystemHasLostModuleData(project)
       }
 
