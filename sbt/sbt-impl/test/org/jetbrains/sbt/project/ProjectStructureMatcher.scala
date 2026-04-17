@@ -510,10 +510,10 @@ trait ProjectStructureMatcher {
           assertEquals(name, expectedClassPathNorm, actualClasspathNorm)
         }
 
-        expectedScalaSdk.classpath.foreach(testClasspath("Scala SDK classpath", _, sdkProperties.compilerClasspath))
+        expectedScalaSdk.classpath.foreach(testClasspath("Scala SDK compiler classpath", _, sdkProperties.compilerClasspath))
 
         if compareContext.options.checkExtraClasspath then
-          expectedScalaSdk.extraClasspath.foreach(testClasspath("Scala SDK extra classpath", _, sdkProperties.scaladocExtraClasspath))
+          expectedScalaSdk.extraClasspath.foreach(testClasspath("Scala SDK scaladocExtraClasspath", _, sdkProperties.scaladocExtraClasspath))
     }
   }
 

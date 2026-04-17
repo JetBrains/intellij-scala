@@ -1337,6 +1337,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
           },
         )
       },
+      //TODO: adopt once SCL-24645 is fixed
       optionsModifier = _.copy(checkExtraClasspath = false),
       mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title"))
     )
