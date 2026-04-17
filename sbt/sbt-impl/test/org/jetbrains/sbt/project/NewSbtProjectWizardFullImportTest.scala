@@ -91,7 +91,11 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
       useCoursier = useCoursier
     )
     runImportEnabledTest(config) { project =>
-      assertProjectsEqual(expectedProjectStructure, project, singleContentRootModules = false)
+      val sbtVersion = config.sbtVersion
+      //TODO: adapt once SCL-24645 is fixed
+      val checkExtraScaladocClasspath = sbtVersion < SbtVersion("1.12")
+      val context = compareContext.withOptions(_.copy(checkExtraClasspath = checkExtraScaladocClasspath))
+      assertProjectsEqual(expectedProjectStructure, project, singleContentRootModules = false)(using context)
     }
   }
 
