@@ -42,10 +42,10 @@ object Common {
     "-Wconf:msg=method .* is eta-expanded even though .* does not have the @FunctionalInterface annotation:s", // bullshit warning
   )
 
-  // options for modules which classes can only be used in IDEA process (uses JRE 21)
+  // options for modules which classes can only be used in IDEA process (uses JDK 25)
   // NOTE: we rely on the fact that javac & scalac use the same compiler option name,
   // though strictly speaking they have different types (they represent settings for different compilers)
-  private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "21")
+  private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "25")
   val globalJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScala3ScalacOptions: Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
@@ -55,9 +55,8 @@ object Common {
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
   private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
 
-  // JDK 21 warns when we compile Java sources using "--release 8" that targeting JDK 8 will not be possible in the
-  // future. I also checked JDK 25, which is the next LTS, "--release 8" is still available with the same warning,
-  // so we should be fine for now.
+  // JDK 25 warns when we compile Java sources using "--release 8" that targeting JDK 8 will not be possible in the
+  // future. JDK 25 is the next LTS, so we should be fine for now.
   private val suppressObsoleteSourceTarget8: String = "-Xlint:-options"
 
   val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions :+ suppressObsoleteSourceTarget8
@@ -224,7 +223,7 @@ object Common {
         // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
         // NOTE: keep versions in sync with ultimate/.idea/kotlinc.xml and community/.idea/kotlinc.xml
         kotlinVersion := "2.3.20",
-        kotlincJvmTarget := "21",
+        kotlincJvmTarget := "25",
         kotlinRuntimeProvided := true,
         resolvers += DependencyResolvers.IntelliJDependencies,
       )
