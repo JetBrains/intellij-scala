@@ -147,45 +147,44 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
 
 object NewSbtProjectWizardGeneratedFilesTest {
   import NewSbtProjectWizardTestBase.SbtWizardProjectConfig
-  import org.jetbrains.plugins.scala.project.Versions
   import org.jetbrains.sbt.SbtVersion
 
   object TestData {
     val sbt013ProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt0_13_project_template",
       scalaVersion = "2.13.14",
-      sbtVersion = SbtVersion.Latest.Sbt_0_13.minor,
+      sbtVersion = SbtVersion.Latest.Sbt_0_13,
     )
 
     val sbt10ProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_0_project_template",
       scalaVersion = "2.13.14",
-      sbtVersion = SbtVersion("1.0.4").minor,
+      sbtVersion = SbtVersion("1.0.4"),
     )
 
     val sbt1LatestProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_project_template",
       scalaVersion = "2.13.14",
-      sbtVersion = Versions.SBT.LatestSbtVersion,
+      sbtVersion = SbtVersion.Latest.Sbt_1,
     )
 
     val sbt1LatestProjectWithPackagePrefixConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_project_template_with_prefix",
       scalaVersion = "2.13.14",
-      sbtVersion = Versions.SBT.LatestSbtVersion,
+      sbtVersion = SbtVersion.Latest.Sbt_1,
       packagePrefix = Some("org.example.prefix"),
     )
 
     val sbt2LatestProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template",
       scalaVersion = "3.8.2",
-      sbtVersion = SbtVersion.Latest.Sbt_2.minor,
+      sbtVersion = SbtVersion.Latest.Sbt_2,
     )
 
     val sbt2LatestProjectWithPackagePrefixConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template_with_prefix",
       scalaVersion = "3.8.2",
-      sbtVersion = SbtVersion.Latest.Sbt_2.minor,
+      sbtVersion = SbtVersion.Latest.Sbt_2,
       packagePrefix = Some("org.example.prefix"),
     )
   }
