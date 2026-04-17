@@ -9,6 +9,7 @@ import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.lang.CompoundRuntimeException
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.references.ScalaDirtyScopeHolder.ScopedModule
+import org.jetbrains.plugins.scala.util.NextEditCaretListenerLeakSuppression
 import org.junit.Assert._
 
 class DirtyScopeHolderTest_IdeaIncrementality extends DirtyScopeHolderTestBase {
@@ -39,6 +40,8 @@ abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFix
     moduleB = null
     try super.tearDown()
     catch {
+      case t: Throwable if NextEditCaretListenerLeakSuppression.isKnownLeak(t) =>
+        // CaretListener leaked by the platform NextEditCaretFeatures component. Suppress.
       case compound: CompoundRuntimeException if compound.getExceptions.size() == 1 =>
         compound.getExceptions.get(0) match {
           case ae: AssertionError if ae.getMessage.startsWith("Listeners leaked for interface com.intellij.openapi.editor.event.DocumentListener") =>
