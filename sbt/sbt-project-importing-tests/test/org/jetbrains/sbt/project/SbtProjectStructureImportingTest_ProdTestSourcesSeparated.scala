@@ -2898,4 +2898,41 @@ import java.nio.file.Files
       }
     )
   }
+
+  //SCL-24321
+  def testCantExtractScalaInstance(): Unit = runTest(
+    new project("scalaInstance") {
+      val scalaSdk_2_13_14: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+
+      lazy val scalaInstance: module = new module("scalaInstance")
+      lazy val scalaInstanceMain: module = new module("scalaInstance.main") { libraryDependencies := scalaSdk_2_13_14 }
+      lazy val scalaInstanceTest: module = new module("scalaInstance.test") { libraryDependencies := scalaSdk_2_13_14 }
+
+      lazy val project1: module = new module("scalaInstance.project1") { libraryDependencies := Nil }
+      lazy val project2: module = new module("scalaInstance.project2") { libraryDependencies := Nil }
+      lazy val project3: module = new module("scalaInstance.project3") { libraryDependencies := Nil }
+
+      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := Nil }
+      lazy val project2Main: module = new module("scalaInstance.project2.main") { libraryDependencies := Nil }
+      lazy val project3Main: module = new module("scalaInstance.project3.main") { libraryDependencies := scalaSdk_2_13_14 }
+      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := Nil}
+      lazy val project2Test: module = new module("scalaInstance.project2.test") { libraryDependencies := Nil}
+      lazy val project3Test: module = new module("scalaInstance.project3.test") { libraryDependencies := scalaSdk_2_13_14 }
+
+      modules := Seq(
+        scalaInstance,
+        scalaInstanceMain,
+        scalaInstanceTest,
+        project1,
+        project2,
+        project3,
+        project1Main,
+        project2Main,
+        project3Main,
+        project1Test,
+        project2Test,
+        project3Test,
+      )
+    }
+  )
 }
