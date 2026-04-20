@@ -22,6 +22,6 @@ ScalaFile
         PsiElement(=>)('=>')
         BlockOfExpressions
           <empty list>
-    PsiComment(comment)('//comment')
+        PsiComment(comment)('//comment')
     PsiWhiteSpace('\n')
     PsiElement(})('}')

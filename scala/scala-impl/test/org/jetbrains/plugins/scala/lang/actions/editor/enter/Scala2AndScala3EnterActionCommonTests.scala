@@ -237,4 +237,20 @@ trait Scala2AndScala3EnterActionCommonTests extends Test {
       )
     }
   }
+
+  def testInMatchCaseAfterComment(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""x match {
+         |  case _ =>
+         |    // some comment$CARET
+         |}
+         |""".stripMargin,
+      s"""x match {
+         |  case _ =>
+         |    // some comment
+         |    $CARET
+         |}
+         |""".stripMargin,
+    )
+  }
 }

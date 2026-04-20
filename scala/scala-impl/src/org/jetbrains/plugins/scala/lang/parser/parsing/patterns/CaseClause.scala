@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
+import com.intellij.lang.WhitespacesAndCommentsBinder
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, BlockInIndentationRegion, ExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause.RightCommentBinder
+
+import java.{util => ju}
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /*
  *  CaseClause ::= 'case' Pattern [Guard] '=>' Block
@@ -17,6 +23,10 @@ abstract class CaseClause extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark()
+    if (!builder.isScala3IndentationBasedSyntaxEnabled) {
+      // This will bind all comments and whitespaces right of the clause.
+      caseClauseMarker.setCustomEdgeTokenBinders(null, RightCommentBinder)
+    }
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE if isCaseKeywordAcceptable =>
         builder.advanceLexer()
@@ -49,6 +59,11 @@ abstract class CaseClause extends ParsingRule {
 }
 
 object CaseClause extends CaseClause {
+  private val RightCommentBinder: WhitespacesAndCommentsBinder =
+    (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => {
+      tokens.size() - tokens.asScala.reverseIterator.takeWhile(token => !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(token)).length
+    }
+
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
     builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
       if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
