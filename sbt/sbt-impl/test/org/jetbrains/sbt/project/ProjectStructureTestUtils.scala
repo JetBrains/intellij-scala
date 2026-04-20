@@ -88,6 +88,7 @@ object ProjectStructureTestUtils {
       case "3.3.3" => Seq(expectedScalaLibrary(useEnv)("2.13.12", projectSystemId))
       case "3.6.2" => Seq(expectedScalaLibrary(useEnv)("2.13.15", projectSystemId))
       case "3.8.2" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.2", projectSystemId))
+      case "3.8.3" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.3", projectSystemId))
       case _ => Nil
     }
     val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId)
