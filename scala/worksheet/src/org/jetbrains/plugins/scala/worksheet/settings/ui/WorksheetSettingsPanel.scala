@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType,
 import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 
 import javax.swing._
+import scala.annotation.nowarn
 
 private final class WorksheetSettingsPanel(
   tabTypeData: TabTypeData,
@@ -92,7 +93,7 @@ private final class WorksheetSettingsPanel(
     runTypeComboBox.setModel(new DefaultComboBoxModel(WorksheetExternalRunType.getAllRunTypes))
     runTypeComboBox.setRenderer(SimpleListCellRenderer.create((label, runType, _: Int) => {
       label.setText(runType.getMenuText)
-    }))
+    })): @nowarn("cat=deprecation")
     runTypeComboBox.setSelectedItem(settingsData.runType)
     interactiveModeCheckBox.setSelected(settingsData.isInteractive)
     makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun)
