@@ -1699,4 +1699,32 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
        |  $CARET
        |""".stripMargin
   )
+
+  def testInMatchCaseAfterCommentBraceless(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""x match
+         |case _ =>
+         |  // some comment$CARET
+         |""".stripMargin,
+      s"""x match
+         |case _ =>
+         |  // some comment
+         |  $CARET
+         |""".stripMargin,
+    )
+  }
+
+  def testInMatchCaseAfterCommentBraceless2(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""x match
+         |  case _ =>
+         |    // some comment$CARET
+         |""".stripMargin,
+      s"""x match
+         |  case _ =>
+         |    // some comment
+         |    $CARET
+         |""".stripMargin,
+    )
+  }
 }
