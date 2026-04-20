@@ -279,6 +279,20 @@ object ScalaSdkExpectedClasspath {
       "",
     )
 
+    createAndRegister(
+      "3.8.3",
+      """org/scala-lang/modules/scala-asm/9.9.0-scala-1/scala-asm-9.9.0-scala-1.jar
+        |org/scala-lang/scala-library/3.8.3/scala-library-3.8.3.jar
+        |org/scala-lang/scala3-compiler_3/3.8.3/scala3-compiler_3-3.8.3.jar
+        |org/scala-lang/scala3-interfaces/3.8.3/scala3-interfaces-3.8.3.jar
+        |org/scala-lang/scala3-library_3/3.8.3/scala3-library_3-3.8.3.jar
+        |org/scala-lang/tasty-core_3/3.8.3/tasty-core_3-3.8.3.jar
+        |org/scala-sbt/compiler-interface/1.10.7/compiler-interface-1.10.7.jar
+        |org/scala-sbt/util-interface/1.10.7/util-interface-1.10.7.jar
+        |""".stripMargin,
+      "",
+    )
+
     def getForVersion(scalaVersion: ScalaVersion): ScalaSdkExpectedClasspath = VersionToData.getOrElse(scalaVersion.minor, {
       throw new IllegalArgumentException(s"No expected scala sdk classpath for version: $scalaVersion (Coursier/Maven)")
     })
