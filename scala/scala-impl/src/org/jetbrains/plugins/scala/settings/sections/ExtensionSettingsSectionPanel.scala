@@ -92,7 +92,7 @@ class ExtensionSettingsSectionPanel(project: Project) extends SettingsSectionPan
         if (description.nonEmpty) builder.append(s" - $description")
         new JBLabel(builder.mkString)
     }
-    extensionsList.installCellRenderer(extensionsListCellRenderer)
+    extensionsList.installCellRenderer(extensionsListCellRenderer): @nowarn("cat=deprecation")
 
     val libraryListModel = new LibraryListModel(detailsModel)
     val librariesList = new JBList[ExtensionJarData](libraryListModel)
@@ -145,7 +145,7 @@ class ExtensionSettingsSectionPanel(project: Project) extends SettingsSectionPan
         label.setToolTipText(file.toAbsolutePath.toString)
         label
     }
-    librariesList.installCellRenderer(librariesListCellRenderer)
+    librariesList.installCellRenderer(librariesListCellRenderer): @nowarn("cat=deprecation")
 
     val librariesPane = new JPanel(new BorderLayout())
     librariesPane.add(toolbarDecorator.createPanel())
