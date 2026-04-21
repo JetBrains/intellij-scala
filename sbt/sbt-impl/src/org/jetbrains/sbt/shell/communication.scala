@@ -36,6 +36,8 @@ import scala.util.{Failure, Success}
 @ApiStatus.Internal()
 final class SbtShellCommunication(project: Project) {
 
+  private val log = Logger.getInstance(getClass)
+
   private val stateRef = new AtomicReference[ShellState](ShellState.Off)
   private[shell] def currentState: ShellState = stateRef.get()
 
@@ -108,21 +110,30 @@ final class SbtShellCommunication(project: Project) {
     eventHandler: EventAggregator[A],
     terminationMessage: Option[String]
   ): Future[A] = {
+    log.debug(s"command start: id=$id, state=$currentState...")
+
     val listener = new CommandListener(default, eventHandler, terminationMessage)
 
     val qc = QueuedCommand(id, () => cmd, listener)
 
     if (isDestroyingOrEmptyingQueueInProgress) {
+      log.debug(s"command: enqueue to afterRestartCommands: id=$id...")
+
       afterRestartCommands.put(qc)
     } else {
       // TODO it's some imperfection at this place to address in SCL-24338
       // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted three times:
       // during #initCommunication, when the shell becomes ready, and here.
       // Introducing an explicit "Start" state would likely be a solution.
+
+      log.debug(s"command: enqueue to commands: id=$id...")
+
       commands.put(qc)
       process.acquireShellProcessHandler()
       emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
+
+    log.debug(s"### command finish: id=$id, commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}, state=$currentState")
 
     listener.future
   }
@@ -185,6 +196,8 @@ final class SbtShellCommunication(project: Project) {
    *  - If the command is not found (likely already running), a cancellation request is sent to the sbt process so the running task can be interrupted.
    */
   def removeCommandFromQueueOrCancel(id: String): Unit = {
+    log.debug(s"removeCommandFromQueueOrCancel start: id=$id...")
+
     def removeFrom(q: LinkedBlockingQueue[QueuedCommand]): QueuedCommand = {
       val it = q.iterator()
       while (it.hasNext) {
@@ -200,10 +213,14 @@ final class SbtShellCommunication(project: Project) {
     }
 
     if (removedElement != null) {
+      log.debug(s"removeCommandFromQueueOrCancel removed from queue: id=$id")
       removedElement.listener.processTerminated()
     } else {
+      log.debug(s"removeCommandFromQueueOrCancel not found in queue, requesting process cancellation: id=$id...")
       process.requestTaskCancellation()
     }
+
+    log.debug(s"removeCommandFromQueueOrCancel finish: id=$id, commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}")
   }
 
   private def isDestroyingOrEmptyingQueueInProgress: Boolean =
@@ -216,6 +233,8 @@ final class SbtShellCommunication(project: Project) {
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
     PooledThreadExecutor.INSTANCE.submit(new Runnable {
       override def run(): Unit = try {
+        log.info(s"startQueueProcessing start: state=$currentState...")
+
         // queue ready signal is given by initCommunication.stateChanger
         shellQueueReady.drainPermits()
 
@@ -226,6 +245,8 @@ final class SbtShellCommunication(project: Project) {
         while (!stopProcessingCommandsQueue) {
           processNextQueuedCommand(1.second)
         }
+
+        log.info(s"startQueueProcessing stop loop: handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState")
 
         // If the current state is not shutting down or off, it means the process was terminated externally (e.g., from Activity Monitor),
         // not via `SbtProcessManager.destroyProcess`. In this case, explicitly call `SbtProcessManager.destroyProcess` to properly execute the chain of
@@ -246,6 +267,8 @@ final class SbtShellCommunication(project: Project) {
           afterRestartCommands.drainTo(commands)
           process.acquireShellProcessHandler()
         }
+
+        log.info(s"startQueueProcessing finish: commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}, state=$currentState")
       } catch {
         case ex: Throwable =>
           Log.error(new RuntimeException("Unexpected exception during commands queue processing", ex))
@@ -337,7 +360,9 @@ final class SbtShellCommunication(project: Project) {
   }
 
   private def processCommand(qc: QueuedCommand): Unit = {
-    val QueuedCommand(_, cmd, listener) = qc
+    val QueuedCommand(id, cmd, listener) = qc
+
+    log.debug(s"processCommand start: id=$id...")
 
     listener.started()
 
@@ -362,8 +387,12 @@ final class SbtShellCommunication(project: Project) {
       shell.print("\n")
       shell.flush()
     }
+
+    log.debug(s"processCommand command sent: id=$id")
+
     listener.future.onComplete { _ =>
       handler.removeProcessListener(listener)
+      log.debug(s"processCommand finish: id=$id")
     }
   }
 
@@ -374,7 +403,10 @@ final class SbtShellCommunication(project: Project) {
     * to manually trigger it if a fully background process is desired
     */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
-    if (communicationActive.tryAcquire(5, TimeUnit.SECONDS)) {
+    log.debug(s"initCommunication start: state=$currentState...")
+
+    val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
+    if (lockAcquired) {
       val releaseCommandQueueListener = new SbtShellReadyListener(
         "release command queue",
         whenReady = {
@@ -389,6 +421,10 @@ final class SbtShellCommunication(project: Project) {
 
       handler.addProcessListener(new InitialErrorDetectorListener())
       startQueueProcessing(handler)
+
+      log.debug(s"initCommunication finish: communication activated, state=$currentState")
+    } else {
+      log.debug(s"initCommunication finish: communication NOT activated (lock couldn't be acquired), state=$currentState")
     }
   }
 
@@ -433,10 +469,14 @@ final class SbtShellCommunication(project: Project) {
     showSbtShellOnError: Boolean,
   ): EventAggregator[BuildMessages] = (messages, event) => event match {
     case TaskStart =>
+      log.trace(s"messageAggregator TaskStart: dumpTaskId=$dumpTaskId...")
+
       reporter.startTask(dumpTaskId, None, startMessage)
       messages
 
     case TaskComplete =>
+      log.trace(s"messageAggregator TaskComplete: dumpTaskId=$dumpTaskId")
+
       reporter.finishTask(dumpTaskId, finishMessage, new SuccessResultImpl())
       val messagesUpdated =
         if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
@@ -444,6 +484,8 @@ final class SbtShellCommunication(project: Project) {
       messagesUpdated
 
     case ProcessTerminated =>
+      log.trace(s"messageAggregator ProcessTerminated: dumpTaskId=$dumpTaskId")
+
       //TODO: it seems like in practice "process terminated" is not used at all
       // we need to refactor the reporter API to not demand it
       reporter.finishTask(dumpTaskId, "process terminated", new SuccessResultImpl())
@@ -452,6 +494,8 @@ final class SbtShellCommunication(project: Project) {
         .status(BuildMessages.Canceled)
 
     case ErrorWaitForInput =>
+      log.trace(s"messageAggregator ErrorWaitForInput: dumpTaskId=$dumpTaskId")
+
       val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
       val ex = new ExternalSystemException(msg)
 
@@ -463,6 +507,9 @@ final class SbtShellCommunication(project: Project) {
     case Output(raw) =>
       // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
       val text = BuildMessages.stripAnsiCodes(raw).trim
+      if (log.isTraceEnabled) {
+        log.trace(s"messageAggregator Output: dumpTaskId=$dumpTaskId, text=$text")
+      }
 
       processOutputBuilder.foreach(_.append(text))
 
@@ -519,31 +566,44 @@ final class SbtShellCommunication(project: Project) {
 
     def future: Future[A] = promise.future
 
-    def started(): Unit =
+    def started(): Unit = {
+      this.log.debug("CommandListener.started")
       aggregate(TaskStart)
+    }
 
     override def processTerminated(event: ProcessEvent): Unit = {
+      this.log.debug(s"CommandListener.processTerminated(exitCode=${event.getExitCode}, text=${event.getText})")
       processTerminated()
     }
 
     def processTerminated(): Unit = {
+      this.log.debug("CommandListener.processTerminated")
       aggregate(ProcessTerminated)
       val message = terminationMessage.getOrElse("Sbt shell terminated before command is finished")
       promise.complete(Failure(new RuntimeException(message)))
     }
 
-    override def onLine(text: String): Unit =
-      if (!promise.isCompleted && promptReady(text, isNewShell)) {
+    override def onLine(text: String): Unit = {
+      val shouldCompleteTask = !promise.isCompleted && promptReady(text, isNewShell)
+      if (shouldCompleteTask) {
+        this.log.trace("CommandListener.onLine: promptReady -> TaskComplete")
+
         aggregate(TaskComplete)
         promise.complete(Success(a))
       }
       else if (promptError(text)) {
+        this.log.trace("CommandListener.onLine: promptError detected -> sendIgnore...")
+
         // When sbt displays an interactive error prompt, automatically send "i" (ignore) to continue
         sendIgnore()
         aggregate(ErrorWaitForInput)
       } else {
+        if (this.log.isTraceEnabled)
+          this.log.trace(s"CommandListener.onLine: output line: $text")
+
         aggregate(Output(text))
       }
+    }
   }
 }
 
