@@ -14,8 +14,8 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.workspace.jps.entities.{DependencyScope, _}
-import com.intellij.platform.workspace.storage.MutableEntityStorage
+import com.intellij.platform.workspace.jps.entities.{DependencyScope, LibraryEntity, _}
+import com.intellij.platform.workspace.storage.{EntitySource, MutableEntityStorage}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
 import org.jetbrains.annotations.{ApiStatus, TestOnly}
@@ -120,15 +120,27 @@ package object project {
   }
 
   implicit class MutableEntityStorageExt(private val storage: MutableEntityStorage) extends AnyVal {
-    def addLibraryEntity(libraryName: String, project: Project, sourceId: String, roots: Seq[LibraryRoot] = Seq.empty): LibraryEntity = {
+    /**
+     * Adds a project-level [[LibraryEntity]] using a JPS-backed entity source.
+     * Use this only for build tools whose entities can be serialized with JPS.
+     */
+    def addLibraryEntity(libraryName: String, project: Project, sourceId: String, roots: Seq[LibraryRoot] = Seq.empty): LibraryEntity =
+      addLibraryEntity(
+        libraryName,
+        roots,
+        entitySource = {
+          val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(sourceId)
+          val legacyBridgeModifiableBase = CompanionProxyUtils.LegacyBridgeJpsEntitySourceFactoryCompanion.getInstance(project)
+          legacyBridgeModifiableBase.createEntitySourceForProjectLibrary(externalSource)
+        }
+      )
+
+    def addLibraryEntity(libraryName: String, roots: Seq[LibraryRoot], entitySource: => EntitySource): LibraryEntity = {
       val libraryId = new LibraryId(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE)
       val existingLibrary = storage.resolve(libraryId)
       if (existingLibrary != null) existingLibrary
       else {
-        val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(sourceId)
-        val legacyBridgeModifiableBase = CompanionProxyUtils.LegacyBridgeJpsEntitySourceFactoryCompanion.getInstance(project)
-        val librarySource = legacyBridgeModifiableBase.createEntitySourceForProjectLibrary(externalSource)
-        val libraryEntity = LibraryEntityModifications.createLibraryEntity(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, roots.asJava, librarySource)
+        val libraryEntity = LibraryEntityModifications.createLibraryEntity(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, roots.asJava, entitySource)
         storage.addEntity[LibraryEntityBuilder, LibraryEntity](libraryEntity)
       }
     }
