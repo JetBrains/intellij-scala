@@ -19,11 +19,12 @@ package object dfa {
        |  object jetbrains {
        |    object annotations {
        |      class Nullable extends scala.annotation.StaticAnnotation
+       |      class Contract(value: String = "", pure: Boolean = false) extends scala.annotation.StaticAnnotation
        |    }
        |  }
        |}
        |
-       |import org.jetbrains.annotations.Nullable
+       |import org.jetbrains.annotations.{Contract, Nullable}
        |
        |class OtherClass {
        |  val otherField: Int = 1244

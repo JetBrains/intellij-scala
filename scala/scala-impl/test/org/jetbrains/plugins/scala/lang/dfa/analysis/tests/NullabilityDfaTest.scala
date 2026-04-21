@@ -205,6 +205,134 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
   })()
 
   @Test
+  def test_assert_not_null(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  assert(s != null)
+      |  s.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_require_not_null(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  require(s != null)
+      |  s.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_assert_on_always_null(): Unit = test(codeFromMethodBody() {
+    """
+      |val x: String = null
+      |assert(x != null)
+      |x.toString()
+      |""".stripMargin
+  })(
+    "x != null" -> ConditionAlwaysFalse,
+  )
+
+  @Test
+  def test_objects_requireNonNull(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  val safe = java.util.Objects.requireNonNull(s)
+      |  safe.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_objects_requireNonNull_on_always_null(): Unit = test(codeFromMethodBody() {
+    """
+      |val x: String = null
+      |val safe = java.util.Objects.requireNonNull(x)
+      |safe.toString()
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_contract_returns_not_null(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("_ -> !null")
+      |def ensureNotNull(@Nullable s: String): String = {
+      |  if (s == null) "" else s
+      |}
+      |
+      |def foo(@Nullable s: String): Unit = {
+      |  val safe = ensureNotNull(s)
+      |  safe.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_contract_returns_param(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("!null -> !null")
+      |def orEmpty(@Nullable s: String): String = {
+      |  if (s == null) "" else s
+      |}
+      |
+      |val safe = orEmpty("hello")
+      |safe.toString()
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_contract_fail_on_null(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("null -> fail")
+      |def checkNotNull(@Nullable s: String): String = {
+      |  if (s == null) throw new IllegalArgumentException
+      |  s
+      |}
+      |
+      |def foo(@Nullable s: String): Unit = {
+      |  val safe = checkNotNull(s)
+      |  safe.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_contract_fail_on_null_returns_param(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("null -> fail; !null -> param1")
+      |def requireNotNull(@Nullable s: String): String = {
+      |  if (s == null) throw new IllegalArgumentException
+      |  s
+      |}
+      |
+      |def foo(@Nullable s: String): Unit = {
+      |  val safe = requireNotNull(s)
+      |  safe.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_assert_without_null_check(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  s.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
   def test_implicit_conversion(): Unit = test(codeFromMethodBody() {
     """
       |class TestClass(val x: String) {
