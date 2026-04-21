@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.actions
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.target.{LanguageRuntimeType, TargetEnvironmentAwareRunProfile, TargetEnvironmentConfiguration}
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsAction
 import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsAction.MyRunProfile
@@ -66,7 +67,7 @@ object ScalaRerunFailedTestsAction {
   private class MyScalaRunProfile(
     configuration: AbstractTestRunConfiguration,
     failedTestsProxies: Seq[AbstractTestProxy]
-  ) extends MyRunProfile(configuration) {
+  ) extends MyRunProfile(configuration) with TargetEnvironmentAwareRunProfile {
 
     override def getModules: Array[Module] = configuration.getModules
 
@@ -82,6 +83,26 @@ object ScalaRerunFailedTestsAction {
         configuration.runStateProvider.commandLineState(env, Some(failedSeq))
       }
     }
+
+    /*
+     * Implement the `TargetEnvironmentAwareRunProfile` interface by delegating all method calls to the
+     * `configuration: AbstractTestRunConfiguration` parameter, which also implements the same interface.
+     */
+
+    override def canRunOn(target: TargetEnvironmentConfiguration): Boolean =
+      configuration.canRunOn(target)
+
+    override def getDefaultLanguageRuntimeType: LanguageRuntimeType[_] =
+      configuration.getDefaultLanguageRuntimeType
+
+    override def getDefaultTargetName: String =
+      configuration.getDefaultTargetName
+
+    override def setDefaultTargetName(targetName: String): Unit =
+      configuration.setDefaultTargetName(targetName)
+
+    override def needPrepareTarget(): Boolean =
+      configuration.needPrepareTarget()
 
     private def collectFailedTests(failedTestNodes: Seq[AbstractTestProxy]): Seq[(String, String)] =
       for {
