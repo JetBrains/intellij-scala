@@ -687,6 +687,9 @@
         <registryKey key="scala.enable.match.type.intrinsics" defaultValue="true"  restartRequired="false"
                      description="If enabled, certain match types are reduced via special case intrinsics, rather than through general compiler algorithm"/>
 
+        <registryKey key="scala.type.presentation.debug.type.param.id" defaultValue="false" restartRequired="false"
+                     description="If enabled, type text rendering includes `typeParamId` suffix for type-parameter-backed types (debug only)"/>
+
         <intentionAction>
             <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>

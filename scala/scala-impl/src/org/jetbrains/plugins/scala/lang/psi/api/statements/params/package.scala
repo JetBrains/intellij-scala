@@ -6,6 +6,7 @@ import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.TypeParameterDebugRendering
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -26,9 +27,16 @@ package object params {
     ConcurrentCollectionFactory.createConcurrentLongObjectMap()
 
   def typeParamName(id: Long): String = {
-    idToName.get(id).toOption
-      .getOrElse(reusableIdToName.get(id)).toOption
-      .getOrElse(id.toString)
+    val name =
+      idToName
+        .get(id)
+        .toOption
+        .getOrElse(reusableIdToName.get(id)).toOption
+
+    name match {
+      case Some(n) => TypeParameterDebugRendering.withTypeParamId(n, id)
+      case None    => id.toString
+    }
   }
 
   private val nameBasedIdBaseline = Long.MaxValue / 2
