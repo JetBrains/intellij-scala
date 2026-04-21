@@ -11,7 +11,6 @@ import com.intellij.openapi.actionSystem.{ActionGroup, AnActionEvent, DefaultAct
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.progress.ProgressManager
@@ -47,6 +46,7 @@ import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 
 import java.io.{IOException, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -391,25 +391,38 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * If a task is already running, it terminates the currently running task.
    * If no task is running, this request might result in terminating the sbt shell.
    */
-  def requestTaskCancellation(): Unit =
-    processData.foreach { pd =>
-      OSProcessUtil.terminateProcessGracefully(pd.processHandler.getProcess)
+  def requestTaskCancellation(): Unit = {
+    processData match {
+      case Some(pd) =>
+        log.debug("requestTaskCancellation start: terminateProcessGracefully...")
+
+        OSProcessUtil.terminateProcessGracefully(pd.processHandler.getProcess)
+
+        log.debug("requestTaskCancellation finish")
+      case _ =>
+        log.debug("requestTaskCancellation: skipping (no process data available)")
     }
+  }
 
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
   def initAndRunAsync(): Unit = {
-    log.debug("initAndRunAsync")
+    log.debug("initAndRunAsync start...")
+
     executeOnPooledThread {
       acquireShellProcessHandler()
       SbtShellRunner.openShell(focus = true, project)
+
+      log.debug("initAndRunAsync finish")
     }
   }
 
   private def updateProcessData(): ProcessData = {
-    log.trace("updateProcessData")
+    log.debug("updateProcessData start...")
+
     val _processData = createProcessData()
     processDataMutex.synchronized {
       processData = Some(_processData)
+
       _processData match {
         case pd: AbstractConsoleProcessData =>
           pd.runner.initAndRun()
@@ -419,6 +432,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
           SbtShellRunner.openShell(focus = false, project)
       }
     }
+
+    log.debug(s"updateProcessData finish (sbtVersion=${_processData.sbtVersion}, isNewShell=${_processData.isNewShell})")
+
     _processData
   }
 
@@ -478,12 +494,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * SbtProcessManager is solely responsible for handling the running state.
    */
   def acquireShellProcessHandler(): OSProcessHandler = processDataMutex.synchronized {
-    log.trace("acquireShellProcessHandler")
+    log.debug("acquireShellProcessHandler start...")
+
     processData match {
       case Some(pd) if isAlive(pd) =>
+        log.debug("acquireShellProcessHandler finish: reusing existing alive process handler")
         pd.processHandler
       case _ =>
-        updateProcessData().processHandler
+        log.debug("acquireShellProcessHandler: no alive process, creating new one...")
+        val handler = updateProcessData().processHandler
+        log.debug("acquireShellProcessHandler finish: created new process handler")
+        handler
     }
   }
 
@@ -574,7 +595,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelSoftRestartProcess]]
    */
   private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
-    log.debug("destroyProcess")
+    log.debug("destroyProcess start...")
+
     processData match {
       case Some(pd) =>
         val shell = SbtShellCommunication.forProject(project)
@@ -582,6 +604,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
         // `SbtShellCommunication.startQueueProcessing` to exit, and there should be no commands in the `afterRestartCommands` queue afterward.
         if (!isSoft)
           shell.cancelSoftRestartProcess()
+
+        log.trace("destroyProcess: emit ShutdownRequested...")
 
         shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
 
@@ -591,9 +615,14 @@ final class SbtProcessManager(project: Project) extends Disposable {
         else
           ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
 
+        log.trace("destroyProcess: emit ProcessTerminated...")
+
         shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
         processData = None
+
+        log.debug("destroyProcess finish: processData cleared")
       case None => // nothing to do
+        log.debug("destroyProcess finish: no processData")
     }
   }
 
@@ -649,7 +678,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
       val actionGroup = createActionGroupForTerminalConsole(processData.console)
       SbtShellToolWindowFactory.initUi(project, actionGroup, component = processData.console.getComponent)
-  }
+    }
 
   private[shell] def isRunWithNewShell: Boolean =
     processData.exists(_.isNewShell)
