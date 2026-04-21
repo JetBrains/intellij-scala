@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
 import com.intellij.platform.workspace.jps.entities.{LibraryEntity, ModuleEntity}
-import com.intellij.platform.workspace.storage.MutableEntityStorage
+import com.intellij.platform.workspace.storage.{EntitySource, MutableEntityStorage}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.EelAwareDependencyManager
@@ -60,12 +60,58 @@ object ScalaSdkUtils {
     storage: MutableEntityStorage,
     project: Project,
     scalaSdkSourceId: String
+  ): Unit =
+    configureScalaSdkForModuleEntity(
+      module = module,
+      compilerVersion = compilerVersion,
+      scalacClasspath = scalacClasspath,
+      scaladocExtraClasspath = scaladocExtraClasspath,
+      compilerBridgeBinaryJar = compilerBridgeBinaryJar,
+      replClasspath = replClasspath,
+      sdkPrefix = sdkPrefix,
+      storage = storage,
+      createLibrary = name => storage.addLibraryEntity(name, project, scalaSdkSourceId)
+    )
+
+  def configureScalaSdk(
+    module: ModuleEntity,
+    compilerVersion: String,
+    scalacClasspath: Seq[Path],
+    scaladocExtraClasspath: Seq[Path],
+    compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath,
+    sdkPrefix: String,
+    storage: MutableEntityStorage,
+    entitySource: EntitySource
+  ): Unit =
+    configureScalaSdkForModuleEntity(
+      module = module,
+      compilerVersion = compilerVersion,
+      scalacClasspath = scalacClasspath,
+      scaladocExtraClasspath = scaladocExtraClasspath,
+      compilerBridgeBinaryJar = compilerBridgeBinaryJar,
+      replClasspath = replClasspath,
+      sdkPrefix = sdkPrefix,
+      storage = storage,
+      createLibrary = name => storage.addLibraryEntity(name, Seq.empty, entitySource)
+    )
+
+  private def configureScalaSdkForModuleEntity(
+    module: ModuleEntity,
+    compilerVersion: String,
+    scalacClasspath: Seq[Path],
+    scaladocExtraClasspath: Seq[Path],
+    compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath,
+    sdkPrefix: String,
+    storage: MutableEntityStorage,
+    createLibrary: String => LibraryEntity
   ): Unit = {
     val scalaSDKLibraryName = scalaSdkLibraryName(sdkPrefix, compilerVersion)
     doConfigureScalaSdk(
       libraries = storage.entities(classOf[LibraryEntity]).iterator().asScala.toSeq,
       isApplicable = (library: LibraryEntity) => isApplicableScalaSdk(library, scalaSDKLibraryName),
-      createLibrary = storage.addLibraryEntity(scalaSDKLibraryName, project, scalaSdkSourceId),
+      createLibrary = createLibrary(scalaSDKLibraryName),
       ensureConvertedToScalaSdk = (library: LibraryEntity) => ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
         library,
         storage,
