@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
@@ -46,6 +49,34 @@ abstract class ScalaTypePresentationTestBase extends ScalaLightCodeInsightFixtur
     val bt = makeTypeElement(b, header).`type`().get
 
     assertEquals(at.canonicalText, bt.canonicalText)
+  }
+
+  def testTypeParameterRenderingWithoutDebugRegistryFlag(): Unit = {
+    val typeElement = makeTypeElement("A", "")
+    val tpe = typeElement.`type`().get.asInstanceOf[TypeParameterType]
+
+    implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
+    implicit val context: Context = Context(typeElement)
+
+    assertEquals("A", tpe.presentableText)
+    assertEquals("NotInferredA", UndefinedType(tpe).presentableText)
+    assertEquals("A", org.jetbrains.plugins.scala.lang.psi.api.statements.params.typeParamName(tpe.typeParamId))
+  }
+
+  def testTypeParameterRenderingWithDebugRegistryFlag(): Unit = {
+    Registry.get(TypeParameterDebugRendering.RegistryKey).setValue(true, getTestRootDisposable)
+
+    val typeElement = makeTypeElement("A", "")
+    val tpe = typeElement.`type`().get.asInstanceOf[TypeParameterType]
+    val expectedTypeParam = s"A#${tpe.typeParamId}"
+    val expectedUndefined = s"NotInferredA#${tpe.typeParamId}"
+
+    implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
+    implicit val context: Context = Context(typeElement)
+
+    assertEquals(expectedTypeParam, tpe.presentableText)
+    assertEquals(expectedUndefined, UndefinedType(tpe).presentableText)
+    assertEquals(expectedTypeParam, org.jetbrains.plugins.scala.lang.psi.api.statements.params.typeParamName(tpe.typeParamId))
   }
 }
 
