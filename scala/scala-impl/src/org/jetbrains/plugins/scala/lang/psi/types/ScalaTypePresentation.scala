@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociat
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
@@ -363,7 +364,11 @@ trait ScalaTypePresentation extends TypePresentation {
           case _           => nameRenderer.escapeName(stdType.name)
         }
       case namedType: NamedType => namedType.name
-      case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
+      case ScAbstractType(tpt, _, _) =>
+        TypeParameterDebugRendering.withTypeParamId(
+          tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX,
+          tpt.typeParamId
+        )
       case PolyFunctionType(sig, retType) =>
         val typeParamsClause = sig.typeParams.map(_.name).mkString("[", ", ", "]")
         val paramTypes       = sig.substitutedTypes.head.map(_.apply())
@@ -423,7 +428,8 @@ trait ScalaTypePresentation extends TypePresentation {
       case p: ParameterizedType =>
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Array[${innerTypeText(argument)}]" // SCL-21183
-      case UndefinedType(tpt, _) => "NotInferred" + tpt.name
+      case UndefinedType(tpt, _) =>
+        TypeParameterDebugRendering.withTypeParamId("NotInferred" + tpt.name, tpt.typeParamId)
       case ScAndType(lhs, rhs) =>
         if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) {
           val l = innerTypeText(lhs)

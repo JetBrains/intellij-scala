@@ -84,9 +84,12 @@ object ScType {
 trait NamedType extends ScType {
   val name: String
 
-  override def presentableText(implicit tpc: TypePresentationContext, context: Context): String = name
+  private def renderedName: String =
+    TypeParameterDebugRendering.renderNamedTypeName(this)
+
+  override def presentableText(implicit tpc: TypePresentationContext, context: Context): String = renderedName
 
   override def canonicalText: String =
     if (ScalaApplicationSettings.PRECISE_TEXT) super.canonicalText // #SCL-21178
-    else name
+    else renderedName
 }
