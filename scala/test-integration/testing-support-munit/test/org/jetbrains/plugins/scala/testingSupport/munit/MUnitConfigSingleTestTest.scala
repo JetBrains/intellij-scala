@@ -111,6 +111,48 @@ abstract class MUnitConfigSingleTestTestBase extends MUnitTestCase {
     )
   }
 
+  private val ClassNameFunFixture = "MUnitConfigSingleTest_Test_FunFixture"
+  private val FileNameFunFixture = s"$ClassNameFunFixture.scala"
+
+  addSourceFile(FileNameFunFixture,
+    s"""import munit.FunSuite
+       |
+       |class $ClassNameFunFixture extends FunSuite {
+       |  val fixture = FunFixture[Int](
+       |    setup = _ => 42,
+       |    teardown = _ => ()
+       |  )
+       |
+       |  fixture.test("fixture success 1") { i =>
+       |    assertEquals(i, 42)
+       |  }
+       |
+       |  fixture.test("fixture failure") { i =>
+       |    assertEquals(i, 0)
+       |  }
+       |}""".stripMargin)
+
+  def testFunFixture_Success(): Unit =
+    runTestByLocation2(
+      loc(FileNameFunFixture, 8, 18),
+      config => assertConfigAndSettings(config, ClassNameFunFixture, "fixture success 1"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameFunFixture, s"${ClassNameFunFixture}.fixture success 1")
+      ))
+    )
+
+  def testFunFixture_Failure(): Unit =
+    runTestByLocation2(
+      loc(FileNameFunFixture, 12, 18),
+      config => assertConfigAndSettings(config, ClassNameFunFixture, "fixture failure"),
+      result => {
+        assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
+          TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunFixture, s"${ClassNameFunFixture}.fixture failure")
+        ))
+        assertExitCode(-1, result)
+      }
+    )
+
   private val ClassNameScalaCheckSuite = "MUnitConfigSingleTest_Test_ScalaCheckSuite"
   private val FileNameScalaCheckSuite = ClassNameScalaCheckSuite + ".scala"
 
