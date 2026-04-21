@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.SingleCodeTestData
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
-import org.junit.Test
+import org.junit.{Assert, ComparisonFailure, Test}
 import org.junit.runner.RunWith
 
 import scala.annotation.unused
@@ -65,13 +65,32 @@ abstract class GeneratedHighlightingParameterizedTest(minScalaVersion: ScalaVers
       myFixture.testHighlighting(false, false, false, virtualFile)
     }
 
-    try doTestHighlighting(getFile.getVirtualFile)
-    catch {
-      case e: AssertionError =>
-        if (testData.isFailing) return // let the test pass if we expect it to fail
-        throw e
+    try {
+      doTestHighlighting(getFile.getVirtualFile)
+    } catch {
+      case e: ComparisonFailure =>
+        testData.failureExpectation match {
+          case Some(expectation) if expectation.linesCovered =>
+            val linesWithActualErrors =
+              e.getActual.linesIterator.zipWithIndex
+                .collect { case (line, lineNum) if line.contains("<error ") => lineNum + 1 }
+                .toSet
+            val linesWithExpectedErrors = expectation.errors.map(_.line.get).toSet
+
+            Assert.assertEquals(e.getActual, linesWithExpectedErrors, linesWithActualErrors)
+            return
+          case Some(_) =>
+            // We only know there that there is supposed to be an error somewhere
+            return
+          case None =>
+            // test was not supposed to have any errors
+            throw e
+        }
     }
-    assert(!testData.isFailing, "Test should fail, but it didn't")
+
+    if (testData.isFailing) {
+      Assert.fail(s"Expected a highlighting error, but got none.\n${testData.testCode}")
+    }
   }
 }
 
@@ -109,7 +128,7 @@ object GeneratedParameterizedTestFactory {
       errors.nonEmpty.option(FailureExpectation(errors)(linesCovered, messagesCovered))
   }
 
-  case class TestDataError(line: Option[Int], message: Option[TestDataErrorMessage]) {
+  case class TestDataError(line: Option[Int], message: Option[TestDataErrorMessage], onlyForUs: Boolean) {
     assert(line.nonEmpty || message.nonEmpty)
   }
 
@@ -135,7 +154,7 @@ object GeneratedParameterizedTestFactory {
       val errors =
         lines.zipWithIndex.collect {
           case (line, lineNum) if line.contains("// Error") =>
-            TestDataError(Some(lineNum + 1), None)
+            TestDataError(Some(lineNum + 1), None, onlyForUs = line.contains("// Error(IntelliJ)"))
         }
 
       SimpleTestData(testName, code.trim, FailureExpectation.fromErrors(errors, linesCovered = true))

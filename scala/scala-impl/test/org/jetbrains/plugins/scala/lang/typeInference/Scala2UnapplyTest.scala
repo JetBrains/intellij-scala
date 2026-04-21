@@ -255,8 +255,8 @@ object Scala2UnapplyTest {
       |// caseClassNoTupleCrushing
       |case class A(i: Int, s: String)
       |
-      |val A(tup) = A(???, ???)    // Error
-      |val _tup: (Int, String) = tup
+      |val A(tup) = A(???, ???)      // Error
+      |val _tup: (Int, String) = tup // Error(IntelliJ)
       |""".stripMargin,
     """
       |// caseClassTupleCrushingWithCustomUnapply
