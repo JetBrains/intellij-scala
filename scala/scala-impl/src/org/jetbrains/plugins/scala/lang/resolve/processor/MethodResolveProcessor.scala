@@ -220,34 +220,24 @@ object MethodResolveProcessor {
     val element              = c.element
     val candidateSubstitutor = c.substitutor
 
-    val elementsForUndefining = element match {
-      case ScalaConstructor(_) if !selfConstructorResolve => Seq(c.getActualElement)
-      case Constructor(_)                                 => Seq(c.getActualElement, element).distinct
-      case _                                              => Seq(element)
+    val typeParamOwner = element match {
+      case ScalaConstructor(_ ) => c.getActualElement
+      case _                    => element
     }
 
-    val iterator        = elementsForUndefining.iterator
-    var tempSubstitutor = ScSubstitutor.empty
-
-    while (iterator.hasNext) {
-      val element = iterator.next()
-
-      tempSubstitutor = tempSubstitutor.followed(
-        undefinedOrTypeArgsSubstitutor(
-          element,
-          candidateSubstitutor,
-          selfConstructorResolve,
-          typeArgElements,
-          c.isExtensionCall,
-          c.exportedInExtension
-        )
-      )
-    }
+    val typeArgsSubst = undefinedOrTypeArgsSubstitutor(
+      typeParamOwner,
+      candidateSubstitutor,
+      selfConstructorResolve,
+      typeArgElements,
+      c.isExtensionCall,
+      c.exportedInExtension
+    )
 
     val unresolvedTps = c.unresolvedTypeParameters.getOrElse(Seq.empty)
 
     val substitutor =
-      tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
+      typeArgsSubst.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
@@ -585,7 +575,7 @@ object MethodResolveProcessor {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
-      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
+      case ScalaConstructor.in(td)         => Option(td.getTypeParameters.toSeq)
       case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
       case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension(exportedInExtension))
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
