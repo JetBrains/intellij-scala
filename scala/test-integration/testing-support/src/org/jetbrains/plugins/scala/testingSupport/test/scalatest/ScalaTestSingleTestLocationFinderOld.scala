@@ -76,9 +76,22 @@ class ScalaTestSingleTestLocationFinderOld(
       }
     }
 
+    // FunFixture is held as a val, not inherited — skip the `isInheritor` check.
+    def checkFunFixture(fqn: String): Option[String] = {
+      val result: ReturnResult = checkCall(
+        PsiTreeUtil.getParentOfType(element, classOf[MethodInvocation], false),
+        Map("test" -> fqn)
+      )
+      result match {
+        case SuccessResult(_, testName, _) => Some(testName)
+        case _ => None
+      }
+    }
+
     //noinspection ConvertibleToMethodValue
     val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
       (MUnitUtils.FunSuiteFqnList, checkFunSuite _),
+      (List(MUnitUtils.FunFixtureFqn), checkFunFixture _),
       (MUnitUtils.ScalaCheckSuiteFqnList, checkScalaCheckSuite _),
     )
 

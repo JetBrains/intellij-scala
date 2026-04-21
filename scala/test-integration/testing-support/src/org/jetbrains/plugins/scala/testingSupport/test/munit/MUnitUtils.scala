@@ -15,6 +15,7 @@ object MUnitUtils {
   // Base class containing the test method definition in MUnit 0.x
   val FunSuiteFqn = "munit.FunSuite"
   val ScalaCheckSuiteFqn = "munit.ScalaCheckSuite"
+  val FunFixtureFqn = "munit.FunFixtures.FunFixture"
 
   val FunSuiteFqnList: List[String] = List(BaseFunSuiteFqn, FunSuiteFqn)
   val ScalaCheckSuiteFqnList: List[String] = List(ScalaCheckSuiteFqn)

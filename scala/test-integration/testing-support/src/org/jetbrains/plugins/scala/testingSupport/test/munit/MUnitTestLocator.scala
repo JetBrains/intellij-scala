@@ -94,7 +94,7 @@ object MUnitTestLocator {
 
   private def testRefWithTestName(methodCall: ScMethodCall): Option[(ScReferenceExpression, String)]=
     methodCall.deepestInvokedExpr match {
-      case testRef: ScReferenceExpression if MUnitUtils.FunSuiteTestMethodNames.exists(testRef.textMatches) =>
+      case testRef: ScReferenceExpression if MUnitUtils.FunSuiteTestMethodNames.contains(testRef.refName) =>
         val maybeStaticName = MUnitUtils.staticTestName(testRef)
         maybeStaticName.map((testRef, _))
       case _ => None
