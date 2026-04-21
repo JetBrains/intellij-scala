@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
+import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.dataFlow.jvm.descriptors.JvmVariableDescriptor
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.DfaVariableValue
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.codeInspection.dataFlow.DfaPsiUtil
+import com.intellij.psi.{PsiElement, PsiModifierListOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableElement, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+
 
 case class ScalaDfaVariableDescriptor(variable: PsiElement,
                                       qualifier: Option[ScalaDfaVariableDescriptor],
@@ -22,7 +25,14 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement,
   }
 
   override def getDfType(qualifier: DfaVariableValue): DfType = variable match {
-    case typeable: Typeable => scTypeToDfType(typeable.`type`().getOrAny)
+    case typeable: Typeable =>
+      val scType = typeable.`type`().getOrAny
+      val nullability = variable match {
+        case owner: PsiModifierListOwner =>
+          DfaPsiUtil.getElementNullabilityForRead(scType.toPsiType, owner)
+        case _ => Nullability.UNKNOWN
+      }
+      scTypeToDfType(scType, nullability)
     case _ => DfType.TOP
   }
 }

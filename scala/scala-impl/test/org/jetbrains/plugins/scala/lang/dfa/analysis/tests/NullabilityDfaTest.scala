@@ -97,6 +97,114 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
   })()
 
   @Test
+  def test_nullable_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  s.toString()
+      |
+      |  if (s != null) {
+      |    s.toString()
+      |  }
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_parameter_null_guard(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  if (s == null) return
+      |  s.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_nullable_parameter_multiple(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable a: String, @Nullable b: String): Unit = {
+      |  a.toString()
+      |  b.toString()
+      |}
+      |foo(arg4, arg4)
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_class_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |class Wrapper(@Nullable val value: String)
+      |val w = new Wrapper(arg4)
+      |w.value.toString()
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_case_class_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |case class Wrapper(@Nullable value: String)
+      |val w = Wrapper(arg4)
+      |w.value.toString()
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_var(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(@Nullable s: String): Unit = {
+      |  var x: String = s
+      |  x.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_def_return(): Unit = test(codeFromMethodBody() {
+    """
+      |@Nullable def getNullable(): String = arg4
+      |val s = getNullable()
+      |s.toString()
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_nullable_def_return_with_guard(): Unit = test(codeFromMethodBody() {
+    """
+      |@Nullable def getNullable(): String = arg4
+      |val s = getNullable()
+      |if (s != null) {
+      |  s.toString()
+      |}
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_not_nullable_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |def foo(s: String): Unit = {
+      |  s.toString()
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
   def test_implicit_conversion(): Unit = test(codeFromMethodBody() {
     """
       |class TestClass(val x: String) {
