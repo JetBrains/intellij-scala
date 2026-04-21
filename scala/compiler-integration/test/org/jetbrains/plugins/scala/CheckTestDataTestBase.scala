@@ -35,8 +35,9 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
 
   def test(): Unit = {
     assert(testData.nonEmpty)
-    if (testData.forall(_.isFailing))
+    if (testData.forall(_.isFailing)) {
       return
+    }
 
     runWithErrorsFromCompiler(getProject) {
       addFileToProjectSources("test.scala", buildCompleteSucceedingTestCode())
@@ -57,8 +58,11 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
         def line: Int = message.asInstanceOf[CompilerMessageImpl].getLine - 2
       }
 
-      for (case (code, idx) <- tests.zipWithIndex.map(wrapIntoObject).zipWithIndex) {
-        addFileToProjectSources(s"test$idx.scala", code)
+      for {
+        case (test, idx) <- tests.zipWithIndex
+        code = wrapIntoObject((test, idx))
+      } {
+        addFileToProjectSources(s"test${idx}_${test.testName}.scala", code)
       }
 
       val messages = compiler.make().asScala.toSeq
@@ -67,7 +71,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
 
       for (case (test, idx) <- tests.zipWithIndex) {
         val failureExpectation = test.failureExpectation.get
-        val actualErrors = errors.filter(_.getVirtualFile.getName.contains(s"test$idx"))
+        val actualErrors = errors.filter(_.getVirtualFile.getName.contains(s"test${idx}_"))
         try {
           // expect at least one failure
           assert(
@@ -75,7 +79,8 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
             s"Expected to find errors, but found none"
           )
 
-          for (expectedError <- failureExpectation.errors) {
+          val expectedErrors = failureExpectation.errors.filterNot(_.onlyForUs)
+          for (expectedError <- expectedErrors) {
             for (expectedLine <- expectedError.line) {
               assert(
                 actualErrors.exists(_.line == expectedLine),
@@ -92,7 +97,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
           }
 
           if (failureExpectation.linesCovered) {
-            val expectedLinesWithErrors = failureExpectation.errors.map(_.line.get).toSet
+            val expectedLinesWithErrors = expectedErrors.map(_.line.get).toSet
             val actualLinesWithErrors = actualErrors.map(_.line).toSet
             assert(
               actualLinesWithErrors == expectedLinesWithErrors,
@@ -101,7 +106,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
           }
 
           if (failureExpectation.messagesCovered) {
-            val expectedMessagesWithErrors = failureExpectation.errors.map(_.message.get.scalaCompilerMessage).toSet
+            val expectedMessagesWithErrors = expectedErrors.filterNot(_.onlyForUs).map(_.message.get.scalaCompilerMessage).toSet
             val actualMessagesWithErrors = actualErrors.map(_.getMessage).toSet
             assert(
               actualMessagesWithErrors == expectedMessagesWithErrors,
