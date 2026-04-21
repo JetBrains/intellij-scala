@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport
 package test.munit
 
-import com.intellij.execution.configurations.{JavaParameters, ParametersList}
+import com.intellij.execution.configurations.{CompositeParameterTargetedValue, JavaParameters, ParametersList}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.TestSearchScope
@@ -50,8 +50,13 @@ private class MUnitCommandLineState(
 
   override def passForkMode(forkMode: String, tempFile: java.io.File, parameters: JavaParameters): Unit = ()
 
-  override def passTempFile(parametersList: ParametersList, tempFilePath: String): Unit =
-    parametersList.add("@" + tempFilePath)
+  override def passTempFile(parametersList: ParametersList, tempFilePath: String): Unit = {
+    parametersList.add(
+      new CompositeParameterTargetedValue()
+        .addLocalPart("@")
+        .addPathPart(tempFilePath)
+    )
+  }
 
   override def deleteTempFiles(): Unit =
     super.deleteTempFiles()
