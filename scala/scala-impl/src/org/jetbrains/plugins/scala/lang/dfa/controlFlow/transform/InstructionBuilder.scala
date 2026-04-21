@@ -238,7 +238,7 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
     addInstruction(new EnsureIndexInBoundsInstruction(problem, maybeTransferValue(exception).orNull))
   }
 
-  private def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
+  protected def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
 
   /*
 

@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
+import com.intellij.codeInspection.dataFlow.types.DfTypes
+import com.intellij.codeInspection.dataFlow.value.RelationType
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
@@ -52,7 +54,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def startsWithUnsupportedMethodName(name: String): Boolean = {
-    name.startsWith("assert") || name.startsWith("require") || name.startsWith("getClass")
+    name.startsWith("getClass")
   }
 
   private def isUnsupportedInfixSyntheticAssignment(operation: String): Boolean = {
@@ -76,15 +78,43 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
   private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo]): Option[StackValue] =
     invocationsInfo match {
       case Seq(invocationInfo) =>
-        invocationInfo.invokedElement match {
-          case Some(InvokedElement(psiElement)) => psiElement match {
-            case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo)
-            case _ => None
+        tryTransformAsAssertionCall(invocationInfo)
+          .orElse {
+            invocationInfo.invokedElement match {
+              case Some(InvokedElement(psiElement)) => psiElement match {
+                case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo)
+                case _ => None
+              }
+              case _ => None
+            }
           }
-          case _ => None
-        }
       case _ => None
     }
+
+  private val AssertionExceptionType = "java.lang.AssertionError"
+  private val RequireExceptionType = "java.lang.IllegalArgumentException"
+
+  private def tryTransformAsAssertionCall(invocationInfo: InvocationInfo): Option[StackValue] = {
+    val element = invocationInfo.invokedElement.getOrElse(return None)
+    val name = element.simpleName.getOrElse(return None)
+    val qualifiedName = element.qualifiedName.getOrElse(return None)
+
+    val exceptionType = (name, qualifiedName) match {
+      case ("assert", "scala.Predef.assert") => AssertionExceptionType
+      case ("assume", "scala.Predef.assume") => AssertionExceptionType
+      case ("require", "scala.Predef.require") => RequireExceptionType
+      case _ => return None
+    }
+
+    val conditionArg = invocationInfo.properArguments.headOption.flatMap(_.headOption)
+    val conditionExpr = conditionArg.flatMap(_.content)
+    conditionExpr.map { expr =>
+      val condValue = transformExpression(expr, ResultReq.Required)
+      ensure(condValue, RelationType.EQ, DfTypes.TRUE, transfer = maybeTransferValue(exceptionType).orNull)
+      pop(condValue)
+      pushUnit()
+    }
+  }
 
   final def transformImplicitConversionInvocation(e: PsiNamedElement, expr: ScExpression): StackValue = {
     e.asOptionOf[ScFunction].flatMap(InvocationInfo.tryFromImplicitConversion(_, expr)) match {
