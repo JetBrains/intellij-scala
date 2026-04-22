@@ -4,16 +4,16 @@ import com.intellij.platform.eel.EelPlatform
 import com.intellij.platform.eel.EelPlatform.Arch
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, LocalEelDescriptor}
 import com.intellij.platform.testFramework.junit5.eel.fixture.{IsolatedFileSystem, FixturesKt as EelFixtures}
+import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.TestFixture
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.testFramework.junit5.ScalaTestApplication
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
 import java.nio.file.Path
 
-@ScalaTestApplication
+@TestApplication
 class EelCompilerUtilsTest:
 
   private val windowsFixture: TestFixture[IsolatedFileSystem] =

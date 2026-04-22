@@ -11,22 +11,22 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.{FixturesKt, TestFixture}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.MockScalaSDKLoader
-import org.jetbrains.plugins.scala.testFramework.junit5.ScalaTestApplication
 import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertNotNull, assertTrue}
 import org.junit.jupiter.api.Test
 
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
-@ScalaTestApplication
+@TestApplication
 class ScalaConsoleRunConfigurationTest:
 
   /**
    * These fixtures must be defined as class members in order to be initialized and torn down by the
-   * `@TestApplication/@ScalaTestApplication`.
+   * `@TestApplication`.
    */
   private val pf: TestFixture[Project] = FixturesKt.projectFixture()
   private val mf: TestFixture[Module] = FixturesKt.moduleFixture(pf)

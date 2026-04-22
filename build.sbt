@@ -325,7 +325,6 @@ lazy val scalaImpl: sbt.Project =
       runners,
       testRunners,
       testUtilsCommon % "test->test",
-      kotlinTestUtils % "test->test"
     )
     .settings(
       ideExcludedDirectories := Seq(
@@ -434,17 +433,6 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
 lazy val testUtilsCommon: sbt.Project =
   newPlainScalaProject("test-utils-common", file("scala/test-utils-common"))
     .projectWithTestsOnly
-
-lazy val kotlinTestUtils: sbt.Project =
-  newProjectWithKotlin("kotlin-test-utils", file("scala/kotlin-test-utils"))
-    .projectWithTestsOnly
-    .settings(
-      resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
-      libraryDependencies ++= Seq(
-        Dependencies.intellijTestFrameworkCommon % Test,
-        Dependencies.intellijJUnit5TestFramework % Test
-      )
-    )
 
 /**
  * This module contains common test utilities for modules that use IntelliJ platform

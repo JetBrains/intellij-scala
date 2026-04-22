@@ -179,7 +179,8 @@ object Common {
         // The way JUnit 5/6 tests are run in sbt, these extra tests end up running before and after each test suite.
         // This VM options prevents these extra tests from being added. At the moment, it's unclear if these tests can
         // run correctly when ran multiple times, which is what happens in sbt.
-        "-Dintellij.build.test.ignoreFirstAndLastTests=true"
+        "-Dintellij.build.test.ignoreFirstAndLastTests=true",
+        "-Dintellij.testFramework.junit5.skip.test.application.dispose=true"
       ))
     }
   )
