@@ -25,12 +25,10 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
-import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
+import org.jetbrains.sbt.{SbtBundle, SbtVersion, SbtVersionDetector}
 
 import java.util
 import java.util.UUID
@@ -58,7 +56,6 @@ import scala.util.{Failure, Success}
  *
  * @see [[com.intellij.task.impl.ProjectTaskManagerImpl#run]]
  */
-//noinspection UsagesOfObsoleteApi (the API is used by the base class)
 final class SbtProjectTaskRunnerImpl
   extends ProjectTaskRunner
     with SbtProjectTaskRunner {
@@ -86,7 +83,7 @@ final class SbtProjectTaskRunnerImpl
     val collected = collectSupportedBuildTasks(Seq(projectTask))
 
     val hasSupportedTasks = collected.moduleBuildTasks.nonEmpty || collected.artifactBuildTasks.nonEmpty
-    if (hasSupportedTasks) {
+    val result = if (hasSupportedTasks) {
       // Checks if the "Use sbt shell for build" is enabled for one of the modules included in the given artifact.
       // In practice the "Use sbt shell for build" is actually a per-linked-external-project setting, not global per-project.
       // However, here we assume that if "Use sbt shell for build enabled" is enabled for some modules, then we should use it for all modules.
@@ -104,6 +101,10 @@ final class SbtProjectTaskRunnerImpl
     } else {
       false
     }
+
+    Log.debug(s"canRunImpl: $result (hasSupportedTasks=$hasSupportedTasks, moduleTasks=${collected.moduleBuildTasks.size}, artifactTasks=${collected.artifactBuildTasks.size})")
+
+    result
   }
 
   private def isUseSbtShellForBuildEnabled(module: Module): Boolean = {
@@ -115,40 +116,41 @@ final class SbtProjectTaskRunnerImpl
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
   }
 
-  /** Represents the sbt source set scope (main or test) for which a build command should be generated. */
-  private enum SbtScope:
-    case Main
-    case Test
-
   override def run(
     project: Project,
     context: ProjectTaskContext,
     tasks: ProjectTask*
   ): IJPromise[ProjectTaskRunner.Result] = {
-    val supportedBuildTasks = collectSupportedBuildTasks(tasks)
+    Log.debug(s"run start: project=${project.getName}, incomingTasks=${tasks.size}...")
 
+    val supportedBuildTasks = collectSupportedBuildTasks(tasks)
     val buildTasks: Seq[BuildTask] =
       supportedBuildTasks.moduleBuildTasks ++
         supportedBuildTasks.artifactBuildTasks.map(_._1)
-    val taskModules = extractModulesFromBuildTasks(project, supportedBuildTasks)
-    val scopesPerModule: Map[SbtModuleData, Set[SbtScope]] =
-      groupTasksPerModule(taskModules)
 
-    // The "build" button in IDEA always runs the build for all individual modules.
-    // This may work differently than just calling the "products" sbt task from the main module in sbt
-    val sbtBuildCommands: Seq[String] =
-      buildSbtBuildCommands(project, scopesPerModule)
-    Log.debug(s"Running delegated sbt build: supportedTasks=${buildTasks.size}, artifactTasks=${supportedBuildTasks.artifactBuildTasks.size}, sbt commands=${sbtBuildCommands.size}")
+    Log.trace(s"run: supportedTasks=${buildTasks.size}, moduleBuildSaks: ${supportedBuildTasks.moduleBuildTasks.size} artifactTasks=${supportedBuildTasks.artifactBuildTasks.size}")
+
+    // IMPORTANT NOTE: The "Build" button action in IDEA and "compile/products" in the SBT root project behave differently.
+    // - The IDEA "Build" action always runs the build for all individual modules.
+    // - The "products"/"compile" sbt task from the main/root module will do it only for the root project
+    //   If the project does not depend on other projects or doesn't aggregate them, then it will compile just the root, just the compile scope
+    val taskModules = extractModulesFromBuildTasks(project, supportedBuildTasks)
+    val sbtVersion: SbtVersion = getOrDetectSbtVersion(project)
+    val sbtBuildCommands: Seq[String] = SbtBuildCommandsFactory.createBuildCommands(sbtVersion, taskModules)
 
     val sbtBuildPromise = runSbtBuildTasks(project, buildTasks, sbtBuildCommands)
     val needToBuildArtifactAfter = supportedBuildTasks.artifactBuildTasks.nonEmpty
-    if (needToBuildArtifactAfter)
-      // Unlike plain JPS runner, sbt compile is a separate async phase here.
-      // Artifact packaging is chained explicitly and starts only after successful sbt completion.
-      SbtJpsArtifactPackagingUtil.chainSbtBuildAndJpsArtifactPackaging(project, context, sbtBuildPromise, supportedBuildTasks.artifactBuildTasks)
-    else
-      sbtBuildPromise
+    val resultPromise =
+      if (needToBuildArtifactAfter)
+        // Unlike plain JPS runner, sbt compile is a separate async phase here.
+        // Artifact packaging is chained explicitly and starts only after successful sbt completion.
+        SbtJpsArtifactPackagingUtil.chainSbtBuildAndJpsArtifactPackaging(project, context, sbtBuildPromise, supportedBuildTasks.artifactBuildTasks)
+      else
+        sbtBuildPromise
+
+    resultPromise
   }
+
 
   private final case class CollectedBuildTasks(
     moduleBuildTasks: Seq[ModuleBuildTask],
@@ -217,11 +219,18 @@ final class SbtProjectTaskRunnerImpl
     supportedBuildTasks: Seq[BuildTask],
     sbtBuildCommands: Seq[String]
   ): AsyncPromise[ProjectTaskRunner.Result] = {
+    Log.debug(s"runSbtBuildTasks start: supportedTasks=${supportedBuildTasks.size}, sbtCommands=${sbtBuildCommands.size}...")
+    if (Log.isTraceEnabled) {
+      Log.trace(s"runSbtBuildTasks: sbtCommands=${sbtBuildCommands.mkString(", ")}")
+    }
+
     if (sbtBuildCommands.isEmpty) {
       // don't run anything if there's no module to run a build for
       if (supportedBuildTasks.nonEmpty) {
         showNotificationThatExternalSystemHasLostModuleData(project)
       }
+
+      Log.debug("runSbtBuildTasks finishL: no sbt commands, returning successful done-promise")
 
       createDonePromise(TaskRunnerResult(isAborted = false, hasErrors = false))
     } else {
@@ -244,47 +253,12 @@ final class SbtProjectTaskRunnerImpl
     }
   }
 
+  //noinspection UsagesOfObsoleteApi
   private def createDonePromise(result: TaskRunnerResult): AsyncPromise[ProjectTaskRunner.Result] = {
     val promise = new AsyncPromise[ProjectTaskRunner.Result]()
     promise.setResult(result)
     promise
   }
-
-  /**
-   * Collect the sbt scopes (main/test) per sbt module.<br>
-   * This is done to:
-   *  1. Avoid duplicate commands:<br>
-   *     Triggering "Build project" for a project with a single sbt module results in 3 ProjectTasks:
-   *     1. for the parent module
-   *     2. for the main module
-   *     3. for the test module
-   *
-   *     For our use case, only 2 "products" commands are needed:
-   *     1. one for Compile scope in the given sbt module
-   *     2. one for Test scope in the given sbt module
-   *
-   * The logic in this method ensures duplicates are filtered out.
-   *  2. Run the "products" task only in the relevant scope:<br>
-   *     When a build is triggered for a main or test module, only the "products" task in the Compile or Test scope (respectively) should be executed.
-   */
-  private def groupTasksPerModule(modules: Seq[Module]): Map[SbtModuleData, Set[SbtScope]] = {
-    val acc = mutable.Map.empty[SbtModuleData, Set[SbtScope]].withDefaultValue(Set.empty)
-
-    for
-      module <- modules
-      data <- SbtUtil.getSbtModuleData(module)
-    do
-      val newScopes = moduleScopes(module)
-      val existingScopes = acc(data)
-      acc.update(data, existingScopes ++ newScopes)
-
-    acc.toMap
-  }
-
-  private def moduleScopes(module: Module): Set[SbtScope] =
-    if !module.isSbtSourceSetModule then Set(SbtScope.Main, SbtScope.Test)
-    else if module.isMain then Set(SbtScope.Main)
-    else Set(SbtScope.Test)
 
   private def getOrDetectSbtVersion(project: Project): SbtVersion =
     SbtProcessManager.instanceIfCreated(project)
@@ -317,32 +291,6 @@ final class SbtProjectTaskRunnerImpl
     notification.notify(project)
   }
 
-  /**
-   * Builds the list of sbt shell commands for the given modules and their scopes.
-   *
-   * @todo sensible way to find out what scopes to run it for besides compile and test?
-   * @todo make tasks should be user-configurable
-   */
-  private def buildSbtBuildCommands(
-    project: Project,
-    scopesPerModule: Map[SbtModuleData, Set[SbtScope]]
-  ): Seq[String] = {
-    val sbtVersion: SbtVersion = getOrDetectSbtVersion(project)
-    scopesPerModule.toSeq.flatMap { case (sbtModuleData, scopes) =>
-      val projectScope = SbtUtil.makeSbtProjectId(sbtModuleData)
-      // `products` task is a little more general than just `compile`
-      scopes.map {
-        case SbtScope.Main =>
-          s"$projectScope/products"
-        case SbtScope.Test =>
-          if SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion) then
-            s"$projectScope/Test/products"
-          else
-            s"$projectScope/test:products"
-      }
-    }
-  }
-
   @Nullable
   override def createExecutionEnvironment(project: Project,
                                           task: ExecuteRunConfigurationTask,
@@ -367,6 +315,7 @@ private class CommandTask(
   projectTaskPromise:
   AsyncPromise[ProjectTaskRunner.Result]
 ) extends Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), true) {
+  private val log = Logger.getInstance(getClass)
 
   private val resultPromise: Promise[BuildMessages] = Promise()
 
@@ -379,15 +328,19 @@ private class CommandTask(
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
+    log.debug(s"run start: project=${project.getName}, command=$command")
+
     val buildId = BuildMessages.randomEventId
     val report = new CompositeReporter(
-      // Set `activateToolWindowWhenFailed` to false to prevent jumping to the build tool window and causing distractions when the build fails
+      // Set `activateToolWindowWhenFailed` to `false` to prevent jumping to the build tool window and causing distractions when the build fails
       new BuildToolWindowReporter(project, buildId, SbtBundle.message("sbt.shell.sbt.build"), new CancelBuildAction(resultPromise, indicator = None), activateToolWindowWhenFailed = false),
       new IndicatorReporter(indicator)
     )
 
     val shell = SbtShellCommunication.forProject(project)
     val collector = ReflectExpansionsCollector.getInstance(project)
+
+    log.trace(s"run: build reporter + collector start: buildId=$buildId...")
 
     report.start()
     collector.compilationStarted()
@@ -402,12 +355,19 @@ private class CommandTask(
       finishMessage = SbtBundle.message("sbt.shell.sbt.build.finished"),
       onOutputLine = text => collector.processCompilerMessage(text)
     )
-    
+
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
     val id = UUID.randomUUID().toString
     val terminationMessage = "Sbt shell terminated before build command is finished"
+
+    log.trace(s"run: shell.command enqueue start: commandId=$id...")
+
     val commandFuture: Future[BuildMessages] = shell.command(command, id, BuildMessages.empty, resultAggregator, Some(terminationMessage))
+
+    log.trace(s"run: shell.command enqueue finish: commandId=$id")
+
+    log.trace(s"run: waitForCancelable start: commandId=$id...")
 
     // block thread to make indicator available :(
     val buildMessages = CancelableWaitUtil.waitForCancelable(
@@ -415,12 +375,18 @@ private class CommandTask(
       onCancel = () => shell.removeCommandFromQueueOrCancel(id)
     )(resultPromise, indicator)
 
+    log.trace(s"run: waitForCancelable finish: commandId=$id, isSuccess=${buildMessages.isSuccess}")
+
     // handle callback
     buildMessages match {
       case Success(messages) =>
+        log.trace(s"run: result success: status=${messages.status}, errors=${messages.errors.size}, warnings=${messages.warnings.size}")
+
         val taskResult = messages.toTaskRunnerResult
         projectTaskPromise.setResult(taskResult)
       case Failure(x) =>
+        log.trace(s"run: result failure: ${x.getClass.getName}: ${x.getMessage}")
+
         projectTaskPromise.setError(x)
     }
 
@@ -429,12 +395,18 @@ private class CommandTask(
     //  Most cancellation scenarios are currently reported as "failed".
     //  The only exception is when the build command is still in the shell queue (not yet started) and the shell is killed.
     buildMessages match {
-      case Success(messages) => report.finish(messages)
-      case Failure(err) => report.finishWithFailure(err)
+      case Success(messages) =>
+        log.trace(s"run: report.finish")
+        report.finish(messages)
+
+      case Failure(err) =>
+        log.trace(s"run: report.finishWithFailure")
+        report.finishWithFailure(err)
     }
 
     // build effects
     try {
+      log.trace(s"run: refreshRoots")
       ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id, indicator)
     } catch {
       // Suppress the `ProcessCanceledException` that might be thrown by #refreshRoots to ensure the code below runs even if the build is canceled.
@@ -443,6 +415,7 @@ private class CommandTask(
       // TODO: investigate whether the code below is still necessary when the build is canceled.
       //  I added this suppression because it worked like this in the past (e.g., when the build was canceled by killing the sbt shell).
       case _: ProcessCanceledException =>
+        log.trace(s"run: refreshRoots canceled (ProcessCanceledException)")
     }
 
     // reload changed classes
@@ -455,8 +428,10 @@ private class CommandTask(
         HotSwapUI.getInstance(project).reloadChangedClasses(debuggerSession, false)
       }
     }
-
     collector.compilationFinished()
+
     resultPromise.trySuccess(buildMessages.get)
+
+    log.debug(s"run finish: project=${project.getName}, command=$command")
   }
 }
