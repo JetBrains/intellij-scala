@@ -186,7 +186,10 @@ trait ScExpression extends ScBlockStatement
               else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
               else                                 this.updateTypeWithImplicitConversion(tp, expType)
             )
-          case _ => ExpressionTypeResult(initialType)
+          case (None, _) =>
+            ExpressionTypeResult(initialType.map(ScLiteralType.widenRecursive(_, widenSingletons = this.isInScala3Module)(Context(this))))
+          case _ =>
+            ExpressionTypeResult(initialType)
         }
       }
 

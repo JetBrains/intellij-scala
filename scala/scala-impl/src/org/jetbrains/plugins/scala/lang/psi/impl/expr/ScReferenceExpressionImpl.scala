@@ -497,7 +497,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         c.`type`() match {
           case Right(tp) if c.is[ScNamedTupleExprComponent] =>
             // even (x = "x").x is String
-            s(tp.widenIfLiteral)
+            s(tp.widenIfLiteral) // remove?
           case Right(tp) => s(tp)
           case result => return result
         }
