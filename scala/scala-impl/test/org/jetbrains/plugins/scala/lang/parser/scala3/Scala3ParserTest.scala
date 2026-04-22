@@ -6,6 +6,9 @@ import org.jetbrains.plugins.scala.base.{DefaultFileSetTestTransform, NoSdkFileS
 
 import java.nio.file.Path
 
+/**
+ * @see [[org.jetbrains.plugins.scala.lang.parser.ScalaParserTest]]
+ */
 class Scala3ParserTest extends NoSdkFileSetTestBase with DefaultFileSetTestTransform {
   override protected def relativeTestDataPath: Path = Path.of("parser", "data3")
 

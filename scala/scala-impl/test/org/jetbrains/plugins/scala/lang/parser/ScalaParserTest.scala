@@ -23,6 +23,9 @@ import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaLanguageLevel}
 
 import java.nio.file.Path
 
+/**
+ * @see [[org.jetbrains.plugins.scala.lang.parser.scala3.Scala3ParserTest]]
+ */
 class ScalaParserTest extends NoSdkFileSetTestBase {
   override protected def relativeTestDataPath: Path = Path.of("parser", "data")
 
