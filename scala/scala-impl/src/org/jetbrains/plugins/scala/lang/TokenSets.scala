@@ -6,6 +6,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.{Dispatchers, MainCoroutineDispatcher}
 import scala.annotation.nowarn
 
 object TokenSets {
@@ -54,17 +57,28 @@ object TokenSets {
     VARIABLE_DEFINITION
   )
 
-  @volatile
-  private var _MEMBERS: TokenSet = computeMemberTypes()
+  private val _MEMBERS: AtomicReference[TokenSet] = new AtomicReference[TokenSet](null)
 
-  def MEMBERS: TokenSet = _MEMBERS
-
-  private def computeMemberTypes() = {
-    FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++ EXTENSION ++
-      MemberElementTypesExtension.getExtraMemberTypes
+  def MEMBERS: TokenSet = {
+    val members = _MEMBERS.get()
+    if (members != null) members
+    else computeMemberTypes()
   }
 
-  MemberElementTypesExtension.EP_NAME.addChangeListener(() => _MEMBERS = computeMemberTypes(), null): @nowarn("cat=deprecation")
+  private def computeMemberTypes(): TokenSet = {
+    val members = FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++ EXTENSION ++
+      MemberElementTypesExtension.getExtraMemberTypes
+    assert(members != null)
+    val old = _MEMBERS.getAndSet(members)
+    if (old == null) {
+      // register a listener that will recompute the member types if the extension point is changed
+      MemberElementTypesExtension.EP_NAME.addChangeListener(
+        kotlinx.coroutines.CoroutineScopeKt.MainScope(),
+        () => computeMemberTypes(): Unit
+      )
+    }
+    members
+  }
 
   val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, PROPERTIES)
 
