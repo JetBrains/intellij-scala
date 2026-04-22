@@ -58,6 +58,8 @@ final class ScalaVersion(
 
   override def hashCode(): Int = languageLevel #+ minorSuffix
 
+  // TODO: it would be more practical to change this to just `minor`
+  //  We might need to update those places that already rely on this behavior (expected that it's mostly in tests)
   override def toString: String = s"ScalaVersion($minor)"
 
   override def generateNewVersion(version: String): Option[ScalaVersion] = ScalaVersion.fromString(version)

@@ -65,7 +65,12 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     else {
       val projectName = originalTestDataProjectDir.getFileName.toString
       val tmpPath = Files.createTempDirectory(projectName).toRealPath()
-      Runtime.getRuntime.addShutdownHook(new Thread(() => NioFiles.deleteRecursively(tmpPath)))
+
+      // Delete temporary project location on JVM exit
+      Runtime.getRuntime.addShutdownHook(new Thread(() => {
+        NioFiles.deleteRecursively(tmpPath)
+      }))
+
       tmpPath / projectName
     }
   }

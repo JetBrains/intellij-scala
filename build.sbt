@@ -468,6 +468,7 @@ lazy val sbtProjectImportingTests =
       sbtImpl % "compile->compile;test->test",
       // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
       compilerIntegrationServerManagement % "compile->compile;test->test",
+      testUtilsPlatform % "test->test",
     )
 
 lazy val compilerIntegration =
