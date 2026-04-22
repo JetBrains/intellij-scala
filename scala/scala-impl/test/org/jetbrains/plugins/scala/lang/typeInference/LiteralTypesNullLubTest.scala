@@ -10,7 +10,7 @@ class LiteralTypesNullLubTest extends TypeInferenceTestBase {
   def testSCL18572(): Unit = doTest(
     s"""
       |${START}if (true) null else "123"$END
-      |//"123"
+      |//String
       |""".stripMargin
   )
 

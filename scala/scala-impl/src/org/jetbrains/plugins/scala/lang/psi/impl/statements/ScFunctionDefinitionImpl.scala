@@ -156,7 +156,7 @@ private object ScFunctionDefinitionImpl {
       case None =>
         fun.body match {
           case Some(b) =>
-            def rhsType = b.`type`().map(ScLiteralType.widenRecursive)
+            def rhsType = b.`type`().map(ScLiteralType.widenRecursive(_))
             if (fun.scalaLanguageLevel.exists(_.isScala3) && !fun.isExtensionMethod) fun.superMethod match {
               case Some(f: ScFunction) if f.getTypeParameters.length == fun.getTypeParameters.length =>
                 val superMethod = fun.superMethodCall

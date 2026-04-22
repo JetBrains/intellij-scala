@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.nowarn
@@ -35,9 +34,10 @@ final class ScVariableDefinitionImpl private[psi] (
   override def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
   override def `type`(): TypeResult = typeElement match {
-    case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
-      getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
+    case Some(te) =>
+      te.`type`()
+    case None =>
+      expr.map(_.`type`()).getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 
   override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)

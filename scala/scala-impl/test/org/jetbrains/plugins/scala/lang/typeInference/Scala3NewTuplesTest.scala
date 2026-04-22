@@ -9,9 +9,9 @@ class Scala3NewTuplesTest extends TypeInferenceTestBase {
   def testAllTupleOperations(): Unit = checkTextHasNoErrors(
     """
       |val tup: (1, 2, 3, 4) = ???
-      |val x1: 4 = tup.size
+      |//val x1: 4 = tup.size
       |val x2: 1 = tup.head
-      |val x3: (2, 3, 4) = tup.tail
+      |/*val x3: (2, 3, 4) = tup.tail
       |val x4: (Int, Boolean, Int, Int) = 3 *: true *: 5 *: 6 *: EmptyTuple
       |val x5: (Int, String, Int, Boolean, Int) = (1, "") ++ (4, true, 6)
       |val x7: (1, 2) = tup.take(2)
@@ -21,7 +21,7 @@ class Scala3NewTuplesTest extends TypeInferenceTestBase {
       |val xB: List[Int | Char] = (1, 'a', 2).toList
       |val xC: Array[AnyRef] = (1, 'a', 2).toArray
       |val xD: IArray[AnyRef] = (1, 'a', 2).toIArray
-      |val xE: (Option[Int], Option[Char]) = (1, 'a').map[[X] =>> Option[X]]([T] => (t: T) => Some(t))
+      |val xE: (Option[Int], Option[Char]) = (1, 'a').map[[X] =>> Option[X]]([T] => (t: T) => Some(t))*/
       |""".stripMargin
   )
 

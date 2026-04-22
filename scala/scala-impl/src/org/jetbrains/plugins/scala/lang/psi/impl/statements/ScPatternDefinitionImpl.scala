@@ -2,22 +2,22 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.Ext
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import scala.annotation.nowarn
 
@@ -43,11 +43,10 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     case _ =>
       expr.toRight {
         new Failure(NlsString(ScalaBundle.message("cannot.infer.type.without.an.expression")))
-      }.flatMap {
-        _.`type`()
-      }.map {
-        case literalType: ScLiteralType if this.hasFinalModifier => literalType
-        case t => ScLiteralType.widenRecursive(t)
+      }.flatMap { expr =>
+        // When the
+        if (this.hasFinalModifier) expr.getTypeWithoutImplicits()
+        else expr.`type`()
       }
   }
 

@@ -1512,10 +1512,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result == null) {
         r match {
-          case lit: ScLiteralType if lit.allowWiden && !u.typeParameter.upperType.conforms(Singleton) =>
+          case lit: ScLiteralType if !u.typeParameter.upperType.conforms(Singleton) =>
             result = conformsInner(l, lit.wideType, visited, constraints, checkWeak)
           case lit: ScLiteralType =>
             result = constraints.withLower(u.typeParameter.typeParamId, lit.blockWiden)
+          case designator: DesignatorOwner if !u.typeParameter.upperType.conforms(Singleton) =>
+            designator.designatorSingletonType match {
+              case Some(underlying) =>
+                result = conformsInner(l, underlying, visited, constraints, checkWeak)
+              case None =>
+                result = constraints.withLower(u.typeParameter.typeParamId, r)
+            }
           case _ =>
             result = constraints.withLower(u.typeParameter.typeParamId, r)
         }

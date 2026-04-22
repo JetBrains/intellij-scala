@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 final class ScLiteralType private(val value: ScLiteral.Value[_],
@@ -49,7 +49,7 @@ object ScLiteralType {
   def unapply(literalType: ScLiteralType): Some[(Value[_], Boolean)] =
     Some(literalType.value, literalType.allowWiden)
 
-  def widenRecursive(`type`: ScType)(implicit context: Context): ScType = {
+  def widenRecursive(`type`: ScType, widenSingletons: Boolean = false)(implicit context: Context): ScType = {
     import api._
     import recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
@@ -58,10 +58,15 @@ object ScLiteralType {
     }
 
     def widenRecursiveInner(`type`: ScType, visited: Set[ParameterizedType]): ScType = `type`.recursiveUpdate {
-      case literalType: ScLiteralType => ReplaceWith(literalType.widen)
+      case literalType: ScLiteralType => ReplaceWith(literalType.wideType)
       // Enum values can be seen as having literal types, SCL-21726
       case ScProjectionType(_, o: ScEnumSingletonCase) =>
         ReplaceWith(if (o.superTypes.length == 1) o.superTypes.head else ScCompoundType(o.superTypes)(`type`.projectContext))
+      case designator: DesignatorOwner if widenSingletons =>
+        designator.designatorSingletonType match {
+          case Some(underlying) => ReplaceWith(underlying)
+          case None => ProcessSubtypes
+        }
       case parameterizedType@ParameterizedType(oldDesignator@designator.ScDesignatorType(definition: ScTypeDefinition), typeArguments) if !visited(parameterizedType) =>
         val newDesignator = widenRecursiveInner(oldDesignator, visited + parameterizedType)
 
