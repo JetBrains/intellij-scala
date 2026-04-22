@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestBase, SettingQueryHandler}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestBase, SbtShellTestUtil, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.experimental.categories.Category
 
@@ -24,8 +24,8 @@ abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
   def testFailedCommand(): Unit = {
     Await.result(comm.command("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
     flush()
-    val logNoAnsi = BuildMessages.stripAnsiCodes(logger.getLog)
-    assert(logNoAnsi.contains(SbtShellTestBase.errorPrefix))
+    val logNoAnsi = BuildMessages.stripAnsiCodes(processListener.getLog)
+    assert(logNoAnsi.contains(SbtShellTestUtil.ErrorPrefix))
   }
 
   def testShow(): Unit =
@@ -65,10 +65,10 @@ abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
     )
     flush()
 
-    val log = logger.getLog
+    val log = processListener.getLog
 
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestSetSetting(
@@ -84,9 +84,9 @@ abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
       timeout
     )
     flush()
-    val log = logger.getLog
+    val log = processListener.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestAddToSetting(
@@ -109,9 +109,9 @@ abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
       timeout
     ).trim
     flush()
-    val log = logger.getLog
+    val log = processListener.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   private def flush(): Unit =
