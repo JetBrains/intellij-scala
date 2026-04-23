@@ -1299,6 +1299,7 @@ package object extensions {
     /**
       * Second match branch is for Java only.
       */
+    @NlsSafe
     @Nullable
     def name: String = {
       named match {

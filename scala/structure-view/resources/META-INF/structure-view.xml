@@ -8,5 +8,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <lang.psiStructureViewFactory language="Scala"
                                       implementationClass="org.jetbrains.plugins.scala.structureView.ScalaStructureViewFactory"/>
+        <navbar implementation="org.jetbrains.plugins.scala.structureView.ScalaNavBarModelExtension" order="first"/> <!-- before Java -->
     </extensions>
 </idea-plugin>

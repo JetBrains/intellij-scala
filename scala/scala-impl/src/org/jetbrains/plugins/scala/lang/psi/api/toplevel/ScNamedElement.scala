@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.util.NlsSafe
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
@@ -32,6 +33,7 @@ trait ScNamedElement extends ScalaPsiElement
   with PsiNamedElementWithCustomPresentation
 {
 
+  @NlsSafe
   def name: String = _name()
 
   private val _name = cached("name", ModTracker.anyScalaPsiChange, () => {
