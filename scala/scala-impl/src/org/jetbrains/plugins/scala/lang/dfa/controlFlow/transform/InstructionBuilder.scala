@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocation
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder._
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.ContractUtils
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -135,12 +136,14 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
              qualifier: Option[ScalaDfaVariableDescriptor],
              currentAnalysedMethodInfo: AnalysedMethodInfo): StackValue = {
     stack.pop(args)
+    val contracts = ContractUtils.extractContracts(invocationInfo)
     addPushingInstruction(
       new ScalaInvocationInstruction(
         invocationInfo,
         qualifier,
         exceptionTransfer = maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE),
-        currentAnalysedMethodInfo
+        currentAnalysedMethodInfo,
+        contracts
       )
     )
   }
