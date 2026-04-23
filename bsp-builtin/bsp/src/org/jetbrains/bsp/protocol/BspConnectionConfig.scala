@@ -4,6 +4,7 @@ import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.google.gson.Gson
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.SystemProperties
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -19,12 +20,21 @@ object BspConnectionConfig {
 
   def workspaceConfigurationFiles(workspace: Path): List[Path] = {
     val bspDir = workspace.resolve(BspWorkspaceConfigDirName)
-    if(bspDir.isDirectory) {
-      bspDir.children().filter(_.getFileName.toString.endsWith(".json")).toList
+    if (bspDir.isDirectory) {
+      bspDir.children().filter(f => isJsonFile(f.getFileName.toString)).toList
     }
     else List.empty
   }
-  
+
+  /** Checks if the given file is a `.bsp` directory containing any connection file. */
+  def isBspWorkspaceConfigDir(file: VirtualFile): Boolean =
+    file.getName == BspWorkspaceConfigDirName &&
+      file.isDirectory &&
+      file.getChildren.exists(f => isJsonFile(f.getName))
+
+  private def isJsonFile(name: String): Boolean =
+    name.endsWith(".json")
+
   private[protocol] def workspaceBspConfigsHash(workspace: Path): Int = {
     workspaceBspConfigs(workspace).map(f => f.hashCode()).sum
   }
@@ -48,7 +58,7 @@ object BspConnectionConfig {
   def isBspConfigFile(file: Path): Boolean = {
     file.isRegularFile &&
       file.getParent.getFileName.toString == BspWorkspaceConfigDirName &&
-      file.getFileName.toString.endsWith(".json")
+      isJsonFile(file.getFileName.toString)
   }
 
   /**
