@@ -6,8 +6,10 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.JavaCoroutines
-import org.jetbrains.bsp.BSP
+import org.jetbrains.bsp.project.importing.setup.BspSetupProvider
+import org.jetbrains.bsp.{BSP, BspUtil}
 import org.jetbrains.bsp.project.importing.{BspOpenProjectProvider, BspProjectOpenProcessor}
+import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.autolink.UnlinkedProjectAwareSettingsListener
@@ -24,15 +26,30 @@ class BspUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
 
   override def getSystemId: ProjectSystemId = BSP.ProjectSystemId
 
+  /**
+   * Determines whether the given file is a build file that belongs to the BSP external system.
+   *
+   * @note keep this method lightweight, as it may be called for every file/directory in the project root.
+   */
   override def isBuildFile(project: Project, buildFile: VirtualFile): Boolean = {
     // The buildFile parameter represents some child file or directory inside the externalProjectPath.
-    // We need to take the parent of the buildFile, as this is necessary to determine if the project can be imported with BSP
-    // and if it doesn't have a build.sbt file.
-    // For BSP, this method is called unnecessarily many times for each child, but this is due to how it's implemented on the platform side.
+    // We need to take the parent of the buildFile, as this is necessary to determine if the project
+    // doesn't have a build.sbt file, as such projects should be imported with sbt.
     val parent = buildFile.getParent
     if (parent == null) return false
     val containsSbtBuildFile = parent.findChild(Sbt.BuildFile) != null
-    !containsSbtBuildFile && BspProjectOpenProcessor.canOpenProject(parent)
+    !containsSbtBuildFile && isBspBuildFile(buildFile)
+  }
+
+  /**
+   * Any changes to the logic of this method should also be reflected in [[BspProjectOpenProcessor.canOpenProject]],
+   * as both methods are responsible for determining whether a workspace (or a file within it) belongs to the BSP.
+   */
+  private def isBspBuildFile(buildFile: VirtualFile): Boolean = {
+    val isBspConfigDir = BspConnectionConfig.isBspWorkspaceConfigDir(buildFile)
+    val isBloopDir = BspUtil.isBloopConfigDir(buildFile)
+
+    isBspConfigDir || isBloopDir || BspSetupProvider.isBuildFile(buildFile)
   }
 
   override def isLinkedProject(project: Project, externalProjectPath: String): Boolean = {

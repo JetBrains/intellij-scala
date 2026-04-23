@@ -20,8 +20,11 @@ class ScalaCliConfigSetupProvider extends BspSetupProvider {
   override def getBspConfigSetup(workspace: Path): BspConfigSetup =
     new ScalaCliConfigSetup(workspace)
 
+  override def bspBuildFileNames: Seq[String] =
+    Seq(ProjectDefinitionFileName)
+
   private def isScalaCli(directory: Path): Boolean =
-    BspUtil.findFileByName(directory, ProjectDefinitionFileName).isDefined
+    bspBuildFileNames.exists(BspUtil.directoryContainsFile(directory, _))
 }
 
 private[scalaCli] object ScalaCliConfigSetupProvider {
