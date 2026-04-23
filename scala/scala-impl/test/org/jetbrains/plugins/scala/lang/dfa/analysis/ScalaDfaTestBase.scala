@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
 import com.intellij.codeInspection.InspectionManager
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
@@ -49,4 +51,7 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
 
     actualResult.sorted.mkString("\n") shouldBe expectedResult.toList.sorted.mkString("\n")
   }
+
+  override def additionalLibraries: Seq[LibraryLoader] =
+    Seq(IvyManagedLoader("org.jetbrains" % "annotations" % "26.0.2-1"))
 }

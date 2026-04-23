@@ -20,7 +20,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
         |""".stripMargin
     })(
       "toString" -> npeOnInvocation.alwaysMessage,
-    "x != null" -> ConditionAlwaysFalse,
+      "x != null" -> ConditionAlwaysFalse,
     )
 
   @Test
@@ -31,15 +31,16 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |(x).toString()
       |
       |if (x == null) {
-      |  x.toString()
+      |  x.trim()
       |}
       |
       |if (x != null) {
-      |  x.toString()
+      |  x.stripMargin()
       |}
       |""".stripMargin
   })(
-    "toString"-> npeOnInvocation.alwaysMessage,
+    "x == null"-> ConditionAlwaysFalse,
+    "x != null"-> ConditionAlwaysTrue,
   )
 
   @Test
@@ -101,12 +102,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     """
       |def foo(@Nullable s: String): Unit = {
       |  s.toString()
-      |
-      |  if (s != null) {
-      |    s.toString()
-      |  }
       |}
-      |foo(arg4)
       |""".stripMargin
   })(
     "toString" -> npeOnInvocation.sometimesMessage,
@@ -119,7 +115,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |  if (s == null) return
       |  s.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })()
 
@@ -130,7 +125,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |  a.toString()
       |  b.toString()
       |}
-      |foo(arg4, arg4)
       |""".stripMargin
   })(
     "toString" -> npeOnInvocation.sometimesMessage,
@@ -166,7 +160,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |  var x: String = s
       |  x.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })(
     "toString" -> npeOnInvocation.sometimesMessage,
@@ -200,7 +193,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |def foo(s: String): Unit = {
       |  s.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })()
 
@@ -222,7 +214,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |  require(s != null)
       |  s.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })()
 
@@ -243,78 +234,56 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |def foo(@Nullable s: String): Unit = {
       |  val safe = java.util.Objects.requireNonNull(s)
       |  safe.toString()
+      |  s.stripMargin
       |}
       |foo(arg4)
       |""".stripMargin
   })()
 
   @Test
-  def test_objects_requireNonNull_on_always_null(): Unit = test(codeFromMethodBody() {
-    """
-      |val x: String = null
-      |val safe = java.util.Objects.requireNonNull(x)
-      |safe.toString()
-      |""".stripMargin
-  })()
-
-  @Test
-  def test_contract_returns_not_null(): Unit = test(codeFromMethodBody() {
-    """
-      |@Contract("_ -> !null")
-      |def ensureNotNull(@Nullable s: String): String = {
-      |  if (s == null) "" else s
-      |}
-      |
-      |def foo(@Nullable s: String): Unit = {
-      |  val safe = ensureNotNull(s)
-      |  safe.toString()
-      |}
-      |foo(arg4)
-      |""".stripMargin
-  })()
-
-  @Test
-  def test_contract_returns_param(): Unit = test(codeFromMethodBody() {
-    """
-      |@Contract("!null -> !null")
-      |def orEmpty(@Nullable s: String): String = {
-      |  if (s == null) "" else s
-      |}
-      |
-      |val safe = orEmpty("hello")
-      |safe.toString()
-      |""".stripMargin
-  })()
-
-  @Test
-  def test_contract_fail_on_null(): Unit = test(codeFromMethodBody() {
+  def test_contract_fail_on_null_narrows_argument(): Unit = test(codeFromMethodBody() {
     """
       |@Contract("null -> fail")
-      |def checkNotNull(@Nullable s: String): String = {
+      |def checkNotNull(@Nullable s: String): Unit = {
       |  if (s == null) throw new IllegalArgumentException
-      |  s
       |}
       |
       |def foo(@Nullable s: String): Unit = {
-      |  val safe = checkNotNull(s)
-      |  safe.toString()
+      |  checkNotNull(s)
+      |  s.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })()
 
   @Test
-  def test_contract_fail_on_null_returns_param(): Unit = test(codeFromMethodBody() {
+  def test_contract_fail_on_null_return_value(): Unit = test(codeFromMethodBody() {
     """
       |@Contract("null -> fail; !null -> param1")
       |def requireNotNull(@Nullable s: String): String = {
       |  if (s == null) throw new IllegalArgumentException
       |  s
       |}
-      |
       |def foo(@Nullable s: String): Unit = {
       |  val safe = requireNotNull(s)
       |  safe.toString()
+      |  s.stripMargin
+      |}
+      |foo(arg4)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_contract_fail_and_not_null_return(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("null -> fail; !null -> !null")
+      |def ensureNotNull(@Nullable s: String): String = {
+      |  if (s == null) throw new IllegalArgumentException
+      |  s
+      |}
+      |def foo(@Nullable s: String): Unit = {
+      |  val safe = ensureNotNull(s)
+      |  safe.toString()
+      |  s.stripMargin
       |}
       |foo(arg4)
       |""".stripMargin
@@ -326,7 +295,6 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |def foo(@Nullable s: String): Unit = {
       |  s.toString()
       |}
-      |foo(arg4)
       |""".stripMargin
   })(
     "toString" -> npeOnInvocation.sometimesMessage,

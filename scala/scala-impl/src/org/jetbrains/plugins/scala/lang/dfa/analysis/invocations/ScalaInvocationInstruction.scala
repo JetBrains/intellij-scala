@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations
 
 import com.intellij.codeInsight.Nullability
-import com.intellij.codeInspection.dataFlow.{ContractValue, DfaCallArguments, DfaCallState, DfaNullability, HardcodedContracts, JavaMethodContractUtil, MethodContract, MutationSignature}
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
 import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, ExpressionPushingInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
+import com.intellij.codeInspection.dataFlow.{ContractValue, DfaCallArguments, DfaCallState, DfaNullability, MethodContract, MutationSignature}
 import com.intellij.psi.PsiMethod
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaValue
 
-import java.util
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
@@ -34,7 +34,8 @@ import scala.language.postfixOps
 class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
                                  qualifier: Option[ScalaDfaVariableDescriptor],
                                  exceptionTransfer: Option[DfaControlTransferValue],
-                                 currentAnalysedMethodInfo: AnalysedMethodInfo)
+                                 currentAnalysedMethodInfo: AnalysedMethodInfo,
+                                 contracts: Seq[MethodContract] = Seq.empty)
   extends ExpressionPushingInstruction(invocationInfo.anchor) {
 
   override def toString: String = {
@@ -52,11 +53,6 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val finder = MethodEffectFinder(invocationInfo)
     val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
 
-    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || isImplicitParametersPresent(invocationInfo)) {
-      argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
-      stateBefore.flushFields()
-    }
-
     val improvedMethodEffect = if (!methodEffect.handledSpecially) {
       tryInterpretExternalMethod(invocationInfo, evaluateArgumentsInCurrentState(argumentValues, stateBefore),
         currentAnalysedMethodInfo) match {
@@ -65,8 +61,19 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
       }
     } else methodEffect
 
-    applyMethodContracts(argumentValues, improvedMethodEffect, stateBefore, interpreter)
-      .getOrElse(returnFromInvocation(improvedMethodEffect, stateBefore, interpreter))
+    applyMethodContracts(argumentValues, improvedMethodEffect, stateBefore, interpreter).getOrElse {
+      flushAfterCall(argumentValues, methodEffect, stateBefore)
+      returnFromInvocation(improvedMethodEffect, stateBefore, interpreter)
+    }
+  }
+
+  private def flushAfterCall(argumentValues: Map[Argument, DfaValue],
+                             methodEffect: MethodEffect,
+                             stateBefore: DfaMemoryState): Unit = {
+    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || isImplicitParametersPresent(invocationInfo)) {
+      argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
+      stateBefore.flushFields()
+    }
   }
 
   //noinspection UnstableApiUsage
@@ -75,20 +82,9 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
                                    stateBefore: DfaMemoryState,
                                    interpreter: DataFlowInterpreter)
                                   (implicit factory: DfaValueFactory): Option[Array[DfaInstructionState]] = {
-    val psiMethod = invocationInfo.invokedElement.map(_.psiElement) match {
-      case Some(m: PsiMethod) => m
-      case _ => return None
-    }
-    val hardcoded = HardcodedContracts.getHardcodedContracts(psiMethod, null)
-    val contracts =
-      if (!hardcoded.isEmpty) hardcoded
-      else if (JavaMethodContractUtil.hasExplicitContractAnnotation(psiMethod)) JavaMethodContractUtil.getMethodContracts(psiMethod)
-      else return None
     if (contracts.isEmpty) return None
-    // Only apply contracts that contain fail clauses (assertion/precondition methods)
-    // to avoid interfering with the existing Scala DFA analysis for regular method calls
-    if (!contracts.asScala.exists(_.getReturnValue.isFail)) return None
 
+    val psiMethod = invocationInfo.invokedElement.map(_.psiElement).collect { case m: PsiMethod => m }.getOrElse(return None)
     val properArgValues = invocationInfo.properArguments.flatten
       .map(argumentValues.getOrElse(_, unknownDfaValue))
     val thisArgValue = invocationInfo.thisArgument
@@ -99,10 +95,10 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val defaultResult = factory.fromDfType(methodEffect.returnValue.getDfType)
     val initialState = new DfaCallState(stateBefore, dfaCallArguments, defaultResult)
 
-    val finalStates = new util.LinkedHashSet[DfaMemoryState]()
-    var currentStates: util.Set[DfaCallState] = util.Collections.singleton(initialState)
+    val finalStates = new ju.LinkedHashSet[DfaMemoryState]()
+    var currentStates: ju.Set[DfaCallState] = ju.Collections.singleton(initialState)
 
-    for (contract <- contracts.asScala) {
+    for (contract <- contracts) {
       currentStates = addContractResults(contract, currentStates, factory, finalStates)
     }
 
@@ -114,10 +110,15 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val result = finalStates.asScala.flatMap { state =>
       ContractValue.flushContractTempVariables(state)
       val tos = state.pop()
-      pushResult(interpreter, state, tos)
-      val normal = nextState(interpreter, state)
-      val exceptional = exceptionTransfer.map(_.dispatch(state.createCopy(), interpreter).asScala).getOrElse(Nil)
-      exceptional :+ normal
+      if (tos.getDfType == DfType.FAIL) {
+        // Fail state: method throws, don't create a normal continuation
+        exceptionTransfer.map(_.dispatch(state, interpreter).asScala).getOrElse(Nil)
+      } else {
+        pushResult(interpreter, state, tos)
+        val normal = nextState(interpreter, state)
+        val exceptional = exceptionTransfer.map(_.dispatch(state.createCopy(), interpreter).asScala).getOrElse(Nil)
+        exceptional :+ normal
+      }
     }
 
     Some(result.toArray)
@@ -125,19 +126,19 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
 
   //noinspection UnstableApiUsage
   private def addContractResults(contract: MethodContract,
-                                 states: util.Set[DfaCallState],
+                                 states: ju.Set[DfaCallState],
                                  factory: DfaValueFactory,
-                                 finalStates: util.Set[DfaMemoryState]): util.Set[DfaCallState] = {
+                                 finalStates: ju.Set[DfaMemoryState]): ju.Set[DfaCallState] = {
     if (contract.isTrivial) {
       for (callState <- states.asScala) {
         val result = contract.getReturnValue.getDfaValue(factory, callState)
         callState.getMemoryState.push(result)
         finalStates.add(callState.getMemoryState)
       }
-      return util.Collections.emptySet()
+      return ju.Collections.emptySet()
     }
 
-    val falseStates = new util.LinkedHashSet[DfaCallState]()
+    val falseStates = new ju.LinkedHashSet[DfaCallState]()
     for (callState0 <- states.asScala) {
       var callState = callState0
       for (condition <- contract.getConditions.asScala) {

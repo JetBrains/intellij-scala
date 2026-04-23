@@ -14,16 +14,6 @@ package object dfa {
        |import java.util
        |import java.lang.Math
        |import scala.math._
-       |
-       |object org {
-       |  object jetbrains {
-       |    object annotations {
-       |      class Nullable extends scala.annotation.StaticAnnotation
-       |      class Contract(value: String = "", pure: Boolean = false) extends scala.annotation.StaticAnnotation
-       |    }
-       |  }
-       |}
-       |
        |import org.jetbrains.annotations.{Contract, Nullable}
        |
        |class OtherClass {

@@ -46,17 +46,21 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
 
   override def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructorInvocation.args match {
-      case Some(args) => args.exprs.map {
-        case expr@(ass: ScAssignment) => ass.leftExpression match {
-          case ref: ScReferenceExpression if ref.refName == attributeName => ass.rightExpression match {
-            case Some(expr) => (true, expr)
-            case _ => (false, expr)
+      case Some(args) =>
+        args.exprs
+          .iterator
+          .flatMap {
+            case ScAssignment(left, right) =>
+              left match {
+                case ref: ScReferenceExpression if ref.refName == attributeName =>
+                  right
+                case _ => None
+              }
+            case expr if attributeName == "value" || attributeName == null => Some(expr)
+            case _ => None
           }
-          case _ => (false, expr)
-        }
-        case expr if attributeName == "value" => (true, expr)
-        case expr => (false, expr)
-      }.find(p => p._1).getOrElse(false, null)._2
+          .nextOption()
+          .orNull
       case None => null
     }
   }
