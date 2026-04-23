@@ -16,4 +16,7 @@ class MillSetupProvider extends BspSetupProvider {
 
   override def getBspConfigSetup(workspace: Path): BspConfigSetup =
     new MillConfigSetup(workspace)
+
+  override def bspBuildFileNames: Seq[String] =
+    MillConfigSetup.BuildFileNames
 }

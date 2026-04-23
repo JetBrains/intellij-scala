@@ -320,6 +320,13 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
 
 object BspProjectOpenProcessor {
 
+  /**
+   * Checks whether the given workspace directory belongs to the BSP external system.
+   *
+   * Any changes to the logic of this method should also be reflected in
+   * [[org.jetbrains.bsp.project.BspUnlinkedProjectAware#isBspBuildFile]],
+   * as both methods are responsible for determining whether a workspace (or a file within it) belongs to the BSP.
+   */
   def canOpenProject(workspace: VirtualFile): Boolean = {
     val ioWorkspace = workspace.toNioPath
 
