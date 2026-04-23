@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.breadcrumbs
 
+import com.intellij.ide.ui.UISettings
 import com.intellij.lang.Language
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
@@ -15,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
+  override def isShownByDefault: Boolean = !UISettings.getInstance().getShowMembersInNavigationBar
+
   override def getElementTooltip(e: PsiElement): String = {
     import ScalaBreadcrumbsInfoProvider.MyTextRepresentationUtil._
 
