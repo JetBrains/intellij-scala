@@ -47,9 +47,20 @@ final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(
 
 private[bsp] object MillConfigSetup {
 
+  /**
+   * File names that indicate a Mill project when present in the project root.
+   * This list is not exhaustive (e.g., `build.mill.yaml` is missing) and could be improved in the future.
+   */
+  val BuildFileNames: Seq[String] = Seq("build.mill", "build.mill.scala", getMillFileName)
+
   private val versionPattern = """^.*(0\.8\.0|0\.7.+|0\.6.+)$"""
 
-  /** Checks if the given workspace is a Mill project that can be imported. */
+  /**
+   * Checks if the given workspace is a Mill project that can be imported.
+   *
+   * @note when the Mill legacy logic is removed in 2026.2 [[https://youtrack.jetbrains.com/issue/SCL-25265]],
+   *       this method should only check if in the given workspace any file from [[BuildFileNames]] is present.
+   */
   def canImport(workspace: Path): Boolean =
     Option(workspace) match {
       case Some(directory) if directory.isDirectory =>
@@ -61,8 +72,10 @@ private[bsp] object MillConfigSetup {
 
   /** Get mill executable script, if exists. */
   private def getMillFile(workspace: Path): Option[Path] =
-    if (SystemInfo.isWindows) BspUtil.findFileByName(workspace, "mill.bat")
-    else BspUtil.findFileByName(workspace, "mill")
+    BspUtil.findFileByName(workspace, getMillFileName)
+
+  private def getMillFileName: String =
+    if (SystemInfo.isWindows) "mill.bat" else "mill"
 
   private def isBspCompatible(workspace: Path): Boolean = {
     val fileOpt = getMillFile(workspace)

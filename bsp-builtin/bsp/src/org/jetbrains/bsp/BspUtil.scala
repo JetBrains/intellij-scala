@@ -9,7 +9,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
@@ -55,6 +55,9 @@ object BspUtil {
       Some(bloopDir.toCanonicalPath)
     else None
   }
+
+  private[bsp] def isBloopConfigDir(file: VirtualFile): Boolean =
+    file.getName == BspUtil.BloopConfigDirName && file.isDirectory
 
   def isBspModule(module: Module): Boolean =
     ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
