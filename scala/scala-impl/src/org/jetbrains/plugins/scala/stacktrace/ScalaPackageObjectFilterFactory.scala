@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.stacktrace
 
 import com.intellij.execution.filters._
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.PackageObjectSingletonClassName
 
-import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
 class ScalaPackageObjectFilterFactory extends ExceptionFilterFactory {
   override def create(scope: GlobalSearchScope): Filter =
@@ -24,30 +20,16 @@ class ScalaPackageObjectConsoleFilterProvider extends ConsoleFilterProvider {
     Array(new ScalaPackageObjectFilter(GlobalSearchScope.allScope(project)))
 }
 
-object ScalaPackageObjectFilter {
-  //from kotlin exception filter
-  //(org.jetbrains.kotlin.idea.debugger.core.KotlinExceptionFilter)
-  // Matches strings like "\tat test.TestPackage$foo$f$1.invoke(a.kt:3)\n"
-  //                   or "\tBreakpoint reached at test.TestPackage$foo$f$1.invoke(a.kt:3)\n"
-  private val STACK_TRACE_ELEMENT_PATTERN =
-    Pattern.compile("^[\\w|\\s]*at\\s+(.+)\\.(.+)\\((.+):(\\d+)\\)\\s*$")
-
-  // Used in StringUtil.newBombedCharSequence to avoid freezes (SCL-25199)
-  private val REGEX_MATCH_DELAY_MS = 3000
-
-  private def parseStackTraceLine(line: String): StackTraceElement = try {
-    val bombedLine = StringUtil.newBombedCharSequence(line, REGEX_MATCH_DELAY_MS)
-    val matcher = STACK_TRACE_ELEMENT_PATTERN.matcher(bombedLine)
-    if (matcher.matches()) {
-      val declaringClass = matcher.group(1)
-      val methodName = matcher.group(2)
-      val fileName = matcher.group(3)
-      val lineNumber = Try(Integer.parseInt(matcher.group(4))).getOrElse(-1)
+private object ScalaPackageObjectFilter {
+  // Based on org.jetbrains.kotlin.idea.debugger.core.KotlinExceptionFilter
+  private def parseStackTraceLine(line: String): StackTraceElement = ExceptionWorker.parseExceptionLine(line) match {
+    case null => null
+    case parsed =>
+      val declaringClass = parsed.classFqnRange.substring(line)
+      val methodName = parsed.methodNameRange.substring(line)
+      val fileName = parsed.fileName
+      val lineNumber = parsed.lineNumber
       new StackTraceElement(declaringClass, methodName, fileName, lineNumber)
-    }
-    else null
-  } catch {
-    case _: ProcessCanceledException => null
   }
 }
 
