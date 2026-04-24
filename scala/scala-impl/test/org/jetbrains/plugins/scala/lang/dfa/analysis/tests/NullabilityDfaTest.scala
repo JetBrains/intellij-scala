@@ -39,8 +39,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |}
       |""".stripMargin
   })(
-    "x == null"-> ConditionAlwaysFalse,
-    "x != null"-> ConditionAlwaysTrue,
+    "trim" -> npeOnInvocation.alwaysMessage,
   )
 
   @Test

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport
 
+import com.intellij.codeInspection.dataFlow.MutationSignature
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
@@ -37,8 +38,8 @@ object CollectionsSpecialSupport {
     }
 
     typeInfo match {
-      case Some((Some(dfType), isPure)) => Some(MethodEffect(factory.fromDfType(dfType), isPure, handledSpecially = true))
-      case Some((None, isPure)) => Some(MethodEffect(factory.fromDfType(DfType.TOP), isPure, handledSpecially = isPure))
+      case Some((Some(dfType), isPure)) => Some(MethodEffect(factory.fromDfType(dfType), isPure))
+      case Some((None, isPure)) => Some(MethodEffect(factory.fromDfType(DfType.TOP), isPure))
       case _ => None
     }
   }
