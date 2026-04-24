@@ -106,25 +106,45 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
   //strips keywords and modifiers from class parameters
   private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
-
-    def paramText(p: ScParameter) = {
+    val builder = new StringBuilder()
+    def addParamText(p: ScParameter, isFirstParam: Boolean): Unit = {
       val paramType = p.typeElement.fold("Any")(toText("Any"))
       val defaultExpr = defaultParamString(p)
       val repeatedSuffix = if (p.isRepeatedParameter) "*" else ""
-      p.name + " : " + paramType + repeatedSuffix + defaultExpr
+
+      if (!isFirstParam) {
+        builder += ','
+      }
+
+      for (a <- p.getAnnotations) {
+        builder ++= a.getText
+        builder += ' '
+      }
+      builder ++= p.name
+      builder ++= " : "
+      builder ++= paramType
+      builder ++= repeatedSuffix
+      builder ++= defaultExpr
     }
 
-    def clauseText(clause: ScParameterClause) = {
-      val paramsText = clause.parameters.map(paramText).commaSeparated()
+    def addClauseText(clause: ScParameterClause) = {
       val modifier =
-        if (clause.hasImplicitKeyword)   "implicit"
-        else if (clause.hasUsingKeyword) "using"
-        else                     ""
+        if (clause.hasImplicitKeyword)   "implicit "
+        else if (clause.hasUsingKeyword) "using "
+        else                             ""
 
-      "(" + modifier + " " + paramsText + ")"
+      builder += '('
+      builder ++= modifier
+      var isFirstParam = true
+      clause.parameters.foreach { param =>
+        addParamText(param, isFirstParam)
+        isFirstParam = false
+      }
+      builder += ')'
     }
 
-    effectiveClauses.map(clauseText).mkString("")
+    effectiveClauses.foreach(addClauseText)
+    builder.toString
   }
 
   private def toText(fallback: String)(psi: PsiElement): String =
