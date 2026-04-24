@@ -113,6 +113,6 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo, methodEffectInfo: 
     val dfaReturnValue = Option(handler.getMethodResultValue(dfaCallArguments, stateBefore, factory, psiMethod))
 
     val returnValue = dfaReturnValue.getOrElse(this.returnValue)
-    MethodEffect(returnValue, mutationSignature, contracts = Seq.empty)
+    MethodEffect(returnValue, mutationSignature, contracts = methodEffectInfo.contracts)
   }
 }

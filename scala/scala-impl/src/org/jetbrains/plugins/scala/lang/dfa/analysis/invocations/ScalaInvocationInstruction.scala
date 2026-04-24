@@ -89,13 +89,12 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val contracts = methodEffect.contracts
     if (contracts.isEmpty) return None
 
-    val psiMethod = invocationInfo.invokedElement.map(_.psiElement).collect { case m: PsiMethod => m }.getOrElse(return None)
     val properArgValues = invocationInfo.properArguments.flatten
       .map(argumentValues.getOrElse(_, unknownDfaValue))
     val thisArgValue = invocationInfo.thisArgument
       .flatMap(argumentValues.get).getOrElse(unknownDfaValue)
 
-    val mutationSignature = MutationSignature.fromMethod(psiMethod)
+    val mutationSignature = methodEffect.mutationSignature
     val dfaCallArguments = new DfaCallArguments(thisArgValue, properArgValues.toArray, mutationSignature)
     val defaultResult = factory.fromDfType(methodEffect.returnValue.getDfType)
     val initialState = new DfaCallState(stateBefore, dfaCallArguments, defaultResult)

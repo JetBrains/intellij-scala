@@ -316,4 +316,26 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
   })(
     "x" -> nullableToUnannotatedParam.alwaysMessage
   )
+
+  @Test
+  def test(): Unit = test(codeFromMethodBody() {
+    """
+      |@Contract("!null -> param1")
+      |def ensureNotNull(@Nullable s: String): String = {
+      |  if (s == null) "" else s
+      |}
+      |
+      |def test(@NotNull x: String): Boolean = {
+      |  val safe = ensureNotNull(x)
+      |
+      |  safe == x
+      |  safe == null
+      |  x == null
+      |}
+      |""".stripMargin
+  })(
+    "safe == x" -> ConditionAlwaysTrue,
+    "safe == null" -> ConditionAlwaysFalse,
+    "x == null" -> ConditionAlwaysFalse,
+  )
 }

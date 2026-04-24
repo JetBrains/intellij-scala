@@ -14,7 +14,7 @@ package object dfa {
        |import java.util
        |import java.lang.Math
        |import scala.math._
-       |import org.jetbrains.annotations.{Contract, Nullable}
+       |import org.jetbrains.annotations.{Contract, Nullable, NotNull}
        |
        |class OtherClass {
        |  val otherField: Int = 1244
