@@ -82,7 +82,9 @@ lazy val scalaCommunity: sbt.Project =
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
-      sbtProjectImportingTests % "test->test",
+      sbtProjectStructureTests % "test->test",
+      sbtShellRuntimeTests % "test->test",
+      sbtShellBuildDelegationTests % "test->test",
       bspIntegrationTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
       compilerIntegrationServerManagement % "test->test;compile->compile",
@@ -467,13 +469,42 @@ lazy val sbtImpl =
 //      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
-lazy val sbtProjectImportingTests =
-  newProject("sbt-project-importing-tests", file("sbt/sbt-project-importing-tests"))
+lazy val sbtProjectImportingTestFramework =
+  newProject("sbt-project-importing-test-framework", file("sbt/sbt-project-importing-test-framework"))
     .projectWithTestsOnly
     .dependsOn(
       sbtImpl % "compile->compile;test->test",
       // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
       compilerIntegrationServerManagement % "compile->compile;test->test",
+      testUtilsPlatform % "test->test",
+    )
+
+lazy val sbtProjectStructureTests =
+  newProject("sbt-project-structure-tests", file("sbt/sbt-project-structure-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      sbtProjectImportingTestFramework % "test->test",
+      sbtImpl % "compile->compile;test->test",
+      // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
+      compilerIntegrationServerManagement % "compile->compile;test->test",
+      testUtilsPlatform % "test->test",
+    )
+
+lazy val sbtShellRuntimeTests =
+  newProject("sbt-shell-runtime-tests", file("sbt/sbt-shell-runtime-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      sbtProjectImportingTestFramework % "test->test",
+      sbtImpl % "compile->compile;test->test",
+      testUtilsPlatform % "test->test",
+    )
+
+lazy val sbtShellBuildDelegationTests =
+  newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      sbtProjectImportingTestFramework % "test->test",
+      sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
 
