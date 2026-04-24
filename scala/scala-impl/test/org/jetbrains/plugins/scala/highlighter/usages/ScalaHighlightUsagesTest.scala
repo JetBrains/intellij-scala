@@ -35,9 +35,9 @@ class ScalaHighlightUsagesTest extends ScalaHighlightUsagesTestBase {
 
   def testCaseClass_NamedArgumentsInSyntheticMethods_CaretAtArgumentInCopy_Explicit(): Unit =
     doTest(
-      s"""case class MyCaseClass(name: String, age: Int)
-        |MyCaseClass.apply(name = "42", age = 23)
-        |val instance = MyCaseClass(name = "42", age = 23)
+      s"""case class MyCaseClass(name: String, ${start}age$end: Int)
+        |MyCaseClass.apply(name = "42", ${start}age$end = 23)
+        |val instance = MyCaseClass(name = "42", ${start}age$end = 23)
         |instance.copy(name = "23", $CARET${start}age$end = 42)
         |""".stripMargin
     )

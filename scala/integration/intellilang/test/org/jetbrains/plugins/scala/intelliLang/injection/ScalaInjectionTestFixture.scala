@@ -214,8 +214,10 @@ object ScalaInjectionTestFixture {
       case Seq(literal) =>
         val contentOffset = literal.contentRange.getStartOffset
         caret.moveToOffset(contentOffset)
-      case Seq() => Assert.fail("string literal not found")
-      case _ => Assert.fail("several string literals were found, use <caret> tag to point to required literal")
+      case Seq() =>
+        Assert.fail("string literal not found")
+      case _ =>
+        Assert.fail("several string literals were found, use <caret> tag to point to required literal")
     }
   }
 
