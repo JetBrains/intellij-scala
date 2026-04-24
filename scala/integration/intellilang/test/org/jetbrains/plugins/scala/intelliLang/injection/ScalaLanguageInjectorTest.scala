@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.intelliLang.injection
 
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
+import org.intellij.lang.annotations.Language
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.intelliLang.injection.InjectionTestUtils.*
@@ -8,10 +9,7 @@ import org.junit.Assert.*
 
 import scala.jdk.CollectionConverters.*
 
-class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_13
+abstract class ScalaLanguageInjectorTestBase extends InjectionInBodyTestBase {
 
   ////////////////////////////////////////
   // @Language annotation injection tests
@@ -54,6 +52,19 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
     )
   }
 
+  def testAnnotationInjection_InClassConstructor_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |new MyClass(param = "${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
   def testAnnotationInjection_InClassConstructor_JavaClass(): Unit = {
     getFixture.addFileToProject("MyJavaClass.java",
       //language=Java
@@ -80,6 +91,21 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
          |}
          |
          |new MyClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassSecondaryConstructor_WithNamedArguments(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |new MyClass(param = "${CARET}val x = 0", x = 42)
          |""".stripMargin,
       "val x = 0"
     )
@@ -115,6 +141,19 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
     )
   }
 
+  def testAnnotationInjection_InCaseClassConstructor_CalledViaNew_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |new MyCaseClass(param = "${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
   def testAnnotationInjection_InCaseClassSecondaryConstructor_CalledViaNew(): Unit = {
     doAnnotationTestInBody(
       ScalaLangId,
@@ -125,6 +164,21 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
          |}
          |
          |new MyCaseClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InCaseClassSecondaryConstructor_CalledViaNew_WithNamedArguments(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |new MyCaseClass(param = "${CARET}val x = 0", x = 42)
          |""".stripMargin,
       "val x = 0"
     )
@@ -142,6 +196,130 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
       "val x = 0"
     )
   }
+
+  def testAnnotationInjection_InCaseClassConstructor_CalledViaApply_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |MyCaseClass(param = "${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InCaseClassCopy_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String,
+         |  x: Int = 42
+         |)
+         |
+         |val myCaseClass = MyCaseClass(param = "val y = 0")
+         |myCaseClass.copy(param = "${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InImplicitClassConstructor_CalledWithoutNew_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""implicit class MyImplicitClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |MyImplicitClass(param = "${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  ////////////////////////////////////////
+  // SCL-24959 example lines coverage
+  ////////////////////////////////////////
+
+  //SCL-24959C
+  @Language("Scala")
+  private val Scl24959ClassesBody =
+    """class SQLString1(@Language("Scala") sql: String)
+      |class SQLString2(@Language("Scala") val sql: String)
+      |class SQLString3(@Language("Scala") private val sql: String)
+      |
+      |implicit class SQLString4(@Language("Scala") sql: String)
+      |implicit class SQLString5(@Language("Scala") val sql: String)
+      |implicit class SQLString6(@Language("Scala") private val sql: String)
+      |
+      |implicit class SQLString7(@Language("Scala") sql: String) extends AnyVal
+      |implicit class SQLString8(@Language("Scala") val sql: String) extends AnyVal
+      |implicit class SQLString9(@Language("Scala") private val sql: String) extends AnyVal
+      |""".stripMargin
+
+  //
+  // NOTE: There are quite a lot of tests in for SCL-24959 in this class.
+  // Indirectly they test this method in particular:
+  // org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.parameterForSyntheticParameter
+  // (Though not only it)
+  // Ideally, ScalaPsiUtil.parameterForSyntheticParameter should be covered using separate unit tests.
+  // But this will be a complimentary test, not a replacement for these.
+  //
+  protected final def doScl24959InvocationTest(@Language("Scala") code: String): Unit = {
+    myFixture.addFileToProject("definitions.scala", Scl24959ClassesBody)
+
+    doAnnotationTestInBody(
+      ScalaLangId,
+      code,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_SCL24959_New_SQLString1_Param(): Unit =
+    doScl24959InvocationTest("""new SQLString1("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString2_ValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString2("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString3_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString3("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString4_ImplicitClass_Param(): Unit =
+    doScl24959InvocationTest("""new SQLString4("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString5_ImplicitClass_ValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString5("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString6_ImplicitClass_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString6("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString7_ImplicitValClass_Param(): Unit =
+    doScl24959InvocationTest("""new SQLString7("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString8_ImplicitValClass_ValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString8("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_New_SQLString9_ImplicitValClass_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""new SQLString9("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString4_ImplicitClass_Param(): Unit =
+    doScl24959InvocationTest("""SQLString4("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString5_ImplicitClass_ValParam(): Unit =
+    doScl24959InvocationTest("""SQLString5("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString6_ImplicitClass_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""SQLString6("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString7_ImplicitValClass_Param(): Unit =
+    doScl24959InvocationTest("""SQLString7("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString8_ImplicitValClass_ValParam(): Unit =
+    doScl24959InvocationTest("""SQLString8("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_WithoutNew_SQLString9ImplicitValClass_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""SQLString9("val x = 0")""")
 
   ////////////////////////////////////////
   // other
@@ -170,7 +348,6 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
   ///////////////////////////////////
   // Injections via patterns defined in `scalaInjections.xml`
   ///////////////////////////////////
-
 
   def testPatternInjection_Regexp_MultilineOnSingleLine(): Unit = {
     val body =
@@ -234,10 +411,25 @@ class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
   //  }
 }
 
-class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 {
+class ScalaLanguageInjectorTest_Scala2 extends ScalaLanguageInjectorTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+}
+
+class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTestBase {
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
 
+  def testAnnotationInjection_SCL24959_CalledViaUniversalApply_SQLString1_Class_Param(): Unit =
+    doScl24959InvocationTest("""SQLString1("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_CalledViaUniversalApply_SQLString2_Class_ValParam(): Unit =
+    doScl24959InvocationTest("""SQLString2("val x = 0")""")
+
+  def testAnnotationInjection_SCL24959_CalledViaUniversalApply_SQLString3_Class_PrivateValParam(): Unit =
+    doScl24959InvocationTest("""SQLString3("val x = 0")""")
 
   def testAnnotationInjection_InClassConstructor_CalledViaUniversalApply(): Unit = {
     doAnnotationTestInBody(
@@ -247,6 +439,19 @@ class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 
          |)
          |
          |MyClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassConstructor_CalledViaUniversalApply_WithNamedArgument(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |MyClass(param = "${CARET}val x = 0")
          |""".stripMargin,
       "val x = 0"
     )
@@ -262,6 +467,21 @@ class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 
          |}
          |
          |MyClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassSecondaryConstructor_CalledViaUniversalApply_WithNamedArguments(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |MyClass(param = "${CARET}val x = 0", x = 42)
          |""".stripMargin,
       "val x = 0"
     )
@@ -283,4 +503,3 @@ class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 
     )
   }
 }
-

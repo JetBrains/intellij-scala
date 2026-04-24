@@ -474,7 +474,7 @@ private object ScalaLanguageInjector {
           case Some(f: ScFunction) =>
             f.parameters.lift(index)
               // handle synthetic parameters like case class "apply" methods calls
-              .map(p => ScalaPsiUtil.parameterForSyntheticParameter(p).getOrElse(p))
+              .map(toOriginalParameterIfSynthetic)
           case Some(m: PsiMethod) =>
             // Java definitions PSI elements keep annotations in the modifiers list element (unlike in Scala)
             m.parameters.lift(index).safeMap(_.getModifierList)
@@ -509,6 +509,7 @@ private object ScalaLanguageInjector {
     case _: ScMethodCall => None
     case ScReference(target) =>
       val context = target match {
+        case p: ScParameter => toOriginalParameterIfSynthetic(p)
         case p: ScReferencePattern => p.getParent.getParent
         case field: PsiField => field.getModifierList
         case _ => target
@@ -520,4 +521,7 @@ private object ScalaLanguageInjector {
       }
     case _ => None
   }
+
+  private def toOriginalParameterIfSynthetic(parameter: ScParameter): ScParameter =
+    ScalaPsiUtil.parameterForSyntheticParameter(parameter).getOrElse(parameter)
 }
