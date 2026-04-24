@@ -2,33 +2,50 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations
 
 import com.intellij.codeInspection.dataFlow.CustomMethodHandlers.CustomMethodHandler
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
-import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
+import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MethodContract, MutationSignature}
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.registerParameterValues
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.MethodEffectInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, unknownDfaValue}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-//noinspection UnstableApiUsage
-case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: DfaValueFactory) {
 
-  def findMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
-                       argumentValues: Map[Argument, DfaValue],
-                       qualifier: Option[ScalaDfaVariableDescriptor]): MethodEffect = {
-    invocationInfo.invokedElement match {
-      case None => MethodEffect(unknownDfaValue, isPure = false, handledSpecially = false)
-      case Some(invokedElement) =>
-        findCommonMethodEffect(invokedElement, argumentValues, stateBefore)
-          .getOrElse(findScalaMethodEffect(interpreter, stateBefore, argumentValues, qualifier))
+final case class MethodEffect(returnValue: DfaValue,
+                              mutationSignature: MutationSignature,
+                              contracts: Seq[MethodContract])
+
+object MethodEffect {
+  def pure(value: DfaValue): MethodEffect = MethodEffect(value, MutationSignature.pure(), Seq.empty)
+  def impure(value: DfaValue): MethodEffect = MethodEffect(value, MutationSignature.unknown(), Seq.empty)
+  def apply(value: DfaValue, isPure: Boolean): MethodEffect =
+    if (isPure) pure(value) else impure(value)
+}
+
+//noinspection UnstableApiUsage
+case class MethodEffectFinder(invocationInfo: InvocationInfo, methodEffectInfo: MethodEffectInfo)(implicit factory: DfaValueFactory) {
+  private lazy val returnType = invocationInfo.invokedElement
+    .map(element => element.returnInfo.toDfaType)
+    .getOrElse(DfType.TOP)
+
+  def returnValue: DfaValue = factory.fromDfType(returnType)
+
+  def default: MethodEffect = MethodEffect(returnValue, methodEffectInfo.mutationSignature, methodEffectInfo.contracts)
+
+  def findSpecialMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
+                              argumentValues: Map[Argument, DfaValue],
+                              qualifier: Option[ScalaDfaVariableDescriptor]): Option[MethodEffect] = {
+    invocationInfo.invokedElement.flatMap { invokedElement =>
+      findCommonMethodEffect(invokedElement, argumentValues, stateBefore)
+        .orElse(findScalaMethodEffect(interpreter, stateBefore, argumentValues, qualifier))
     }
   }
 
@@ -36,37 +53,32 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
                                      argumentValues: Map[Argument, DfaValue],
                                      stateBefore: DfaMemoryState): Option[MethodEffect] = {
     implicit val context: ProjectContext = invokedElement.psiElement.getProject
-    val commonHandler = findArgumentsPrimitiveType(argumentValues).flatMap { argumentsType =>
-      invokedElement.qualifiedName
-        .flatMap(CommonMethodsMapping.get(_, argumentsType))
-        .flatMap(psiMethodFromText)
-        .map(method => (method, CustomMethodHandlers.find(method)))
+    def findCustomMethodHandler(psiMethod: PsiMethod): Option[(PsiMethod, CustomMethodHandler)] =
+      Option(CustomMethodHandlers.find(psiMethod)).map((psiMethod, _))
+    def commonHandlerByPrimitive =
+      findArgumentsPrimitiveType(argumentValues)
+        .flatMap { argumentsType =>
+          invokedElement.qualifiedName
+            .flatMap(CommonMethodsMapping.get(_, argumentsType))
+            .flatMap(psiMethodFromText)
+            .flatMap(findCustomMethodHandler)
+        }
+
+    def commonHandlerByMethod = invokedElement.psiElement match {
+      case psiMethod: PsiMethod => findCustomMethodHandler(psiMethod)
+      case _ => None
     }
 
-    findJavaMethodEffect(commonHandler, argumentValues, stateBefore).orElse {
-      invokedElement.psiElement match {
-        case psiMethod: PsiMethod =>
-          findJavaMethodEffect(Some((psiMethod, CustomMethodHandlers.find(psiMethod))), argumentValues, stateBefore)
-        case _ => None
+    commonHandlerByPrimitive
+      .orElse(commonHandlerByMethod)
+      .map { case (psiMethod, handler) =>
+        findMethodEffectWithJavaCustomHandler(stateBefore, argumentValues, handler, psiMethod)
       }
-    }
-  }
-
-  private def findJavaMethodEffect(handler: Option[(PsiMethod, CustomMethodHandler)],
-                                   argumentValues: Map[Argument, DfaValue],
-                                   stateBefore: DfaMemoryState): Option[MethodEffect] = handler match {
-    case Some((method, handler)) if handler != null =>
-      Some(findMethodEffectWithJavaCustomHandler(stateBefore, argumentValues, handler, method))
-    case _ => None
   }
 
   private def findScalaMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
                                     argumentValues: Map[Argument, DfaValue], qualifier: Option[ScalaDfaVariableDescriptor])
-                                   (implicit factory: DfaValueFactory): MethodEffect = {
-    val returnType = invocationInfo.invokedElement
-      .map(element => element.returnInfo.toDfaType)
-      .getOrElse(DfType.TOP)
-
+                                   (implicit factory: DfaValueFactory): Option[MethodEffect] = {
     val classesEnhancement = findSpecialSupportForClasses(invocationInfo, argumentValues) match {
       case Some((classParamValues, methodEffect)) =>
         registerParameterValues(classParamValues, qualifier, interpreter, stateBefore)
@@ -77,7 +89,6 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
 
     val enhancement = classesEnhancement.orElse(collectionsEnhancement)
     enhancement.map(enhanceReturnType(returnType, _))
-      .getOrElse(MethodEffect(factory.fromDfType(returnType), isPure = false, handledSpecially = false))
   }
 
   private def enhanceReturnType(returnType: DfType, methodEffect: MethodEffect)
@@ -95,14 +106,13 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
     val thisArgumentValue = invocationInfo.thisArgument
       .flatMap(argumentValues.get).getOrElse(unknownDfaValue)
 
-    val mutationSignature = MutationSignature.fromMethod(psiMethod)
+    val mutationSignature = methodEffectInfo.mutationSignature
     val fixedArgumentValues = if (psiMethod.isVarArgs && properArgumentValues.isEmpty)
       List(factory.fromDfType(DfType.TOP)) else properArgumentValues
     val dfaCallArguments = new DfaCallArguments(thisArgumentValue, fixedArgumentValues.toArray, mutationSignature)
     val dfaReturnValue = Option(handler.getMethodResultValue(dfaCallArguments, stateBefore, factory, psiMethod))
 
-    val returnValue = dfaReturnValue.getOrElse(unknownDfaValue)
-    val isPure = mutationSignature.isPure && !JavaDfaHelpers.mayLeakFromType(returnValue.getDfType)
-    MethodEffect(returnValue, isPure, handledSpecially = returnValue != unknownDfaValue)
+    val returnValue = dfaReturnValue.getOrElse(this.returnValue)
+    MethodEffect(returnValue, mutationSignature, contracts = Seq.empty)
   }
 }

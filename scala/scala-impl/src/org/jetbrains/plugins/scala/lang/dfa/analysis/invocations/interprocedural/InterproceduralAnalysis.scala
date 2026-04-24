@@ -4,7 +4,7 @@ import com.intellij.codeInspection.dataFlow.interpreter.{DataFlowInterpreter, Ru
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
 import com.intellij.codeInspection.dataFlow.jvm.transfer.EnterFinallyTrap
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
-import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
+import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, SimpleAssignmentInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
@@ -32,7 +32,7 @@ object InterproceduralAnalysis {
 
   def tryInterpretExternalMethod(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
-                                (implicit factory: DfaValueFactory): Option[MethodEffect] = {
+                                (implicit factory: DfaValueFactory): Option[Array[DfaInstructionState]] = {
     invocationInfo.invokedElement match {
       /*case Some(InvokedElement(function: ScFunctionDefinition)) if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) =>
         function.body match {
@@ -123,9 +123,10 @@ object InterproceduralAnalysis {
     val startingState = new JvmDfaMemoryStateImpl(factory)
     registerParameterValues(mappedParameters, None, interpreter, startingState)
 
-    if (interpreter.interpret(startingState) != RunnerResult.OK) None
-    else Some(MethodEffect(factory.fromDfType(listener.collectResultValue),
-      isPure = true, handledSpecially = true, handledExternally = true))
+//    if (interpreter.interpret(startingState) != RunnerResult.OK) None
+//    else Some(MethodEffect(factory.fromDfType(listener.collectResultValue),
+//      isPure = true, handledSpecially = true, handledExternally = true))
+    ???
   }
 
   private def nopCodeBlock(implicit context: ProjectContext): ScExpression = code"()".asInstanceOf[ScExpression]

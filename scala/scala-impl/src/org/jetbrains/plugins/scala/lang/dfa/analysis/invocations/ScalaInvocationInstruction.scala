@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, isImplicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.specialSupport.MethodEffectInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ThisArgument}
@@ -35,7 +36,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
                                  qualifier: Option[ScalaDfaVariableDescriptor],
                                  exceptionTransfer: Option[DfaControlTransferValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo,
-                                 contracts: Seq[MethodContract] = Seq.empty)
+                                 effectInfo: MethodEffectInfo)
   extends ExpressionPushingInstruction(invocationInfo.anchor) {
 
   override def toString: String = {
@@ -50,27 +51,30 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val argumentValues = collectArgumentValuesFromStack(stateBefore)
     checkArgumentsNullability(argumentValues, interpreter, stateBefore)
 
-    val finder = MethodEffectFinder(invocationInfo)
-    val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
+    val finder = MethodEffectFinder(invocationInfo, effectInfo)
+    val specialMethodEffect = finder.findSpecialMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
 
-    val improvedMethodEffect = if (!methodEffect.handledSpecially) {
-      tryInterpretExternalMethod(invocationInfo, evaluateArgumentsInCurrentState(argumentValues, stateBefore),
-        currentAnalysedMethodInfo) match {
-        case Some(externalMethodEffect) => externalMethodEffect
-        case _ => methodEffect
+    if (specialMethodEffect.isEmpty) {
+      tryInterpretExternalMethod(invocationInfo, evaluateArgumentsInCurrentState(argumentValues, stateBefore), currentAnalysedMethodInfo) match {
+        case Some(states) =>
+          return states
+        case None =>
+          // continue
       }
-    } else methodEffect
+    }
 
-    applyMethodContracts(argumentValues, improvedMethodEffect, stateBefore, interpreter).getOrElse {
+    val methodEffect = specialMethodEffect.getOrElse(finder.default)
+
+    applyMethodContracts(argumentValues, methodEffect, stateBefore, interpreter).getOrElse {
       flushAfterCall(argumentValues, methodEffect, stateBefore)
-      returnFromInvocation(improvedMethodEffect, stateBefore, interpreter)
+      returnFromInvocation(methodEffect, stateBefore, interpreter)
     }
   }
 
   private def flushAfterCall(argumentValues: Map[Argument, DfaValue],
                              methodEffect: MethodEffect,
                              stateBefore: DfaMemoryState): Unit = {
-    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || isImplicitParametersPresent(invocationInfo)) {
+    if (!methodEffect.mutationSignature.isPure || byNameParametersPresent(invocationInfo) || isImplicitParametersPresent(invocationInfo)) {
       argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
       stateBefore.flushFields()
     }
@@ -82,6 +86,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
                                    stateBefore: DfaMemoryState,
                                    interpreter: DataFlowInterpreter)
                                   (implicit factory: DfaValueFactory): Option[Array[DfaInstructionState]] = {
+    val contracts = methodEffect.contracts
     if (contracts.isEmpty) return None
 
     val psiMethod = invocationInfo.invokedElement.map(_.psiElement).collect { case m: PsiMethod => m }.getOrElse(return None)
@@ -194,8 +199,8 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
   private def returnFromInvocation(methodEffect: MethodEffect, stateBefore: DfaMemoryState,
                                    interpreter: DataFlowInterpreter): Array[DfaInstructionState] = {
     val exceptionalState = stateBefore.createCopy()
-    val exceptionalResult = if (methodEffect.handledExternally) Nil
-    else exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala).getOrElse(Nil)
+    val exceptionalResult =
+      exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala).getOrElse(Nil)
 
     val normalResult = methodEffect.returnValue match {
       case DfType.BOTTOM => None

@@ -21,13 +21,13 @@ object ClassesSpecialSupport {
     val caseClassInfo = for {
       caseClass <- findReturnedCaseClassIfFactoryApplyCall(invocationInfo)
       classParamValues <- mapArgumentValuesToClassParameters(argumentValues, caseClass.parameters)
-    } yield (classParamValues, MethodEffect(factory.fromDfType(DfType.TOP), isPure = true, handledSpecially = true))
+    } yield (classParamValues, MethodEffect.pure(factory.fromDfType(DfType.TOP)))
 
     val regularClassInfo = for {
       regularClass <- findReturnedClassIfConstructorCall(invocationInfo)
       classParamValues <- mapArgumentValuesToClassParameters(argumentValues, regularClass.parameters)
       returnType = scTypeToDfType(regularClass.`type`().getOrAny)
-    } yield (classParamValues, MethodEffect(factory.fromDfType(returnType), isPure = false, handledSpecially = true))
+    } yield (classParamValues, MethodEffect.impure(factory.fromDfType(returnType)))
 
     caseClassInfo.orElse(regularClassInfo)
   }
