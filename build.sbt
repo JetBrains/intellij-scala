@@ -83,6 +83,7 @@ lazy val scalaCommunity: sbt.Project =
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectStructureTests % "test->test",
+      sbtProjectHighlightingTests % "test->test",
       sbtShellRuntimeTests % "test->test",
       sbtShellBuildDelegationTests % "test->test",
       bspIntegrationTests % "test->test",
@@ -479,9 +480,20 @@ lazy val sbtProjectStructureTests =
     .dependsOn(
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
-      // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
-      compilerIntegrationServerManagement % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+
+lazy val sbtProjectHighlightingTests =
+  newProject("sbt-project-highlighting-tests", file("sbt/sbt-project-highlighting-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      sbtProjectImportingTestFramework % "test->test",
+      sbtImpl % "compile->compile;test->test",
+      testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtShellRuntimeTests =
@@ -509,6 +521,7 @@ lazy val compilerIntegration =
       scalaImpl % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      sbtProjectHighlightingTests % "test->test",
       scalaMetaImpl % "test->test;compile->compile",
       testUtilsPlatform % "test->test",
       jps,
