@@ -26,20 +26,22 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
   @Test
   def test_probably_not_null(): Unit = test(codeFromMethodBody() {
     """
-      |val x: String = arg4
+      |def test(@Nullable x: String) {
+      |  (x).toString()
       |
-      |(x).toString()
+      |  if (x == null) {
+      |    x.trim()
+      |  }
       |
-      |if (x == null) {
-      |  x.trim()
-      |}
-      |
-      |if (x != null) {
-      |  x.stripMargin()
+      |  if (x != null) {
+      |    x.stripMargin()
+      |  }
       |}
       |""".stripMargin
   })(
-    "trim" -> npeOnInvocation.alwaysMessage,
+    "toString" -> npeOnInvocation.sometimesMessage,
+    "x == null" -> ConditionAlwaysFalse,
+    "x != null" -> ConditionAlwaysTrue,
   )
 
   @Test

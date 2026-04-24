@@ -5,8 +5,8 @@ import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
 import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, ExpressionPushingInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
-import com.intellij.codeInspection.dataFlow.types.DfType
-import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
+import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory, DfaVariableValue}
 import com.intellij.codeInspection.dataFlow.{ContractValue, DfaCallArguments, DfaCallState, DfaNullability, MethodContract, MutationSignature}
 import com.intellij.psi.PsiMethod
 import com.intellij.util.ThreeState
@@ -194,6 +194,10 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
         else if (argument.nullability == Nullability.UNKNOWN) ScalaNullAccessProblem.nullableToUnannotatedParam.create(expr)
         else ScalaNullAccessProblem.nullableToNotNullParam.create(expr)
       interpreter.getListener.onCondition(problem, value, failed, stateBefore)
+      value match {
+        case variable: DfaVariableValue => stateBefore.meetDfType(variable, DfTypes.NOT_NULL_OBJECT)
+        case _ =>
+      }
     }
 
   private def returnFromInvocation(methodEffect: MethodEffect, stateBefore: DfaMemoryState,
