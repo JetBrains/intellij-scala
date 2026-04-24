@@ -39,7 +39,7 @@ object CollectionsSpecialSupport {
 
     typeInfo match {
       case Some((Some(dfType), isPure)) => Some(MethodEffect(factory.fromDfType(dfType), isPure))
-      case Some((None, isPure)) => Some(MethodEffect(factory.fromDfType(DfType.TOP), isPure))
+      //case Some((None, isPure)) => Some(MethodEffect(factory.fromDfType(DfType.TOP), isPure))
       case _ => None
     }
   }

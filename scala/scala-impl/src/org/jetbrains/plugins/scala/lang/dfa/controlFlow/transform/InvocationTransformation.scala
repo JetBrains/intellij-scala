@@ -102,6 +102,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
     val exceptionType = (name, qualifiedName) match {
       case ("assert", "scala.Predef.assert") => AssertionExceptionType
       case ("assume", "scala.Predef.assume") => AssertionExceptionType
+      case ("assert", "scala.runtime.stdLibPatches.Predef.assert") => AssertionExceptionType
       case ("require", "scala.Predef.require") => RequireExceptionType
       case _ => return None
     }
