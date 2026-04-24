@@ -2,12 +2,14 @@ package org.jetbrains.sbt.shell.build
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.packaging.artifacts.Artifact
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.SbtProjectImportTestUtils
-import org.jetbrains.sbt.shell.build.BuildOverSbtShellTester.BuildOverSbtShellResult
+import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester
+import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.BuildOverSbtShellResult
 import org.junit.Assert.{assertTrue, fail}
 
 import java.nio.file.Path
@@ -68,13 +70,26 @@ final class SbtShellBuildTestFixture(
       fail("Build result is null")
     }
 
-    val sbtShellOutput = buildResult.sbtShellOutput
-    if (buildResult.buildResult.isAborted) {
-      fail(s"Delegated sbt build was aborted. Captured sbt shell output:\n$sbtShellOutput")
+    val diagnostics = renderBuildDiagnostics(buildResult)
+    if (buildResult.buildRunResult.buildResult.isAborted) {
+      fail(s"Delegated sbt build was aborted.$diagnostics")
     }
-    if (buildResult.buildResult.hasErrors) {
-      // TODO SCL-11525: once sbt-shell build errors are reported in Build tool window reliably, assert structured errors instead.
-      fail(s"Delegated sbt build failed. Captured sbt shell output:\n$sbtShellOutput")
+    if (buildResult.buildRunResult.buildResult.hasErrors) {
+      fail(s"Delegated sbt build failed.$diagnostics")
+    }
+  }
+
+  def assertBuildFailed(buildResult: BuildOverSbtShellResult): Unit = {
+    if (buildResult == null) {
+      fail("Build result is null")
+    }
+
+    val diagnostics = renderBuildDiagnostics(buildResult)
+    if (buildResult.buildRunResult.buildResult.isAborted) {
+      fail(s"Delegated sbt build was aborted, but an error result was expected.$diagnostics")
+    }
+    if (!buildResult.buildRunResult.buildResult.hasErrors) {
+      fail(s"Delegated sbt build unexpectedly succeeded, but a failure was expected.$diagnostics")
     }
   }
 
@@ -108,4 +123,33 @@ final class SbtShellBuildTestFixture(
 
   def buildAllModulesAndCaptureOutput(): BuildOverSbtShellResult =
     buildTester.buildAllModulesAndCaptureOutput()
+
+  def buildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult =
+    buildTester.buildArtifactsAndCaptureOutput(artifacts)
+
+  def rebuildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult =
+    buildTester.rebuildArtifactsAndCaptureOutput(artifacts)
+
+  private def renderBuildDiagnostics(buildResult: BuildOverSbtShellResult): String = {
+    def renderSection(title: String, messages: Seq[String]): Option[String] =
+      Option(messages)
+        .filter(_.nonEmpty)
+        .map(_.mkString(s"$title:\n  - ", "\n  - ", ""))
+
+    val sections = Seq(
+      renderSection("Build tool window errors", buildResult.buildRunResult.buildToolWindowErrors),
+      renderSection("Build tool window warnings", buildResult.buildRunResult.buildToolWindowWarnings),
+      renderSection("Build tool window root output", buildResult.buildRunResult.buildToolWindowRootOutput),
+      renderSection("Build tool window finish failures", buildResult.buildRunResult.buildToolWindowFinishFailures),
+      renderSection("CompileContext errors", buildResult.buildRunResult.compilerContextErrors),
+      renderSection("CompileContext warnings", buildResult.buildRunResult.compilerContextWarnings),
+    ).flatten
+
+    val diagnosticsPrefix =
+      if (sections.nonEmpty) sections.mkString("\n", "\n", "\n")
+      else "\n"
+
+    s"""${diagnosticsPrefix}Captured sbt shell output:
+       |${buildResult.sbtShellOutput}""".stripMargin
+  }
 }

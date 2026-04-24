@@ -129,11 +129,20 @@ private[shell] object SbtJpsArtifactPackagingUtil {
     }
 
     Log.debug(s"Running JPS artifact batch: artifacts=${artifacts.size}, forceArtifactBuild=$forceArtifactBuild")
-    val scope = ArtifactCompileScope.createArtifactsScope(project, artifacts.asJava, forceArtifactBuild)
+    val compilerManager = CompilerManager.getInstance(project)
+    // IMPORTANT:
+    // Use an artifact-only scope on top of an empty module scope.
+    // In this hybrid flow, module compilation is already delegated to sbt shell.
+    // We only need JPS artifact builders for packaging.
+    // If we use `createArtifactsScope(project, artifacts, ...)` directly, it includes modules from artifact layout
+    // and `CompilerManager.make(...)` may invoke JPS module compilation checks/builders (including Scala/JPS path).
+    // That leads to unexpected JPS compilation in "use sbt shell for build" mode.
+    val emptyModuleScope = compilerManager.createModulesCompileScope(Array.empty, false, false, false)
+    val scope = ArtifactCompileScope.createScopeWithArtifacts(emptyModuleScope, artifacts.asJava, forceArtifactBuild)
     ArtifactsWorkspaceSettings.getInstance(project).setArtifactsToBuild(artifacts.asJava)
     ExecutionManagerImpl.EXECUTION_SESSION_ID_KEY.set(scope, context.getSessionId)
 
     val notification = new SbtJpsBuildNotifications.MyCompileStatusNotification(notificationCollector)
-    CompilerManager.getInstance(project).make(scope, notification)
+    compilerManager.make(scope, notification)
   }
 }
