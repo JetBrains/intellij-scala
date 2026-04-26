@@ -37,7 +37,7 @@ import java.nio.file.Files
  * @todo ensure there is a test for SCL-19673 for the BSP external system as well
  */
 @Category(Array(classOf[SlowTests]))
-/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 

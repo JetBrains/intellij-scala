@@ -5,7 +5,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.{Scala3Language, SlowTests2}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.SbtTestDataUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.language.SbtLanguageScala3
 import org.junit.Assert.{assertNotNull, assertTrue}
@@ -20,7 +20,9 @@ import java.nio.file.Path
 @Category(Array(classOf[SlowTests2]))
 class SbtBuildFilesLanguageTest extends SbtExternalSystemImportingTestLike {
   override protected def getTestDataProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
+    SbtTestDataUtils.resolveRelativePath(
+      s"sbt-project-structure-tests/testdata/sbt/projects/${getTestName(true)}",
+    )
 
   override protected def copyTestProjectToTemporaryDir: Boolean = true
 

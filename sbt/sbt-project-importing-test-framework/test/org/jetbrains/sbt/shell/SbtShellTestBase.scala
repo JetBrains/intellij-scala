@@ -3,12 +3,11 @@ package org.jetbrains.sbt.shell
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.SbtTestDataUtils
 import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 
-import java.nio.file.Path
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 @Category(Array(classOf[SlowTests2]))
@@ -21,7 +20,7 @@ abstract class SbtShellTestBase extends SbtProjectStructureImportingLike {
   protected def useNewShell: Boolean = false
 
   override protected def getTestDataProjectPath: String =
-    Path.of(TestUtils.getTestDataPath, getRelativeTestProjectPath).toString
+    SbtTestDataUtils.resolveRelativePath(getRelativeTestProjectPath)
 
   protected def comm: SbtShellCommunication = myComm
   protected def shellProcessHandler: OSProcessHandler = myShellProcessHandler

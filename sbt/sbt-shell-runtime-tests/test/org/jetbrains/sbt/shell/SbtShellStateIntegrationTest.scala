@@ -17,9 +17,9 @@ import scala.concurrent.duration.Duration
  * @todo extend this test class to include checks for whether specific tasks were actually executed in the shell and whether they were successful
  */
 @Category(Array(classOf[SlowTests2]))
-class SbtShellStateIntegrationTest extends SbtShellTestBase {
+class SbtShellStateIntegrationTest extends SbtShellRuntimeTestBase {
 
-  override protected def getRelativeTestProjectPath: String = "sbt/shell/testShellState"
+  override protected def getRelativeTestProjectPath: String = "sbt-shell-runtime-tests/testdata/sbt/shell/testShellState"
 
   def testAfterStartup(): Unit = {
     val checker = StateSequenceChecker.start(ShellState.Idle)

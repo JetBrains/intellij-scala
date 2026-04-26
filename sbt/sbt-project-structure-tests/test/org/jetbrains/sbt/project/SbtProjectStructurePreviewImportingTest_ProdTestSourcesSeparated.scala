@@ -5,7 +5,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver.PreviewImportNumberSuffixInT
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests2]))
-class SbtProjectStructurePreviewImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+class SbtProjectStructurePreviewImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 

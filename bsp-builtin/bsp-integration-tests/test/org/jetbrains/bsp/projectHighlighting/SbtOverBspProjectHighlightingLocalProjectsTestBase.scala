@@ -1,7 +1,8 @@
 package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.projectHighlighting.base.{AllProjectHighlightingTest, ProjectHighlightingTestUtils}
+import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
+import org.jetbrains.sbt.SbtTestDataUtils
 
 abstract class SbtOverBspProjectHighlightingLocalProjectsTestBase
   extends SbtOverBspProjectHighlightingTestBase
@@ -9,9 +10,10 @@ abstract class SbtOverBspProjectHighlightingLocalProjectsTestBase
 
   override def getProject: Project = getMyProject
 
-  //Right now I reuse project used for sbt external system tests just for simplicity
-  //I want to reuse single test project...
-  override def rootProjectsDirPath: String = s"${ProjectHighlightingTestUtils.projectsRootPath}/local"
+  override def rootProjectsDirPath: String =
+    SbtTestDataUtils.resolveRelativePath(
+      "sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/local"
+    )
 
   override def getProjectFixture = codeInsightFixture
 

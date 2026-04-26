@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.base
 import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.SbtTestDataUtils
 import org.junit.Assert
 
 import java.nio.file.{Files, Path}
@@ -11,7 +12,10 @@ import scala.util.Using
 
 abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtProjectHighlightingTestBase {
 
-  override protected def rootProjectsDirPath: String = s"${ProjectHighlightingTestUtils.projectsRootPath}/downloaded"
+  override protected def rootProjectsDirPath: String =
+    SbtTestDataUtils.resolveRelativePath(
+      "sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/downloaded"
+    )
 
   override protected def projectName: String = githubRepositoryWithRevision.repositoryName
 
