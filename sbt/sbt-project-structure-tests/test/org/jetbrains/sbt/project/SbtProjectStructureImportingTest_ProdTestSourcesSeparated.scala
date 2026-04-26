@@ -33,7 +33,7 @@ import java.nio.file.Files
  * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests]))
-/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 

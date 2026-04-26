@@ -1,11 +1,10 @@
 package org.jetbrains.sbt.shell.build
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.sbt.SbtVersion
+import org.jetbrains.sbt.{SbtTestDataUtils, SbtVersion}
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.jetbrains.sbt.shell.SbtShellTestUtil
 import org.junit.Assert.{assertNotNull, assertTrue}
@@ -29,7 +28,9 @@ abstract class SbtShellBuildDelegationIntegrationTestBase extends SbtExternalSys
   )
 
   override protected def getTestDataProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/$sbtRootProjectDirName"
+    SbtTestDataUtils.resolveRelativePath(
+      s"sbt-shell-build-delegation-tests/testdata/projects/$sbtRootProjectDirName",
+    )
 
   override protected def copyTestProjectToTemporaryDir: Boolean = true
 

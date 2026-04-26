@@ -5,7 +5,7 @@ import org.jetbrains.sbt.project.ProjectStructureTestUtils.checkDisplayModuleNam
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests2]))
-final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
 
   def testMultiBuildProjectWithTheSameProjectIdsInBuilds(): Unit = {
     importProject(false)

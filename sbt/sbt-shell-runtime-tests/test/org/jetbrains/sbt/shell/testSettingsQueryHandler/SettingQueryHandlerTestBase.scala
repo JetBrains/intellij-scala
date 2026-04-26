@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestBase, SbtShellTestUtil, SettingQueryHandler}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellRuntimeTestBase, SbtShellTestUtil, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.experimental.categories.Category
 
@@ -14,7 +14,7 @@ import scala.concurrent.duration.Duration
 
 @Category(Array(classOf[SlowTests2]))
 //noinspection ApiStatus
-abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
+abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
 
   private lazy val sbtProjectUriAndId = SbtProjectUriAndId(
     uri = getTestProjectPath.toUri.toString,

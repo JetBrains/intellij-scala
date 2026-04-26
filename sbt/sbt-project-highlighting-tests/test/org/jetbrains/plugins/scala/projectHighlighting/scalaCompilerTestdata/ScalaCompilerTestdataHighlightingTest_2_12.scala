@@ -6,7 +6,6 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import java.nio.file.Path
@@ -42,12 +41,10 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
     HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
   private def allPosTestFilesToHighlight: Seq[Path] = {
-    val testDataPath = s"${TestUtils.getTestDataPath}/scalacTests/pos/"
-    val dir = Path.of(testDataPath)
+    val dir = Path.of(getScalaCompilerTestDataRoot, "pos")
     dir.children()
   }
 
   //SOE at pos/t0674.scala
   def testScalacTests(): Unit = doTest(allPosTestFilesToHighlight)
 }
-

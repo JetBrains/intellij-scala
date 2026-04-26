@@ -26,7 +26,7 @@ import java.net.URI
  * @see [[SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled]]
  */
 @Category(Array(classOf[SlowTests2]))
-final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 

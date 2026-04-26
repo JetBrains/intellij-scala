@@ -8,9 +8,7 @@ import com.intellij.packaging.impl.artifacts.JarArtifactType
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.sbt.SbtVersion
+import org.jetbrains.sbt.{SbtTestDataUtils, SbtVersion}
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.jetbrains.sbt.shell.SbtShellTestUtil
 import org.junit.Assert.{assertNotNull, assertTrue}
@@ -26,15 +24,18 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtExt
 
   private val sbtRootProjectDirName = "simpleProjectForBuildDelegationTest"
   private val sbtRootProjectName = "simpleProjectForBuildDelegationTest"
+
+  override protected def getTestDataProjectPath: String =
+    SbtTestDataUtils.resolveRelativePath(
+      s"sbt-shell-build-delegation-tests/testdata/projects/$sbtRootProjectDirName",
+    )
+
   private lazy val buildTestFixture = new SbtShellBuildTestFixture(
     testName = getClass.getSimpleName,
     project = getMyProject,
     testProjectPath = getTestProjectPath,
     importProject = () => importProject(false),
   )
-
-  override protected def getTestDataProjectPath: String =
-    s"${TestUtils.getTestDataPath}/sbt/projects/$sbtRootProjectDirName"
 
   override protected def copyTestProjectToTemporaryDir: Boolean = true
 

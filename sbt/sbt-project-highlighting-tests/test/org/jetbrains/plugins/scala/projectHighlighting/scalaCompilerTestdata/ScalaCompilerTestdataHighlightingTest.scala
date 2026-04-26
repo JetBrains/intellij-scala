@@ -7,8 +7,9 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
+import org.jetbrains.plugins.scala.util.PsiFileTestUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalacTests}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
@@ -30,7 +31,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
   protected def getTestDirName: String
 
   protected final def getScalaCompilerTestDataRoot: String =
-    s"${TestUtils.getTestDataPath}/scalacTests/".replace("\\", "/")
+    Path.of(TestUtils.getTestDataPath, "scalacTests").toString.replace("\\", "/")
 
   protected final def getTestDataDir: String =
     s"${getScalaCompilerTestDataRoot}/$getTestDirName/"
