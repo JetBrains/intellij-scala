@@ -207,15 +207,15 @@ object ScalaTestGenerator {
                                               typeDef: ScTypeDefinition, body: ScTemplateBody): Unit = {
     import typeDef.{elementScope, projectContext}
 
-    if (!generateBefore || generateAfter) return
+    if (!generateBefore && !generateAfter) return
 
     withAnnotation("org.scalatest.BeforeAndAfterEach", typeDef, body) { closingBrace =>
       if (generateBefore) {
-        body.addBefore(createMethodFromText("override def beforeEach() {\n\n}", typeDef), closingBrace)
+        body.addBefore(createMethodFromText("override def beforeEach(): Unit = {\n\n}", typeDef), closingBrace)
         body.addBefore(createNewLine(), closingBrace)
       }
       if (generateAfter) {
-        body.addBefore(createMethodFromText("override def afterEach() {\n\n}", typeDef), closingBrace)
+        body.addBefore(createMethodFromText("override def afterEach(): Unit = {\n\n}", typeDef), closingBrace)
         body.addBefore(createNewLine(), closingBrace)
       }
     }
