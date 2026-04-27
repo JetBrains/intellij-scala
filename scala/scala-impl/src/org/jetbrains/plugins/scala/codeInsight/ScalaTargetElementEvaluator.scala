@@ -18,6 +18,16 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+/**
+ * Scala-specific target element evaluator used by platform navigation/search entry points.
+ *
+ * NOTE:<br>
+ * This class is tested mostly indirectly through tests that invoke `GotoDeclarationAction`
+ * or `TargetElementUtil.findTargetElement`, for example:
+ *   - `org.jetbrains.plugins.scala.lang.navigation.GoToDeclarationTest#testSyntheticCopyParameterNamedArgument`
+ *   - `org.jetbrains.plugins.scala.refactoring.rename.generated.ScalaRenameParameterTest#testSyntheticCopyParameter`
+ *   - `org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProviderTest#test_ref_to_primary_constructor`
+ */
 class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetElementEvaluatorEx {
 
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
