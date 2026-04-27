@@ -120,7 +120,7 @@ class ScalaTestGenerator extends TestGenerator {
     val extendsBlock = typeDefinition.extendsBlock
 
     // If the file template already contains a base test class, don't add it
-    if (extendsBlock.templateBody.nonEmpty)
+    if (extendsBlock.templateParents.nonEmpty)
       return
 
     def addExtendsRef(refName: String): PsiElement = {
