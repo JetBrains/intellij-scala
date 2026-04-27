@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis
 
 import com.intellij.codeInspection.{InspectionManager, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.expressionResultIsNotUsed
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.DfaConstantValue
@@ -103,6 +104,9 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
       case _: ScReferenceExpression if value == DfaConstantValue.True || value == DfaConstantValue.False => true
       case prefix: ScPrefixExpr if prefix.getBaseExpr.is[ScReferenceExpression] &&
         value == DfaConstantValue.True || value == DfaConstantValue.False => true
+      case call: ScExpression if call.is[ScMethodCall, ScGenericCall] =>
+        // if we called a method and the result is constant, but not used, suppress it
+        expressionResultIsNotUsed(call)
       case _ => false
     }
   }
