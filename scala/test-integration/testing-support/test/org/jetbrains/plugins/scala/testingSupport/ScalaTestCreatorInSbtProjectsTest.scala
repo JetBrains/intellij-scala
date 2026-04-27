@@ -111,42 +111,122 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   def testScalatestBeforeAfter(): Unit = {
     importProject()
 
-    doTestCreateNewTest(
-      mainClassFqn = "org.example.Foo",
-      testDialogMockData = ScalaTestCreator.MockTestDialogData(
-        selectedTestFramework = Some(ScalaTestTestFramework()),
-        testClassName = Some("FooTest"),
-        selectedTestedMethodsNames = Some(Seq("bar")),
-        superClassName = Some("org.scalatest.funsuite.AnyFunSuite"),
-        generateBefore = true,
-        generateAfter = true
-      ),
-      expectedTestResult = ExpectedTestResult(
-        createdTestFileRelativePath = "src/test/scala/org/example/FooTest.scala",
-        createdTestClassFqn = "org.example.FooTest",
-        createdTestFileText =
-          """package org.example
-            |
-            |import org.scalatest.BeforeAndAfterEach
-            |import org.scalatest.funsuite.AnyFunSuite
-            |
-            |class FooTest extends AnyFunSuite with BeforeAndAfterEach {
-            |
-            |  override def beforeEach(): Unit = {
-            |
-            |  }
-            |
-            |  override def afterEach(): Unit = {
-            |
-            |  }
-            |
-            |  test("testBar") {
-            |
-            |  }
-            |
-            |}
-            |""".stripMargin
+    def doTest(
+      testClassName: String,
+      generateBefore: Boolean,
+      generateAfter: Boolean,
+      @Language("Scala") expectedTestFileText: String
+    ): Unit =
+      doTestCreateNewTest(
+        mainClassFqn = "org.example.Foo",
+        testDialogMockData = ScalaTestCreator.MockTestDialogData(
+          selectedTestFramework = Some(ScalaTestTestFramework()),
+          testClassName = Some(testClassName),
+          selectedTestedMethodsNames = Some(Seq("bar")),
+          superClassName = Some("org.scalatest.funsuite.AnyFunSuite"),
+          generateBefore = generateBefore,
+          generateAfter = generateAfter
+        ),
+        expectedTestResult = ExpectedTestResult(
+          createdTestFileRelativePath = s"src/test/scala/org/example/$testClassName.scala",
+          createdTestClassFqn = s"org.example.$testClassName",
+          createdTestFileText = expectedTestFileText
+        )
       )
+
+    doTest(
+      testClassName = "FooBeforeAndAfterTest",
+      generateBefore = true,
+      generateAfter = true,
+      expectedTestFileText =
+        """package org.example
+          |
+          |import org.scalatest.BeforeAndAfterEach
+          |import org.scalatest.funsuite.AnyFunSuite
+          |
+          |class FooBeforeAndAfterTest extends AnyFunSuite with BeforeAndAfterEach {
+          |
+          |  override def beforeEach(): Unit = {
+          |
+          |  }
+          |
+          |  override def afterEach(): Unit = {
+          |
+          |  }
+          |
+          |  test("testBar") {
+          |
+          |  }
+          |
+          |}
+          |""".stripMargin
+    )
+
+    doTest(
+      testClassName = "FooBeforeOnlyTest",
+      generateBefore = true,
+      generateAfter = false,
+      expectedTestFileText =
+        """package org.example
+          |
+          |import org.scalatest.BeforeAndAfterEach
+          |import org.scalatest.funsuite.AnyFunSuite
+          |
+          |class FooBeforeOnlyTest extends AnyFunSuite with BeforeAndAfterEach {
+          |
+          |  override def beforeEach(): Unit = {
+          |
+          |  }
+          |
+          |  test("testBar") {
+          |
+          |  }
+          |
+          |}
+          |""".stripMargin
+    )
+
+    doTest(
+      testClassName = "FooAfterOnlyTest",
+      generateBefore = false,
+      generateAfter = true,
+      expectedTestFileText =
+        """package org.example
+          |
+          |import org.scalatest.BeforeAndAfterEach
+          |import org.scalatest.funsuite.AnyFunSuite
+          |
+          |class FooAfterOnlyTest extends AnyFunSuite with BeforeAndAfterEach {
+          |
+          |  override def afterEach(): Unit = {
+          |
+          |  }
+          |
+          |  test("testBar") {
+          |
+          |  }
+          |
+          |}
+          |""".stripMargin
+    )
+
+    doTest(
+      testClassName = "FooPlainTest",
+      generateBefore = false,
+      generateAfter = false,
+      expectedTestFileText =
+        """package org.example
+          |
+          |import org.scalatest.funsuite.AnyFunSuite
+          |
+          |class FooPlainTest extends AnyFunSuite {
+          |
+          |  test("testBar") {
+          |
+          |  }
+          |
+          |}
+          |""".stripMargin
     )
   }
 
