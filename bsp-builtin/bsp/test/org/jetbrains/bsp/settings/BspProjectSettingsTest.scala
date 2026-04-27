@@ -74,7 +74,7 @@ object BspProjectSettingsTest {
     def testAutoConfig(): Unit =
       testWithProjectReopen(
         getProject,
-        _.setServerConfig(AutoConfig),
+        _.serverConfig = AutoConfig,
         settings => assertEquals("AutoConfig should be preserved", AutoConfig, settings.serverConfig)
       )
 
@@ -82,7 +82,7 @@ object BspProjectSettingsTest {
     def testBloopConfig(): Unit =
       testWithProjectReopen(
         getProject,
-        _.setServerConfig(BloopConfig),
+        _.serverConfig = BloopConfig,
         settings => assertEquals("BloopConfig should be preserved", BloopConfig, settings.serverConfig)
       )
 
@@ -91,7 +91,7 @@ object BspProjectSettingsTest {
       val path = Paths.get("/test/path/to/config.json")
       testWithProjectReopen(
         getProject,
-        _.setServerConfig(BspConfigFile(path)),
+        _.serverConfig = BspConfigFile(path),
         settings => assertEquals("BspConfigFile should be preserved", BspConfigFile(path), settings.serverConfig)
       )
     }
@@ -138,7 +138,7 @@ object BspProjectSettingsTest {
     def testAutoPreImport(): Unit =
       testWithProjectReopen(
         getProject,
-        _.setPreImportConfig(AutoPreImport),
+        _.preImportConfig = AutoPreImport,
         settings => assertEquals("AutoPreImport should be preserved", AutoPreImport, settings.preImportConfig)
       )
 
@@ -146,7 +146,7 @@ object BspProjectSettingsTest {
     def testNoPreImport(): Unit =
       testWithProjectReopen(
         getProject,
-        _.setPreImportConfig(NoPreImport),
+        _.preImportConfig = NoPreImport,
         settings => assertEquals("NoPreImport should be preserved", NoPreImport, settings.preImportConfig)
       )
 
@@ -154,7 +154,7 @@ object BspProjectSettingsTest {
     def testBloopSbtPreImport(): Unit =
       testWithProjectReopen(
         getProject,
-        _.setPreImportConfig(BloopSbtPreImport),
+        _.preImportConfig = BloopSbtPreImport,
         settings => assertEquals("BloopSbtPreImport should be preserved", BloopSbtPreImport, settings.preImportConfig)
       )
   }
@@ -175,7 +175,7 @@ object BspProjectSettingsTest {
       val hash = 1234543
       testWithProjectReopen(
         getProject,
-        _.setConnectionFileHash(hash),
+        _.connectionFileHash = hash,
         settings => assertEquals("connectionFileHash should be preserved", hash, settings.connectionFileHash)
       )
     }

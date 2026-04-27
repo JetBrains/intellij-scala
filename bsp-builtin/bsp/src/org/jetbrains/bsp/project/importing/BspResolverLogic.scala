@@ -344,12 +344,12 @@ private[importing] object BspResolverLogic {
         case BuildTargetDataKind.SCALA =>
           targetData.flatMap(extractScalaSdkData)
             .map(target => getScalaSdkData(target, scalacOptions))
-            .map((ScalaModule.apply _).tupled)
+            .map((ScalaModule.apply).tupled)
         case BuildTargetDataKind.SBT =>
           val buildTargetId = new URI(buildTarget.getId.getUri)
           targetData.flatMap(extractSbtData)
             .map(target => getSbtBuildModuleData(buildTargetId, target, scalacOptions))
-            .map((SbtModule.apply _).tupled)
+            .map((SbtModule.apply).tupled)
         case _ =>
           Some(UnspecifiedModule())
       }

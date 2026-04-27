@@ -257,10 +257,12 @@ object DependencyGroups {
 
   // Exclude bsp4j from the bloop-rifle library to prevent it from evicting the currently used bsp4j specified by bspVersion
   val bloopRifleExclusions: Seq[InclusionRule] = bspExclusions :+ ExclusionRule("ch.epfl.scala", "bsp4j")
+  val bspTestkitExclusions: Seq[InclusionRule] = bspExclusions :+ ExclusionRule("org.scalacheck", "scalacheck_2.13")
   val bsp: Seq[ModuleID] = Seq(
-    ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bloopRifleExclusions *),
+    // bloop-rifle and bsp-testkit libraries are not published for Scala 3
+    ("ch.epfl.scala" % "bloop-rifle_2.13" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
-    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
+    ("ch.epfl.scala" % "bsp-testkit_2.13" % bspVersion).excludeAll(bspTestkitExclusions *) % Test,
     "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
   )
 

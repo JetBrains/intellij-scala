@@ -12,14 +12,14 @@ import java.util
 class BspTargetCanCompileDataService extends ScalaAbstractProjectDataService[BspTargetCanCompileData, Project](BspTargetCanCompileData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[BspTargetCanCompileData]],
+    toImport: util.Collection[? <: DataNode[BspTargetCanCompileData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     // there will be always one node to import
     toImport.forEach { node =>
-      BspTargetCanCompile.getInstance(project).setCompilableTargets(node.getData.compilableTargets)
+      BspTargetCanCompile.getInstance(project).compilableTargets = node.getData.compilableTargets
     }
   }
 }

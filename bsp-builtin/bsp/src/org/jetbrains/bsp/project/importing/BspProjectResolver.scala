@@ -153,7 +153,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] =
           communication.run(
-            requests(workspace)(_, _,reporter), 
+            requests(workspace)(using _, _,reporter), 
             BuildMessages.empty, 
             notifications, 
             reporter.log,
@@ -231,7 +231,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
       case PreImportConfig.BloopSbtPreImport =>
         runBloopInstall(workspace, indicator)
-      case _ => EmptyBuildMessagesSuccess
+      case null => EmptyBuildMessagesSuccess
     }
   }
 

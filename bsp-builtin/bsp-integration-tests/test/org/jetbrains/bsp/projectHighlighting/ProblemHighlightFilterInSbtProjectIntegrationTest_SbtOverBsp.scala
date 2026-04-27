@@ -158,8 +158,8 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
       override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType = ProjectStructureMatcher.AttributeMatchType.Inexact
     }
 
-    val compareContext = ProjectStructureComparisonContext.Implicit.default(getProject)
+    val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
       .withOptions(_.copy(strictCheckForBuildModules = true))
-    matcher.assertProjectsEqual(expectedProject, getProject)(compareContext)
+    matcher.assertProjectsEqual(expectedProject, getProject)(using compareContext)
   }
 }

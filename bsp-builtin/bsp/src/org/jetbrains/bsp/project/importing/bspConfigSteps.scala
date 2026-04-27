@@ -15,7 +15,7 @@ import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider, FastpassConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig
@@ -151,7 +151,9 @@ object bspConfigSteps {
         val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace).fold(throw _, identity)
         (configSetup, Some(NoPreImport), None, Some(bspWorkspace))
     }
-    BuilderConfigurationParameters.tupled.apply(tuple)
+
+    val (setup, preImport, server, extWorkspace) = tuple
+    BuilderConfigurationParameters(setup, preImport, server, extWorkspace)
   }
 
   def workspaceSetupChoices(workspace: Path): List[ConfigSetup] = {
@@ -268,7 +270,7 @@ object BspSetupConfigStep {
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reporter = new IndicatorReporter(indicator)
-      setup.run(indicator)(reporter)
+      setup.run(indicator)(using reporter)
     }
 
     override def onCancel(): Unit =

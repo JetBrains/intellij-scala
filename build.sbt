@@ -133,7 +133,9 @@ lazy val scalaCommunity: sbt.Project =
 
       // We modify `forkOptions` instead of setting `javaHome` because this way we can guarantee
       // that the provided JDK will be used only for running the tests and not for compiling the test code.
-      Test / forkOptions := forkOptionsWithJBR.value
+      Test / forkOptions := forkOptionsWithJBR.value,
+      // Exclude scala-xml_3, which is brought in by BSP (compiled with Scala 3), because it causes a conflict.
+      excludeDependencies += "org.scala-lang.modules" % "scala-xml_3"
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
@@ -827,9 +829,11 @@ lazy val decompiler =
 lazy val bspJUnit =
   newProject("bsp-junit", file("bsp-builtin/bsp-junit"))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-junit")
     )
@@ -837,9 +841,11 @@ lazy val bspJUnit =
 lazy val bspTerminal =
   newProject("bsp-terminal", file("bsp-builtin/bsp-terminal"))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-terminal")
     )
@@ -853,7 +859,10 @@ lazy val bsp =
       compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       libraryDependencies ++= DependencyGroups.bsp,
+      excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13",
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,
@@ -864,16 +873,23 @@ lazy val bspIntegrationTests =
   newProject("bsp-integration-tests", file("bsp-builtin/bsp-integration-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      bsp % "compile->compile;test->test",
+      bsp % "compile->compile",
       compilerIntegration % "compile->compile;test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
+      sbtImpl % "test->test"
     ).settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-cli")
     )
 

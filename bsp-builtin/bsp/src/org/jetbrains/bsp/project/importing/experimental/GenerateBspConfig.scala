@@ -78,7 +78,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
           ProgressManager.getInstance.runProcessWithProgressSynchronously((() => {
             val indicator = ProgressManager.getInstance().getProgressIndicator
             val buildReporter = new IndicatorReporter(indicator)
-            BloopPreImporter(workspace, sdk)(buildReporter).run(indicator)
+            BloopPreImporter(workspace, sdk)(using buildReporter).run(indicator)
             //NOTE: I am not sure whether this is the best name for the process
           }): Runnable, BspBundle.message("installing.bloop"), false, project)
         }
@@ -102,14 +102,14 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
     for {
       settings <- BspUtil.getBspProjectSettings(project, workspace)
       serverConfig = settings.serverConfig
-      BspProjectSettings.BspConfigFile(oldPath) <- Some(serverConfig)
+      case BspProjectSettings.BspConfigFile(oldPath) <- Some(serverConfig)
       if !Files.exists(oldPath)
     } {
       val filesAfter = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
       val createdFiles = filesAfter -- filesBefore
       if (createdFiles.nonEmpty) {
-        settings.setServerConfig(BspProjectSettings.AutoConfig)
-        settings.setConnectionFileHash(null) // set this to null, to not regenerate connection file on the subsequent BSP server startup
+        settings.serverConfig = BspProjectSettings.AutoConfig
+        settings.connectionFileHash = null // set this to null, to not regenerate connection file on the subsequent BSP server startup
       }
     }
 }
