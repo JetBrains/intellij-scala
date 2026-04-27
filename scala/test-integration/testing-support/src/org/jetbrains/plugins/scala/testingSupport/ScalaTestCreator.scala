@@ -100,6 +100,21 @@ object ScalaTestCreator {
       mock.getOrElse(super.getClassName)
     }
 
+    override def getSuperClassName: String = {
+      val mock = getMockTestData(project)(_.superClassName).flatten
+      mock.getOrElse(super.getSuperClassName)
+    }
+
+    override def shouldGeneratedBefore(): Boolean = {
+      val mock = getMockTestData(project)(_.generateBefore)
+      mock.getOrElse(super.shouldGeneratedBefore())
+    }
+
+    override def shouldGeneratedAfter(): Boolean = {
+      val mock = getMockTestData(project)(_.generateAfter)
+      mock.getOrElse(super.shouldGeneratedAfter())
+    }
+
     override def showAndGet(): Boolean = {
       if (ApplicationManager.getApplication.isUnitTestMode) {
         doOKAction()
@@ -114,7 +129,10 @@ object ScalaTestCreator {
   case class MockTestDialogData(
     selectedTestFramework: Option[TestFramework] = None,
     testClassName: Option[String] = None,
-    selectedTestedMethodsNames: Option[Seq[String]] = None
+    selectedTestedMethodsNames: Option[Seq[String]] = None,
+    superClassName: Option[String] = None,
+    generateBefore: Boolean = false,
+    generateAfter: Boolean = false
   )
 
   @TestOnly
