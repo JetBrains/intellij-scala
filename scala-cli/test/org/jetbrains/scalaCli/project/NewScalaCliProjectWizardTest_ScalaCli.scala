@@ -120,7 +120,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
 
     val compareContextNew = compareContext.withOptions(ProjectComparisonOptions(projectName))
     useProject(project, false, (project: Project) => {
-      assertProjectsEqual(expectedProject, project)(compareContextNew)
+      assertProjectsEqual(expectedProject, project)(using compareContextNew)
       junit.framework.TestCase.assertEquals(
         "The 'Use indentation-based syntax' setting was not configured correctly",
         useIndentationBasedSyntax,

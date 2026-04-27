@@ -126,7 +126,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   private def parseAsMap(file: Path): Try[Map[String, Any]] =
     Using(Files.newBufferedReader(file, Charset.defaultCharset())) { reader =>
       new Gson()
-        .fromJson(reader, classOf[java.util.Map[String, _]])
+        .fromJson(reader, classOf[java.util.Map[String, ?]])
         .asScala
         .toMap
     }
@@ -148,6 +148,6 @@ object BspExternalSystemManager {
   def parseAsMap(file: Path): Map[String, Any] = {
     val virtualFile = LocalFileSystem.getInstance.findFileByNioFile(file)
     val content = new String(virtualFile.contentsToByteArray())
-    new Gson().fromJson(content, classOf[java.util.Map[String, _]]).asScala.toMap
+    new Gson().fromJson(content, classOf[java.util.Map[String, ?]]).asScala.toMap
   }
 }

@@ -22,14 +22,14 @@ import scala.jdk.CollectionConverters._
 class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectData, Project](BspProjectData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[BspProjectData]],
+    toImport: util.Collection[? <: DataNode[BspProjectData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     toImport.forEach { node =>
       val BspProjectData(jdkOpt, vcsRootsCandidates, _) = node.getData
-      configureJdk(jdkOpt)(project)
+      configureJdk(jdkOpt)(using project)
       configureVcs(vcsRootsCandidates.map(_.toPath), project)
     }
   }

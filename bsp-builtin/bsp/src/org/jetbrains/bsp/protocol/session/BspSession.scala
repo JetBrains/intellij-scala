@@ -37,7 +37,7 @@ class BspSession private(bspPID: Long,
                          initializeBuildParams: bsp4j.InitializeBuildParams,
                          cleanup: ()=>Unit,
                          notificationCallbacks: List[NotificationCallback],
-                         initialJob: BspSessionJob[_, _],
+                         initialJob: BspSessionJob[?, ?],
                          traceLogPredicate: () => Boolean
                         ) {
 
@@ -47,9 +47,9 @@ class BspSession private(bspPID: Long,
     logger.debug(s"new BspSession(bspPID: $bspPID)")
   }
 
-  private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
+  private val jobs = new LinkedBlockingQueue[BspSessionJob[?,?]]
 
-  private var currentJob: BspSessionJob[_,_] = initialJob
+  private var currentJob: BspSessionJob[?,?] = initialJob
 
   private var lastProcessOutput: Long = System.currentTimeMillis()
   private var lastActivity: Long = lastProcessOutput
@@ -205,7 +205,7 @@ class BspSession private(bspPID: Long,
   private def cancellationSafeBspServer(bspServer: BspServer): BspServer = {
     val invocationHandler = new InvocationHandler {
       override def invoke(proxy: Any, method: Method, args: Array[AnyRef]): AnyRef = {
-        val resultFromBsp = method.invoke(bspServer, args:_*)
+        val resultFromBsp = method.invoke(bspServer, args*)
         // Some BSP endpoints return CompletableFutures, but other return void
         resultFromBsp match {
           case future: CompletableFuture[_] => CancellableFuture.from(future)
@@ -433,7 +433,7 @@ object BspSession {
      cleanup: ()=>Unit) {
 
     private var notificationCallbacks: List[NotificationCallback] = Nil
-    private var initialJob: BspSessionJob[_,_] = DummyJob
+    private var initialJob: BspSessionJob[?,?] = DummyJob
     private var traceLogPredicate: () => Boolean = () => false
 
     def addNotificationCallback(callback: NotificationCallback): Builder = {
@@ -441,7 +441,7 @@ object BspSession {
       this
     }
 
-    def withInitialJob(job: BspSessionJob[_,_]): Builder = {
+    def withInitialJob(job: BspSessionJob[?,?]): Builder = {
       initialJob = job
       this
     }

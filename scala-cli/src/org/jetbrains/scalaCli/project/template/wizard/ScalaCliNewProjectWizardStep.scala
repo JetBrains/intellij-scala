@@ -47,7 +47,7 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   @TestOnly override def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
 
   locally {
-    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
+    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[? <: String])
 
     getData.putUserData(ScalaNewProjectWizardData.KEY, this)
     getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)

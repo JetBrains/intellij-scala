@@ -1,30 +1,30 @@
 package org.jetbrains.bsp.project.importing
 
-import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
-import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
-import ch.epfl.scala.bsp4j._
+import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators.*
+import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary.*
+import ch.epfl.scala.bsp4j.*
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ModuleKind, ProjectModules, SourceEntry}
-import org.jetbrains.bsp.project.importing.BspResolverLogic._
-import org.jetbrains.bsp.project.importing.Generators._
+import org.jetbrains.bsp.project.importing.BspResolverLogic.*
+import org.jetbrains.bsp.project.importing.Generators.*
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}
 import org.scalacheck.Prop.{forAll, propBoolean}
-import org.scalacheck._
+import org.scalacheck.*
 import org.scalatestplus.scalacheck.Checkers
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests]))
 class BspResolverLogicProperties extends Checkers {
 
-  implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
+  given Gson = new GsonBuilder().setPrettyPrinting().create()
 
-  implicit val generatorConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(sizeRange = 20)
+  given PropertyCheckConfiguration = PropertyCheckConfiguration(sizeRange = 20)
 
   @Test @Ignore
   def testGetScalaSdkData(): Unit = check(
@@ -38,7 +38,7 @@ class BspResolverLogicProperties extends Checkers {
 
   @Test @Ignore
   def `calculateModuleDescriptions succeeds for build targets with Scala`() : Unit = check(
-    forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
+    forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { (buildTargets: List[BuildTarget]) =>
       forAll { (scalacOptionsItems: List[ScalacOptionsItem], javacOptionsItems: List[JavacOptionsItem], sourcesItems: List[SourcesItem], resourcesItems: List[ResourcesItem], outputPathsItems: List[OutputPathsItem], dependencySourcesItems: List[DependencySourcesItem]) =>
         val descriptions = calculateModuleDescriptions(buildTargets, scalacOptionsItems, javacOptionsItems, sourcesItems, resourcesItems, outputPathsItems, dependencySourcesItems)
         val moduleIds = (descriptions.modules ++ descriptions.synthetic).map(_.data.idUri)
@@ -51,7 +51,7 @@ class BspResolverLogicProperties extends Checkers {
 
   @Test @Ignore
   def `test moduleDescriptionForTarget succeeds for build targets with Scala`(): Unit = check(
-    forAll(genBuildTargetWithScala) { target: BuildTarget =>
+    forAll(genBuildTargetWithScala) { (target: BuildTarget) =>
       forAll { (scalacOptions: Option[ScalacOptionsItem], javacOptions: Option[JavacOptionsItem], depSources: Seq[Path], sources: Seq[SourceEntry], resources: Seq[SourceEntry], outputPaths: Seq[Path], dependencyOutputs: List[Path]) =>
 
         val description = moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources, sources, resources, outputPaths, dependencyOutputs)

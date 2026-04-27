@@ -15,12 +15,12 @@ import java.nio.file.Path
 class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Library](ScalaSdkData.Key) {
 
   override final def importData(
-    toImport: java.util.Collection[_ <: DataNode[ScalaSdkData]],
+    toImport: java.util.Collection[? <: DataNode[ScalaSdkData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    toImport.forEach(doImport(_, project)(modelsProvider))
+    toImport.forEach(doImport(_, project)(using modelsProvider))
   }
 
   private def doImport(dataNode: DataNode[ScalaSdkData], project: Project)

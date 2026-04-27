@@ -36,7 +36,7 @@ final class BspBuildLoopService(project: Project) {
 
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
 
-  private final object FileChangeListener extends FileChangeListenerBase {
+  private object FileChangeListener extends FileChangeListenerBase {
 
     /** Nanoseconds to wait between checking stuff to compile */
     private val checkDelay = 30 * 1000000
@@ -47,7 +47,7 @@ final class BspBuildLoopService(project: Project) {
 
     /** Delays compilation just a little bit so that it's less likely that multiple builds are triggered for one
       * set of changes. */
-    private var scheduledCompile: ScheduledFuture[_] =
+    private var scheduledCompile: ScheduledFuture[?] =
       AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(), 0, TimeUnit.NANOSECONDS)
 
     private def checkCompile(): Unit = {
@@ -100,7 +100,7 @@ final class BspBuildLoopService(project: Project) {
 
       val runnable: Runnable = { () =>
         taskManager
-          .build(modulesToCompile.toArray: _*)
+          .build(modulesToCompile.toArray*)
           .onSuccess(clearOnSuccess(_)): Unit
       }
       ApplicationManager.getApplication.invokeLater(runnable, ModalityState.nonModal())

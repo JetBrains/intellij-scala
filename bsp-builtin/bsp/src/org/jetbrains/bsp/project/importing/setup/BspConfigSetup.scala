@@ -86,7 +86,7 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
     val command = installCommand(workspace, indicator, target)
     val work = command.toEither.flatMap { cmd =>
       reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", cmd.mkString(" ")))
-      BspUtil.runCommand(workspace, indicator, cmd: _*)
+      BspUtil.runCommand(workspace, indicator, cmd*)
     }
 
     def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {

@@ -28,7 +28,7 @@ class BloopLauncherConnector(base: Path, compilerOutput: Path, capabilities: Bsp
         ("ch.epfl.scala" % "bloop-frontend_2.12" % version).transitive()
       )
 
-      val launcherClasspath = DependencyManager.resolve(dependencies: _*).map(_.file.toFile)
+      val launcherClasspath = DependencyManager.resolve(dependencies*).map(_.file.toFile)
       Right(launcherClasspath)
     }
 

@@ -51,7 +51,7 @@ object SbtConfigSetup {
       indicator, baseDir, jdkExe, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
       BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true, timingCollector = None
-    )(reporter)
+    )(using reporter)
     new SbtConfigSetup(runInit)
   }
 }

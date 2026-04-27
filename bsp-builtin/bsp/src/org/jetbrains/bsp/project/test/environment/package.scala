@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module
 
 package object environment {
   object ModuleBasedConfiguration {
-    def unapply(configuration: RunConfiguration): Option[(ModuleBasedConfiguration[_, _], Module)] = {
+    def unapply(configuration: RunConfiguration): Option[(ModuleBasedConfiguration[?, ?], Module)] = {
       configuration match {
         case config: ModuleBasedConfiguration[_, _] =>
           val module = config.getConfigurationModule.getModule

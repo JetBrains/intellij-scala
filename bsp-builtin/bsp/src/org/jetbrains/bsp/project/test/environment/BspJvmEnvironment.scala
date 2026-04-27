@@ -74,7 +74,7 @@ object BspJvmEnvironment {
   }
 
   def resolveForRun(
-    config: ModuleBasedConfiguration[_, _],
+    config: ModuleBasedConfiguration[?, ?],
     module: Module,
     holder: BspTargetIdHolder
   ): Result[JvmEnvironment] = {
