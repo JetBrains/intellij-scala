@@ -108,6 +108,48 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
     )
   }
 
+  def testScalatestBeforeAfter(): Unit = {
+    importProject()
+
+    doTestCreateNewTest(
+      mainClassFqn = "org.example.Foo",
+      testDialogMockData = ScalaTestCreator.MockTestDialogData(
+        selectedTestFramework = Some(ScalaTestTestFramework()),
+        testClassName = Some("FooTest"),
+        selectedTestedMethodsNames = Some(Seq("bar")),
+        superClassName = Some("org.scalatest.funsuite.AnyFunSuite"),
+        generateBefore = true,
+        generateAfter = true
+      ),
+      expectedTestResult = ExpectedTestResult(
+        createdTestFileRelativePath = "src/test/scala/org/example/FooTest.scala",
+        createdTestClassFqn = "org.example.FooTest",
+        createdTestFileText =
+          """package org.example
+            |
+            |import org.scalatest.BeforeAndAfterEach
+            |import org.scalatest.funsuite.AnyFunSuite
+            |
+            |class FooTest extends AnyFunSuite with BeforeAndAfterEach {
+            |
+            |  override def beforeEach(): Unit = {
+            |
+            |  }
+            |
+            |  override def afterEach(): Unit = {
+            |
+            |  }
+            |
+            |  test("testBar") {
+            |
+            |  }
+            |
+            |}
+            |""".stripMargin
+      )
+    )
+  }
+
   def testUTest09(): Unit = {
     importProject(null)
 
