@@ -259,12 +259,14 @@ abstract class ScalaLanguageInjectorTestBase extends InjectionInBodyTestBase {
       |""".stripMargin
 
   //
-  // NOTE: There are quite a lot of tests in for SCL-24959 in this class.
-  // Indirectly they test this method in particular:
-  // org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.parameterForSyntheticParameter
-  // (Though not only it)
-  // Ideally, ScalaPsiUtil.parameterForSyntheticParameter should be covered using separate unit tests.
-  // But this will be a complimentary test, not a replacement for these.
+  // NOTE: This SCL-24959 block provides indirect end-to-end coverage for:
+  // `org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.parameterForSyntheticParameter`
+  // through language injection call paths (alongside other logic).
+  //
+  // Direct branch-level coverage belongs to:
+  // `org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtilTest`.
+  //
+  // These tests are complementary and intentionally stay focused on language injection behavior.
   //
   protected final def doScl24959InvocationTest(@Language("Scala") code: String): Unit = {
     myFixture.addFileToProject("definitions.scala", Scl24959ClassesBody)

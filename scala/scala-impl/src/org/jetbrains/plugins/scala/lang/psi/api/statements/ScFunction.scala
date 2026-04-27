@@ -60,9 +60,12 @@ trait ScFunction
   /**
    * Represents an original parameter owner corresponding to a synthetic function.
    *
-   * Note, some native Scala synthetic members are handled without using this utility in multiple places.
-   * For example, case class apply/copy methods.
-   * It's done so mostly due to historically reasons. In theory these approaches could be somehow unify if really needed.
+   * Note, some native Scala language synthetic members are handled without using this utility in multiple places.
+   * For example, case class apply/copy methods it uses a different mechanism.
+   *
+   * This extra mechanism is added primarily to handle Twirl templates (SCL-21530)
+   *
+   * In theory these approaches could be somehow unified if really needed.
    */
   final def originalParametersOwner: ScParameterOwner =
     getUserData(ScFunction.originalParametersOwnerKey)

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 class GoToDeclarationTest extends GoToDeclarationTestBase {
@@ -33,6 +33,17 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
     expected = (is[ScClass], "Test")
   )
 
+  def testSyntheticApply_ParameterNamedArgument(): Unit = doTest(
+    s"""
+       |case class Test(i: Int)
+       |
+       |object Test {
+       |  def apply(boolean: Boolean) = Test.apply(${CARET}i = 0)
+       |}
+      """.stripMargin,
+    expected = (is[ScClassParameter], "i")
+  )
+
   def testSyntheticUnapply(): Unit = doTest(
     s"""
        |case class Test(i: Int)
@@ -55,6 +66,16 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
        |}
       """.stripMargin,
     expected = (is[ScClass], "Test")
+  )
+
+  def testSyntheticCopy_ParameterNamedArgument(): Unit = doTest(
+    s"""case class Test(i: Int)
+       |
+       |object Test {
+       |  Test(1).copy(${CARET}i = 2)
+       |}
+      """.stripMargin,
+    expected = (is[ScClassParameter], "i")
   )
 
   def testApply(): Unit = doTest(
