@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.JavaCoroutines
 import org.jetbrains.bsp.project.importing.setup.BspSetupProvider
 import org.jetbrains.bsp.{BSP, BspUtil}
-import org.jetbrains.bsp.project.importing.{BspOpenProjectProvider, BspProjectOpenProcessor}
+import org.jetbrains.bsp.project.importing.BspOpenProjectProvider
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.sbt.Sbt
@@ -63,9 +63,9 @@ class BspUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     settings.subscribe(new UnlinkedProjectAwareSettingsListener[BspProjectSettings](listener), disposable)
   }
 
-  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[_ >: kotlin.Unit]): AnyRef =
+  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[? >: kotlin.Unit]): AnyRef =
     new BspOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, $completion)
 
-  override def unlinkProject(project: Project, s: String, continuation: Continuation[_ >: kotlin.Unit]): AnyRef =
+  override def unlinkProject(project: Project, s: String, continuation: Continuation[? >: kotlin.Unit]): AnyRef =
     JavaCoroutines.suspendJava[kotlin.Unit](cont => cont.resume(kotlin.Unit.INSTANCE), continuation)
 }

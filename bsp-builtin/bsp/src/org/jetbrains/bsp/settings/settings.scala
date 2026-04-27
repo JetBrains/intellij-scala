@@ -231,19 +231,16 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 
 
 /** A dummy to satisfy interface constraints of ExternalSystem */
-trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings] {
-  def onBuildOnSaveChanged(buildOnSave: Boolean): Unit
-  def onRunPreImportTaskChanged(runBloopInstall: Boolean): Unit
-  def onPreImportConfigChanged(preImportConfig: PreImportConfig): Unit
-  def onServerConfigChanged(serverConfig: BspServerConfig): Unit
-}
+trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings]
 
 class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])
   extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener {
-  override def onBuildOnSaveChanged(buildOnSave: Boolean): Unit = {}
-  override def onRunPreImportTaskChanged(runBloopInstall: Boolean): Unit = {}
-  override def onPreImportConfigChanged(preImportConfig: PreImportConfig): Unit = {}
-  override def onServerConfigChanged(serverConfig: BspServerConfig): Unit = {}
+  override def onProjectRenamed(oldName: String, newName: String): Unit = {}
+  override def onProjectsLoaded(settings: util.Collection[BspProjectSettings]): Unit = {}
+  override def onProjectsLinked(settings: util.Collection[BspProjectSettings]): Unit = {}
+  override def onProjectsUnlinked(linkedProjectPaths: util.Set[String]): Unit = {}
+  override def onBulkChangeStart(): Unit = {}
+  override def onBulkChangeEnd(): Unit = {}
 }
 
 @State(
@@ -256,22 +253,13 @@ class BspSettings(project: Project)
 {
 
   def getSystemSettings: BspSystemSettings = BspSystemSettings.getInstance
-
-  override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings], parentDisposable: Disposable): Unit =
+   
+  override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings], parentDisposable: Disposable):Unit =
     doSubscribe(new BspProjectSettingsListenerAdapter(listener), parentDisposable)
 
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
 
-  override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {
-    if (old.buildOnSave != current.buildOnSave)
-      getPublisher.onBuildOnSaveChanged(current.buildOnSave)
-    if (old.runPreImportTask != current.runPreImportTask)
-      getPublisher.onRunPreImportTaskChanged(current.runPreImportTask)
-    if (old.preImportConfig != current.preImportConfig)
-      getPublisher.onPreImportConfigChanged(current.preImportConfig)
-    if (old.serverConfig != current.serverConfig)
-      getPublisher.onServerConfigChanged(current.serverConfig)
-  }
+  override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {}
 
   override def getState: BspSettings.State = {
     val state = new BspSettings.State

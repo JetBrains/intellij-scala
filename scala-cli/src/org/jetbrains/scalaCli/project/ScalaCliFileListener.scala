@@ -33,7 +33,7 @@ class ScalaCliFileListener(project: Project) extends AsyncFileListener {
 
   private val logger = Logger.getInstance(getClass)
 
-  override def prepareChange(events: util.List[_ <: VFileEvent]): AsyncFileListener.ChangeApplier = {
+  override def prepareChange(events: util.List[? <: VFileEvent]): AsyncFileListener.ChangeApplier = {
     val creationEvents = events.asScala.collect {
       case e: VFileCreateEvent => e
       case e: VFileCopyEvent  => e

@@ -17,7 +17,7 @@ class PersistentBspTargetIdHolder
   extends PersistentStateComponent[PersistentBspTargetIdHolder]
     with BspTargetIdHolder {
 
-  @BeanProperty var selected: String = _
+  @BeanProperty var selected: String = scala.compiletime.uninitialized
 
   override def loadState(t: PersistentBspTargetIdHolder): Unit = {
     XmlSerializerUtil.copyBean(t, this)

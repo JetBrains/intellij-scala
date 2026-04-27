@@ -15,15 +15,15 @@ import java.util
 class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Module](BspMetadata.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[BspMetadata]],
+    toImport: util.Collection[? <: DataNode[BspMetadata]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = executeProjectChangeAction {
     toImport.forEach { node =>
-      doImport(node)(project, modelsProvider)
+      doImport(node)(using project, modelsProvider)
     }
-  }(project)
+  }(using project)
 
   private def doImport(node: DataNode[BspMetadata])
                       (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {

@@ -63,7 +63,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   }
 
   private def acquireSessionAndRun(
-    job: BspSessionJob[_,_],
+    job: BspSessionJob[?,?],
     canGenerateBspConfigFile: Boolean
   )(implicit reporter: BuildReporter): Either[BspError, BspSession] = session.synchronized {
     session.get() match {
@@ -77,7 +77,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   }
 
   private def openSession(
-    job: BspSessionJob[_,_],
+    job: BspSessionJob[?,?],
     canGenerateBspConfigFile: Boolean
   )(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
     val sessionBuilder = prepareSession(findProject, canGenerateBspConfigFile)
@@ -118,7 +118,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       settings <- BspUtil.getBspProjectSettings(project, base)
     } {
       val currentHash = BspConnectionConfig.workspaceBspConfigsHash(base)
-      settings.setConnectionFileHash(currentHash)
+      settings.connectionFileHash = currentHash
     }
 
   private def prepareSession(
@@ -134,7 +134,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       isScalaCliOrMill(base) && settings.exists { s =>
         // If the connection file hash is null, it means that it's the first BSP startup in a freshly imported project,
         // and this way we don't want to regenerate the initial BSP connection file.
-        s.autoRegenerateBspConfigOnServerStartup && s.getConnectionFileHash() != null
+        s.autoRegenerateBspConfigOnServerStartup && s.connectionFileHash != null
       }
 
     // Skip regeneration when AutoConfig is set and multiple connection files are present - in such a case the GenericConnector#connect simply picks the first
@@ -183,7 +183,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       case BspProjectSettings.AutoConfig =>
         // only use workspace configs for auto-detection, system configs might not be applicable
         val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
-        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp)
+        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp.apply)
         if (connectionDetails.nonEmpty)
           Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
         else if (bloopEnabled)
@@ -198,7 +198,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
           Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
 
       case BspProjectSettings.BspConfigFile(path) =>
-        BspConnectionConfig.readConnectionFile(path)(new Gson)
+        BspConnectionConfig.readConnectionFile(path)(using new Gson)
           .map { details =>
             val method = ProcessBsp(details)
             new GenericConnector(base, compilerOutputDir, capabilities, List(method))
@@ -234,7 +234,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         val beforeGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
         val showTheNotification = hasBspConfigs && settings.exists { s =>
           // If the `beforeGenerationHash` is different from the saved hash, it means that it was changed externally (e.g., by the user)
-          val isHashDifferent = Option(s.getConnectionFileHash()).exists(_ != beforeGenerationHash)
+          val isHashDifferent = Option(s.connectionFileHash).exists(_ != beforeGenerationHash)
           isHashDifferent || !s.bspConfigGenerated
         }
 

@@ -257,11 +257,26 @@ object DependencyGroups {
 
   // Exclude bsp4j from the bloop-rifle library to prevent it from evicting the currently used bsp4j specified by bspVersion
   val bloopRifleExclusions: Seq[InclusionRule] = bspExclusions :+ ExclusionRule("ch.epfl.scala", "bsp4j")
+  val bspTestkitExclusions: Seq[InclusionRule] = bspExclusions :+ ExclusionRule("org.scalacheck", "scalacheck_2.13")
+  /**
+   * Custom configuration to isolate Scala 3 dependencies from leaking into Scala 2 modules.
+   *
+   * The bsp module is on Scala 3, but several modules that depend on bsp are still on Scala 2.
+   * The `scalacheck` library brings transitive dependencies that conflict with libraries in those
+   * Scala 2 modules. By scoping the `scalacheck` dependency to the custom test config, they are excluded from the default
+   * dependency mapping ("compile->compile;test->test"), so dependent modules don't get this transitively, and no conflict arises.
+   *
+   * Note: using the `scalacheck` library with an explicit `_2.13` suffix is not an option
+   * because it relies on Scala 2 macros, which are not supported in Scala 3 code.
+   * A workaround for this macro issue would be much dirtier and error-prone.
+   */
+  val Scala3Only = config("scala3only").extend(Test)
   val bsp: Seq[ModuleID] = Seq(
-    ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bloopRifleExclusions *),
+    // bloop-rifle and bsp-testkit libraries are not published for Scala 3
+    ("ch.epfl.scala" % "bloop-rifle_2.13" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
-    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
-    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
+    ("ch.epfl.scala" % "bsp-testkit_2.13" % bspVersion).excludeAll(bspTestkitExclusions *) % Test,
+    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Scala3Only
   )
 
   val decompiler: Seq[ModuleID] = Seq(

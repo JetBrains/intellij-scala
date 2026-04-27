@@ -71,9 +71,9 @@ class BspProjectImportBuilder
   private def applyBspSetupSettings(project: Project): Unit = {
     val bspSettings = BspUtil.bspSettings(project)
     val projectSettings = bspSettings.getLinkedProjectSettings(getBspWorkspace.toString)
-    projectSettings.setPreImportConfig(preImportConfig)
-    projectSettings.setServerConfig(serverConfig)
-    projectSettings.setBspConfigGenerated(bspConfigGenerated)
+    projectSettings.preImportConfig = preImportConfig
+    projectSettings.serverConfig = serverConfig
+    projectSettings.bspConfigGenerated = bspConfigGenerated
   }
 
   def setExternalBspWorkspace(str: Path): Unit = {
@@ -211,10 +211,10 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
     } {
       val params = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, configSetup)
       if (params.bspConfigSetup != NoConfigSetup) {
-        settings.setBspConfigGenerated(true)
+        settings.bspConfigGenerated = true
 
-        params.preImportConfig.foreach(settings.setPreImportConfig)
-        params.serverConfig.foreach(settings.setServerConfig)
+        params.preImportConfig.foreach(settings.preImportConfig = _)
+        params.serverConfig.foreach(settings.serverConfig = _)
         params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
 
         val task = new BspConfigSetupTask(params.bspConfigSetup)

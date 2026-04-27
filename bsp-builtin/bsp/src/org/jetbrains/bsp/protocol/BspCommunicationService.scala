@@ -90,8 +90,8 @@ class BspCommunicationService extends Disposable {
       .toTry
 
     Future.fromTry(tryComm)
-      .flatMap(_.closeSession())(ExecutionContext.global)
-      .map(_ => updateWidget())(ExecutionContext.global)
+      .flatMap(_.closeSession())(using ExecutionContext.global)
+      .map(_ => updateWidget())(using ExecutionContext.global)
   }
 
   def exitCommands(base: URI, config: BspServerConfig): Try[List[List[String]]] = {
@@ -114,10 +114,10 @@ class BspCommunicationService extends Disposable {
 
   private object MyProjectListener extends ProjectManagerListener {
     override def projectClosed(project: Project): Unit = for {
-      path <- projectPath(project)
+      path <- projectPath(using project)
       uri = Paths.get(path).toUri
       session <- comms.view.filterKeys(_._1 == uri).values
-    } session.closeSession().map(_ => updateWidget())(ExecutionContext.global)
+    } session.closeSession().map(_ => updateWidget())(using ExecutionContext.global)
   }
 }
 

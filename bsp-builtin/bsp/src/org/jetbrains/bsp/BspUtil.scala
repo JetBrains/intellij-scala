@@ -160,7 +160,7 @@ object BspUtil {
    */
   @RequiresBackgroundThread
   def isToolInstalledCheckViaVersion(directory: Path, indicator: ProgressIndicator, toolCommand: String*): Boolean = {
-    val work = runCommand(directory, indicator, (toolCommand :+ "--version"): _*)
+    val work = runCommand(directory, indicator, (toolCommand :+ "--version")*)
     work.fold(
       exc => {
         log.error(s"The $toolCommand is not installed in $directory - ${exc.getMessage}")

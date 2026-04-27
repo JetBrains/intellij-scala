@@ -106,7 +106,7 @@ class BspTask[T](project: Project,
       val communication: BspCommunication = BspCommunication.forWorkspace(Path.of(workspace), project)
       communications.add(communication)
       communication.run(
-        { case (server, serverInfo) => buildRequests(targets, targetsToClean)(server, serverInfo.capabilities, reporter) },
+        { case (server, serverInfo) => buildRequests(targets, targetsToClean)(using server, reporter) },
         BuildMessages.empty,
         notifications,
         processLog,
@@ -188,8 +188,8 @@ class BspTask[T](project: Project,
   }
 
   private def buildRequests(targets: Iterable[BspTarget], targetsToClean: Iterable[BspTarget])
-                           (implicit server: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter) = {
-    val compilableTargets = BspTargetCanCompile.getInstance(project).getCompilableTargets()
+                           (implicit server: BspServer, reporter: BuildReporter) = {
+    val compilableTargets = BspTargetCanCompile.getInstance(project).compilableTargets
     val targetsWithCompileCap: Iterable[BspTarget] = targets.filter(id => compilableTargets.contains(id.target.toString))
     if (targetsToClean.isEmpty) compileRequest(targetsWithCompileCap)
     else {
@@ -211,14 +211,14 @@ class BspTask[T](project: Project,
   }
 
   private def cleanRequest(targetsToClean: Iterable[BspTarget])
-                          (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CleanCacheResult] = {
+                          (implicit server: BspServer): CompletableFuture[CleanCacheResult] = {
     val targetIds = targetsToClean.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CleanCacheParams(targetIds.toList.asJava)
     server.buildTargetCleanCache(params)
   }
 
   private def compileRequest(targets: Iterable[BspTarget])
-                            (implicit server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CompileResult] = {
+                            (implicit server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(target => new bsp4j.BuildTargetIdentifier(target.target.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
     params.setOriginId(bspTaskId.id)
@@ -337,8 +337,8 @@ class BspTask[T](project: Project,
         new SkippedResultImpl
       case StatusCode.ERROR =>
         new FailureResultImpl(params.getMessage, null)
-      case otherCode =>
-        new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
+      case null =>
+        new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code"), null)
     }
 
     reporter.finishTask(id, msg, result, time)

@@ -61,7 +61,7 @@ class BspTestRunConfiguration(val project: Project, val configurationFactory: Co
     XmlSerializer.serializeInto(this, element)
   }
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new BspTestConfigurationForm(getProject)
+  override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] = new BspTestConfigurationForm(getProject)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
     val scalaMap = matchedTestClasses.asScala.map { case (uri, list) => (URI.create(uri), list.asScala.toList) }.toMap

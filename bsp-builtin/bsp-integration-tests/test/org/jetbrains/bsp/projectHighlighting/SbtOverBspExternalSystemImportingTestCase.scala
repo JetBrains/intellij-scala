@@ -70,7 +70,7 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
             //do nothing, in tests it's enough to see the console output which is already printed by SbtStructureDump
           }
         }
-        val buildMessages = sbtBspConfigSetup.run(indicator)(reporter)
+        val buildMessages = sbtBspConfigSetup.run(indicator)(using reporter)
         buildMessages match {
           case Failure(exception) =>
             future.completeExceptionally(exception)

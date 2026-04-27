@@ -154,7 +154,7 @@ class BspTestRunner(
   }
 
 
-  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val procHandler = new MProcHandler
     val console = SMTestRunnerConnectionUtil.createAndAttachConsole("BSP", procHandler, new SMTRunnerConsoleProperties(
       project, rc, "BSP", ex))

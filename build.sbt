@@ -2,6 +2,7 @@ import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import Common.*
 import CompilationCache.compilationCacheSettings
 import Dependencies.provided
+import DependencyGroups.Scala3Only
 import DynamicDependenciesFetcher.*
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys.*
@@ -830,6 +831,8 @@ lazy val bspJUnit =
       bsp % "test->test;compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-junit")
     )
@@ -840,12 +843,15 @@ lazy val bspTerminal =
       bsp % "test->test;compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-terminal")
     )
 
 lazy val bsp =
   newProject("bsp", file("bsp-builtin/bsp"))
+    .configs(Scala3Only)
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
@@ -853,7 +859,11 @@ lazy val bsp =
       compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
+      inConfig(Scala3Only)(Defaults.configSettings),
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       libraryDependencies ++= DependencyGroups.bsp,
+      excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13",
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,
@@ -867,6 +877,10 @@ lazy val bspIntegrationTests =
       bsp % "compile->compile;test->test",
       compilerIntegration % "compile->compile;test->test",
     )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
+    )
 
 lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
@@ -874,6 +888,8 @@ lazy val scalaCli =
       scalaImpl % "test->test;compile->compile",
       bsp % "test->test;compile->compile",
     ).settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-cli")
     )
 

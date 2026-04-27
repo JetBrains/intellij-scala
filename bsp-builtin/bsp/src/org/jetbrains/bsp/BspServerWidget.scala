@@ -27,7 +27,7 @@ private final class BspServerWidget extends StatusBarWidget
   with BspServerWidgetFactory.UpdateWidgetListener {
 
   private val connection: MessageBusConnection = ApplicationManager.getApplication.getMessageBus.connect()
-  private var statusBar: StatusBar = _
+  private var statusBar: StatusBar = scala.compiletime.uninitialized
 
   override def ID(): String = BspServerWidgetFactory.ID
 
@@ -78,7 +78,7 @@ private final class BspServerWidget extends StatusBarWidget
 
   private def connectionsActive: Boolean = {
     val comService = BspCommunicationService.getInstance
-    comService.listOpenComms.exists((comService.isAlive _).tupled)
+    comService.listOpenComms.exists(comService.isAlive.tupled)
   }
 
   //noinspection ReferencePassedToNls

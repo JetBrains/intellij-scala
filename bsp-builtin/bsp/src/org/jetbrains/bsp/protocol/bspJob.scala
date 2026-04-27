@@ -17,7 +17,7 @@ abstract class BspJob[T] {
 
 object BspJob {
 
-  def waitForJobCancelable[R](job: BspJob[R], promise: Promise[_], indicator: ProgressIndicator): Try[R] =
+  def waitForJobCancelable[R](job: BspJob[R], promise: Promise[?], indicator: ProgressIndicator): Try[R] =
     CancelableWaitUtil.waitForCancelable(
       future = job.future, onCancel = () => job.cancel()
     )(promise, indicator, cancelError = BspTaskCancelled)
@@ -38,7 +38,7 @@ object BspJob {
 }
 
 class NonAggregatingBspJob[T,A](job: BspJob[(T,A)]) extends BspJob[T] {
-  override def future: Future[T] = job.future.map(_._1)(ExecutionContext.global)
+  override def future: Future[T] = job.future.map(_._1)(using ExecutionContext.global)
   override def cancel(): Unit = job.cancel()
 }
 

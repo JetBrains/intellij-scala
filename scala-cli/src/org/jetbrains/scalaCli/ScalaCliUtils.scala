@@ -68,7 +68,7 @@ private[scalaCli] object ScalaCliUtils {
   }
 
   private def isScalaCliStandaloneInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
-    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand: _*)
+    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand*)
 
   /**
    * Returns the command sequence to execute Scala CLI based on the installation type.
@@ -153,7 +153,7 @@ private[scalaCli] object ScalaCliUtils {
   @RequiresBackgroundThread
   private def executeScalaVersionCommand(directory: Path, indicator: ProgressIndicator): Try[String] =
     Try {
-      val commandLine = new GeneralCommandLine((getScalaStandaloneCommand:+ "-version"): _*)
+      val commandLine = new GeneralCommandLine((getScalaStandaloneCommand:+ "-version")*)
         .withWorkDirectory(directory.toString)
 
       val timeout = 45.seconds
