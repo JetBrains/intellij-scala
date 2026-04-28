@@ -1152,11 +1152,6 @@ object ScalaPsiUtil {
    *  - End-to-end (indirect) coverage through language injection:
    *    `org.jetbrains.plugins.scala.intelliLang.injection.ScalaLanguageInjectorTest` (SCL-24959)
    *
-   * @param includingCaseClassCopyMethod
-   * Controls whether synthetic `copy` parameters of a case class are also remapped to constructor parameters.
-   * This is `true` by default for refactoring/search logic that wants "real" parameters.
-   * Some navigation paths (for example in `ScalaTargetElementEvaluator`) pass `false` to avoid rewriting
-   * case-class `copy` parameter targets and preserve expected "go to declaration" behavior.
    * @return if the `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
    * @example
    * For a case class, the compiler generates a synthetic `apply` method in the companion object: {{{
@@ -1167,7 +1162,7 @@ object ScalaPsiUtil {
    *   }
    * }}}
    * Resolving `MyCaseClass("42")` points to synthetic `apply` parameter `name`, not the constructor parameter.
-   * This case (and synthetic `copy`, when enabled) is handled by [[originalParametersOwnerForCaseClassApplyOrCopyMethod]]
+   * This case (together with synthetic `copy`) is handled by [[originalParametersOwnerForCaseClassApplyOrCopyMethod]]
    * @example
    * For an implicit class, Scala creates a synthetic conversion method: {{{
    *   implicit class SqlString(sql: String)
@@ -1181,28 +1176,24 @@ object ScalaPsiUtil {
    * the navigation element may be a type definition; in that case constructor parameters are recovered from
    * the type definition itself (or its companion) by `originalParametersOwnerForSyntheticNavigationElement`.
    */
-  def parameterForSyntheticParameter(
-    param: ScParameter,
-    includingCaseClassCopyMethod: Boolean = true
-  ): Option[ScParameter] = {
+  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] = {
     val parentSyntheticFunction = param.owner match {
       case f: ScFunction if f.isSynthetic => Some(f)
       case _ => None
     }
-    parentSyntheticFunction.flatMap(parameterForSyntheticParameter(param, _, includingCaseClassCopyMethod))
+    parentSyntheticFunction.flatMap(parameterForSyntheticParameter(param, _))
   }
 
   private def parameterForSyntheticParameter(
     syntheticParameter: ScParameter,
-    syntheticFunction: ScFunction,
-    includingCaseClassCopyMethod: Boolean
+    syntheticFunction: ScFunction
   ): Option[ScParameter] = {
     val originalParametersOwner: Option[ScParameterOwner] =
       // Primarily used by Play template synthetic `apply`/`render` methods
       // (see `Play2TemplateWrapperBase.getSyntheticPlayMethods`).
       Option(syntheticFunction.originalParametersOwner)
         // Native Scala synthetic case-class members fallback (`apply` and optionally `copy`).
-        .orElse(originalParametersOwnerForCaseClassApplyOrCopyMethod(syntheticFunction, includingCaseClassCopyMethod))
+        .orElse(originalParametersOwnerForCaseClassApplyOrCopyMethod(syntheticFunction))
         // Generic fallback for synthetic members recoverable via navigation metadata.
         .orElse(originalParametersOwnerForSyntheticNavigationElement(syntheticFunction))
 
@@ -1212,10 +1203,9 @@ object ScalaPsiUtil {
   }
 
   private def originalParametersOwnerForCaseClassApplyOrCopyMethod(
-    syntheticFunction: ScFunction,
-    includingCaseClassCopyMethod: Boolean
+    syntheticFunction: ScFunction
   ): Option[ScParameterOwner] = {
-    val containingClass = if (includingCaseClassCopyMethod && syntheticFunction.isCopyMethod)
+    val containingClass = if (syntheticFunction.isCopyMethod)
       Option(syntheticFunction.containingClass)
     else if (syntheticFunction.isApplyMethod)
       getCompanionModule(syntheticFunction.containingClass)

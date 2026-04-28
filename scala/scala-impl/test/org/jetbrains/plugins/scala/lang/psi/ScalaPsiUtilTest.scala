@@ -82,25 +82,6 @@ class ScalaPsiUtilTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-  def testParameterForSyntheticParameter_CaseClassCopy_MapsToConstructorParameter_WithDefaultSyntheticMetadata_WhenCopyEnabled(): Unit = {
-    configureScalaFromFileText(
-      """case class MyCaseClass(sql: String)
-        |""".stripMargin
-    )
-
-    val caseClass = PsiFinder.findClass("MyCaseClass")
-    val copyMethod = PsiFinder.findSyntheticCopy(caseClass)
-
-    val syntheticParameter = PsiFinder.findParameter(copyMethod, "sql")
-    val constructorParameter = PsiFinder.findConstructorParameter(caseClass, "sql")
-
-    assertParameterForSyntheticParameter_ResolvesToParameter(
-      syntheticParameter,
-      constructorParameter,
-      "Expected case class synthetic `copy` parameter to map to constructor parameter using default synthetic metadata"
-    )
-  }
-
   def testParameterForSyntheticParameter_UsesSyntheticNavigationElement_WhenItIsParameterOwner(): Unit = {
     configureScalaFromFileText(
       """object Scope {
@@ -165,10 +146,9 @@ class ScalaPsiUtilTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private def assertParameterForSyntheticParameter_IsNotFound(
     parameter: ScParameter,
-    reason: String,
-    includingCaseClassCopyMethod: Boolean = true
+    reason: String
   ): Unit = {
-    val resolved = ScalaPsiUtil.parameterForSyntheticParameter(parameter, includingCaseClassCopyMethod)
+    val resolved = ScalaPsiUtil.parameterForSyntheticParameter(parameter)
     assertTrue(
       s"Expected no synthetic parameter mapping for `${parameter.name}` because $reason; resolved = ${renderParameter(resolved)}",
       resolved.isEmpty
@@ -178,10 +158,9 @@ class ScalaPsiUtilTest extends ScalaLightCodeInsightFixtureTestCase {
   private def assertParameterForSyntheticParameter_ResolvesToParameter(
     syntheticParameter: ScParameter,
     expectedParameter: ScParameter,
-    because: String,
-    includingCaseClassCopyMethod: Boolean = true
+    because: String
   ): Unit = {
-    val resolved = ScalaPsiUtil.parameterForSyntheticParameter(syntheticParameter, includingCaseClassCopyMethod)
+    val resolved = ScalaPsiUtil.parameterForSyntheticParameter(syntheticParameter)
     assertTrue(
       s"$because; resolved = ${renderParameter(resolved)}",
       resolved.contains(expectedParameter)
@@ -239,14 +218,6 @@ class ScalaPsiUtilTest extends ScalaLightCodeInsightFixtureTestCase {
         .find(f => f.isSynthetic && f.isApplyMethod)
         .getOrFail(s"Can't find synthetic apply method for `${caseClass.name}`")
       assertOriginalParametersOwnerIsNull(result, s"`findSyntheticApply(${caseClass.name})`")
-      result
-    }
-
-    def findSyntheticCopy(caseClass: ScClass): ScFunction = {
-      val result = (caseClass.syntheticMethods ++ caseClass.functions)
-        .find(f => f.isSynthetic && f.isCopyMethod && f.containingClass == caseClass)
-        .getOrFail(s"Can't find synthetic copy method for `${caseClass.name}`")
-      assertOriginalParametersOwnerIsNull(result, s"`findSyntheticCopy(${caseClass.name})`")
       result
     }
 
