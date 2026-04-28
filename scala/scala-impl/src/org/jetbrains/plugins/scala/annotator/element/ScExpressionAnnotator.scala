@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -54,6 +55,8 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
           .filter(_.getTextLength > offset).map(_.getImmutableCharSequence.charAt(offset))
 
       element match {
+        // literals are sometimes expressions, for these this annotator makes no sense
+        case Parent(_: ScTypeElement) => ()
         // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
         case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) & Parent(_: ScTypedExpression)) => ()
         // Highlight if-then with non-Unit expected type as incomplete rather than type mismatch, SCL-19447

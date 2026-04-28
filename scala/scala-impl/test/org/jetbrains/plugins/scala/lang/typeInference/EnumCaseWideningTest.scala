@@ -173,4 +173,6 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |
        |""".stripMargin
   )
+
+  def testFailing(): Unit = ???
 }

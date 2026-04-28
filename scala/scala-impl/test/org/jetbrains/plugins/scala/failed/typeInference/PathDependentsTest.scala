@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import java.nio.file.Path
 
 class PathDependentsTest extends TypeInferenceTestBase {
-
-  override protected def shouldPass: Boolean = false
-
   override def folderPath: Path = super.folderPath / "bugs5"
 
   def testSCL8394(): Unit = {

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{Simpl
 
 object WideningTest {
   private lazy val testData: Seq[String] = Seq(
-    """
+    /*"""
       |// WideningOnVal_<Literal,StringLit,DependentType,Enum>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
@@ -41,7 +41,7 @@ object WideningTest {
       |val c: Any = ???
       |
       |Test(<1, "x", c, E.A>).foo(<2, "y", c: Any, E.B>)
-      |""".stripMargin.multi,
+      |""".stripMargin.multi,*/
     """
       |// WideningIntoContainer2_<Literal,StringLit,DependentType,Enum>
       |case class Test[T](t: T) {

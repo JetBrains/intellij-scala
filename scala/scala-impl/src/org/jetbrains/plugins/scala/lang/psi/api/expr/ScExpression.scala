@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
@@ -186,7 +186,7 @@ trait ScExpression extends ScBlockStatement
               else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
               else                                 this.updateTypeWithImplicitConversion(tp, expType)
             )
-          case (None, _) =>
+          case (expected, _) if expected.forall(_.is[NonValueType, TypeParameterType]) && !shouldNotWiden(this) =>
             ExpressionTypeResult(initialType.map(ScLiteralType.widenRecursive(_, widenSingletons = this.isInScala3Module)(Context(this))))
           case _ =>
             ExpressionTypeResult(initialType)
@@ -466,6 +466,17 @@ object ScExpression {
       case fn: ScFunctionExpr if fn.isContext => false
       case _                                  => true
     }
+  }
+
+  // Some expressions should not be widened, even if there is no expected type
+  // For example, the qualifier of a reference expression or the base of a call
+  @tailrec
+  private def shouldNotWiden(expr: ScExpression): Boolean = expr.getParent match {
+    case ScParenthesisedExpr(parent) => shouldNotWiden(parent)
+    case block: ScBlock if block.lastStatement.contains(expr) => shouldNotWiden(block)
+    case ScReferenceExpression.withQualifier(`expr`) => true
+    case invocation: MethodInvocation if invocation.thisExpr.contains(expr) || invocation.getInvokedExpr == expr => true
+    case _ => false
   }
 
   private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {

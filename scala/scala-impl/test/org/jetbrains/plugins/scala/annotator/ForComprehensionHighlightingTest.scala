@@ -710,7 +710,7 @@ class ForComprehensionTest_From_3_6_2_With_BetterFor extends ForComprehensionRef
       """.stripMargin
 
     assertMessagesSorted(errorsFromScalaCode(code))(
-      Error("a: String", "Pattern type is incompatible with expected type, found: String, required: 1"),
+      Error("a: String", "Scrutinee is incompatible with pattern type, found: String, required: Int"),
     )
   }
 }

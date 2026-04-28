@@ -152,7 +152,7 @@ object Expectations {
   // TODO: we need to review SBT 2.0 new rules and adopt SbtAnnotator.scala along with the expected data
   val sbt_2: Seq[Error] = sbtAll ++ Seq(
     Error("organization", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "SettingKey[String]")),
-    Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "\"some string\"")),
+    Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "String")),
     Error("null", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136")),
     Error("???", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136"))
   )
