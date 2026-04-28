@@ -108,7 +108,7 @@ package object editor {
     element: PsiElement,
     offset: Int
   ): Unit = {
-    indentElement(file)(document, project, element)(
+    adjustLineIndentIfNeeded(file)(document, project, element)(
       prevCondition = { elem =>
         elem.getNode.getElementType == keywordType &&
           elem.getParent.is[T]
@@ -116,10 +116,7 @@ package object editor {
     )
   }
 
-  //TODO: rename it to "adjustLineIndentIfNeeded"
-  // "indent" sounds like it always does it, but the `com.intellij.psi.codeStyle.CodeStyleManager.adjustLineIndent`
-  // might actually not modify it if it's already a valid indent
-  private[editor] def indentElement(
+  private[editor] def adjustLineIndentIfNeeded(
     file: PsiFile,
     checkVisibleOnly: Boolean = true
   )(
