@@ -243,9 +243,9 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
        |""".stripMargin
   )
 
-  def testSCL24883(): Unit = checkNoImplicitParameterProblems(
-    s"""
-       |class Test {
+  //SCL-24883
+  def testDerives_InLocalClass(): Unit = checkTextHasNoErrors(
+    s"""class Test {
        |  trait CaseClassName[A]:
        |    def get: String
        |
@@ -256,7 +256,57 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
        |  case class CoolClass(i: Int) derives CaseClassName
        |
        |  def print(): Unit =
-       |    println(${START}summon[CaseClassName[CoolClass]]$END.get)
+       |    println(summon[CaseClassName[CoolClass]].get)
+       |}
+       |""".stripMargin
+  )
+
+  def testDerives_InLocalClass_InInnerObjects(): Unit = checkTextHasNoErrors(
+    s"""class Test {
+       |  object Inner {
+       |    trait CaseClassName[A]:
+       |      def get: String
+       |
+       |    object CaseClassName:
+       |      inline final def derived[A](using inline A: scala.deriving.Mirror.Of[A]): CaseClassName[A] = new CaseClassName[A]:
+       |        def get = A.toString
+       |  }
+       |
+       |  object Inner2 {
+       |    import Inner.CaseClassName
+       |    case class CoolClass(i: Int) derives CaseClassName
+       |  }
+       |
+       |  import Inner.*
+       |  import Inner2.*
+       |
+       |  def print(): Unit =
+       |    println(summon[CaseClassName[CoolClass]].get)
+       |}
+       |""".stripMargin
+  )
+
+  def testDerives_InLocalClass_InInnerObjects_WithAliasedTypeClassName(): Unit = checkTextHasNoErrors(
+    s"""class Test {
+       |  object Inner {
+       |    trait CaseClassName[A]:
+       |      def get: String
+       |
+       |    object CaseClassName:
+       |      inline final def derived[A](using inline A: scala.deriving.Mirror.Of[A]): CaseClassName[A] = new CaseClassName[A]:
+       |        def get = A.toString
+       |  }
+       |
+       |  object Inner2 {
+       |    import Inner.{CaseClassName as CaseClassAliasName}
+       |    case class CoolClass(i: Int) derives CaseClassAliasName
+       |  }
+       |
+       |  import Inner.*
+       |  import Inner2.*
+       |
+       |  def print(): Unit =
+       |    println(summon[CaseClassName[CoolClass]].get)
        |}
        |""".stripMargin
   )

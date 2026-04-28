@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
@@ -13,50 +14,79 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 
 object DerivesUtil {
+  private val LOG: Logger = Logger.getInstance(getClass)
+
   /**
-   * Check if ADT can be unified with typeclass' type parameter and
-   * produce text of a given definition, which should be put into
-   * ADT's companion object. NOTE: `refName` is not necessarily equal to
-   * `tc.name`, it may be aliased.
-   * Derivation mechanism covers two cases (a) and (b):
-   * (a) ADT and type class parameters overlap on the right and have the
-   *     same kinds at the overlap.
+   * Check if ADT can be unified with typeclass' type parameter and produce text of a given definition,
+   * which should be put into ADT's companion object.
+   * Derivation mechanism covers two cases (a) and (b):<br>
+   *  1. (a) ADT and type class parameters overlap on the right and have the same kinds at the overlap.
    *     {{{
-   *       trait TC[F[X, Y]]
-   *       case class Foo1[A, B, C] derives TC
-   *       // given derived$TC[A]: TC[[x, y] =>> Foo1[A, x, y]]
+   *         trait TC[F[X, Y]]
+   *         case class Foo1[A, B, C] derives TC
+   *         // given derived$TC[A]: TC[[x, y] =>> Foo1[A, x, y]]
    *
-   *       case class Foo2[A, B] derives TC
-   *       // natural case, given derived$TC: TC[Foo2]
+   *         case class Foo2[A, B] derives TC
+   *         // natural case, given derived$TC: TC[Foo2]
    *
-   *       case class Foo3[A] derives TC
-   *       // given derived$TC: TC[[x, y] =>> Foo3[y]]
+   *         case class Foo3[A] derives TC
+   *         // given derived$TC: TC[[x, y] =>> Foo3[y]]
    *
-   *       case class Foo4 derives TC
-   *       // given derived$TC: TC[[x, y] =>> Foo4]
+   *         case class Foo4 derives TC
+   *         // given derived$TC: TC[[x, y] =>> Foo4]
    *     }}}
-   * (b) The type class type parameter and all ADT type parameters are of kind 'Type'
-   *
-   *     In this case, the ADT has at least one type parameter of kind 'Type',
-   *     otherwise it would already have been covered as a "natural" case
-   *     for a type class of the form F[_].
-   *
+   *  1. (b) The type class type parameter and all ADT type parameters are of kind 'Type'
+   *     <p>
+   *     In this case, the ADT has at least one type parameter of kind 'Type';
+   *     otherwise it would already have been covered as a "natural" case for a type class of the form F[_].
+   *     <p>
    *     The derived instance has a type parameter and a given for
-   *     each of the type parameters of the ADT.
-   *     {{{
-   *     trait TC[T]
-   *     case class C[A, B, C] derives TC
-   *     //given derived$TC[A, B, C](given TC[A], TC[B], TC[C]): TC[C[A, B, C]]
+   *     each of the type parameters of the ADT. {{{
+   *         trait TC[T]
+   *         case class C[A, B, C] derives TC
+   *         //given derived$TC[A, B, C](given TC[A], TC[B], TC[C]): TC[C[A, B, C]]
    *     }}}
+   *
+   * @param derivesReferenceText typeclass reference text as written in the "derives" clause;
+   *                             we preserve this original text for synthetic signature generation because resolve happens
+   *                             in the owner's lexical scope where local aliases/imports and fully qualified forms matter.
+   *                             Replacing it with `tc.name` can break source-level resolution in cases like
+   *                             `derives CaseClassAliasName` or `derives _root_.foo.bar.Functor`.
+   * @param tc resolved typeclass definition for the derives reference.
+   * @param owner derives clause owner for which synthetic given text is generated.
    */
   private def deriveSingleParameterTypeClass(
-    refName: String,
-    tc:      ScTypeDefinition,
-    owner:   ScDerivesClauseOwner
+    derivesReferenceText: String,
+    tc                  : ScTypeDefinition,
+    owner               : ScDerivesClauseOwner
   ): Option[String] = {
     if (tc.typeParameters.size != 1) None
     else {
-      val derivedFqn                = s"$refName.derived"
+      // Source owners must keep `<derivesReferenceText>.derived` so annotator/type-checking can report invalid derives clauses
+      // (for example, missing implicits or incompatible derived instance types).
+      // For the decompiled owners we only need a resolvable synthetic signature, so `???` is enough.
+      val derivedRhs = if (owner.isInCompiledFile) "_root_.scala.Predef.???" else s"$derivesReferenceText.derived"
+
+      // Source owners should preserve original reference text from the "derives" clause to keep local/path-dependent
+      // references resolvable (`class Test { trait TC[A]; case class C() derives TC }`).
+      // Compiled owners may no longer have source imports/aliases, so we prefer fully qualified text
+      val typeClassReferenceTextOrQualifiedName: String =
+        if (owner.isInCompiledFile) {
+          Option(tc.qualifiedName).getOrElse {
+            LOG.error(
+              s"Unexpected empty qualified name for a decompiled typeclass during derives synthesis: " +
+                s"typeClass=${tc.name}, derivesReferenceText=$derivesReferenceText, owner=${Option(owner.qualifiedName).getOrElse(owner.name)}"
+            )
+            derivesReferenceText
+          }
+        } else
+          derivesReferenceText
+
+      // Keep names stable across aliases in the "derives" clause:
+      // `derives MyFunctor` where `MyFunctor` aliases `cats.Functor` still generates `derived$Functor`.
+      // This can theoretically collide for distinct type classes with the same short name,
+      // but in practice Scala reports duplicate derivation and does not generate both instances.
+      val typeClassMemberName       = tc.name
       val typeClassParamType        = TypeParameter(tc.typeParameters.head)
       val instanceTypeParams        = typeClassParamType.typeParameters
       val instanceArity             = instanceTypeParams.size
@@ -71,8 +101,9 @@ object DerivesUtil {
         val nonOverlappingOwnerParams =
           ownerTypeParams.dropRight(instanceArity).map(_.name)
 
-        val resultTypeText =
-          if (instanceArity == ownerArity) s"$refName[${owner.name}]"
+        val resultTypeText: String =
+          if (instanceArity == ownerArity)
+            s"$typeClassReferenceTextOrQualifiedName[${owner.name}]"
           else {
             val lambdaParamNames = (0 until instanceArity).map(idx => s"tc$idx")
 
@@ -89,25 +120,35 @@ object DerivesUtil {
               if (appliedTypeParams.isEmpty) ""
               else                           appliedTypeParams.commaSeparated(Model.SquareBrackets)
 
-            s"$refName[[${lambdaParams.commaSeparated()}] =>> ${owner.name}$appliedTypeParamsText]"
+            s"$typeClassReferenceTextOrQualifiedName[[${lambdaParams.commaSeparated()}] =>> ${owner.name}$appliedTypeParamsText]"
           }
 
         val typeParametersText =
           if (nonOverlappingOwnerParams.isEmpty) ""
           else nonOverlappingOwnerParams.commaSeparated(Model.SquareBrackets)
 
-        Option(s"given derived$$$refName$typeParametersText: $resultTypeText = $derivedFqn")
+        Option(s"given derived$$$typeClassMemberName$typeParametersText: $resultTypeText = $derivedRhs")
       } else if (instanceArity == 0 && ownerTypeParams.forall(isTypeKinded)) {
+        // Example: "[A, B]"
+        val typeParametersText =
+          ownerTypeParams.map(_.name).commaSeparated(Model.SquareBrackets)
+
         // case (b)
-        val typeParamInstancesText =
-          ownerTypeParams.map(p => s"${tc.qualifiedName}[${p.name}]").mkString("(using ", ", ", ")")
+        // Example: "(using _root_.example.Functor[A], _root_.example.Functor[B])"
+        val usingEvidenceText =
+          ownerTypeParams.map(p => s"$typeClassReferenceTextOrQualifiedName[${p.name}]").mkString("(using ", ", ", ")")
 
-        val typeParamString = ownerTypeParams.map(_.name).commaSeparated(Model.SquareBrackets)
+        // Example: "_root_.example.Functor[Box1[A, B]]"
+        val resultTypeText =
+          s"$typeClassReferenceTextOrQualifiedName[${owner.name}$typeParametersText]"
 
-        val resultTypeText = s"$refName[${owner.name}$typeParamString]"
-
-        Option(s"given derived$$$refName$typeParamString$typeParamInstancesText: $resultTypeText = $derivedFqn")
-      } else None
+        // Example:
+        // given derived$Functor[A, B](using _root_.example.Functor[A], _root_.example.Functor[B]):
+        //   _root_.example.Functor[Box1[A, B]] = _root_.example.Functor.derived
+        Option(s"given derived$$$typeClassMemberName$typeParametersText$usingEvidenceText: $resultTypeText = $derivedRhs")
+      } else {
+        None
+      }
     }
   }
 
@@ -156,23 +197,33 @@ object DerivesUtil {
    * Checks if typeclass `tc` can be used in a derives clause of `owner`,
    * if not returns an error message.
    */
-  def checkIfCanBeDerived(tc: ScTypeDefinition, refName: String, owner: ScDerivesClauseOwner): Either[String, String] = {
-    if (tc.qualifiedName == "scala.CanEqual") Right(deriveCanEqual(owner))
+  def checkIfCanBeDerived(tc: ScTypeDefinition, derivesReferenceText: String, owner: ScDerivesClauseOwner): Either[String, String] = {
+    if (tc.qualifiedName == "scala.CanEqual")
+      Right(deriveCanEqual(owner))
     else if (tc.typeParameters.isEmpty)
       Left(ScalaBundle.message("derives.type.has.no.type.parameters", tc.name))
     else if (tc.typeParameters.size > 1)
       Left(ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name))
     else {
       val companion = tc.baseCompanion.orElse(tc.fakeCompanionModule)
-
       companion match {
         case Some(companion: ScObject) =>
-          if (findDerivedMethods(companion, owner).isEmpty)
-            Left(ScalaBundle.message("derives.no.member.named.derived", tc.name))
-          else {
-            DerivesUtil.deriveSingleParameterTypeClass(refName, tc, owner).toRight(
-              ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name)
-            )
+          lazy val deriveSingleParameterTypeClass: Either[String, String] = {
+            val maybeString = DerivesUtil.deriveSingleParameterTypeClass(derivesReferenceText, tc, owner)
+            maybeString.toRight(ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name))
+          }
+
+          if (owner.isInCompiledFile || companion.isInCompiledFile) {
+            deriveSingleParameterTypeClass
+          } else {
+            // Check if the derives method exists only in sources.
+            // But do not resolve the derived method in the decompiled files - this improves the performance and is more correct
+            // because we don't need to handle possible implicits, macros, etc.
+            val derivesMethodResult = findDerivedMethods(companion, owner)
+            if (derivesMethodResult.nonEmpty)
+              deriveSingleParameterTypeClass
+            else
+              Left(ScalaBundle.message("derives.no.member.named.derived", tc.name))
           }
         case _ =>
           Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))

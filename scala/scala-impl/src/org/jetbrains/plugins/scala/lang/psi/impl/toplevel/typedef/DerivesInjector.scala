@@ -19,12 +19,14 @@ class DerivesInjector extends SyntheticMembersInjector{
       case owner: ScDerivesClauseOwner if owner.derivesClause.nonEmpty =>
         val tcs = owner.derivesClause.toSeq.flatMap(_.derivedReferences)
 
-        val sigs = tcs.map { ref =>
+        val sigRes = tcs.map { ref =>
+          val derivesReferenceText = ref.getText
           for {
-            tc  <- DerivesUtil.resolveTypeClassReference(ref)
-            sig <- DerivesUtil.checkIfCanBeDerived(tc, ref.refName, owner)
+            tc <- DerivesUtil.resolveTypeClassReference(ref)
+            sig <- DerivesUtil.checkIfCanBeDerived(tc, derivesReferenceText, owner)
           } yield sig
-        }.collect { case Right(sig) => sig }
+        }
+        val sigs = sigRes.collect { case Right(sig) => sig }
 
         sigs
       case _ => Seq.empty
