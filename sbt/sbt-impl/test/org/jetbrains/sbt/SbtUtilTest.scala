@@ -4,7 +4,7 @@ import com.intellij.execution.configurations.ParametersList
 import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.{assertEquals}
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -58,6 +58,13 @@ class SbtUtilTest extends UsefulTestCase {
 
     val dir = SbtUtil.globalPluginsDirectory(v0120, params, LocalEelDescriptor.INSTANCE)
     assertEquals(Path.of("hockensnock", "plugins"), dir)
+  }
+
+  import org.junit.Assert.assertTrue
+
+  @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
   }
 
   @Test

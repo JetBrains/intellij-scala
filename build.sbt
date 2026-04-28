@@ -72,7 +72,7 @@ val definedTestsScopeFilter: ScopeFilter =
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
       bspJUnit % "test->test;compile->compile",
       bspTerminal % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
@@ -134,7 +134,9 @@ lazy val scalaCommunity: sbt.Project =
 
       // We modify `forkOptions` instead of setting `javaHome` because this way we can guarantee
       // that the provided JDK will be used only for running the tests and not for compiling the test code.
-      Test / forkOptions := forkOptionsWithJBR.value
+      Test / forkOptions := forkOptionsWithJBR.value,
+
+     // excludeDependencies += "org.scala-lang.modules" % "scala-xml_3"
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
@@ -828,7 +830,7 @@ lazy val decompiler =
 lazy val bspJUnit =
   newProject("bsp-junit", file("bsp-builtin/bsp-junit"))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
@@ -840,7 +842,7 @@ lazy val bspJUnit =
 lazy val bspTerminal =
   newProject("bsp-terminal", file("bsp-builtin/bsp-terminal"))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      bsp % "compile->compile",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
@@ -859,7 +861,7 @@ lazy val bsp =
       compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
-      inConfig(Scala3Only)(Defaults.configSettings),
+      inConfig(Scala3Only)(Defaults.testSettings),
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       libraryDependencies ++= DependencyGroups.bsp,
@@ -874,7 +876,7 @@ lazy val bspIntegrationTests =
   newProject("bsp-integration-tests", file("bsp-builtin/bsp-integration-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      bsp % "compile->compile;test->test",
+      bsp % "compile->compile",
       compilerIntegration % "compile->compile;test->test",
     )
     .settings(
@@ -886,7 +888,8 @@ lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      bsp % "test->test;compile->compile",
+      sbtImpl % "test->test",
+      bsp % "compile->compile",
     ).settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,

@@ -276,7 +276,7 @@ object DependencyGroups {
     ("ch.epfl.scala" % "bloop-rifle_2.13" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" % "bsp-testkit_2.13" % bspVersion).excludeAll(bspTestkitExclusions *) % Test,
-    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Scala3Only
+    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
   )
 
   val decompiler: Seq[ModuleID] = Seq(
