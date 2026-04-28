@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScBooleanLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
@@ -330,7 +330,14 @@ package object types {
       case _                    => scType
     }
 
-
+    def widenIfEnumCase: ScType = scType match {
+      case designatorOwner: DesignatorOwner =>
+        designatorOwner.element match {
+          case enumCase: ScEnumCase => enumCase.enumParent.`type`().getOrElse(scType)
+          case _ => scType
+        }
+      case _ => scType
+    }
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) {

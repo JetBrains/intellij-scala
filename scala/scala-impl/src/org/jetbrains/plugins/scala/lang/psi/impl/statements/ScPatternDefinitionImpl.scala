@@ -45,7 +45,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
         new Failure(NlsString(ScalaBundle.message("cannot.infer.type.without.an.expression")))
       }.flatMap { expr =>
         // When the
-        if (this.hasFinalModifier) expr.getTypeWithoutImplicits()
+        if (this.hasFinalModifier) expr.getTypeWithoutImplicits().map(_.widenIfEnumCase)
         else expr.`type`()
       }
   }
