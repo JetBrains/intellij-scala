@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement}
+import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -107,6 +109,36 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   //strips keywords and modifiers from class parameters
   private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
     val builder = new StringBuilder()
+
+    def addAnnotation(a: PsiAnnotation): Unit = {
+      builder += '@'
+      builder ++= a.getQualifiedName
+      Option(a.getParameterList).foreach { pList =>
+        builder += '('
+        var firstAttribute = true
+        pList.getAttributes.foreach { attr =>
+          if (!firstAttribute) {
+            builder ++= ", "
+          }
+          val name = attr.getName
+          val value = attr.getLiteralValue
+          if (value != null) {
+            if (name != null) {
+              builder ++= name
+              builder += '='
+            }
+            builder += '"'
+            builder ++= StringEscapeUtils.escapeJava(value)
+            builder += '"'
+          }
+          firstAttribute = false
+        }
+        builder += ')'
+
+      }
+      builder += ' '
+    }
+
     def addParamText(p: ScParameter, isFirstParam: Boolean): Unit = {
       val paramType = p.typeElement.fold("Any")(toText("Any"))
       val defaultExpr = defaultParamString(p)
@@ -116,10 +148,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         builder += ','
       }
 
-      for (a <- p.getAnnotations) {
-        builder ++= a.getText
-        builder += ' '
-      }
+      p.getAnnotations.foreach(addAnnotation)
       builder ++= p.name
       builder ++= " : "
       builder ++= paramType
