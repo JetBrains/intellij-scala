@@ -683,7 +683,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       //if it's ordinary case
-      qualifier.`type`().toOption match {
+      qualifier.getTypeWithoutImplicits().toOption match {
         case Some(tp) => processType(tp, qualifier)
         case _        => proc.candidates
       }
