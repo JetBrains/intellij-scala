@@ -32,7 +32,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
 
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
-    case isCaseClassOrOtherSyntheticParameter(p) => p
+    case isSyntheticParameterWithOriginalParameter(p) => p
     case isCaseClassApply(clazz) => clazz
     case isSyntheticObject(clazz) => clazz
     case isVarSetterFakeMethod(refPattern) => refPattern
@@ -83,12 +83,12 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     }
   }
 
-  private object isCaseClassOrOtherSyntheticParameter {
+  private object isSyntheticParameterWithOriginalParameter {
     def unapply(ref: ScReference): Option[ScParameter] = {
       val resolveResult = ref.resolve()
       resolveResult match {
         case param: ScParameter =>
-          return ScalaPsiUtil.parameterForSyntheticParameter(param, includingCaseClassCopyMethod = false)
+          return ScalaPsiUtil.parameterForSyntheticParameter(param)
         case _ =>
       }
       None
