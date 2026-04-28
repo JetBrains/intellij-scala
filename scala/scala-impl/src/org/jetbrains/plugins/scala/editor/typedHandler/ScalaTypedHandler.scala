@@ -291,32 +291,32 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   private val NoMatter: PsiElement => Boolean = _ => true
 
   private def indentRefExprDot(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file, checkVisibleOnly = false)(document, project, element, offset)(
+    indentElement(file, checkVisibleOnly = false)(document, project, element)(
       NoMatter,
       elem => elem.getParent.is[ScReferenceExpression]
     )
 
   private def indentParametersComma(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file, checkVisibleOnly = false)(document, project, element, offset)(
+    indentElement(file, checkVisibleOnly = false)(document, project, element)(
       NoMatter,
       ScalaPsiUtil.getParent(_, 2).exists(_.is[ScParameterClause, ScArgumentExprList])
     )
 
   private def indentDefinitionAssign(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file, checkVisibleOnly = false)(document, project, element, offset)(
+    indentElement(file, checkVisibleOnly = false)(document, project, element)(
       NoMatter,
       ScalaPsiUtil.getParent(_, 2)
         .exists(_.is[ScFunction, ScVariable, ScValue, ScTypeAlias])
     )
 
   private def indentForGenerators(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
+    indentElement(file)(document, project, element)(
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 3).exists(_.is[ScEnumerators])
     )
 
   private def indentValBraceStyle(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
+    indentElement(file)(document, project, element)(
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.is[ScValue])
     )

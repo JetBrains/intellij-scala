@@ -108,7 +108,7 @@ package object editor {
     element: PsiElement,
     offset: Int
   ): Unit = {
-    indentElement(file)(document, project, element, offset)(
+    indentElement(file)(document, project, element)(
       prevCondition = { elem =>
         elem.getNode.getElementType == keywordType &&
           elem.getParent.is[T]
@@ -125,9 +125,7 @@ package object editor {
   )(
     document: Document,
     project: Project,
-    element: PsiElement,
-    //TODO: unused. Why? investigate VCS and see if it's a mistake or we can delete it
-    offset: Int
+    element: PsiElement
   )(
     prevCondition: PsiElement => Boolean,
     condition: PsiElement => Boolean = _.is[PsiWhiteSpace]
