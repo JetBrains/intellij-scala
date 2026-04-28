@@ -854,4 +854,124 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testExtensionMethod_FromAutoDerivedTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |object Functor {
+        |  def derived[F[_]]: Functor[F] = ???
+        |}
+        |
+        |case class Bar[A](value: A) derives Functor
+        |
+        |object Usage {
+        |  Bar(42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtensionMethod_FromExplicitGivenAliasTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |
+        |case class Bar[A](value: A)
+        |object Bar {
+        |  given myFunctor: Functor[Bar] = ???
+        |}
+        |
+        |object Usage {
+        |  Bar(42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtensionMethod_FromExplicitGivenStructuralTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |
+        |case class Bar[A](value: A)
+        |
+        |object Bar {
+        |  given myFunctor: Functor[Bar] with
+        |    extension [A](fa: Bar[A]) def mapExt[B](f: A => B): Bar[B] =
+        |      Bar(f(fa.value))
+        |}
+        |
+        |object Usage {
+        |  Bar(42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtensionMethod_FromGenericAutoDerivedAliasTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |
+        |object Functor {
+        |  inline def derived[F[_]]: Functor[F] = ???
+        |}
+        |
+        |case class Bar[Ctx, A](ctx: Ctx, value: A)
+        |
+        |object Bar {
+        |  given derived$Functor[Ctx]: Functor[[A] =>> Bar[Ctx, A]] = ???
+        |}
+        |
+        |object Usage {
+        |  Bar("ctx", 42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtensionMethod_FromGenericExplicitGivenAliasTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |
+        |case class Bar[Ctx, A](ctx: Ctx, value: A)
+        |
+        |object Bar {
+        |  given myFunctor[Ctx]: Functor[[A] =>> Bar[Ctx, A]] = ???
+        |}
+        |
+        |object Usage {
+        |  Bar("ctx", 42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtensionMethod_FromGenericExplicitGivenStructuralTypeClass(): Unit = {
+    checkTextHasNoErrors(
+      """trait Functor[F[_]] {
+        |  extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]
+        |}
+        |
+        |case class Bar[Ctx, A](ctx: Ctx, value: A)
+        |
+        |object Bar {
+        |  given myFunctor[Ctx]: Functor[[A] =>> Bar[Ctx, A]] with
+        |    extension [A](fa: Bar[Ctx, A]) def mapExt[B](f: A => B): Bar[Ctx, B] =
+        |      Bar(fa.ctx, f(fa.value))
+        |}
+        |
+        |object Usage {
+        |  Bar("ctx", 42).mapExt(_ + 1)
+        |}
+        |""".stripMargin
+    )
+  }
 }

@@ -60,7 +60,7 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
 
       eitherTcOrError match {
         case Right(tc) =>
-          val derivationCheck = checkIfCanBeDerived(tc, ref.refName, owner)
+          val derivationCheck = checkIfCanBeDerived(tc, ref.getText, owner)
           derivationCheck match {
             case Right(_) =>
               companion.foreach(obj => annotateSyntheticDerivedMembers(ref, obj, session, typeAware))

@@ -8,12 +8,12 @@ import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -164,6 +164,22 @@ class ImplicitCollector(
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
+  /**
+   * Returns `true` when a candidate may expose target extension methods via its resulting type.
+   *
+   * We use it in two places:
+   * 1) during candidate collection, to avoid dropping extension carriers too early;
+   * 2) in the second implicit-search pass (`withLocalTypeInference = true`), where we usually skip non-generic
+   *    callables because pass 1 already handled them. Extension carriers are the exception: pass 2 can still be
+   *    required to instantiate extension method type params against a concrete call site.
+   *
+   * Typical case: a given (explicit or derives-generated) returns `Functor[Bar]`, and `Functor` defines
+   * `extension [A](fa: F[A]) def mapExt[B](f: A => B): F[B]`.
+   * Even if the given itself is non-generic at the outer level, we still need it in pass 2 so `mapExt` is extracted
+   * and locally instantiated for calls like `Bar(42).mapExt(_ + 1)`.
+   *
+   * If return-type extraction is inconclusive, we conservatively return `true` to avoid false negatives.
+   */
   private def canContainTargetMethod(srr: ScalaResolveResult): Boolean = measure("ImplicitCollector.canContainTargetMethod") {
     withExtensions && !srr.isExtensionCall && !hasExplicitClause(srr) && {
       val targetType = srr.element match {
@@ -374,14 +390,23 @@ class ImplicitCollector(
     c.element match {
       case fun: ScFunction =>
         val exportedInExtension = c.exportedInExtension
+        val typeParams = fun.typeParametersWithExtension(exportedInExtension)
 
         //Discard extension candidates if we are searching for implicit parameters/implicit conversions for args
-        if (!forCompletion && c.isExtensionCall && extensionData.forall(_.refName.isEmpty)) return None
+        if (!forCompletion && c.isExtensionCall && extensionData.forall(_.refName.isEmpty))
+          return None
 
-        if (fun.typeParametersWithExtension(exportedInExtension).isEmpty && withLocalTypeInference) return None
+        // Pass 2 (`withLocalTypeInference = true`) normally skips non-generic callables because pass 1 already checked them.
+        // Keep only extension carriers here: pass 2 may still be needed to extract/instantiate generic extension members
+        // from their return type (for example, givens or derives-generated givens returning a typeclass with extensions).
+        val mustAlwaysRunLocalTypeInference = typeParams.nonEmpty || canContainTargetMethod(c)
+        if (withLocalTypeInference && !mustAlwaysRunLocalTypeInference) {
+          return None
+        }
 
         //scala.Predef.$conforms should be excluded
-        if (isImplicitConversion && isPredefConforms(fun)) return None
+        if (isImplicitConversion && isPredefConforms(fun))
+          return None
 
         val clauses = fun.effectiveParameterClauses
         //to avoid checking implicit functions in case of simple implicit parameter search
@@ -395,13 +420,22 @@ class ImplicitCollector(
           }
         }
 
-        checkFunctionTypeConformance(c, withLocalTypeInference, checkFast)
+        checkFunctionTypeConformance(
+          c = c,
+          withLocalTypeInference = withLocalTypeInference,
+          checkFast = checkFast,
+          typeParams = typeParams
+        )
       case _ =>
         if (withLocalTypeInference) {
-          if (withExtensions) Option(c.copy(implicitReason = TypeDoesntConformResult))
-          else                None
-        } //only functions may have local type inference
-        else simpleConformanceCheck(c)
+          //only functions may have local type inference
+          if (withExtensions)
+            Option(c.copy(implicitReason = TypeDoesntConformResult))
+          else
+            None
+        } else {
+          simpleConformanceCheck(c)
+        }
     }
   }
 
@@ -847,18 +881,53 @@ class ImplicitCollector(
     (name == "conforms" || name == "$conforms") && clazz != null && clazz.qualifiedName == "scala.Predef"
   }
 
+  /**
+   * Checks whether a function-like implicit candidate is compatible with the current implicit search target [[tp]] at [[place]].
+   *
+   * The method performs macro-aware function type extraction, expected-type conformance checks, and, when needed,
+   * applies candidate implicit clauses to produce the final candidate state used by implicit search.
+   * If [[isImplicitConversion]] is enabled, conversion-specific conformance and adaptation rules are applied.
+   * It delegates to the private overload with precomputed type parameters.
+   *
+   * @param c                      implicit candidate being checked (regular implicit function or extension candidate).
+   * @param withLocalTypeInference enables inferring unresolved candidate type parameters from the current implicit-search
+   *                               context (expected type [[tp]] and extension/adaptation constraints) during conformance checks.
+   * @param checkFast              enables a lightweight compatibility pass used for early filtering; in this mode some expensive
+   *                               adaptation steps (for example, leading implicit-clause application) are intentionally skipped.
+   * @return compatible candidate (possibly updated with inferred substitutor / implicit reason), or `None` if the
+   *         candidate does not match and no diagnostic result needs to be propagated.
+   */
   def checkFunctionTypeConformance(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
     checkFast:              Boolean,
+  ): Option[ScalaResolveResult] = {
+    val fun                 = c.element.asInstanceOf[ScFunction]
+    val exportedInExtension = c.exportedInExtension
+    val typeParams          = fun.typeParametersWithExtension(exportedInExtension)
+
+    checkFunctionTypeConformance(c, withLocalTypeInference, checkFast, typeParams)
+  }
+
+  private def checkFunctionTypeConformance(
+    c:                      ScalaResolveResult,
+    withLocalTypeInference: Boolean,
+    checkFast:              Boolean,
+    typeParams:             Seq[ScTypeParam],
   ): Option[ScalaResolveResult] = measure("ImplicitCollector.checkFunctionByType") {
     implicit val elementScope: ElementScope = c.element.elementScope
 
-    val fun                 = c.element.asInstanceOf[ScFunction]
+    val fun = c.element.asInstanceOf[ScFunction]
     val exportedInExtension = c.exportedInExtension
-
-    if (fun.typeParametersWithExtension(exportedInExtension).nonEmpty && !withLocalTypeInference)
+    if (typeParams.isEmpty || withLocalTypeInference) {
+      //continue
+    } else {
       return None
+    }
+
+    // We get here only when candidate type params are already fixed (no type params) or may be inferred locally.
+    // Otherwise, generic candidates are deferred because conformance/adaptation below depends on instantiated type arguments.
+    // Below we resolve the candidate's effective function type and try to adapt/apply its implicit clauses against the expected search type.
 
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
     val typeFromMacro  = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
@@ -916,7 +985,6 @@ class ImplicitCollector(
             val undefinedConforms =
               if (isImplicitConversion) {
                 val pt = maskTypeParametersInExtensions(tp, cand)
-
                 if (cand.isExtensionCall)
                   checkExtensionConformance(place, undefined, pt)
                 else
