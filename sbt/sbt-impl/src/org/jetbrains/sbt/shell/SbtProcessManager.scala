@@ -241,6 +241,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
       globalPluginsDir / "idea.sbt"
   }
 
+  // SCL-25181 follow-up: this call is not yet EEL-aware. Migrating it requires
+  // the sbt-shell launch path to be reworked separately; tracked as a follow-up.
+  @scala.annotation.nowarn("cat=deprecation")
   private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
 
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)

@@ -127,6 +127,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
   private def doTestSdk(sdk: Option[SdkReference], expectedSdk: projectRoots.Sdk, expectedLanguageLevel: LanguageLevel): Unit =
     doTestSdk(sdk, Seq.empty, expectedSdk, expectedLanguageLevel)
 
+  @scala.annotation.nowarn("cat=deprecation")
   private def doTestSdk(sdk: Option[SdkReference], javacOptions: Seq[String], expectedSdk: projectRoots.Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
     importProjectData(generateJavaProject(sdk, javacOptions))
 

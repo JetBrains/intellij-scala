@@ -4,6 +4,7 @@ package service
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -13,6 +14,7 @@ import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project._
@@ -27,6 +29,8 @@ import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectData, Project](SbtProjectData.Key) {
+
+  private val Log = Logger.getInstance(classOf[SbtProjectDataService])
 
   override def importData(
     toImport: util.Collection[? <: DataNode[SbtProjectData]],
@@ -84,18 +88,24 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
   }
 
   private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction(project) {
-    val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
-    val jdk1 = Option(data.jdk).flatMap(SdkUtils.findProjectSdk)
+    val existingJdkRaw = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val existingJdk = existingJdkRaw.filter(SdkUtils.isJdkCompatibleWithEel(_, eelDescriptor))
+    existingJdkRaw.filterNot(existingJdk.contains).foreach { dropped =>
+      Log.info(s"Dropping incompatible existing project SDK '${dropped.getName}' (home=${dropped.getHomePath}) for environment $eelDescriptor")
+    }
+
+    val jdk1 = Option(data.jdk).flatMap(SdkUtils.findProjectSdk(eelDescriptor, _))
     val jdk2 = jdk1.orElse(existingJdk)
     val jdk3 = jdk2.orElse {
-      SdkUtils.findMostRecentJdkConfiguredInIde { sdk =>
+      SdkUtils.findMostRecentJdkConfiguredInIde(eelDescriptor) { sdk =>
         val sbtVersion = SbtVersion(data.sbtVersion)
         val sdkVersion = JavaVersion.parse(sdk.getVersionString)
         JdkSbtCompatibilityChecker.isSbtAndJdkVersionCompatible(sdkVersion, sbtVersion, strict = true)
       }
     }
-    val jdk4 = jdk3.orElse(SdkUtils.mostRecentRegisteredJdk)
+    val jdk4 = jdk3.orElse(SdkUtils.mostRecentRegisteredJdk(eelDescriptor))
     jdk4.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
   }
 

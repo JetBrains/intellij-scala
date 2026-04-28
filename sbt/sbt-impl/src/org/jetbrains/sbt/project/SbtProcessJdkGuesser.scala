@@ -5,10 +5,13 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.ThrowableComputable
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.lang.JavaVersion
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.template.wizard.JdkSbtCompatibilityChecker
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 
@@ -65,8 +68,9 @@ object SbtProcessJdkGuesser {
 
   case class SdkCandidate(sdk: Option[Sdk], allSdkSorted: Seq[Sdk])
 
-  def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): SdkCandidate = {
+  def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): SdkCandidate = {
     val sdksAll = jdkTable.getSdksOfType(jdkType).asScala.toSeq
+      .filter(SdkUtils.isJdkCompatibleWithEel(_, eelDescriptor))
     val sdksAllSorted = sdksAll.sorted(using versionOrdering)
     val filteredBySbt = sdksAllSorted.filter { sdk =>
       isSbtJdkCompatible(jdkType.getVersion(sdk), sbtVersion)
@@ -81,11 +85,17 @@ object SbtProcessJdkGuesser {
       }
 
     if (Log.isTraceEnabled) {
-      Log.trace(s"findMostSuitableJdkForSbt: all sdks:\n${sdksAllSorted.mkString("\n")}")
+      Log.trace(s"findMostSuitableJdkForSbt: all sdks (eel=$eelDescriptor):\n${sdksAllSorted.mkString("\n")}")
     }
 
     SdkCandidate(sdksMatchingVersion.headOption, sdksAllSorted)
   }
+
+  @deprecated(message = "Use findJdkWithSuitableVersion(ProjectJdkTable, SbtVersion, EelDescriptor)", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): SdkCandidate =
+    findJdkWithSuitableVersion(jdkTable, sbtVersion, LocalEelDescriptor.INSTANCE)
 
   /**
    * Tries to find all existing sdk home paths on the local machine

@@ -12,13 +12,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Pair, SystemInfo}
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
 import com.intellij.util.Function
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.plugins.scala.project.external.SdkUtils
+import org.jetbrains.sbt.{SbtBundle, eelDescriptor}
 import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion}
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.SbtOpts
@@ -94,8 +97,9 @@ object SbtExternalSystemManager {
     }
     val sbtVersion = detectSbtVersion(projectRoot, sbtLauncher)
 
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
     val projectJdkName = bootstrapJdk(project, projectSettings)
-    val vmExecutable = getVmExecutable(projectJdkName, settingsState, sbtVersion)
+    val vmExecutable = getVmExecutable(projectJdkName, settingsState, sbtVersion, eelDescriptor)
     val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
@@ -137,7 +141,12 @@ object SbtExternalSystemManager {
     result
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
+  private def getVmExecutable(
+    projectJdkName: Option[String],
+    settings: SbtSettings.State,
+    sbtVersion: SbtVersion,
+    eelDescriptor: EelDescriptor
+  ): Path = {
     val jdkTable = ProjectJdkTable.getInstance()
 
     val customVmExecutable =
@@ -145,6 +154,11 @@ object SbtExternalSystemManager {
         .map(Path.of(_))
         .filter(JdkUtil.checkForJre)
         .map: customPath =>
+          if (customPath.eelDescriptor != eelDescriptor) {
+            throw new ExternalSystemException(
+              SbtBundle.message("sbt.import.customVmPathWrongEel", customPath.toString, eelDescriptor.toString)
+            )
+          }
           Log.debug(s"Using Java from custom VM path: $customPath")
           @NonNls val javaExe = if SystemInfo.isWindows then "java.exe" else "java"
           customPath / "bin" / javaExe
@@ -152,6 +166,7 @@ object SbtExternalSystemManager {
     val realExe = customVmExecutable
       .orElse {
         val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
+          .filter(SdkUtils.isJdkCompatibleWithEel(_, eelDescriptor))
         projectJdkFound
           .map { sdk =>
             Log.debug(s"Using Java project JDK: $sdk")
@@ -167,17 +182,19 @@ object SbtExternalSystemManager {
       }
       .orElse {
         //automatically detect JDK if none is defined
-        invokeAndWait {
-          val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
-          if (sdk.sdk.isEmpty) {
-            Log.debug("Preconfigure JDK table for SBT import")
-            SbtProcessJdkGuesser.preconfigureJdkForSbt(jdkTable, sbtVersion)
+        if (eelDescriptor == LocalEelDescriptor.INSTANCE) {
+          invokeAndWait {
+            val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion, eelDescriptor)
+            if (sdk.sdk.isEmpty) {
+              Log.debug("Preconfigure JDK table for SBT import")
+              SbtProcessJdkGuesser.preconfigureJdkForSbt(jdkTable, sbtVersion)
+            }
           }
         }
 
-        val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+        val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion, eelDescriptor)
         val autoDetectedSdk = suitableSdk.sdk
-          //if no suitable sdj >= 8 found, take any JDK, and hope that sbt import will work
+          //if no suitable sdk >= 8 found, take any JDK in the same eel environment, and hope that sbt import will work
           .orElse(suitableSdk.allSdkSorted.lastOption)
 
         autoDetectedSdk.map { sdk =>
@@ -187,7 +204,10 @@ object SbtExternalSystemManager {
         }
       }
       .getOrElse {
-        throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
+        if (eelDescriptor == LocalEelDescriptor.INSTANCE)
+          throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
+        else
+          throw new ExternalSystemException(SbtBundle.message("sbt.import.noJdkForEel", eelDescriptor.toString))
       }
 
     realExe

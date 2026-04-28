@@ -43,6 +43,8 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     }
   }
 
+  // SCL-25181 follow-up: per-module SDK lookup is not yet EEL-aware. Migration tracked as a follow-up.
+  @scala.annotation.nowarn("cat=deprecation")
   private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference])(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val model = modelsProvider.getModifiableRootModel(module)
     model.inheritSdk()

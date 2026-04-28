@@ -112,6 +112,7 @@ trait ProjectStructureMatcher {
   private implicit val ideaLibraryEntryNameImplicit: HasName[roots.LibraryOrderEntry] =
     (entry: roots.LibraryOrderEntry) => entry.getLibraryName
 
+  @scala.annotation.nowarn("cat=deprecation")
   private def assertProjectSdkEqual(project: Project)(expectedSdkRef: SdkReference)
                                    (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef).getOrElse {

@@ -32,6 +32,8 @@ class SbtProjectImportBuilder
 
   override def getExternalProjectConfigToUse(file: java.io.File): java.io.File = file
 
+  // SCL-25181 follow-up: project-import wizard is not yet EEL-aware. Migration tracked as a follow-up.
+  @scala.annotation.nowarn("cat=deprecation")
   override def applyExtraSettings(context: WizardContext): Unit = {
     getList.asScala.foreach { projectData =>
       ExternalSystemApiUtil.findAll(projectData, SbtProjectData.Key).asScala.headOption match {
