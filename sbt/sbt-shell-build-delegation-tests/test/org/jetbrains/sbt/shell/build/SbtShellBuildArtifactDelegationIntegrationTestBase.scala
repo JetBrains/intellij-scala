@@ -6,66 +6,33 @@ import com.intellij.packaging.artifacts.{Artifact, ArtifactManager}
 import com.intellij.packaging.elements.PackagingElementFactory
 import com.intellij.packaging.impl.artifacts.JarArtifactType
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.sbt.{SbtTestDataUtils, SbtVersion}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
-import org.jetbrains.sbt.shell.SbtShellTestUtil
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Assert.assertTrue
 
 import java.nio.file.{Files, Path}
 
 /**
  * Integration tests for delegated sbt-shell artifact builds.
  */
-abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtExternalSystemImportingTestLike {
-
-  protected def useNewSbtShell: Boolean
+abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtShellBuildDelegationTestBase {
 
   private val sbtRootProjectDirName = "simpleProjectForBuildDelegationTest"
-  private val sbtRootProjectName = "simpleProjectForBuildDelegationTest"
 
   override protected def getTestDataProjectPath: String =
     SbtTestDataUtils.resolveRelativePath(
       s"sbt-shell-build-delegation-tests/testdata/projects/$sbtRootProjectDirName",
     )
 
-  private lazy val buildTestFixture = new SbtShellBuildTestFixture(
-    testName = getClass.getSimpleName,
-    project = getMyProject,
-    testProjectPath = getTestProjectPath,
-    importProject = () => importProject(false),
-  )
-
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
-  // Running on EDT would lead to a deadlock as some logic inside SbtBuildCommandsFactory requires EDT
-  override def runInDispatchThread() = false
-
-  override def setUp(): Unit = {
-    super.setUp()
-    getCurrentExternalProjectSettings.useSbtShellForBuild = true
-    SbtShellTestUtil.setNewSbtShellEnabled(useNewSbtShell, getTestRootDisposable)
-  }
-
-  override def tearDown(): Unit = {
-    // TODO SCL-12039: compile server should not be started for delegated sbt-shell builds
-    CompileServerLauncher.stopServerAndWait()
-    super.tearDown()
-  }
-
   protected final def defaultScalaVersion: ScalaVersion =
     ScalaVersion.fromString("3.8.3").get
-
-  protected final def fixture: SbtShellBuildTestFixture =
-    buildTestFixture
 
   protected final def prepareProjectForArtifactBuild(
     sbtVersion: SbtVersion,
     scalaVersion: ScalaVersion = defaultScalaVersion,
   ): Unit = {
-    buildTestFixture.prepareProjectAndImport(sbtVersion, scalaVersion)
-    buildTestFixture.injectInvalidJpsScalacOption(findRootMainModule())
+    fixture.prepareProjectAndImport(sbtVersion, scalaVersion)
+    fixture.injectInvalidJpsScalacOption(findRootMainModule())
   }
 
   protected final def createRootMainModuleOutputJarArtifact(artifactName: String): Artifact =
@@ -160,18 +127,6 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtExt
     ArtifactsTestUtil.findArtifact(getMyProject, artifactName)
   }
 
-  private def findRootMainModule(): Module = {
-    val module = getModule(s"$sbtRootProjectName.main")
-    assertNotNull(s"Could not find module '$sbtRootProjectName.main'", module)
-    module
-  }
-
-  private def findRootTestModule(): Module = {
-    val module = getModule(s"$sbtRootProjectName.test")
-    assertNotNull(s"Could not find module '$sbtRootProjectName.test'", module)
-    module
-  }
-
   private def assertClassFileExists(
     scalaVersion: String,
     sbtVersion: SbtVersion,
@@ -179,9 +134,11 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtExt
     isTest: Boolean,
   ): Unit = {
     val relativePath =
-      if (sbtVersion.isSbt2)
-        if (isTest) s"target/out/jvm/scala-$scalaVersion/$sbtRootProjectName/test-classes/$fileName"
-        else s"target/out/jvm/scala-$scalaVersion/$sbtRootProjectName/classes/$fileName"
+      if (sbtVersion.isSbt2) {
+        val outputProjectDirName = sbt2OutputProjectDirName(sbtRootProjectName)
+        if (isTest) s"target/out/jvm/scala-$scalaVersion/$outputProjectDirName/test-classes/$fileName"
+        else s"target/out/jvm/scala-$scalaVersion/$outputProjectDirName/classes/$fileName"
+      }
       else
         if (isTest) s"target/scala-$scalaVersion/test-classes/$fileName"
         else s"target/scala-$scalaVersion/classes/$fileName"
