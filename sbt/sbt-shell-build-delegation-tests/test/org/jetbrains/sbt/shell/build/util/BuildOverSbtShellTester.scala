@@ -1,13 +1,14 @@
 package org.jetbrains.sbt.shell.build.util
 
 import com.intellij.build.BuildViewManager
+import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.compiler.CompilerTopics
-import com.intellij.openapi.util.Disposer
-import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.packaging.artifacts.Artifact
-import com.intellij.task.ProjectTaskManager
+import com.intellij.task.{ProjectTask, ProjectTaskManager}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.shell.SbtShellTestUtil
 import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.{BuildOverSbtShellResult, BuildRunResult}
@@ -31,6 +32,20 @@ final class BuildOverSbtShellTester(
     runBuildAndCaptureOutput("Building all modules") {
       ProjectTaskManager.getInstance(project)
         .buildAllModules()
+        .blockingGet(1, TimeUnit.MINUTES)
+    }
+  }
+
+  def buildModulesAndCaptureOutput(modules: Seq[Module]): BuildOverSbtShellResult = {
+    val buildTask = ProjectTaskManager.getInstance(project)
+      .createModulesBuildTask(modules.toArray, true, true, false)
+    buildModulesAndCaptureOutput(buildTask)
+  }
+
+  def buildModulesAndCaptureOutput(buildTask: ProjectTask): BuildOverSbtShellResult = {
+    runBuildAndCaptureOutput("Building selected modules (pre-created task)") {
+      ProjectTaskManager.getInstance(project)
+        .run(buildTask)
         .blockingGet(1, TimeUnit.MINUTES)
     }
   }

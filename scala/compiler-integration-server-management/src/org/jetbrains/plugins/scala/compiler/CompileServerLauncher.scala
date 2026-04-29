@@ -18,7 +18,7 @@ import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUti
 import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.{ApiStatus, Nls, Nullable}
+import org.jetbrains.annotations.{ApiStatus, Nls, Nullable, TestOnly}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
@@ -265,8 +265,12 @@ object CompileServerLauncher {
             writePortFile(compileServerSystemDir, port.forToken)
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
+            val processStartStackTrace = new Throwable(
+              s"Scala Compile Server process start stack trace [thread=${Thread.currentThread.getName}]"
+            )
             val instance = new ServerInstance(
               watcher = watcher,
+              createdAtStackTrace = processStartStackTrace,
               compileServerSystemDir = compileServerSystemDir,
               port = port,
               workingDir = Option(workingDirectory),
@@ -387,6 +391,26 @@ object CompileServerLauncher {
   }
 
   def running: Boolean = serverInstance.exists(_.running)
+
+  @TestOnly
+  def runningServerStartStackTraceForTests: Option[Throwable] =
+    serverInstance.filter(_.running).map(_.createdAtStackTrace)
+
+  @TestOnly
+  final case class RunningServerStateForTests(
+    wasRunning: Boolean,
+    startStackTrace: Option[Throwable]
+  )
+
+  @TestOnly
+  def captureRunningServerStateForTests: RunningServerStateForTests =
+    serverStartLock.synchronized {
+      val runningInstance = serverInstance.filter(_.running)
+      RunningServerStateForTests(
+        wasRunning = runningInstance.nonEmpty,
+        startStackTrace = runningInstance.map(_.createdAtStackTrace)
+      )
+    }
 
   @deprecated(message = "Use compileServerPort. Kept for preserving binary compatibility", since = "2026.1")
   @Deprecated(since = "2026.1", forRemoval = true)

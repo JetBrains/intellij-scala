@@ -34,7 +34,7 @@ import java.util
 import java.util.UUID
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
-import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, SetHasAsScala}
 import scala.util.{Failure, Success}
 
 /**
@@ -99,12 +99,24 @@ final class SbtProjectTaskRunnerImpl
       val taskModules = extractModulesFromBuildTasks(project, collected)
       taskModules.exists(isUseSbtShellForBuildEnabled)
     } else {
-      false
+      // For sbt build-definition modules (`-build`), return true from `canRun` only to let sbt runner claim the task.
+      // This prevents fallback to JPS (which can start compile server), while actual compilation stays a no-op
+      // because build modules are filtered out in `collectSupportedBuildTasks`.
+      isSbtBuildModuleTaskDelegatedToSbt(project, projectTask)
     }
 
     Log.debug(s"canRunImpl: $result (hasSupportedTasks=$hasSupportedTasks, moduleTasks=${collected.moduleBuildTasks.size}, artifactTasks=${collected.artifactBuildTasks.size})")
 
     result
+  }
+
+  private def isSbtBuildModuleTaskDelegatedToSbt(project: Project, projectTask: ProjectTask): Boolean = {
+    projectTask match {
+      case moduleTask: ModuleBuildTask if isBuildModule(moduleTask) =>
+        SbtSettings.getInstance(project).getLinkedProjectsSettings.asScala.exists(_.useSbtShellForBuild)
+      case _ =>
+        false
+    }
   }
 
   private def isUseSbtShellForBuildEnabled(module: Module): Boolean = {
