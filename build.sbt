@@ -303,7 +303,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     scalaVersion := Versions.scala3Version,
     libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
-    (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
