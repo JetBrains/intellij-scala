@@ -472,7 +472,7 @@ object ScExpression {
   // For example, the qualifier of a reference expression or the base of a call
   @tailrec
   private def shouldNotWiden(expr: ScExpression): Boolean = expr.getParent match {
-    case ScParenthesisedExpr(parent) => shouldNotWiden(parent)
+    case parent: ScParenthesisedExpr => shouldNotWiden(parent)
     case block: ScBlock if block.lastStatement.contains(expr) => shouldNotWiden(block)
     case ScReferenceExpression.withQualifier(`expr`) => true
     case invocation: MethodInvocation if invocation.thisExpr.contains(expr) || invocation.getInvokedExpr == expr => true
