@@ -36,10 +36,10 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtShe
   }
 
   protected final def createRootMainModuleOutputJarArtifact(artifactName: String): Artifact =
-    createModuleOutputJarArtifact(artifactName, findRootMainModule())
+    createModuleOutputJarArtifact(artifactName, findRootMainModule(), isTestOutput = false)
 
   protected final def createRootTestModuleOutputJarArtifact(artifactName: String): Artifact =
-    createModuleOutputJarArtifact(artifactName, findRootTestModule())
+    createModuleOutputJarArtifact(artifactName, findRootTestModule(), isTestOutput = true)
 
   protected final def assertRootMainClassFileExists(
     scalaVersion: ScalaVersion,
@@ -109,6 +109,7 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtShe
   private def createModuleOutputJarArtifact(
     artifactName: String,
     module: Module,
+    isTestOutput: Boolean,
   ): Artifact = {
     val artifactOutputPath = (getTestProjectPath / "out" / "artifacts").toString
 
@@ -117,7 +118,9 @@ abstract class SbtShellBuildArtifactDelegationIntegrationTestBase extends SbtShe
       val artifactModel = artifactManager.createModifiableModel()
       val artifact = artifactModel.addArtifact(artifactName, JarArtifactType.getInstance())
 
-      val moduleOutput = PackagingElementFactory.getInstance().createModuleOutput(module)
+      val moduleOutput =
+        if (isTestOutput) PackagingElementFactory.getInstance().createTestModuleOutput(module)
+        else PackagingElementFactory.getInstance().createModuleOutput(module)
       artifact.getRootElement.addOrFindChild(moduleOutput)
 
       artifactModel.getOrCreateModifiableArtifact(artifact).setOutputPath(artifactOutputPath)

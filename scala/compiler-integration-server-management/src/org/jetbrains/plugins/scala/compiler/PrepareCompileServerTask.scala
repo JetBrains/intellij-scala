@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
@@ -11,8 +10,7 @@ private final class PrepareCompileServerTask extends ScalaCompileTask {
   import PrepareCompileServerTask.Log
 
   override protected def run(context: CompileContext): Boolean = {
-    val project = context.getProject
-    ensureCompileServerRunning(project)
+    ensureCompileServerRunning(context)
     true
   }
 
@@ -21,17 +19,30 @@ private final class PrepareCompileServerTask extends ScalaCompileTask {
 
   override protected def log: Logger = Log
 
-  private def ensureCompileServerRunning(project: Project): Unit = {
+  private def ensureCompileServerRunning(context: CompileContext): Unit = {
+    val project = context.getProject
     if (project.isDisposed) return
     val settings = ScalaCompileServerSettings.getInstance
 
-    val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
+    val compileServerRequired = settings.COMPILE_SERVER_ENABLED && hasRelevantScalaModulesInCompileScope(context)
     Log.debug(s"CompileServerBuildManagerListener.compileServerRequired: $compileServerRequired")
     if (compileServerRequired) {
       CompileServerLauncher.ensureServerRunning(project)
     }
     if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED)
       CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
+  }
+
+  private def hasRelevantScalaModulesInCompileScope(context: CompileContext): Boolean = {
+    val affectedModules = Option(context.getCompileScope)
+      .map(_.getAffectedModules)
+      .getOrElse(Array.empty)
+
+    affectedModules.exists { module =>
+      module != null &&
+        module.hasScala &&
+        !module.isBuildModule
+    }
   }
 }
 
