@@ -5,7 +5,9 @@ import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.{assertEquals, fail}
 
-private[editor] object TestIndentUtils {
+//TODO: move to some more common test utilities?
+// But then add ScalaDoc everywhere
+object TestIndentUtils {
 
   private val Caret = EditorTestUtil.CARET_TAG
 
