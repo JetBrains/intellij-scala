@@ -118,6 +118,9 @@ object Common {
     )
   }
 
+  lazy val KotlinAnalysisApiIdeSourcesDependencies_ProvidedScope: Seq[ModuleID] =
+    KotlinAnalysisApiIdeSourcesDependencies.map(_ % Provided)
+
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := JetBrains,
     scalaVersion := Versions.scalaVersion,

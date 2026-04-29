@@ -359,6 +359,8 @@ lazy val scalaImpl: sbt.Project =
       ),
       // for dependency version completion/inspections
       libraryDependencies += Dependencies.coursierApi,
+      //Add kotlin analysis Api only for the compilation stage mostly to attach sources to the project for debugging purposes
+      //libraryDependencies ++= Common.KotlinAnalysisApiIdeSourcesDependencies_ProvidedScope,
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>

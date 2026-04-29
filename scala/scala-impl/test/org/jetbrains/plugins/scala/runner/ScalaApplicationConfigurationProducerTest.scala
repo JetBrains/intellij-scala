@@ -9,6 +9,7 @@ import com.intellij.execution.impl.{RunConfigurationLevel, RunManagerImpl, Runne
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.annotator.gutter.LineMarkerInfoPresentationUtils
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.{CaretLocation2, PsiElementLocation}
 import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, RunConfigCreationLocation}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
@@ -245,8 +246,8 @@ class ScalaApplicationConfigurationProducerTest_Scala2 extends ScalaApplicationC
 
     if (runGutters.nonEmpty) {
       val document = myFixture.getDocument(myFixture.getFile)
-      val lines = runGutters.map(_.startOffset).map(document.getLineNumber)
-      fail(s"No run gutters expected but found at lines: ${lines.mkString(", ")}")
+      val linesText = LineMarkerInfoPresentationUtils.buildLineNumbersText(runGutters, document)
+      fail(s"No run gutters expected but found at lines: $linesText")
     }
   }
 
