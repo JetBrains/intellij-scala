@@ -135,6 +135,11 @@ object Common {
       Dependencies.jupiterInterface(JupiterKeys.jupiterVersion.value) % Test,
       Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test
     ),
+    // There is no need to mark this as a % Test dependency, it is marked as a dependency of an internal config
+    // of sbt-idea-plugin. These libraries are intentionally added only to the generated JUnit test templates classpath,
+    // but not to the sbt test classpath. #SCL-25373
+    intellijExtraJUnitTemplateLibraryDependencies +=
+      Dependencies.junitVintageEngine(JupiterKeys.junitVintageVersion.value),
   ) ++ projectDirectoriesSettings ++
     compilationCacheSettings
 
