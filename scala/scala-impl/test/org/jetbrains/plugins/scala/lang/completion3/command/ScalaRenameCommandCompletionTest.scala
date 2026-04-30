@@ -1,34 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion3.command
 
-import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
-import junit.framework.TestCase.{assertEquals, fail}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
-import org.jetbrains.plugins.scala.util.Markers
 import org.junit.Test
 
-final class ScalaRenameCommandCompletionTest extends ScalaCommandCompletionTestBase with Markers {
+final class ScalaRenameCommandCompletionTest extends ScalaCommandCompletionTestBase {
   private val RenameCommandCompletionPredicate: LookupElement => Boolean = lookupStringContains(_, "Rename")
 
-  private def doRenameCommandCompletionTest(fileText: String): Unit = {
-    val (cleanText, Seq(expectedHighlightedRange)) = extractMarker(fileText)
-    configureFromFileText(cleanText)
-    val elements = scalaCompletionTestFixture.complete(CompletionType.BASIC, DefaultInvocationCount)
-    val predicate = selectCommandCompletions(RenameCommandCompletionPredicate)
-    elements.flatMap(asCommandCompletionLookup(_).toOption).find(predicate) match {
-      case Some(renameLookup) =>
-        val actualHighlightedRange = renameLookup.getHighlighting.toOption.map(_.getRange).orNull
-        assertEquals(expectedHighlightedRange, actualHighlightedRange)
-      case None =>
-        fail(
-          s"""Rename command completion lookup element not found
-             |All lookup elements:
-             |${lookupItemsDebugText(elements)}""".stripMargin
-        )
-    }
-  }
+  private def doRenameCommandCompletionTest(fileText: String): Unit =
+    doCommandCompletionTest(fileText, RenameCommandCompletionPredicate)
 
   private def checkNoRenameCommandCompletion(fileText: String): Unit =
     checkNoCommandCompletion(fileText, RenameCommandCompletionPredicate)

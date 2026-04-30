@@ -6,34 +6,47 @@ import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupEvent}
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.PlatformTestUtil
-import junit.framework.TestCase.fail
+import junit.framework.TestCase.{assertEquals, assertNotNull, fail}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
+import org.jetbrains.plugins.scala.util.Markers
 
 //noinspection ApiStatus,UnstableApiUsage
-abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase {
+abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase with Markers {
   protected override def setUp(): Unit = {
     super.setUp()
     Registry.get("ide.completion.command.enabled").setValue(false, getTestRootDisposable)
     Registry.get("ide.completion.command.force.enabled").setValue(true, getTestRootDisposable)
   }
 
-  protected final def doCommandCompletionTestIgnoringResult(fileText: String,
-                                                            predicate: LookupElement => Boolean,
-                                                            invocationCount: Int = DefaultInvocationCount): Unit = {
-    configureFromFileText(fileText)
-    val elements = scalaCompletionTestFixture.complete(CompletionType.BASIC, invocationCount)
-    // will throw en exception if no matching command completion lookup elements found
-    selectLookupItem(elements, selectCommandCompletions(predicate))
-  }
-
-  protected final def doCommandCompletionTest(fileText: String, resultText: String,
+  protected final def doCommandCompletionTest(fileText: String,
                                               predicate: LookupElement => Boolean,
+                                              @Nullable resultText: String = null,
                                               invocationCount: Int = DefaultInvocationCount): Unit = {
-    doCommandCompletionTestIgnoringResult(fileText, predicate, invocationCount)
-    checkResultByText(resultText)
+    val (cleanText, expectedHighlightings) = extractMarker(fileText)
+    configureFromFileText(cleanText)
+    val checkResult = resultText != null
+    val elements = scalaCompletionTestFixture.complete(CompletionType.BASIC, invocationCount)
+    val selectedItem = selectLookupItem(elements, selectCommandCompletions(predicate), finishLookup = checkResult)
+    val lookup = asCommandCompletionLookup(selectedItem)
+    assertNotNull(lookup)
+
+    expectedHighlightings match {
+      case Seq(expectedHighlightedRange, rest@_*) =>
+        if (rest.nonEmpty) {
+          fail(s"Too many ranges selected in the `fileText`. Expected one or none, got: ${expectedHighlightings.size}")
+        }
+        val actualHighlightedRange = lookup.getHighlighting.toOption.map(_.getRange).orNull
+        assertEquals(expectedHighlightedRange, actualHighlightedRange)
+      case _ =>
+    }
+
+    if (checkResult) {
+      checkResultByText(resultText)
+    }
   }
 
   protected final def checkHasCommandCompletions(fileText: String, invocationCount: Int = DefaultInvocationCount): Unit = {
@@ -56,23 +69,26 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase {
     scalaCompletionTestFixture.checkNoCompletion(fileText, CompletionType.BASIC, invocationCount)(predicate = selectCommandCompletions(predicate))
 
   protected final def selectLookupItem(elements: Array[LookupElement], predicate: LookupElement => Boolean,
-                                       completionChar: Char = Lookup.AUTO_INSERT_SELECT_CHAR): Unit =
+                                       finishLookup: Boolean = true, completionChar: Char = Lookup.AUTO_INSERT_SELECT_CHAR): LookupElement =
     scalaCompletionTestFixture.withActiveLookup { lookup =>
       elements.find(predicate) match {
         case Some(currentItem) =>
           lookup.setCurrentItem(currentItem)
-          if (LookupEvent.isSpecialCompletionChar(completionChar))
-            lookup.finishLookup(completionChar)
-          else
-            scalaCompletionTestFixture.typeChar(completionChar)
-          NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
-          PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+          if (finishLookup) {
+            if (LookupEvent.isSpecialCompletionChar(completionChar))
+              lookup.finishLookup(completionChar)
+            else
+              scalaCompletionTestFixture.typeChar(completionChar)
+            NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
+            PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+          }
+          currentItem
         case None =>
           fail(
             s"""Lookup element not found
                |All lookup elements:
                |${lookupItemsDebugText(elements)}""".stripMargin
-          )
+          ).asInstanceOf[Nothing]
       }
     }
 

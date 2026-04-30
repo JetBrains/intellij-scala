@@ -294,6 +294,9 @@
         <codeInsight.completion.command.provider
                 language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaRenameActionCommandProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaGoToDeclarationCommandCompletionProvider"/>
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"

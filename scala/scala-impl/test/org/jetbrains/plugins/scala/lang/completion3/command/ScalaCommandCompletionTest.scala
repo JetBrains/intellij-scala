@@ -4,7 +4,7 @@ import org.junit.Test
 
 final class ScalaCommandCompletionTest extends ScalaCommandCompletionTestBase {
   @Test
-  def noCompletionInsideStringBlock(): Unit = checkNoCommandCompletionAtAll {
+  def noCompletionInsideStringBlock(): Unit = checkNoCommandCompletionAtAll(
     s"""
        |class A {
        |  def test(): Unit = {
@@ -21,10 +21,10 @@ final class ScalaCommandCompletionTest extends ScalaCommandCompletionTestBase {
        |  }
        |}
        |""".stripMargin
-  }
+  )
 
   @Test
-  def noCompletionInsideStringLiteral(): Unit = checkNoCommandCompletionAtAll {
+  def noCompletionInsideStringLiteral(): Unit = checkNoCommandCompletionAtAll(
     s"""
        |class A {
        |  def test(): Unit = {
@@ -38,10 +38,10 @@ final class ScalaCommandCompletionTest extends ScalaCommandCompletionTestBase {
        |  }
        |}
        |""".stripMargin
-  }
+  )
 
   @Test
-  def completionNotSuppressedInsideStringInterpolation(): Unit = checkHasCommandCompletions {
+  def completionNotSuppressedInsideStringInterpolation(): Unit = checkHasCommandCompletions(
     s"""
        |class A {
        |  def test(): Unit = {
@@ -55,5 +55,5 @@ final class ScalaCommandCompletionTest extends ScalaCommandCompletionTestBase {
        |  }
        |}
        |""".stripMargin
-  }
+  )
 }

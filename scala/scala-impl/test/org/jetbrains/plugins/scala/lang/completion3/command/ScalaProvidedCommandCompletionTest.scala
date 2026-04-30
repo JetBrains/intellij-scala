@@ -137,7 +137,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
   )
 
   @Test
-  def showLiveTemplates(): Unit = doCommandCompletionTestIgnoringResult(
+  def showLiveTemplates(): Unit = doCommandCompletionTest(
     fileText =
       s"""
          |object Test {
@@ -149,7 +149,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
   )
 
   @Test
-  def showFileStructure(): Unit = doCommandCompletionTestIgnoringResult(
+  def showFileStructure(): Unit = doCommandCompletionTest(
     fileText =
       s"""
          |object Test {
