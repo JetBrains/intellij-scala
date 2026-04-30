@@ -53,7 +53,7 @@ abstract class CheckIndentAfterTypingCodeOps extends EditorActionTestBase {
       val expectedAfterTyping = beforeTyping.insertStringBeforeCaret(line)
       if (line.nonEmpty) {
         performTest(beforeTyping, expectedAfterTyping, stripTrailingSpacesAfterAction = stripTrailingSpaces) { () =>
-          performTypingAction(line)
+          performTypingActionAndCommitEachChar(line)
 
           // do not adjust indent for comments (required for tests with comments in the end of indentaion block)
           // example: {{{

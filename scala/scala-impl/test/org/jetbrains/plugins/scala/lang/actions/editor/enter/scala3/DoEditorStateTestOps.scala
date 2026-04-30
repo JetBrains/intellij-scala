@@ -44,7 +44,7 @@ abstract class DoEditorStateTestOps extends CheckIndentAfterTypingCodeOps {
             performEnterAction()
           }
           if (line.nonEmpty) {
-            performTypingAction(line)
+            performTypingActionAndCommitEachChar(line)
             if (StringUtils.isNotBlank(line)) {
               adjustLineIndentAtCaretPosition(fixture)
             }
