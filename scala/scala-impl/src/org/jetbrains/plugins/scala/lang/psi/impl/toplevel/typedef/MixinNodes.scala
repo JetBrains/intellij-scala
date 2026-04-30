@@ -1,5 +1,3 @@
-/**
- */
 package org.jetbrains.plugins.scala.lang.psi
 package impl
 package toplevel
@@ -40,6 +38,22 @@ import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
+/**
+ * Internal builder for merged member-signature graphs used by resolve, override navigation, and completion.
+ *
+ * [[MixinNodes]] consumes signatures produced by a [[SignatureProcessor]] and builds a name-indexed map with
+ * inheritance links ([[MixinNodes.Node]]). It is instantiated for different signature kinds
+ * (for example, term, stable-term, and type signatures) by [[TypeDefinitionMembers]].
+ *
+ * Build flow:
+ *   - collect inherited members (nominal supers and, for compound- / self-types, self-type-derived supers)
+ *   - collect declared/refinement members
+ *   - merge equivalent signatures and attach super links
+ *
+ * Entry points are [[MixinNodes.build]] (all overloaded versions)
+ *
+ * This type is implementation API (`impl.toplevel.typedef`), not PSI model API.
+ */
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
 
@@ -193,6 +207,26 @@ object MixinNodes {
   def asSeenFromSubstitutor(superClass: PsiClass, thisClass: PsiClass): ScSubstitutor =
     SuperTypesData(thisClass).substitutors.getOrElse(superClass, ScSubstitutor.empty)
 
+  /**
+   * Internal graph node used by [[MixinNodes]] to connect merged signatures across inheritance.
+   *
+   * == Difference with [[types.Signature]] ==
+   *  - [[types.Signature]] models member semantics and equivalence<br>
+   *    (declaration origin, visible identity, type adaptation, etc.)
+   *  - This `Node` wraps such semantic member info and adds inheritance-graph topology:
+   *    - `fromSuper`: whether the represented member originated from a base type during collection
+   *    - `supers`: all equivalent inherited candidates linked during merge
+   *    - `primarySuper`: preferred inherited candidate (concrete first, then first available)
+   *
+   * The [[info]] stores collected member metadata (usually a [[types.Signature]]).
+   * The added topology is used for super-member navigation and override resolution.
+   *
+   * Unlike [[types.Signature]], this type is not a PSI-level semantic model.
+   * It is an implementation detail used inside [[impl.toplevel.typedef]] to keep inheritance relationships.
+   *
+   * @param info collected signature info ([[types.Signature]])
+   * @param sourceKind how the signature was collected ([[SourceKind]])
+   */
   class Node[T](val info: T, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] var _supers: Seq[Node[T]] = Vector.empty
