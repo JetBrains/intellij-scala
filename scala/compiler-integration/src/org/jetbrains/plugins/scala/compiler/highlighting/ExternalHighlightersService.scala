@@ -354,10 +354,12 @@ private final class ExternalHighlightersService(project: Project) { self =>
   }
 
   private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
-    val escaped0 = XmlStringUtil.escapeString(unescapedTooltip)
-    val escaped1 = escaped0.replace("\n", "<br>")
-    val escaped2 = XmlStringUtil.wrapInHtml(escaped1)
-    escaped2
+    import scala.util.chaining._
+    unescapedTooltip
+      .pipe(XmlStringUtil.escapeString)
+      .pipe(_.replace("\n", "<br>"))
+      .pipe(XmlStringUtil.wrapInHtmlTag(_, "pre"))
+      .pipe(XmlStringUtil.wrapInHtml)
   }
 
   @RequiresReadLock
