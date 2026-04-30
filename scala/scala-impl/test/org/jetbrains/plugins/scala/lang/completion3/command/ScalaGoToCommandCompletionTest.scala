@@ -6,12 +6,19 @@ import org.junit.Test
 
 final class ScalaGoToCommandCompletionTest extends ScalaCommandCompletionTestBase {
   private val GoToDeclarationPredicate: LookupElement => Boolean = lookupStringContains(_, "Go to declaration")
+  private val GoToSuperMethodPredicate: LookupElement => Boolean = lookupStringContains(_, "Go to super method")
 
   private def doGoToDeclarationCommandCompletionTest(fileText: String, @Nullable resultText: String = null): Unit =
     doCommandCompletionTest(fileText, resultText = resultText, predicate = GoToDeclarationPredicate)
 
   private def checkNoGoToDeclarationCommandCompletion(fileText: String): Unit =
     checkNoCommandCompletion(fileText, predicate = GoToDeclarationPredicate)
+
+  private def doGoToSuperMethodCommandCompletionTest(fileText: String, @Nullable resultText: String = null): Unit =
+    doCommandCompletionTest(fileText, resultText = resultText, predicate = GoToSuperMethodPredicate)
+
+  private def checkNoGoToSuperMethodCommandCompletion(fileText: String): Unit =
+    checkNoCommandCompletion(fileText, predicate = GoToSuperMethodPredicate)
 
   @Test
   def goToParameterTypeDeclaration(): Unit = doGoToDeclarationCommandCompletionTest(
@@ -96,4 +103,71 @@ final class ScalaGoToCommandCompletionTest extends ScalaCommandCompletionTestBas
          |  val x: UndefinedType.$CARET = ???
          |}""".stripMargin
     )
+
+  @Test
+  def goToSuperMethodFromBody(): Unit = doGoToSuperMethodCommandCompletionTest(
+    fileText =
+      s"""trait Base {
+         |  def foo(a: Int): Unit
+         |}
+         |
+         |class Child extends Base {
+         |  override def foo(a: Int): Unit = {
+         |    ..$CARET
+         |  }
+         |}""".stripMargin,
+    resultText =
+      s"""trait Base {
+         |  def foo$CARET(a: Int): Unit
+         |}
+         |
+         |class Child extends Base {
+         |  override def foo(a: Int): Unit = {
+         |
+         |  }
+         |}""".stripMargin
+  )
+
+  @Test
+  def goToSuperMethodFromMethodName(): Unit = doGoToSuperMethodCommandCompletionTest(
+    fileText =
+      s"""trait Base {
+         |  def foo(a: Int): Int = a
+         |}
+         |
+         |class Child extends Base {
+         |  override def foo..$CARET(a: Int): Int = a + 1
+         |}""".stripMargin,
+    resultText =
+      s"""trait Base {
+         |  def foo$CARET(a: Int): Int = a
+         |}
+         |
+         |class Child extends Base {
+         |  override def foo(a: Int): Int = a + 1
+         |}""".stripMargin
+  )
+
+  @Test
+  def noGoToSuperMethodForNonOverridingMethod(): Unit = checkNoGoToSuperMethodCommandCompletion(
+    fileText =
+      s"""class Standalone {
+         |  def foo(a: Int): Int = {
+         |    ..$CARET
+         |  }
+         |}""".stripMargin
+  )
+
+  @Test
+  def noGoToSuperMethodOutsideFunction(): Unit = checkNoGoToSuperMethodCommandCompletion(
+    fileText =
+      s"""trait Base {
+         |  def foo(a: Int): Int = a
+         |}
+         |
+         |class Child extends Base {
+         |  ..$CARET
+         |  override def foo(a: Int): Int = a + 1
+         |}""".stripMargin
+  )
 }
