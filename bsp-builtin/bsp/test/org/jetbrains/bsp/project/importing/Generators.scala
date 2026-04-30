@@ -8,8 +8,12 @@ import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.data.{JdkData, ScalaSdkData}
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
-import org.jetbrains.jps.incremental.scala.remote.SerializablePath
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.data.MyURI
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
+import org.jetbrains.sbt.project.structure.data.{InterpretablePath, PathConstructor}
+import org.jetbrains.sbt.project.toPath
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
@@ -17,6 +21,12 @@ import java.nio.file.{Path, Paths}
 import scala.jdk.CollectionConverters._
 
 object Generators {
+
+  private given EelDescriptor = LocalEelDescriptor.INSTANCE
+
+  given PathConstructor[Path]:
+    override def construct(path: Path): InterpretablePath =
+      new InterpretablePath(path.toCanonicalPath.toString)
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 
@@ -56,14 +66,14 @@ object Generators {
   def genSourceDirectoryUnder(root: Path): Gen[SourceEntry] = for {
     path <- genPathBelow(root)
     generated <- arbitrary[Boolean]
-  } yield SourceEntry(SerializablePath(path), isDirectory = true, generated, None)
+  } yield SourceEntry(InterpretablePath.construct(path), isDirectory = true, generated, None)
 
   def genSourceDirectory: Gen[SourceEntry] = for {
     path <- arbitrary[Path]
     generated <- arbitrary[Boolean]
-  } yield SourceEntry(SerializablePath(path), isDirectory = true, generated = generated, None)
+  } yield SourceEntry(InterpretablePath.construct(path), isDirectory = true, generated = generated, None)
 
-  def genSourceDirs(root: Option[SerializablePath]): Gen[List[SourceEntry]] = Gen.sized { size =>
+  def genSourceDirs(root: Option[InterpretablePath]): Gen[List[SourceEntry]] = Gen.sized { size =>
     for {
       size1 <- Gen.choose(0,size)
       size2 = size - size1
@@ -111,18 +121,18 @@ object Generators {
     targets <- arbitrary[List[BuildTarget]]
     targetDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
     targetTestDependencies <- arbitrary[Seq[BuildTargetIdentifier]]
-    basePath <- arbitrary[Path].map(SerializablePath(_)).optional
-    output <- arbitrary[Option[Path]].map(_.map(SerializablePath(_)))
-    testOutput <- arbitrary[Option[Path]].map(_.map(SerializablePath(_)))
+    basePath <- arbitrary[Path].map(InterpretablePath.construct).optional
+    output <- arbitrary[Option[Path]].map(_.map(InterpretablePath.construct))
+    testOutput <- arbitrary[Option[Path]].map(_.map(InterpretablePath.construct))
     sourceDirs <- genSourceDirs(basePath)
     testSourceDirs <- genSourceDirs(basePath)
     resourceDirs <- genSourceDirs(basePath)
     testResourceDirs <- genSourceDirs(basePath)
-    classPath <- arbitrary[Seq[Path]].map(_.map(SerializablePath(_)))
-    classPathSources <- arbitrary[Seq[Path]].map(_.map(SerializablePath(_)))
-    testClassPath <- arbitrary[Seq[Path]].map(_.map(SerializablePath(_)))
-    testClassPathSources <- arbitrary[Seq[Path]].map(_.map(SerializablePath(_)))
-    outputPaths <- arbitrary[Seq[Path]].map(_.map(SerializablePath(_)))
+    classPath <- arbitrary[Seq[Path]].map(_.map(InterpretablePath.construct))
+    classPathSources <- arbitrary[Seq[Path]].map(_.map(InterpretablePath.construct))
+    testClassPath <- arbitrary[Seq[Path]].map(_.map(InterpretablePath.construct))
+    testClassPathSources <- arbitrary[Seq[Path]].map(_.map(InterpretablePath.construct))
+    outputPaths <- arbitrary[Seq[Path]].map(_.map(InterpretablePath.construct))
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(

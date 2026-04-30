@@ -3,7 +3,7 @@ package org.jetbrains.bsp.project.importing
 import ch.epfl.scala.bsp4j._
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.data.{JdkData, SbtBuildModuleDataBsp, ScalaSdkData}
-import org.jetbrains.jps.incremental.scala.remote.SerializablePath
+import org.jetbrains.sbt.project.structure.data.InterpretablePath
 
 import scala.util.Try
 
@@ -20,18 +20,18 @@ object BspResolverDescriptors {
                                    targets: Seq[BuildTarget],
                                    targetDependencies: Seq[BuildTargetIdentifier],
                                    targetTestDependencies: Seq[BuildTargetIdentifier],
-                                   basePath: Option[SerializablePath],
-                                   output: Option[SerializablePath],
-                                   testOutput: Option[SerializablePath],
+                                   basePath: Option[InterpretablePath],
+                                   output: Option[InterpretablePath],
+                                   testOutput: Option[InterpretablePath],
                                    sourceRoots: Seq[SourceEntry],
                                    testSourceRoots: Seq[SourceEntry],
                                    resourceRoots: Seq[SourceEntry],
                                    testResourceRoots: Seq[SourceEntry],
-                                   outputPaths: Seq[SerializablePath],
-                                   classpath: Seq[SerializablePath],
-                                   classpathSources: Seq[SerializablePath],
-                                   testClasspath: Seq[SerializablePath],
-                                   testClasspathSources: Seq[SerializablePath],
+                                   outputPaths: Seq[InterpretablePath],
+                                   classpath: Seq[InterpretablePath],
+                                   classpathSources: Seq[InterpretablePath],
+                                   testClasspath: Seq[InterpretablePath],
+                                   testClasspathSources: Seq[InterpretablePath],
                                    languageLevel: Option[LanguageLevel]) extends Serializable
 
   case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription]) extends Serializable
@@ -63,5 +63,5 @@ object BspResolverDescriptors {
     javacOptions: Try[JavacOptionsResult]
   )
 
-  case class SourceEntry(file: SerializablePath, isDirectory: Boolean, generated: Boolean, packagePrefix: Option[String]) extends Serializable
+  case class SourceEntry(file: InterpretablePath, isDirectory: Boolean, generated: Boolean, packagePrefix: Option[String]) extends Serializable
 }

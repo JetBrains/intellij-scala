@@ -1,37 +1,50 @@
 package org.jetbrains.bsp.project.importing
 
-import ch.epfl.scala.bsp4j._
+import ch.epfl.scala.bsp4j.*
 import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.project.*
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.platform.eel.EelDescriptor
 import com.intellij.pom.java.LanguageLevel
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileSystem
-import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.data._
+import org.jetbrains.bsp.BspUtil.*
+import org.jetbrains.bsp.data.*
 import org.jetbrains.bsp.project.BspSyntheticModuleType
-import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.*
 import org.jetbrains.bsp.{BSP, BspBundle}
-import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, StringExt}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion, SdkReference}
 import org.jetbrains.sbt.project.data.MyURI
 import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.project.structure.data.{InterpretablePath, PathConstructor}
+import org.jetbrains.sbt.project.toPath
 
 import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.Collections
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 private[importing] object BspResolverLogic {
+
+  private given PathConstructor[Path]:
+    override def construct(path: Path): InterpretablePath =
+      new InterpretablePath(path.toCanonicalPath.toString)
+
+  private given PathConstructor[String]:
+    override def construct(str: String): InterpretablePath = new InterpretablePath(str)
+
+  private def interpretablePathFromUri(uriString: String): InterpretablePath =
+    InterpretablePath.construct(uriString.toURI.getPath)
+
   private val Log = Logger.getInstance(this.getClass)
 
   private def extractJdkData(data: JsonElement)(implicit gson: Gson): Option[JvmBuildTarget] =
@@ -87,7 +100,8 @@ private[importing] object BspResolverLogic {
                                                      sourcesItems: Seq[SourcesItem],
                                                      resourcesItems: Seq[ResourcesItem],
                                                      outputPathsItems: Seq[OutputPathsItem],
-                                                     dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = try {
+                                                     dependencySourcesItems: Seq[DependencySourcesItem])
+                                                    (using EelDescriptor): ProjectModules = try {
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
@@ -95,10 +109,10 @@ private[importing] object BspResolverLogic {
 
     val transitiveDepComputed: mutable.Map[BuildTarget, Set[BuildTarget]] = mutable.Map.empty
 
-    def transitiveDependencyOutputs(start: BuildTarget): Seq[Path] = {
+    def transitiveDependencyOutputs(start: BuildTarget): Seq[InterpretablePath] = {
       val transitiveDeps = transitiveDependencies(start).map(_.getId)
-      val scalaDeps = transitiveDeps.flatMap(idToScalacOptions.get).map(d => Path.of(d.getClassDirectory.toURI)).toSeq
-      val javaDeps = transitiveDeps.flatMap(idToJavacOptions.get).map(d => Path.of(d.getClassDirectory.toURI)).toSeq
+      val scalaDeps = transitiveDeps.flatMap(idToScalacOptions.get).map(d => interpretablePathFromUri(d.getClassDirectory)).toSeq
+      val javaDeps = transitiveDeps.flatMap(idToJavacOptions.get).map(d => interpretablePathFromUri(d.getClassDirectory)).toSeq
       (scalaDeps ++ javaDeps).sorted.distinct
     }
 
@@ -109,7 +123,7 @@ private[importing] object BspResolverLogic {
       })
 
     val idToDepSources = dependencySourcesItems
-      .map(item => (item.getTarget, item.getSources.asScala.iterator.map(s => Path.of(s.toURI)).toSeq))
+      .map(item => (item.getTarget, item.getSources.asScala.iterator.map(s => interpretablePathFromUri(s)).toSeq))
       .toMap
 
     val idToResources = resourcesItems
@@ -117,7 +131,7 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val idToOutputPaths = outputPathsItems
-      .map(item => (item.getTarget, item.getOutputPaths.asScala.iterator.map(p => Path.of(p.getUri.toURI)).toSeq))
+      .map(item => (item.getTarget, item.getOutputPaths.asScala.iterator.map(p => interpretablePathFromUri(p.getUri)).toSeq))
       .toMap
 
     val idToSources = sourcesItems
@@ -249,15 +263,11 @@ private[importing] object BspResolverLogic {
   }
 
   private def sourceEntries(sourcesItem: SourcesItem): Seq[SourceEntry] = {
-    val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.iterator.distinct.toSeq
-    val sourceEntries = sourceItems.map { item =>
+    sourcesItem.getSources.asScala.iterator.distinct.map { item =>
       val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
-      val path = Path.of(item.getUri.toURI)
-      // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
       val isDirectory = item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/")
-      SourceEntry(SerializablePath(path), isDirectory, item.getGenerated, packagePrefix)
-    }
-    sourceEntries.distinct
+      SourceEntry(interpretablePathFromUri(item.getUri), isDirectory, item.getGenerated, packagePrefix)
+    }.toSeq.distinct
   }
 
   private def findPackagePrefix(sourcesItem: SourcesItem, sourceUri: String): Option[String] = {
@@ -272,10 +282,8 @@ private[importing] object BspResolverLogic {
     }.filter(_.nonEmpty)
   }
 
-  private def sourceEntry(uri: String, generated: Boolean = false): SourceEntry = {
-    val path = Path.of(uri.toURI)
-    SourceEntry(SerializablePath(path), isDirectory = uri.endsWith("/"), generated, None)
-  }
+  private def sourceEntry(uri: String, generated: Boolean = false): SourceEntry =
+    SourceEntry(interpretablePathFromUri(uri), isDirectory = uri.endsWith("/"), generated, None)
 
   /**
    * @return list of directories from `dirs` which are not child directories of any other directory in `dirs`<br>
@@ -298,7 +306,7 @@ private[importing] object BspResolverLogic {
    *    basePath2
    * }}}
    */
-  private def excludeChildDirectories(entries: Seq[SourceEntry]) = {
+  private def excludeChildDirectories(entries: Seq[SourceEntry])(using EelDescriptor) = {
     val dirs = entries.filter(_.isDirectory)
     entries.filter { entry =>
       !dirs.exists(a => FileUtil.isAncestor(a.file.toPath.toFile, entry.file.toPath.toFile, true))
@@ -309,21 +317,21 @@ private[importing] object BspResolverLogic {
     buildTarget: BuildTarget,
     scalacOptions: Option[ScalacOptionsItem],
     javacOptions: Option[JavacOptionsItem],
-    dependencySourceDirs: Seq[Path],
+    dependencySourceDirs: Seq[InterpretablePath],
     sourceEntries: Seq[SourceEntry],
     resourceEntries: Seq[SourceEntry],
-    outputPaths: Seq[Path],
-    dependencyOutputs: Seq[Path]
-  )(implicit gson: Gson): Option[ModuleDescription] = {
-    val moduleBaseDir: Option[Path] = Option(buildTarget.getBaseDirectory).map(s => Path.of(s.toURI))
+    outputPaths: Seq[InterpretablePath],
+    dependencyOutputs: Seq[InterpretablePath]
+  )(using EelDescriptor)(implicit gson: Gson): Option[ModuleDescription] = {
+    val moduleBaseDir: Option[InterpretablePath] = Option(buildTarget.getBaseDirectory).map(interpretablePathFromUri)
     val outputPath =
-      scalacOptions.map(o => Path.of(o.getClassDirectory.toURI))
-        .orElse(javacOptions.map(o => Path.of(o.getClassDirectory.toURI)))
+      scalacOptions.map(o => interpretablePathFromUri(o.getClassDirectory))
+        .orElse(javacOptions.map(o => interpretablePathFromUri(o.getClassDirectory)))
 
     // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
-    val scalaClassPath = scalacOptions.map(_.getClasspath.asScala.iterator.map(s => Path.of(s.toURI))).getOrElse(Iterator.empty)
-    val javaClassPath = javacOptions.map(_.getClasspath.asScala.iterator.map(s => Path.of(s.toURI))).getOrElse(Iterator.empty)
-    val classPath = (scalaClassPath ++ javaClassPath).map(_.toCanonicalPath).toSeq.sorted.distinct
+    val scalaClassPath = scalacOptions.map(_.getClasspath.asScala.iterator.map(interpretablePathFromUri)).getOrElse(Iterator.empty)
+    val javaClassPath = javacOptions.map(_.getClasspath.asScala.iterator.map(interpretablePathFromUri)).getOrElse(Iterator.empty)
+    val classPath = (scalaClassPath ++ javaClassPath).toSeq.sorted.distinct
 
     val classPathWithoutDependencyOutputs = classPath.filterNot(dependencyOutputs.contains)
 
@@ -375,8 +383,8 @@ private[importing] object BspResolverLogic {
     val (sourceEntriesFiltered1, resourceEntriesFiltered1) = (moduleBaseDir, moduleKind) match {
       case (Some(baseDir), Some(_: BspResolverDescriptors.ModuleKind.SbtModule)) =>
         (
-          sourceEntries.filter(f => FileUtil.isAncestor(baseDir.toFile, f.file.toPath.toFile, false)),
-          resourceEntries.filter(f => FileUtil.isAncestor(baseDir.toFile, f.file.toPath.toFile, false))
+          sourceEntries.filter(f => FileUtil.isAncestor(baseDir.toPath.toFile, f.file.toPath.toFile, false)),
+          resourceEntries.filter(f => FileUtil.isAncestor(baseDir.toPath.toFile, f.file.toPath.toFile, false))
         )
       case _ =>
         (sourceEntries, resourceEntries)
@@ -407,13 +415,13 @@ private[importing] object BspResolverLogic {
   private[importing] def createModuleDescriptionData(
     target: BuildTarget,
     tags: Seq[String],
-    moduleBase: Option[Path],
-    outputPath: Option[Path],
+    moduleBase: Option[InterpretablePath],
+    outputPath: Option[InterpretablePath],
     sourceRoots: Seq[SourceEntry],
     resourceRoots: Seq[SourceEntry],
-    outputPaths: Seq[Path],
-    classPath: Seq[Path],
-    dependencySources: Seq[Path],
+    outputPaths: Seq[InterpretablePath],
+    classPath: Seq[InterpretablePath],
+    dependencySources: Seq[InterpretablePath],
     languageLevel: Option[LanguageLevel]
   ): ModuleDescriptionData = {
     import BuildTargetTag._
@@ -427,14 +435,14 @@ private[importing] object BspResolverLogic {
       targets = Seq(target),
       targetDependencies = Seq.empty,
       targetTestDependencies = Seq.empty,
-      basePath = moduleBase.map(SerializablePath(_)),
+      basePath = moduleBase,
       output = None,
       testOutput = None,
       sourceRoots = Seq.empty,
       testSourceRoots = Seq.empty,
       resourceRoots = Seq.empty,
       testResourceRoots = Seq.empty,
-      outputPaths = outputPaths.map(SerializablePath(_)),
+      outputPaths = outputPaths,
       classpath = Seq.empty,
       classpathSources = Seq.empty,
       testClasspath = Seq.empty,
@@ -447,20 +455,20 @@ private[importing] object BspResolverLogic {
     val data = if(tags.contains(TEST))
       dataBasic.copy(
         targetTestDependencies = targetDeps,
-        testOutput = outputPath.map(SerializablePath(_)),
+        testOutput = outputPath,
         testSourceRoots = sourceRoots,
         testResourceRoots = resourceRoots,
-        testClasspath = classPath.map(SerializablePath(_)),
-        testClasspathSources = dependencySources.map(SerializablePath(_))
+        testClasspath = classPath,
+        testClasspathSources = dependencySources
       )
     else
       dataBasic.copy(
         targetDependencies = targetDeps,
-        output = outputPath.map(SerializablePath(_)),
+        output = outputPath,
         sourceRoots = sourceRoots,
         resourceRoots = resourceRoots,
-        classpath = classPath.map(SerializablePath(_)),
-        classpathSources = dependencySources.map(SerializablePath(_))
+        classpath = classPath,
+        classpathSources = dependencySources
       )
 
     data
@@ -588,11 +596,11 @@ private[importing] object BspResolverLogic {
         val resources = mergeSourceEntries(dataCombined.resourceRoots, dataNext.resourceRoots)
         val testResources = mergeSourceEntries(dataCombined.testResourceRoots, dataNext.testResourceRoots)
         val testSources  = mergeSourceEntries(dataCombined.testSourceRoots, dataNext.testSourceRoots)
-        val outputPaths = mergeFiles(dataCombined.outputPaths.map(_.toPath), dataNext.outputPaths.map(_.toPath))
-        val classPath = mergeFiles(dataCombined.classpath.map(_.toPath), dataNext.classpath.map(_.toPath))
-        val classPathSources = mergeFiles(dataCombined.classpathSources.map(_.toPath), dataNext.classpathSources.map(_.toPath))
-        val testClassPath = mergeFiles(dataCombined.testClasspath.map(_.toPath), dataNext.testClasspath.map(_.toPath))
-        val testClassPathSources = mergeFiles(dataCombined.testClasspathSources.map(_.toPath), dataNext.testClasspathSources.map(_.toPath))
+        val outputPaths = mergeInterpretablePaths(dataCombined.outputPaths, dataNext.outputPaths)
+        val classPath = mergeInterpretablePaths(dataCombined.classpath, dataNext.classpath)
+        val classPathSources = mergeInterpretablePaths(dataCombined.classpathSources, dataNext.classpathSources)
+        val testClassPath = mergeInterpretablePaths(dataCombined.testClasspath, dataNext.testClasspath)
+        val testClassPathSources = mergeInterpretablePaths(dataCombined.testClasspathSources, dataNext.testClasspathSources)
         val languageLevel = (dataCombined.languageLevel ++ dataNext.languageLevel).maxOption
 
         val newData = ModuleDescriptionData(
@@ -608,11 +616,11 @@ private[importing] object BspResolverLogic {
           testSourceRoots = testSources,
           resourceRoots = resources,
           testResourceRoots = testResources,
-          outputPaths = outputPaths.map(SerializablePath(_)),
-          classpath = classPath.map(SerializablePath(_)),
-          classpathSources = classPathSources.map(SerializablePath(_)),
-          testClasspath = testClassPath.map(SerializablePath(_)),
-          testClasspathSources = testClassPathSources.map(SerializablePath(_)),
+          outputPaths = outputPaths,
+          classpath = classPath,
+          classpathSources = classPathSources,
+          testClasspath = testClassPath,
+          testClasspathSources = testClassPathSources,
           languageLevel = languageLevel
         )
 
@@ -626,7 +634,10 @@ private[importing] object BspResolverLogic {
     (a++b).sortBy(_.getUri).distinct
 
   private def mergeSourceEntries(a: Seq[SourceEntry], b: Seq[SourceEntry]) =
-    (a++b).sortBy(_.file.toPath.toCanonicalPath).distinct
+    (a++b).sortBy(_.file).distinct
+
+  private def mergeInterpretablePaths(a: Seq[InterpretablePath], b: Seq[InterpretablePath]): Seq[InterpretablePath] =
+    (a ++ b).sorted.distinct
 
   private def mergeFiles(a: Seq[Path], b: Seq[Path]) =
     (a++b).sortBy(_.toCanonicalPath).distinct
@@ -684,7 +695,7 @@ private[importing] object BspResolverLogic {
     excludedPaths: List[Path],
     displayName: String,
     canCompile: List[String]
-  ): DataNode[ProjectData] = {
+  )(using EelDescriptor): DataNode[ProjectData] = {
 
     val projectRootPath = workspace.toCanonicalPath.toString
     val moduleFileDirectoryPath = moduleFilesDirectory(workspace).toCanonicalPath.toString
@@ -818,7 +829,7 @@ private[importing] object BspResolverLogic {
       data.storePath(ExternalSystemSourceType.EXCLUDED, p.toCanonicalPath.toString)
     }
 
-  private def inferProjectJdk(modules: Seq[DataNode[ModuleData]]) = {
+  private def inferProjectJdk(modules: Seq[DataNode[ModuleData]])(using EelDescriptor): Option[SdkReference] = {
     val groupedJdks = modules
       .flatMap(m => Option(ExternalSystemApiUtil.find(m, BspMetadata.Key)))
       .map(m => (m.getData.javaHome, m.getData.javaVersion))
@@ -843,7 +854,7 @@ private[importing] object BspResolverLogic {
     projectNode: DataNode[ProjectData],
     projectLibraryDependencies: Map[String, LibraryData],
     buildTargetIdToBuildModuleTargetId: Map[MyURI, MyURI]
-  ): DataNode[ModuleData] = {
+  )(using EelDescriptor): DataNode[ModuleData] = {
     import ExternalSystemSourceType._
 
     val moduleDescriptionData = moduleDescription.data
@@ -1084,7 +1095,7 @@ private[importing] object BspResolverLogic {
     moduleKind: ModuleKind,
     moduleDescriptionData: ModuleDescriptionData,
     buildTargetIdToBuildModuleTargetId: Map[MyURI, MyURI]
-  ): Unit =
+  )(using EelDescriptor): Unit =
     moduleKind match {
       case ModuleKind.ScalaModule(_, scalaSdkData) =>
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
