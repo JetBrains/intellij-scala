@@ -96,6 +96,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
     }
   } catch {
     case cf: org.junit.ComparisonFailure =>
+      printComparisonFailureRepro(textBefore, cf.getExpected, cf.getActual)
       throw cf.withBeforePrefix(textBefore)
 
     case NonFatal(other) =>
@@ -109,8 +110,43 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
   protected def performTypingAction(charTyped: Char): Unit =
     myFixture.`type`(charTyped)
 
+  private def printComparisonFailureRepro(textBefore: String, expectedAfter: String, actualAfter: String): Unit =
+    System.err.println(
+      s"""<<<Repro>>>
+         |<<<Before>>>
+         |$textBefore
+         |----------------------------------------------------
+         |<<<ExpectedAfter>>>
+         |$expectedAfter
+         |----------------------------------------------------
+         |<<<ActualAfter>>>
+         |$actualAfter
+         |""".stripMargin
+    )
+
   protected def performTypingAction(text: String): Unit =
     myFixture.`type`(text)
+
+  /**
+   * Types text character-by-character and commits the editor document after each character.
+   *
+   * Why we need this helper for some typing tests:
+   * - `TypedHandlerDelegate` API does not guarantee PSI is in sync with the document during typing callbacks.
+   * - `EditorTestFixture.type(String)` types in a tight loop (`type(char)` per character) without explicit commit between characters.
+   * - Psi commits are asynchronous and coalesced, so in tests PSI can lag behind typed text longer than in production.
+   *
+   * In production, human typing cadence usually gives the async commit pipeline enough time to catch up between key presses.
+   * In tests, typing whole strings too fast can make `file.findElementAt(...)` return `null` in typed handlers and produce
+   * behavior different from what users see in the IDE.
+   *
+   * Without extra "commit" some tests might fail after fixes in the formatter related to SCL-25190
+   */
+  protected def performTypingActionAndCommitEachChar(text: String): Unit =
+    text.foreach { char: Char =>
+      performTypingAction(char)
+
+      getEditor.getDocument.commit(getProject)
+    }
 
   protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char,
                                               fileName: String = defaultFileName): Unit =
@@ -131,10 +167,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
     fileName: String = defaultFileName
   ): Unit =
     performTest(textBefore, textAfter, fileName) { () =>
-      textTyped.foreach { char: Char =>
-        performTypingAction(char)
-        getEditor.getDocument.commit(getProject)
-      }
+      performTypingActionAndCommitEachChar(textTyped)
     }
 
   protected def performBackspaceAction(): Unit =
