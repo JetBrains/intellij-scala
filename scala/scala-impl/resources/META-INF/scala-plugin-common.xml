@@ -266,6 +266,33 @@
         <codeInsight.wordCompletionFilter language="Scala"
                                           implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaWordCompletionFilter"/>
 
+        <codeInsight.completion.command.factory
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaCommandCompletionFactory"/>
+        <!--region Common Platform Command Completion Providers -->
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="com.intellij.codeInsight.completion.command.commands.PsiElementCommentByBlockCompletionCommandProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="com.intellij.codeInsight.completion.command.commands.PsiElementCommentByLineCompletionCommandProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="com.intellij.platform.structureView.backend.completion.commands.ViewStructureCompletionCommandProvider"
+                order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="com.intellij.codeInsight.completion.command.commands.InsertLiveTemplateCompletionCommandProvider"
+                order="last"/>
+        <!-- TODO(SCL-24924): disabled for now. SCL-21364 is recommended to have
+              <codeInsight.completion.command.provider
+                      language="Scala"
+                      implementationClass="com.intellij.codeInsight.completion.command.commands.DirectIntentionCommandProvider"
+                      order="last"/>-->
+        <!--endregion-->
+        <!--region Scala Command Completion Providers -->
+        <!--endregion-->
+
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"
                                 order="before caseClauseCompletionContributor"/>

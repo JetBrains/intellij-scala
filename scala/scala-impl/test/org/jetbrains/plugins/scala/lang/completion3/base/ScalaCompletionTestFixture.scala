@@ -117,7 +117,7 @@ class ScalaCompletionTestFixture(
     val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)
     assertTrue(items.nonEmpty)
 
-    scalaFixture.javaFixture.`type`(char)
+    typeChar(char)
     checkResultByText(resultText)
   }
 
@@ -132,6 +132,12 @@ class ScalaCompletionTestFixture(
     assertTrue(items.nonEmpty)
     lookup.finishLookup(char, null)
     checkResultByText(resultText)
+  }
+
+  final def complete(`type`: CompletionType, invocationCount: Int): Array[LookupElement] = {
+    val lookups = scalaFixture.javaFixture.complete(`type`, invocationCount)
+    assertNotNull(lookups)
+    lookups
   }
 
   final def completeBasic(invocationCount: Int): Array[LookupElement] = {
@@ -171,6 +177,11 @@ class ScalaCompletionTestFixture(
     getActiveLookupWithItems(itemsExtractor)
   }
 
+  final def withActiveLookup[T](action: LookupImpl => T): T = scalaFixture.javaFixture.getLookup match {
+    case lookup: LookupImpl => action(lookup)
+    case _ => throw new AssertionError("Lookup not found")
+  }
+
   private[this] def getActiveLookupWithItems(itemsExtractor: LookupImpl => Iterable[LookupElement] = allItems): (LookupImpl, Iterable[LookupElement]) = {
     val activeLookup = LookupManager.getActiveLookup(getEditor)
     activeLookup match {
@@ -194,6 +205,8 @@ class ScalaCompletionTestFixture(
 
   final def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
     scalaFixture.checkResultByText(expectedFileText, ignoreTrailingSpaces)
+
+  final def typeChar(char: Char): Unit = scalaFixture.javaFixture.`type`(char)
 }
 
 object ScalaCompletionTestFixture {
@@ -211,7 +224,8 @@ object ScalaCompletionTestFixture {
       ", TypeText: " + presentation.getTypeText +
       ", Italic: " + presentation.isItemTextItalic +
       ", Bold: " + presentation.isItemTextBold +
-      ", TailGrayed: " + isTailGrayed(presentation)
+      ", TailGrayed: " + isTailGrayed(presentation) +
+      s", LookupStrings: [${item.getAllLookupStrings.asScala.mkString(", ")}]"
   }
 
   def isTailGrayed(presentation: LookupElementPresentation): Boolean =
