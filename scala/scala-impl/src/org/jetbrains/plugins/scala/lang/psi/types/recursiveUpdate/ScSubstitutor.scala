@@ -16,16 +16,18 @@ import scala.annotation.tailrec
 import scala.collection.immutable.LongMap
 import scala.util.hashing.MurmurHash3
 
-/** [[ScSubstitutor]] is a transformation of a type which is applied recursively from top to leaves.
-  * Examples of such transformation:
-  * - replacing type parameter with it's bound or actual argument
-  * - replacing `this` type to a concrete inheritor type
-  *
-  * It's also possible to chain several substitutors to create a compound one.
-  *
-  * If it's known that every substitution in a chain may update only leaf subtypes, than we may avoid
-  * recursively traversing a type several times.
-  **/
+/**
+ * [[ScSubstitutor]] is a transformation of a type which is applied recursively from top to leaves.
+ *
+ * Examples of such transformation:
+ *  - replacing type parameter with it's bound or actual argument
+ *  - replacing `this` type to a concrete inheritor type
+ *
+ * It's also possible to chain several substitutors to create a compound one.
+ *
+ * If it's known that every substitution in a chain may update only leaf subtypes,
+ * then we may avoid recursively traversing a type several times.
+ */
 final class ScSubstitutor private(_substitutions: Array[Update],   //Array is used for the best concatenation performance, it is effectively immutable
                                   _fromIndex: Int = 0)
   extends (ScType => ScType) {
