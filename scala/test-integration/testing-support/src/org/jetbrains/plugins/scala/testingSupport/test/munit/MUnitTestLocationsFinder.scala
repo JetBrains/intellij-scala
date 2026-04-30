@@ -22,7 +22,8 @@ object MUnitTestLocationsFinder {
         leafMethodNames = MUnitUtils.FunSuiteTestMethodNames
       )
       val testLocationsWithStaticName = testLocations.filter(MUnitUtils.hasStaticTestName)
-      testLocationsWithStaticName
+      val testLocationsOnMUnitTypes = testLocationsWithStaticName.filter(MUnitUtils.hasMUnitTestMethodOwner)
+      testLocationsOnMUnitTypes
     }
     result
   }
