@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion3.command
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.completion.command.CommandCompletionLookupElement
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupEvent}
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.registry.Registry
@@ -22,11 +23,17 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
     Registry.get("ide.completion.command.force.enabled").setValue(true, getTestRootDisposable)
   }
 
+  /**
+   * @param prefix <code>.</code> or <code>..</code> before [[CARET]]. Should be provided in cases when caret is inside [[start]] and [[end]].
+   *               Otherwise, doesn't really matter. Default: <code>.</code>
+   */
   protected final def doCommandCompletionTest(fileText: String,
                                               predicate: LookupElement => Boolean,
                                               @Nullable resultText: String = null,
+                                              checkPreview: IntentionPreviewInfo => Unit = _ => (),
+                                              prefix: String = ".",
                                               invocationCount: Int = DefaultInvocationCount): Unit = {
-    val (cleanText, expectedHighlightings) = extractMarker(fileText)
+    val (cleanText, expectedHighlightings) = extractMarker(fileText, caretMarker = Some(prefix + CARET))
     configureFromFileText(cleanText)
     val checkResult = resultText != null
     val elements = scalaCompletionTestFixture.complete(CompletionType.BASIC, invocationCount)
@@ -43,6 +50,9 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
         assertEquals(expectedHighlightedRange, actualHighlightedRange)
       case _ =>
     }
+
+    val preview = lookup.getCommand.getPreview
+    checkPreview(preview)
 
     if (checkResult) {
       checkResultByText(resultText)
