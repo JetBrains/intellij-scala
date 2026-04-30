@@ -8,7 +8,26 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * Represents type alias, inner class or trait.
+ * [[Signature]] specialization for type-level members.
+ *
+ * In Scala, "type-level" means names from the type namespace:
+ * members referenced in type positions rather than expression positions.
+ *
+ * Example:
+ * {{{
+ *   trait A {
+ *     type Out = Int
+ *     class Inner
+ *   }
+ *
+ *   val x: A#Out = 1
+ *   def mk(a: A): a.Inner = new a.Inner
+ * }}}
+ *
+ * Here type signatures are created for `Out` and `Inner`.
+ *
+ * Represents type aliases, nested type definitions.<br>
+ * Unlike [[TermSignature]], it models type-member matching by visible type-member name.
  */
 case class TypeSignature(
   override val namedElement: PsiNamedElement,
