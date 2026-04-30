@@ -9,10 +9,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
-import org.jetbrains.bsp._
+import org.jetbrains.bsp.*
 import org.jetbrains.bsp.protocol.BspJob
-import org.jetbrains.bsp.protocol.BspNotifications._
-import org.jetbrains.bsp.protocol.session.BspSession._
+import org.jetbrains.bsp.protocol.BspNotifications.*
+import org.jetbrains.bsp.protocol.session.BspSession.*
+import org.jetbrains.bsp.protocol.session.GenericConnector.RemoteProcessPid
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.plugins.scala.extensions.PathExt
 
@@ -24,8 +25,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 import scala.annotation.tailrec
-import scala.concurrent._
-import scala.concurrent.duration._
+import scala.concurrent.*
+import scala.concurrent.duration.*
 import scala.io.Source
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
@@ -287,7 +288,12 @@ class BspSession private(bspPID: Long,
       // Query all child processes of the BSP server recursively.
       // The sbt BSP server spawns a separate sbt process which needs to be manually shut down. #SCL-19315
       // These remaining child processes are manually terminated after the server has been stopped.
-      val descendants = ProcessHandle.of(bspPID).stream().flatMap(_.descendants()).toList
+      // #descendants method is not available in the remote context, and it's unnecessary there to kill the child sbt process.
+      // See org.jetbrains.bsp.protocol.session.GenericConnector.prepareBspSession for explanation.
+      val descendants =
+        if (bspPID != RemoteProcessPid) ProcessHandle.of(bspPID).stream().flatMap(_.descendants()).toList
+        else java.util.List.of()
+
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=> serverConnection.server.onBuildExit())
         .thenApply[Unit](_ => descendants.stream().filter(_.isAlive).forEach(BspSession.terminateProcessGracefully(_, sessionTimeout)))
