@@ -29,6 +29,29 @@ import java.util.Objects
 import scala.annotation.tailrec
 import scala.collection.mutable
 
+/**
+ * [[Signature]] specialization for term-level members.
+ *
+ * In Scala, "term-level" means names from the value namespace:
+ * members that are referenced in expressions/calls and produce runtime values.
+ *
+ * Example:
+ * {{{
+ *   class A {
+ *     def foo(x: Int): String = x.toString
+ *     val bar: Int = 1
+ *     var baz: Int = 2
+ *     object Obj
+ *   }
+ * }}}
+ *
+ * Here term signatures are created for `foo`, `bar`, `baz`, synthetic setter `baz_=`, and `Obj`.
+ *
+ * Keeps term-shape specifics needed for term resolution and override checks:
+ *   - parameter-clause/parameter shape
+ *   - type-parameter shape
+ *   - repeated-parameter markers
+ */
 class TermSignature(
   _name:                     String,
   private val typesEval:     Seq[Seq[() => ScType]],
