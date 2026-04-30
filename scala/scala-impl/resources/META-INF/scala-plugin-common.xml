@@ -291,6 +291,9 @@
                       order="last"/>-->
         <!--endregion-->
         <!--region Scala Command Completion Providers -->
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaRenameActionCommandProvider"/>
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"

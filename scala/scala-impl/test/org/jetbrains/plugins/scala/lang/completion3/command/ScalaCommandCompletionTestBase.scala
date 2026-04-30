@@ -7,6 +7,7 @@ import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.PlatformTestUtil
 import junit.framework.TestCase.fail
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
@@ -78,9 +79,13 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase {
   protected final def selectCommandCompletions(delegate: LookupElement => Boolean): LookupElement => Boolean =
     element => isCommandCompletionLookup(element) && delegate(element)
 
-  protected final def isCommandCompletionLookup(element: LookupElement): Boolean =
+  @Nullable
+  protected final def asCommandCompletionLookup(element: LookupElement): CommandCompletionLookupElement =
     // use `as` instead of `isInstanceOf` to handle decorators such as PrioritizedLookupElement[CommandCompletionLookupElement]
-    element.as(classOf[CommandCompletionLookupElement]) != null
+    element.as(classOf[CommandCompletionLookupElement])
+
+  protected final def isCommandCompletionLookup(element: LookupElement): Boolean =
+    asCommandCompletionLookup(element) != null
 
   protected final def lookupStringContains(element: LookupElement, prefix: String, ignoreCase: Boolean = true): Boolean = {
     val lookupString = element.getLookupString
