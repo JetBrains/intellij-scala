@@ -217,6 +217,14 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
+    val outputDumpRecorder = new SbtImportOutputDumpRecorder(
+      enabledInCurrentRun = isUnitTestMode
+    )
+    val heartbeatReporter = new SbtImportHeartbeatReporter(
+      heartbeatInterval = ImportHeartbeatIntervalInUnitTests,
+      enabledInCurrentRun = isUnitTestMode,
+      outputDumpRecorder = outputDumpRecorder
+    )
 
     def update(typ: OutputType, textRaw: String): Unit = {
       timingCollector.foreach(_.processSbtOutputLine(textRaw))
@@ -257,6 +265,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       }
       (typ, line) match {
         case (typ@OutputType.StdOut, text) =>
+          outputDumpRecorder.onProcessOutput(typ, text)
           if (text.contains("(q)uit")) {
             val writer = new PrintWriter(process.getOutputStream)
             writer.println("q")
@@ -265,6 +274,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
             update(typ, text)
           }
         case (typ@OutputType.StdErr, text) =>
+          outputDumpRecorder.onProcessOutput(typ, text)
           update(typ, text)
         case _ => // ignore
       }
@@ -278,16 +288,20 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       handler.startNotify()
 
       val start = System.currentTimeMillis()
+      heartbeatReporter.initialize(start)
 
       var processEnded = false
       while (!processEnded && !cancellationFlag.get()) {
         processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MS)
 
+        val now = System.currentTimeMillis()
+        heartbeatReporter.reportIfDue(now, start)
+
         if (indicator.isCanceled) {
           cancellationFlag.set(true)
         }
 
-        val importIsTooLong = isUnitTestMode && System.currentTimeMillis() - start > MaxImportDurationInUnitTests.toMillis
+        val importIsTooLong = isUnitTestMode && ((now - start) > MaxImportDurationInUnitTests.toMillis)
         if (importIsTooLong) {
           throw new TimeoutException(s"sbt process hasn't finished in $MaxImportDurationInUnitTests")
         }
@@ -359,9 +373,10 @@ object SbtRunner:
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MS = 100
 
-  // NOTE: if this is a first run of sbt with a particular version on current machine
+  // NOTE: if this is a first run of sbt with a particular version on current machine,
   // sbt import will take some time because it will have to download quite a lot of dependencies
   private[sbt] val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
+  private[sbt] val ImportHeartbeatIntervalInUnitTests: FiniteDuration = 30.seconds
 
   /**
    * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
