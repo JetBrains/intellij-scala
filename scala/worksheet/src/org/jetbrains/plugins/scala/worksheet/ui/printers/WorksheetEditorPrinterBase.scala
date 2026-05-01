@@ -6,7 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
+import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
@@ -52,7 +53,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     document.getCharsSequence.startsWith(internalErrorPrefix)
 
   protected final def internalErrorMessage(ex: Throwable, prependCompatibilityWarning: Boolean = false): String = {
-    val stacktraceText = ex.stackTraceText
+    val stacktraceText = ExceptionUtil.getThrowableText(ex)
     val reason =
       if (stacktraceText == null) ""
       else {

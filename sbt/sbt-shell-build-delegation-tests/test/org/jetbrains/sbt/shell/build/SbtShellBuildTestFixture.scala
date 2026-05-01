@@ -4,9 +4,10 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.packaging.artifacts.Artifact
 import com.intellij.task.ProjectTask
+import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.extensions.{PathExt, ThrowableExt}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.SbtProjectImportTestUtils
@@ -190,7 +191,7 @@ final class SbtShellBuildTestFixture(
 
   private def renderStackTraceSection(header: String, throwable: Option[Throwable]): Option[String] =
     throwable
-      .map(_.stackTraceText)
+      .map(ExceptionUtil.getThrowableText)
       .map(_.trim)
       .filter(_.nonEmpty)
       .map(stack => s"$header:\n$stack")
