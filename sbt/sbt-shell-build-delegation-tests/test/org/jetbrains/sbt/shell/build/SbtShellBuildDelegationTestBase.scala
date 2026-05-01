@@ -36,7 +36,7 @@ abstract class SbtShellBuildDelegationTestBase extends SbtExternalSystemImportin
     super.setUp()
 
     // If the compiler server was running, save it and print the stacktrace later when we do `fixture.assertCompileServerIsNotRunning`...
-    fixture.markCompileServerStateBeforeTestStart()
+    fixture.markCompileServerStateBeforeTestStart(getTestRootDisposable)
     // ... But we still make each test independent of possible compile-server leakage across test boundaries, so stop it
     CompileServerLauncher.stopServerAndWait(debugReason = Some("pre-test setup cleanup for sbt-shell build delegation tests"))
 

@@ -1,18 +1,18 @@
 package org.jetbrains.sbt.shell.build
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.packaging.artifacts.Artifact
 import com.intellij.task.ProjectTask
-import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.SbtProjectImportTestUtils
 import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester
 import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.BuildOverSbtShellResult
+import org.jetbrains.sbt.shell.build.util.CompileServerStateTracker
 import org.junit.Assert.{assertTrue, fail}
 
 import java.nio.file.Path
@@ -35,16 +35,13 @@ final class SbtShellBuildTestFixture(
   private lazy val buildTester =
     new BuildOverSbtShellTester(project, logLongTestStep)
 
+  private val compileServerStateTracker =
+    new CompileServerStateTracker(logLongTestStep)
+
   private val InvalidJpsScalacOption = "-Y_non_existing_compiler_option_for_jps_compilation"
 
-  @volatile private var compileServerWasRunningBeforeTestStart: Boolean = false
-  @volatile private var compileServerStartStackTraceBeforeTestStart: Option[Throwable] = None
-
-  def markCompileServerStateBeforeTestStart(): Unit = {
-    val state = CompileServerLauncher.captureRunningServerStateForTests
-    compileServerWasRunningBeforeTestStart = state.wasRunning
-    compileServerStartStackTraceBeforeTestStart = state.startStackTrace
-  }
+  def markCompileServerStateBeforeTestStart(testRootDisposable: Disposable): Unit =
+    compileServerStateTracker.markCompileServerStateBeforeTestStart(testRootDisposable)
 
   /**
    * Guard against accidental JPS Scala compilation:
@@ -150,51 +147,8 @@ final class SbtShellBuildTestFixture(
   def rebuildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult =
     buildTester.rebuildArtifactsAndCaptureOutput(artifacts)
 
-  def assertCompileServerIsNotRunning(): Unit = {
-    val runningState = CompileServerLauncher.captureRunningServerStateForTests
-    val wasRunningBeforeSetup = compileServerWasRunningBeforeTestStart
-    val isRunningAfterTest = runningState.wasRunning
-
-    if (!wasRunningBeforeSetup && !isRunningAfterTest) return
-
-    val stateMessage = (wasRunningBeforeSetup, isRunningAfterTest) match {
-      case (true, true) =>
-        "Scala Compile Server state violations detected both before test setup and after test execution."
-      case (true, false) =>
-        "Scala Compile Server was already running before test setup (pre-existing global state leakage). It is not running after test execution."
-      case (false, true) =>
-        "Scala Compile Server was started during test execution and is still running after test execution."
-      case (false, false) =>
-        ""
-    }
-
-    val traces = Seq(
-      renderStackTraceSection(
-        header = "Compile Server start stack trace captured BEFORE test setup",
-        throwable = compileServerStartStackTraceBeforeTestStart
-      ),
-      renderStackTraceSection(
-        header = "Compile Server start stack trace captured for server running AFTER test execution",
-        throwable = runningState.startStackTrace
-      ),
-    ).flatten
-
-    val tracesText =
-      if (traces.nonEmpty) traces.mkString("\n\n", "\n\n", "")
-      else ""
-
-    fail(
-      s"""$stateMessage
-         |$tracesText""".stripMargin.trim
-    )
-  }
-
-  private def renderStackTraceSection(header: String, throwable: Option[Throwable]): Option[String] =
-    throwable
-      .map(ExceptionUtil.getThrowableText)
-      .map(_.trim)
-      .filter(_.nonEmpty)
-      .map(stack => s"$header:\n$stack")
+  def assertCompileServerIsNotRunning(): Unit =
+    compileServerStateTracker.assertCompileServerIsNotRunning()
 
   private def renderBuildDiagnostics(buildResult: BuildOverSbtShellResult): String = {
     def renderSection(title: String, messages: Seq[String]): Option[String] =

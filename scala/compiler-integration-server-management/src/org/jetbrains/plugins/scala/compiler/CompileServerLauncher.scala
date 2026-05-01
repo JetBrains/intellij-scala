@@ -6,12 +6,14 @@ import com.intellij.compiler.server.{BuildManager, BuildProcessParametersProvide
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PathManager}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
+import com.intellij.openapi.util.Disposer
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
@@ -35,7 +37,7 @@ import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import java.io.{BufferedReader, IOException, InputStream, InputStreamReader}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue, CopyOnWriteArrayList}
 import kotlinx.coroutines.CoroutineScope
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -265,6 +267,14 @@ object CompileServerLauncher {
             writePortFile(compileServerSystemDir, port.forToken)
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
+            // ATTENTION: this stack trace captures only the synchronous process-creation path.
+            // If the launch is scheduled through platform background executors, the trace may start in a pooled thread and may not
+            // contain the original test method.
+            // Our investigation did not find a reliable JUnit 3 current-test context to query here.
+            // If these tests move to JUnit 5, consider enriching this diagnostic with the
+            // IDE Starter holder `com.intellij.ide.starter.runner.CurrentTestMethod`, populated by
+            // `com.intellij.ide.starter.junit5.CurrentTestMethodProvider`; that should at least show which test
+            // was active when the compiler server was started.
             val processStartStackTrace = new Throwable(
               s"Scala Compile Server process start stack trace [thread=${Thread.currentThread.getName}]"
             )
@@ -393,14 +403,33 @@ object CompileServerLauncher {
   def running: Boolean = serverInstance.exists(_.running)
 
   @TestOnly
-  def runningServerStartStackTraceForTests: Option[Throwable] =
-    serverInstance.filter(_.running).map(_.createdAtStackTrace)
-
-  @TestOnly
   final case class RunningServerStateForTests(
     wasRunning: Boolean,
     startStackTrace: Option[Throwable]
   )
+
+  @TestOnly
+  final case class ServerStartRequestForTests(
+    projectName: String,
+    stackTrace: Throwable
+  )
+
+  // Test watchers observe requests to enter the compile-server path, not only actual process starts.
+  // If a server is already running, ensureServerRunning may return without creating a process, but the
+  // request is still useful evidence for tests which assert that sbt-shell builds avoid JPS compilation.
+  @TestOnly
+  final class ServerStartRequestsWatcherForTests private[CompileServerLauncher] {
+    private val recordedRequests = new ConcurrentLinkedQueue[ServerStartRequestForTests]
+
+    private[CompileServerLauncher] def record(request: ServerStartRequestForTests): Unit =
+      recordedRequests.add(request)
+
+    def requests: Seq[ServerStartRequestForTests] =
+      recordedRequests.asScala.toSeq
+  }
+
+  private val serverStartRequestWatchersForTests =
+    new CopyOnWriteArrayList[ServerStartRequestsWatcherForTests]
 
   @TestOnly
   def captureRunningServerStateForTests: RunningServerStateForTests =
@@ -411,6 +440,17 @@ object CompileServerLauncher {
         startStackTrace = runningInstance.map(_.createdAtStackTrace)
       )
     }
+
+  @TestOnly
+  def watchServerStartRequestsForTests(parentDisposable: Disposable): ServerStartRequestsWatcherForTests = {
+    val watcher = new ServerStartRequestsWatcherForTests
+    serverStartRequestWatchersForTests.add(watcher)
+    Disposer.register(parentDisposable, () => {
+      serverStartRequestWatchersForTests.remove(watcher)
+      ()
+    })
+    watcher
+  }
 
   @deprecated(message = "Use compileServerPort. Kept for preserving binary compatibility", since = "2026.1")
   @Deprecated(since = "2026.1", forRemoval = true)
@@ -652,6 +692,8 @@ object CompileServerLauncher {
     CompileServerShutdown.registerShutdownTask()
     serverStartLock.synchronized {
       LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.threadId()}]")
+      // Record before any early exit so tests can detect even unsuccessful attempts to reach the launcher.
+      recordServerStartRequestForTests(project)
       if (project.isDisposed) {
         LOG.warn(s"ensureServerRunning is invoked for a disposed project: $project")
         return false
@@ -666,6 +708,18 @@ object CompileServerLauncher {
 
       running || start(project)
     }
+  }
+
+  private def recordServerStartRequestForTests(project: Project): Unit = {
+    if (serverStartRequestWatchersForTests.isEmpty) return
+
+    val request = ServerStartRequestForTests(
+      projectName = project.getName,
+      stackTrace = new Throwable(
+        s"Scala Compile Server start request stack trace [project=${project.getName}, thread=${Thread.currentThread.getName}]"
+      )
+    )
+    serverStartRequestWatchersForTests.asScala.foreach(_.record(request))
   }
 
   private def restartReasons(project: Project): Seq[String] = {
