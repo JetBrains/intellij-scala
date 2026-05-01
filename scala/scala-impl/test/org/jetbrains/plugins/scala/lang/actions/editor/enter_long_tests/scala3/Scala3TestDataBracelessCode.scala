@@ -493,7 +493,6 @@ object Scala3TestDataBracelessCode {
         |def f2 = ???
         |
         |
-        |/** doc comment */
         |def f3 = ???""".stripMargin,
       "DefDef"
     )
