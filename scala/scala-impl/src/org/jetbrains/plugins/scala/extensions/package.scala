@@ -30,7 +30,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
-import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
+import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -1463,11 +1463,6 @@ package object extensions {
           else newValue
       }
     }
-  }
-
-  implicit class ThrowableExt(private val ex: Throwable) extends AnyVal {
-
-    def stackTraceText: String = ExceptionUtil.getThrowableText(ex).replace("\r", "")
   }
 
   import scala.language.implicitConversions

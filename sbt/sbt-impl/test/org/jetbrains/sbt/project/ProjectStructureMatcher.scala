@@ -13,11 +13,11 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{CompilerModuleExtension, ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleOrderEntry, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.util.{CommonProcessors, PathUtil}
+import com.intellij.util.{CommonProcessors, ExceptionUtil, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.{PathExt, ThrowableExt}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, ScalaLibraryProperties}
@@ -92,7 +92,7 @@ trait ProjectStructureMatcher {
 
     assertionErrors.take(maxErrorsToPrint).zipWithIndex.foreach { case (error, idx) =>
       val testName = s"error ${idx + 1} / ${assertionErrors.size}"
-      val messageEscaped = TeamcityUtils.escapeTeamcityValue(error.stackTraceText)
+      val messageEscaped = TeamcityUtils.escapeTeamcityValue(ExceptionUtil.getThrowableText(error))
       println(s"##teamcity[testFailed name='$testName' message='$messageEscaped']")
     }
   }
