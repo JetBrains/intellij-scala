@@ -41,18 +41,21 @@ object ScalaSyntaxHighlighterFactory {
   ): ScalaSyntaxHighlighter = {
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
-    val featuresFromFile = getScalaFeaturesForFile(project, file)
-    val featuresFromFileOrLanguageDefault = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
-    val features = featuresFromFileOrLanguageDefault
-    val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
-
     val isScala3 = language.isKindOf(Scala3Language.INSTANCE)
-    def createScalaLexer() =
+
+    // SyntaxHighlighter instances can outlive sbt/project model refreshes.
+    // Re-read pushed Scala features for every lexer, so raw-string highlighting follows the refreshed SDK.
+    def createScalaLexer(): ScalaSyntaxHighlighter.CustomScalaLexer = {
+      val featuresFromFile = getScalaFeaturesForFile(project, file)
+      val features = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
+      val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
+
       new ScalaSyntaxHighlighter.CustomScalaLexer(
         parserDefinition.createLexer(project).asInstanceOf[ScalaLexer],
         isScala3 = isScala3,
         noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings
       )
+    }
 
     import SyntaxHighlighterFactory.getSyntaxHighlighter
 

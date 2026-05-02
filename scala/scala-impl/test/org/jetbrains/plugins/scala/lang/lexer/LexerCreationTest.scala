@@ -5,6 +5,10 @@ import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
+/**
+ * Also see [[org.jetbrains.plugins.scala.lang.lexer.ScalaSyntaxHighlighterProjectModelChangeIntegrationTest]]
+ * for a more integrational test for ensuring that scala highlighter is recreated on any project model change
+ */
 class LexerCreationTest extends LightJavaCodeInsightFixtureTestCase with AssertionMatchers {
   def testTwoScalaHighlightingLexersDoNotInterfere(): Unit = {
     val lang = Scala3Language.INSTANCE
