@@ -146,7 +146,7 @@ final class ScalaFormatCodeCommandCompletionTest extends ScalaCommandCompletionT
       checkPreview = {
         case html: IntentionPreviewInfo.Html =>
           assertEquals(CodeInsightBundle.message("command.completion.reformat.nothing"), html.content().toString)
-        case preview => fail(s"Custom diff preview expected, got ${preview.getClass}")
+        case preview => fail(s"Html preview expected, got ${preview.getClass}")
       }
     )
 }

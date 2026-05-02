@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.base
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, EditorCopyPasteHelper}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
 import org.junit.Assert.assertNotNull
 
 //NOTE: for now we intentionally inherit any base text feature (e.g. JavaCodeInsightTestFixture) and use composition instead.
@@ -29,9 +29,7 @@ final class ScalaCodeInsightTestFixture(
     customCheckResultByTextFunction = Some(f)
   }
 
-  /////////////////////////////////////////////////////////
-  // Section start: helper setup methods
-  /////////////////////////////////////////////////////////
+  //region helper setup methods
   //TODO: do not trim expected text here, trim it at usage place
   def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit = {
     val expectedPatched = fileTextPatcher(expectedFileText.withNormalizedSeparator.trim)
@@ -76,15 +74,22 @@ final class ScalaCodeInsightTestFixture(
     val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, vFile, startOffset), false)
     editor
   }
-  /////////////////////////////////////////////////////////
-  // Section end: helper setup methods
-  /////////////////////////////////////////////////////////
+  //endregion helper setup methods
 
-  /////////////////////////////////////////////////////////
-  // Section start: assertion methods
-  /////////////////////////////////////////////////////////
+  //region assertion methods
 
-  /////////////////////////////////////////////////////////
-  // Section end: assertion methods
-  /////////////////////////////////////////////////////////
+  /**
+   * Opens an empty dummy file in editor and uses [[EditorCopyPasteHelper.pasteFromClipboard]] to get clipboard contents.</br>
+   * <b>Any previously opened files might need to be reopened after calling this function.</b>
+   */
+  def checkClipboardContent(expectedClipboardContent: String, ignoreTrailingSpaces: Boolean = false): Unit = {
+    val dummyFile = javaFixture.addFileToProject("clipboard_content_assertion_file.txt", "")
+    javaFixture.openFileInEditor(dummyFile.getVirtualFile)
+    val pastedRanges = inWriteCommandAction {
+      EditorCopyPasteHelper.getInstance().pasteFromClipboard(javaFixture.getEditor)
+    }(javaFixture.getProject)
+    assertNotNull("Paste from clipboard failed", pastedRanges)
+    javaFixture.checkResult(expectedClipboardContent, ignoreTrailingSpaces)
+  }
+  //end region assertion methods
 }

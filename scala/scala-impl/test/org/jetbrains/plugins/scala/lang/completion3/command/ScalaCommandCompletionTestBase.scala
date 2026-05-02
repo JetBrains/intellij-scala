@@ -30,6 +30,7 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
   protected final def doCommandCompletionTest(fileText: String,
                                               predicate: LookupElement => Boolean,
                                               @Nullable resultText: String = null,
+                                              finishLookup: Boolean = true,
                                               checkPreview: IntentionPreviewInfo => Unit = _ => (),
                                               prefix: String = ".",
                                               invocationCount: Int = DefaultInvocationCount): Unit = {
@@ -37,7 +38,7 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
     configureFromFileText(cleanText)
     val checkResult = resultText != null
     val elements = scalaCompletionTestFixture.complete(CompletionType.BASIC, invocationCount)
-    val selectedItem = selectLookupItem(elements, selectCommandCompletions(predicate), finishLookup = checkResult)
+    val selectedItem = selectLookupItem(elements, selectCommandCompletions(predicate), finishLookup = checkResult || finishLookup)
     val lookup = asCommandCompletionLookup(selectedItem)
     assertNotNull(lookup)
 

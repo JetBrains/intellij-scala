@@ -303,6 +303,9 @@
         <codeInsight.completion.command.provider
                 language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaFormatCodeCompletionCommandProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaCopyFQNCompletionCommandProvider"/>
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"

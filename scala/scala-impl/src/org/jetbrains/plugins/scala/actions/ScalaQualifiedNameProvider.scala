@@ -4,19 +4,26 @@ import com.intellij.ide.actions.{JavaQualifiedNameProvider, QualifiedNameProvide
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 
 /**
  * See also [[org.jetbrains.plugins.scala.extensions.PsiMemberExt.qualifiedNameOpt]]<br>
  * (Q: What is the difference? Shouldn't they be unified, and one would use another?)
+ * Used in [[com.intellij.ide.actions.CopyReferenceAction]], [[com.intellij.ide.actions.FqnUtil]]
  */
 class ScalaQualifiedNameProvider extends QualifiedNameProvider {
 
   override def adjustElementToCopy(element: PsiElement): PsiElement = null
 
   override def getQualifiedName(element: PsiElement): String = {
-    element match {
+    val adjustedElement = element match {
+      case ref: ScReference => ref.resolve()
+      case _ => element
+    }
+
+    adjustedElement match {
       case clazz: ScTypeDefinition => clazz.qualifiedName
       case named: ScNamedElement =>
         val nameContext = named.nameContext
