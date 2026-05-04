@@ -5,7 +5,7 @@ import com.intellij.ide.projectWizard.{ProjectWizardJdkComboBox, ProjectWizardJd
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectWizardStep}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
@@ -23,6 +23,7 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUti
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 
 import java.lang
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.Unit.INSTANCE as KUnit
 import java.util.{List => JList}
@@ -53,6 +54,9 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
 
   protected lazy val sbtVersionComboBox: SComboBox[SbtVersion] = createSComboBoxWithSearchingListRenderer(defaultAvailableSbtVersions, None, isSbtLoading)
 
+  @throws[ExecutionException]
+  @throws[InterruptedException]
+  @throws[ProcessCanceledException]
   protected def loadSbtVersions(indicator: ProgressIndicator): Seq[SbtVersion]
   protected def setDownloadedSbtVersions(versions: Seq[SbtVersion]): Unit
 
