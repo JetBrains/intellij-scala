@@ -276,6 +276,7 @@
         <codeInsight.completion.command.provider
                 language="Scala"
                 implementationClass="com.intellij.codeInsight.completion.command.commands.PsiElementCommentByLineCompletionCommandProvider"/>
+
         <codeInsight.completion.command.provider
                 language="Scala"
                 implementationClass="com.intellij.platform.structureView.backend.completion.commands.ViewStructureCompletionCommandProvider"
