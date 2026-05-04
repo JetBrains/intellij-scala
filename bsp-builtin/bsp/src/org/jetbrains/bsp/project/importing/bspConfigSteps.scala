@@ -119,19 +119,35 @@ object bspConfigSteps {
     externalBspWorkspace: Option[Path]
   )
 
-  // TODO: The requirement for the JDK to be present here seems unnecessary for all use cases.
-  //  For example, Mill or Scala CLI config setups don't require the JDK.
+  /**
+   * Computes [[BuilderConfigurationParameters]] for initial project setup/wizard flows.
+   * If exactly one BSP config file exists, it returns early with `NoConfigSetup` pointing to that file.
+   *
+   * @todo the requirement for the JDK to be present seems unnecessary for all use cases.
+   *       For example, Mill or Scala CLI config setups don't require the JDK.
+   */
   def getBuilderConfigurationParameters(
     jdk: Sdk,
     workspace: Path,
-    configSetup: ConfigSetup,
-    considerExistingConfigs: Boolean = true
+    configSetup: ConfigSetup
   ): BuilderConfigurationParameters = {
     val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
 
-    val tuple = if (workspaceBspConfigs.size == 1 && considerExistingConfigs)
-      (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1)), None)
-    else configSetup match {
+    val (setup, preImport, server, extWorkspace) =
+      if workspaceBspConfigs.size == 1 then
+        (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1)), None)
+      else
+        computeConfigurationTuple(jdk, workspace, configSetup)
+
+    BuilderConfigurationParameters(setup, preImport, server, extWorkspace)
+  }
+
+  private def computeConfigurationTuple(
+    jdk: Sdk,
+    workspace: Path,
+    configSetup: ConfigSetup
+  ): (BspConfigSetup, Option[PreImportConfig], Option[BspServerConfig], Option[Path]) =
+    configSetup match {
       case bspConfigSteps.NoSetup =>
         (NoConfigSetup, Some(AutoPreImport), Some(AutoConfig), None)
       case bspConfigSteps.BloopSetup =>
@@ -152,9 +168,17 @@ object bspConfigSteps {
         (configSetup, Some(NoPreImport), None, Some(bspWorkspace))
     }
 
-    val (setup, preImport, server, extWorkspace) = tuple
-    BuilderConfigurationParameters(setup, preImport, server, extWorkspace)
-  }
+  /**
+   * Computes configuration for BSP connection file regeneration.
+   * Unlike [[getBuilderConfigurationParameters]], it always generates configuration,
+   * ignoring any existing connection files.
+   */
+  def getBspConfigurationForRegeneration(
+    jdk: Sdk,
+    workspace: Path,
+    configSetup: ConfigSetup
+  ): (BspConfigSetup, Option[PreImportConfig]) =
+    computeConfigurationTuple(jdk, workspace, configSetup).take(2)
 
   def workspaceSetupChoices(workspace: Path): List[ConfigSetup] = {
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace.toFile)
