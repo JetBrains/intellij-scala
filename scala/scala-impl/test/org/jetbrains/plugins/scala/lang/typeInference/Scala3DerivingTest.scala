@@ -141,6 +141,34 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
        |""".stripMargin
   )
 
+  def testSyntheticGivenIgnoresMissingDerivedMember(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Foo[A]
+       |object Foo
+       |
+       |case class A() derives Foo
+       |
+       |object Usage {
+       |  ${START}summon[Foo[A]]$END
+       |}
+       |""".stripMargin
+  )
+
+  def testSyntheticGivenIgnoresInvalidDerivedRhs(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Foo[A]
+       |object Foo {
+       |  def derived[A](using Foo[Int]): Foo[A] = ???
+       |}
+       |
+       |case class A() derives Foo
+       |
+       |object Usage {
+       |  ${START}summon[Foo[A]]$END
+       |}
+       |""".stripMargin
+  )
+
   def testSCL21404(): Unit = checkNoImplicitParameterProblems(
     s"""
       |trait Eq[A]
