@@ -420,12 +420,7 @@ class ImplicitCollector(
           }
         }
 
-        checkFunctionTypeConformance(
-          c = c,
-          withLocalTypeInference = withLocalTypeInference,
-          checkFast = checkFast,
-          typeParams = typeParams
-        )
+        checkFunctionTypeConformance(c, withLocalTypeInference, checkFast, typeParams)
       case _ =>
         if (withLocalTypeInference) {
           //only functions may have local type inference
