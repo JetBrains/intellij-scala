@@ -110,6 +110,12 @@ object TeamCityCommunityUtil {
           (aPassing union bPassing, aFailing intersect bFailing)
       } // return all tests that failed in *all* retrieved builds
       .getOrElse(throw new Exception(s"No previously failing test build found"))
+
+    for (testName <- failing.iterator) {
+      if (!isExpectedTestName(testName))
+        throw new Exception(s"Cannot handle testName '$testName'")
+    }
+
     PreviousTests(failing, passing)
   }
 
@@ -144,6 +150,21 @@ object TeamCityCommunityUtil {
       .map(_.toLong)
       .toList
   }
+
+  // All our tests actually start with one of these prefixes
+  // So if we don't see one of these prefixes on a failing test, we are not able to handle it and should rerun all tests.
+  // For example, we might have only one failing test with the name "Check after <NUM> Diff", that indicated that no
+  // tests were run last time... obviously in this case we should run all tests.
+  private val expectedTestNamePrefixes =
+    Array(
+      "org.jetbrains.",
+      "com.intellij.",
+      "scala.meta.",
+      "CompilerPluginTest_", // don't question it!!!
+    )
+
+  def isExpectedTestName(testName: String): Boolean =
+    expectedTestNamePrefixes.exists(testName.startsWith)
 
 
   /**
