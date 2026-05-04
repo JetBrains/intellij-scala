@@ -16,5 +16,6 @@ case class BspException(@Nls message: String, cause: Throwable) extends Exceptio
 case class BspConnectionError(@Nls message: String, cause: Throwable = null) extends Exception(message, cause) with BspError
 case class BspConnectionFileError(connectionFile: Path, cause: Throwable = null) extends Exception(BspBundle.message("unable.to.read.bsp.connection.file.at", connectionFile), cause) with BspConnectionConfigError
 case class BspInvalidAutoConfigError(path: Path) extends Exception(BspBundle.message("unable.to.automatically.determine.bsp.connection.configuration.in", path)) with BspConnectionConfigError
+case class BspSessionCreationError(@Nls message: String, cause: Throwable) extends Exception(message, cause) with BspConnectionConfigError
 case object BspNoJdkConfiguredError extends Exception(BspBundle.message("unable.to.detect.any.JDK.on.machine")) with BspError
 case object BspTaskCancelled extends ProcessCanceledException with BspError

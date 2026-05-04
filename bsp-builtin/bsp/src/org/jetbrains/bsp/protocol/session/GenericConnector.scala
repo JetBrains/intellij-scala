@@ -4,7 +4,7 @@ import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.GeneralCommandLine
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
+import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage, BspSessionCreationError}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 
@@ -17,7 +17,12 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility
         // TODO check languages compatibility
-        Right(prepareBspSession(details))
+        try {
+          Right(prepareBspSession(details))
+        } catch {
+          case e: Exception =>
+            Left(BspSessionCreationError(BspBundle.message("bsp.protocol.session.creation.failed", e.getMessage), e))
+        }
     }.getOrElse(Left(BspErrorMessage(BspBundle.message("bsp.protocol.no.supported.connection.method.for.this.server"))))
   }
 
