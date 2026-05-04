@@ -116,4 +116,114 @@ class Scala3HighlightingTestsMix extends ScalaHighlightingTestBase {
        |
        |import scala.language.experimental.namedTypeArguments
        |import _root_.scala.language.experimental.namedTypeArguments""".stripMargin))
+
+  //SCL-23916
+  def testSCL23916_Example1(): Unit = {
+    assertNoErrors(
+      """import scala.deriving.Mirror.ProductOf
+        |
+        |given Option[String] = ???
+        |val _ = summon[Option[String]] //OK
+        |val _: Option[String] = summon[Option[String]] //OK
+        |
+        |case class MyClass(p1: String, p2: String)
+        |val _ = summon[ProductOf[MyClass]] //OK
+        |val _: ProductOf[MyClass] = summon[ProductOf[MyClass]] //BAD
+        """.stripMargin
+    )
+  }
+
+  //SCL-23916
+  def testSCL23916_Example2(): Unit = {
+    assertNoErrors(
+      """case class A(x: Int, y: String)
+        |summon[deriving.Mirror.ProductOf[A]].fromProduct(1 -> "a")
+        """.stripMargin
+    )
+  }
+
+  //SCL-23916
+  def testSCL23916_Example3_Small(): Unit = {
+    assertNoErrors(
+      """import scala.deriving.Mirror.ProductOf
+        |
+        |trait ToTuple[E, T] extends (E => Option[T])
+        |
+        |case class MyClass(p1: String, p2: String)
+        |
+        |object usage {
+        |  def productToTuple[T <: Product](using m: ProductOf[T]): ToTuple[T, m.MirroredElemTypes] = ???
+        |  val toTuple1: ToTuple[MyClass, (String, String)] = productToTuple[MyClass]
+        |}
+        |""".stripMargin
+    )
+  }
+
+//  //TODO: still doesn't work in 2026.1 (depends on SCL-20111/SCL-24637)
+//  //SCL-23916
+//  def testSCL23916_Example3_Big(): Unit = {
+//    assertNoErrors(
+//      """import scala.deriving.Mirror.ProductOf
+//        |
+//        |trait ToTuple[E, T] extends (E => Option[T])
+//        |
+//        |object ToTuple {
+//        |  implicit def productToTuple[T <: Product](using m: ProductOf[T]): ToTuple[T, m.MirroredElemTypes] = ???
+//        |}
+//        |
+//        |object usage {
+//        |  case class MyClass(p1: String, p2: String)
+//        |
+//        |  // OK
+//        |  summon[ProductOf[MyClass]]
+//        |
+//        |  // BAD
+//        |  summon[ToTuple[MyClass, (String, String)]]
+//        |  summon[ToTuple[MyClass, (String, String)]](using ToTuple.productToTuple(using summon[ProductOf[MyClass]]))
+//        |
+//        |  // OK
+//        |  {
+//        |    given toTuple: ToTuple[MyClass, (String, String)] = ???
+//        |
+//        |    summon[ToTuple[MyClass, (String, String)]](using toTuple)
+//        |    summon[ToTuple[MyClass, (String, String)]]
+//        |  }
+//        |
+//        |  // BAD
+//        |  {
+//        |    val productOf: ProductOf[MyClass] = ???
+//        |
+//        |    //Type mismatch.
+//        |    //Required  : ToTuple[MyClass, productOf.MirroredElemTypes]
+//        |    //Found     : ToTuple[MyClass, ProductOf[MyClass]#MirroredElemTypes ]
+//        |    given toTuple: ToTuple[MyClass, productOf.MirroredElemTypes] = ToTuple.productToTuple[MyClass](using productOf)
+//        |
+//        |    summon[ToTuple[MyClass, productOf.MirroredElemTypes]](using toTuple)
+//        |    summon[ToTuple[MyClass, productOf.MirroredElemTypes]]
+//        |  }
+//        |
+//        |  // BAD
+//        |  {
+//        |    //Type mismatch.
+//        |    //Required : ToTuple [MyClass, (String, String)]
+//        |    //Found    : ToTuple [MyClass, m.MirroredElemTypes]
+//        |    given toTuple: ToTuple[MyClass, (String, String)] = ToTuple.productToTuple[MyClass]
+//        |
+//        |    summon[ToTuple[MyClass, (String, String)]](using toTuple)
+//        |    summon[ToTuple[MyClass, (String, String)]]
+//        |  }
+//        |}
+//        """.stripMargin
+//    )
+//  }
+
+  def testSCL23916_Example4(): Unit = assertNoErrors(
+    """import scala.deriving.Mirror
+      |
+      |case class LoginData(email: String, age: Int)
+      |def to[A <: Product](value: A)(using mirror: Mirror.ProductOf[A]): Option[mirror.MirroredElemTypes] = ???
+      |val _: LoginData => Option[(String, Int)] = x => to[LoginData](x)
+      |val _: LoginData => Option[(String, Int)] = to[LoginData]
+      |""".stripMargin
+  )
 }
