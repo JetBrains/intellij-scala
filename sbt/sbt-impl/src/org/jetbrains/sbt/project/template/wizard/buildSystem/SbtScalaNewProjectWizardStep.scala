@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjec
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
 import com.intellij.openapi.observable.util.BindUtil
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.ValidationInfo
@@ -27,6 +27,7 @@ import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.template.wizard.{SbtNewProjectWizardStep, ScalaNewProjectWizardMultiStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JLabel
 import kotlin.Unit.INSTANCE as KUnit
@@ -154,6 +155,9 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     updateSupportedSbtVersionsForSelectedScalaVersion(selections.scalaVersion)
   }
 
+  @throws[ExecutionException]
+  @throws[InterruptedException]
+  @throws[ProcessCanceledException]
   override def loadSbtVersions(indicator: ProgressIndicator): Seq[SbtVersion] =
     Versions.SBT.loadVersionsWithProgress(indicator).map(SbtVersion(_))
 

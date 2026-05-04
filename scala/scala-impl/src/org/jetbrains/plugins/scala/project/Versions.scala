@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -11,7 +11,7 @@ import org.jetbrains.sbt.{MinorVersionGenerator, SbtVersion, SbtVersionCapabilit
 
 import java.net.URI
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
-import java.util.concurrent.{CompletableFuture, CountDownLatch, TimeUnit}
+import java.util.concurrent.{CompletableFuture, CountDownLatch, ExecutionException, TimeUnit}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
 import scala.jdk.DurationConverters.ScalaDurationOps
@@ -24,6 +24,7 @@ object Versions {
 
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
+    @throws[InterruptedException]
     final def loadVersionsWithProgressDialog(): Seq[Version] = {
       val cancelable = true
       val loaded = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this), canBeCanceled = cancelable) {
@@ -33,6 +34,9 @@ object Versions {
     }
 
     @RequiresBackgroundThread
+    @throws[ExecutionException]
+    @throws[InterruptedException]
+    @throws[ProcessCanceledException]
     final def loadVersionsWithProgress(indicator: ProgressIndicator): Seq[Version] = {
       loadVersionsSorted(entities, cancelable = true, indicator, propagateDownloadExceptions = true)
     }
@@ -103,6 +107,9 @@ object Versions {
   }
 
   @RequiresBackgroundThread
+  @throws[ExecutionException]
+  @throws[InterruptedException]
+  @throws[ProcessCanceledException]
   private def loadVersionsSorted(
     entities: Seq[Entity],
     cancelable: Boolean,
@@ -122,14 +129,19 @@ object Versions {
     val httpFutures: Seq[CompletableFuture[HttpResponse[java.util.stream.Stream[String]]]] = downloadable.map {
       case DownloadableEntity(url, _, _, _) =>
         val request = HttpRequest.newBuilder(URI.create(url))
-          .version(HttpClient.Version.HTTP_1_1).timeout(timeout.toJava).build()
+          .version(HttpClient.Version.HTTP_1_1)
+          .timeout(timeout.toJava)
+          .build()
         client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
     }
 
-    val downloadedVersionStringsFutures = downloadable.zip(httpFutures).map {
+    val downloadedVersionStringsFutures: Seq[CompletableFuture[(DownloadableEntity, Seq[String])]] = downloadable.zip(httpFutures).map {
       case (entity@DownloadableEntity(_, _, hardcodedVersions, versionPattern), future) =>
         future
-          .thenApply[Seq[String]](_.body().toList.asScala.toSeq)
+          .thenApply[Seq[String]] { responseStream =>
+            val bodyLines = responseStream.body().toList.asScala.toSeq
+            bodyLines
+          }
           .thenApply[(DownloadableEntity, Seq[String])] { lines =>
             val versionStrings =
               if (lines.isEmpty) hardcodedVersions
@@ -208,10 +220,16 @@ object Versions {
     }
 
   @RequiresBackgroundThread
+  @throws[ExecutionException]
+  @throws[InterruptedException]
+  @throws[ProcessCanceledException]
   def loadScala2Versions(canBeCanceled: Boolean, indicator: ProgressIndicator): Seq[Version] = loadVersionsSorted(Seq(ScalaEntity), canBeCanceled, indicator, propagateDownloadExceptions = true)
   lazy val scala2HardcodedVersions: List[String] = ScalaEntity.hardcodedVersions
 
   @RequiresBackgroundThread
+  @throws[ExecutionException]
+  @throws[InterruptedException]
+  @throws[ProcessCanceledException]
   def loadSbtVersions(canBeCanceled: Boolean, indicator: ProgressIndicator): Seq[SbtVersion] = loadVersionsSorted(Seq(SbtEntity), canBeCanceled, indicator, propagateDownloadExceptions = true).map(SbtVersion(_))
   lazy val sbtHardcodedVersions: Seq[String] = SbtEntity.hardcodedVersions
 
