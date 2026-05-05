@@ -34,9 +34,11 @@
       ]]>
     </description>
     <version>VERSION</version>
-    <change-notes></change-notes>
+    <change-notes>There are currently no new updates. We're all busy working on the new release.
+        For a sneak peek at what's in store, check our EAP and nightly build
+    </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="262.2302" until-build="262.*"/>
+    <idea-version since-build="262.4852" until-build="262.*"/>
 
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
@@ -48,35 +50,35 @@
     </dependencies>
 
     <content namespace="jetbrains">
-        <module name="scalaCommunity.bsp" />
-        <module name="scalaCommunity.bsp-junit" />
-        <module name="scalaCommunity.bsp-terminal" />
+        <module name="scalaCommunity.bsp"/>
+        <module name="scalaCommunity.bsp-junit"/>
+        <module name="scalaCommunity.bsp-terminal"/>
 
-        <module name="scalaCommunity.testing-support" />
-        <module name="scalaCommunity.testing-support.munit" />
-        <module name="scalaCommunity.scala-cli" />
-        <module name="scalaCommunity.worksheet" />
-        <module name="scalaCommunity.debugger" />
-        <module name="scalaCommunity.compiler-integration" />
-        <module name="scalaCommunity.structural-search" />
-        <module name="scalaCommunity.uast" />
+        <module name="scalaCommunity.testing-support"/>
+        <module name="scalaCommunity.testing-support.munit"/>
+        <module name="scalaCommunity.scala-cli"/>
+        <module name="scalaCommunity.worksheet"/>
+        <module name="scalaCommunity.debugger"/>
+        <module name="scalaCommunity.compiler-integration"/>
+        <module name="scalaCommunity.structural-search"/>
+        <module name="scalaCommunity.uast"/>
 
         <!-- integrations -->
-        <module name="scalaCommunity.copyright" />
-        <module name="scalaCommunity.devkit" />
-        <module name="scalaCommunity.featuresTrainer" />
-        <module name="scalaCommunity.gradle" />
-        <module name="scalaCommunity.i18n" />
-        <module name="scalaCommunity.intellij-bazel" />
-        <module name="scalaCommunity.javaDecompiler" />
-        <module name="scalaCommunity.junit" />
-        <module name="scalaCommunity.markdown" />
-        <module name="scalaCommunity.maven" />
-        <module name="scalaCommunity.mlCompletion" />
-        <module name="scalaCommunity.mlCompletion.properties" />
-        <module name="scalaCommunity.properties" />
-        <module name="scalaCommunity.textAnalysis" />
-        <module name="scalaCommunity.intelliLang" />
+        <module name="scalaCommunity.copyright"/>
+        <module name="scalaCommunity.devkit"/>
+        <module name="scalaCommunity.featuresTrainer"/>
+        <module name="scalaCommunity.gradle"/>
+        <module name="scalaCommunity.i18n"/>
+        <module name="scalaCommunity.intellij-bazel"/>
+        <module name="scalaCommunity.javaDecompiler"/>
+        <module name="scalaCommunity.junit"/>
+        <module name="scalaCommunity.markdown"/>
+        <module name="scalaCommunity.maven"/>
+        <module name="scalaCommunity.mlCompletion"/>
+        <module name="scalaCommunity.mlCompletion.properties"/>
+        <module name="scalaCommunity.properties"/>
+        <module name="scalaCommunity.textAnalysis"/>
+        <module name="scalaCommunity.intelliLang"/>
     </content>
 
     <xi:include href="/META-INF/sbt-api.xml"/>
