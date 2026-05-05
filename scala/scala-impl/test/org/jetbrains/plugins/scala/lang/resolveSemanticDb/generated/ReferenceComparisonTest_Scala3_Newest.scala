@@ -1248,7 +1248,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part12 extends ReferenceCompar
   def test_i10994(): Unit = doTest("i10994", true)
   def test_i10997(): Unit = doTest("i10997", true)
   def test_i11003(): Unit = doTest("i11003", false) // #intersectionType
-  def test_i11015(): Unit = doTest("i11015", false)
+  def test_i11015(): Unit = doTest("i11015", true)
   def test_i11020(): Unit = doTest("i11020", true) // #extension
   def test_i11022(): Unit = doTest("i11022", true)
 }
