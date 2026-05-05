@@ -307,6 +307,11 @@
         <codeInsight.completion.command.provider
                 language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaCopyFQNCompletionCommandProvider"/>
+
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaParameterInfoCompletionCommand"
+                order="last"/>
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"
