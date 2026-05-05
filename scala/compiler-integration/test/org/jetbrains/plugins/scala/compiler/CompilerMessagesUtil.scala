@@ -5,6 +5,11 @@ import org.junit.Assert.{assertNotNull, assertTrue}
 
 object CompilerMessagesUtil {
 
+  def assertNoErrors(messages: Seq[CompilerMessage]): Unit = {
+    val errors = messages.filter(_.getCategory == CompilerMessageCategory.ERROR)
+    assertTrue(s"Expected no compilation errors, got: ${errors.mkString(System.lineSeparator())}", errors.isEmpty)
+  }
+
   def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
     val errorsAndWarnings = messages.filter { message =>
       val category = message.getCategory

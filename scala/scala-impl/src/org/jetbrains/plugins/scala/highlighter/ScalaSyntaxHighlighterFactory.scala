@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiManager}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
@@ -41,18 +42,21 @@ object ScalaSyntaxHighlighterFactory {
   ): ScalaSyntaxHighlighter = {
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
-    val featuresFromFile = getScalaFeaturesForFile(project, file)
-    val featuresFromFileOrLanguageDefault = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
-    val features = featuresFromFileOrLanguageDefault
-    val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
-
     val isScala3 = language.isKindOf(Scala3Language.INSTANCE)
-    def createScalaLexer() =
+
+    // SyntaxHighlighter instances can outlive sbt/project model refreshes.
+    // Re-read pushed Scala features for every lexer, so raw-string highlighting follows the refreshed SDK.
+    def createScalaLexer(): ScalaSyntaxHighlighter.CustomScalaLexer = {
+      val featuresFromFile = getScalaFeaturesForFile(project, file)
+      val features = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
+      val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
+
       new ScalaSyntaxHighlighter.CustomScalaLexer(
         parserDefinition.createLexer(project).asInstanceOf[ScalaLexer],
         isScala3 = isScala3,
         noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings
       )
+    }
 
     import SyntaxHighlighterFactory.getSyntaxHighlighter
 
@@ -68,7 +72,7 @@ object ScalaSyntaxHighlighterFactory {
   private def getScalaFeaturesForFile(
     @Nullable project: Project,
     @Nullable file: VirtualFile,
-  ): Option[ScalaFeatures] = {
+  ): Option[ScalaFeatures] = inReadAction {
     val psiFile = if (project != null && file != null) {
       // If we try to search for a file in a non-valid state, we get an exception that fails tests "Accessing invalid virtual file ..."
       // Known reasons when the file might be non-valid:

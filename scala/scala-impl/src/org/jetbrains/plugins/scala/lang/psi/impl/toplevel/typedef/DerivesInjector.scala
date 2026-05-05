@@ -17,14 +17,12 @@ class DerivesInjector extends SyntheticMembersInjector{
   ): Seq[String] = source match {
     case obj: ScObject => obj.fakeCompanionClassOrCompanionClass match {
       case owner: ScDerivesClauseOwner if owner.derivesClause.nonEmpty =>
-        val tcs = owner.derivesClause.toSeq.flatMap(_.derivedReferences)
+        val typeClassRefs = owner.derivesClause.toSeq.flatMap(_.derivedReferences)
 
-        val sigs = tcs.map { ref =>
-          for {
-            tc  <- DerivesUtil.resolveTypeClassReference(ref)
-            sig <- DerivesUtil.checkIfCanBeDerived(tc, ref.refName, owner)
-          } yield sig
-        }.collect { case Right(sig) => sig }
+        val sigRes = typeClassRefs.map { ref =>
+          DerivesUtil.synthesizeDerivedGiven(ref, owner, shouldValidateDerivedMethod = false)
+        }
+        val sigs = sigRes.collect { case Right(sig) => sig }
 
         sigs
       case _ => Seq.empty
