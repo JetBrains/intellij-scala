@@ -2911,9 +2911,12 @@ import java.nio.file.Files
       lazy val scalaInstanceMain: module = new module("scalaInstance.main") { libraryDependencies := scalaSdk_2_13_14 }
       lazy val scalaInstanceTest: module = new module("scalaInstance.test") { libraryDependencies := scalaSdk_2_13_14 }
 
+      // TODO: SCL-25316
+      val scalaSdk_0_0_0: Seq[library] = Seq(new library("sbt: scala-sdk-0.0.0"))
+
       lazy val project1: module = new module("scalaInstance.project1") { libraryDependencies := Nil }
-      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := Nil }
-      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := Nil}
+      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := scalaSdk_0_0_0 }
+      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := scalaSdk_0_0_0 }
 
       modules := Seq(
         scalaInstance,
