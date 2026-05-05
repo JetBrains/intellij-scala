@@ -33,7 +33,7 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
                                               finishLookup: Boolean = true,
                                               checkPreview: IntentionPreviewInfo => Unit = _ => (),
                                               prefix: String = ".",
-                                              invocationCount: Int = DefaultInvocationCount): Unit = {
+                                              invocationCount: Int = DefaultInvocationCount): CommandCompletionLookupElement = {
     val (cleanText, expectedHighlightings) = extractMarker(fileText, caretMarker = Some(prefix + CARET))
     configureFromFileText(cleanText)
     val checkResult = resultText != null
@@ -58,6 +58,8 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
     if (checkResult) {
       checkResultByText(resultText)
     }
+
+    lookup
   }
 
   protected final def checkHasCommandCompletions(fileText: String, invocationCount: Int = DefaultInvocationCount): Unit = {

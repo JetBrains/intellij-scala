@@ -49,8 +49,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |
          |object O:
          |  (_: Json) m$CARET
-         |
-       """.stripMargin,
+         |""".stripMargin,
     resultText =
       s"""enum Json:
          |  case JsString(value: String)
@@ -63,7 +62,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |    case Json.JsString(value) => $START$CARET???$END
          |    case Json.JsNumber(value) => ???
          |    case Json.JsNull => ???
-       """.stripMargin
+         |""".stripMargin
   )
 
   @Test
@@ -79,8 +78,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |
          |object O:
          |  (_: MyEnum) m$CARET
-         |
-       """.stripMargin,
+         |""".stripMargin,
     resultText =
       s"""trait A
          |trait B
@@ -94,7 +92,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |  (_: MyEnum) match
          |    case MyEnum.Foo => $START$CARET???$END
          |    case MyEnum.Bar(value) => ???
-       """.stripMargin
+         |""".stripMargin
   )
 
   @Test

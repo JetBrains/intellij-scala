@@ -1920,34 +1920,39 @@ object ScalaPsiUtil {
     }
 
   @Nullable
-  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T = {
+  def getParentOfTypeInsideImport[T <: PsiElement](@Nullable element: PsiElement, clazz: Class[T], strict: Boolean): T = {
     PsiTreeUtil.getParentOfType(
       //using extra stopAt as an optimization, in order not to traverse the whole file to the root
       element, clazz, strict, /*stopAt=*/ classOf[ScBlockStatement], classOf[ScControlFlowOwner], classOf[ScMember]
     )
   }
 
-  def parentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): Option[T] =
+  def parentOfTypeInsideImport[T <: PsiElement](@Nullable element: PsiElement, clazz: Class[T], strict: Boolean): Option[T] =
     Option(getParentOfTypeInsideImport(element, clazz, strict))
 
   @Nullable
-  def getParentImportExpression(element: PsiElement): ScImportExpr =
+  def getParentImportExpression(@Nullable element: PsiElement): ScImportExpr =
     getParentOfTypeInsideImport(element, classOf[ScImportExpr], strict = true)
 
-  def parentImportExpression(element: PsiElement): Option[ScImportExpr] =
+  def parentImportExpression(@Nullable element: PsiElement): Option[ScImportExpr] =
     Option(getParentImportExpression(element))
 
-  def isInsideImportExpression(element: PsiElement): Boolean = {
+  def isInsideImportExpression(@Nullable element: PsiElement): Boolean = {
     val parentImport = getParentImportExpression(element)
     parentImport != null
   }
 
   @Nullable
-  def getParentImportStatement(element: PsiElement): ScImportStmt =
+  def getParentImportStatement(@Nullable element: PsiElement): ScImportStmt =
     getParentOfTypeInsideImport(element, classOf[ScImportStmt], strict = true)
 
-  def parentImportStatement(element: PsiElement): Option[ScImportStmt] =
+  def parentImportStatement(@Nullable element: PsiElement): Option[ScImportStmt] =
     Option(getParentImportStatement(element))
+
+  def isInsideImportStatement(@Nullable element: PsiElement): Boolean = {
+    val parentImport = getParentImportStatement(element)
+    parentImport != null
+  }
 
   /**
    * @return Fully qualified name of the package (or package object) which is the closest to the `element`

@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
@@ -294,6 +295,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     //   But I will still leave this explicit check here. In future we might change how scratch files behave
     //   (they could be just ordinary file with "main" function or they could use Scala CLI)
     fileIndex.isInSource(vFile) ||
+      vFile.isInstanceOf[LightVirtualFile] ||
       ScratchUtil.isScratch(vFile) ||
       ScalaLanguageConsoleUtils.isConsole(file) ||
       file.isInstanceOf[SbtFile] && fileIndex.isInProject(vFile)
@@ -1403,13 +1405,13 @@ object ScalaImportOptimizer {
 
     element match {
       case impQual: ScStableCodeReference
-        if impQual.qualifier.isEmpty && ScalaPsiUtil.getParentImportStatement(impQual) != null =>
+        if impQual.qualifier.isEmpty && ScalaPsiUtil.isInsideImportStatement(impQual) =>
         //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
         val hasImportUsed = impQual.multiResolveScala(false).exists(_.importsUsed.nonEmpty)
         if (hasImportUsed) {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
-      case ref: ScReference if ScalaPsiUtil.getParentImportStatement(ref) == null =>
+      case ref: ScReference if !ScalaPsiUtil.isInsideImportStatement(ref) =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case derives: ScDerivesClause =>
         for {

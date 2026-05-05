@@ -31,8 +31,8 @@ abstract class IrrefutabilityTestBase extends ScalaLightCodeInsightFixtureTestCa
          |  case class Fun[A, B](a: A, rest: B*)
          |
          |  $code
-         }
-      """.stripMargin
+         |}
+         |""".stripMargin.trim
     val file = configureFromFileText(testCode).asInstanceOf[ScalaFile]
     val root = file.getFirstChild.asInstanceOf[ScalaPsiElement]
 

@@ -144,7 +144,7 @@ class ImportSelectorUsed(
 ) extends ImportUsed(sel) {
 
   override def importExpr: Option[ScImportExpr] =
-    Option(element).map(ScalaPsiUtil.getParentImportExpression)
+    ScalaPsiUtil.parentImportExpression(element)
 
   override def qualName: Option[String] = {
     importExpr.flatMap(_.reference).zip(sel.reference).map {

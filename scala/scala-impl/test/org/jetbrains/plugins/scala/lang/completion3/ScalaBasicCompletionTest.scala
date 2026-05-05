@@ -404,8 +404,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      s"""
-         |import scala.collection.mutable.ListBuffer
+      s"""import scala.collection.mutable.ListBuffer
          |
          |class A {
          |  val f = new ListBuffer[$CARET]
@@ -1027,8 +1026,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      s"""
-         |import scala.annotation.tailrec
+      s"""import scala.annotation.tailrec
          |
          |class aaa {
          |  @tailrec$CARET
@@ -1522,8 +1520,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      s"""
-         |import `interface`.ScalaClass
+      s"""import `interface`.ScalaClass
          |package `interface` {
          | class ScalaClass {
          |
@@ -1970,8 +1967,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |  s.as$CARET
          |}""".stripMargin,
     resultText =
-      s"""
-         |sealed trait ToInt[A] { def toInt(a: A): Int }
+      s"""sealed trait ToInt[A] { def toInt(a: A): Int }
          |object ToInt {
          |  implicit val int: ToInt[Int] = ???
          |}
@@ -2439,8 +2435,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
          |}
       """.stripMargin,
     resultText =
-      s"""
-         |import `interface`.ScalaClass
+      s"""import `interface`.ScalaClass
          |package `interface` {
          | class ScalaClass {
          |

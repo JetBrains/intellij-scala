@@ -21,11 +21,11 @@ class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
     fileText =
       s"""val ja = new java.util.ArrayList[Int]
          |ja.asSc$CARET
-         |""".stripMargin,
+         |""".stripMargin.trim,
     resultText =
       s"""val ja = new java.util.ArrayList[Int]
          |ja.asScala$CARET
-         |""".stripMargin,
+         |""".stripMargin.trim,
     item = "asScala",
     invocationCount = 2
   )

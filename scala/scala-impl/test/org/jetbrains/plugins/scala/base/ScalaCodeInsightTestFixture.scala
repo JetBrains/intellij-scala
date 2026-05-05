@@ -30,9 +30,8 @@ final class ScalaCodeInsightTestFixture(
   }
 
   //region helper setup methods
-  //TODO: do not trim expected text here, trim it at usage place
   def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit = {
-    val expectedPatched = fileTextPatcher(expectedFileText.withNormalizedSeparator.trim)
+    val expectedPatched = fileTextPatcher(expectedFileText.withNormalizedSeparator)
     customCheckResultByTextFunction match {
       case Some(customCheck) =>
         customCheck(expectedPatched, ignoreTrailingSpaces)
@@ -44,9 +43,8 @@ final class ScalaCodeInsightTestFixture(
   def configureFromFileText(fileText: String): PsiFile =
     configureFromFileText(defaultFileType, fileText)
 
-  //TODO 1: do not trim expected text here, trim it at usage place
   def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
-    val fileTextPatched = fileTextPatcher(fileText.withNormalizedSeparator.trim)
+    val fileTextPatched = fileTextPatcher(fileText.withNormalizedSeparator)
     val file = javaFixture.configureByText(fileType, fileTextPatched)
     assertNotNull(file)
     file

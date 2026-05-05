@@ -102,7 +102,7 @@ final class SbtVersionPropertyCompletionTest
 
   @Test
   def testSbtUnstableVersionOnSecondInvocation(): Unit = doTest(
-    s" sbt.version=$CARET",
+    s"sbt.version=$CARET",
     s"sbt.version=$sbtUnstableVersion$CARET",
     sbtUnstableVersion,
     invocationCount = 2

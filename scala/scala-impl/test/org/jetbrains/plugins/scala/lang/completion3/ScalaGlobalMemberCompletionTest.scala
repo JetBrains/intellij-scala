@@ -27,8 +27,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     resultText =
-      """
-        |import rawObject.RawObject1
+      """import rawObject.RawObject1
         |
         |class TUI {
         |  RawObject1.rawObject()
@@ -47,8 +46,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     resultText =
-      """
-        |import rawObject.RawObject2
+      """import rawObject.RawObject2
         |
         |class TUI {
         |  RawObject2.globalValue
@@ -67,8 +65,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     resultText =
-      """
-        |import rawObject.RawObject3
+      """import rawObject.RawObject3
         |
         |class TUI {
         |  RawObject3.globalVariable
@@ -87,8 +84,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     resultText =
-      """
-        |import rawObject.RawObject4
+      """import rawObject.RawObject4
         |
         |class TUI {
         |  RawObject4.patValue
@@ -107,8 +103,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     resultText =
-      """
-        |import rawObject.RawObject5
+      """import rawObject.RawObject5
         |
         |class TUI {
         |  RawObject5.patternVariable
@@ -135,7 +130,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |class TUI {
         |  importedDef()
         |}
-        |
       """.stripMargin,
     item = "importedDef"
   )
@@ -951,8 +945,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.$CARET
        """.stripMargin,
     resultText =
-      s"""
-         |import Conversions.toBar
+      s"""import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -1005,8 +998,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.$CARET
        """.stripMargin,
     resultText =
-      s"""
-         |import Conversions.toBar
+      s"""import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -1063,8 +1055,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.$CARET
        """.stripMargin,
     resultText =
-      s"""
-         |import Conversions.toBar
+      s"""import Conversions.toBar
          |
          |class Foo[T]
          |
@@ -1108,8 +1099,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
        """.stripMargin,
     resultText =
-      s"""
-         |import StringInterpol.Xy
+      s"""import StringInterpol.Xy
          |
          |object StringInterpol {
          |  implicit class Xy(val sc: StringContext) extends AnyVal {

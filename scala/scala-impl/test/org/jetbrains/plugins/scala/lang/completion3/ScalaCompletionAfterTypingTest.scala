@@ -59,7 +59,8 @@ class ScalaCompletionAfterTypingTest extends ScalaCompletionTestBase {
           |}""".stripMargin,
 
       resultText =
-        s"""object Test {
+        s"""
+           |object Test {
            |  def foo: String = {
            |    val t: String = ???
            |    t.length

@@ -27,7 +27,7 @@ final class GoToDeclarationGivenImportTest extends GoToDeclarationTestBase {
   private val ActionId = "GotoDeclaration"
 
   private def checkNavigation(fileText: String): Unit = {
-    configureFromFileText(fileText.replace(ExpectedCaret, ""))
+    configureFromFileText(fileText.replace(ExpectedCaret, "").trim)
     myFixture.performEditorAction(ActionId)
 
     val expectedText = fileText.replace(CARET, "").replace(ExpectedCaret, CARET)

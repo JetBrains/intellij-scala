@@ -79,7 +79,7 @@ object SafeDeleteProcessorUtil {
           }
 
           val usagesToAdd = if (shouldDelete) {
-            val isInImport = ScalaPsiUtil.getParentImportStatement(element) != null
+            val isInImport = ScalaPsiUtil.isInsideImportStatement(element)
             if (isInImport) Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, true)) // delete without review
             else Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, false)) // delete with review
           } else Seq() // don't delete
@@ -141,7 +141,7 @@ object SafeDeleteProcessorUtil {
     references.forEach { reference =>
       val element: PsiElement = reference.getElement
       if (!isInside(element, allElementsToDelete) && !isInside(element, overridingMethods.map(x => x: PsiElement))) {
-        val isReferenceInImport = ScalaPsiUtil.getParentImportStatement(element) != null
+        val isReferenceInImport = ScalaPsiUtil.isInsideImportStatement(element)
         usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiMethod, isReferenceInImport))
       }
     }

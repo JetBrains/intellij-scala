@@ -259,11 +259,12 @@ class ScalaDocStubGenerationEnterTest extends ScalaDocEnterTestBase {
     val expected =
       s"""/*
          |${|}
-         | */""".stripMargin
+         | */
+         |""".stripMargin
 
     doTest(s"/*${|}\n", expected)
     doTest(s"/* ${|}\n", expected)
-    doTest(s"/*${|}", expected)
-    doTest(s"/* ${|}", expected)
+    doTest(s"/*${|}", expected.trim)
+    doTest(s"/* ${|}", expected.trim)
   }
 }

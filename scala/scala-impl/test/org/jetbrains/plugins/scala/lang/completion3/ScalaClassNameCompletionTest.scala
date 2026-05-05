@@ -529,8 +529,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
          |    case Extens$CARET
         """.stripMargin,
     resultText =
-      s"""
-         |import Target.ExtensionMethod
+      s"""import Target.ExtensionMethod
          |
          |enum Target:
          |  case Definition, Extension, ExtensionMethod

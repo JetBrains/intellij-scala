@@ -50,7 +50,8 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    def next = someNum
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     val className = "IntIterator"
 
@@ -86,7 +87,8 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    def next = someNum
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     val className = "IntIterator"
 
@@ -122,7 +124,8 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    def next = num
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     val className = "IntIterator"
 
@@ -162,7 +165,8 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    def next = num
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     val className = "IntIterator"
 
@@ -277,7 +281,8 @@ class ScalaAnonymousToInnerTest extends ScalaLightCodeInsightFixtureTestCase {
         |
         |    def next = someNum + x
         |  }
-        |}""".stripMargin
+        |}
+        |""".stripMargin
 
     val className = "IntIterator"
 
