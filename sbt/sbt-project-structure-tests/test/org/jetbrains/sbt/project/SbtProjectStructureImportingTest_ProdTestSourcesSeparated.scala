@@ -434,11 +434,11 @@ import java.nio.file.Files
             isExported := false
             scope := DependencyScope.COMPILE
           },
-          new dependency(apiMain) {
+          new dependency(apiTest) {
             isExported := false
             scope := DependencyScope.COMPILE
           },
-          new dependency(apiTest) {
+          new dependency(apiMain) {
             isExported := false
             scope := DependencyScope.COMPILE
           },
@@ -672,11 +672,11 @@ import java.nio.file.Files
         lazy val proj2Main: module = new module(s"$projectName.proj2.main") {
           sbtProjectId := "proj2"
           moduleDependencies := Seq(
-            new dependency(proj1Main) {
+            new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.PROVIDED
             },
-            new dependency(proj1Test) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.PROVIDED
             },
@@ -694,11 +694,11 @@ import java.nio.file.Files
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Main) {
+            new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Test) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -724,11 +724,11 @@ import java.nio.file.Files
         lazy val proj3Main: module = new module(s"$projectName.proj3.main") {
           sbtProjectId := "proj3"
           moduleDependencies := Seq(
-            new dependency(proj1Main) {
+            new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Test) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -746,11 +746,11 @@ import java.nio.file.Files
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Main) {
+            new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Test) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1137,11 +1137,11 @@ import java.nio.file.Files
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(fooMain) {
+            new dependency(fooTest) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(fooTest) {
+            new dependency(fooMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },

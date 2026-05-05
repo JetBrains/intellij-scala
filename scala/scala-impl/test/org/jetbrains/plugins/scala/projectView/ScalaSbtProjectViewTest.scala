@@ -24,6 +24,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |  src
                               |   *main*
                               |    scala
@@ -52,6 +53,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |  src
                               |   *main*
                               |    scala
@@ -78,6 +80,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |   build.sbt
                               |   project *[root-build]*
                               |    build.properties
+                              |    project
                               |   src
                               |    *main*
                               |     scala
@@ -90,6 +93,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |""".stripMargin
     runtTestWithTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple", expectedStructure)
   }
@@ -112,6 +116,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |  src
                               |   *main*
                               |    scala
@@ -127,6 +132,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |""".stripMargin
     runtTestWithTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple", expectedStructure)
   }
@@ -143,6 +149,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |  build.sbt
                               |  project *[root-build]*
                               |   build.properties
+                              |   project
                               |""".stripMargin
     runTest(expectedStructure)
   }

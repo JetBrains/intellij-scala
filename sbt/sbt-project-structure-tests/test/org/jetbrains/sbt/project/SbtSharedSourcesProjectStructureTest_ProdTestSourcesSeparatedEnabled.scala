@@ -1102,11 +1102,11 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module2JVMMain) {
+            new dependency(module2JVMTest) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module2JVMTest) {
+            new dependency(module2JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1603,8 +1603,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           moduleDependencies := Seq(
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
-            new dependency(buzzMain) { isExported := false },
-            new dependency(buzzTest) { isExported := false }
+            new dependency(buzzTest) { isExported := false },
+            new dependency(buzzMain) { isExported := false }
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
@@ -1714,8 +1714,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleMain) { isExported := true },
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
-            new dependency(buzzMain) { isExported := false },
-            new dependency(buzzTest) { isExported := false }
+            new dependency(buzzTest) { isExported := false },
+            new dependency(buzzMain) { isExported := false }
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
