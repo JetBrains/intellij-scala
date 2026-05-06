@@ -78,7 +78,7 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
     createProjectSubFile("module1/build.gradle",
       """plugins {
         |  id 'java'
-        |  id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+        |  id 'org.jetbrains.kotlin.jvm' version '2.3.21'
         |}
         |
         |group = 'org.example'

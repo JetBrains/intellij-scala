@@ -78,7 +78,7 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
       """plugins {
         |    id 'groovy'
         |    id 'java'
-        |    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
+        |    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
         |    id 'scala'
         |}
         |
