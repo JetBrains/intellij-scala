@@ -322,6 +322,10 @@
                 language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaTypeHierarchyCompletionCommandProvider"
                 order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaQuickDocumentationCompletionCommand"
+                order="last"/>
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"
