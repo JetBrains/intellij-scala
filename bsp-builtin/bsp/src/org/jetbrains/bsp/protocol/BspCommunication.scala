@@ -226,8 +226,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
     BspJdkUtil.findOrCreateBestJdkForProject(findProject).foreach { jdk =>
       val setupChoice = setupChoices.head
-      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoice, considerExistingConfigs = false)
-      val setup = parameters.bspConfigSetup
+      val (setup, _) = bspConfigSteps.getBspConfigurationForRegeneration(jdk, base, setupChoice)
       if (setup == NoConfigSetup) return
 
       if (runningBspConfigSetup.compareAndSet(None, Some(setup))) {
