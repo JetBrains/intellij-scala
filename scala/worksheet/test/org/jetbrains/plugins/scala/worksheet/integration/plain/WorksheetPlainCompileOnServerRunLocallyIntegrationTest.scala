@@ -35,13 +35,13 @@ class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_AllInOne
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest_RC))
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_LTS_RC_AllInOne
   extends CompileOnServerRunLocallyTestBase
-    with WorksheetPlainIntegrationTestBase_Scala_3_LTS_RC_AllInOne
+    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_Next_RC_AllInOne
   extends CompileOnServerRunLocallyTestBase
-    with WorksheetPlainIntegrationTestBase_Scala_3_Next_RC_AllInOne
+    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_0,
