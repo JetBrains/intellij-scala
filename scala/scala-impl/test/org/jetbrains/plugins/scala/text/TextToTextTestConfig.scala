@@ -127,7 +127,11 @@ private object TextToTextTestConfig {
       minClassCount = 136,
     ),
     CorpusProjects.Doobie.scala3 -> TextToTextTestConfig(
-      minClassCount = 124
+      minClassCount = 124,
+      classExceptions = Set(
+        "doobie.util.ReadPlatform", // given tupleBase[H](using H: _root_.doobie.util.Read[H]): _root_.doobie.util.Read[_root_.scala.*:[H, _root_.scala.EmptyTuple]] = ??? | given tupleBase[H](using H: _root_.doobie.util.Read[H]): _root_.doobie.util.Read[_root_.scala.*:[H, _root_.scala.Any]] = ???
+        "doobie.util.WritePlatform" // given tupleBase[H](using H: _root_.doobie.util.Write[H]): _root_.doobie.util.Write[_root_.scala.*:[H, _root_.scala.EmptyTuple]] = ??? | given tupleBase[H](using H: _root_.doobie.util.Write[H]): _root_.doobie.util.Write[_root_.scala.*:[H, _root_.scala.Any]] = ???
+      )
     ),
 
     // FS2
@@ -399,6 +403,7 @@ private object TextToTextTestConfig {
         "dotty.tools.dotc.ast.Trees", // Extra Nothing type argument in extends
         "dotty.tools.dotc.core.Definitions", // TODO Unknown type
         "dotty.tools.dotc.core.OrderingConstraint", // TODO Cannot resolve OrderingConstraint.ParamBounds
+        "dotty.tools.dotc.core.Types", // TODO Enum cases in a companion object
         "dotty.tools.dotc.parsing.Scanners", // TODO Enum cases in companion object
         "dotty.tools.dotc.quoted.PickledQuotes", // TODO Enum cases in companion object
         "dotty.tools.dotc.rewrites.Rewrites", // New error since Scala 3.3.4
@@ -467,6 +472,7 @@ private object TextToTextTestConfig {
       sourceExceptions = Set(
         "scala.CanThrow", // no annotations
         "scala.IArray", // cannot resolve IArray
+        "scala.Pure",
         "scala.caps", // `*`
         "scala.annotation.MacroAnnotation", // x$1.reflect.Definition
         "scala.annotation.MainAnnotation", // duplicate annotation
@@ -652,6 +658,7 @@ private object TextToTextTestConfig {
     CorpusProjects.Zio.scala3 -> TextToTextTestConfig(
       minClassCount = 266,
       classExceptions = Set(
+        "zio.Experimental", // def fromThrows[E <: _root_.scala.Exception, A](a: => _root_.scala.runtime.$throws[A, E]): _root_.zio.IO[E, A] = ??? | def fromThrows[E <: _root_.scala.Exception, A](a: => Failure(Cannot resolve reference $throws)): _root_.zio.IO[E, A] = ???
         "zio.internal.stacktracer.SourceLocation", // Given without a name
       ),
       withSources = true,
@@ -662,7 +669,6 @@ private object TextToTextTestConfig {
       ),
       sourceExceptions = Set(
         "zio.Cause", // private | private[Cause]
-        "zio.Experimental", // scala.runtime.$throws[A, E] | scala.throws[A, E]
         "zio.Fiber", // case class extends Product & Serializable
         "zio.FiberRef", // private | private[FiberRef]
         "zio.FiberRefs", // @scala.specialized | @scala.specialized(SpecializeInt)
