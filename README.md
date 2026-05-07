@@ -138,9 +138,9 @@ UI Designer uses different border class in internal mode, see `com.intellij.uiDe
 - **Ensure there's enough memory** \
   To view the current memory usage, right-click the status bar and enable *Memory Indicator* (or *Find Action* "CPU and Memory Live Charts"). If necessary, use *Help | Change Memory Settings* to increase the maximum heap size.
 - **Make code highlighting-friendly** \
-  In the same way code has runtime performance, code has compile-time performance. "The laws of highlighting," just as the laws of physics, are real and should be respected for highlighting to be efficient. Please see the guidelines for [how to make code highlighting-friendly](https://youtrack.jetbrains.com/issue/SCL-24113).
+  In the same way code has runtime performance, code has compile-time performance. "The laws of highlighting," just as the laws of physics, are real and should be respected for highlighting to be efficient. Please see the guidelines for [how to make code highlighting-friendly](https://blog.jetbrains.com/scala/2026/05/07/how-to-make-code-highlighting-friendly/).
 - **Try *Incremental Highlighting*** \
-  When using the *Built-in* highlighting, you can enable *Settings | Languages | Scala | Editor | Incremental highlighting* to [highlight only what's visible](https://youtrack.jetbrains.com/issue/SCL-23216). (Double-press `Esc` to highlight the entire file.) This helps reduce CPU, RAM, and battery use, especially in large complex files, and also increase responsiveness.
+  When using the *Built-in* highlighting, you can enable *Settings | Languages | Scala | Editor | Incremental highlighting* to [highlight only what's visible](https://blog.jetbrains.com/scala/2026/04/21/incremental-highlighting/). (Double-press `Esc` to analyze the entire file.) This helps reduce CPU, RAM, and battery use, especially in large complex files, and also increase responsiveness.
 - **Use *Compiler* highlighting without inspections** \
   Using *Settings | Languages | Scala | Editor | Error highlighting: Compiler* helps with false errors in complex code, but in normal cases it's usually slower and consumes more resources. However, if you also *Disable built-in inspections*, this can help with CPU, RAM, and battery use in cases challenging for the built-in type inference.
 - **Use *Built-in* highlighting if the code doesn't compile** \
