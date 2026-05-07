@@ -8,22 +8,23 @@ import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.{Condition, NlsContexts}
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
-import org.jetbrains.bsp.project.importing.bspConfigSteps._
+import org.jetbrains.bsp.project.importing.bspConfigSteps.*
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
-import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.settings.BspProjectSettings.*
 import org.jetbrains.bsp.settings.PreImportConfig
-import org.jetbrains.bsp.settings.PreImportConfig._
+import org.jetbrains.bsp.settings.PreImportConfig.*
 import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils
-import org.jetbrains.sbt.SbtUtil._
+import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.project.SbtProjectImportProvider
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
@@ -220,7 +221,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
-  private val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Option(wizardContext.getProject))
+  private val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Option(wizardContext.getProject), EelProviderUtil.getEelDescriptor(setupTaskWorkspace))
 
   private val configSetupChoices: List[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)

@@ -9,17 +9,19 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
-import org.jetbrains.bsp._
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.EelProviderUtil
+import org.jetbrains.bsp.*
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
 import org.jetbrains.bsp.project.importing.bspConfigSteps
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ScalaCliSetup
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, NoConfigSetup}
-import org.jetbrains.bsp.protocol.BspCommunication._
+import org.jetbrains.bsp.protocol.BspCommunication.*
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
-import org.jetbrains.bsp.protocol.session.BspServerConnector._
-import org.jetbrains.bsp.protocol.session.BspSession._
-import org.jetbrains.bsp.protocol.session._
+import org.jetbrains.bsp.protocol.session.BspServerConnector.*
+import org.jetbrains.bsp.protocol.session.BspSession.*
+import org.jetbrains.bsp.protocol.session.*
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
@@ -29,8 +31,8 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class BspCommunication private[protocol](base: Path, config: BspServerConfig) extends Disposable {
@@ -79,7 +81,8 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private def openSession(
     job: BspSessionJob[?,?],
     canGenerateBspConfigFile: Boolean
-  )(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
+  )(using reporter: BuildReporter): Either[BspError, BspSession] = {
+    given EelDescriptor = EelProviderUtil.getEelDescriptor(base)
     val sessionBuilder = prepareSession(findProject, canGenerateBspConfigFile)
 
     sessionBuilder match {
@@ -124,7 +127,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private def prepareSession(
     project: => Option[Project],
     canGenerateBspConfigFile: Boolean
-  )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
+  )(using reporter: BuildReporter, eelDescriptor: EelDescriptor): Either[BspError, Builder] = {
     val bspConnectionFiles = BspConnectionConfig.workspaceConfigurationFiles(base)
     val bloopProject = BspUtil.bloopConfigDir(base).isDefined
     val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopProject
@@ -173,7 +176,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
 
     def configureBloopLauncherIfJdkExists() =
-      BspJdkUtil.findOrCreateBestJdkForProject(project) match {
+      BspJdkUtil.findOrCreateBestJdkForProject(project, eelDescriptor) match {
         case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
         case None => Left(BspNoJdkConfiguredError)
       }
@@ -218,13 +221,13 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     hasBspConfigs: Boolean,
     bspConnectionFiles: Seq[Path],
     settings: => Option[BspProjectSettings]
-  )(implicit reporter: BuildReporter): Unit = {
+  )(using reporter: BuildReporter, eelDescriptor: EelDescriptor): Unit = {
     val setupChoices = bspConfigSteps.workspaceSetupChoices(base)
     // If there is more than one setup choice or no JDK, a notification will prompt the user to run GenerateBspConfig manually.
     // See org.jetbrains.bsp.BspConnectionConfigError
     if (setupChoices.size != 1) return
 
-    BspJdkUtil.findOrCreateBestJdkForProject(findProject).foreach { jdk =>
+    BspJdkUtil.findOrCreateBestJdkForProject(findProject, eelDescriptor).foreach { jdk =>
       val setupChoice = setupChoices.head
       val (setup, _) = bspConfigSteps.getBspConfigurationForRegeneration(jdk, base, setupChoice)
       if (setup == NoConfigSetup) return

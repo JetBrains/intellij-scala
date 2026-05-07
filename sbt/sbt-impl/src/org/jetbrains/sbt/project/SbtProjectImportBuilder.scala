@@ -37,7 +37,8 @@ class SbtProjectImportBuilder
       ExternalSystemApiUtil.findAll(projectData, SbtProjectData.Key).asScala.headOption match {
         case Some(sbtProjectData) =>
           val sdkReference = sbtProjectData.getData.jdk
-          SdkUtils.findProjectSdk(sdkReference).foreach(context.setProjectJdk)
+          val eelDescriptor = context.getProjectDirectory.eelDescriptor
+          SdkUtils.findProjectSdk(sdkReference, eelDescriptor).foreach(context.setProjectJdk)
         case _ =>
       }
     }

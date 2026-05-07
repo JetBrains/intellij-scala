@@ -2,12 +2,15 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.ThrowableComputable
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.lang.JavaVersion
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.project.template.wizard.JdkSbtCompatibilityChecker
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
@@ -44,13 +47,13 @@ object SbtProcessJdkGuesser {
    * To be safe we don't need most recent JDK (see docs for [[findJdkWithSuitableVersion]])
    */
   @RequiresEdt
-  def preconfigureJdkForSbt(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): Unit = {
+  def preconfigureJdkForSbt(project: Project, jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): Unit = {
     try {
       val jdkOpt = ProgressManager.getInstance.runProcessWithProgressSynchronously(
-        (() => createJdkWithSuitableVersion(sbtVersion)): ThrowableComputable[Option[Sdk], Exception],
+        (() => createJdkWithSuitableVersion(sbtVersion, EelProviderUtil.getEelDescriptor(project))): ThrowableComputable[Option[Sdk], Exception],
         SbtBundle.message("sbt.import.detecting.jdk"),
         true,
-        null
+        project
       )
       jdkOpt.foreach { jdk =>
         inWriteAction {
@@ -87,17 +90,29 @@ object SbtProcessJdkGuesser {
     SdkCandidate(sdksMatchingVersion.headOption, sdksAllSorted)
   }
 
+  @deprecated(message = "Use findAllExistingJavaPaths(JavaSdk, EelDescriptor)", since = "2026.2")
+  @Deprecated(since = "2026.2", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.3")
+  @RequiresBackgroundThread
+  def findAllExistingJavaPaths(jdkType: JavaSdk): Seq[(String, JavaVersion)] =
+    findAllExistingJavaPaths(jdkType, LocalEelDescriptor.INSTANCE)
+
   /**
    * Tries to find all existing sdk home paths on the local machine
    *
    * @return suggested sdk home paths and corresponding versions
    */
   @RequiresBackgroundThread
-  def findAllExistingJavaPaths(jdkType: JavaSdk): Seq[(String, JavaVersion)] = {
-    val javaPaths = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
+  def findAllExistingJavaPaths(jdkType: JavaSdk, eelDescriptor: EelDescriptor): Seq[(String, JavaVersion)] = {
+    val javaPaths = JavaHomeFinder.suggestHomePaths(eelDescriptor, false).asScala.toSeq
     javaPaths
       .filter(jdkType.isValidSdkHome)
-      .flatMap { path => Option(JavaVersion.tryParse(path)).map(path -> _) }
+      .flatMap { path =>
+        for
+          versionString <- Option(jdkType.getVersionString(path))
+          javaVersion <- Option(JavaVersion.tryParse(versionString))
+        yield path -> javaVersion
+      }
   }
 
   private def isSbtJdkCompatible(@Nullable sdk: JavaSdkVersion, sbtVersion: SbtVersion): Boolean = {
@@ -110,8 +125,8 @@ object SbtProcessJdkGuesser {
 
   /** Alternative for [[com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl#guessJdk()]] */
   @RequiresBackgroundThread
-  private def createJdkWithSuitableVersion(sbtVersion: SbtVersion): Option[Sdk] = {
-    val javaPaths0 = findAllExistingJavaPaths(jdkType)
+  private def createJdkWithSuitableVersion(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Option[Sdk] = {
+    val javaPaths0 = findAllExistingJavaPaths(jdkType, eelDescriptor)
 
     val javaPaths = javaPaths0.flatMap { case (path, version) =>
       Option(JavaSdkVersion.fromJavaVersion(version)).map(JavaPathWithVersion(path, version, _))

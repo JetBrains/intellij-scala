@@ -34,7 +34,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
       SbtModuleExtData(scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala, compileOrder)
-      configureOrInheritSdk(module, Option(sdk))(using modelsProvider)
+      configureOrInheritSdk(module, Option(sdk), project)(using modelsProvider)
       importJavacOptions(module, javacOptions.asScala.toSeq)(using project, modelsProvider)
 
       val contentEntries = modelsProvider.getModifiableRootModel(module).getContentEntries
@@ -43,10 +43,10 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     }
   }
 
-  private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference])(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
+  private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference], project: Project)(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val model = modelsProvider.getModifiableRootModel(module)
     model.inheritSdk()
-    sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
+    sdk.flatMap(SdkUtils.findProjectSdk(_, project)).foreach(model.setSdk)
   }
 
   private def importJavacOptions(module: Module, javacOptions: Seq[String])

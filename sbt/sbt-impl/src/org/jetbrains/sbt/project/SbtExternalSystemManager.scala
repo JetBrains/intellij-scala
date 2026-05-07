@@ -25,6 +25,7 @@ import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import java.nio.file.Path
+import scala.annotation.nowarn
 
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
@@ -95,7 +96,7 @@ object SbtExternalSystemManager {
     val sbtVersion = detectSbtVersion(projectRoot, sbtLauncher)
 
     val projectJdkName = bootstrapJdk(project, projectSettings)
-    val vmExecutable = getVmExecutable(projectJdkName, settingsState, sbtVersion)
+    val vmExecutable = getVmExecutable(project, projectJdkName, settingsState, sbtVersion)
     val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
@@ -137,8 +138,8 @@ object SbtExternalSystemManager {
     result
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
-    val jdkTable = ProjectJdkTable.getInstance()
+  private def getVmExecutable(project: Project, projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
+    val jdkTable = ProjectJdkTable.getInstance(project)
 
     val customVmExecutable =
       Option(settings.customVMPath)
@@ -152,6 +153,7 @@ object SbtExternalSystemManager {
     val realExe = customVmExecutable
       .orElse {
         val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
+          .filter(jdk => JdkUtil.checkForJdk(jdk.getHomePath)): @nowarn("cat=deprecation")
         projectJdkFound
           .map { sdk =>
             Log.debug(s"Using Java project JDK: $sdk")
@@ -171,7 +173,7 @@ object SbtExternalSystemManager {
           val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
           if (sdk.sdk.isEmpty) {
             Log.debug("Preconfigure JDK table for SBT import")
-            SbtProcessJdkGuesser.preconfigureJdkForSbt(jdkTable, sbtVersion)
+            SbtProcessJdkGuesser.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
           }
         }
 
