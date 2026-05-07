@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataSer
 import java.nio.file.Path
 import java.util
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectData, Project](BspProjectData.Key) {
 
@@ -71,9 +71,9 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
     val projectJdk =
       jdk
-        .flatMap(SdkUtils.findOrCreateSdk)
+        .flatMap(SdkUtils.findOrCreateSdk(_, project))
         .orElse(existingJdk)
-        .orElse(SdkUtils.mostRecentRegisteredJdk)
+        .orElse(SdkUtils.mostRecentRegisteredJdk(project))
     projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
     setLanguageLevel(projectJdk, project)

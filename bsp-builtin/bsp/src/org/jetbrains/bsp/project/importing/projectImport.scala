@@ -22,24 +22,25 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
-import org.jetbrains.bsp._
+import org.jetbrains.bsp.*
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.hasBspConfiguration
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
-import org.jetbrains.bsp.project.importing.bspConfigSteps._
+import org.jetbrains.bsp.project.importing.bspConfigSteps.*
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
 import org.jetbrains.bsp.project.importing.setup.{BspSetupProvider, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
-import org.jetbrains.bsp.settings.BspProjectSettings._
-import org.jetbrains.bsp.settings.PreImportConfig._
-import org.jetbrains.bsp.settings._
+import org.jetbrains.bsp.settings.BspProjectSettings.*
+import org.jetbrains.bsp.settings.PreImportConfig.*
+import org.jetbrains.bsp.settings.*
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
 import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
-import javax.swing._
+import javax.swing.*
 import scala.annotation.nowarn
 
 class BspProjectImportBuilder
@@ -65,7 +66,7 @@ class BspProjectImportBuilder
   private[importing] def autoConfigure(workspace: Path): Unit = {
     val configSetups = bspConfigSteps.configSetupChoices(workspace)
     if (configSetups.size == 1)
-      BspJdkUtil.findOrCreateBestJdkForProject(None).foreach(bspConfigSteps.configureBuilder(_, this, workspace, configSetups.head))
+      BspJdkUtil.findOrCreateBestJdkForProject(None, EelProviderUtil.getEelDescriptor(workspace)).foreach(bspConfigSteps.configureBuilder(_, this, workspace, configSetups.head))
   }
 
   private def applyBspSetupSettings(project: Project): Unit = {
@@ -190,7 +191,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
     project: Project,
     settings: BspProjectSettings
   ): Unit = {
-    val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Some(project))
+    val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(project)
 
     val (configSetupOpt, sdkOpt) =
       if (setupChoices.size > 1 && existingJdk.isEmpty)  {

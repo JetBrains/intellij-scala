@@ -46,7 +46,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
       return
     }
 
-    val projectJdk = BspJdkUtil.findOrCreateBestJdkForProject(Some(project))
+    val projectJdk = BspJdkUtil.findOrCreateBestJdkForProject(project)
     val (configSetupOpt, sdkOpt): (Option[ConfigSetup], Option[Sdk]) = if (configSetups.size > 1 || projectJdk.isEmpty) {
       val generateBspConfigDialog = new GenerateBspConfigDialog(configSetups, project, projectJdk.isEmpty)
       val ok = generateBspConfigDialog.showAndGet()

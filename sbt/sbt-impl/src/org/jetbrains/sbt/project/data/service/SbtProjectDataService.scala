@@ -11,12 +11,13 @@ import com.intellij.openapi.externalSystem.service.project.manage.ContentRootDat
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.external._
+import org.jetbrains.plugins.scala.project.*
+import org.jetbrains.plugins.scala.project.external.*
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
@@ -84,18 +85,21 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
   }
 
   private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction(project) {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
-    val jdk1 = Option(data.jdk).flatMap(SdkUtils.findProjectSdk)
+    val jdk1 = Option(data.jdk).flatMap(SdkUtils.findProjectSdk(_, eelDescriptor))
     val jdk2 = jdk1.orElse(existingJdk)
     val jdk3 = jdk2.orElse {
-      SdkUtils.findMostRecentJdkConfiguredInIde { sdk =>
-        val sbtVersion = SbtVersion(data.sbtVersion)
-        val sdkVersion = JavaVersion.parse(sdk.getVersionString)
-        JdkSbtCompatibilityChecker.isSbtAndJdkVersionCompatible(sdkVersion, sbtVersion, strict = true)
-      }
+      SdkUtils.findMostRecentJdkConfiguredInIde(
+        sdk =>
+          val sbtVersion = SbtVersion(data.sbtVersion)
+          val sdkVersion = JavaVersion.parse(sdk.getVersionString)
+          JdkSbtCompatibilityChecker.isSbtAndJdkVersionCompatible(sdkVersion, sbtVersion, strict = true),
+        eelDescriptor
+      )
     }
-    val jdk4 = jdk3.orElse(SdkUtils.mostRecentRegisteredJdk)
+    val jdk4 = jdk3.orElse(SdkUtils.mostRecentRegisteredJdk(eelDescriptor))
     jdk4.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
   }
 

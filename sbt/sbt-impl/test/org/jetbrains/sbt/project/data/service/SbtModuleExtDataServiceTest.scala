@@ -131,7 +131,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
     importProjectData(generateJavaProject(sdk, javacOptions))
 
     val moduleRootManager = ModuleRootManager.getInstance(getModule)
-    if (sdk.flatMap(SdkUtils.findProjectSdk).isEmpty) {
+    if (sdk.flatMap(SdkUtils.findProjectSdk(_, getProject)).isEmpty) {
       assertTrue(moduleRootManager.isSdkInherited)
     } else {
       assertEquals(expectedSdk, moduleRootManager.getSdk)

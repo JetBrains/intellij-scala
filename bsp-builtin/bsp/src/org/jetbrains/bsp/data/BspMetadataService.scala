@@ -34,7 +34,7 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
       val existingJdk = Option(ModuleRootManager.getInstance(module).getSdk)
       val moduleJdk = jdkByHome
         .orElse(jdkByVersion)
-        .flatMap(SdkUtils.findOrCreateSdk)
+        .flatMap(SdkUtils.findOrCreateSdk(_, project))
         .orElse(existingJdk)
 
       val model = modelsProvider.getModifiableRootModel(module)

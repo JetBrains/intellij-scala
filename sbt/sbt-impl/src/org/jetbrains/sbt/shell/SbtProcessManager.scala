@@ -243,7 +243,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
 
-    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
+    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk(_, project))
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
 
     configuredSdk.getOrElse {

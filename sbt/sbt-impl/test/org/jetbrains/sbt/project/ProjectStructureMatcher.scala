@@ -114,7 +114,7 @@ trait ProjectStructureMatcher {
 
   private def assertProjectSdkEqual(project: Project)(expectedSdkRef: SdkReference)
                                    (implicit compareContext: ProjectStructureComparisonContext): Unit = {
-    val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef).getOrElse {
+    val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef, project).getOrElse {
       fail(s"Sdk $expectedSdkRef nof found").asInstanceOf[Nothing]
     }
     val actualSdk = roots.ProjectRootManager.getInstance(project).getProjectSdk
