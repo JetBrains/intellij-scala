@@ -47,6 +47,7 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.ENUM, ENUM),
     new AttributesDescriptor(DisplayNames.ENUM_SINGLETON_CASE, ENUM_SINGLETON_CASE),
     new AttributesDescriptor(DisplayNames.ENUM_CLASS_CASE, ENUM_CLASS_CASE),
+    new AttributesDescriptor(DisplayNames.PACKAGE, PACKAGE),
     new AttributesDescriptor(DisplayNames.TYPEPARAM, TYPEPARAM),
     new AttributesDescriptor(DisplayNames.TYPE_ALIAS, TYPE_ALIAS),
     new AttributesDescriptor(DisplayNames.PREDEF, PREDEF),
@@ -114,6 +115,7 @@ object ScalaColorsAndFontsPage {
     val ENUM = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum")
     val ENUM_SINGLETON_CASE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum.case.singleton")
     val ENUM_CLASS_CASE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum.case.class")
+    val PACKAGE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.package")
     val BAD_CHARACTER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.bad.character")
     val DOC_COMMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.comment")
     val SCALA_DOC_TAG = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.comment.tag")
@@ -194,8 +196,8 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
   override def getDemoText: String =
     s"""$scalaDirectiveDemoText
        |
-       |<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_
-       |<keyword>import</keyword> java<dot>.</dot>util<dot>.</dot>TreeMap
+       |<keyword>import</keyword> <package>scala</package><dot>.</dot><package>collection</package><dot>.</dot><package>mutable</package><dot>.</dot>_
+       |<keyword>import</keyword> <package>java</package><dot>.</dot><package>util</package><dot>.</dot>TreeMap
        |
        |<scaladoc>/**
        | * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>
@@ -277,6 +279,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("enum", ENUM)
     map.put("enum_singleton_case", ENUM_SINGLETON_CASE)
     map.put("enum_class_case", ENUM_CLASS_CASE)
+    map.put("package", PACKAGE)
     map.put("annotation", ANNOTATION)
     map.put("attribute", ANNOTATION_ATTRIBUTE)
     map.put("abstract", ABSTRACT_CLASS)

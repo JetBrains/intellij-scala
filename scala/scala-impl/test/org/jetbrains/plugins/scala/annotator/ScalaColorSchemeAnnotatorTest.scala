@@ -4,7 +4,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.junit.Test
-
 class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
   import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
 
@@ -622,6 +621,25 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((64,65),.,Scala Dot)
         |Info((77,84),package,Scala Keyword)
         |Info((84,85),.,Scala Dot)""".stripMargin)
+  }
+
+  @Test
+  def testPackageHighlighting(): Unit = {
+    val text =
+      """package org.jetbrains.plugins.scala
+        |
+        |import java.util.concurrent.Callable
+        |""".stripMargin
+
+    testAnnotations(text, Set(DefaultHighlighter.PACKAGE),
+      """Info((8,11),org,Scala Package)
+        |Info((12,21),jetbrains,Scala Package)
+        |Info((22,29),plugins,Scala Package)
+        |Info((30,35),scala,Scala Package)
+        |Info((44,48),java,Scala Package)
+        |Info((49,53),util,Scala Package)
+        |Info((54,64),concurrent,Scala Package)""".stripMargin
+    )
   }
 
 }
