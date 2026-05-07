@@ -330,6 +330,19 @@
                 language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaInlineCompletionCommandProvider"
                 order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaIntroduceVariableCompletionCommandProvider"
+                order="last"/>
+<!-- TODO(SCL-24924): introduce field and introduce parameter don't work reliable enough yet to enable command completion -->
+<!--        <codeInsight.completion.command.provider-->
+<!--                language="Scala"-->
+<!--                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaIntroduceFieldCompletionCommandProvider"-->
+<!--                order="last"/>-->
+<!--        <codeInsight.completion.command.provider-->
+<!--                language="Scala"-->
+<!--                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaIntroduceParameterCompletionCommandProvider"-->
+<!--                order="last"/>-->
         <!--endregion-->
 
         <completion.contributor language="Scala" id="keywordCompletionContributor"

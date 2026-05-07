@@ -874,10 +874,11 @@ object ScalaRefactoringUtil {
       }
 
       elements match {
+        case Seq(element, rest@_*) if rest.isEmpty || ApplicationManager.getApplication.isUnitTestMode =>
+          onElement(element)
         case Seq() =>
           selectionModel.selectLineAtCaret()
           default
-        case Seq(element) => onElement(element)
         case elements => showPsiChooser(elements, onElement, message, getShortText)
       }
     }
