@@ -13,13 +13,9 @@ import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest,
-))
-class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase
-
-@RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest_RC
 ))
-class WorksheetReplIntegration_Scala_3_LTS_RC_Test extends WorksheetReplIntegration_Since_3_2_TestBase {
+class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase {
   @Test
   override def testAllInOne(): Unit = {
     val before =
