@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
+import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner, PsiPackage}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference, ScStableCodeReference}
@@ -102,6 +102,7 @@ object ScalaColorsSchemeUtils {
         }
       case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => highlightInfoType(f.asInstanceOf[ScFunction])
       case m: PsiMethod                                                                  => highlightInfoType(m)
+      case _: PsiPackage                                                                 => ScalaHighlightInfoTypes.PACKAGE
       case _                                                                             => ScalaHighlightInfoTypes.IDENTIFIER
     }
 
