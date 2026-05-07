@@ -1,6 +1,6 @@
 /* Compile with
 
-    dotc implicits2.scala -Xprint:typer -Xprint-types -verbose
+    dotc implicits2.scala -Vprint:typer -Xprint-types -verbose
 
     and verify that the inserted wrapString comes from Predef. You should see
 
@@ -26,7 +26,7 @@ object implicits2 {
 -----
 ScalaFile
   ScObject: implicits2
-    PsiComment(BlockComment)('/* Compile with\n\n    dotc implicits2.scala -Xprint:typer -Xprint-types -verbose\n\n    and verify that the inserted wrapString comes from Predef. You should see\n\n    val x: <root>.scala.collection.immutable.WrappedString =\n      <\n        <scala.Predef.wrapString:\n          ((s: java.lang.String)scala.collection.immutable.WrappedString)\n        >\n      (<"abc":java.lang.String("abc")>):scala.collection.immutable.WrappedString\n        >\n*/')
+    PsiComment(BlockComment)('/* Compile with\n\n    dotc implicits2.scala -Vprint:typer -Xprint-types -verbose\n\n    and verify that the inserted wrapString comes from Predef. You should see\n\n    val x: <root>.scala.collection.immutable.WrappedString =\n      <\n        <scala.Predef.wrapString:\n          ((s: java.lang.String)scala.collection.immutable.WrappedString)\n        >\n      (<"abc":java.lang.String("abc")>):scala.collection.immutable.WrappedString\n        >\n*/')
     PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>

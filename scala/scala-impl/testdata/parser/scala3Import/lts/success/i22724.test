@@ -1,0 +1,327 @@
+import java.util.concurrent.atomic.AtomicReference
+
+object UnboundedHub:
+  final class Node[A](var value: A, val pointer: AtomicReference[Pointer[A]])
+  final case class Pointer[A](node: Node[A], subscribers: Int)
+
+private final class UnboundedHub[A]:
+  import UnboundedHub.*
+
+  val publisherHead: AtomicReference[Node[A]] = new AtomicReference(
+    new Node[A](
+      null.asInstanceOf[A],
+      new AtomicReference(
+        Pointer(null, 0) // error: too many arguments for constructor AtomicReference
+      )
+    )
+  )
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.atomic.AtomicReference
+        CodeReferenceElement: java.util.concurrent.atomic
+          CodeReferenceElement: java.util.concurrent
+            CodeReferenceElement: java.util
+              CodeReferenceElement: java
+                PsiElement(identifier)('java')
+              PsiElement(.)('.')
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(identifier)('concurrent')
+          PsiElement(.)('.')
+          PsiElement(identifier)('atomic')
+        PsiElement(.)('.')
+        PsiElement(identifier)('AtomicReference')
+  PsiWhiteSpace('\n\n')
+  ScObject: UnboundedHub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnboundedHub')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: pointer
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('pointer')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: AtomicReference[Pointer[A]]
+                      SimpleType: AtomicReference
+                        CodeReferenceElement: AtomicReference
+                          PsiElement(identifier)('AtomicReference')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        ParametrizedType: Pointer[A]
+                          SimpleType: Pointer
+                            CodeReferenceElement: Pointer
+                              PsiElement(identifier)('Pointer')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: Pointer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Pointer')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: node
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('node')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Node[A]
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: subscribers
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('subscribers')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: UnboundedHub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      AccessModifier
+        PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnboundedHub')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: UnboundedHub
+              PsiElement(identifier)('UnboundedHub')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: publisherHead
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: publisherHead
+              PsiElement(identifier)('publisherHead')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AtomicReference[Node[A]]
+            SimpleType: AtomicReference
+              CodeReferenceElement: AtomicReference
+                PsiElement(identifier)('AtomicReference')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Node[A]
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: AtomicReference
+                    CodeReferenceElement: AtomicReference
+                      PsiElement(identifier)('AtomicReference')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n    ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            ParametrizedType: Node[A]
+                              SimpleType: Node
+                                CodeReferenceElement: Node
+                                  PsiElement(identifier)('Node')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiWhiteSpace('\n      ')
+                              GenericCall
+                                ReferenceExpression: null.asInstanceOf
+                                  NullLiteral
+                                    PsiElement(null)('null')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('asInstanceOf')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                  PsiElement(])(']')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace('\n      ')
+                              ScNewTemplateDefinition: <anonymous>
+                                PsiElement(new)('new')
+                                PsiWhiteSpace(' ')
+                                ExtendsBlock
+                                  TemplateParents
+                                    ConstructorInvocation
+                                      SimpleType: AtomicReference
+                                        CodeReferenceElement: AtomicReference
+                                          PsiElement(identifier)('AtomicReference')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        PsiWhiteSpace('\n        ')
+                                        MethodCall
+                                          ReferenceExpression: Pointer
+                                            PsiElement(identifier)('Pointer')
+                                          ArgumentList
+                                            PsiElement(()('(')
+                                            NullLiteral
+                                              PsiElement(null)('null')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            IntegerLiteral
+                                              PsiElement(integer)('0')
+                                            PsiElement())(')')
+                                        PsiWhiteSpace(' ')
+                                        PsiComment(comment)('// error: too many arguments for constructor AtomicReference')
+                                        PsiWhiteSpace('\n      ')
+                                        PsiElement())(')')
+                              PsiWhiteSpace('\n    ')
+                              PsiElement())(')')
+                    PsiWhiteSpace('\n  ')
+                    PsiElement())(')')

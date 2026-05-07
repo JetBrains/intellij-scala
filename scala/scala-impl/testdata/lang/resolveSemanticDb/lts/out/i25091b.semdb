@@ -1,0 +1,20 @@
+Document tests/pos/i25091b.scala
+(3:27..3:28) _empty_/Test.VersionComponent#[T] -> 2:26
+(3:31..3:35) _empty_/Test.VersionComponent#wrap(). -> 4:18
+(4:30..4:33) scala/Int#
+(4:36..4:37) _empty_/Test.VersionComponent#[T] -> 2:26
+(6:34..6:37) scala/Int#
+(7:31..7:47) _empty_/Test.VersionComponent# -> 2:9
+(7:48..7:64) _empty_/Test.MajorVersionType# -> 6:15
+(8:30..8:33) scala/Int#
+(8:36..8:52) _empty_/Test.MajorVersionType# -> 6:15
+(8:55..8:60) _empty_/Test.MajorVersion.wrap().(value) -> 8:23
+(9:25..9:41) _empty_/Test.MajorVersionType# -> 6:15
+(9:44..9:51) _empty_/Test.VersionComponent#minimum(). -> 3:18
+(12:20..12:36) _empty_/Test.MajorVersionType# -> 6:15
+(14:29..14:38) _empty_/Test.Increment# -> 11:9
+(14:39..14:55) _empty_/Test.MajorVersionType# -> 6:15
+(15:27..15:43) _empty_/Test.MajorVersionType# -> 6:15
+(15:46..15:58) _empty_/Test.MajorVersion. -> 7:10
+(15:59..15:64) _empty_/Test.MajorVersion.reset(). -> 9:18
+

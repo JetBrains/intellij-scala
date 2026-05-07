@@ -1,0 +1,121 @@
+Document tests/pos/i23317.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:18..3:24) scala/quoted/Quotes#
+(3:27..3:31) scala/quoted/Expr#
+(3:32..3:35) scala/Int#
+(4:3..4:7) scala/package.List.
+(4:8..4:13) scala/collection/immutable/List.empty().
+(4:14..4:18) scala/quoted/Type#
+(5:10..5:13) scala/package.Nil.
+(6:7..6:11) scala/quoted/Expr.
+(7:12..7:14) local0 -> 7:12
+(7:16..7:18) scala/package.`::`.
+(7:19..7:22) scala/package.Nil.
+(8:7..8:11) scala/quoted/Expr.
+(9:12..9:14) local2 -> 9:12
+(9:16..9:18) scala/package.`::`.
+(9:21..9:23) local4 -> 9:21
+(9:25..9:27) scala/package.`::`.
+(9:28..9:31) scala/package.Nil.
+(10:7..10:11) scala/quoted/Expr.
+(11:12..11:14) local6 -> 11:12
+(11:16..11:18) scala/package.`::`.
+(11:21..11:23) local8 -> 11:21
+(11:25..11:27) scala/package.`::`.
+(11:30..11:32) local10 -> 11:30
+(11:34..11:36) scala/package.`::`.
+(11:37..11:40) scala/package.Nil.
+(12:7..12:11) scala/quoted/Expr.
+(13:12..13:14) local12 -> 13:12
+(13:16..13:18) scala/package.`::`.
+(13:21..13:23) local14 -> 13:21
+(13:25..13:27) scala/package.`::`.
+(13:30..13:32) local16 -> 13:30
+(13:34..13:36) scala/package.`::`.
+(13:39..13:41) local18 -> 13:39
+(13:43..13:45) scala/package.`::`.
+(13:46..13:49) scala/package.Nil.
+(14:7..14:11) scala/quoted/Expr.
+(15:12..15:14) local20 -> 15:12
+(15:16..15:18) scala/package.`::`.
+(15:21..15:23) local22 -> 15:21
+(15:25..15:27) scala/package.`::`.
+(15:30..15:32) local24 -> 15:30
+(15:34..15:36) scala/package.`::`.
+(15:39..15:41) local26 -> 15:39
+(15:43..15:45) scala/package.`::`.
+(15:48..15:50) local28 -> 15:48
+(15:52..15:54) scala/package.`::`.
+(15:55..15:58) scala/package.Nil.
+(16:7..16:11) scala/quoted/Expr.
+(17:12..17:14) local30 -> 17:12
+(17:16..17:18) scala/package.`::`.
+(17:21..17:23) local32 -> 17:21
+(17:25..17:27) scala/package.`::`.
+(17:30..17:32) local34 -> 17:30
+(17:34..17:36) scala/package.`::`.
+(17:39..17:41) local36 -> 17:39
+(17:43..17:45) scala/package.`::`.
+(17:48..17:50) local38 -> 17:48
+(17:52..17:54) scala/package.`::`.
+(17:57..17:59) local40 -> 17:57
+(17:61..17:63) scala/package.`::`.
+(17:64..17:67) scala/package.Nil.
+(18:7..18:11) scala/quoted/Expr.
+(19:12..19:14) local42 -> 19:12
+(19:16..19:18) scala/package.`::`.
+(19:21..19:23) local44 -> 19:21
+(19:25..19:27) scala/package.`::`.
+(19:30..19:32) local46 -> 19:30
+(19:34..19:36) scala/package.`::`.
+(19:39..19:41) local48 -> 19:39
+(19:43..19:45) scala/package.`::`.
+(19:48..19:50) local50 -> 19:48
+(19:52..19:54) scala/package.`::`.
+(19:57..19:59) local52 -> 19:57
+(19:61..19:63) scala/package.`::`.
+(19:66..19:68) local54 -> 19:66
+(19:70..19:72) scala/package.`::`.
+(19:73..19:76) scala/package.Nil.
+(20:7..20:11) scala/quoted/Expr.
+(21:12..21:14) local56 -> 21:12
+(21:16..21:18) scala/package.`::`.
+(21:21..21:23) local58 -> 21:21
+(21:25..21:27) scala/package.`::`.
+(21:30..21:32) local60 -> 21:30
+(21:34..21:36) scala/package.`::`.
+(21:39..21:41) local62 -> 21:39
+(21:43..21:45) scala/package.`::`.
+(21:48..21:50) local64 -> 21:48
+(21:52..21:54) scala/package.`::`.
+(21:57..21:59) local66 -> 21:57
+(21:61..21:63) scala/package.`::`.
+(21:66..21:68) local68 -> 21:66
+(21:70..21:72) scala/package.`::`.
+(21:75..21:77) local70 -> 21:75
+(21:79..21:81) scala/package.`::`.
+(21:82..21:85) scala/package.Nil.
+(22:7..22:11) scala/quoted/Expr.
+(23:12..23:14) local72 -> 23:12
+(23:16..23:18) scala/package.`::`.
+(23:21..23:23) local74 -> 23:21
+(23:25..23:27) scala/package.`::`.
+(23:30..23:32) local76 -> 23:30
+(23:34..23:36) scala/package.`::`.
+(23:39..23:41) local78 -> 23:39
+(23:43..23:45) scala/package.`::`.
+(23:48..23:50) local80 -> 23:48
+(23:52..23:54) scala/package.`::`.
+(23:57..23:59) local82 -> 23:57
+(23:61..23:63) scala/package.`::`.
+(23:66..23:68) local84 -> 23:66
+(23:70..23:72) scala/package.`::`.
+(23:75..23:77) local86 -> 23:75
+(23:79..23:81) scala/package.`::`.
+(23:84..23:86) local88 -> 23:84
+(23:88..23:90) scala/package.`::`.
+(23:91..23:94) scala/package.Nil.
+(24:7..24:11) scala/quoted/Expr.
+(26:7..26:11) scala/quoted/Expr.
+

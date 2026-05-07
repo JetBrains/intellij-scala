@@ -1,0 +1,14 @@
+Document tests/pos/i24990.scala
+(4:21..4:24) scala/Int#
+(7:38..7:41) _empty_/test.Bar# -> 6:16
+(7:42..7:43) _empty_/test.Bar.inst().[A] -> 7:34
+(7:51..7:54) _empty_/test.Bar# -> 6:16
+(7:55..7:56) _empty_/test.Bar.inst().[A] -> 7:34
+(10:20..10:21) _empty_/i24990$package.takesBar().[A] -> 10:14
+(10:32..10:36) _empty_/test. -> 3:8
+(10:37..10:40) _empty_/test.Bar# -> 6:16
+(10:41..10:42) _empty_/i24990$package.takesBar().[A] -> 10:14
+(10:46..10:47) _empty_/i24990$package.takesBar().[A] -> 10:14
+(10:50..10:51) _empty_/i24990$package.takesBar().(a) -> 10:17
+(12:9..12:17) _empty_/i24990$package.takesBar(). -> 10:5
+

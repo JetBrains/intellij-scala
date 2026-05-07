@@ -1,0 +1,9 @@
+Document tests/pos/i22470.scala
+(7:19..7:20) _empty_/A# -> 1:7
+(8:9..8:19) _empty_/OuterClass# -> 2:7
+(9:21..9:25) scala/Unit#
+(10:13..10:21) _empty_/MidClass# -> 3:7
+(11:28..11:38) _empty_/InnerClass# -> 4:7
+(13:15..13:22) scala/Predef.println(+1).
+(13:23..13:24) _empty_/Obj.outerDef().(a) -> 7:16
+

@@ -1,0 +1,103 @@
+object Test {
+  def main(): Unit =
+    import pack.Maybe
+    val res: Maybe[Maybe[Int]] = ???
+    passThorugh(res.flatten.isDefined)
+}
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: pack.Maybe
+                  CodeReferenceElement: pack
+                    PsiElement(identifier)('pack')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Maybe')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res
+                  PsiElement(identifier)('res')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Maybe[Maybe[Int]]
+                SimpleType: Maybe
+                  CodeReferenceElement: Maybe
+                    PsiElement(identifier)('Maybe')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Maybe[Int]
+                    SimpleType: Maybe
+                      CodeReferenceElement: Maybe
+                        PsiElement(identifier)('Maybe')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: passThorugh
+                PsiElement(identifier)('passThorugh')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: res.flatten.isDefined
+                  ReferenceExpression: res.flatten
+                    ReferenceExpression: res
+                      PsiElement(identifier)('res')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('flatten')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isDefined')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

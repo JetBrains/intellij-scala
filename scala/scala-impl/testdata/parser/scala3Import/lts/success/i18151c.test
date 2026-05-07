@@ -1,0 +1,1567 @@
+import scala.compiletime.*
+import scala.compiletime.ops.any.ToString
+
+trait Attr
+case object EmptyAttr extends Attr
+transparent inline def attrStr(inline a: Attr): String = inline a match
+  case EmptyAttr => ""
+transparent inline def attrStrHelper(inline a: Attr): String = inline a match
+  case EmptyAttr => ""
+trait TmplNode
+case class El[T <: String & Singleton, A <: Attr, C <: Tmpl](val tag: T, val attr: A, val child: C)
+    extends TmplNode
+case class Sib[L <: Tmpl, R <: Tmpl](left: L, right: R) extends TmplNode
+type TmplSingleton = String | Char | Int | Long | Float | Double | Boolean
+type Tmpl = TmplNode | Unit | (TmplSingleton & Singleton)
+transparent inline def tmplStr(inline t: Tmpl): String = inline t match
+  case El(tag, attr, child) => inline attrStr(attr) match
+      case "" => "<" + tag + ">" + tmplStr(child)
+      case x  => "<" + tag + " " + x + ">" + tmplStr(child)
+  case Sib(left, right) => inline tmplStr(right) match
+      case ""    => tmplStr(left)
+      case right => tmplStrHelper(left) + right
+  case ()                     => ""
+  case s: (t & TmplSingleton) => constValue[ToString[t]]
+transparent inline def tmplStrHelper(inline t: Tmpl): String = inline t match
+  case El(tag, attr, child) => inline (tmplStr(child), attrStr(attr)) match
+      case ("", "")      => "<" + tag + "/>"
+      case (child, "")   => "<" + tag + ">" + child + "</" + tag + ">"
+      case ("", attr)    => "<" + tag + " " + attr + "/>"
+      case (child, attr) => "<" + tag + " " + attr + ">" + child + "</" + tag + ">"
+  case Sib(left, right)       => tmplStrHelper(left) + tmplStrHelper(right)
+  case ()                     => ""
+  case s: (t & TmplSingleton) => constValue[ToString[t]]
+transparent inline def el(tag: String & Singleton): El[tag.type, EmptyAttr.type, Unit] =
+  El(tag, EmptyAttr, ())
+extension [T <: String & Singleton, A <: Attr, C <: Tmpl](el: El[T, A, C])
+  transparent inline def >>[C2 <: Tmpl](child: C2) = El(el.tag, el.attr, el.child ++ child)
+
+extension [L <: Tmpl](left: L) transparent inline def ++[R <: Tmpl](right: R) = Sib(left, right)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.any.ToString
+        CodeReferenceElement: scala.compiletime.ops.any
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('any')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ToString')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Attr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Attr')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: EmptyAttr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EmptyAttr')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Attr
+            CodeReferenceElement: Attr
+              PsiElement(identifier)('Attr')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: attrStr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('attrStr')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Attr
+              CodeReferenceElement: Attr
+                PsiElement(identifier)('Attr')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: EmptyAttr
+              PsiElement(identifier)('EmptyAttr')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('""')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: attrStrHelper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('attrStrHelper')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Attr
+              CodeReferenceElement: Attr
+                PsiElement(identifier)('Attr')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: EmptyAttr
+              PsiElement(identifier)('EmptyAttr')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('""')
+  PsiWhiteSpace('\n')
+  ScTrait: TmplNode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TmplNode')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: El
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('El')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: String & Singleton
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Attr
+          CodeReferenceElement: Attr
+            PsiElement(identifier)('Attr')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tmpl
+          CodeReferenceElement: Tmpl
+            PsiElement(identifier)('Tmpl')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: tag
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('tag')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: attr
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('attr')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: child
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('child')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+          PsiElement())(')')
+    PsiWhiteSpace('\n    ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TmplNode
+            CodeReferenceElement: TmplNode
+              PsiElement(identifier)('TmplNode')
+  PsiWhiteSpace('\n')
+  ScClass: Sib
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sib')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tmpl
+          CodeReferenceElement: Tmpl
+            PsiElement(identifier)('Tmpl')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tmpl
+          CodeReferenceElement: Tmpl
+            PsiElement(identifier)('Tmpl')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: left
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('left')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: L
+                CodeReferenceElement: L
+                  PsiElement(identifier)('L')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: right
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('right')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TmplNode
+            CodeReferenceElement: TmplNode
+              PsiElement(identifier)('TmplNode')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: TmplSingleton
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TmplSingleton')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: String | Char | Int | Long | Float | Double | Boolean
+      InfixType: String | Char | Int | Long | Float | Double
+        InfixType: String | Char | Int | Long | Float
+          InfixType: String | Char | Int | Long
+            InfixType: String | Char | Int
+              InfixType: String | Char
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Long
+              CodeReferenceElement: Long
+                PsiElement(identifier)('Long')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: Float
+            CodeReferenceElement: Float
+              PsiElement(identifier)('Float')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        SimpleType: Double
+          CodeReferenceElement: Double
+            PsiElement(identifier)('Double')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Boolean
+        CodeReferenceElement: Boolean
+          PsiElement(identifier)('Boolean')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Tmpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tmpl')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: TmplNode | Unit | (TmplSingleton & Singleton)
+      InfixType: TmplNode | Unit
+        SimpleType: TmplNode
+          CodeReferenceElement: TmplNode
+            PsiElement(identifier)('TmplNode')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      TypeInParenthesis: (TmplSingleton & Singleton)
+        PsiElement(()('(')
+        InfixType: TmplSingleton & Singleton
+          SimpleType: TmplSingleton
+            CodeReferenceElement: TmplSingleton
+              PsiElement(identifier)('TmplSingleton')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: tmplStr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('tmplStr')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Tmpl
+              CodeReferenceElement: Tmpl
+                PsiElement(identifier)('Tmpl')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: t
+        PsiElement(identifier)('t')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: El
+              PsiElement(identifier)('El')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: tag
+                PsiElement(identifier)('tag')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: attr
+                PsiElement(identifier)('attr')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: child
+                PsiElement(identifier)('child')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MatchStatement
+              PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: attrStr
+                  PsiElement(identifier)('attrStr')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: attr
+                    PsiElement(identifier)('attr')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    StringLiteral
+                      PsiElement(string content)('""')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          StringLiteral
+                            PsiElement(string content)('"<"')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: tag
+                            PsiElement(identifier)('tag')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('">"')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: tmplStr
+                          PsiElement(identifier)('tmplStr')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: child
+                            PsiElement(identifier)('child')
+                          PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace('  ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              StringLiteral
+                                PsiElement(string content)('"<"')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: tag
+                                PsiElement(identifier)('tag')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            StringLiteral
+                              PsiElement(string content)('" "')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('">"')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: tmplStr
+                          PsiElement(identifier)('tmplStr')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: child
+                            PsiElement(identifier)('child')
+                          PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Sib
+              PsiElement(identifier)('Sib')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: left
+                PsiElement(identifier)('left')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: right
+                PsiElement(identifier)('right')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MatchStatement
+              PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: tmplStr
+                  PsiElement(identifier)('tmplStr')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: right
+                    PsiElement(identifier)('right')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    StringLiteral
+                      PsiElement(string content)('""')
+                  PsiWhiteSpace('    ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: tmplStr
+                        PsiElement(identifier)('tmplStr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: left
+                          PsiElement(identifier)('left')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: right
+                    PsiElement(identifier)('right')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      MethodCall
+                        ReferenceExpression: tmplStrHelper
+                          PsiElement(identifier)('tmplStrHelper')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: left
+                            PsiElement(identifier)('left')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: right
+                        PsiElement(identifier)('right')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            PsiElement())(')')
+          PsiWhiteSpace('                     ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('""')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: s
+              PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              TypeInParenthesis: (t & TmplSingleton)
+                PsiElement(()('(')
+                InfixType: t & TmplSingleton
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: TmplSingleton
+                    CodeReferenceElement: TmplSingleton
+                      PsiElement(identifier)('TmplSingleton')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            GenericCall
+              ReferenceExpression: constValue
+                PsiElement(identifier)('constValue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ToString[t]
+                  SimpleType: ToString
+                    CodeReferenceElement: ToString
+                      PsiElement(identifier)('ToString')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: tmplStrHelper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('tmplStrHelper')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Tmpl
+              CodeReferenceElement: Tmpl
+                PsiElement(identifier)('Tmpl')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: t
+        PsiElement(identifier)('t')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: El
+              PsiElement(identifier)('El')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: tag
+                PsiElement(identifier)('tag')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: attr
+                PsiElement(identifier)('attr')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: child
+                PsiElement(identifier)('child')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MatchStatement
+              PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              Tuple
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: tmplStr
+                    PsiElement(identifier)('tmplStr')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: child
+                      PsiElement(identifier)('child')
+                    PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: attrStr
+                    PsiElement(identifier)('attrStr')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: attr
+                      PsiElement(identifier)('attr')
+                    PsiElement())(')')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('""')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('""')
+                    PsiElement())(')')
+                  PsiWhiteSpace('      ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        StringLiteral
+                          PsiElement(string content)('"<"')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: tag
+                          PsiElement(identifier)('tag')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('"/>"')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: child
+                        PsiElement(identifier)('child')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('""')
+                    PsiElement())(')')
+                  PsiWhiteSpace('   ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                StringLiteral
+                                  PsiElement(string content)('"<"')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: tag
+                                  PsiElement(identifier)('tag')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              StringLiteral
+                                PsiElement(string content)('">"')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: child
+                              PsiElement(identifier)('child')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('"</"')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: tag
+                          PsiElement(identifier)('tag')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('">"')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('""')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: attr
+                        PsiElement(identifier)('attr')
+                    PsiElement())(')')
+                  PsiWhiteSpace('    ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            StringLiteral
+                              PsiElement(string content)('"<"')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: tag
+                              PsiElement(identifier)('tag')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('" "')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: attr
+                          PsiElement(identifier)('attr')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('"/>"')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: child
+                        PsiElement(identifier)('child')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: attr
+                        PsiElement(identifier)('attr')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                InfixExpression
+                                  InfixExpression
+                                    StringLiteral
+                                      PsiElement(string content)('"<"')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: tag
+                                      PsiElement(identifier)('tag')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: +
+                                    PsiElement(identifier)('+')
+                                  PsiWhiteSpace(' ')
+                                  StringLiteral
+                                    PsiElement(string content)('" "')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: attr
+                                  PsiElement(identifier)('attr')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              StringLiteral
+                                PsiElement(string content)('">"')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: child
+                              PsiElement(identifier)('child')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('"</"')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: tag
+                          PsiElement(identifier)('tag')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('">"')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Sib
+              PsiElement(identifier)('Sib')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: left
+                PsiElement(identifier)('left')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: right
+                PsiElement(identifier)('right')
+              PsiElement())(')')
+          PsiWhiteSpace('       ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            InfixExpression
+              MethodCall
+                ReferenceExpression: tmplStrHelper
+                  PsiElement(identifier)('tmplStrHelper')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: left
+                    PsiElement(identifier)('left')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: tmplStrHelper
+                  PsiElement(identifier)('tmplStrHelper')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: right
+                    PsiElement(identifier)('right')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            PsiElement())(')')
+          PsiWhiteSpace('                     ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('""')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: s
+              PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              TypeInParenthesis: (t & TmplSingleton)
+                PsiElement(()('(')
+                InfixType: t & TmplSingleton
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: TmplSingleton
+                    CodeReferenceElement: TmplSingleton
+                      PsiElement(identifier)('TmplSingleton')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            GenericCall
+              ReferenceExpression: constValue
+                PsiElement(identifier)('constValue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ToString[t]
+                  SimpleType: ToString
+                    CodeReferenceElement: ToString
+                      PsiElement(identifier)('ToString')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: t
+                      CodeReferenceElement: t
+                        PsiElement(identifier)('t')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: el
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('el')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tag
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tag')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            InfixType: String & Singleton
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              SimpleType: Singleton
+                CodeReferenceElement: Singleton
+                  PsiElement(identifier)('Singleton')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: El[tag.type, EmptyAttr.type, Unit]
+      SimpleType: El
+        CodeReferenceElement: El
+          PsiElement(identifier)('El')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: tag.type
+          CodeReferenceElement: tag
+            PsiElement(identifier)('tag')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: EmptyAttr.type
+          CodeReferenceElement: EmptyAttr
+            PsiElement(identifier)('EmptyAttr')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: El
+        PsiElement(identifier)('El')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: tag
+          PsiElement(identifier)('tag')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: EmptyAttr
+          PsiElement(identifier)('EmptyAttr')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        UnitExpression
+          PsiElement(()('(')
+          PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  Extension on El[T, A, C]
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        InfixType: String & Singleton
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          SimpleType: Singleton
+            CodeReferenceElement: Singleton
+              PsiElement(identifier)('Singleton')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Attr
+          CodeReferenceElement: Attr
+            PsiElement(identifier)('Attr')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tmpl
+          CodeReferenceElement: Tmpl
+            PsiElement(identifier)('Tmpl')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: el
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('el')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: El[T, A, C]
+              SimpleType: El
+                CodeReferenceElement: El
+                  PsiElement(identifier)('El')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: >>
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(transparent)('transparent')
+          PsiWhiteSpace(' ')
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('>>')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: C2
+            PsiElement(identifier)('C2')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Tmpl
+              CodeReferenceElement: Tmpl
+                PsiElement(identifier)('Tmpl')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: child
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('child')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: C2
+                  CodeReferenceElement: C2
+                    PsiElement(identifier)('C2')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: El
+            PsiElement(identifier)('El')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: el.tag
+              ReferenceExpression: el
+                PsiElement(identifier)('el')
+              PsiElement(.)('.')
+              PsiElement(identifier)('tag')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: el.attr
+              ReferenceExpression: el
+                PsiElement(identifier)('el')
+              PsiElement(.)('.')
+              PsiElement(identifier)('attr')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: el.child
+                ReferenceExpression: el
+                  PsiElement(identifier)('el')
+                PsiElement(.)('.')
+                PsiElement(identifier)('child')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ++
+                PsiElement(identifier)('++')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: child
+                PsiElement(identifier)('child')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  Extension on L
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tmpl
+          CodeReferenceElement: Tmpl
+            PsiElement(identifier)('Tmpl')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: left
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('left')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: ++
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(transparent)('transparent')
+          PsiWhiteSpace(' ')
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('++')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: R
+            PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: Tmpl
+              CodeReferenceElement: Tmpl
+                PsiElement(identifier)('Tmpl')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: right
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('right')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Sib
+            PsiElement(identifier)('Sib')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: left
+              PsiElement(identifier)('left')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: right
+              PsiElement(identifier)('right')
+            PsiElement())(')')

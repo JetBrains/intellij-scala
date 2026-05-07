@@ -1,0 +1,373 @@
+sealed trait NonPolygon
+sealed trait Polygon
+
+sealed trait SymmetryAspect
+sealed trait RotationalSymmetry      extends SymmetryAspect
+sealed trait MaybeRotationalSymmetry extends SymmetryAspect
+
+enum Shape:
+  case Circle   extends Shape with NonPolygon with RotationalSymmetry
+  case Triangle extends Shape with Polygon with MaybeRotationalSymmetry
+  case Square   extends Shape with Polygon with RotationalSymmetry
+
+object Shape:
+
+  def hasPolygon(
+    rotationalSyms: Vector[Shape & RotationalSymmetry],
+    maybeSyms: Vector[Shape & MaybeRotationalSymmetry]
+  ): Boolean =
+    val all = rotationalSyms.concat(maybeSyms)
+    all.exists:
+      case _: Polygon => true
+      case _          => false
+-----
+ScalaFile
+  ScTrait: NonPolygon
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NonPolygon')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Polygon
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Polygon')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: SymmetryAspect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SymmetryAspect')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: RotationalSymmetry
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RotationalSymmetry')
+    PsiWhiteSpace('      ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SymmetryAspect
+            CodeReferenceElement: SymmetryAspect
+              PsiElement(identifier)('SymmetryAspect')
+  PsiWhiteSpace('\n')
+  ScTrait: MaybeRotationalSymmetry
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MaybeRotationalSymmetry')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SymmetryAspect
+            CodeReferenceElement: SymmetryAspect
+              PsiElement(identifier)('SymmetryAspect')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Shape
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Shape')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Circle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Circle
+            PsiElement(identifier)('Circle')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: NonPolygon
+                    CodeReferenceElement: NonPolygon
+                      PsiElement(identifier)('NonPolygon')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: RotationalSymmetry
+                    CodeReferenceElement: RotationalSymmetry
+                      PsiElement(identifier)('RotationalSymmetry')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Triangle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Triangle
+            PsiElement(identifier)('Triangle')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: Polygon
+                    CodeReferenceElement: Polygon
+                      PsiElement(identifier)('Polygon')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: MaybeRotationalSymmetry
+                    CodeReferenceElement: MaybeRotationalSymmetry
+                      PsiElement(identifier)('MaybeRotationalSymmetry')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Square
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Square
+            PsiElement(identifier)('Square')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: Polygon
+                    CodeReferenceElement: Polygon
+                      PsiElement(identifier)('Polygon')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                ConstructorInvocation
+                  SimpleType: RotationalSymmetry
+                    CodeReferenceElement: RotationalSymmetry
+                      PsiElement(identifier)('RotationalSymmetry')
+  PsiWhiteSpace('\n\n')
+  ScObject: Shape
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Shape')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: hasPolygon
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('hasPolygon')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              Parameter: rotationalSyms
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('rotationalSyms')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vector[Shape & RotationalSymmetry]
+                    SimpleType: Vector
+                      CodeReferenceElement: Vector
+                        PsiElement(identifier)('Vector')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      InfixType: Shape & RotationalSymmetry
+                        SimpleType: Shape
+                          CodeReferenceElement: Shape
+                            PsiElement(identifier)('Shape')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: RotationalSymmetry
+                          CodeReferenceElement: RotationalSymmetry
+                            PsiElement(identifier)('RotationalSymmetry')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              Parameter: maybeSyms
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('maybeSyms')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Vector[Shape & MaybeRotationalSymmetry]
+                    SimpleType: Vector
+                      CodeReferenceElement: Vector
+                        PsiElement(identifier)('Vector')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      InfixType: Shape & MaybeRotationalSymmetry
+                        SimpleType: Shape
+                          CodeReferenceElement: Shape
+                            PsiElement(identifier)('Shape')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: MaybeRotationalSymmetry
+                          CodeReferenceElement: MaybeRotationalSymmetry
+                            PsiElement(identifier)('MaybeRotationalSymmetry')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: all
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: all
+                  PsiElement(identifier)('all')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: rotationalSyms.concat
+                  ReferenceExpression: rotationalSyms
+                    PsiElement(identifier)('rotationalSyms')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('concat')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: maybeSyms
+                    PsiElement(identifier)('maybeSyms')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: all.exists
+                ReferenceExpression: all
+                  PsiElement(identifier)('all')
+                PsiElement(.)('.')
+                PsiElement(identifier)('exists')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Polygon
+                            CodeReferenceElement: Polygon
+                              PsiElement(identifier)('Polygon')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BooleanLiteral
+                          PsiElement(true)('true')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiWhiteSpace('          ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        BooleanLiteral
+                          PsiElement(false)('false')

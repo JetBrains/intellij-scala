@@ -3,7 +3,7 @@ Document tests/pos/i19633.scala
 (7:47..7:48) _empty_/Repro.Responsive.Aux#[R] -> 7:14
 (8:24..8:25) _empty_/Repro.Responsive.Response#[R] -> 8:19
 (8:38..8:41) _empty_/Repro.Responsive.Aux# -> 7:10
-(8:48..8:49) local1 -> 8:42
+(8:48..8:49) local0 -> 8:42
 (11:34..11:40) scala/Predef.String#
 (11:50..11:60) _empty_/Repro.Responsive# -> 2:9
 (12:21..12:27) scala/Predef.String#

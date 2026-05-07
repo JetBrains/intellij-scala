@@ -1,0 +1,183 @@
+Document tests/pos/i22193.scala
+(2:14..2:20) scala/Predef.String#
+(2:28..2:34) scala/Predef.String#
+(2:39..2:45) scala/Predef.String#
+(2:49..2:53) scala/Unit#
+(2:56..2:60) scala/Unit#
+(2:63..2:64) _empty_/i22193$package.fn2().(f) -> 2:36
+(2:65..2:68) _empty_/i22193$package.fn2().(arg) -> 2:9
+(4:14..4:20) scala/Predef.String#
+(4:28..4:34) scala/Predef.String#
+(4:42..4:46) scala/Unit#
+(4:49..4:53) scala/Unit#
+(4:56..4:57) _empty_/i22193$package.fn3().(f) -> 4:36
+(8:3..8:6) _empty_/i22193$package.fn2(). -> 2:5
+(8:7..8:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(8:48..8:52) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(9:13..9:16) local0 -> 8:104
+(10:5..10:12) scala/Predef.println(+1).
+(10:13..10:14) local1 -> 9:9
+(13:3..13:6) _empty_/i22193$package.fn2(). -> 2:5
+(14:7..14:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(15:7..15:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(16:15..16:18) local2 -> 15:63
+(17:7..17:14) scala/Predef.println(+1).
+(17:15..17:16) local3 -> 16:11
+(19:3..19:6) _empty_/i22193$package.fn2(). -> 2:5
+(20:7..20:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(21:7..21:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(22:16..22:19) local4 -> 21:63
+(23:8..23:15) scala/Predef.println(+1).
+(23:16..23:17) local5 -> 22:12
+(25:3..25:6) _empty_/i22193$package.fn2(). -> 2:5
+(26:7..26:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(27:7..27:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(28:13..28:16) local6 -> 27:63
+(29:5..29:12) scala/Predef.println(+1).
+(29:13..29:14) local7 -> 28:9
+(32:3..32:6) _empty_/i22193$package.fn2(). -> 2:5
+(33:7..33:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(34:7..34:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(36:15..36:18) local8 -> 35:5
+(37:7..37:14) scala/Predef.println(+1).
+(37:15..37:16) local9 -> 36:11
+(40:3..40:6) _empty_/i22193$package.fn2(). -> 2:5
+(41:7..41:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(42:7..42:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(44:15..44:18) local10 -> 43:6
+(45:7..45:14) scala/Predef.println(+1).
+(45:15..45:16) local11 -> 44:11
+(47:3..47:6) _empty_/i22193$package.fn2(). -> 2:5
+(48:7..48:10) _empty_/i22193$package.fn2().(arg) -> 2:9
+(49:7..49:11) _empty_/i22193$package.fn2().(arg2) -> 2:22
+(51:13..51:16) local12 -> 50:6
+(52:5..52:12) scala/Predef.println(+1).
+(52:13..52:14) local13 -> 51:9
+(54:3..54:6) _empty_/i22193$package.fn3(). -> 4:5
+(55:5..55:8) _empty_/i22193$package.fn3().(arg) -> 4:9
+(56:5..56:9) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(58:5..58:12) scala/Predef.println(+1).
+(58:13..58:14) local14 -> 57:9
+(60:3..60:6) _empty_/i22193$package.fn3(). -> 4:5
+(61:7..61:10) _empty_/i22193$package.fn3().(arg) -> 4:9
+(62:7..62:11) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(64:7..64:14) scala/Predef.println(+1).
+(64:15..64:16) local15 -> 63:11
+(66:3..66:6) _empty_/i22193$package.fn3(). -> 4:5
+(67:6..67:9) _empty_/i22193$package.fn3().(arg) -> 4:9
+(68:6..68:10) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(70:6..70:13) scala/Predef.println(+1).
+(70:14..70:15) local16 -> 69:10
+(72:3..72:6) _empty_/i22193$package.fn3(). -> 4:5
+(73:6..73:9) _empty_/i22193$package.fn3().(arg) -> 4:9
+(74:6..74:10) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(76:4..76:11) scala/Predef.println(+1).
+(76:12..76:13) local17 -> 75:8
+(78:3..78:6) _empty_/i22193$package.fn3(). -> 4:5
+(79:6..79:9) _empty_/i22193$package.fn3().(arg) -> 4:9
+(80:6..80:10) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(82:5..82:12) scala/Predef.println(+1).
+(82:13..82:14) local18 -> 81:9
+(84:3..84:6) _empty_/i22193$package.fn3(). -> 4:5
+(85:6..85:9) _empty_/i22193$package.fn3().(arg) -> 4:9
+(86:6..86:10) _empty_/i22193$package.fn3().(arg2) -> 4:22
+(88:7..88:14) scala/Predef.println(+1).
+(88:15..88:16) local19 -> 87:11
+(91:16..91:19) scala/Int#
+(92:3..92:4) _empty_/i22193$package.regress().(x) -> 91:13
+(97:11..97:15) scala/package.List#
+(97:16..97:19) scala/Int#
+(98:3..98:5) _empty_/i22193$package.k().(xs) -> 97:7
+(98:6..98:14) scala/collection/LinearSeqOps#foldLeft().
+(101:9..101:12) local20 -> 100:48
+(101:13..101:14) scala/Int#`+`(+4).
+(101:15..101:16) local21 -> 100:53
+(103:20..103:24) scala/package.List#
+(103:25..103:28) scala/Int#
+(103:32..103:36) scala/Unit#
+(104:17..104:20) scala/Int#
+(104:23..104:26) scala/Int#
+(104:29..104:30) local22 -> 104:14
+(104:31..104:32) scala/Int#`+`(+4).
+(105:21..105:24) scala/Int#
+(105:27..105:34) scala/Boolean#
+(105:37..105:38) local24 -> 105:18
+(105:39..105:40) scala/Int#`>`(+3).
+(108:3..108:5) _empty_/i22193$package.`test kit`().(xs) -> 103:16
+(108:6..108:9) scala/collection/immutable/List#map().
+(109:7..109:8) local26 -> 108:11
+(109:9..109:10) scala/Int#`+`(+4).
+(110:6..110:12) scala/collection/immutable/List#filter().
+(111:7..111:8) local27 -> 110:14
+(111:9..111:10) scala/Int#`>`(+3).
+(112:3..112:5) _empty_/i22193$package.`test kit`().(xs) -> 103:16
+(112:6..112:9) scala/collection/immutable/List#map().
+(113:7..113:13) local23 -> 104:7
+(114:6..114:12) scala/collection/immutable/List#filter().
+(115:7..115:17) local25 -> 105:7
+(118:3..118:5) _empty_/i22193$package.`test kit`().(xs) -> 103:16
+(119:6..119:9) scala/collection/immutable/List#map().
+(120:7..120:8) local30 -> 119:11
+(120:9..120:10) scala/Int#`+`(+4).
+(121:6..121:12) scala/collection/immutable/List#filter().
+(122:7..122:8) local31 -> 121:14
+(122:9..122:10) scala/Int#`>`(+3).
+(125:3..125:5) _empty_/i22193$package.`test kit`().(xs) -> 103:16
+(125:6..125:9) scala/collection/immutable/List#map().
+(126:7..126:8) local32 -> 125:11
+(126:9..126:10) scala/Int#`+`(+4).
+(127:4..127:10) scala/collection/immutable/List#filter().
+(128:7..128:8) local33 -> 127:12
+(128:9..128:10) scala/Int#`>`(+3).
+(130:22..130:26) scala/package.List#
+(130:27..130:30) scala/Int#
+(130:34..130:38) scala/Unit#
+(132:19..132:22) scala/Int#
+(132:25..132:28) scala/Int#
+(132:31..132:32) local34 -> 132:16
+(132:33..132:34) scala/Int#`+`(+4).
+(133:23..133:26) scala/Int#
+(133:29..133:36) scala/Boolean#
+(133:39..133:40) local36 -> 133:20
+(133:41..133:42) scala/Int#`>`(+3).
+(134:5..134:7) _empty_/i22193$package.`tested kit`().(xs) -> 130:18
+(134:8..134:11) scala/collection/immutable/List#map().
+(134:12..134:15) scala/Int#
+(134:21..134:24) scala/Int#
+(134:29..134:30) local38 -> 134:18
+(134:31..134:32) scala/Int#`+`(+4).
+(134:37..134:43) scala/collection/immutable/List#filter().
+(134:48..134:51) scala/Int#
+(134:56..134:57) local39 -> 134:45
+(134:58..134:59) scala/Int#`>`(+3).
+(135:5..135:7) _empty_/i22193$package.`tested kit`().(xs) -> 130:18
+(135:8..135:11) scala/collection/immutable/List#map().
+(135:12..135:15) scala/Int#
+(135:21..135:24) scala/Int#
+(135:29..135:35) local35 -> 132:9
+(135:36..135:37) local40 -> 135:18
+(135:40..135:46) scala/collection/immutable/List#filter().
+(135:51..135:54) scala/Int#
+(135:59..135:69) local37 -> 133:9
+(135:70..135:71) local41 -> 135:48
+(136:5..136:7) _empty_/i22193$package.`tested kit`().(xs) -> 130:18
+(136:8..136:11) scala/collection/immutable/List#map().
+(136:12..136:15) scala/Int#
+(136:21..136:24) scala/Int#
+(136:29..136:30) local42 -> 136:18
+(136:31..136:32) scala/Int#`+`(+4).
+(136:37..136:43) scala/collection/immutable/List#filter().
+(136:48..136:51) scala/Int#
+(136:56..136:57) local43 -> 136:45
+(136:58..136:59) scala/Int#`>`(+3).
+(138:7..138:9) _empty_/i22193$package.`tested kit`().(xs) -> 130:18
+(138:10..138:13) scala/collection/immutable/List#map().
+(138:14..138:17) scala/Int#
+(138:23..138:26) scala/Int#
+(138:31..138:32) local44 -> 138:20
+(138:33..138:34) scala/Int#`+`(+4).
+(138:39..138:45) scala/collection/immutable/List#filter().
+(138:50..138:53) scala/Int#
+(138:58..138:59) local45 -> 138:47
+(138:60..138:61) scala/Int#`>`(+3).
+
