@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaRenameCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val RenameCommandCompletionPredicate: LookupElement => Boolean = lookupStringContains(_, "Rename")
+  private val RenameCommandCompletionPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Rename")
 
   private def doRenameCommandCompletionTest(fileText: String): Unit =
     doCommandCompletionTest(fileText, RenameCommandCompletionPredicate)

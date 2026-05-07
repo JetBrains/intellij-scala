@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaQuickDocumentationCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val QuickDocPredicate: LookupElement => Boolean = lookupStringContains(_, "documentation")
+  private val QuickDocPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Quick documentation")
 
   private def doQuickDocCommandCompletionTest(fileText: String): Unit =
     doCommandCompletionTest(fileText, predicate = QuickDocPredicate, finishLookup = false)

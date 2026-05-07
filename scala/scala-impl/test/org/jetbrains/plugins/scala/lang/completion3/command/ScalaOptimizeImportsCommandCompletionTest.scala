@@ -5,7 +5,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 final class ScalaOptimizeImportsCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val OptimizeImportsPredicate: LookupElement => Boolean = lookupStringContains(_, "Optimize import")
+  private val OptimizeImportsPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Optimize import")
 
   private def doOptimizeImportsCommandCompletionTest(fileText: String, resultText: String): Unit = {
     val lookup = doCommandCompletionTest(fileText, resultText = resultText, predicate = OptimizeImportsPredicate)

@@ -1,11 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion3.command
 
+import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 /**
  * Test platform command providers registered for Scala, such as line/block comment
  */
 final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTestBase {
+  private val BlockCommentPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Comment with block")
+  private val FileStructurePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Go to members")
+  private val LineCommentPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Comment with line")
+  private val LiveTemplatesPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Show live templates")
+  private val UncommentPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Uncomment")
+
   @Test
   def commentElementByLine(): Unit = doCommandCompletionTest(
     fileText =
@@ -28,7 +35,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
         |  }
         |}
         |""".stripMargin,
-    predicate = lookupStringContains(_, "Comment with line")
+    predicate = LineCommentPredicate
   )
 
   @Test
@@ -43,7 +50,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |  }
          |}
          |""".stripMargin,
-    predicate = lookupStringContains(_, "Comment with line")
+    predicate = LineCommentPredicate
   )
 
   @Test
@@ -68,7 +75,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
         |  }
         |}
         |""".stripMargin,
-    predicate = lookupStringContains(_, "Comment with block")
+    predicate = BlockCommentPredicate
   )
 
   @Test
@@ -93,7 +100,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
         |  }
         |}
         |""".stripMargin,
-    predicate = lookupStringContains(_, "Comment with block")
+    predicate = BlockCommentPredicate
   )
 
   @Test
@@ -108,7 +115,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |  }
          |}
          |""".stripMargin,
-    predicate = lookupStringContains(_, "Uncomment")
+    predicate = UncommentPredicate
   )
 
   @Test
@@ -133,7 +140,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
         |  }
         |}
         |""".stripMargin,
-    predicate = lookupStringContains(_, "Uncomment")
+    predicate = UncommentPredicate
   )
 
   @Test
@@ -145,7 +152,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |    .$CARET
          |  }
          |}""".stripMargin,
-    predicate = lookupStringContains(_, "Show live templates")
+    predicate = LiveTemplatesPredicate
   )
 
   @Test
@@ -157,6 +164,6 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |    val x: Int = .$CARET
          |  }
          |}""".stripMargin,
-    predicate = lookupStringContains(_, "Go to members")
+    predicate = FileStructurePredicate
   )
 }

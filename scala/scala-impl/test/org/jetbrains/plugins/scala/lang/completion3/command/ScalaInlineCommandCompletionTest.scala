@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaInlineCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val InlinePredicate: LookupElement => Boolean = lookupStringContains(_, "Inline")
+  private val InlinePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Inline")
 
   private def doInlineCommandCompletionTest(fileText: String): Unit =
     doCommandCompletionTest(fileText, predicate = InlinePredicate, finishLookup = false)

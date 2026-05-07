@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaCopyFQNCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val CopyReferencePredicate: LookupElement => Boolean = lookupStringContains(_, "Copy reference")
+  private val CopyReferencePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Copy reference")
 
   private def doCopyReferenceCommandCompletionTest(fileText: String, expectedCopiedReference: String): Unit = {
     doCommandCompletionTest(fileText, predicate = CopyReferencePredicate)

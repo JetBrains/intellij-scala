@@ -7,7 +7,7 @@ import junit.framework.TestCase.{assertEquals, fail}
 import org.junit.Test
 
 final class ScalaFormatCodeCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val FormatCodePredicate: LookupElement => Boolean = lookupStringContains(_, "format")
+  private val FormatCodePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Reformat code")
 
   private def doFormatCommandCompletionTest(fileText: String, resultText: String,
                                             checkPreview: IntentionPreviewInfo => Unit = _ => ()): Unit =

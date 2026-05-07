@@ -116,9 +116,9 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
   protected final def isCommandCompletionLookup(element: LookupElement): Boolean =
     asCommandCompletionLookup(element) != null
 
-  protected final def lookupStringContains(element: LookupElement, prefix: String, ignoreCase: Boolean = true): Boolean = {
+  protected final def lookupStringStartsWith(element: LookupElement, prefix: String, ignoreCase: Boolean = true): Boolean = {
     val lookupString = element.getLookupString
-    if (ignoreCase) lookupString.toLowerCase.contains(prefix.toLowerCase)
-    else lookupString.contains(prefix)
+    if (ignoreCase) lookupString.toLowerCase.startsWith(prefix.toLowerCase)
+    else lookupString.startsWith(prefix)
   }
 }

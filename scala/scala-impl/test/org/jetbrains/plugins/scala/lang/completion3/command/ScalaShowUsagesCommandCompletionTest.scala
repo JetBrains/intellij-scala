@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaShowUsagesCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val ShowUsagesPredicate: LookupElement => Boolean = lookupStringContains(_, "Show usages")
+  private val ShowUsagesPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Show usages")
 
   private def doShowUsagesCommandCompletionTest(fileText: String): Unit =
     doCommandCompletionTest(fileText, predicate = ShowUsagesPredicate, finishLookup = false)

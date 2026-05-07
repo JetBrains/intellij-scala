@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaIntroduceVariableCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val IntroduceVariablePredicate: LookupElement => Boolean = lookupStringContains(_, "Introduce variable")
+  private val IntroduceVariablePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Introduce variable")
 
   private def doIntroduceVariableCommandCompletionTest(fileText: String, resultText: String): Unit =
     doCommandCompletionTest(fileText, resultText = resultText, predicate = IntroduceVariablePredicate)

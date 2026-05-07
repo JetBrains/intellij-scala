@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.junit.Test
 
 final class ScalaTypeHierarchyCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val TypeHierarchyPredicate: LookupElement => Boolean = lookupStringContains(_, "type hierarchy")
+  private val TypeHierarchyPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "type hierarchy")
 
   private def doTypeHierarchyCommandCompletionTest(fileText: String): Unit =
     doCommandCompletionTest(fileText, predicate = TypeHierarchyPredicate, finishLookup = false)

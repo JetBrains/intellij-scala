@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable
 import org.junit.Test
 
 final class ScalaGoToCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private val GoToDeclarationPredicate: LookupElement => Boolean = lookupStringContains(_, "Go to declaration")
-  private val GoToSuperMethodPredicate: LookupElement => Boolean = lookupStringContains(_, "Go to super method")
+  private val GoToDeclarationPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Go to declaration")
+  private val GoToSuperMethodPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Go to super method")
 
   private def doGoToDeclarationCommandCompletionTest(fileText: String, @Nullable resultText: String = null): Unit =
     doCommandCompletionTest(fileText, resultText = resultText, predicate = GoToDeclarationPredicate)
