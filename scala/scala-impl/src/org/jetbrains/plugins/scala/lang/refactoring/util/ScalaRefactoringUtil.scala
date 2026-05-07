@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.codeInsight.navigation.PsiTargetNavigator
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
@@ -12,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
-import com.intellij.platform.backend.presentation.TargetPresentation
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
@@ -547,32 +545,10 @@ object ScalaRefactoringUtil {
                                       presentation: T => String,
                                       toHighlight: PsiElement => PsiElement = identity)
                                      (implicit project: Project, editor: Editor): Unit =
-    showChooserImpl(onChosen) { chooserModel =>
-      new PsiTargetNavigator(elements.asJava)
-        .presentationProvider((element: T) => TargetPresentation.builder(presentation(element)).presentation())
-        .builderConsumer { builder =>
-          builder
-            .setMovable(false)
-            .setResizable(false)
-            .setRequestFocus(true)
-            .addListener(chooserModel.highlighterPopupListener)
-            .setItemSelectedCallback { item =>
-              if (item != null) {
-                val element = item.dereference()
-                if (element != null) {
-                  val psiElement = toHighlight(element)
-                  if (psiElement != null) {
-                    chooserModel.highlightPsi.accept(psiElement)
-                  }
-                }
-              }
-            }
-        }
-        .createPopup(project, title, (element: T) => {
-          chooserModel.elementChosen.accept(element)
-          true
-        })
-    }
+    // Use JBPopupFactory instead of PsiTargetNavigator to avoid deadlock.
+    // PsiTargetNavigator.createPopup() calls computeItems() which uses runBlocking on the EDT,
+    // causing a deadlock when worker threads contend for the indexing lock. #SCL-25001
+    showChooserGeneric[T](elements, onChosen, title, presentation, toHighlight(_))
 
   /** See [[showChooserImpl]] */
   private final case class HighlightingChooserModel[T](
