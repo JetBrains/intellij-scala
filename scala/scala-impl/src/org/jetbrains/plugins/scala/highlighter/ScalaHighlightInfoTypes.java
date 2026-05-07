@@ -30,6 +30,7 @@ public class ScalaHighlightInfoTypes {
     public static final HighlightInfoType TYPEPARAM = createType(DefaultHighlighter.TYPEPARAM);
     public static final HighlightInfoType OBJECT = createType(DefaultHighlighter.OBJECT);
     public static final HighlightInfoType CLASS = createType(DefaultHighlighter.CLASS);
+    public static final HighlightInfoType PACKAGE = createType(DefaultHighlighter.PACKAGE);
 
     // ScalaDoc
     public static final HighlightInfoType DOC_COMMENT = createType(DefaultHighlighter.DOC_COMMENT);

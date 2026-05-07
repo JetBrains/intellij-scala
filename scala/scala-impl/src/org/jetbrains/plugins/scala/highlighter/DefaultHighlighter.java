@@ -55,6 +55,7 @@ public class DefaultHighlighter {
   static final String OBJECT_ID = "Scala Object";
   static final String CLASS_ID = "Scala Class";
   static final String BAD_CHARACTER_ID = "Scala Bad character";
+  static final String PACKAGE_ID = "Scala Package";
 
   // ScalaDoc
   static final String DOC_COMMENT_ID = "ScalaDoc comment";
@@ -128,6 +129,7 @@ public class DefaultHighlighter {
   public static final TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
   public static final TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
   public static final TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
+  public static final TextAttributesKey PACKAGE = createKey(PACKAGE_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
 
   // ScalaDoc
   private static final TextAttributesKey SCALA_DOC_COMMENT_MARKUP = DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP;
