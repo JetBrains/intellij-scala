@@ -21,3 +21,7 @@ class XRayModeAction extends ToggleAction(() => ScalaCodeInsightBundle.message("
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 }
+
+object XRayModeAction {
+  val ActionId = "Scala.XRayMode"
+}
