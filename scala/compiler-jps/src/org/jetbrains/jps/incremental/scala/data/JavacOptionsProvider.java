@@ -26,23 +26,23 @@ import java.util.function.BiConsumer;
 final class JavacOptionsProvider {
     private JavacOptionsProvider() {}
 
-    private static final String COMPILER_NAME = "java";
-
     private static final String SOURCE_OPTION = "-source";
     private static final String TARGET_OPTION = "-target";
     private static final String RELEASE_OPTION = "--release";
     private static final String PROC_NONE_OPTION = "-proc:none";
     private static final String PROC_ONLY_OPTION = "-proc:only";
+    private static final String PROC_FULL_OPTION = "-proc:full";
     private static final String PROCESSORPATH_OPTION = "-processorpath";
+    private static final String SYSTEM_OPTION = "--system";
 
     private static final Set<String> FILTERED_OPTIONS = ContainerUtil.newHashSet(
             TARGET_OPTION, RELEASE_OPTION, "-d"
     );
     private static final Set<String> FILTERED_SINGLE_OPTIONS = ContainerUtil.newHashSet(
-            "-g", "-deprecation", "-nowarn", "-verbose", PROC_NONE_OPTION, PROC_ONLY_OPTION, "-proceedOnError"
+            "-g", "-deprecation", "-nowarn", "-verbose", PROC_NONE_OPTION, PROC_ONLY_OPTION, PROC_FULL_OPTION, "-proceedOnError"
     );
     private static final Set<String> POSSIBLY_CONFLICTING_OPTIONS = ContainerUtil.newHashSet(
-            SOURCE_OPTION, "--boot-class-path", "-bootclasspath", "--class-path", "-classpath", "-cp", PROCESSORPATH_OPTION, "-sourcepath", "--module-path", "-p", "--module-source-path"
+            SOURCE_OPTION, SYSTEM_OPTION, "--boot-class-path", "-bootclasspath", "--class-path", "-classpath", "-cp", PROCESSORPATH_OPTION, "-sourcepath", "--module-path", "-p", "--module-source-path"
     );
 
     // Copied with minor modifications from `org.jetbrains.jps.incremental.java.JavaBuilder.getCompilationOptions`
