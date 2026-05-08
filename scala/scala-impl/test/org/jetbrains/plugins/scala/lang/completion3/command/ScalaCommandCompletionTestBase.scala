@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.completion.command.CommandCompletionLookupElement
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupEvent}
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.PlatformTestUtil
@@ -14,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
 import org.jetbrains.plugins.scala.util.Markers
+
+import javax.swing.Icon
 
 //noinspection ApiStatus,UnstableApiUsage
 abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase with Markers {
@@ -33,6 +36,7 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
                                               finishLookup: Boolean = true,
                                               checkPreview: IntentionPreviewInfo => Unit = _ => (),
                                               prefix: String = ".",
+                                              expectedIcon: Icon = AllIcons.Actions.Lightning,
                                               invocationCount: Int = DefaultInvocationCount): CommandCompletionLookupElement = {
     val (cleanText, expectedHighlightings) = extractMarker(fileText, caretMarker = Some(prefix + CARET))
     configureFromFileText(cleanText)
@@ -58,6 +62,8 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
     if (checkResult) {
       checkResultByText(resultText)
     }
+
+    assertEquals(expectedIcon, lookup.getIcon)
 
     lookup
   }

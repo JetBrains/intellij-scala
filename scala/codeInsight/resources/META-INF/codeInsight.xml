@@ -327,6 +327,10 @@
 
         <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
 
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.codeInsight.completion.command.ScalaToggleXRayModeCompletionCommandProvider"/>
+
         <registryKey key="scala.round.hint.corners" defaultValue="true" restartRequired="false" description="Round hint corners"/>
     </extensions>
 

@@ -10,6 +10,7 @@ import com.intellij.idea.AppMode
 import com.intellij.model.SideEffectGuard.SideEffectNotAllowedException
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.editor.impl.ImaginaryEditor
 import com.intellij.openapi.editor.{ClientEditorManager, Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
@@ -207,7 +208,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
     }
 
   private def isRelevant(editor: Editor): Boolean =
-    !editor.isDisposed && UIUtil.isShowing(editor.getContentComponent)
+    !editor.is[ImaginaryEditor] && !editor.isDisposed && UIUtil.isShowing(editor.getContentComponent)
 
   private def currentModCount(): Long =
     if (place.isValid) BlockModificationTracker(place).getModificationCount
