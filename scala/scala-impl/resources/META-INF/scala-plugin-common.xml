@@ -300,6 +300,9 @@
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaOptimizeImportCompletionCommandProvider"/>
         <codeInsight.completion.command.provider
                 language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaGoToImplementationCompletionCommandProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaGoToDeclarationCommandCompletionProvider"/>
         <codeInsight.completion.command.provider
                 language="Scala"
