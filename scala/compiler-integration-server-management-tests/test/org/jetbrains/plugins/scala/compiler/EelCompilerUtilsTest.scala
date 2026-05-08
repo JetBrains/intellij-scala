@@ -8,7 +8,7 @@ import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.TestFixture
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.{Disabled, Test}
 import org.junit.jupiter.api.io.TempDir
 
 import java.nio.file.Path
@@ -34,6 +34,8 @@ class EelCompilerUtilsTest:
   private val eelTemporaryLinuxDirectory: TestFixture[Path] =
     EelFixtures.tempDirFixture(linuxFixture)
 
+  @Disabled("I was told by the platform that this most likely won't be fixed and that maybe the " +
+    "mock eel testing will go away in the future")
   @Test
   def asTargetLocalPathStringWindows(): Unit =
     val eelDescriptor = windowsFixture.get().getEelDescriptor
