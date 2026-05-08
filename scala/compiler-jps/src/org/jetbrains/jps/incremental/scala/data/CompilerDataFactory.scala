@@ -1,12 +1,17 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import com.intellij.openapi.util.Key
+import com.intellij.util.lang.JavaVersion
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.impl.java.JavacCompilerTool
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaCompilingTool}
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.scala.model.{CompilerSettings, LibrarySettings}
 import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager, compilerVersionIn}
 import org.jetbrains.jps.model.JpsModel
+import org.jetbrains.jps.model.java.compiler.ProcessorConfigProfile
 import org.jetbrains.jps.model.java.{JpsJavaExtensionService, JpsJavaSdkType}
 import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
@@ -199,9 +204,40 @@ object CompilerDataFactory
       compilerConfig.getAnnotationProcessingProfile(module)
     }
 
-    JavaBuilder.addCompilationOptions(options, context, chunk, annotationProcessingProfile)
+    addCompilationOptions(options, context, chunk, annotationProcessingProfile)
 
     options.asScala.toSeq
+  }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def addCompilationOptions(
+    options: java.util.List[String],
+    context: CompileContext,
+    chunk: ModuleChunk,
+    @Nullable profile: ProcessorConfigProfile
+  ): Unit = {
+    try {
+      val compilerSdkVersion = {
+        val global = context.getProjectDescriptor.getModel.getGlobal
+        val compileServerSdk = SettingsManager.getGlobalSettings(global).getCompileServerSdk
+        Option(JavaVersion.tryParse(compileServerSdk)).map(_.feature).getOrElse(1)
+      }
+      val compilingTool = JavaBuilderUtil.findCompilingTool(JavacCompilerTool.ID)
+      val method = classOf[JavaBuilder].getDeclaredMethod(
+        "addCompilationOptions",
+        classOf[Int],
+        classOf[JavaCompilingTool],
+        classOf[java.util.List[String]],
+        classOf[CompileContext],
+        classOf[ModuleChunk],
+        classOf[ProcessorConfigProfile],
+        classOf[Boolean]
+      )
+      method.setAccessible(true)
+      method.invoke(null, compilerSdkVersion, compilingTool, options, context, chunk, profile, false)
+    } catch {
+      case _: Exception =>
+    }
   }
 
   private def compilerJarsIn(module: JpsModule): Option[CompilerJars] = {

@@ -180,22 +180,23 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
     withCompiler { compiler =>
-      val name = incrementality match {
-        case IncrementalityType.SBT => "scala"
-        case IncrementalityType.IDEA => "java"
-      }
-
       val jdk21warnings = Set(
         "source value 8 is obsolete and will be removed in a future release",
         "target value 8 is obsolete and will be removed in a future release",
         "To suppress warnings about obsolete options, use -Xlint:-options"
       )
 
+      val bootstrapClasspathWarnings = incrementality match {
+        case IncrementalityType.SBT => Set("bootstrap class path not set in conjunction with -source 8")
+        case IncrementalityType.IDEA => Set.empty
+      }
+
       val messages = compiler.make()
       val errorsAndWarnings = messages.asScala.filter { message =>
         val category = message.getCategory
         category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
       }.filterNot(msg => jdk21warnings.exists(s => msg.getMessage.contains(s)))
+        .filterNot(msg => bootstrapClasspathWarnings.exists(s => msg.getMessage.contains(s)))
 
       assertTrue(
         s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
