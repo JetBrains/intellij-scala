@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3.command
 
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.icons.AllIcons
 import org.junit.Test
 
 /**
@@ -165,5 +166,36 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |  }
          |}""".stripMargin,
     predicate = FileStructurePredicate
+  )
+
+  @Test
+  def redCode(): Unit = doCommandCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val i: Int = 1L..$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""object Test {
+         |  val i: Long = 1L
+         |}""".stripMargin,
+    predicate = lookupStringStartsWith(_, "Change type 'Int' to 'Long'"),
+    expectedIcon = AllIcons.Actions.QuickfixBulb,
+  )
+
+  // TODO: seems to be working in unit tests only (see `if (isUnitTestMode)` in `ScalaImportElementFix`)
+  @Test
+  def redCodeImport(): Unit = doCommandCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val list = new ArrayList..$CARET[Int]()
+         |}""".stripMargin,
+    resultText =
+      s"""import java.util
+         |
+         |object Test {
+         |  val list = new util.ArrayList[Int]()
+         |}""".stripMargin,
+    predicate = lookupStringStartsWith(_, "Import 'java.util.ArrayList'"),
+    expectedIcon = AllIcons.Actions.QuickfixBulb,
   )
 }

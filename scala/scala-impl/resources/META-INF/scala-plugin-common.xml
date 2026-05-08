@@ -285,11 +285,10 @@
                 language="Scala"
                 implementationClass="com.intellij.codeInsight.completion.command.commands.InsertLiveTemplateCompletionCommandProvider"
                 order="last"/>
-        <!-- TODO(SCL-24924): disabled for now. SCL-21364 is recommended to have
-              <codeInsight.completion.command.provider
-                      language="Scala"
-                      implementationClass="com.intellij.codeInsight.completion.command.commands.DirectIntentionCommandProvider"
-                      order="last"/>-->
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="com.intellij.codeInsight.completion.command.commands.DirectIntentionCommandProvider"
+                order="last"/>
         <!--endregion-->
         <!--region Scala Command Completion Providers -->
         <codeInsight.completion.command.provider
