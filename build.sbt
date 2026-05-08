@@ -60,9 +60,9 @@ ThisBuild / cleanAll := Common.cleanAllTask.value
 
 // Disable Jupiter auto-registration of launcher and test execution listeners to suppress
 // log spam during test discovery (see SCL-25184)
-ThisBuild / JupiterKeys.jupiterTestDiscoveryLauncherSessionListenerAutoRegistrationEnabled := false
-ThisBuild / JupiterKeys.jupiterTestDiscoveryLauncherDiscoveryListenerAutoRegistrationEnabled := false
-ThisBuild / JupiterKeys.jupiterTestDiscoveryTestExecutionListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterLauncherSessionListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterLauncherDiscoveryListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterTestExecutionListenerAutoRegistrationEnabled := false
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
