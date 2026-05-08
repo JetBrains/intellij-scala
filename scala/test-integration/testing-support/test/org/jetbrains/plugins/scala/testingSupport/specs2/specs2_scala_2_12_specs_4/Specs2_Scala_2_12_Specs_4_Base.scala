@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_scala_2_12_specs_4
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.testingSupport.specs2._
-import org.jetbrains.plugins.scala.{DependencyManager, LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 trait Specs2_Scala_2_12_Specs_4_Base extends Specs2TestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == LatestScalaVersions.Scala_2_12
 
-  override protected def additionalLibraries: Seq[LibraryLoader] = IvyManagedLoader(
-    DependencyManager, // specs library depends on scala-reflect, do not ignore it
-    ("org.specs2" %% "specs2-core" % "4.12.12").transitive()
-  ) :: Nil
+  override protected def additionalLibraries: Seq[LibraryLoader] = Seq(
+    ScalaReflectLibraryLoader, // specs library depends on scala-reflect, do not ignore it
+    IvyManagedLoader(
+      ("org.specs2" %% "specs2-core" % "4.12.12").transitive()
+    )
+  )
 }
 
 class Specs2_Scala_2_12_Specs_4_DuplicateConfigTest extends Specs2DuplicateConfigTest with Specs2_Scala_2_12_Specs_4_Base
