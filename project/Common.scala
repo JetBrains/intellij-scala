@@ -181,16 +181,7 @@ object Common {
 
       "org.jetbrains.kotlin".toPlugin
     ),
-    Test / javaOptions += "-Didea.log.leaked.projects.in.tests=false",
-    Test / customIntellijVMOptions ~= { opts =>
-      opts.withExtraOptions(Seq(
-        // The platform automatically adds extra tests which assert the state of the IDE when running JUnit 5/6 tests.
-        // The way JUnit 5/6 tests are run in sbt, these extra tests end up running before and after each test suite.
-        // This VM options prevents these extra tests from being added. At the moment, it's unclear if these tests can
-        // run correctly when ran multiple times, which is what happens in sbt.
-        "-Dintellij.build.test.ignoreFirstAndLastTests=true"
-      ))
-    }
+    Test / javaOptions += "-Didea.log.leaked.projects.in.tests=false"
   )
 
   def newPlainScalaProject(projectName: String, base: File): Project =
