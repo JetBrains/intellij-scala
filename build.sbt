@@ -63,6 +63,10 @@ ThisBuild / cleanAll := Common.cleanAllTask.value
 ThisBuild / JupiterKeys.jupiterLauncherSessionListenerAutoRegistrationEnabled := false
 ThisBuild / JupiterKeys.jupiterLauncherDiscoveryListenerAutoRegistrationEnabled := false
 ThisBuild / JupiterKeys.jupiterTestExecutionListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterPostDiscoveryFilterAutoRegistrationEnabled := false
+
+ThisBuild / JupiterKeys.jupiterTestEngineAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterTestEngines := Seq("org.junit.jupiter.engine.JupiterTestEngine")
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
