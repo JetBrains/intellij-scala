@@ -62,14 +62,14 @@ private[importing] object BspResolverLogic {
     JdkData(javaHome.map(new MyURI(_)).orNull, target.getJavaVersion)
   }
 
-  private[importing] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData) = {
+  private[importing] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem])(using EelDescriptor): (JdkData, ScalaSdkData) = {
     val jdk = Option(target.getJvmBuildTarget).fold(JdkData(null, null))(getJdkData)
 
     val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     val scala = ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
       scalaVersion = target.getScalaVersion,
-      scalacClasspath = target.getJars.asScala.map(p => Path.of(p.toURI)).toSeq,
+      scalacClasspath = target.getJars.asScala.map(p => interpretablePathFromUri(p).toPath).toSeq,
       scaladocExtraClasspath = Seq.empty, // FIXME pass in actual data when obtainable from BSP: https://github.com/build-server-protocol/build-server-protocol/issues/229
       scalacOptions = scalaOptionsStrings.asScala.toSeq
     )
@@ -80,7 +80,7 @@ private[importing] object BspResolverLogic {
     targetId: URI,
     target: SbtBuildTarget,
     scalacOptionsItem: Option[ScalacOptionsItem]
-  ): (JdkData, ScalaSdkData, SbtBuildModuleDataBsp) = {
+  )(using EelDescriptor): (JdkData, ScalaSdkData, SbtBuildModuleDataBsp) = {
     val children = target.getChildren.asScala.map { target => new MyURI(target.getUri) }
 
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
