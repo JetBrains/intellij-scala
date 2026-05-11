@@ -331,11 +331,20 @@ object BspProjectOpenProcessor {
   def canOpenProject(workspace: VirtualFile): Boolean = {
     val ioWorkspace = workspace.toNioPath
 
-    // val sbtProject = SbtProjectImportProvider.canImport(workspace)
-    // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
-    val sbtProject = false
+    // For projects inside Docker containers, it is not possible to use the "New from Existing Sources..." import method,
+    // which is a known way to import sbt projects as BSP. To address this, importing sbt projects as BSP is enabled
+    // when the project is simply opened, but only for Docker projects, so the user flow for local projects is not changed (SCL-17359).
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(ioWorkspace)
+    // This workaround is needed because Docker eel descriptors are inside the Docker plugin, which we do not depend on.
+    // If this hacky logic becomes problematic, it may be necessary to extract a separate module that depends on the Docker plugin,
+    // checks the Eel descriptor there, and exposes an extension point.
+    // A similar approach is used in `com.intellij.configurationStore.ProjectStoreImpl.getMachineWorkspacePath`
+    val name = eelDescriptor.getClass.getSimpleName
+    val isDockerDescriptor = name == "DockerDevcontainerEelDescriptor" || name == "DockerContainerEelDescriptor"
+    val canOpenSbtAsBspDocker =
+      isDockerDescriptor && SbtProjectImportProvider.canImport(workspace)
 
-    hasBspConfiguration(ioWorkspace) || sbtProject || isScalaCliOrMill(ioWorkspace)
+    canOpenSbtAsBspDocker || hasBspConfiguration(ioWorkspace) || isScalaCliOrMill(ioWorkspace)
   }
 
   private[bsp] def hasBspConfiguration(workspace: Path): Boolean = {
