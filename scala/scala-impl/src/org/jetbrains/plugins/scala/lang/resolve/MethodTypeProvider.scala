@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParam
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -164,6 +164,33 @@ object MethodTypeProvider {
           .map(ext =>
             ext.effectiveParameterClauses -> ext.typeParameters
           ).getOrElse(Seq.empty, Seq.empty)
+
+//      @TODO: I'm not entirely convinced if def foo[A](a: A)[B](b: B): Int should have .polymorphicType
+//             [A, B] A => B => Int or [A] A => [B] B => Int, so for now I'll leave it as 1, because it's
+//             conceptually simpler and requires less changes.
+//      val regularMethodResult = {
+//        val allClauses = element.signatureClauses
+//        val rtpe       = s(returnType.getOrElse(element.returnType.getOrAny))
+//
+//        if (allClauses.nonEmpty)
+//          allClauses.foldRight[ScType](rtpe) { (clause: ScSignatureClause, tp: ScType) =>
+//            clause match {
+//              case ScSignatureClause.TypeClause(typeParamClause) =>
+//                ScTypePolymorphicType(
+//                  tp,
+//                  typeParamClause.typeParameters.map(TypeParameter(_))
+//                )
+//              case ScSignatureClause.TermClause(paramClause) =>
+//                ScMethodType(
+//                  tp,
+//                  paramClause.getSmartParameters,
+//                  hasImplicitKW = paramClause.hasImplicitKeyword,
+//                  hasUsingKW    = paramClause.hasUsingKeyword || paramClause.isGivenConditionalClause
+//                )
+//            }
+//          }
+//        else ScMethodType(rtpe, Seq.empty)
+//      }
 
       val regularMethodResult = super.polymorphicType(s, returnType)
 

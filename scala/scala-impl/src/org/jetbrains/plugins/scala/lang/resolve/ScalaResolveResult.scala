@@ -62,10 +62,6 @@ import scala.annotation.tailrec
  *                                     In the example above, `implicitConversionResultType = Some(RichInt)`.
  *                                     Used by inspections to determine the actual receiver type.
  *
- * @param defaultParameterUsed         Whether applicability required default parameter values
- *                                     to fill missing arguments. Used in overload resolution
- *                                     (Scala 2 prefers alternatives without defaults).
- *
  * @param innerResolveResult           For sugared apply/update calls, the resolve result of the
  *                                     original object before `.apply`/`.update` expansion.
  *                                     {{{
@@ -73,7 +69,7 @@ import scala.annotation.tailrec
  *                                     m("key")  // resolves to Map.apply; innerResolveResult = SRR for `m`
  *                                     }}}
  *
- * @param parentElement                For constructors: the class. For apply/unapply methods:
+ * @param parentElement                For constructors: the class/type alias. For apply/unapply methods:
  *                                     the containing object or val.
  *                                     {{{
  *                                     new Foo(1)     // element = Foo.<init>, parentElement = Some(Foo)
@@ -91,6 +87,10 @@ import scala.annotation.tailrec
  *                                     def f(t: (Int, Int)): Unit = ...
  *                                     f(1, 2)  // auto-tupled to f((1, 2)); tuplingUsed = true
  *                                     }}}
+ *                                     @TODO: This is not entirely reliable as applicability checking is lazy, consumers that check
+ *                                            ScMethodCall(ref: ScReferenceExpression, _) if ref.bind().exists(_.tuplingUsed)
+ *                                            might get incorrect results, if for example, tupling is used in a later param clause.
+ *                                            This should instead be migrated to MethodInvocationImpl and calculated in innerType
  *
  * @param isAssignment                 Whether this is an assignment context (e.g., `foo.bar = x`
  *                                     resolving the setter `bar_=`).
@@ -162,10 +162,6 @@ import scala.annotation.tailrec
  *
  * @param isExtensionFromGiven         Whether this extension method was found inside a `given` instance
  *                                     during implicit search.
- *
- * @param samAdapted                   Whether this candidate was only applicable through SAM
- *                                     (Single Abstract Method) type adaptation. Used in overload resolution
- *                                     to prefer alternatives that are directly applicable over SAM-adapted ones.
  */
 class ScalaResolveResult(
   val element:                        PsiNamedElement,
@@ -175,7 +171,6 @@ class ScalaResolveResult(
   val problems:                       Seq[ApplicabilityProblem]    = Seq.empty,
   val implicitConversion:             Option[ScalaResolveResult]   = None,
   val implicitConversionResultType:   Option[ScType]               = None,
-  val defaultParameterUsed:           Boolean                      = false,
   val innerResolveResult:             Option[ScalaResolveResult]   = None,
   val parentElement:                  Option[PsiNamedElement]      = None,
   val isNamedParameter:               Boolean                      = false,
@@ -183,7 +178,7 @@ class ScalaResolveResult(
   val tuplingUsed:                    Boolean                      = false,
   val isAssignment:                   Boolean                      = false,
   val isAccessible:                   Boolean                      = true,
-  val applicabilityConstraints:       Option[ConstraintSystem]     = None,
+  val applicabilityConstraints:       ConstraintSystem             = ConstraintSystem.empty,
   val prefixCompletion:               Boolean                      = false,
   val nameArgForDynamic:              Option[String]               = None,
   val isForwardReference:             Boolean                      = false,
@@ -199,7 +194,6 @@ class ScalaResolveResult(
   val matchClauseSubstitutor:         ScSubstitutor                = ScSubstitutor.empty,
   val exportedInfo:                   Option[ExportedSigInfo]      = None,
   val isExtensionFromGiven:           Boolean                      = false,
-  val samAdapted:                     Boolean                      = false
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -261,12 +255,11 @@ class ScalaResolveResult(
   def copy(
     subst:                          ScSubstitutor                = substitutor,
     problems:                       Seq[ApplicabilityProblem]    = problems,
-    defaultParameterUsed:           Boolean                      = defaultParameterUsed,
     innerResolveResult:             Option[ScalaResolveResult]   = innerResolveResult,
     tuplingUsed:                    Boolean                      = tuplingUsed,
     isAssignment:                   Boolean                      = isAssignment,
     isAccessible:                   Boolean                      = isAccessible,
-    applicabilityConstraints:       Option[ConstraintSystem]     = None,
+    applicabilityConstraints:       ConstraintSystem             = applicabilityConstraints,
     nameArgForDynamic:              Option[String]               = nameArgForDynamic,
     isForwardReference:             Boolean                      = isForwardReference,
     inferredType:                   Option[ScType]               = inferredType,
@@ -282,8 +275,7 @@ class ScalaResolveResult(
     intersectedReturnType:          Option[ScType]               = intersectedReturnType,
     exportedInfo:                   Option[ExportedSigInfo]      = exportedInfo,
     parentElement:                  Option[PsiNamedElement]      = parentElement,
-    isExtensionFromGiven:           Boolean                      = isExtensionFromGiven,
-    samAdapted:                     Boolean                      = samAdapted
+    isExtensionFromGiven:           Boolean                      = isExtensionFromGiven
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -293,7 +285,6 @@ class ScalaResolveResult(
       problems,
       implicitConversion,
       implicitConversionResultType,
-      defaultParameterUsed,
       innerResolveResult,
       parentElement,
       isNamedParameter,
@@ -316,7 +307,6 @@ class ScalaResolveResult(
       intersectedReturnType          = intersectedReturnType,
       exportedInfo                   = exportedInfo,
       isExtensionFromGiven           = isExtensionFromGiven,
-      samAdapted                     = samAdapted
     )
 
   override def equals(other: Any): Boolean = other match {

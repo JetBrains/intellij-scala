@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
 class ConstructorResolveProcessor(
@@ -21,8 +22,10 @@ class ConstructorResolveProcessor(
 ) extends MethodResolveProcessor(
   constr,
   refName,
-  args,
-  typeArgs,
+  InvocationClause(
+    targs = Option.when(typeArgs.nonEmpty)(typeArgs),
+    args = args.headOption
+  ) +: args.tail.map(InvocationClause.argsOnly),
   Seq.empty,
   kinds,
   isShapeResolve = shapeResolve,

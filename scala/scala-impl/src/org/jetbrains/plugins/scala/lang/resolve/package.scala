@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang
 
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -28,6 +29,7 @@ package object resolve {
         case fun: ScFunction =>
           if (srr.shouldDropExtensionClauses) fun.paramClauses.clauses
           else                                fun.parameterClausesWithExtension(srr.exportedInExtension)
+        case cons: ScMethodLike => cons.effectiveParameterClauses
         case _ => Seq.empty
       }
   }

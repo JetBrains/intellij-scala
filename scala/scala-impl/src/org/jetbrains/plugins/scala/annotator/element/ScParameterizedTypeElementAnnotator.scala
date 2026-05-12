@@ -221,7 +221,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     def hasUnboundedWildcards(tpe: ScType): Boolean = {
       var res = false
 
-      tpe.recursiveUpdate {
+    tpe.recursiveUpdate {
         case _: ScExistentialType     => Stop
         case _: ScExistentialArgument => res = true; Stop
         case _                        => ProcessSubtypes

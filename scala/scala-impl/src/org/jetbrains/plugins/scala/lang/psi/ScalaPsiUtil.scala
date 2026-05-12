@@ -288,23 +288,14 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(
-    call:          ScExpression,
+    call:          PsiElement,
     tp:            ScType,
     shapesOnly:    Boolean,
     isDynamic:     Boolean,
-    stripTypeArgs: Boolean,
     withImplicits: Boolean
   ): Array[ScalaResolveResult] = {
-    val applyResolver =
-      call match {
-        case mc: MethodInvocation =>
-          ApplyOrUpdateInvocation(mc, tp, isDynamic = isDynamic, stripTypeArgs = stripTypeArgs).toOption
-        case gc: ScGenericCall    =>
-          ApplyOrUpdateInvocation(gc, tp, isDynamic = isDynamic, stripTypeArgs = stripTypeArgs).toOption
-        case _ => None
-      }
-
-    applyResolver.to(Array).flatMap(_.collectCandidates(shapesOnly, withImplicits))
+    val applyResolver = ApplyOrUpdateInvocation(call, tp, isDynamic = isDynamic)
+    applyResolver.toArray.flatMap(_.collectCandidates(shapesOnly, withImplicits))
   }
 
   /**

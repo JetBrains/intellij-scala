@@ -45,10 +45,20 @@ trait ScInterleavedClausesOwner extends ScParameterOwner with ScTypeParametersOw
   def typeParametersInScopeFor(place: PsiElement): Seq[ScTypeParam] = {
     val clauses = signatureClauses
 
-    val clausesInScope = clauses.takeWhile {
-      case TypeClause(clause) => !PsiTreeUtil.isAncestor(clause, place, false)
-      case TermClause(clause) => !PsiTreeUtil.isAncestor(clause, place, false)
+    val containingClauseIndex = clauses.indexWhere {
+      case TypeClause(clause) => PsiTreeUtil.isAncestor(clause, place, false)
+      case TermClause(clause) => PsiTreeUtil.isAncestor(clause, place, false)
     }
+
+    val clausesInScope =
+      if (containingClauseIndex == -1) clauses
+      else {
+        val beforeContaining = clauses.take(containingClauseIndex)
+        clauses(containingClauseIndex) match {
+          case typeClause: TypeClause => beforeContaining :+ typeClause
+          case _                      => beforeContaining
+        }
+      }
 
     clausesInScope.flatMap {
       case TypeClause(clause) => clause.typeParameters

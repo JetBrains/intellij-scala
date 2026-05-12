@@ -801,6 +801,7 @@ object InferUtil {
         case None => throw new SafeCheckException
       }
     } else ScTypePolymorphicType(retType, typeParams)
+
     (tpe, conformanceResult)
   }
 

@@ -305,10 +305,12 @@ object Compatibility {
     problems:             Seq[ApplicabilityProblem],
     constraints:          ConstraintSystem,
     defaultParameterUsed: Boolean               = false,
-    matched:              Seq[MatchedParameter]  = Seq.empty
+    matched:              Seq[MatchedParameter] = Seq.empty
   )
 
   object ApplicabilityCheckResult {
+    def empty: ApplicabilityCheckResult = ApplicabilityCheckResult(Seq.empty)
+
     def apply(problems: Seq[ApplicabilityProblem]): ApplicabilityCheckResult =
       ApplicabilityCheckResult(problems, ConstraintSystem.empty)
 
@@ -910,6 +912,7 @@ object Compatibility {
         resTpe = updatedRes
 
         applicabilityRes = applicabilityRes.copy(
+          constraints          = applicabilityRes.constraints + clauseApplicability.constraints,
           problems             = applicabilityRes.problems ++ clauseApplicability.problems,
           defaultParameterUsed = applicabilityRes.defaultParameterUsed || clauseApplicability.defaultParameterUsed,
           matched              = applicabilityRes.matched ++ clauseApplicability.matched
