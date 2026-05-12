@@ -336,9 +336,9 @@ object BspProjectOpenProcessor {
     // when the project is simply opened, but only for Docker projects, so the user flow for local projects is not changed (SCL-17359).
     val eelDescriptor = EelProviderUtil.getEelDescriptor(ioWorkspace)
     // This workaround is needed because Docker eel descriptors are inside the Docker plugin, which we do not depend on.
-    // If this hacky logic becomes problematic, it may be necessary to extract a separate module that depends on the Docker plugin,
+    // If this hacky logic becomes problematic (a similar approach is used in `com.intellij.configurationStore.ProjectStoreImpl.getMachineWorkspacePath`),
+    // it may be necessary to extract a separate module that depends on the Docker plugin,
     // checks the Eel descriptor there, and exposes an extension point.
-    // A similar approach is used in `com.intellij.configurationStore.ProjectStoreImpl.getMachineWorkspacePath`
     val name = eelDescriptor.getClass.getSimpleName
     val isDockerDescriptor = name == "DockerDevcontainerEelDescriptor" || name == "DockerContainerEelDescriptor"
     val canOpenSbtAsBspDocker =
