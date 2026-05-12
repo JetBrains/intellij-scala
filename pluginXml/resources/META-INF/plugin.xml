@@ -69,7 +69,7 @@
         <module name="scalaCommunity.featuresTrainer"/>
         <module name="scalaCommunity.gradle"/>
         <module name="scalaCommunity.i18n"/>
-        <module name="scalaCommunity.intellij-bazel"/>
+<!--        <module name="scalaCommunity.intellij-bazel"/>-->
         <module name="scalaCommunity.javaDecompiler"/>
         <module name="scalaCommunity.junit"/>
         <module name="scalaCommunity.markdown"/>

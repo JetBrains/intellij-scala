@@ -115,7 +115,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaCli % "test->test;compile->compile",
       javaDecompilerIntegration % "test->test;compile->compile",
       scalastyleIntegration,
-      intellijBazelIntegration,
+//      intellijBazelIntegration,
     )
     .settings(MainProjectSettings)
     .settings(
@@ -982,32 +982,32 @@ lazy val gradleIntegration =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.gradle")
     )
 
-lazy val intellijBazelIntegration =
-  newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
-    .dependsOn(scalaImpl, sbtImpl, testingSupport)
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += {
-        // TODO: BAZEL-3025
-        //       The Bazel plugin will be fully converted to plugin v2 and we should be able to go back to a simple
-        //       plugin definition: `org.jetbrains.bazel::super-early-bird.toPlugin`.
-        val plugin = "org.jetbrains.bazel::super-early-bird".toPlugin
-        val oldSettings = plugin.resolveSettings
-        plugin.resolveSettings = oldSettings.copy(
-          excludedIds = Set(
-            "intellij.bazel.bazelisk",
-            "intellij.bazel.commons",
-            "intellij.bazel.connector",
-            "intellij.bazel.importer",
-            "intellij.bazel.projectview",
-            "intellij.bazel.protobuf"
-          )
-        )
-        plugin
-      },
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
-    )
+//lazy val intellijBazelIntegration =
+//  newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
+//    .dependsOn(scalaImpl, sbtImpl, testingSupport)
+//    .settings(
+//      scalaVersion := Versions.scala3Version,
+//      Compile / scalacOptions := globalScala3ScalacOptions,
+//      intellijPlugins += {
+//        // TODO: BAZEL-3025
+//        //       The Bazel plugin will be fully converted to plugin v2 and we should be able to go back to a simple
+//        //       plugin definition: `org.jetbrains.bazel::super-early-bird.toPlugin`.
+//        val plugin = "org.jetbrains.bazel::super-early-bird".toPlugin
+//        val oldSettings = plugin.resolveSettings
+//        plugin.resolveSettings = oldSettings.copy(
+//          excludedIds = Set(
+//            "intellij.bazel.bazelisk",
+//            "intellij.bazel.commons",
+//            "intellij.bazel.connector",
+//            "intellij.bazel.importer",
+//            "intellij.bazel.projectview",
+//            "intellij.bazel.protobuf"
+//          )
+//        )
+//        plugin
+//      },
+//      packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
+//    )
 
 lazy val intelliLangIntegration = newProject(
   "intelliLang",
