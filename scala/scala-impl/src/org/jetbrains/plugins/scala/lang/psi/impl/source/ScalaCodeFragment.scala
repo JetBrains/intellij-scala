@@ -86,6 +86,8 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   override def getViewProvider: SingleRootFileViewProvider = viewProvider
 
+  override def getPackageName: String = super[ScalaFileImpl].getPackageName
+
   private def myAddImportForPath(path: ImportPath, ref: ScReference): Unit = {
     //NOTE path.aliasName is not handled, I don't know at what conditions it might be actual here
     val pathFqn = path.qualifiedName
