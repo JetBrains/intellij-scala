@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -20,6 +21,10 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessor {
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
     runUnderModalProgressIfIsEdt { (_, continuation) =>
-      new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
+      new SbtOpenProjectProvider().openProject(
+        virtualFile,
+        OpenProjectTask.build().withForceOpenInNewFrame(forceOpenInNewFrame).withProjectToClose(projectToClose),
+        continuation
+      )
     }: @nowarn("cat=deprecation")
 }

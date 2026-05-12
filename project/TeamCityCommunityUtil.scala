@@ -55,7 +55,7 @@ object TeamCityCommunityUtil {
     key: String,
     value: String
   ): Elem =
-    fetchTCApi(s"$BuildsBaseUrl/?locator=buildType:(id:$buildType),branch:(default:true),status:SUCCESS,$key:$value")
+    fetchTCApi(s"$BuildsBaseUrl/?locator=buildType:(id:$buildType),branch:(default:false),status:SUCCESS,$key:$value")
 
   private def artifactExists(buildId: String): Boolean = {
     val locator = new BuildLocator(BuildsBaseUrl + "/")
