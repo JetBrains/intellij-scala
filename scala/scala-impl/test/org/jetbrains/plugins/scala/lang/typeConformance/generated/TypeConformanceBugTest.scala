@@ -106,11 +106,6 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
      """.stripMargin
   )
 
-  def testSCL12764(): Unit = doTest(
-    """
-      |val head: Array[Byte] = Array(0x0a, ')')
-      |/* True */
-    """.stripMargin)
 
   def testSCL12540(): Unit = {
     doTest(

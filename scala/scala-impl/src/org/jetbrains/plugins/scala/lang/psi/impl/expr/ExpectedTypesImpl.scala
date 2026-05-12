@@ -28,12 +28,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13, Scala_3_0}
-import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, ScEquivalenceUtil}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -381,6 +381,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             computeExpectedParamType(
               expr,
               tpe,
+              invoked,
               argExprs,
               argIndex(argExprs),
               Option(invocation),
@@ -587,7 +588,15 @@ class ExpectedTypesImpl extends ExpectedTypes {
                 else s.multiType(clauseIdx)
             }
 
-            tps.flatMap(computeExpectedParamType(expr, _, argExprs, argIdx))
+            tps.flatMap(
+              computeExpectedParamType(
+                expr,
+                _,
+                expr,
+                argExprs,
+                argIdx
+              )
+            )
 
           case _ =>
             Array.empty
@@ -641,6 +650,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   private def computeExpectedParamType(
     expr:            ScExpression,
     invokedExprType: TypeResult,
+    invokedExpr:     ScExpression,
     argExprs:        Seq[ScExpression],
     idx:             Int,
     call:            Option[MethodInvocation] = None,
@@ -680,17 +690,15 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def tryApplyMethod(
       internalType: ScType
     ): Option[(TypeResult, Boolean)] = {
-      val applySrr = call.map(c =>
-        c.resolveApplyOrUpdateMethod(
-          c,
+      val applySrr =
+        invokedExpr.resolveApplyOrUpdateMethod(
+          invokedExpr,
           internalType,
           shapesOnly    = true,
-          stripTypeArgs = stripTypeArgs,
           withImplicits = true
         )
-      )
 
-      applySrr.collect {
+      applySrr match {
         case Array(srr @ ScalaResolveResult(fun: ScFunction, s)) =>
           val polyType        = fun.polymorphicType(s)
           val applyMethodType = polyType.updateTypeOfDynamicCall(srr.isDynamic)
@@ -700,7 +708,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
               .map(_.updateAccordingToExpectedType(applyMethodType))
               .getOrElse(applyMethodType)
 
-          (Right(updatedMethodCall), isApplyDynamicNamed(srr))
+          (Right(updatedMethodCall), isApplyDynamicNamed(srr)).toOption
+        case _ => None
       }
     }
 
@@ -726,13 +735,14 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
         val params = extractParamsFromMethodType(mt)
 
-        fromMethodParams(params, t.argsProtoTypeSubst(unwrappedPt))
+        fromMethodParams(params, t.argsProtoTypeSubst(unwrappedPt.toOption))
       case Right(anotherType) if !forApply =>
         tryApplyMethod(anotherType) match {
           case Some((applyInvokedType, isApplyDynamicNamed)) =>
             computeExpectedParamType(
               expr,
               applyInvokedType,
+              invokedExpr,
               argExprs,
               idx,
               forApply = true,

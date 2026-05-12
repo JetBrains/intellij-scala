@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.impl.light.LightDefaultConstructor
-import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ImportNamedTypeArgumentsFeatureFlagQuickFix
@@ -10,16 +9,19 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParameterListOwnerExt, PsiTypeParametersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
+
+import scala.annotation.tailrec
 
 
 object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
@@ -31,6 +33,28 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
         case _                                                         => Seq.empty
       }
     else Seq.empty
+
+  private def typeArgClauseIndex(genericCall: ScGenericCall): Int = {
+    @tailrec
+    def countNestedTypeArgClauses(expr: ScExpression, acc: Int): Int = expr match {
+      case gen: ScGenericCall           => countNestedTypeArgClauses(gen.referencedExpr, acc + 1)
+      case invocation: MethodInvocation => countNestedTypeArgClauses(invocation.getInvokedExpr, acc)
+      case _                            => acc
+    }
+
+    countNestedTypeArgClauses(genericCall.referencedExpr, 0)
+  }
+
+  @tailrec
+  private def referenceTargetDeep(e: ScExpression): ScExpression = e match {
+    case gen: ScGenericCall         => referenceTargetDeep(gen.referencedExpr)
+    case inv: MethodInvocation      => referenceTargetDeep(inv.getEffectiveInvokedExpr)
+    case paren: ScParenthesisedExpr => paren.innerElement match {
+      case None        => paren
+      case Some(inner) => referenceTargetDeep(inner)
+    }
+    case _ => e
+  }
 
   override def annotate(genCall: ScGenericCall, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val context: Context = Context(genCall)
@@ -52,7 +76,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
     if (typeAware) {
       for {
-        ref <- genCall.referencedExpr.asOptionOf[ScReferenceExpression]
+        ref <- genCall.referencedExpr.asOptionOf[ScReferenceExpression] //@TODO: interleaved clauses
         rr  <- ref.bind()
       } {
         val f =
@@ -60,6 +84,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
             rr.innerResolveResult.get.element
           else rr.element
 
+        val typeArgClauseIdx = typeArgClauseIndex(genCall)
 
         if (f.is[ScFunction, PsiMethod, ScSyntheticFunction]) {
           rr.problems.foreach {
@@ -81,20 +106,37 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                     _.typeParameters.map(TypeParameter(_))
                   ).getOrElse(Seq.empty)
               case other                  =>
-                val tparams = other match {
+                val clauseTypeParams = other match {
                   case fun: ScFunction =>
-                    val extension = fun.extensionMethodOwner.orElse(rr.exportedInExtension).filter(_ => !rr.isExtensionCall)
-                    extension.fold(fun.typeParameters)(_.typeParameters)
+                    val extension =
+                      if (!rr.isExtensionCall) fun.extensionMethodOwner.orElse(rr.exportedInExtension)
+                      else                     None
+
+                    val functionTypeParamsByClause = fun.typeParametersByClause
+                    val extensionTypeParams        = extension.toSeq.flatMap(_.typeParameters.map(TypeParameter(_)))
+
+                    if (extensionTypeParams.nonEmpty && typeArgClauseIdx == 0) extensionTypeParams
+                    else {
+                      val functionClauseIdx =
+                        if (extensionTypeParams.nonEmpty) typeArgClauseIdx - 1
+                        else                              typeArgClauseIdx
+
+                      functionTypeParamsByClause.lift(functionClauseIdx).getOrElse(Seq.empty)
+                    }
                   case lCons: LightDefaultConstructor =>
-                    lCons.containingClass.getTypeParameters.toSeq
+                    if (typeArgClauseIdx == 0) lCons.containingClass.getTypeParameters.instantiate
+                    else                       Seq.empty
                   case jmethod: PsiMethod =>
-                    if (jmethod.isConstructor) jmethod.containingClass.getTypeParameters.toSeq
-                    else jmethod.getTypeParameters.toSeq
-                  case _ => typeParamOwner.getTypeParameters.toSeq
+                    if (jmethod.isConstructor) {
+                      if (typeArgClauseIdx == 0) jmethod.containingClass.getTypeParameters.instantiate
+                      else                       Seq.empty
+                    } else jmethod.typeParametersByClause.lift(typeArgClauseIdx).getOrElse(Seq.empty)
+                  case _ =>
+                    typeParamOwner.typeParametersByClause.lift(typeArgClauseIdx).getOrElse(Seq.empty)
                 }
 
-                if (tparams.isEmpty) typeParamsFromInnerApplyCall(rr)
-                else                 tparams.map(TypeParameter(_))
+                if (clauseTypeParams.isEmpty && typeArgClauseIdx == 0) typeParamsFromInnerApplyCall(rr)
+                else                                                   clauseTypeParams
             }
 
             val stringPresentation = s"method ${typeParamOwner.name}"

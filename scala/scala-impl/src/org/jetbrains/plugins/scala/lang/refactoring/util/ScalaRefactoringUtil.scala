@@ -1008,7 +1008,7 @@ object ScalaRefactoringUtil {
     val byParent = parent match {
       case ScInfixExpr(_, operation, _) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case ScPostfixExpr(_, operation) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
-      case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
+      case ScGenericCall(`expr`, _) => ScalaBundle.message("cannot.refactor.under.generic.call")
       case _: ScLiteralPattern => ScalaBundle.message("cannot.refactor.literal.pattern")
       case par: ScClassParameter =>
         par.containingClass match {

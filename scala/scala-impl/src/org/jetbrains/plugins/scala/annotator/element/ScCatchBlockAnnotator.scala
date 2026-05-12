@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentat
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScType, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 //https://youtrack.jetbrains.com/issue/SCL-3328
@@ -35,12 +36,15 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
         def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean): Unit = {
+          val clauses = Seq(
+            InvocationClause(args = Seq(Compatibility.Expression(throwableType)).toOption)
+          )
+
           val processor =
             new MethodResolveProcessor(
               expr,
               memberName,
-              List(Seq(Compatibility.Expression(throwableType))),
-              Seq.empty,
+              clauses,
               Seq.empty
             )
 

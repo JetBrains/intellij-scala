@@ -6,9 +6,11 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{DynamicTypeReferenceResolver, ScalaResolveResult}
 
 import scala.annotation.tailrec
@@ -20,7 +22,7 @@ object DynamicResolveProcessor {
   val SELECT_DYNAMIC      = "selectDynamic"
   val UPDATE_DYNAMIC      = "updateDynamic"
 
-  def getDynamicNameForMethodInvocation(expressions: Iterable[ScExpression]): String = {
+  def getDynamicNameForMethodInvocation(expressions: Iterable[Expression]): String = {
     val qualifiers = expressions.collect {
       case ScAssignment(reference: ScReferenceExpression, _) => reference.qualifier
     }
@@ -85,21 +87,22 @@ object DynamicResolveProcessor {
     }
 
     val emptyStringExpression = createExpressionFromText("\"\"", ref)(qualifier.projectContext)
+    val args                  = Seq(Seq(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty))
+    val clauses               = args.map(InvocationClause.argsOnly)
 
     fromProcessor match {
       case processor: MethodResolveProcessor =>
         processor.copy(
           ref               = qualifier,
           refName           = name,
-          argumentClauses   = List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
+          invocationClauses = clauses,
           nameArgForDynamic = Option(ref.refName)
         )
       case _ =>
         new MethodResolveProcessor(
           qualifier,
           name,
-          List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
-          Seq.empty,
+          clauses,
           Seq.empty,
           nameArgForDynamic = Some(ref.refName)
         )

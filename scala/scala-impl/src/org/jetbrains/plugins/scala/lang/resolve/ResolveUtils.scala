@@ -432,13 +432,11 @@ object ResolveUtils {
     else                             enclosingTdef(e).toOption
   }
 
-  implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-
+  implicit class PsiElementForExpectedTypesEx(private val expr: PsiElement) extends AnyVal {
     def resolveApplyOrUpdateMethod(
-      call:          ScExpression,
+      call:          PsiElement,
       tp:            ScType,
       shapesOnly:    Boolean,
-      stripTypeArgs: Boolean,
       withImplicits: Boolean
     ): Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
@@ -456,7 +454,6 @@ object ResolveUtils {
             tp,
             shapesOnly    = shapesOnly,
             isDynamic     = false,
-            stripTypeArgs = stripTypeArgs,
             withImplicits = withImplicits
           )
 
@@ -466,7 +463,6 @@ object ResolveUtils {
             tp,
             shapesOnly    = shapesOnly,
             isDynamic     = true,
-            stripTypeArgs = stripTypeArgs,
             withImplicits = withImplicits
           )
         } else cands

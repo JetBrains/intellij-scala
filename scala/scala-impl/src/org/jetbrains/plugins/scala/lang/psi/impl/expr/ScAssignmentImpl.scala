@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
@@ -97,11 +98,13 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
               case c: ScClassParameter if c.isVar => None
               case _: PsiField                    => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
+
+                val clauses = Seq(InvocationClause(args = rightExpression.map(expr => Seq(expr))))
+
                 val processor = new MethodResolveProcessor(
                   ref,
                   ScalaNamesUtil.clean(fun.name) + "_=",
-                  rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil),
-                  Nil,
+                  clauses,
                   ref.getPrevTypeInfoParams,
                   isShapeResolve = shapeResolve,
                   kinds          = StdKinds.methodsOnly

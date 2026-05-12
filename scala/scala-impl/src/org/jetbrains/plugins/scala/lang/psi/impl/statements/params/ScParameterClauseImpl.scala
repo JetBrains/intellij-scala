@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryC
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
@@ -60,14 +60,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     val prependedTypeParameters = ScParameterOwner.prependedContextBoundTypeParameters(this)
     if (prependedTypeParameters.isEmpty) return Seq.empty
 
-    val isClassParameter = owner match {
-      case constructor: ScPrimaryConstructor =>
-        constructor.containingClass match {
-          case _: ScClass => true
-          case _          => false
-        }
-      case _ => false
-    }
+    val isClassParameter = owner.is[ScPrimaryConstructor]
 
     val maybeSyntheticClause = getParent match {
       case clauses: ScParameters =>

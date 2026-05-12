@@ -156,11 +156,15 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered || isConstructor) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
+
+    @tailrec
+    def unwrapFunctionType(tpe: ScType): ScType = tpe match {
+      case FunctionType(rt, _) => unwrapFunctionType(rt)
+      case _                   => tpe
+    }
+
     cachedInUserData("getReturnType", this, BlockModificationTracker(this)) {
-      val resultType = `type`().getOrAny match {
-        case FunctionType(rt, _) => rt
-        case tp => tp
-      }
+      val resultType = unwrapFunctionType(`type`().getOrAny)
       resultType.toPsiType
     }
   }

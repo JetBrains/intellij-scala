@@ -44,7 +44,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
    */
   def leadingTypeParametersClause: Option[ScTypeParamClause] = {
     this.withGreenStub(
-      stub => Option(stub.findChildStubByType(ScalaElementType.TYPE_PARAM_CLAUSE)).map(_.getPsi): @nowarn("cat=deprecation"), // IJPL-562
+      stub => Option(stub.findChildStubByType(ScalaElementType.TYPE_PARAM_CLAUSE)).map(_.getPsi): @nowarn("cat=deprecation"),
       () => Option(getNode).flatMap(_ => findChild[ScTypeParamClause])
     )
   }
@@ -52,9 +52,8 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
   /**
    * Backward-compatible alias for the leading type parameter clause.
    */
-  def typeParametersClause: Option[ScTypeParamClause] = {
+  def typeParametersClause: Option[ScTypeParamClause] =
     leadingTypeParametersClause
-  }
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,

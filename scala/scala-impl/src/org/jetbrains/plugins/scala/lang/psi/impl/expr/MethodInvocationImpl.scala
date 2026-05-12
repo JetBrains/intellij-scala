@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
@@ -88,7 +88,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
 
   //this method works for ScInfixExpression and ScMethodCall
-  private def tryToGetInnerTypeExt(implicit useExpectedType: Boolean): InvocationData = {
+  private def tryToGetInnerTypeExt(useExpectedType: Boolean): InvocationData = {
     lazy val isFirstClauseApplication: Boolean = !getEffectiveInvokedExpr.is[MethodInvocation]
 
     /**
@@ -183,7 +183,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             ImplicitClausePosition.Leading
           )
 
-        checkApplication(withoutLeadingImplicitClauses, invokedResolveResult) match {
+        checkApplication(
+          withoutLeadingImplicitClauses,
+          invokedResolveResult,
+          useExpectedType
+        ) match {
           case Some(regularCase) =>
             val (updatedType, trailingImplicits) = updateTypeWithImplicitArgs(
               regularCase.inferredType,
@@ -194,34 +198,38 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             this.setImplicitArguments(leadingImplicits ++ trailingImplicits)
             regularCase.copy(inferredType = updatedType)
           case _ =>
-            val stripTypeArgs =
+            val anchor =
               getEffectiveInvokedExpr match {
                 case gen: ScGenericCall =>
                   val invoked = gen.bindInvokedExpr
-                  invoked.forall { srr =>
+
+                  val stripTypeArgs = invoked.forall { srr =>
                     ApplyOrUpdateInvocation.innerSrrHasTypeParameters(srr) ||
                       srr.elementHasTypeParameters
                   }
-                case _ => true
+
+                  if (stripTypeArgs) gen
+                  else               gen.referencedExpr
+                case other => other
               }
 
-            val applyOrUpdateCands = this.resolveApplyOrUpdateMethod(
-              this,
+            val applyOrUpdateCands = anchor.resolveApplyOrUpdateMethod(
+              anchor,
               withoutLeadingImplicitClauses,
               shapesOnly    = false,
-              stripTypeArgs = stripTypeArgs,
               withImplicits = true
             )
 
             applyOrUpdateCands match {
-              case Array(srr) =>
+              case Array(applyRR) =>
+                val srr = applyRR.mostInnerResolveResult
                 val processedType = this.updateGenericType(nonValueType, srr).updateTypeOfDynamicCall(srr.isDynamic)
 
                 val (withoutLeadingImplicitClauses, leadingImplicitsApply) =
                   updateTypeWithImplicitArgs(processedType, srr.toOption, ImplicitClausePosition.Leading)
 
                 val updatedProcessedType  = updateType(withoutLeadingImplicitClauses)
-                val maybeRegularCase      = checkApplication(updatedProcessedType, srr.toOption)
+                val maybeRegularCase      = checkApplication(updatedProcessedType, srr.toOption, useExpectedType)
 
                 val regularCase = maybeRegularCase.getOrElse {
                   RegularCase(updatedProcessedType, srr.toOption, Seq(DoesNotTakeParameters))
@@ -260,7 +268,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   ): RegularCase = {
     def asRegularCase(expressions: Seq[Expression]): RegularCase = {
       val (tp, ApplicabilityCheckResult(problems, _, _, matched)) = function(expressions)
-      RegularCase(tp, maybeResolveResult, problems, matched.map(m => (m.parameter, m.argument, m.tpe)))
+
+      val sanitizedTp = tp match {
+        case ScTypePolymorphicType(internal, Seq()) => internal
+        case _                                      => tp
+      }
+
+      RegularCase(sanitizedTp, maybeResolveResult, problems, matched.map(m => (m.parameter, m.argument, m.tpe)))
     }
 
     def tupledWithSubstitutedType =
@@ -326,10 +340,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
 
   private def checkApplication(
-    invokedNonValueType: ScType,
-    maybeResolveResult:  Option[ScalaResolveResult]
-  )(implicit
-    useExpectedType: Boolean
+    invokedType:        ScType,
+    maybeResolveResult: Option[ScalaResolveResult],
+    useExpectedType:    Boolean
   ): Option[RegularCase] = {
     val fromMacroExpansion =
       maybeResolveResult
@@ -351,7 +364,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         }
     }
 
-    val maybeTuple = invokedNonValueType match {
+    val maybeTuple = invokedType match {
       case pTpe @ ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
         Option((returnType, parameters, Option(pTpe)))
       case pTpe @ ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
@@ -365,19 +378,16 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       case (returnType, parameters, maybePolymorphicType) =>
         val function: Seq[Expression] => (ScType, ApplicabilityCheckResult) = maybePolymorphicType match {
           case Some(polymorphicType) =>
-            val canThrowSCE = useExpectedType && this.expectedType().isDefined /* optimization to avoid except */
 
-            val paramSubst = canThrowSCE.option(
-              polymorphicType.argsProtoTypeSubst(this.expectedType().get)
-            )
+            val paramSubst = polymorphicType.argsProtoTypeSubst(this.expectedType())
 
             localTypeInferenceWithApplicabilityExt(
               returnType,
               parameters,
               _: Seq[Expression],
               polymorphicType.typeParameters,
-              canThrowSCE = canThrowSCE,
-              paramSubst  = paramSubst
+              canThrowSCE = useExpectedType,
+              paramSubst  = paramSubst.toOption
             )
           case _ =>
             (expressions: Seq[Expression]) => {

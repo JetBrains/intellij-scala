@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -23,8 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -34,8 +35,7 @@ import scala.annotation.tailrec
 class MethodResolveProcessor(
   override val ref:           PsiElement,
   val refName:                String,
-  val argumentClauses:        Seq[Seq[Expression]],
-  val typeArgElements:        Seq[ScTypeArgument],
+  val invocationClauses:      Seq[InvocationClause],
   val prevTypeInfo:           Seq[TypeParameter],
   override val kinds:         Set[ResolveTargets.Value] = StdKinds.methodRef,
   val expectedOption:         () => Option[ScType]      = () => None,
@@ -47,11 +47,19 @@ class MethodResolveProcessor(
   val selfConstructorResolve: Boolean                   = false,
   val nameArgForDynamic:      Option[String]            = None
 ) extends ResolveProcessor(kinds, ref, refName) {
+
+  private def typeArgsForArgClause(argClauseIdx: Int): Seq[ScTypeArgument] =
+    invocationClauses.lift(argClauseIdx).map(
+      _.targs.getOrElse(Seq.empty)
+    ).getOrElse(Seq.empty)
+
+  private def valueArgsForArgClause(argClauseIdx: Int): Option[Seq[Expression]] =
+    invocationClauses.lift(argClauseIdx).flatMap(_.args)
+
   def copy(
     ref:                    PsiElement                = ref,
     refName:                String                    = refName,
-    argumentClauses:        Seq[Seq[Expression]]      = argumentClauses,
-    typeArgElements:        Seq[ScTypeArgument]       = typeArgElements,
+    invocationClauses:      Seq[InvocationClause]     = invocationClauses,
     prevTypeInfo:           Seq[TypeParameter]        = prevTypeInfo,
     kinds:                  Set[ResolveTargets.Value] = kinds,
     expectedOption:         () => Option[ScType]      = expectedOption,
@@ -65,8 +73,7 @@ class MethodResolveProcessor(
   ): MethodResolveProcessor = new MethodResolveProcessor(
     ref,
     refName,
-    argumentClauses,
-    typeArgElements,
+    invocationClauses,
     prevTypeInfo,
     kinds,
     expectedOption,
@@ -198,58 +205,96 @@ class MethodResolveProcessor(
 }
 
 object MethodResolveProcessor {
-  private def problemsFor(
+  private def updateCandidateWithApplicabilityProblems(
     place:                  PsiElement,
-    c:                      ScalaResolveResult,
-    checkWithImplicits:     Boolean,
-    ref:                    PsiElement,
-    argumentClauses:        Seq[Seq[Expression]],
-    typeArgElements:        Seq[ScTypeArgument],
+    candidate:              ApplicabilityCandidate,
+    checkArgsWithImplicits: Boolean,
+    allArgumentClauses:     Seq[Seq[Expression]],
+    currentTypeArgsClause:  Seq[ScTypeArgument],
+    currentArgumentsClause: Option[Seq[Expression]],
     prevTypeInfo:           Seq[TypeParameter],
     expectedOption:         () => Option[ScType],
     selfConstructorResolve: Boolean,
     isUnderscore:           Boolean,
     shapesOnly:             Boolean,
-    argClauseIdx:           Int
-  ): ApplicabilityCheckResult = {
+    argClauseIdx:           Int,
+    isLastClause:           Boolean
+  ): ApplicabilityCandidate = {
+    val srr = candidate.resolveResult
 
-    implicit val projectContext: ProjectContext = c.element
+    //Apply/update candidates have already went through applicability checks, no need
+    //to run them again. Note: only true for scala 2, where overloading resolution only checks the first argument clause,
+    //this can lead to incorrect results, in scala 3, e.g. when we have multiple overloaded expanded apply
+    //alternatives differing in (n+1)th arg clause.
+    val isExpandedApplyOrUpdateCandidate = candidate.shift != 0
+    if (isExpandedApplyOrUpdateCandidate && !place.isInScala3File) return candidate
+
+    //An exotic case, where first apply method expansion happens and subsequently
+    //*Dynamic method is resolved.
+    //This is not entirely correct, but I don't think it is worth implementing fully.
+    if (srr.nameArgForDynamic.contains(CommonNames.Apply)) return candidate
+
+    val clauseIdx     = candidate.effectiveClauseIdx(argClauseIdx)
+    val effectiveArgs = allArgumentClauses.drop(candidate.shift)
+
+    implicit val projectContext: ProjectContext = srr.element
     implicit val context: Context               = Context(place)
 
     val problems             = Seq.newBuilder[ApplicabilityProblem]
-    val element              = c.element
-    val candidateSubstitutor = c.substitutor
+    val element              = srr.element
+    val candidateSubstitutor = srr.substitutor
 
-    val typeParamOwner = element match {
-      case ScalaConstructor(_ ) => c.getActualElement
-      case _                    => element
+    val typeParametersForIdx =
+      typeParametersForArgClause(
+        element,
+        clauseIdx,
+        srr.isExtensionCall,
+        srr.exportedInExtension
+      ).getOrElse(Seq.empty)
+
+    val typeParamsSize = typeParametersForIdx.size
+
+    //This dichotomy between class type parameters and getConstructorTypeParameters can be somewhat hard to follow:
+    //1. The initial ScalaResolveResult (and subsequently its substitutor) is formulated in terms of class type parameters
+    //2. This becomes somewhat problematic when we call constructor from inside the class which defines it, e.g.
+    //   `class Foo[A <: Bar](a: A) { def foo: Foo[A] = new Foo[A](???)`, here we would have to solve for A <: (Bar, A) >: A
+    //3. So to avoid that, let's operate here entirely in terms of synthetic constructor type parameters
+    //Also, the order of substitutors matter. Should be srr.substitutor -> bindConstructorTypeParams -> everything else.
+    val bindConstructorTypeParamsSubst = element match {
+      case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
+        val maybeAlias = srr.parentElement.collect { case alias: ScTypeAliasDefinition => alias }
+        val typeParams = maybeAlias.fold(td.typeParameters)(_.typeParameters)
+        ScSubstitutor.bind(typeParams, cons.getConstructorTypeParameters)(TypeParameterType(_))
+      case _ => ScSubstitutor.empty
     }
 
-    val typeArgsSubst = undefinedOrTypeArgsSubstitutor(
-      typeParamOwner,
-      candidateSubstitutor,
-      selfConstructorResolve,
-      typeArgElements,
-      c.isExtensionCall,
-      c.exportedInExtension
-    )
+    val currentClauseTypeParamsSubst =
+      undefinedOrTypeArgsSubstitutor(
+        candidateSubstitutor.followed(bindConstructorTypeParamsSubst),
+        selfConstructorResolve,
+        typeParametersForIdx,
+        currentTypeArgsClause
+      )
 
-    val unresolvedTps = c.unresolvedTypeParameters.getOrElse(Seq.empty)
+    //@TODO: def foo[A](a: A)(b: A); foo(1)("2") is valid scala 3, but not 2.
+    //       This is out-of-scope of the interleaved param. clauses ticket,
+    //       so I'll just leave it for now.
+    val typeParamsFromPrevClauses = candidate.processedTypeParams
 
-    val substitutor =
-      typeArgsSubst.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
+    //all type parameters, not directly related to the current invocation clause
+    val previousTypeParams =
+      prevTypeInfo ++
+        srr.unresolvedTypeParameters.getOrElse(Seq.empty) ++
+        typeParamsFromPrevClauses
 
-    val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
-      case cons @ Constructor.ofClass(cls) =>
-        (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
-      case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
-      case fun: PsiMethod  => fun.getTypeParameters.map(TypeParameter(_)).toSeq
-      case _               => Seq.empty
-    })
+    val undefSubst = ScSubstitutor.bind(previousTypeParams)(UndefinedType(_))
+
+    val substitutor = currentClauseTypeParamsSubst.followed(undefSubst)
+
+    val allTypeParameters = previousTypeParams ++ typeParametersForIdx
 
     def addExpectedTypeProblems(): ApplicabilityCheckResult = {
-      if (expectedOption().isEmpty) {
+      if (expectedOption().isEmpty || !isLastClause) {
         val problemsSeq = problems.result()
         return ApplicabilityCheckResult(problemsSeq)
       }
@@ -262,7 +307,7 @@ object MethodResolveProcessor {
           substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
-        case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
+        case f: ScFunction if !f.isInScala3File && f.paramClauses.clauses.count(!_.isImplicit) > effectiveArgs.size =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction          => substitutor(f.returnType.getOrNothing)
@@ -282,6 +327,9 @@ object MethodResolveProcessor {
       ApplicabilityCheckResult(problems.result(), conformance.constraints)
     }
 
+    /**
+     * Precondition: [[currentArgumentsClause]] is empty.
+     */
     def checkFunctionReference(fun: PsiNamedElement, isPolymorphic: Boolean): ApplicabilityCheckResult = {
       def default(): ApplicabilityCheckResult = {
         val canBeNullaryMethodApplication = {
@@ -299,10 +347,12 @@ object MethodResolveProcessor {
         }
 
         fun match {
-          case _: ScFunction
-            if c.functionParamClauses.isEmpty ||
-              (c.functionParamClauses.head.parameters.isEmpty && canBeNullaryMethodApplication) ||
-              isUnderscore => ApplicabilityCheckResult(problems.result())
+          case fn: ScFunction
+            if srr.functionParamClauses.isEmpty ||
+              (srr.functionParamClauses.head.parameters.isEmpty && canBeNullaryMethodApplication) ||
+              isUnderscore ||
+              fn.name == DynamicResolveProcessor.SELECT_DYNAMIC =>
+            addExpectedTypeProblems()
           case fun: ScSyntheticFunction
             if fun.paramClauses == Seq() ||
               (fun.paramClauses == Seq(Seq()) && canBeNullaryMethodApplication) ||
@@ -330,11 +380,11 @@ object MethodResolveProcessor {
       def checkEtaExpandedReference(fun: PsiNamedElement, pt: ScType): ApplicabilityCheckResult = {
         val maybeMethodType = fun match {
           case m: PsiMethod =>
-            m.methodTypeProvider(ref.elementScope)
-              .polymorphicType(dropExtensionClauses = c.shouldDropExtensionClauses)
+            m.methodTypeProvider(place.elementScope)
+              .polymorphicType(dropExtensionClauses = srr.shouldDropExtensionClauses)
               .toOption
-          case fun: ScSyntheticFunction   => fun.polymorphicType().toOption
-          case _            => None
+          case fun: ScSyntheticFunction => fun.polymorphicType().toOption
+          case _                        => None
         }
 
         val typeAfterConversions =
@@ -346,7 +396,7 @@ object MethodResolveProcessor {
               case tpe => tpe.inferValueType
             }
 
-            val expr = Expression(withUndefParams, ref)
+            val expr = Expression(withUndefParams, place)
 
             expr.getTypeAfterImplicitConversion(
               checkImplicits = true,
@@ -367,14 +417,14 @@ object MethodResolveProcessor {
       }
 
       fun match {
-        case _: ScFunction if c.functionParamClauses.isEmpty =>
+        case _: ScFunction if srr.functionParamClauses.isEmpty =>
           return addExpectedTypeProblems()
         case fun: ScSyntheticFunction if fun.paramClauses.isEmpty =>
           return addExpectedTypeProblems()
         case _ =>
       }
 
-      val functionLikeType = FunctionLikeType(ref)
+      val functionLikeType = FunctionLikeType(place)
 
       expectedOption().map {
         case abs: ScAbstractType => abs.simplifyType
@@ -392,30 +442,19 @@ object MethodResolveProcessor {
       }
     }
 
-    def checkSimpleApplication(
-      typeParams: Seq[PsiTypeParameter]
-    ): ApplicabilityCheckResult = {
-      //if we are processing constructor proxies, take class type parameters into account
-      val typeParamsWithCls = element match {
-        case Constructor.ofClass(cls) => typeParams ++ cls.getTypeParameters.toSeq
-        case fun: ScFunction          =>
-          if (c.isExtensionCall) typeParams
-          else                   fun.typeParametersWithExtension(c.exportedInExtension)
-        case _ => typeParams
-      }
-
-      val typeArgCount         = typeArgElements.length
-      val typeParamCount       = typeParamsWithCls.length
-      val isAliasedConstructor = c.parentElement.exists(_.is[ScTypeAliasDefinition])
+    def checkSimpleApplication(): ApplicabilityCheckResult = {
+      val typeArgCount         = currentTypeArgsClause.length
+      val typeParamCount       = typeParametersForIdx.length
+      val isAliasedConstructor = srr.parentElement.exists(_.is[ScTypeAliasDefinition])
 
       if (!isAliasedConstructor && typeArgCount > 0 && typeArgCount != typeParamCount) {
         if (typeParamCount == 0) problems += DoesNotTakeTypeParameters
         else if (typeParamCount < typeArgCount)
-          problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
+          problems ++= currentTypeArgsClause.drop(typeParamCount).map(ExcessTypeArgument)
         else
-          problems ++= typeParamsWithCls
+          problems ++= typeParametersForIdx
             .drop(typeArgCount)
-            .map(ptp => MissedTypeParameter(TypeParameter(ptp)))
+            .map(MissedTypeParameter)
 
         addExpectedTypeProblems()
       } else {
@@ -427,46 +466,15 @@ object MethodResolveProcessor {
         val substitutorWithExpected =
           expectedTypeSubst.fold(substitutor)(bounds => substitutor.followed(bounds.substitutor))
 
-        val (argsWithDynamic, argClauseIdxAdjusted) =
-          if (c.nameArgForDynamic.contains(CommonNames.Apply)) {
-            //this is a weird case, where at first apply method expansion has to happen
-            //and then applyDynamic method is resolved with `apply` as it's first argument.
-            //See LaminarProjectHighlightingTest ShadowDomSpec.scala
-            val args =
-              Seq.empty[Expression] +: (c.name match {
-                case DynamicResolveProcessor.APPLY_DYNAMIC_NAMED =>
-                  if (argumentClauses.isEmpty) Seq.empty
-                  else {
-                    val head = argumentClauses.head
-
-                    val tuples = head.map {
-                      case ScAssignment(_, right) =>
-                        Expression.OfType(
-                          TupleType(Seq(Nothing, Any), place),
-                          right
-                        )
-                      case e => e
-                    }
-
-                    tuples +: argumentClauses.tail
-                  }
-                case _ =>
-                  argumentClauses
-              })
-
-            (args, argClauseIdx + 1)
-          } else
-      (argumentClauses, argClauseIdx)
-
         val argsApplicability =
           Compatibility.compatible(
-            c,
+            srr,
             substitutorWithExpected,
-            argsWithDynamic,
-            checkWithImplicits,
+            effectiveArgs,
+            checkArgsWithImplicits,
             shapesOnly,
-            ref,
-            argClauseIdxAdjusted
+            place,
+            clauseIdx
           )
 
         problems ++= argsApplicability.problems
@@ -475,14 +483,14 @@ object MethodResolveProcessor {
     }
 
     def correctTypeArgsSupplied(tparamsLength: Int): Boolean =
-      typeArgElements.isEmpty ||
-        typeArgElements.length == tparamsLength ||
-        typeArgElements.forall(_.isNamed)
+      currentTypeArgsClause.isEmpty ||
+        currentTypeArgsClause.length == tparamsLength ||
+        currentTypeArgsClause.forall(_.isNamed)
 
     val result = element match {
       //objects
       case obj: ScObject =>
-        if (argumentClauses.isEmpty) {
+        if (currentArgumentsClause.isEmpty) {
           expectedOption().map(_.removeAbstracts) match {
             case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
             case Some(tp: ScType) if obj.isSAMEnabled =>
@@ -502,106 +510,195 @@ object MethodResolveProcessor {
         problems += MalformedDefinition(f.name)
         ApplicabilityCheckResult(problems.result())
       //application to implicit arguments only
-      case fun: ScFunction if
-        correctTypeArgsSupplied(fun.typeParameters.size) &&
-          c.functionParamClauses.forall(_.isImplicit) &&
-          argumentClauses.isEmpty =>
+      case _: ScFunction if
+        correctTypeArgsSupplied(typeParamsSize) &&
+          srr.functionParamClauses.forall(_.isImplicit) &&
+          currentArgumentsClause.isEmpty =>
         addExpectedTypeProblems()
       //eta-expansion
       case (fun: ScTypeParametersOwner) & (_: PsiNamedElement)
-        if correctTypeArgsSupplied(fun.typeParameters.size) && argumentClauses.isEmpty =>
-        checkFunctionReference(fun, fun.typeParameters.nonEmpty)
+        if correctTypeArgsSupplied(typeParamsSize) && currentArgumentsClause.isEmpty =>
+        checkFunctionReference(fun, typeParamsSize != 0)
       case (fun: PsiTypeParameterListOwner) & (_: PsiNamedElement)
-        if correctTypeArgsSupplied(fun.getTypeParameters.length) && argumentClauses.isEmpty =>
-        checkFunctionReference(fun, fun.getTypeParameters.nonEmpty)
+        if correctTypeArgsSupplied(typeParamsSize) && currentArgumentsClause.isEmpty =>
+        checkFunctionReference(fun, typeParamsSize != 0)
       //simple application including empty application
-      case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner.typeParameters)
-      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner.getTypeParameters.toSeq)
+      case _: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication()
+      case _: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication()
       case _ =>
-        if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
-        if (argumentClauses.nonEmpty) problems += DoesNotTakeParameters
+        if (currentTypeArgsClause.nonEmpty) problems += DoesNotTakeTypeParameters
+        if (currentArgumentsClause.nonEmpty) problems += DoesNotTakeParameters
         addExpectedTypeProblems()
     }
 
-    if (result.problems.forall(_ == ExpectedTypeMismatch)) {
-      val maybeResult = result.constraints match {
-        case undefined @ ConstraintSystem(newSubstitutor) =>
-          val typeParamIds = typeParameters.map(_.typeParamId).toSet
+    val applicabilityCheckResult =
+      if (result.problems.forall(_ == ExpectedTypeMismatch)) {
+        val maybeResult = result.constraints match {
+          case undefined @ ConstraintSystem(newSubstitutor) =>
+            val typeParamIds = allTypeParameters.map(_.typeParamId).toSet
 
-          var uSubst = undefined
-          for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
-            val typeParamId = tParam.typeParamId
+            var uSubst = undefined
+            for (typeParam @ TypeParameter(tParam, _, lowerType, upperType) <- allTypeParameters) {
+              val typeParamId = tParam.typeParamId
 
-            if (!lowerType.isNothing) {
-              candidateSubstitutor(newSubstitutor(lowerType)) match {
-                case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
-                  uSubst = uSubst.withLower(typeParamId, lower)
-                    .withTypeParamId(typeParamId)
-                case _ =>
+              if (currentTypeArgsClause.nonEmpty &&
+                currentClauseTypeParamsSubst.isApplicableToTypeParam(typeParamId)) {
+                val typeParamValue = currentClauseTypeParamsSubst(TypeParameterType(typeParam))
+                uSubst = uSubst
+                  .withLower(typeParamId, typeParamValue)
+                  .withUpper(typeParamId, typeParamValue)
+              }
+
+              if (!lowerType.isNothing) {
+                candidateSubstitutor(newSubstitutor(lowerType)) match {
+                  case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
+                    uSubst = uSubst.withLower(typeParamId, lower)
+                      .withTypeParamId(typeParamId)
+                  case _ =>
+                }
+              }
+
+              if (!upperType.isAny) {
+                candidateSubstitutor(newSubstitutor(upperType)) match {
+                  case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
+                    uSubst = uSubst.withUpper(typeParamId, upper)
+                      .withTypeParamId(typeParamId)
+                  case _ =>
+                }
               }
             }
 
-            if (!upperType.isAny) {
-              candidateSubstitutor(newSubstitutor(upperType)) match {
-                case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
-                  uSubst = uSubst.withUpper(typeParamId, upper)
-                    .withTypeParamId(typeParamId)
-                case _ =>
-              }
+            uSubst match {
+              case ConstraintSystem(_) => Some(result)
+              case _                   => None
             }
+          case _ => None
+        }
+
+        maybeResult.getOrElse {
+          result.copy(problems = Seq(WrongTypeParameterInferred))
+        }
+      } else result
+
+
+    val newConstraints = applicabilityCheckResult.constraints
+
+    val typeArgsSubst =
+      if (currentTypeArgsClause.nonEmpty && shapesOnly) // shapesOnly check helps avoid adding it twice unnecessarily
+        currentClauseTypeParamsSubst
+      else
+        ScSubstitutor.empty
+
+    val updatedSrr = srr.copy(
+      problems                 = applicabilityCheckResult.problems,
+      subst                    = srr.substitutor.followed(typeArgsSubst),
+      applicabilityConstraints = srr.applicabilityConstraints + newConstraints
+    )
+
+    //avoid adding type parameters during the initial shape check
+    val processedTypeParameters =
+      if (shapesOnly) Seq.empty
+      else            typeParametersForIdx
+
+    val checkedCandidate = candidate.copy(
+      resolveResult             = updatedSrr,
+      processedTypeParams       = candidate.processedTypeParams ++ processedTypeParameters, //add type params corresponding to the current clause
+      usesDefaultParameterValue = applicabilityCheckResult.defaultParameterUsed,
+      usesSAMAdaptation         = applicabilityCheckResult.matched.exists(_.samAdapted)
+    )
+
+    checkedCandidate
+  }
+
+  private def typeParametersForArgClause(
+    element:             PsiElement,
+    argClauseIdx:        Int,
+    isExtension:         Boolean,
+    exportedInExtension: Option[ScExtension]
+  ): Option[Seq[TypeParameter]] = {
+    @tailrec
+    def byArgClauseIndex(clauses: Seq[ScSignatureClause], idx: Int): Option[Seq[TypeParameter]] = {
+      if (clauses.isEmpty) None
+      else if (idx == 0)
+        clauses.headOption.collect {
+          case ScSignatureClause.TypeClause(clause) =>
+            clause.typeParameters.map(TypeParameter(_))
+        }
+      else {
+        clauses match {
+          case Seq(ScSignatureClause.TypeClause(_), tail @ _*) =>
+            byArgClauseIndex(tail, idx)
+          case _ =>
+            //skip one value parameters clause, recur
+            byArgClauseIndex(clauses.tail, idx - 1)
+        }
+      }
+    }
+
+    element match {
+      case ScalaConstructor(cons) =>
+        Option.when(argClauseIdx == 0)(
+          cons.getConstructorTypeParameters.map(TypeParameter(_))
+        )
+      case cons @ Constructor.ofClass(cls) =>
+        Option.when(argClauseIdx == 0)(
+          (cls.getTypeParameters ++ cons.getTypeParameters).instantiate
+        )
+      case fun: ScFunction =>
+        val extensionTypeParameters =
+          if (!isExtension)
+            exportedInExtension
+              .orElse(fun.extensionMethodOwner)
+              .toSeq
+              .flatMap(_.typeParameters.map(TypeParameter(_)))
+          else
+            Seq.empty
+
+        val clauseTypeParameters =
+          if (extensionTypeParameters.nonEmpty) {
+            if (argClauseIdx == 0) extensionTypeParameters
+            else
+              byArgClauseIndex(fun.signatureClauses, argClauseIdx - 1).getOrElse(Seq.empty)
+          } else {
+            val allClauses = fun.signatureClauses
+
+            byArgClauseIndex(allClauses, argClauseIdx).getOrElse(Seq.empty)
           }
 
-          uSubst match {
-            case ConstraintSystem(_) => Some(result)
-            case _                   => None
-          }
-        case _ => None
-      }
-
-      maybeResult.getOrElse {
-        result.copy(problems = Seq(WrongTypeParameterInferred))
-      }
-    } else result
+        Option(clauseTypeParameters)
+      case owner: PsiTypeParameterListOwner =>
+        Option.when(argClauseIdx == 0)(
+          owner.getTypeParameters.instantiate
+        )
+      case syn: ScSyntheticFunction => Option.when(argClauseIdx == 0)(syn.typeParameters.map(TypeParameter(_)))
+      case _ => None
+    }
   }
 
   private def undefinedOrTypeArgsSubstitutor(
-    element:                PsiElement,
     subst:                  ScSubstitutor,
     selfConstructorResolve: Boolean,
-    typeArgs:        Seq[ScTypeArgument],
-    isExtension:            Boolean,
-    exportedInExtension:    Option[ScExtension]
+    typeParameters:         Seq[TypeParameter],
+    typeArgs:               Seq[ScTypeArgument],
   ): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
-    val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
-      case ScalaConstructor.in(td)         => Option(td.getTypeParameters.toSeq)
-      case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
-      case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension(exportedInExtension))
-      case t: ScTypeParametersOwner        => Option(t.typeParameters)
-      case p: PsiTypeParameterListOwner    => Option(p.getTypeParameters.toSeq)
-      case _                               => None
-    }
+    val hasNamedTypeArgs = typeArgs.exists(_.isNamed)
 
-    maybeTypeParameters match {
-      case Some(typeParameters) =>
-        val hasNamedTargs = typeArgs.exists(_.isNamed)
+    val follower =
+      if (typeArgs.nonEmpty && typeParameters.length == typeArgs.length)
+        ScSubstitutor.bind(typeParameters, typeArgs)
+      else if (hasNamedTypeArgs) {
+        //case where only some of the type arguments are provided
+        val names             = typeArgs.flatMap(_.name)
+        val targsSubst        = ScSubstitutor.bind(typeParameters, typeArgs)
+        val missingTypeParams = typeParameters.filterNot(tp => names.contains(tp.name))
+        val undefinedSubst    = ScSubstitutor.bind(missingTypeParams)(UndefinedType(_))
+        targsSubst.followed(undefinedSubst)
+      } else
+        ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
-        val follower =
-          if (typeArgs.nonEmpty && typeParameters.length == typeArgs.length)
-            ScSubstitutor.bind(typeParameters, typeArgs)
-          else if (hasNamedTargs) {
-            //case where only some of the type arguments are provided
-            val names             = typeArgs.flatMap(_.name)
-            val targsSubst        = ScSubstitutor.bind(typeParameters, typeArgs)
-            val missingTypeParams = typeParameters.filterNot(tp => names.contains(tp.name))
-            val undefinedSubst    = ScSubstitutor.bind(missingTypeParams)(UndefinedType(_))
-            targsSubst.followed(undefinedSubst)
-          } else ScSubstitutor.bind(typeParameters)(UndefinedType(_))
-
-        subst.followed(follower)
-      case _ => subst
-    }
+    subst.followed(follower)
   }
 
   private def candidates(
@@ -609,111 +706,160 @@ object MethodResolveProcessor {
     input: Set[ScalaResolveResult],
   ): Set[ScalaResolveResult] = {
     import proc.{candidates => _, _}
-    val maxArgClauseIdx = argumentClauses.size - 1
+    val argumentClauses = invocationClauses.collect { case InvocationClause(_, Some(args)) => args }
+    val maxArgClauseIdx = invocationClauses.size - 1
 
     // Each candidate carries an arg clause shift: 0 for direct candidates,
     // expansionClauseIdx for apply-expanded ones. At global clauseIdx, a candidate
     // with shift s is checked at effective index (clauseIdx - s) using argumentClauses.drop(s).
-    @tailrec
     def candidatesForArgClause(
-      prevResults: Set[(ScalaResolveResult, Int)],
-      clauseIdx:   Int
-    ): Set[ScalaResolveResult] = {
+      prevResults:      Set[ApplicabilityCandidate],
+      clauseIdx:        Int,
+      withExpectedType: Boolean
+    ): Set[ApplicabilityCandidate] = {
 
       // Step 1: Expand candidates in a single pass.
       //   clauseIdx == 0: expandApplyOrUpdateMethod (handles apply/update expansion)
       //   clauseIdx > 0, exhausted at effective index, Scala 3: expandApplyForReturnType
       //   otherwise: pass through
-      val allExpanded: Set[((ScalaResolveResult, Boolean), Int)] =
+      val allExpanded: Set[ApplicabilityCandidate] =
         if (clauseIdx == 0)
-          prevResults.flatMap { case (r, _) =>
-            expandApplyOrUpdateMethod(r, proc, clauseIdx).map(_ -> 0)
-          }
+          prevResults.flatMap(
+            expandApplyOrUpdateMethod(_, proc)
+          )
         else
-          prevResults.flatMap { case (r, shift) =>
-            val isExhausted = Compatibility.correspondingParamClause(
+          prevResults.flatMap { cand =>
+            val r     = cand.resolveResult
+            val shift = cand.shift
+            //Try expanding apply methods if either
+            //1. The candidate has no more parameter clauses and arg clause is being processed at the current iteration
+            //2. The candidate has no more type parameter clauses and type arg clause is being processed at the current iteration
+            val exhaustedParameterClauses = Compatibility.correspondingParamClause(
               r.functionParamClauses,
               argumentClauses.drop(shift),
               clauseIdx - shift
-            ).isEmpty
+            ).isEmpty // 1.
 
-            if (isExhausted && useScala3OverloadingRules)
-              expandApplyForReturnType(r, proc, clauseIdx).map(_ -> clauseIdx)
-            else
-              Set(((r, false), shift))
+            val exhaustedTypeParameterClauses = {
+              val typeParamsForArgClause =
+                typeParametersForArgClause(
+                  r.element,
+                  clauseIdx - shift,
+                  r.isExtensionCall,
+                  r.exportedInExtension
+                ).getOrElse(Seq.empty)
+
+              typeParamsForArgClause.isEmpty && typeArgsForArgClause(clauseIdx - shift).nonEmpty // 2.
+            }
+
+            if (useScala3OverloadingRules && (exhaustedTypeParameterClauses || exhaustedParameterClauses))
+              expandApplyForReturnType(
+                cand,
+                proc,
+                clauseIdx,
+                exhaustedTypeParameterClauses
+              ).map(
+                _.copy(shift = clauseIdx)
+              )
+            else Set(cand)
           }
 
       // Step 2: Shape check all candidates (grouped by shift for correct arg indexing)
-      val shapeChecked = allExpanded.groupBy(_._2).flatMap { case (shift, group) =>
+      val shapeChecked =
         checkResultsApplicability(
           proc,
-          group.map(_._1),
-          checkWithImplicits = false,
-          useExpectedType    = true,
-          args               = argumentClauses.drop(shift),
-          argClauseIdx       = clauseIdx - shift,
-          shapesOnly         = true
-        ).map(_ -> shift)
-      }.toSet
+          allExpanded,
+          checkWithImplicits    = false,
+          useExpectedType       = withExpectedType,
+          args                  = argumentClauses,
+          argClauseIdx          = clauseIdx,
+          shapesOnly            = true,
+        )
 
-      val applicableToShape = shapeChecked.filter(_._1._1.isApplicable(withExpectedType = true))
+      val applicableToShape = shapeChecked.filter(_.isApplicable(withExpectedType = withExpectedType))
 
       // Step 3: Full applicability check (grouped by shift)
-      val resultsWithShift =
+      val checkedResults =
         if (isShapeResolve) {
-          val res =
-            if (applicableToShape.nonEmpty) applicableToShape
-            else                            shapeChecked
-
-          res.map { case ((srr, _), shift) => (srr, shift) }
+          if (applicableToShape.nonEmpty) applicableToShape
+          else                            shapeChecked
         } else {
           val preselected =
             if (applicableToShape.isEmpty) allExpanded
             else                           applicableToShape
 
-          preselected
-            .groupBy(_._2)
-            .flatMap {
-              case (shift, group) =>
-                candidates(proc, group.map(_._1), argumentClauses.drop(shift), clauseIdx - shift)
-                  .map(_ -> shift)
-            }.toSet
+          candidates(
+            proc,
+            preselected,
+            argumentClauses,
+            clauseIdx,
+            useExpectedType = withExpectedType
+          )
         }
 
-      val applicable          = resultsWithShift.filter(_._1.isApplicable())
-      val effectiveApplicable = applicable.map(_._1)
+      val applicable   = checkedResults.filter(_.isApplicable(withExpectedType = withExpectedType))
+      val isLastClause = clauseIdx == Math.max(maxArgClauseIdx, 0) || !useScala3OverloadingRules
 
-      if (effectiveApplicable.isEmpty)
-        resultsWithShift.map(_._1)
-      else if (useScala3OverloadingRules && effectiveApplicable.size > 1) {
-        if (clauseIdx < maxArgClauseIdx)
-          candidatesForArgClause(applicable, clauseIdx + 1)
-        else
-          applicable.collect {
-            case (cand, shift) if
-              Compatibility.correspondingParamClause(
-                cand.functionParamClauses,
-                argumentClauses.drop(shift) ++ Seq(Seq.empty),
-                clauseIdx + 1 - shift
-              ).isEmpty => cand // prefer alternatives that need no eta expansion
-          }
-      } else effectiveApplicable
+      if (applicable.isEmpty) {
+        //Overloading resolution is tried twice, first with expected type (for the whole call), then
+        //if no applicable alternatives are found without the expected type.
+        //Only tried when processing the last (in scala 2 the only) argument clause, since
+        //there is no point in checking expected type conformance on every iteration.
+        if (withExpectedType && isLastClause) {
+          val withoutExpected           = candidatesForArgClause(prevResults, clauseIdx, withExpectedType = false)
+          val applicableWithoutExpected = withoutExpected.filter(_.isApplicable())
+
+          /**
+           * If we can't get an applicable resolve result even w/o an expected type,
+           * return mapped (with expected type), because it's more intuitive, when displaying errors to user.
+           */
+          if (applicableWithoutExpected.isEmpty) checkedResults
+          else                                   applicableWithoutExpected
+        } else checkedResults
+      } else if (useScala3OverloadingRules && applicable.size > 1) {
+        if (clauseIdx < maxArgClauseIdx) {
+          applicable.foreach(_.resetTypeArgsFlag())
+          candidatesForArgClause(applicable, clauseIdx + 1, withExpectedType)
+        } else {
+          //prefer candidates that do not need eta-expansion
+          val noEtaExpansion =
+            applicable.filterNot(needsEtaExpansion(_, argumentClauses, clauseIdx))
+
+          if (noEtaExpansion.nonEmpty) noEtaExpansion
+          else                         applicable
+        }
+      } else applicable
     }
 
-    candidatesForArgClause(input.map(_ -> 0), 0)
+    val applicabilityCandidates = input.map(ApplicabilityCandidate(_))
+    val results                 = candidatesForArgClause(applicabilityCandidates, 0, withExpectedType = true)
+
+    results.map(_.resolveResult)
   }
+
+  //Checks if there's (at least) one more non-implicit argument clause ahead.
+  private def needsEtaExpansion(
+    cand:            ApplicabilityCandidate,
+    argumentClauses: Seq[Seq[Expression]],
+    clauseIdx:       Int
+  ): Boolean =
+    Compatibility.correspondingParamClause(
+      cand.resolveResult.functionParamClauses,
+      argumentClauses.drop(cand.shift) ++ Seq(Seq.empty),
+      clauseIdx + 1 - cand.shift
+    ).nonEmpty
 
   private def candidates(
     proc:            MethodResolveProcessor,
-    preselected:     Set[(ScalaResolveResult, Boolean)],
+    preselected:     Set[ApplicabilityCandidate],
     argumentClauses: Seq[Seq[Expression]],
-    argClauseIdx:    Int,
-    useExpectedType: Boolean = true
-  ): Set[ScalaResolveResult] = {
-    import proc.{argumentClauses => _, candidates => _, _}
+    clauseIdx:       Int,
+    useExpectedType: Boolean
+  ): Set[ApplicabilityCandidate] = {
+    import proc.{candidates => _, _}
 
-    def applicableResults(cands: Set[(ScalaResolveResult, Boolean)]): Set[ScalaResolveResult] =
-      cands.collect { case (srr, _) if srr.isApplicable(withExpectedType = useExpectedType) => srr }
+    def applicableResults(cands: Set[ApplicabilityCandidate]): Set[ApplicabilityCandidate] =
+      cands.collect { case cand if cand.isApplicable(withExpectedType = useExpectedType) => cand }
 
     var mapped = checkResultsApplicability(
       proc,
@@ -721,7 +867,7 @@ object MethodResolveProcessor {
       checkWithImplicits = false,
       useExpectedType    = useExpectedType,
       args               = argumentClauses,
-      argClauseIdx       = argClauseIdx
+      argClauseIdx       = clauseIdx
     )
 
     var filtered = applicableResults(mapped)
@@ -736,7 +882,7 @@ object MethodResolveProcessor {
         checkWithImplicits = true,
         useExpectedType    = useExpectedType,
         args               = argumentClauses,
-        argClauseIdx       = argClauseIdx
+        argClauseIdx       = clauseIdx
       )
 
       filtered = applicableResults(mapped)
@@ -746,7 +892,7 @@ object MethodResolveProcessor {
      * Remove default parameters alternatives (in Scala 2 only)
      */
     if (filtered.size > 1 && !isShapeResolve && !useScala3OverloadingRules)
-      filtered = filtered.filterNot(_.defaultParameterUsed)
+      filtered = filtered.filterNot(_.usesDefaultParameterValue)
 
     /**
      * SCL-24823: Prefer alternatives applicable without SAM adaptation.
@@ -754,8 +900,7 @@ object MethodResolveProcessor {
      * the directly applicable ones win.
      */
     if (filtered.size > 1 && !isShapeResolve) {
-      val nonSAM = filtered.filterNot(_.samAdapted)
-
+      val nonSAM = filtered.filterNot(_.usesSAMAdaptation)
       if (nonSAM.nonEmpty) filtered = nonSAM
     }
 
@@ -778,82 +923,73 @@ object MethodResolveProcessor {
             checkWithImplicits = true,
             useExpectedType    = false,
             args               = argsTupled.toList,
-            argClauseIdx       = argClauseIdx
-          ).map { case (srr, _) =>
-            srr.copy(tuplingUsed = true)
-          }
+            argClauseIdx       = clauseIdx
+          ).map(cand =>
+            cand.copy(
+              resolveResult = cand.resolveResult.copy(tuplingUsed = true), //@TODO: remove
+              usesAutoTupling = true
+            )
+          )
 
         filtered = candsWithTupledArgs.filter(_.isApplicable())
       }
     }
 
-  if (filtered.isEmpty) {
-      //@TODO: does it make sense to retry every clause w/o expected type?
-      if (useExpectedType && argClauseIdx == 0) {
-        val withoutExpectedType = candidates(
-          proc,
-          preselected,
-          argumentClauses,
-          argClauseIdx,
-          useExpectedType = false
-        )
+    if (filtered.isEmpty) mapped
+    else {
+      val valueArgClauseAtIdx = argumentClauses.lift(clauseIdx) //beware, this can be empty, e.g. def foo(a: Int)[B]: Int = 123, clauseIdx := 1
+      val len                 = valueArgClauseAtIdx.fold(0)(_.length)
 
-        /**
-         * If we can't get an applicable resolve result even w/o an expected type,
-         * return mapped (with expected type), because it's more intuitive, when displaying errors to user.
-         */
-        if (withoutExpectedType.exists(_.isApplicable())) withoutExpectedType
-        else                                              mapped.map(_._1)
-      } else mapped.map(_._1)
-    } else {
-      val len =
-        if (argumentClauses.isEmpty) 0
-        else                         argumentClauses(argClauseIdx).length
-
-      if (filtered.size == 1) filtered
+      if (filtered.size == 1)     filtered
       else {
+
         // If there are still multiple results, try to select...
         // - the most specific normal methods first
         // - then the most specific extension methods
         // - and lastly, the most specific methods from implicit conversions
         // If none of these yields an unambiguous result, return all results
-        val normalMethods = Set.newBuilder[ScalaResolveResult]
-        val extensionMethods = Set.newBuilder[ScalaResolveResult]
-        val implicitMethods = Set.newBuilder[ScalaResolveResult]
+        val normalMethods    = Set.newBuilder[ApplicabilityCandidate]
+        val extensionMethods = Set.newBuilder[ApplicabilityCandidate]
+        val implicitMethods  = Set.newBuilder[ApplicabilityCandidate]
 
-        for (rr <- filtered) {
-          // Extensions from givens have the same precedence than methods from implicit conversions
-          if (rr.implicitConversion.isDefined || rr.isExtensionFromGiven) implicitMethods += rr
-          else if (rr.isExtensionCall) extensionMethods += rr
-          else normalMethods += rr
+        for (cand <- filtered) {
+          val rr = cand.resolveResult
+          // Extensions from givens have the same precedence as methods from implicit conversions
+          if (rr.implicitConversion.isDefined || rr.isExtensionFromGiven) implicitMethods  += cand
+          else if (rr.isExtensionCall)                                    extensionMethods += cand
+          else                                                            normalMethods    += cand
         }
 
         val mostSpecificUtil = MostSpecificUtil(ref, len)
 
         def selectMostSpecificOr(
-          candidates:              Set[ScalaResolveResult],
-          orElse:                  =>Set[ScalaResolveResult],
+          candidates:              Set[ApplicabilityCandidate],
+          orElse:                  =>Set[ApplicabilityCandidate],
           isForImplicitResolution: Boolean
-        ): Set[ScalaResolveResult] =
+        ): Set[ApplicabilityCandidate] =
           if (candidates.sizeIs == 1) candidates
           else {
             val candidatesWithRespectiveParamClause =
               candidates.map { cand =>
+                val srr = cand.resolveResult
+
                 val paramClause =
                   Compatibility.correspondingParamClause(
-                    cand.functionParamClauses,
-                    argumentClauses,
-                    argClauseIdx
+                    srr.functionParamClauses,
+                    argumentClauses.drop(cand.shift),
+                    cand.effectiveClauseIdx(clauseIdx)
                   )
 
-                (cand, paramClause)
+                (srr, paramClause)
               }
 
             mostSpecificUtil.mostSpecificForParameterClause(
               candidatesWithRespectiveParamClause,
               isForImplicitResolution
             ) match {
-              case Some(rr) => Set(rr)
+              case Some(rr) =>
+                val correspondingCandidate = candidates.find(_.resolveResult == rr)
+                correspondingCandidate.toSet
               case None => orElse
             }
           }
@@ -876,106 +1012,115 @@ object MethodResolveProcessor {
   }
 
   private def callContextForClauseIdx(
-    ref:       PsiElement,
-    clauseIdx: Int,
-    hasArgs:   Boolean
-  ): Option[MethodInvocation] = {
-    val base = ref.getContext match {
-      case gen: ScGenericCall if hasArgs => gen.getContext
-      case other                         => other
-    }
+    ref:                       PsiElement,
+    clauseIdx:                 Int,
+    exhaustedTypeParamClauses: Boolean
+  ): PsiElement = {
 
     @tailrec
-    def traverse(ctx: PsiElement, remaining: Int): Option[MethodInvocation] =
-      if (remaining <= 0) ctx.asOptionOf[MethodInvocation]
-      else ctx match {
-        case inv: MethodInvocation => traverse(inv.getContext, remaining - 1)
-        case _                     => None
+    def traverse(ctx: PsiElement, remaining: Int): PsiElement = {
+      if (remaining <= 0) {
+        ctx match {
+          case gen: ScGenericCall if exhaustedTypeParamClauses => gen.referencedExpr
+          case other                                           => other
+        }
+      } else ctx.getContext match {
+        case null =>
+          ctx
+        case (_: ScGenericCall) contextChildOf (inv: MethodInvocation) => traverse(inv, remaining - 1)
+        case gen: ScGenericCall                                        => traverse(gen, remaining - 1)
+        case inv: MethodInvocation                                     => traverse(inv, remaining - 1)
+        case other                                                     => traverse(other.getContext, remaining)
       }
+    }
 
-    traverse(base, clauseIdx)
+    traverse(ref, clauseIdx)
   }
 
   private def expandApplyForReturnType(
-    r:         ScalaResolveResult,
-    proc:      MethodResolveProcessor,
-    clauseIdx: Int
-  ): Set[(ScalaResolveResult, Boolean)] = {
+    cand:                      ApplicabilityCandidate,
+    proc:                      MethodResolveProcessor,
+    clauseIdx:                 Int,
+    exhaustedTypeParamClauses: Boolean
+  ): Set[ApplicabilityCandidate] = {
     import proc._
+    val initialRR = cand.resolveResult
 
-    val returnType: Option[ScType] = r.element match {
-      case fun: ScFunction => fun.returnType.toOption.map(r.substitutor(_))
-      case m: PsiMethod    => Option(m.getReturnType).map(_.toScType()).map(r.substitutor(_))
-      case _               => None
+    val constraintsSubst = initialRR.applicabilityConstraints.substOrEmpty
+    val subst            = initialRR.substitutor.followed(constraintsSubst)
+
+    val returnType = initialRR.element match {
+      case m: PsiMethod => Option(m.getReturnType).map(_.toScType()).map(subst)
+      case _            => None
     }
 
     returnType.map { tp =>
-      val callCtx = callContextForClauseIdx(ref, clauseIdx, argumentClauses.nonEmpty)
+      val callCtx = callContextForClauseIdx(ref, clauseIdx, exhaustedTypeParamClauses)
 
-      val applyCandidates = callCtx.toArray.flatMap { call =>
-        call.resolveApplyOrUpdateMethod(
-          call, tp,
+      val applyCandidates =
+        callCtx.resolveApplyOrUpdateMethod(
+          callCtx,
+          tp,
           shapesOnly    = isShapeResolve,
-          stripTypeArgs = false,
           withImplicits = false
         )
-      }
 
       applyCandidates.collect {
-        case rr if !accessibility || isAccessible(rr.element, ref) =>
-          (rr.copy(
-            innerResolveResult = Option(r),
-            parentElement      = r.element.toOption,
-            importsUsed        = r.importsUsed
-          ), false)
+        case applyRR if !accessibility || isAccessible(applyRR.element, ref) =>
+          val topLevelApply = applyRR.mostInnerResolveResult
+
+          cand.copy(
+            resolveResult = topLevelApply.copy(
+              innerResolveResult       = Option(initialRR),
+              parentElement            = initialRR.element.toOption,
+              importsUsed              = initialRR.importsUsed,
+              unresolvedTypeParameters = initialRR.unresolvedTypeParameters
+            ),
+            stripTypeArgs = !exhaustedTypeParamClauses
+          )
       }.toSet
     }.getOrElse(Set.empty)
   }
 
+  /**
+   * This method is only called, when processing candidate expansion at the first parameter clause.
+   * See also: [[expandApplyForReturnType()]].
+   */
   private def expandApplyOrUpdateMethod(
-    r:         ScalaResolveResult,
-    proc:      MethodResolveProcessor,
-    clauseIdx: Int
-  ): Set[(ScalaResolveResult, Boolean)] = {
+    cand: ApplicabilityCandidate,
+    proc: MethodResolveProcessor
+  ): Set[ApplicabilityCandidate] = {
     import proc._
+    val noExpansion        = Set(cand)
+    val r                  = cand.resolveResult
+    val typeArgs           = typeArgsForArgClause(0)
+    val args               = valueArgsForArgClause(0)
+    val typeParams         = typeParametersForArgClause(r.element, 0, r.isExtensionCall, r.exportedInExtension).getOrElse(Seq.empty)
+    val typeArgsSubst      = ScSubstitutor.bind(typeParams, typeArgs)
+    val subst              = r.substitutor.followed(typeArgsSubst)
+    val mismatchedTypeArgs = typeParams.isEmpty && typeArgs.nonEmpty
 
-    val noExpansion = Set((r, false))
-
-    def invocationInfo(e: PsiNamedElement): (ScSubstitutor, Seq[TypeParameter]) = e match {
-      case _ if clauseIdx != 0 => (r.substitutor, Seq.empty)
-      case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-        val tparams = owner.typeParameters.map(TypeParameter(_))
-        val subst   = ScSubstitutor.bind(tparams, typeArgElements)
-        (r.substitutor.followed(subst), tparams)
-      case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-        val tparams = owner.getTypeParameters.instantiate
-        val subst   = ScSubstitutor.bind(tparams, typeArgElements)
-        (r.substitutor.followed(subst), tparams)
-      case _ => (r.substitutor, Seq.empty)
-    }
-
-    def applyOrUpdateMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
-      val (substitutor, initialResolveTparams) = invocationInfo(r.element)
-      val cleanTypeArguments                   = initialResolveTparams.nonEmpty
+    def applyOrUpdateMethodsFor(tp: ScType): Set[ApplicabilityCandidate] = {
+      val cleanTypeArguments = typeParams.nonEmpty
 
       val curriedTypeParams  =
-        if (initialResolveTparams.nonEmpty && typeArgElements.isEmpty) initialResolveTparams
-        else                                                           Seq.empty
+        if (typeParams.nonEmpty && typeArgs.isEmpty) typeParams
+        else                                         Seq.empty
 
       val callContext = ref.getContext match {
-        case inv: MethodInvocation => inv.toOption
+        case _: MethodInvocation => ref.toOption
         case gen: ScGenericCall =>
-          if (argumentClauses.nonEmpty) gen.getContext.asOptionOf[MethodInvocation]
-          else                          gen.toOption
-        case _ => None
+          if (typeParams.nonEmpty) gen.toOption // foo[A](123) = foo[A].apply(123) case
+          else                     ref.toOption //             = foo.apply[A](123) case
+        case paren: ScParenthesisedExpr => paren.toOption
+        case _                          => None
       }
 
       val applyCandidates = callContext.toArray.flatMap(e =>
         e.resolveApplyOrUpdateMethod(
           e,
-          substitutor(tp),
+          subst(tp),
           shapesOnly    = isShapeResolve,
-          stripTypeArgs = cleanTypeArguments,
           withImplicits = false
         )
       )
@@ -985,38 +1130,37 @@ object MethodResolveProcessor {
       else
         applyCandidates.view.collect {
           case rr if !accessibility || isAccessible(rr.element, ref) =>
-            if (clauseIdx == 0) {
-              val unresolvedTypeParameters =
-                if (curriedTypeParams.nonEmpty)
-                  Option(rr.unresolvedTypeParameters.fold(curriedTypeParams)(_ ++ curriedTypeParams))
-                else
-                  rr.unresolvedTypeParameters
+            val unresolvedTypeParameters =
+              if (curriedTypeParams.nonEmpty)
+                Option(rr.unresolvedTypeParameters.fold(curriedTypeParams)(_ ++ curriedTypeParams))
+              else
+                rr.unresolvedTypeParameters
 
-              (rr.copy(
+            cand.copy(
+              resolveResult = rr.copy(
                 innerResolveResult       = Option(r),
                 parentElement            = r.element.toOption,
                 importsUsed              = r.importsUsed,
                 unresolvedTypeParameters = unresolvedTypeParameters
-              ), cleanTypeArguments)
-            } else
-              rr -> false
+              ),
+              stripTypeArgs = cleanTypeArguments
+            )
         }.toSet
     }
 
-    if (argumentClauses.isEmpty && typeArgElements.isEmpty || r.name == CommonNames.Apply)
+    if (args.isEmpty && typeArgs.isEmpty || r.name == CommonNames.Apply)
       noExpansion
     else {
-      val hasParams          = r.elementHasParameters || r.element.asOptionOf[ScFunction].exists(_.hasEmptyParenSuperMethod)
-      val mismatchedTypeArgs = !r.elementHasTypeParameters && typeArgElements.nonEmpty
+      val hasParams = r.elementHasParameters || r.element.asOptionOf[ScFunction].exists(_.hasEmptyParenSuperMethod)
 
       r.element match {
         case synthetic: ScSyntheticFunction =>
-          if (!hasParams && (argumentClauses.nonEmpty || mismatchedTypeArgs))
+          if (!hasParams && (args.nonEmpty || mismatchedTypeArgs))
             applyOrUpdateMethodsFor(synthetic.polymorphicType())
           else
             noExpansion
         case f: PsiMethod =>
-          if (!hasParams && (argumentClauses.nonEmpty || mismatchedTypeArgs))
+          if (!hasParams && (args.nonEmpty || mismatchedTypeArgs))
             applyOrUpdateMethodsFor(
               f.methodTypeProvider(proc.ref.elementScope)
                .polymorphicType(dropExtensionClauses = r.isExtensionCall)
@@ -1041,62 +1185,49 @@ object MethodResolveProcessor {
   }
 
   private def checkResultsApplicability(
-    proc:               MethodResolveProcessor,
-    expandedInput:      Set[(ScalaResolveResult, Boolean)],
-    checkWithImplicits: Boolean,
-    useExpectedType:    Boolean,
-    args:               Seq[Seq[Expression]],
-    argClauseIdx:       Int,
-    shapesOnly:         Boolean = false,
-  ): Set[(ScalaResolveResult, Boolean)] = {
-    import proc.{argumentClauses => _, _}
+    proc:                  MethodResolveProcessor,
+    expandedInput:         Set[ApplicabilityCandidate],
+    checkWithImplicits:    Boolean,
+    useExpectedType:       Boolean,
+    args:                  Seq[Seq[Expression]],
+    argClauseIdx:          Int,
+    shapesOnly:            Boolean = false,
+  ): Set[ApplicabilityCandidate] = {
+    import proc._
 
-    val resultBuilder = Set.newBuilder[(ScalaResolveResult, Boolean)]
+    val resultBuilder = Set.newBuilder[ApplicabilityCandidate]
     val iterator      = expandedInput.iterator
 
     while (iterator.hasNext) {
-      val (cand, cleanTypeArgs) = iterator.next()
+      val applicabilityCandidate = iterator.next()
+      val currentClauseTypeArgs  = typeArgsForArgClause(argClauseIdx)
+      val currentClauseArgs      = valueArgsForArgClause(argClauseIdx)
 
       val actualTypeArgs =
-        if (cleanTypeArgs) Seq.empty
-        else               typeArgElements
+        if (applicabilityCandidate.stripTypeArgs) Seq.empty
+        else                                      currentClauseTypeArgs
 
-      val conformanceResult = problemsFor(
+      val isLastClause =
+        !useScala3OverloadingRules || // we only check the first clause in scala 2
+          argClauseIdx == Math.max(invocationClauses.size - 1, 0)
+
+      val checkedCandidate = updateCandidateWithApplicabilityProblems(
         getPlace,
-        cand,
+        applicabilityCandidate,
         checkWithImplicits,
-        ref,
         args,
         actualTypeArgs,
+        currentClauseArgs,
         prevTypeInfo,
         if (useExpectedType) expectedOption else () => None,
         selfConstructorResolve = selfConstructorResolve,
         isUnderscore           = isUnderscore,
         shapesOnly             = shapesOnly,
-        argClauseIdx           = argClauseIdx
+        argClauseIdx           = argClauseIdx,
+        isLastClause           = isLastClause
       )
 
-      val typeArgsSubst =
-        if (actualTypeArgs.isEmpty) cand.substitutor
-        else
-          undefinedOrTypeArgsSubstitutor(
-            cand.element,
-            cand.substitutor,
-            selfConstructorResolve,
-            actualTypeArgs,
-            cand.isExtensionCall,
-            cand.exportedInExtension
-          )
-
-      val result = cand.copy(
-        problems                 = conformanceResult.problems,
-        defaultParameterUsed     = conformanceResult.defaultParameterUsed,
-        applicabilityConstraints = Option(conformanceResult.constraints),
-        subst                    = typeArgsSubst,
-        samAdapted               = conformanceResult.matched.exists(_.samAdapted)
-      )
-
-      resultBuilder += result -> cleanTypeArgs
+      resultBuilder += checkedCandidate
     }
     resultBuilder.result()
   }
@@ -1108,4 +1239,208 @@ object MethodResolveProcessor {
     method.parameterList.clauses.exists {
       _.parameters.dropRight(1).exists(_.isRepeatedParameter)
     }
+
+  case class InvocationClause(
+    targs: Option[Seq[ScTypeArgument]] = None,
+    args:  Option[Seq[Expression]]     = None
+  ) {
+    assert(targs.isDefined || args.isDefined, "Either type args or value args must be defined")
+  }
+
+  object InvocationClause {
+    def argsOnly(args: Seq[Expression]): InvocationClause = InvocationClause(args = args.toOption)
+  }
+
+  case class InvocationInfo(
+    invocationClauses: Seq[InvocationClause],
+    expectedType:      () => Option[ScType],
+    isUnderscore:      Boolean,
+    invokedExpr:       Option[ScExpression]
+  )
+
+  private def typeArgClause(typeArgs: Option[Seq[ScTypeArgument]]): Option[InvocationClause] =
+    if (typeArgs.nonEmpty) InvocationClause(targs = typeArgs).toOption
+    else                   None
+
+  @tailrec
+  def getInvocationInfo(
+    ref:               PsiElement,
+    e:                 PsiElement,
+    invocationClauses: Seq[InvocationClause]       = Seq.empty,
+    typeArgs:          Option[Seq[ScTypeArgument]] = None,
+  ): InvocationInfo =
+    e.getContext match {
+      case generic: ScGenericCall if generic.referencedExpr == e =>
+        val newTypeArgs = Option.when(generic.typeArguments.nonEmpty)(generic.typeArguments)
+
+        if (typeArgs.isDefined) {
+          //foo[A][B] case, since we cannot have back to back type parameter clauses,
+          //the only option here is an expanded apply call foo[A].apply[B],
+          //this is arguably a separate invocation altogether, so just short circuit here.
+          //Otherwise, we end up with weird scenarios, e.g. typeOf(foo[A]) == typeOf(foo[A][B])
+          //since they would resolve to the same apply method.
+          val clause = typeArgClause(typeArgs)
+
+          InvocationInfo(
+            invocationClauses ++ clause,
+            () => generic.expectedType(),
+            isUnderscore = false,
+            generic.referencedExpr.toOption
+          )
+        } else
+          getInvocationInfo(
+            ref,
+            generic,
+            invocationClauses,
+            typeArgs = newTypeArgs,
+          )
+      case call: ScMethodCall if !call.isUpdateCall && call.getInvokedExpr == e =>
+        val clause =
+          InvocationClause(
+            args  = call.argumentExpressions.toOption,
+            targs = typeArgs
+          )
+
+        getInvocationInfo(
+          ref,
+          call,
+          invocationClauses :+ clause,
+          typeArgs = None,
+        )
+      case call: ScMethodCall if call.getInvokedExpr == e =>
+        val args = call.argumentExpressions ++
+          call.getContext.asInstanceOf[ScAssignment].rightExpression.toList
+
+        val clause =
+          InvocationClause(
+            args = args.toOption,
+            targs = typeArgs
+          )
+
+        getInvocationInfo(
+          ref,
+          call,
+          invocationClauses :+ clause,
+          typeArgs = None,
+        )
+      case section: ScUnderscoreSection =>
+        val finalClause = typeArgClause(typeArgs)
+
+        InvocationInfo(
+          invocationClauses ++ finalClause,
+          () => section.expectedType(),
+          isUnderscore = true,
+          None
+        )
+      case infix @ ScInfixExpr.withAssoc(baseExpr, `ref`, argument) =>
+        val args =
+          argument match {
+            case tuple: ScTuple         => Option(tuple.exprs) // See SCL-2001
+            case _: ScUnitExpr          => Option(Seq.empty) // See SCL-3485
+            case e: ScParenthesisedExpr =>
+              e.innerElement match {
+                case Some(expr)           => Option(Seq(expr))
+                case _                    => None
+              }
+            case rOp => Option(Seq(rOp))
+          }
+
+        //        val postFixRef =
+        //          ScalaPsiElementFactory.createExpressionWithContextFromText(s"${baseExpr.getText} ${ref.getText}", infix)
+
+        val clause =
+          InvocationClause(
+            args = args,
+            targs = typeArgs
+          )
+
+        getInvocationInfo(
+          ref,
+          infix,
+          invocationClauses :+ clause,
+          typeArgs = None,
+        )
+      //        ContextInfo(
+      //          invocationClauses,
+      //          () => infix.expectedType(),
+      //          isUnderscore = false,
+      //          Option(postFixRef)
+      //        )
+      case parents: ScParenthesisedExpr                   => getInvocationInfo(ref, parents, invocationClauses, typeArgs)
+      case postf: ScPostfixExpr if ref == postf.operation => getInvocationInfo(ref, postf, invocationClauses, typeArgs)
+      case pref: ScPrefixExpr if ref == pref.operation    => getInvocationInfo(ref, pref, invocationClauses, typeArgs)
+      case _ =>
+        val finalClause = typeArgClause(typeArgs)
+
+        val expectedType = () => e match {
+          case expr: ScExpression => expr.expectedType()
+          case _                  => None
+        }
+
+        InvocationInfo(
+          invocationClauses ++ finalClause,
+          expectedType,
+          isUnderscore = false,
+          None
+        )
+    }
+
+
+  /**
+   * Intermediate representation of a [[ScalaResolveResult]] going through a
+   * clause-by-clause applicability checks.
+   *
+   * @param processedTypeParams       All type parameters processed up to this point.
+   *                                  e.g.
+   *                                  {{{
+   *                                    def foo[A](a: A)[B](b: B)[C](c: C): Int = 1
+   *                                  }}}
+   *                                  At [[currentClauseIdx]] == 2, processing `[C](c: C)`,
+   *                                  [[processedTypeParams]] would be `Seq(A, B)`.
+   * @param shift                     If [[resolveResult]] is an apply/update method expansion — the invocation clause index
+   *                                  at which it was expanded, e.g.
+   *                                  {{{
+   *                                    class Foo { def apply(x: Int) = 1 }
+   *                                    def foo(x: Int): Foo = 2
+   *                                    foo(1)(2)
+   *                                  }}}
+   *                                  At [[currentClauseIdx]] == 1 [[resolveResult]] would be an `apply` method on `Foo` and [[shift]]
+   *                                  would be 1. Thus, effective invocation clause index is always [[currentClauseIdx]] - [[shift]].
+   * @param stripTypeArgs             True if [[resolveResult]] is an apply/update method expansion and type arguments of the current invocation
+   *                                  clause do NOT belong to it (but rather to the method whose result type was expanded), False otherwise.
+   *                                  e.g.
+   *                                  {{{
+   *                                    class Foo[A] { def apply(x: A): Int = 1 }
+   *                                    def foo[A]: Foo[A] = ???
+   *                                    foo[Int](1)
+   *                                  }}}
+   *                                  Here `[Int]` type argument clause belongs to the `foo` method, not to `apply` [[resolveResult]].
+   * @param usesSAMAdaptation         Whether this candidate was only applicable through SAM
+   *                                  (Single Abstract Method) type adaptation. Used in overload resolution
+   *                                  to prefer alternatives that are directly applicable over SAM-adapted ones.
+   * @param usesDefaultParameterValue Whether applicability required default parameter values
+   *                                  to fill missing arguments. Used in overload resolution
+   *                                  (Scala 2 prefers alternatives without defaults).
+   * @param usesAutoTupling           Whether auto-tupling was needed to make the call applicable.
+   *                                  {{{
+   *                                  def f(t: (Int, Int)): Unit = ...
+   *                                  f(1, 2)  // auto-tupled to f((1, 2));
+   *                                  }}}
+   */
+  private case class ApplicabilityCandidate(
+    resolveResult:             ScalaResolveResult,
+    processedTypeParams:       Seq[TypeParameter]       = Seq.empty,
+    shift:                     Int                      = 0,
+    var stripTypeArgs:         Boolean                  = false,
+    usesSAMAdaptation:         Boolean                  = false,
+    usesDefaultParameterValue: Boolean                  = false,
+    usesAutoTupling:           Boolean                  = false
+  ) {
+    def effectiveClauseIdx(globalClauseIdx: Int): Int = globalClauseIdx - shift
+
+    def isApplicable(withExpectedType: Boolean = false): Boolean =
+      resolveResult.isApplicable(withExpectedType)
+
+    def resetTypeArgsFlag(): Unit = stripTypeArgs = false
+  }
 }

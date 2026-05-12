@@ -329,7 +329,6 @@ object DerivesUtil {
       "derived",
       List.empty,
       Seq.empty,
-      Seq.empty,
       isShapeResolve = false,
     )
 

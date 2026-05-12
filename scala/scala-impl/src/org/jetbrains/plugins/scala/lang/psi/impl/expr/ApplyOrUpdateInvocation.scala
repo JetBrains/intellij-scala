@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
@@ -10,15 +11,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.getDynamicNameForMethodInvocation
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(
-  argClauses:        List[Seq[ScExpression]],
-  baseExpr:          ScExpression,
+  argClauses:        Seq[InvocationClause],
+  baseExpr:          PsiElement,
   targetType:        ScType,
   curriedTypeParams: Seq[TypeParameter],
-  typeArgs:          Seq[ScTypeArgument],
   expectedType:      () => Option[ScType],
   isDynamic:         Boolean,
   isUpdate:          Boolean
@@ -31,7 +33,6 @@ case class ApplyOrUpdateInvocation(
       baseExpr,
       methodName,
       argClauses,
-      typeArgs,
       curriedTypeParams,
       expectedOption    = expectedType,
       isShapeResolve    = isShape,
@@ -71,9 +72,11 @@ case class ApplyOrUpdateInvocation(
   }
 
   private def methodName =
-    if (isUpdate)       CommonNames.Update
-    else if (isDynamic) getDynamicNameForMethodInvocation(argClauses.flatten)
-    else                CommonNames.Apply
+    if (isUpdate) CommonNames.Update
+    else if (isDynamic) {
+      val valueArgs = argClauses.collect { case InvocationClause(_, Some(args)) => args }.flatten
+      getDynamicNameForMethodInvocation(valueArgs)
+    } else CommonNames.Apply
 
   private def candidatesFromType(processor: MethodResolveProcessor, fromType: ScType): Set[ScalaResolveResult] = {
     processor.processType(fromType, baseExpr, ScalaResolveState.withFromType(fromType))
@@ -83,51 +86,38 @@ case class ApplyOrUpdateInvocation(
 
 object ApplyOrUpdateInvocation {
   def apply(
-    gen:           ScGenericCall,
-    tp:            ScType,
-    isDynamic:     Boolean,
-    stripTypeArgs: Boolean
-  ): ApplyOrUpdateInvocation = {
-    ApplyOrUpdateInvocation(
-      List.empty,
-      gen.referencedExpr,
-      if (stripTypeArgs) unpackPolyType(tp)._1 else tp,
-      Seq.empty,
-      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArguments,
-      () => gen.expectedType(),
-      isDynamic = isDynamic,
-      isUpdate = false
-    )
-  }
+    call:      PsiElement,
+    tp:        ScType,
+    isDynamic: Boolean,
+  ): Option[ApplyOrUpdateInvocation] = {
+    val isUpdateCall = call.getContext match {
+      case inv: MethodInvocation => inv.isUpdateCall
+      case _                     => false
+    }
 
-  def apply(
-    call:           MethodInvocation,
-    tp:             ScType,
-    isDynamic:      Boolean,
-    stripTypeArgs:  Boolean
-  ): ApplyOrUpdateInvocation = {
-    val argClauses = argumentClauses(call, isDynamic)
+    val contextInfo                     = MethodResolveProcessor.getInvocationInfo(call, call)
+    val (targetType, curriedTypeParams) = unpackPolyType(tp)
 
-    val (baseExpr, baseTp, curriedTypeParams, typeArgs) =
-      call.getEffectiveInvokedExpr match {
-        case gen: ScGenericCall =>
-          if (stripTypeArgs) (gen, unpackPolyType(tp)._1, Seq.empty, Seq.empty)
-          else               (gen.referencedExpr, tp, Seq.empty, gen.typeArguments)
-        case expression =>
-          val (targetType, curried) = unpackPolyType(tp)
-          (expression, targetType, curried, Seq.empty)
-      }
+    Option.when(contextInfo.invocationClauses.nonEmpty) {
 
-    ApplyOrUpdateInvocation(
-      argClauses,
-      baseExpr,
-      baseTp,
-      curriedTypeParams,
-      typeArgs,
-      () => call.expectedType(),
-      isDynamic,
-      call.isUpdateCall
-    )
+      val updatedClauses =
+        updateClauseForUpdateOrDynamic(
+          call,
+          isDynamic,
+          isUpdateCall,
+          contextInfo.invocationClauses.head
+        )
+
+      ApplyOrUpdateInvocation(
+        updatedClauses ++ contextInfo.invocationClauses.tail,
+        call,
+        targetType,
+        curriedTypeParams,
+        contextInfo.expectedType,
+        isDynamic,
+        isUpdateCall
+      )
+    }
   }
 
   private def unpackPolyType(tp: ScType): (ScType, Seq[TypeParameter]) = tp match {
@@ -135,22 +125,51 @@ object ApplyOrUpdateInvocation {
     case other                                    => (other, Seq.empty)
   }
 
-  private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[ScExpression]] = {
-    import call.projectContext
+  private def updateClauseForUpdateOrDynamic(
+    call:         PsiElement,
+    isDynamic:    Boolean,
+    isUpdateCall: Boolean,
+    clause:       InvocationClause
+  ): Seq[InvocationClause] = {
+    implicit val projectContext: ProjectContext = call
 
     val newValueForUpdate = call.getContext match {
-      case assign: ScAssignment if call.isUpdateCall =>
+      case assign: ScAssignment if isUpdateCall =>
         val rightExpr = assign.rightExpression
           .getOrElse(createExpressionFromText("scala.Predef.???", call))
-        Seq(rightExpr)
-      case _ => Seq.empty
-    }
-    val arguments = call.argumentExpressions ++ newValueForUpdate
 
-    if (!isDynamic) List(arguments)
+        Option(Seq(rightExpr))
+      case _ => None
+    }
+
+    val arguments = clause.args match {
+      case Some(args) => newValueForUpdate match {
+        case Some(argsForUpdate) => (args ++ argsForUpdate).toOption
+        case None                => args.toOption
+      }
+      case None => newValueForUpdate
+    }
+
+    if (!isDynamic) Seq(clause.copy(args = arguments))
     else {
+      //if the first (non-synthetic) clause has type arguments, they must go along with the
+      //synthetic "method name" argument. Otherwise, in scala 2 we might miss errors/fail in overloaded contexts.
+      val typeArguments         = clause.targs
       val emptyStringExpression = createExpressionFromText("\"\"", call)
-      List(Seq(emptyStringExpression), arguments)
+
+      val syntheticClause =
+        InvocationClause(
+          targs = typeArguments,
+          args  = Seq(emptyStringExpression).toOption
+        )
+
+      //see comment above
+      val modifiedClause =
+        if (typeArguments.isEmpty)     clause.toOption
+        else if (clause.args.nonEmpty) clause.copy(targs = None).toOption
+        else                           None //If the original clause was type-args-only, discard it altogether
+
+      Seq(syntheticClause) ++ modifiedClause
     }
   }
 

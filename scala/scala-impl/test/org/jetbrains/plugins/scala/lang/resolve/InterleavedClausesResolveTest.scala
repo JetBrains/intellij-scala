@@ -1,7 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.lang.annotation.HighlightSeverity
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert._
+
+import scala.jdk.CollectionConverters._
 
 class InterleavedClausesResolveTest extends SimpleResolveTestBase {
 
@@ -30,6 +35,25 @@ class InterleavedClausesResolveTest extends SimpleResolveTestBase {
 
   def test_last_type_parameter_clause_visible_in_return_type(): Unit = doResolveTest(
     s"""def foo[T](x: T)[${REFTGT}U]: ${REFSRC}U = ???"""
+  )
+
+  def test_interleaved_type_arguments_in_method_call_resolve_target(): Unit = doResolveToTargetWithoutProblems(
+    s"""def foo[T](x: T): T = x
+       |def ${REFTGT}foo[T](x: T)[U](u: U): U = u
+       |val x = ${REFSRC}foo[Int](1)[String]("value")""".stripMargin
+  )
+
+  // TODO[SIP-47]: requires cross-clause type-parameter propagation during applicability checks
+  def disabled_interleaved_type_arguments_with_multiple_term_clauses_resolve_target(): Unit = doResolveToTargetWithoutProblems(
+    s"""def foo[T](x: T)[U](u: U): U = u
+       |def ${REFTGT}foo[T](x: T)[U](u: U)(v: T): U = u
+       |val x = ${REFSRC}foo[Int](1)[String]("value")(2)""".stripMargin
+  )
+
+  def test_extension_type_arguments_mapped_by_clause(): Unit = doResolveToTargetWithoutProblems(
+    s"""extension [A](a: A)
+       |  def ${REFTGT}foo[B](b: B): (A, B) = (a, b)
+       |val x = ${REFSRC}foo[Int](1)[String]("value")""".stripMargin
   )
 
   def test_previous_named_context_bound_visible_in_later_term_clause(): Unit = doResolveTest(
@@ -61,4 +85,35 @@ class InterleavedClausesResolveTest extends SimpleResolveTestBase {
     s"""trait TC[A]
        |def foo[T](x: T)[U: TC as ${REFTGT}tc]: ${REFSRC}tc.type = ???""".stripMargin
   )(SrcTgtOptions(targetIsLeaf = true))
+
+  def testTemp(): Unit = throw new RuntimeException()
+
+  private def doResolveToTargetWithoutProblems(source: String)(implicit opts: SrcTgtOptions): Unit = {
+    val (src, expectedTarget) = setupResolveTest(None, source -> "dummy.scala")
+
+    val reference: ScReference = src match {
+      case ref: ScReference => ref
+      case _ =>
+        throw new AssertionError(s"Expected ScReference, got: ${src.getClass.getName}")
+    }
+
+    val resolveResult = reference.bind().orNull
+    assertNotNull("Expected single resolve result", resolveResult)
+    assertEquals(expectedTarget, resolveResult.element)
+    assertTrue(
+      s"Expected no resolve problems, got: ${resolveResult.problems.mkString("(", ", ", ")")}",
+      resolveResult.problems.isEmpty
+    )
+
+    val annotatorErrors = myFixture
+      .doHighlighting()
+      .asScala
+      .filter(_.getSeverity == HighlightSeverity.ERROR)
+      .map(info => s"${info.getDescription} [${info.getStartOffset}, ${info.getEndOffset}]")
+
+    assertTrue(
+      s"Expected no annotator errors, got:\n${annotatorErrors.mkString("\n")}",
+      annotatorErrors.isEmpty
+    )
+  }
 }

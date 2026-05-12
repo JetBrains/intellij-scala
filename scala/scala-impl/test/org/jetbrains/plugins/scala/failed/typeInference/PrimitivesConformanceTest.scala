@@ -5,6 +5,11 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
+  def testSCL12764(): Unit = doTest(
+    """
+      |val head: Array[Byte] = Array(0x0a, ')')
+      |/* True */
+    """.stripMargin)
 
   //SCL-5358
   def testSCL5358(): Unit = assertNoMessages(

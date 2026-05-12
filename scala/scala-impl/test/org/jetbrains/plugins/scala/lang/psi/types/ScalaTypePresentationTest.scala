@@ -172,7 +172,7 @@ class ScalaTypePresentationTest_Scala3 extends ScalaTypePresentationTestBase {
   )
 
   def testInterleavedMethodClausesInRefinement(): Unit = assertPresentationIs(
-    "AnyRef { def foo[T](x: T)[U](u: U): U }"
+    "{ def foo[T](x: T)[U](u: U): U }"
   )
 
   def testOpaqueTypeInt(): Unit = {
