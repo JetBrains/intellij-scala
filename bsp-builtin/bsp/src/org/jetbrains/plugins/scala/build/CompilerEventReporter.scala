@@ -8,7 +8,7 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 import org.jetbrains.plugins.scala.build.BuildMessages.stripAnsiCodes
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, EelPathTranslator}
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.nio.file.Path
@@ -17,6 +17,8 @@ import scala.collection.mutable
 class CompilerEventReporter(project: Project,
                             compilationId: CompilationId)
   extends BuildReporter {
+
+  private val pathTranslator = EelPathTranslator
 
   private val publisher = project.getMessageBus
     .syncPublisher(CompilerEventListener.topic)
@@ -33,7 +35,7 @@ class CompilerEventReporter(project: Project,
       val msg = Client.ClientMsg(
         kind = kind,
         text = stripAnsiCodes(text),
-        source = Some(SerializablePath(pos.getFile.toPath)),
+        source = Some(SerializablePath(pos.getFile.toPath, pathTranslator)),
         pointer = None,
         problemStart = Some(problemStart),
         problemEnd = Some(problemEnd),
@@ -45,14 +47,14 @@ class CompilerEventReporter(project: Project,
     }
 
   private def finishFiles(): Unit = {
-    val event = CompilerEvent.CompilationFinished(compilationId, None, files.map(SerializablePath(_)).toSet)
+    val event = CompilerEvent.CompilationFinished(compilationId, None, files.map(SerializablePath(_, pathTranslator)).toSet)
     publisher.eventReceived(event)
   }
 
   /** Clear any messages associated with file. */
   override def clear(file: Path): Unit = {
     files.add(file)
-    val event = CompilerEvent.CompilationFinished(compilationId, None, Set(SerializablePath(file)))
+    val event = CompilerEvent.CompilationFinished(compilationId, None, Set(SerializablePath(file, pathTranslator)))
     publisher.eventReceived(event)
   }
 

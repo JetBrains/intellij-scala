@@ -81,7 +81,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   }
 
   private def requests(workspace: Path)
-                      (implicit server: BspServer, serverInfo: BuildServerInfo, reporter: BuildReporter)
+                      (using EelDescriptor)
+                      (using server: BspServer, serverInfo: BuildServerInfo, reporter: BuildReporter)
   : CompletableFuture[DataNode[ProjectData]] = {
 
     val structureEventId = BuildMessages.randomEventId
@@ -157,7 +158,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] =
           communication.run(
-            requests(workspace)(using _, _,reporter), 
+            { (server: BspServer, serverInfo: BuildServerInfo) =>
+              requests(workspace)(using eelDescriptor)(using server, serverInfo, reporter)
+            },
             BuildMessages.empty, 
             notifications, 
             reporter.log,

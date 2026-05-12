@@ -5,10 +5,14 @@ import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary.*
 import ch.epfl.scala.bsp4j.*
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ModuleKind, ProjectModules, SourceEntry}
 import org.jetbrains.bsp.project.importing.BspResolverLogic.*
 import org.jetbrains.bsp.project.importing.Generators.*
+import org.jetbrains.bsp.project.importing.Generators.given
+import org.jetbrains.sbt.project.structure.data.InterpretablePath
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}
@@ -21,6 +25,8 @@ import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests]))
 class BspResolverLogicProperties extends Checkers {
+
+  private given EelDescriptor = LocalEelDescriptor.INSTANCE
 
   given Gson = new GsonBuilder().setPrettyPrinting().create()
 
@@ -54,7 +60,7 @@ class BspResolverLogicProperties extends Checkers {
     forAll(genBuildTargetWithScala) { (target: BuildTarget) =>
       forAll { (scalacOptions: Option[ScalacOptionsItem], javacOptions: Option[JavacOptionsItem], depSources: Seq[Path], sources: Seq[SourceEntry], resources: Seq[SourceEntry], outputPaths: Seq[Path], dependencyOutputs: List[Path]) =>
 
-        val description = moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources, sources, resources, outputPaths, dependencyOutputs)
+        val description = moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources.map(InterpretablePath.construct), sources, resources, outputPaths.map(InterpretablePath.construct(_)), dependencyOutputs.map(InterpretablePath.construct(_)))
         val emptyForNOIDE = target.getTags.contains(BuildTargetTag.NO_IDE) ==> description.isEmpty :| "contained NO_IDE tag, but created anyway"
         val definedForBaseDir = target.getBaseDirectory != null ==> description.isDefined :| "base dir defined, but not created"
         val hasScalaModule = description.isDefined ==> description.get.moduleKindData.isInstanceOf[ModuleKind.ScalaModule]
@@ -69,24 +75,29 @@ class BspResolverLogicProperties extends Checkers {
       forAll(Gen.listOf(genSourceDirectoryUnder(basePath)), Gen.listOf(genSourceDirectoryUnder(basePath))) {
         (sourceRoots: List[SourceEntry], resourceRoots: List[SourceEntry]) =>
           forAll { (target: BuildTarget, moduleBase: Option[Path], outputPath: Option[Path], classpath: List[Path], dependencySources: List[Path], outputPaths: List[Path], languageLevel: LanguageLevel) =>
-            val description = createModuleDescriptionData(target, tags, moduleBase, outputPath, sourceRoots, resourceRoots, outputPaths, classpath, dependencySources, Some(languageLevel))
+            val moduleBaseIP = moduleBase.map(InterpretablePath.construct)
+            val outputPathIP = outputPath.map(InterpretablePath.construct)
+            val classpathIP = classpath.map(InterpretablePath.construct)
+            val dependencySourcesIP = dependencySources.map(InterpretablePath.construct)
+            val outputPathsIP = outputPaths.map(InterpretablePath.construct)
+            val description = createModuleDescriptionData(target, tags, moduleBaseIP, outputPathIP, sourceRoots, resourceRoots, outputPathsIP, classpathIP, dependencySourcesIP, Some(languageLevel))
 
-            val p1 = (description.basePath == moduleBase) :| "base path should be set"
+            val p1 = (description.basePath == moduleBaseIP) :| "base path should be set"
             val p2 = (tags.contains(BuildTargetTag.LIBRARY) || tags.contains(BuildTargetTag
               .APPLICATION)) ==>
-              (description.output == outputPath &&
+              (description.output == outputPathIP &&
                 description.targetDependencies == target.getDependencies.asScala &&
-                description.classpathSources == dependencySources &&
+                description.classpathSources == dependencySourcesIP &&
                 description.sourceRoots == sourceRoots &&
-                description.outputPaths == outputPaths &&
-                description.classpath == classpath) :|
+                description.outputPaths == outputPathsIP &&
+                description.classpath == classpathIP) :|
                 s"data not correctly set for library or application tags. Result data was: $description"
             val p3 = tags.contains(BuildTargetTag.TEST) ==>
-              (description.testOutput == outputPath &&
+              (description.testOutput == outputPathIP &&
                 description.targetTestDependencies == target.getDependencies.asScala &&
-                description.testClasspathSources == dependencySources &&
+                description.testClasspathSources == dependencySourcesIP &&
                 description.testSourceRoots == sourceRoots &&
-                description.testClasspath == classpath) :|
+                description.testClasspath == classpathIP) :|
                 s"data not correctly set for test tag. Result data was: $description"
 
             p1 && p2 && p3

@@ -1,13 +1,17 @@
 package org.jetbrains.bsp.project.importing
 
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIdentifier}
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors.ModuleKind
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class BspResolverLogicTest {
+
+  private given EelDescriptor = LocalEelDescriptor.INSTANCE
 
   /** When base dir is empty, only root module is created */
   @Test

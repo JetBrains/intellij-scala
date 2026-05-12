@@ -1,20 +1,22 @@
 package org.jetbrains.bsp.project
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j._
+import ch.epfl.scala.bsp4j.*
 import com.intellij.build.FilePosition
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
-import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.BspUtil.*
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
-import org.jetbrains.plugins.scala.build._
+import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
 
 import java.net.URI
@@ -22,7 +24,7 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import scala.collection.{immutable, mutable}
 import scala.concurrent.{Future, Promise}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -256,7 +258,10 @@ class BspTask[T](project: Project,
     // TODO use params.originId to show tree structure
 
     val uri = params.getTextDocument.getUri.toURI
-    val filePath = Path.of(uri)
+
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val eelPath = EelPath.parse(uri.getPath, eelDescriptor)
+    val filePath = EelNioBridgeServiceKt.asNioPath(eelPath)
 
     val uriDiagnostics = params.getDiagnostics.asScala.toList
     val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)
