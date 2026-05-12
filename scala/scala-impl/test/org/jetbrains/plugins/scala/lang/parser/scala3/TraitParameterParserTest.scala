@@ -35,8 +35,8 @@ class TraitParameterParserTest extends SimpleScala3ParserTestBase {
     "trait Test(arg: Int)[A](a: A)"
   )
 
-  def test_interleaved_type_param_clauses_in_class_constructor_are_disallowed(): Unit = checkHasParserErrors(
-    "class Test(arg: Int)[A](a: A)"
+  def test_interleaved_type_param_clauses_in_class_constructor_are_disallowed(): Unit = checkParseErrors(
+    s"class Test(arg: Int)${err("Interleaved type parameter clauses are not supported in constructors")}[A](a: A)"
   )
 
   def test_with_extends(): Unit = checkParseErrors(
