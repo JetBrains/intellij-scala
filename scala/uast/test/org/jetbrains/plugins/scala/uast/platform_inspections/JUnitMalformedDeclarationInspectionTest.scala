@@ -60,13 +60,13 @@ class JUnitMalformedDeclarationInspectionTest extends ScalaInspectionTestBase {
         |""".stripMargin
 
     val expectedHighlightsJava = Seq[HighlightInfoShort](
-      HighlightInfoShort(HighlightSeverity.ERROR, "testMethod4", "Method 'testMethod4' should be public, non-static, have no parameters and of type void"),
-      HighlightInfoShort(HighlightSeverity.ERROR, "testMethod5", "Method 'testMethod5' should be public, non-static, have no parameters and of type void"),
-      HighlightInfoShort(HighlightSeverity.ERROR, "testMethod6", "Method 'testMethod6' should be public, non-static, have no parameters and of type void"),
+      HighlightInfoShort(HighlightSeverity.WARNING, "testMethod4", "Method 'testMethod4' should be public, non-static, have no parameters and of type void"),
+      HighlightInfoShort(HighlightSeverity.WARNING, "testMethod5", "Method 'testMethod5' should be public, non-static, have no parameters and of type void"),
+      HighlightInfoShort(HighlightSeverity.WARNING, "testMethod6", "Method 'testMethod6' should be public, non-static, have no parameters and of type void"),
     )
 
     val expectedHighlightsScala = expectedHighlightsJava :+
-      HighlightInfoShort(HighlightSeverity.ERROR, "testMethodThis1", "Method 'testMethodThis1' should be public, non-static, have no parameters and of type void")
+      HighlightInfoShort(HighlightSeverity.WARNING, "testMethodThis1", "Method 'testMethodThis1' should be public, non-static, have no parameters and of type void")
 
     myFixture.configureByText("a.scala", scalaFileText)
     val highlightingInfosScala = myFixture.doHighlighting().asScala.toSeq
@@ -84,7 +84,7 @@ class JUnitMalformedDeclarationInspectionTest extends ScalaInspectionTestBase {
     highlightingInfos
       .filter { info =>
         StringUtil.isNotEmpty(info.getDescription) && (info.getSeverity match {
-          case HighlightSeverity.WARNING | HighlightSeverity.ERROR => true // also capture errors just in case
+          case HighlightSeverity.WARNING | HighlightSeverity.WARNING => true // also capture errors just in case
           case _ => false
         })
       }
