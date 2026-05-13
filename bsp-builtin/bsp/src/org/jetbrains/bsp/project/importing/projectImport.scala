@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.importing
 
+import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
@@ -315,7 +316,11 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
     runUnderModalProgressIfIsEdt { (_, continuation) =>
-      new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
+      new BspOpenProjectProvider().openProject(
+        virtualFile,
+        OpenProjectTask.build().withProjectToClose(projectToClose).withForceOpenInNewFrame(forceOpenInNewFrame),
+        continuation
+      )
     }: @nowarn("cat=deprecation")
 }
 
