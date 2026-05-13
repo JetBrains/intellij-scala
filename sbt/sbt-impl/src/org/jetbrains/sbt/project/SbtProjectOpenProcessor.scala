@@ -1,13 +1,13 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
+import com.intellij.ide.impl.ProjectUtilKt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessor
 
 import javax.swing.Icon
-import scala.annotation.nowarn
+import kotlin.coroutines.Continuation
 
 class SbtProjectOpenProcessor extends ProjectOpenProcessor {
 
@@ -18,8 +18,12 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessor {
   override def canOpenProject(file: VirtualFile): Boolean =
     SbtProjectImportProvider.canImport(file)
 
-  override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    runUnderModalProgressIfIsEdt { (_, continuation) =>
-      new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
-    }: @nowarn("cat=deprecation")
+  override def openProjectAsync(virtualFile: VirtualFile,
+                                projectOpenOptions: ProjectOpenProcessor.ProjectOpenOptions,
+                                continuation: Continuation[? >: Project]): AnyRef =
+    new SbtOpenProjectProvider().openProject(
+      virtualFile,
+      ProjectUtilKt.toOpenProjectTask(projectOpenOptions),
+      continuation
+    )
 }

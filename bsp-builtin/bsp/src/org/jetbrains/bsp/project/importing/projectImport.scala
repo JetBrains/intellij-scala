@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.importing
 
-import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
+import com.intellij.ide.impl.ProjectUtilKt
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -31,9 +31,9 @@ import org.jetbrains.bsp.project.importing.bspConfigSteps.*
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
 import org.jetbrains.bsp.project.importing.setup.{BspSetupProvider, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
+import org.jetbrains.bsp.settings.*
 import org.jetbrains.bsp.settings.BspProjectSettings.*
 import org.jetbrains.bsp.settings.PreImportConfig.*
-import org.jetbrains.bsp.settings.*
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
@@ -41,7 +41,7 @@ import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
 import javax.swing.*
-import scala.annotation.nowarn
+import kotlin.coroutines.Continuation
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -184,7 +184,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       )
     }
   }
-  
+
   private def generateBspConfig(
     workspace: Path,
     setupChoices: List[ConfigSetup],
@@ -313,10 +313,14 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
   override def canOpenProject(file: VirtualFile): Boolean =
     BspProjectOpenProcessor.canOpenProject(file)
 
-  override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    runUnderModalProgressIfIsEdt { (_, continuation) =>
-      new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
-    }: @nowarn("cat=deprecation")
+  override def openProjectAsync(virtualFile: VirtualFile,
+                                projectOpenOptions: ProjectOpenProcessor.ProjectOpenOptions,
+                                continuation: Continuation[? >: Project]): AnyRef =
+    new BspOpenProjectProvider().openProject(
+      virtualFile,
+      ProjectUtilKt.toOpenProjectTask(projectOpenOptions),
+      continuation
+    )
 }
 
 object BspProjectOpenProcessor {
