@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell;
+package org.jetbrains.sbt.project;
 
 import com.intellij.openapi.externalSystem.importing.ImportSpec;
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder;

@@ -104,4 +104,13 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
 
     super.tearDown()
   }
+
+  override protected def importProject(): Unit = MyProxy.importProject(
+    getMyProject,
+    getExternalSystemId,
+    getCurrentExternalProjectSettings,
+    getProjectPath,
+    createImportSpec(),
+    handleImportFailure(_, _)
+  )
 }
