@@ -56,4 +56,13 @@ abstract class SbtShellTestBase extends SbtProjectStructureImportingLike {
     processListener = new SbtShellTestUtil.TestSbtShellProcessListener
     myShellProcessHandler.addProcessListener(processListener)
   }
+
+  override protected def importProject(): Unit = MyProxy.importProject(
+    getMyProject,
+    getExternalSystemId,
+    getCurrentExternalProjectSettings,
+    getProjectPath,
+    createImportSpec(),
+    handleImportFailure(_, _)
+  )
 }
