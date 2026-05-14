@@ -14,12 +14,16 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Ref;
+import com.intellij.testFramework.IndexingTestUtil;
+import com.intellij.testFramework.PlatformTestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import static com.intellij.testFramework.EdtTestUtil.runInEdtAndWait;
 
 public class MyProxy {
     public static void importProject(Project project,
@@ -71,5 +75,11 @@ public class MyProxy {
         if (!error.isNull()) {
             handleImportFailure.accept(error.get().first, error.get().second);
         }
+
+        // allow all the invokeLater to pass through the queue, before waiting for indexes to be ready
+        // (specifically, all the invokeLater that schedule indexing after language level change performed by import)
+        runInEdtAndWait(() -> PlatformTestUtil.dispatchAllEventsInIdeEventQueue());
+        IndexingTestUtil.waitUntilIndexesAreReady(project);
+
     }
 }
