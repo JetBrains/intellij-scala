@@ -21,7 +21,6 @@ class RecompileMacroPrinterScript {
   @Test
   def recompileMacroPrinterForScala3(): Unit = {
     runScript(classOf[RecompileMacroPrinter_3_0_0])
-    runScript(classOf[RecompileMacroPrinter_3_8_3])
   }
 }
 
@@ -31,13 +30,6 @@ private object RecompileMacroPrinterScript {
     macroPrinterName = "MacroPrinter_3_0_0"
   ) {
     override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_1_8
-  }
-
-  class RecompileMacroPrinter_3_8_3 extends AbstractRecompileMacroPrinter(
-    scalaVersion = ScalaVersion.fromString("3.8.3-RC1").getOrElse(versionError("3.8.3-RC1")),
-    macroPrinterName = "MacroPrinter_3_8_3"
-  ) {
-    override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
   }
 
   @RunWith(classOf[JUnit4])
