@@ -10,6 +10,7 @@ import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.pom.java.LanguageLevel
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileSystem
@@ -42,8 +43,11 @@ private[importing] object BspResolverLogic {
   private given PathConstructor[String]:
     override def construct(str: String): InterpretablePath = new InterpretablePath(str)
 
-  private def interpretablePathFromUri(uriString: String): InterpretablePath =
-    InterpretablePath.construct(uriString.toURI.getPath)
+  private def interpretablePathFromUri(uriString: String)(using descriptor: EelDescriptor): InterpretablePath =
+    if descriptor == LocalEelDescriptor.INSTANCE then
+      InterpretablePath.construct(Paths.get(uriString.toURI))
+    else
+      InterpretablePath.construct(uriString.toURI.getPath)
 
   private val Log = Logger.getInstance(this.getClass)
 
@@ -262,7 +266,7 @@ private[importing] object BspResolverLogic {
     sourceEntryToIdsWithCollisions.filterNot(e => targetsHaveSameBaseDirs(e._2))
   }
 
-  private def sourceEntries(sourcesItem: SourcesItem): Seq[SourceEntry] = {
+  private def sourceEntries(sourcesItem: SourcesItem)(using EelDescriptor): Seq[SourceEntry] = {
     sourcesItem.getSources.asScala.iterator.distinct.map { item =>
       val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
       val isDirectory = item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/")
@@ -282,7 +286,7 @@ private[importing] object BspResolverLogic {
     }.filter(_.nonEmpty)
   }
 
-  private def sourceEntry(uri: String, generated: Boolean = false): SourceEntry =
+  private def sourceEntry(uri: String, generated: Boolean = false)(using EelDescriptor): SourceEntry =
     SourceEntry(interpretablePathFromUri(uri), isDirectory = uri.endsWith("/"), generated, None)
 
   /**

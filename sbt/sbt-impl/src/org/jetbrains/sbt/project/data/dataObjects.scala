@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityD
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
-import com.intellij.platform.eel.provider.EelNioBridgeServiceKt
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, LocalEelDescriptor}
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -17,7 +17,7 @@ import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqSt
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import java.net.URI
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.{Objects, HashMap as JHashMap, List as JList, Map as JMap, Set as JSet}
 import scala.jdk.CollectionConverters.*
 
@@ -413,8 +413,10 @@ final class MyURI @PropertyMapping(Array("string"))(
     case _ => false
   }
 
-  def toPath(using descriptor: EelDescriptor): Path = {
-    val eelPath = EelPath.parse(uri.getPath, descriptor)
-    EelNioBridgeServiceKt.asNioPath(eelPath)
-  }
+  def toPath(using descriptor: EelDescriptor): Path =
+    if descriptor == LocalEelDescriptor.INSTANCE then
+      Paths.get(uri)
+    else
+      val eelPath = EelPath.parse(uri.getPath, descriptor)
+      EelNioBridgeServiceKt.asNioPath(eelPath)
 }
