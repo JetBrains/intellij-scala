@@ -75,7 +75,6 @@ object WorksheetDefaultSourcePreprocessor {
       if211 = "MacroPrinter211",
       if213 = "MacroPrinter213",
       if300 = "MacroPrinter_3_0_0",
-      if383 = "MacroPrinter_3_8_3",
       default = "MacroPrinter"
     )
     val packageOpt: Option[String] = packageForFile(srcFile)
@@ -147,14 +146,13 @@ object WorksheetDefaultSourcePreprocessor {
   }
 
   @inline
-  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, if300: => T, if383: => T, default: => T)
+  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, if300: => T, default: => T)
                             (implicit scalaVersion: ScalaVersion): T  =
     scalaVersion.languageLevel match {
       case ScalaLanguageLevel.Scala_2_10 => if210
       case ScalaLanguageLevel.Scala_2_11 => if211
       case ScalaLanguageLevel.Scala_2_13 => if213
-      case level if level.isScala3 =>
-        if (scalaVersion <= ScalaVersion.fromString("3.8.2").get) if300 else if383
+      case level if level.isScala3 => if300
       case _ => default
     }
 
@@ -210,7 +208,7 @@ object WorksheetDefaultSourcePreprocessor {
 
       val (mainMethodStart, mainMethodEnd) = {
         val unitReturnType = ": Unit ="
-        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType, unitReturnType)
+        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType)
         (
           s"""def main()$mainReturnType {
              |val $instanceName = new $className
