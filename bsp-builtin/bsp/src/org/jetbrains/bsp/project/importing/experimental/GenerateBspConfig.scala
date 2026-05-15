@@ -190,7 +190,8 @@ private[bsp] object GenerateBspConfig {
     private val configSetupUi = new BspSetupConfigStepUi(
       BspBundle.message("choose.tool.to.generate.bsp.configuration"),
       configSetups,
-      shouldShowJdkComboBox
+      shouldShowJdkComboBox,
+      Some(project)
     )
 
     def selectedConfigSetup: ConfigSetup =

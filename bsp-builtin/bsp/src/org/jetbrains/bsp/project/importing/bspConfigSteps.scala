@@ -3,6 +3,7 @@ package org.jetbrains.bsp.project.importing
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
@@ -229,7 +230,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     else List(NoSetup)
   }
 
-  private val bspSetupConfigStepUi = new BspSetupConfigStepUi(BspBundle.message("bsp.config.steps.setup.config.choose.tool"), configSetupChoices, existingJdk.isEmpty)
+  private val bspSetupConfigStepUi = new BspSetupConfigStepUi(BspBundle.message("bsp.config.steps.setup.config.choose.tool"), configSetupChoices, existingJdk.isEmpty, Option(wizardContext.getProject))
 
   override def getComponent: JComponent = bspSetupConfigStepUi.mainComponent
 
@@ -306,7 +307,8 @@ object BspSetupConfigStep {
 final class BspSetupConfigStepUi(
   @NlsContexts.Separator title: String,
   configSetups: Seq[ConfigSetup],
-  showJdkComboBox: Boolean
+  showJdkComboBox: Boolean,
+  project: Option[Project]
 ) {
 
   val mainComponent: JPanel = {
@@ -319,9 +321,9 @@ final class BspSetupConfigStepUi(
   private val model = new ProjectSdksModel()
 
   val jdkComboBox: JdkComboBox = {
-    model.reset(null)
+    model.reset(project.orNull)
     val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
-    new JdkComboBox(null, model, jdkFilter, null, jdkFilter, null)
+    new JdkComboBox(project.orNull, model, jdkFilter, null, jdkFilter, null)
   }
 
   locally {
