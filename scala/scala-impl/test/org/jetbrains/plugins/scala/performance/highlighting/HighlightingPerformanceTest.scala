@@ -4,17 +4,12 @@ package performance.highlighting
 import com.intellij.psi.PsiFileFactory
 import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.util.NextEditCaretListenerLeakSuppression
 import org.junit.experimental.categories.Category
 
 import scala.util.Try
 
 @Category(Array(classOf[SlowTests]))
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
-
-  override def tearDown(): Unit =
-    NextEditCaretListenerLeakSuppression.runSuppressing(super.tearDown())
-
   def doTest(text: String, TIMEOUT: Int): Unit = {
 
     PlatformTestUtil.assertTiming("Running highlighting performance test", TIMEOUT,

@@ -9,7 +9,6 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.util.NextEditCaretListenerLeakSuppression
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.junit.Assert
 import org.junit.Assert.assertNotNull
@@ -27,7 +26,7 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
       val projectJdkTable = ProjectJdkTable.getInstance()
       projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
     }
-    NextEditCaretListenerLeakSuppression.runSuppressing(super.tearDown())
+    super.tearDown()
   }
 
   protected def createScalaProject(

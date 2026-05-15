@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
-import org.jetbrains.plugins.scala.util.NextEditCaretListenerLeakSuppression
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
 
@@ -53,7 +52,7 @@ abstract class ScalaCompilerHighlightingTestBase
   override protected def tearDown(): Unit = {
     myEditor = null
     myPsiFile = null
-    NextEditCaretListenerLeakSuppression.runSuppressing(super.tearDown())
+    super.tearDown()
   }
 
   type ExpectedResult = Matcher[Seq[HighlightInfo]]
