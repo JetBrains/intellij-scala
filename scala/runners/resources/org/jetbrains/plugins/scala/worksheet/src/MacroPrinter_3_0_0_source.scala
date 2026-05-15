@@ -31,7 +31,25 @@ object MacroPrinter_3_0_0 {
       .deconst // avoid value types (val x: 42 = 42)
       .widenTermRefExpr // avoid varName.type
     val text = printer.toText(tpe3)
-    Expr(text.mkString(80, false)) // TODO: max width, const or parameterize in settings?
+    Expr(mkString(text, 80, false)) // TODO: max width, const or parameterize in settings?
+  }
+
+  private def mkString(text: dotty.tools.dotc.printing.Texts.Text, width: Int, withLineNumbers: Boolean): String = {
+    val cls = classOf[dotty.tools.dotc.printing.Texts.Text]
+
+    def doScala383MethodCall(): Option[String] = scala.util.Try {
+      val method = cls.getDeclaredMethod("mkString", classOf[Int]) // def mkString(width: Int): String
+      method.invoke(text, width).asInstanceOf[String]
+    }.toOption
+
+    def doScala300MethodCall(): Option[String] = scala.util.Try {
+      val method = cls.getDeclaredMethod("mkString", classOf[Int], classOf[Boolean]) // def mkString(width: Int, withLineNumbers: Boolean): String
+      method.invoke(text, width, withLineNumbers).asInstanceOf[String]
+    }.toOption
+
+    doScala383MethodCall()
+      .orElse(doScala300MethodCall())
+      .getOrElse(throw new IllegalStateException("Cannot find a method 'mkString' on 'dotty.tools.dotc.printing.Texts.Text'"))
   }
 
   private def showMethodDefinitionImpl[T](expr: Expr[T])(implicit quotes: Quotes): Expr[String] = {
