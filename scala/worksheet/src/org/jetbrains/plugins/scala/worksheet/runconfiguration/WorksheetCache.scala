@@ -5,14 +5,15 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
-import java.nio.file.{Files, Path}
+import java.io.IOException
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import java.util
 import scala.collection.immutable.ListSet
 import scala.collection.mutable
@@ -44,6 +45,7 @@ final class WorksheetCache(project: Project) extends Disposable {
     compilationInfo.get(filePath) match {
       case Some(result@(it, src, out)) if Files.exists(src) && Files.exists(out) =>
         compilationInfo.put(filePath, (it + 1, src, out))
+        clearDirectory(out)
         result
       case _ =>
         val prefix = tempDirName.getOrElse("")
@@ -161,6 +163,25 @@ final class WorksheetCache(project: Project) extends Disposable {
       val viewers = Option(allViewers.get(editor)).getOrElse(Nil)
       viewers.lastOption.orNull
     }
+
+  /**
+   * Removes all files and subdirectories of the given directory, but keeps the directory itself.
+   */
+  private def clearDirectory(directory: Path): Unit = {
+    if (!Files.isDirectory(directory)) return
+    Files.walkFileTree(directory, new SimpleFileVisitor[Path] {
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        if (exc != null) throw exc
+        if (dir != directory) Files.delete(dir)
+        FileVisitResult.CONTINUE
+      }
+    })
+  }
 }
 
 object WorksheetCache {
