@@ -24,7 +24,7 @@ final class ScalaCliConfigSetup(workspace: Path) extends CommandBasedBspConfigSe
   override protected def installCommand(workspace: Path, indicator: ProgressIndicator, target: Option[ScalaCliInstallKind]): Try[Seq[String]] =
     detectInstallKind(workspace, indicator, target) match {
       case Right(Some(scalaCliInstallKind)) =>
-        Success(getScalaCliCommand(scalaCliInstallKind) ++ Seq("setup-ide", "."))
+        Success(getScalaCliCommand(scalaCliInstallKind, workspace) ++ Seq("setup-ide", "."))
       case Right(None) =>
         Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
       case Left(exc) =>

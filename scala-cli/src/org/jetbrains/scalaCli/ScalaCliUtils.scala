@@ -4,8 +4,9 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.platform.eel.EelPlatformKt
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.bsp.BspUtil
 
@@ -68,7 +69,7 @@ private[scalaCli] object ScalaCliUtils {
   }
 
   private def isScalaCliStandaloneInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
-    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand*)
+    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand(workspace)*)
 
   /**
    * Returns the command sequence to execute Scala CLI based on the installation type.
@@ -77,17 +78,17 @@ private[scalaCli] object ScalaCliUtils {
    * @see [[getScalaCliStandaloneCommand]]
    * @see [[getScalaStandaloneCommand]]
    */
-  def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind): Seq[String] =
+  def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind, workspace: Path): Seq[String] =
     scalaCliInstallKind match {
-      case ScalaCliInstallKind.Bundled => getScalaStandaloneCommand
-      case ScalaCliInstallKind.Standalone => getScalaCliStandaloneCommand
+      case ScalaCliInstallKind.Bundled => getScalaStandaloneCommand(workspace)
+      case ScalaCliInstallKind.Standalone => getScalaCliStandaloneCommand(workspace)
     }
 
   /**
    * @see [[createToolExecutionCommand]]
    */
-  private def getScalaCliStandaloneCommand: Seq[String] =
-    createToolExecutionCommand("scala-cli")
+  private def getScalaCliStandaloneCommand(workspace: Path): Seq[String] =
+    createToolExecutionCommand("scala-cli", workspace)
 
   /**
    * Creates a command sequence to execute a tool (`scala-cli` or `scala`).
@@ -98,24 +99,26 @@ private[scalaCli] object ScalaCliUtils {
    *  - Windows: Prefix the command with `cmd.exe /c` because tools are often distributed as batch scripts
    *    (e.g., `.bat`) that require a command interpreter to execute.
    *
-   * @param tool the name of the tool to execute (`scala-cli` or `scala`)
+   * @param tool      the name of the tool to execute (`scala-cli` or `scala`)
+   * @param workspace the workspace path used to determine the target OS
    * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.createScalaWrapperScript]]
    * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.installScalaCli]]
    */
-  private def createToolExecutionCommand(tool: String): Seq[String] = {
-    val command =
-      if (ApplicationManager.getApplication.isUnitTestMode) s"./$tool"
-      else tool
+  private def createToolExecutionCommand(tool: String, workspace: Path): Seq[String] = {
+    val command = if ApplicationManager.getApplication.isUnitTestMode then s"./$tool" else tool
 
-    if (SystemInfo.isWindows) Seq("cmd.exe", "/c", command)
-    else Seq(command)
+    val prefix =
+      if EelPlatformKt.isWindows(EelProviderUtil.getEelDescriptor(workspace).getOsFamily) then Seq("cmd.exe", "/c")
+      else Seq.empty
+
+    prefix :+ command
   }
 
   /**
    * @see [[createToolExecutionCommand]]
    */
-  private def getScalaStandaloneCommand: Seq[String] =
-    createToolExecutionCommand("scala")
+  private def getScalaStandaloneCommand(workspace: Path): Seq[String] =
+    createToolExecutionCommand("scala", workspace)
 
   /**
    * Checks if Scala CLI is bundled with the scala installation by attempting to run `scala -version`.
@@ -153,7 +156,7 @@ private[scalaCli] object ScalaCliUtils {
   @RequiresBackgroundThread
   private def executeScalaVersionCommand(directory: Path, indicator: ProgressIndicator): Try[String] =
     Try {
-      val commandLine = new GeneralCommandLine((getScalaStandaloneCommand:+ "-version")*)
+      val commandLine = new GeneralCommandLine((getScalaStandaloneCommand(directory):+ "-version")*)
         .withWorkDirectory(directory.toString)
 
       val timeout = 45.seconds
