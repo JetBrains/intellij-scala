@@ -31,6 +31,17 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_AllInOne
   extends CompileOnServerRunOnServerTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_AllInOne
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_4,
+  TestScalaVersion.Scala_3_5,
+  TestScalaVersion.Scala_3_6,
+  TestScalaVersion.Scala_3_7
+))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_4_to_3_7_AllInOne
+  extends CompileOnServerRunOnServerTestBase
+    with WorksheetPlainIntegrationTestBase_Scala_3_4_to_3_7_AllInOne
+
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest_RC))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_LTS_RC_AllInOne
   extends CompileOnServerRunOnServerTestBase
