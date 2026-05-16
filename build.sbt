@@ -561,7 +561,7 @@ lazy val sbtShellBuildDelegationTests =
   newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      sbtProjectImportingTestFramework % "test->test",
+      sbtShellRuntimeTests % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )

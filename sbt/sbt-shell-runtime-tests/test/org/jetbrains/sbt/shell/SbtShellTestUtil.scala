@@ -7,8 +7,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{Future, Promise}
 
 object SbtShellTestUtil {
   val ErrorPrefix = "[error]"

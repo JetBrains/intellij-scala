@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 @Category(Array(classOf[SlowTests2]))
-abstract class SbtShellTestBase extends SbtProjectStructureImportingLike {
+abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStructureImportingLike {
 
   protected def getRelativeTestProjectPath: String
 
