@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFrameworkMarker, MUnitTestLocationsFinder, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
-import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.{Specs2TestFramework, Specs2TestLocationsFinder}
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 
 import javax.swing.Icon
@@ -139,8 +139,16 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     scalaFramework.flatMap {
       case _: ScalaTestTestFramework => infoForScalaTestMethodRef(ref, definition)
       case _: MUnitTestFrameworkMarker => infoForMUnitMethodRef(ref, definition)
+      case _: Specs2TestFramework => infoForSpecs2MethodRef(ref, definition)
       case _ => None
     }
+  }
+
+  private def infoForSpecs2MethodRef(ref: ScReferenceExpression, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
+    val locations = Specs2TestLocationsFinder.calculateTestLocations(definition)
+    if (locations.contains(ref))
+      Some(buildLineInfo(url = "", ref.getProject, isClass = false))
+    else None
   }
 
   private def infoForScalaTestRefSpec(functionOrObject: ScalaPsiElement): Option[RunLineMarkerContributor.Info] = {

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.{Specs2BazelTestFilter, Specs2TestFramework}
 
 /**
  * Utilities inside contain logic for running entire test classes and individual tests from ScalaTest and ZIO-test via Bazel.
@@ -39,7 +40,20 @@ private object BazelScalaTestRunLineMarkerLogic {
     }
 
   def getSingleTestFilter(psiElement: PsiElement): String =
-    getTestClass(psiElement).map(_.qualifiedName).orNull
+    getTestClass(psiElement) match {
+      case Some(clazz: ScTypeDefinition) if isSpecs2TestClass(clazz) =>
+        Specs2BazelTestFilter
+          .getContainingTestExprOrScope(psiElement)
+          .flatMap(infix => Specs2BazelTestFilter.getTestFilter(clazz, infix))
+          .getOrElse(s"${clazz.qualifiedName}.*")
+      case Some(clazz) =>
+        clazz.qualifiedName
+      case None =>
+        null
+    }
+
+  private def isSpecs2TestClass(clazz: ScTypeDefinition): Boolean =
+    Specs2TestFramework().isTestClass(clazz, /*canBePotential*/ false)
 
   private def getTestClass(psiElement: PsiElement): Option[ScDerivesClauseOwner] = {
     val parentClassOfObject = PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass], classOf[ScObject])
