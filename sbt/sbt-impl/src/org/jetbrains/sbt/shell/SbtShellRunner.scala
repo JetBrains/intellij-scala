@@ -119,14 +119,14 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   // TODO update icon with ready/working state
-  private def shellPromptChanger(consoleView: SbtShellConsoleView): SbtShellReadyListener = {
+  private def shellPromptChanger(consoleView: SbtShellConsoleView): SbtShellReadyLineListener = {
     def scrollToEnd(): Unit = invokeLater {
       val editor = consoleView.getHistoryViewer
       if (!editor.isDisposed)
         EditorUtil.scrollToTheEnd(editor)
     }
 
-    new SbtShellReadyListener(
+    new SbtShellReadyLineListener(
       "prompt changer",
       whenReady = {
         consoleView.setPrompt(">")

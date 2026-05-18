@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.shell
 
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellState
-import org.junit.experimental.categories.Category
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
+import org.junit.experimental.categories.Category
 
 import java.nio.file.Files
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 
 /**
  * A test class to verify that the sbt shell states are correct in specific scenarios.

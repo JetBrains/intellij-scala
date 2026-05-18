@@ -44,8 +44,8 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.shell.SbtProcessManager.*
-import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 
 import java.io.{IOException, OutputStreamWriter, PrintWriter}
@@ -696,11 +696,11 @@ object SbtProcessManager {
     Option(project.getServiceIfCreated(classOf[SbtProcessManager]))
   }
 
-  /**
-   * @param sbtVersion version of sbt detected when launching the sbt process
-   */
   private sealed trait ProcessData {
     def processHandler: OSProcessHandler
+    /**
+     * Version of sbt detected when launching the sbt process
+     */
     def sbtVersion: SbtVersion
     def debugConnection: Option[RemoteConnection]
     def isNewShell: Boolean
