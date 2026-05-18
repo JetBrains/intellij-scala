@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell
+package org.jetbrains.sbt.shell.communication
 
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.assertEquals
@@ -6,7 +6,7 @@ import org.junit.Test
 
 import scala.collection.mutable.ArrayBuffer
 
-class LineListenerTest {
+class SbtOutputCompleteLinesProcessListenerTest {
 
   private val text =
     """ab
@@ -70,7 +70,7 @@ class LineListenerTest {
     }
   }
 
-  private class CollectingLineListener extends LineListener {
+  private class CollectingLineListener extends SbtOutputCompleteLinesProcessListener(OldShellModeProvider) {
 
     private val buffer = new ArrayBuffer[String]
 
@@ -79,9 +79,10 @@ class LineListenerTest {
     override def onLine(line: String): Unit = {
       buffer += line
     }
+  }
 
-    // Although tests in this class don't depend on #isNewShell, it must be false to prevent AnsiEscapeDecoder initialization
-    override protected lazy val isNewShell: Boolean = false
+  private object OldShellModeProvider extends SbtShellModeProvider {
+    override def isNewShell: Boolean = false
   }
 
   @Test

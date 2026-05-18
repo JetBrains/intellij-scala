@@ -1,24 +1,19 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
-import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessEvent, ProcessListener}
+import com.intellij.execution.process.{OSProcessHandler, ProcessEvent}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
-import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.{isInternalMode, isUnitTestMode}
-import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
-import org.jetbrains.sbt.shell.SbtProcessUtil.*
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
-import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.{ShellState, ShellStateEvent}
+import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtProcessUtil, SbtShellLifecycle}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
 import java.util.UUID
@@ -309,7 +304,7 @@ final class SbtShellCommunication(project: Project) {
     } finally {
       if (isCommandProcessed) {
         // NOTE: when sbt shell executes a command, the `shellQueueReady` is released asynchronously
-        // in the `whenReady` callback parameter of `SbtShellReadyListener` created in `initCommunication`
+        // in the `whenReady` callback parameter of `SbtShellReadyLineListener` created in `initCommunication`
       } else {
         shellQueueReady.release()
       }
@@ -401,17 +396,17 @@ final class SbtShellCommunication(project: Project) {
   }
 
   /**
-    * To be called when the process is reinitialized externally.
-    * Will only work correctly when `acquireShellProcessHandler.isStartNotify == true`
-    * This is usually ensured by calling openShellRunner first, but it's possible
-    * to manually trigger it if a fully background process is desired
-    */
+   * To be called when the process is reinitialized externally.
+   * Will only work correctly when `acquireShellProcessHandler.isStartNotify == true`
+   * This is usually ensured by calling openShellRunner first, but it's possible
+   * to manually trigger it if a fully background process is desired
+   */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     log.debug(s"initCommunication start: state=$currentState...")
 
     val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
     if (lockAcquired) {
-      val releaseCommandQueueListener = new SbtShellReadyListener(
+      val releaseCommandQueueListener = new SbtShellReadyLineListener(
         "release command queue",
         whenReady = {
           shellQueueReady.release()
@@ -548,18 +543,23 @@ final class SbtShellCommunication(project: Project) {
    *
    * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
    */
-  private class InitialErrorDetectorListener extends LineListener with ProjectShellModeProvider(project) {
+  private class InitialErrorDetectorListener
+    extends SbtOutputCompleteLinesProcessListener(project) {
+
     private var isReadyState: Boolean = false
 
     override def onLine(line: String): Unit =
-      if (promptReady(line, isNewShell))
+      if (SbtProcessUtil.promptReady(line, isNewSbtShell))
         isReadyState = true
-      else if (!isReadyState && promptError(line))
+      else if (!isReadyState && SbtProcessUtil.promptError(line))
         sendIgnore()
   }
 
-  private class CommandListener[A](default: A, aggregator: EventAggregator[A], terminationMessage: Option[String] = None)
-    extends LineListener with ProjectShellModeProvider(project) {
+  private class CommandListener[A](
+    default: A,
+    aggregator: EventAggregator[A],
+    terminationMessage: Option[String] = None
+  ) extends SbtOutputCompleteLinesProcessListener(project) {
 
     private val promise = Promise[A]()
     private var a: A = default
@@ -588,14 +588,13 @@ final class SbtShellCommunication(project: Project) {
     }
 
     override def onLine(text: String): Unit = {
-      val shouldCompleteTask = !promise.isCompleted && promptReady(text, isNewShell)
+      val shouldCompleteTask = !promise.isCompleted && SbtProcessUtil.promptReady(text, isNewSbtShell)
       if (shouldCompleteTask) {
         this.log.trace("CommandListener.onLine: promptReady -> TaskComplete")
 
         aggregate(TaskComplete)
         promise.complete(Success(a))
-      }
-      else if (promptError(text)) {
+      } else if (SbtProcessUtil.promptError(text)) {
         this.log.trace("CommandListener.onLine: promptError detected -> sendIgnore...")
 
         // When sbt displays an interactive error prompt, automatically send "i" (ignore) to continue
@@ -644,7 +643,7 @@ object SbtShellCommunication {
   }
 
   /** Convenience aggregator wrapper that is executed for the side effects.
-    * The final result will just be the value of the last invocation. */
+   * The final result will just be the value of the last invocation. */
   def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
 
@@ -658,250 +657,4 @@ object SbtShellCommunication {
    */
   def isErrorOutput(sbtOutputText: String): Boolean =
     sbtOutputText.startsWith(ERROR_PREFIX)
-}
-
-private[shell] object SbtShellLifecycle {
-  private val log = Logger.getInstance(getClass)
-  /**
-   * Shell states
-   *
-   * @todo introduce more with SCL-24338 (most likely some "On" state and another one for emptying queue (before "soft restart"))
-   */
-  sealed trait ShellState
-  object ShellState {
-    /** The shell is alive, and no command is currently running or queued. */
-    private[shell] case object Idle extends ShellState
-    /**
-     * The shell is alive and has commands pending in the standard command queue (see [[org.jetbrains.sbt.shell.SbtShellCommunication.commands]])
-     * or the queue is empty but the last command is still running.
-     */
-    private[shell] case object Queued extends ShellState
-    /** The shell is in the process of shutting down, but the process has not terminated yet. */
-    private[shell] case object ShuttingDown extends ShellState
-    /** The shell process is not running. */
-    case object Off extends ShellState
-
-    implicit class RichShellState(state: ShellState) {
-      def isIdle: Boolean = state == ShellState.Idle
-      def isQueued: Boolean = state == ShellState.Queued
-      def isShuttingDown: Boolean = state == ShellState.ShuttingDown
-      def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
-    }
-  }
-
-  // Events that trigger transition between states
-  sealed trait ShellStateEvent
-  object ShellStateEvent {
-    case object EnqueueCommand extends ShellStateEvent
-    case object QueueDrained extends ShellStateEvent
-    case object ShutdownRequested extends ShellStateEvent
-    case object ProcessTerminated extends ShellStateEvent
-  }
-
-  def transition(state: ShellState, event: ShellStateEvent): ShellState = {
-    import ShellState.*
-    import ShellStateEvent.*
-    def logProhibitedTransition(): ShellState = {
-      val msg = s"[SbtShellLifecycle] The prohibited $event event from $state. Ignored"
-      if (isInternalMode || isUnitTestMode) log.error(msg)
-      else log.warn(msg)
-
-      state
-    }
-
-    (state, event) match {
-      case (Off, QueueDrained)            => Idle
-      case (Off, EnqueueCommand)          => Queued
-      case (Off, _)                       => logProhibitedTransition()
-
-      case (Idle, EnqueueCommand)         => Queued
-      case (Idle, ShutdownRequested)      => ShuttingDown
-      case (Idle, QueueDrained)           => Idle // The self-transition Idle -> Idle is allowed for now. It can occur because QueueDrained can be omitted in #initCommunication
-                                                  // and then again when the shell becomes ready. TODO add "Start" shell state to get rid of this
-      case (Idle, _)                      => logProhibitedTransition()
-
-      case (Queued, QueueDrained)           => Idle
-      case (Queued, ShutdownRequested)      => ShuttingDown
-      case (Queued, EnqueueCommand)         => Queued  // This occurs when the shell is in the Queued state and another command is added, triggering another EnqueueCommand event.
-                                                       // Another scenario for the Queued -> Queued transition is similar to the one described in the Idle -> Idle transition case.
-      case (Queued, _)                      => logProhibitedTransition()
-
-      case (ShuttingDown, ProcessTerminated) => Off
-      case (ShuttingDown, QueueDrained)      => ShuttingDown // QueueDrained & EnqueueCommand events may still be emitted after shutdown has started,
-                                                             // because SbtShellReadyListener#whenReady can fire even when the shell is already in the ShuttingDown state.
-      case (ShuttingDown, EnqueueCommand)    => ShuttingDown
-      case (ShuttingDown, _)                 => logProhibitedTransition()
-    }
-  }
-}
-
-/**
-  * Monitor sbt prompt status, do something when state changes.
-  *
-  * @param whenReady callback when going into Ready state
-  * @param whenWorking callback when going into Working state
-  */
-private[shell] class SbtShellReadyListener(
-  debugName: String,
-  whenReady: => Unit,
-  whenWorking: => Unit,
-  project: Project,
-) extends LineListener with ProjectShellModeProvider(project) {
-
-  private var readyState: Boolean = false
-
-  override def toString: String = s"${super.toString} ($debugName)"
-
-  override def onLine(line: String): Unit = {
-    val sbtReady: Boolean = promptReady(line, isNewShell) || (readyState && debuggerMessage(line))
-    log.traceSafe(f"onLine: (sbtReady: $sbtReady%-5s) $line")
-
-    if (sbtReady && !readyState) {
-      readyState = true
-      whenReady
-    }
-    else if (!sbtReady && readyState) {
-      readyState = false
-      whenWorking
-    }
-  }
-}
-
-private[shell] object SbtProcessUtil {
-
-  /**
-   * The prompt marker is inserted by the `sbt-idea-shell plugin`.
-   * Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
-   */
-  private val IDEA_PROMPT_MARKER = "[IJ]"
-
-  private val DEFAULT_SHELL_PROMPT = "sbt:"
-
-  def promptReady(line: String, withNewShell: Boolean): Boolean =
-    if (withNewShell) {
-      // When using the new shell (with the built-in shell command), jline3 is utilized under the hood since sbt 1.4.
-      // Before displaying any prompt, jline3 prints the BRACKETED_PASTE_ON escape sequence to the terminal to enable bracketed paste mode.
-      // If a line contains this escape sequence, it indicates that the line contains a prompt.
-      // As a fallback, we check if the line starts with the default shell prompt ("sbt:project_name").
-      // This heuristic may fail for users with custom prompts but should work for most standard configurations.
-      val bracketedPasteModeEnabled = "\u001B[?2004h"
-      val isBracket = line.contains(bracketedPasteModeEnabled)
-      isBracket || {
-        val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line)
-        lineWithNoAnsi.trim.startsWith(DEFAULT_SHELL_PROMPT)
-      }
-    } else {
-      line.trim.startsWith(IDEA_PROMPT_MARKER)
-    }
-
-  def promptError(line: String): Boolean =
-    line.trim.contains("Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?")
-
-  // sucky workaround for jdwp printing this line on the console when deactivating debugger
-  def debuggerMessage(line: String): Boolean =
-    line.contains("Listening for transport")
-
-  implicit class StringExt(private val str: String) extends AnyVal {
-    def trimRight: String = str.replaceAll("\\s+$", "")
-  }
-}
-
-private[shell] trait ShellModeProvider {
-  /**
-   * The lazy evaluation is a workaround to initialize this variable only when the shell process is started and the first line
-   * from the shell is being processed.
-   * Potentially using this method when the shell is not started may return an incorrect result, i.e., it may return `false`
-   * even though the registry is enabled and the shell will be started in the new mode.
-   * So be careful and use it only when it's clear that the shell is running.
-   */
-  protected lazy val isNewShell: Boolean
-}
-
-private[shell] trait ProjectShellModeProvider(project: Project) extends ShellModeProvider {
-  /**
-   * See [[ShellModeProvider.isNewShell]] for details how to use it.
-   */
-  override protected lazy val isNewShell: Boolean =
-    SbtProcessManager.forProject(project).isRunWithNewShell
-}
-
-/**
-  * Pieces lines back together from parts of colored lines.
-  */
-abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.ColoredTextAcceptor with ShellModeProvider  {
-  protected val log: Logger = Logger.getInstance(getClass)
-
-  def onLine(line: String): Unit
-
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
-    processCompleteLines(event.getText)
-
-  override def coloredTextAvailable(text: String, attributes: Key[?]): Unit =
-    processCompleteLines(text)
-
-  /**
-   * Tracks content of the last line until new line character is processed
-   */
-  private var lastIncompleteLine: String = ""
-
-  /**
-   * @param text can start from new line, end with new line, have new line in the middle and no line at all.
-   *             Examples: {{{
-   *               hello
-   *               \nhello
-   *               hello\n
-   *               hello\r\nworld\r\n
-   *               etc ...
-   *             }}}
-   */
-  private def getCompleteLines(text: String): Seq[String] = lastIncompleteLine.synchronized {
-    if (log.isTraceEnabled) {
-      val textWithEscapedNewLines = escapeNewLines(text)
-      log.trace(f"buildLine: $textWithEscapedNewLines")
-    }
-
-    val endsWithLineSeparator = text.endsWith("\n") || text.endsWith("\r\n")
-
-    val textWithRemainingLineContent = lastIncompleteLine + text
-
-    //split lines by line separator, "-1" argument is to keep empty lines
-    val lines = LineSeparatorRegex.pattern.split(textWithRemainingLineContent, -1).toSeq
-
-    lastIncompleteLine = ""
-
-    if (endsWithLineSeparator) {
-      //flush all lines, but drop trailing empty line
-      //(it's an empty string, because we used '-1' in 'split' method)
-      lines.init
-    }
-    else {
-      val lastLineOption = lines.lastOption
-      val shouldFlushLastLine = lastLineOption.exists(line => promptReady(line, isNewShell) || promptError(line))
-      if (shouldFlushLastLine) {
-        //NOTE: last line with IJ prompt or error might not have new line character in the end
-        //But we still want it to be reported the line to detect that the console is "ready"
-        lines
-      }
-      else {
-        lastIncompleteLine = lastLineOption.getOrElse("")
-        lines.init
-      }
-    }
-  }
-
-  @TestOnly
-  @Internal
-  def processCompleteLines(text: String): Unit = {
-    val lines = getCompleteLines(text)
-    lines.foreach(onLine)
-  }
-}
-
-object LineListener {
-  private val LineSeparatorRegex = """\r?\n""".r
-
-  private def escapeNewLines(text: String): String =
-    text
-      .replace("\\n", "\\\\n").replace("\n", "\\n")
-      .replace("\\r", "\\\\r").replace("\r", "\\r")
 }
