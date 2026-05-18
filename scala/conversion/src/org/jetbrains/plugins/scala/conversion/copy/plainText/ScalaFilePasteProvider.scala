@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.IncorrectOperationException
-import groovy.transform.Internal
+import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider._

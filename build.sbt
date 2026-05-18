@@ -284,6 +284,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
+    intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin
   )
 
 lazy val repl = newProject("repl", file("scala/repl"))
@@ -738,7 +739,10 @@ lazy val structuralSearch =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "JUnit".toPlugin,
+      intellijPlugins ++= Seq(
+        "JUnit".toPlugin,
+        "com.intellij.moduleSet.structuralSearch".toPlugin,
+      ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")
     )
 
@@ -752,6 +756,9 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
+      intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin,
+      // TODO: ideally it should be added only in Test (IJPL-244879)
+      intellijPlugins += "com.intellij.moduleSet.servicesView".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
 
@@ -766,7 +773,10 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
     testingSupport % "test->test;compile->compile"
   )
   .settings(
-    intellijPlugins += "JUnit".toPlugin,
+    intellijPlugins ++= Seq(
+      "JUnit".toPlugin,
+      "com.intellij.moduleSet.structureView".toPlugin,
+    ),
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support.munit")
   )
 
@@ -975,9 +985,10 @@ lazy val gradleIntegration =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
-        "com.intellij.gradle",     // required by Android
-        "org.intellij.groovy",     // required by Gradle
-        "com.intellij.properties"  // required by Gradle
+        "com.intellij.gradle",           // required by Android
+        "org.intellij.groovy",           // required by Gradle
+        "com.intellij.groovy.scripting", // required by Groovy, provides `intellij.libraries.groovy`
+        "com.intellij.properties",       // required by Gradle
       ).map(_.toPlugin),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.gradle")
     )

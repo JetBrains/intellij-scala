@@ -205,7 +205,11 @@ object Common {
       name := projectName,
       intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
       intellijTestJars ~= { _.filter(_.exists()) },
-      intellijPlugins += "com.intellij.java".toPlugin,
+      intellijPlugins ++= Seq(
+        "com.intellij.java".toPlugin,
+        // required for Java plugin (IJPL-244879)
+        "com.intellij.moduleSet.todoView".toPlugin,
+      ),
       pathExcludeFilter := excludePathsFromPackage _
     )
 

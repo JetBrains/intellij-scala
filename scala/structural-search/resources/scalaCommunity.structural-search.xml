@@ -1,5 +1,4 @@
 <idea-plugin>
-
     <dependencies>
         <module name="intellij.platform.structuralSearch" />
     </dependencies>
