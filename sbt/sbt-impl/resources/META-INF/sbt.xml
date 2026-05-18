@@ -52,6 +52,9 @@
         <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules"/>
         <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.DisplayModuleName"/>
 
+        <projectService serviceInterface="org.jetbrains.sbt.shell.communication.SbtShellCommandSubmitter"
+                        serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
+
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtScalaSdkDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService"/>

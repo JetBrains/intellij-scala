@@ -9,8 +9,8 @@ import org.jetbrains.sbt.SbtRunAnythingProvider._
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction
+import org.jetbrains.sbt.shell.communication.SbtShellCommandSubmitter
 
 import java.util
 import javax.swing.Icon
@@ -68,8 +68,8 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
   override def execute(dataContext: DataContext, value: SbtRunItem): Unit = {
     val project = fetchProject(dataContext)
-    val com = SbtShellCommunication.forProject(project)
-    com.command(value.command)
+    val com = SbtShellCommandSubmitter.instance(project)
+    com.runAndCollectOutput(value.command)
   }
 
   override def getCommand(value: SbtRunItem): String = {
@@ -115,4 +115,3 @@ object SbtRunAnythingProvider {
     override def command: String = SbtNodeAction.scopedKey(projectId, task)
   }
 }
-

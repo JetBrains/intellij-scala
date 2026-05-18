@@ -12,6 +12,18 @@ private[shell] object SbtProcessUtil {
 
   private val DEFAULT_SHELL_PROMPT = "sbt:"
 
+  /**
+   * Detects that an sbt shell prompt is ready to accept the next command.
+   *
+   * In the legacy shell, the prompt is recognized by the IntelliJ prompt marker injected by the `sbt-idea-shell` plugin.
+   *
+   * In the new shell, sbt writes the regular prompt itself, so readiness is detected by the jline bracketed-paste escape sequence
+   * or, as a fallback, by the default `sbt:` prompt prefix after stripping ANSI codes.
+   *
+   * @param line         a complete output line, or the current unfinished output tail
+   * @param withNewShell whether the shell uses sbt's built-in shell command
+   * @return `true` when the line indicates that the shell can receive a command
+   */
   def promptReady(line: String, withNewShell: Boolean): Boolean =
     if (withNewShell) {
       // When using the new shell (with the built-in shell command), jline3 is utilized under the hood since sbt 1.4.

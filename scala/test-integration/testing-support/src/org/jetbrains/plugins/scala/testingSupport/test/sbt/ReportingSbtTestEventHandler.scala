@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
-import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ProcessTerminated, ShellEvent, TaskComplete, TaskStart}
+import org.jetbrains.sbt.shell.communication.ShellEvent
+import org.jetbrains.sbt.shell.communication.ShellEvent.{ErrorWaitForInput, Output, ProcessTerminated, TaskComplete, TaskStart}
 
 import java.util.regex.{Matcher, Pattern}
 
@@ -32,7 +32,7 @@ class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
     case TaskComplete =>
     case ProcessTerminated => throw new Exception("sbt process terminated")
     case ErrorWaitForInput => throw new Exception("error running sbt")
-    case SbtShellCommunication.Output(output) =>
+    case Output(output) =>
       import TestRunnerUtil._
       // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
       val outputNoAnsi = BuildMessages.stripAnsiCodes(output)

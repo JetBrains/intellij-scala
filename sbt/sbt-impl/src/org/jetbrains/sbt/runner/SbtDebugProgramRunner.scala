@@ -3,16 +3,16 @@ package org.jetbrains.sbt.runner
 import com.intellij.debugger.engine.RemoteStateState
 import com.intellij.debugger.impl.GenericDebuggerRunner
 import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState}
-import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runToolbar.RunToolbarProcessData
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionException, ExecutionResult, Executor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.shell.SbtProcessManager
+import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 /**
  * @see [[org.jetbrains.sbt.runner.SbtProgramRunner]]
@@ -22,14 +22,13 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   override def getRunnerId: String = "SbtDebugProgramRunner"
 
   override def canRun(executorId: String, profile: RunProfile): Boolean =
-    isSbtRunConfigurationWithUseSbtShell(profile) && executorId == DefaultDebugExecutor.EXECUTOR_ID
+    isSbtRunConfigurationWithUseSbtShell(profile) && isDebugExecutorId(executorId)
 
   override def doExecute(state: RunProfileState, env: ExecutionEnvironment): RunContentDescriptor = {
     state match {
       case sbtState: SbtCommandLineState if shouldFallbackToNonDebugRunner(env, sbtState) =>
-        // Don't create any content descriptor, "sbt shell" tool window will be opened instead
+        // Don't show a dedicated run content, "sbt shell" tool window will be opened instead
         delegateExecutionToSbtShell(env, sbtState)
-        null
       case _ =>
         // Just do the standard thing - attach debugger to remote connection if possible and show it un Debug tool window
         super.doExecute(state, env)
@@ -54,6 +53,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   private def createContentDescriptorForSbtShellDelegation(environment: ExecutionEnvironment, state: SbtCommandLineState): RunContentDescriptor = {
     val processManager = SbtProcessManager.forProject(environment.getProject)
     processManager.acquireShellProcessHandler()
+
     val shellDebugConnection = processManager.debugConnection
     shellDebugConnection match {
       case Some(connection) =>

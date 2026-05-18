@@ -29,7 +29,7 @@ class SbtShellStateIntegrationTest extends SbtShellRuntimeTestBase {
   def testSingleCommand(): Unit = {
     val checker = StateSequenceChecker.start(ShellState.Idle, ShellState.Queued, ShellState.Idle)
 
-    val future = comm.command("task")
+    val future = comm.runAndCollectOutput("task")
     Await.result(future, DefaultCommandWaitTimeout)
 
     checker.await()
@@ -42,8 +42,8 @@ class SbtShellStateIntegrationTest extends SbtShellRuntimeTestBase {
     val checker = StateSequenceChecker.start(ShellState.Idle, ShellState.Queued, ShellState.Queued, ShellState.Queued, ShellState.Idle)
 
     val futures = Seq(
-      comm.command("task"),
-      comm.command("task")
+      comm.runAndCollectOutput("task"),
+      comm.runAndCollectOutput("task")
     )
     implicit val ec: ExecutionContext = ExecutionContext.global
     Await.result(Future.sequence(futures), DefaultCommandWaitTimeout)

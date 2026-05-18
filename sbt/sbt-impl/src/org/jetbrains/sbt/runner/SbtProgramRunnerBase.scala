@@ -1,9 +1,10 @@
 package org.jetbrains.sbt.runner
 
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.configurations.RunProfile
+import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -11,34 +12,33 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, invokeAndWait, invokeLater}
-import org.jetbrains.sbt.runner.SbtProgramRunnerBase.{DummyProcessHandler, commandFinishedSuccessfully}
-import org.jetbrains.sbt.shell.SbtShellCommunication.{Output, ShellEvent}
-import org.jetbrains.sbt.shell.{SbtShellCommunication, SbtShellToolWindowFactory}
+import org.jetbrains.sbt.runner.SbtProgramRunnerBase.{DummyProcessHandler, HiddenRunContentDescriptor, commandFinishedSuccessfully}
+import org.jetbrains.sbt.shell.SbtShellToolWindowFactory
+import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandEventProcessor, SbtShellCommandRequest, SbtShellCommandSubmitter}
 
 import java.io.OutputStream
+import javax.swing.JPanel
 import scala.concurrent.Future
 import scala.util.Try
 
 trait SbtProgramRunnerBase {
 
+  protected def isDebugExecutorId(executorId: String): Boolean =
+    executorId == DefaultDebugExecutor.EXECUTOR_ID
+
   /**
    * @see [[com.intellij.execution.impl.RunConfigurationBeforeRunProvider.doRunTask]]
    */
-  protected def delegateExecutionToSbtShell(environment: ExecutionEnvironment, sbtState: SbtCommandLineState): Unit = {
-    val project = environment.getProject
-    val executorId = environment.getExecutor.getId
-
-    // In order `RunConfigurationBeforeRunProvider.doRunTask` detects that the "Before launch" task is finished, we have to notify the listeners manually.
-    // Details:
-    // The most standard way to execute is to launch a separate process.
-    // This, for example, is what `com.intellij.execution.impl.RunConfigurationBeforeRunProvider.doRunTask` expects
-    // It listens for the com.intellij.execution.ExecutionManager.EXECUTION_TOPIC topic,
-    // and all the events are later generated in com.intellij.execution.impl.ExecutionManagerImpl.
-    // However, when we delegate execution to sbt shell, we don't launch a new process, so we don't have a dedicated process handler for that.
-    // Thus, we have to manually notify the listeners.
-    // Related: SCL-24434
-    val listeners = project.getMessageBus.syncPublisher(ExecutionManager.EXECUTION_TOPIC)
-    listeners.processStartScheduled(executorId, environment)
+  protected def delegateExecutionToSbtShell(
+    environment: ExecutionEnvironment,
+    sbtState: SbtCommandLineState
+  ): RunContentDescriptor = {
+    // Some before-run tasks observe the run configuration lifecycle through ExecutionManager.EXECUTION_TOPIC.
+    // E.g., see `RunConfigurationBeforeRunProvider.doRunTask` and `LaunchBrowserBeforeRunTaskProvider.executeTask`.
+    // Sbt shell delegation does not start a dedicated OS process, so return a hidden descriptor with a synthetic
+    // process handler and let `ExecutionManagerImpl` publish the same start/finish events as for regular runs.
+    // Related: SCL-24434, SCL-22453
+    val dummyProcessHandler = new DummyProcessHandler()
 
     // Ensure all the documents are flushed to disk before running "sbt task" run configuration,
     // otherwise, if you make any changes in some document and do e.g. "sbt assembly", sbt won't see the latest changes.
@@ -52,15 +52,20 @@ trait SbtProgramRunnerBase {
     ApplicationManager.getApplication.executeOnPooledThread((() => {
       import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
 
-      val commandFuture = submitCommands(environment, sbtState)
+      val commandFuture: Future[CharSequence] =
+        try {
+          submitCommands(environment, sbtState)
+        } catch {
+          case exception: Throwable =>
+            Future.failed(exception)
+        }
       commandFuture.onComplete { result =>
-        // We have to create a dummy handler because `processTerminated` requires it.
-        // (Though it's not used in RunConfigurationBeforeRunProvider.doRunTask)
-        val dummyProcessHandler = new DummyProcessHandler()
         val exitCode = if (commandFinishedSuccessfully(result)) 0 else 1
-        listeners.processTerminated(executorId, environment, dummyProcessHandler, exitCode)
+        dummyProcessHandler.terminate(exitCode)
       }
     }): Runnable)
+
+    new HiddenRunContentDescriptor(dummyProcessHandler, environment.getRunProfile.getName)
   }
 
   /**
@@ -78,23 +83,17 @@ trait SbtProgramRunnerBase {
       showSbtToolwindow(project)
     }
 
-    val sbtCommunication = SbtShellCommunication.forProject(project)
+    val sbtCommunication = SbtShellCommandSubmitter.instance(project)
     val commands = state.processedCommands
 
     val listener = state.getListener.getOrElse((_: String) => ())
 
-    // Q: what is this builder needed for anyway? It seems to be ignored
-    val eventHandler = (builder: StringBuilder, event: ShellEvent) => {
-      event match {
-        case Output(line) =>
-          listener.apply(line)
-          builder.append("\n").append(line)
-        case _ =>
-          builder
-      }
-    }
+    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector().tap(
+      new SbtShellCommandEventProcessor.OutputLineListener(listener)
+    )
 
-    sbtCommunication.command(commands, new StringBuilder(), eventHandler)
+    val request = SbtShellCommandRequest(commands, eventProcessor)
+    sbtCommunication.run(request)
   }
 
   protected def isSbtRunConfigurationWithUseSbtShell(profile: RunProfile): Boolean = profile match {
@@ -114,6 +113,8 @@ trait SbtProgramRunnerBase {
 
 object SbtProgramRunnerBase {
   private class DummyProcessHandler extends ProcessHandler {
+    def terminate(exitCode: Int): Unit = notifyProcessTerminated(exitCode)
+
     override def destroyProcessImpl(): Unit = ()
 
     override def detachProcessImpl(): Unit = ()
@@ -123,7 +124,6 @@ object SbtProgramRunnerBase {
     @Nullable override def getProcessInput: OutputStream = null
   }
 
-
   private def commandFinishedSuccessfully(result: Try[CharSequence]): Boolean = {
     // ATTENTION: technically it's not the most correct and reliable way to detect if a command was finished "successfully".
     // But it's the only thing we can do now, with the text-based sbt shell integration
@@ -132,6 +132,12 @@ object SbtProgramRunnerBase {
 
   private def endsWithErrorOutput(output: String): Boolean = {
     val lastLine = output.trim.linesIterator.lastOption
-    lastLine.exists(SbtShellCommunication.isErrorOutput)
+    lastLine.exists(SbtShellBuildMessagesEventProcessor.isErrorOutput)
+  }
+
+  private class HiddenRunContentDescriptor(processHandler: ProcessHandler, displayName: String)
+    extends RunContentDescriptor(null, processHandler, new JPanel(), displayName) {
+
+    override def isHiddenContent: Boolean = true
   }
 }

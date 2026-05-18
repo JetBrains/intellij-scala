@@ -28,10 +28,10 @@ import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificatio
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
 import org.jetbrains.sbt.{SbtBundle, SbtVersion, SbtVersionDetector}
 
 import java.util
-import java.util.UUID
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SetHasAsScala}
@@ -359,7 +359,8 @@ private class CommandTask(
 
     // Currently, the entire build output is printed in the root node of the build window.
     // As a potential improvement, this could be moved to a separate node.
-    val resultAggregator = shell.messageAggregatorForBuild(
+    val resultAggregator = SbtShellBuildMessagesEventProcessor.forBuild(
+      project,
       report,
       buildId,
       processOutputBuilder = None,
@@ -370,24 +371,25 @@ private class CommandTask(
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    val id = UUID.randomUUID().toString
     val terminationMessage = "Sbt shell terminated before build command is finished"
+    val request = SbtShellCommandRequest(command, resultAggregator, Some(terminationMessage))
+    val requestId = request.requestId
 
-    log.trace(s"run: shell.command enqueue start: commandId=$id...")
+    log.trace(s"run: shell.command enqueue start: requestId=$requestId...")
 
-    val commandFuture: Future[BuildMessages] = shell.command(command, id, BuildMessages.empty, resultAggregator, Some(terminationMessage))
+    val commandFuture: Future[BuildMessages] = shell.run(request)
 
-    log.trace(s"run: shell.command enqueue finish: commandId=$id")
+    log.trace(s"run: shell.command enqueue finish: requestId=$requestId")
 
-    log.trace(s"run: waitForCancelable start: commandId=$id...")
+    log.trace(s"run: waitForCancelable start: requestId=$requestId...")
 
     // block thread to make indicator available :(
     val buildMessages = CancelableWaitUtil.waitForCancelable(
       commandFuture,
-      onCancel = () => shell.removeCommandFromQueueOrCancel(id)
+      onCancel = () => shell.removeCommandFromQueueOrCancel(requestId)
     )(resultPromise, indicator)
 
-    log.trace(s"run: waitForCancelable finish: commandId=$id, isSuccess=${buildMessages.isSuccess}")
+    log.trace(s"run: waitForCancelable finish: requestId=$requestId, isSuccess=${buildMessages.isSuccess}")
 
     // handle callback
     buildMessages match {
