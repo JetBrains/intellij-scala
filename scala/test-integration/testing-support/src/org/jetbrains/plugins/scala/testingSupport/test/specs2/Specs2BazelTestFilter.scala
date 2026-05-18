@@ -41,9 +41,6 @@ object Specs2BazelTestFilter {
   def getContainingTestExprOrScope(element: PsiElement): Option[ScInfixExpr] =
     findContainingInfix(element, e => TestNodeProvider.isSpecs2TestExpr(e) || TestNodeProvider.isSpecs2ScopeExpr(e))
 
-  def getContainingTestExpr(element: PsiElement): Option[ScInfixExpr] =
-    findContainingInfix(element, TestNodeProvider.isSpecs2TestExpr)
-
   def getContainingTestScope(element: PsiElement): Option[ScInfixExpr] =
     findContainingInfix(element, TestNodeProvider.isSpecs2ScopeExpr)
 
@@ -92,7 +89,7 @@ object Specs2BazelTestFilter {
   }
 
   private def staticTestName(infix: ScInfixExpr): Option[String] = {
-    val opt = TestConfigurationUtil.getStaticTestName(infix.getFirstChild, /*allowSymbolLiterals*/ false)
+    val opt = TestConfigurationUtil.getStaticTestName(infix.getFirstChild)
     if (opt.isEmpty) None else Some(opt.get)
   }
 }
