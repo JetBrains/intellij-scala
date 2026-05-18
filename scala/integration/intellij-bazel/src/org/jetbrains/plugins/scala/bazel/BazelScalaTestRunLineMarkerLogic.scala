@@ -53,7 +53,7 @@ private object BazelScalaTestRunLineMarkerLogic {
     }
 
   private def isSpecs2TestClass(clazz: ScTypeDefinition): Boolean =
-    Specs2TestFramework().isTestClass(clazz, /*canBePotential*/ false)
+    Specs2TestFramework().isTestClass(clazz, canBePotential = false)
 
   private def getTestClass(psiElement: PsiElement): Option[ScDerivesClauseOwner] = {
     val parentClassOfObject = PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass], classOf[ScObject])
