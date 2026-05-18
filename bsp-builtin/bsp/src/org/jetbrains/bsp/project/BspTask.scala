@@ -6,8 +6,8 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.platform.eel.path.EelPath
-import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.EelProviderUtil
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil.*
 import org.jetbrains.bsp.project.BspTask.BspTarget
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
+import org.jetbrains.sbt.asPath
 
 import java.net.URI
 import java.nio.file.Path
@@ -259,9 +260,8 @@ class BspTask[T](project: Project,
 
     val uri = params.getTextDocument.getUri.toURI
 
-    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
-    val eelPath = EelPath.parse(uri.getPath, eelDescriptor)
-    val filePath = EelNioBridgeServiceKt.asNioPath(eelPath)
+    given EelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val filePath = uri.asPath
 
     val uriDiagnostics = params.getDiagnostics.asScala.toList
     val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)

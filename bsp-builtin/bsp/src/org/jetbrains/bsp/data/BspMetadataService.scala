@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableR
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion, ScalaAbstractProjectDataService, SdkUtils}
+import org.jetbrains.sbt.asPath
 
 import java.util
 
@@ -29,7 +30,7 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
                       (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     modelsProvider.getIdeModuleByNode(node).foreach { module =>
       val data = node.getData
-      val jdkByHome = Option(data.javaHome).map(u => JdkByHome(u.toPath(using EelProviderUtil.getEelDescriptor(project))))
+      val jdkByHome = Option(data.javaHome).map(u => JdkByHome(u.uri.asPath(using EelProviderUtil.getEelDescriptor(project))))
       val jdkByVersion = Option(data.javaVersion).map(JdkByVersion)
       val existingJdk = Option(ModuleRootManager.getInstance(module).getSdk)
       val moduleJdk = jdkByHome

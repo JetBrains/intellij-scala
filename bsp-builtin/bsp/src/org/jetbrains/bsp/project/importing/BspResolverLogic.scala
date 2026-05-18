@@ -22,6 +22,7 @@ import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, StringExt}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion, SdkReference}
+import org.jetbrains.sbt.asPath
 import org.jetbrains.sbt.project.data.MyURI
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.structure.data.{InterpretablePath, PathConstructor}
@@ -36,16 +37,12 @@ import scala.util.control.NonFatal
 
 private[importing] object BspResolverLogic {
 
-  private given PathConstructor[Path]:
-    override def construct(path: Path): InterpretablePath =
-      new InterpretablePath(path.toCanonicalPath.toString)
-
   private given PathConstructor[String]:
     override def construct(str: String): InterpretablePath = new InterpretablePath(str)
 
   private def interpretablePathFromUri(uriString: String)(using descriptor: EelDescriptor): InterpretablePath =
     if descriptor == LocalEelDescriptor.INSTANCE then
-      InterpretablePath.construct(Paths.get(uriString.toURI))
+      InterpretablePath.construct(Paths.get(uriString.toURI).toString)
     else
       InterpretablePath.construct(uriString.toURI.getPath)
 
@@ -844,7 +841,7 @@ private[importing] object BspResolverLogic {
       None
     } else {
       val (home, version) = groupedJdks.maxBy { case (_, count) => count }._1
-      Option(home).map(u => JdkByHome(u.toPath)).orElse(Option(version).map(JdkByVersion))
+      Option(home).map(u => JdkByHome(u.uri.asPath)).orElse(Option(version).map(JdkByVersion))
     }
     jdkReference
   }
