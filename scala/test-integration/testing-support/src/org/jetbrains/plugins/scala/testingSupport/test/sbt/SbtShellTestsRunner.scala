@@ -5,6 +5,7 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
+import org.jetbrains.sbt.shell.communication.{SbtShellCommandEventProcessor, SbtShellCommandRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,8 +40,10 @@ object SbtShellTestsRunner {
       else
         Future.successful(None)
 
-    def evaluateCommand(command: String): Future[Unit] =
-      communication.command(command, (), SbtShellCommunication.listenerAggregator(sbtEventsHandler.processEvent))
+    def evaluateCommand(command: String): Future[Unit] = {
+      val request = SbtShellCommandRequest(command, new SbtShellCommandEventProcessor.ShellEventListener(sbtEventsHandler.processEvent))
+      communication.run(request)
+    }
 
     def evaluateCommands: Future[Seq[Unit]] =
       Future.sequence(testRunCommands.map(evaluateCommand))

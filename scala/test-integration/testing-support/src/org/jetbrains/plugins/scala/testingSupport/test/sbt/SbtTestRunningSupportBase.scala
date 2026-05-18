@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingEntry, SettingMap}
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
-import org.jetbrains.sbt.{SbtUtil, SbtVersionCapabilities}
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -14,7 +14,7 @@ abstract class SbtTestRunningSupportBase extends SbtTestRunningSupport {
   override def allowsSbtUiRun: Boolean = false
 
   override def initialize(comm: SbtShellCommunication): Future[String] =
-    comm.command("initialize")
+    comm.runAndCollectOutput("initialize")
 
   override def modifySbtSettingsForUi(module: Module, comm: SbtShellCommunication): Future[SettingMap] =
     Future.successful(Map.empty)

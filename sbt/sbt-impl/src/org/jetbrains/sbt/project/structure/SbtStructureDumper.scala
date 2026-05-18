@@ -16,6 +16,7 @@ import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
+import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
@@ -103,7 +104,8 @@ object SbtStructureDumper:
       }
 
       val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
-      val aggregator = shell.messageAggregatorForSync(
+      val aggregator = SbtShellBuildMessagesEventProcessor.forSync(
+        project,
         reporter,
         EventId(s"dump:${UUID.randomUUID()}"),
         optProcessOutputBuilder,
@@ -113,10 +115,11 @@ object SbtStructureDumper:
 
       val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
       val terminationMessage = "Sbt shell terminated before sync command is finished"
+      val request = SbtShellCommandRequest(buildCommand, aggregator, Some(terminationMessage))
       if isSbtVersionOutdated then
-        shell.commandAfterSoftRestart(buildCommand, BuildMessages.empty, aggregator, terminationMessage)
+        shell.runAfterSoftRestart(request)
       else
-        shell.command(buildCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
+        shell.run(request)
 
   end FromShell
 
@@ -246,7 +249,7 @@ object SbtStructureDumper:
 
     /**
      * Builds config for dumping the project structure in the new import way (without state transformations).
-     * 
+     *
      * Due to the sbt issue [[https://github.com/sbt/sbt/issues/8570]] when using `--addPluginSbtFile` in sbt 1.x < 1.12.1
      * and sbt 2.x < 2.0.0-RC9 the new import relies on adding an sbt file to the global plugins directory.
      * The same trick is used in [[SbtProcessManager.createShellProcessHandler]] when an sbt version is lower than 1.2.0.
@@ -278,10 +281,10 @@ object SbtStructureDumper:
 
         val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
           raw"""Compile / unmanagedJars ++= {
-            |$fileConverter
-            |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
-            |}
-            |""".stripMargin,
+               |$fileConverter
+               |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
+               |}
+               |""".stripMargin,
           eelDescriptor,
           project
         )

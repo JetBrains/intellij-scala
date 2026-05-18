@@ -22,7 +22,7 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
   )
 
   def testFailedCommand(): Unit = {
-    Await.result(comm.command("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
+    Await.result(comm.runAndCollectOutput("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
     flush()
     val logNoAnsi = BuildMessages.stripAnsiCodes(processListener.getLog)
     assert(logNoAnsi.contains(SbtShellTestUtil.ErrorPrefix))
@@ -60,7 +60,7 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
     val sbtVersion = comm.getRunningOrDetectedSbtVersion
     val sbtCommand = commandBefore.toSbtCommand(sbtVersion)
     val res = Await.result(
-      comm.command(sbtCommand).flatMap { _ => handler.getSettingValue },
+      comm.runAndCollectOutput(sbtCommand).flatMap { _ => handler.getSettingValue },
       timeout
     )
     flush()
@@ -102,7 +102,7 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
     val setSbtCommandText = setCommand.toSbtCommand(comm.getRunningOrDetectedSbtVersion)
     val res = Await.result(
       for {
-        _ <- comm.command(setSbtCommandText)
+        _ <- comm.runAndCollectOutput(setSbtCommandText)
         _ <- addHandler.addToSettingValue(addValue)
         v <- handler.getSettingValue
       } yield v,

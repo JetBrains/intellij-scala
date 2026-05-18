@@ -86,6 +86,8 @@ class SbtRunConfiguration(
 
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 
+  override def isBuildBeforeLaunchAddedByDefault: Boolean = false
+
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
     new SbtCommandLineState(commands, this, env)
 
