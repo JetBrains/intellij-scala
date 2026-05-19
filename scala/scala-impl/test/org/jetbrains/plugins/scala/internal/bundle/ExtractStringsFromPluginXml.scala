@@ -67,7 +67,7 @@ object ExtractStringsFromPluginXml {
     val newBundle = I18nBundleContent(bundle.entries ++ newEntries.result())
     newBundle.sorted.writeTo(info.absoluteBundlePath)
 
-    val output = new PrintWriter(info.absoluteXmlPath.toFile)
+    val output = new PrintWriter(Files.newBufferedWriter(info.absoluteXmlPath))
     try newContext.foreach(output.println)
     finally output.close()
   }

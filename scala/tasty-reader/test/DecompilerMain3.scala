@@ -122,10 +122,7 @@ object DecompilerMain3 {
                 System.err.println(path.toString.substring(OutputDir.length + 1))
                 Files.write(actualPath, actual.getBytes)
               } else {
-                val actualFile = actualPath.toFile
-                if (actualFile.exists()) {
-                  actualFile.delete()
-                }
+                Files.deleteIfExists(actualPath)
               }
             case Mode.Benchmark =>
               fileAndText

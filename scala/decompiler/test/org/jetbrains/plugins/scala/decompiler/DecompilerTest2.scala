@@ -101,14 +101,14 @@ class DecompilerTest2 extends TestCase {
     assertTrue(s"File $sigFile doest not exist", Files.exists(sigFile))
 
     val Some((sourceFile, actual)) = try {
-      Decompiler.sourceNameAndText(sigFile.toFile.getName, readBytes(sigFile))
+      Decompiler.sourceNameAndText(sigFile.getFileName.toString, readBytes(sigFile))
     } catch {
       case NonFatal(e) =>
         Console.err.println(scalaFile)
         throw e
     }
 
-    assertEquals("Scala file name", scalaFile.toFile.getName, sourceFile)
+    assertEquals("Scala file name", scalaFile.getFileName.toString, sourceFile)
 
     val expected = new String(readBytes(scalaFile), StandardCharsets.UTF_8)
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.base
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.testFramework.PsiTestUtil
 
@@ -13,7 +13,7 @@ object SourceRootTestUtil {
     if (rootFile eq null) {
       throw new IllegalArgumentException(s"Cannot find source root path: $path")
     }
-    FileUtil.createIfDoesntExist(path.toFile)
+    NioFiles.createIfNotExists(path)
     PsiTestUtil.addSourceRoot(module, rootFile)
   }
 }

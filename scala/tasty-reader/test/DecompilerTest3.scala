@@ -202,7 +202,7 @@ class DecompilerTest3 extends TestCase {
         throw e
     }
 
-    val expectedSourceFile = scalaFile.toFile.getName
+    val expectedSourceFile = scalaFile.getFileName.toString
     assertEquals("Scala file name", expectedSourceFile, actualSourceFile)
 
     val actualTastyContentNormalised = if (simpleTypes)

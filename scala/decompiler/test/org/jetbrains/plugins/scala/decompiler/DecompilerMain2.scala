@@ -116,7 +116,7 @@ object DecompilerMain2 {
                 case None =>
               }
             case Mode.Test =>
-              if (path.toFile.exists()) { // Inner classes don't have separate source files
+              if (Files.exists(path)) { // Inner classes don't have separate source files
                 val expected = new String(Files.readAllBytes(path))
                 Decompiler.sourceNameAndText(fileName, in.readAllBytes()) match {
                   case Some((_, actual)) =>
@@ -125,10 +125,7 @@ object DecompilerMain2 {
                       System.err.println(path.toString.substring(OutputDir.length + 1))
                       Files.write(actualPath, actual.getBytes)
                     } else {
-                      val actualFile = actualPath.toFile
-                      if (actualFile.exists()) {
-                        actualFile.delete()
-                      }
+                      Files.deleteIfExists(actualPath)
                     }
                   case None =>
                 }

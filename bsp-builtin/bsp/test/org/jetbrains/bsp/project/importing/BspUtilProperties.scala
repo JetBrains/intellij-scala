@@ -44,7 +44,7 @@ class BspUtilProperties extends Checkers {
 
     check(
       forAll(genPath) { path =>
-        Path.of(path.toUri).toFile == path.toFile
+        Path.of(path.toUri) == path
       }
     )
   }

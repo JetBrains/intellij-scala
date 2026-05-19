@@ -51,9 +51,8 @@ class CompileServerTokenTest:
       val permissions = Files.getPosixFilePermissions(tokenFilePath).asScala.toSet
       assertEquals(Set(OWNER_READ, OWNER_WRITE), permissions, "The token file was created with wrong posix filesystem permissions")
     else
-      val file = tokenFilePath.toFile
-      assertTrue(file.canRead, "The token file on Windows must be readable")
-      assertTrue(file.canWrite, "The token file on Windows must be writable")
+      assertTrue(Files.isReadable(tokenFilePath), "The token file on Windows must be readable")
+      assertTrue(Files.isWritable(tokenFilePath), "The token file on Windows must be writable")
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))

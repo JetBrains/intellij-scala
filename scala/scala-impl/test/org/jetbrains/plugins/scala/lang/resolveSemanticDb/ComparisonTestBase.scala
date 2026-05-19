@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -9,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.Referen
 import org.junit.Assert.fail
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == config.scalaTargetVersion
@@ -34,7 +33,7 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
     for (source <- sources; filePath <- allPathsIn(source)) yield {
       myFixture.addFileToProject(
         config.sourcePath.relativize(filePath).toString,
-        FileUtil.loadFile(filePath.toFile, StandardCharsets.UTF_8)
+        Files.readString(filePath, StandardCharsets.UTF_8)
       )
     }
   }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsSectionsTestingBase
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 
 /**
@@ -23,7 +24,7 @@ class ScalaDocumentationProviderTest_SyntheticScalaLibraryElements
       ScalaVersion.Latest.Scala_3
     )
 
-  private val ivyHome: String = FileUtilRt.toSystemIndependentName(DependencyManagerBase.ivyHome.toFile.getCanonicalPath)
+  private val ivyHome: String = FileUtilRt.toSystemIndependentName(DependencyManagerBase.ivyHome.toCanonicalPath.toString)
 
   def testSyntheticClass_Any(): Unit = {
     configureScalaFromFileText(s"""val x: ${CARET}Any = 0""")

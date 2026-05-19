@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolvedDependency, Types}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManagers
 
 import scala.collection.mutable
@@ -27,14 +28,16 @@ abstract class IvyManagedLoaderBase extends LibraryLoader {
     val deps = dependencies(version)
     val resolved = cache.getOrElseUpdate(deps, dependencyManager.resolve(deps: _*))
     resolved.foreach { resolved =>
-      val resolvedFile = resolved.file.toFile
-      VfsRootAccess.allowRootAccess(module, resolvedFile.getCanonicalPath)
+      val resolvedFile = resolved.file
+      VfsRootAccess.allowRootAccess(module, resolvedFile.toCanonicalPath.toString)
 
+      val libraryDir = resolvedFile.getParent.toString
+      val libraryFileName = resolvedFile.getFileName.toString
       parentDisposable match {
         case Some(disposable) =>
-          PsiTestUtil.addLibrary(disposable, module, resolved.info.toString, resolvedFile.getParent, resolvedFile.getName)
+          PsiTestUtil.addLibrary(disposable, module, resolved.info.toString, libraryDir, libraryFileName)
         case _ =>
-          PsiTestUtil.addLibrary(module, resolved.info.toString, resolvedFile.getParent, resolvedFile.getName)
+          PsiTestUtil.addLibrary(module, resolved.info.toString, libraryDir, libraryFileName)
       }
     }
   }
