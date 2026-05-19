@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
-import java.io.FileNotFoundException
-import java.nio.file.Path
+import java.io.IOException
+import java.nio.file.{Files, Path}
 import scala.collection.immutable.SortedMap
-import scala.io.Source
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Using
 
 
@@ -32,8 +32,8 @@ object RangeMap {
   val empty: RangeMap[Nothing] = RangeMap(SortedMap.empty)
 
   def fromFile(path: Path): RangeMap[String] =
-    RangeMap(Using.resource(Source.fromFile(path.toFile)) {
-      _.getLines()
+    RangeMap(Using.resource(Files.lines(path)) { lines =>
+      lines.iterator().asScala
         .flatMap {
           case lineRegex(start, end, name) => Some((new TextRange(start.toInt, end.toInt), name))
           case _ => None
@@ -45,6 +45,6 @@ object RangeMap {
   def fromFileOrEmpty(path: Path): RangeMap[String] =
     try fromFile(path)
     catch {
-      case _: FileNotFoundException => empty
+      case _: IOException => empty
     }
 }
