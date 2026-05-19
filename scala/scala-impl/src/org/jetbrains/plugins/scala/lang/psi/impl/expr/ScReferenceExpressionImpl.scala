@@ -325,7 +325,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
 
     val fromType                 = srr.fromType
-    val unresolvedTypeParameters = srr.unresolvedTypeParameters.getOrElse(Seq.empty)
+    val unresolvedTypeParameters = Seq.empty
     val matchClauseSubst         = srr.matchClauseSubstitutor
     val extensionOwner           = srr.exportedInExtension
 
