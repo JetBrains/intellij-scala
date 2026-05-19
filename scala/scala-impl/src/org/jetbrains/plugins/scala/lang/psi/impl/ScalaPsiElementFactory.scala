@@ -1004,7 +1004,7 @@ object ScalaPsiElementFactory {
       builder.append(" }")
     }
 
-    val text = builder.toString.trimRight
+    val text = builder.toString.stripTrailing
     val classBody = createClassWithBody(text, scalaFeatures, forceBraces = true)
     classBody.extensions.head
   }

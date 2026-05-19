@@ -510,10 +510,6 @@ package object extensions {
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
 
-    // TODO: remove, and use stripTrailing() (available since JDK 11)
-    //  (search for similar methods definitions in project)
-    def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")
-
     def shorten(maxLen: Int, restMarker: String = "..."): String = {
       assert(maxLen >= restMarker.length)
       if (string.length <= maxLen) string
@@ -533,11 +529,6 @@ package object extensions {
     def stripSuffixes(suffixes: Seq[String]): String = {
       suffixes.foldLeft(string)(_.stripSuffix(_))
     }
-  }
-
-  object StringExt {
-
-    private val TrimRightRegex = "\\s+$".r
   }
 
   implicit class CharSeqExt(private val cs: CharSequence) extends AnyVal {

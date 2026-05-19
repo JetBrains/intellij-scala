@@ -49,7 +49,7 @@ trait WorksheetRuntimeExceptionsTests extends MatcherAssertionsExt {
       case WorksheetRuntimeExceptionsTests.Folded(expanded) =>
         val exceptionFolding = exceptionFoldingOpt.getOrElse(fail("exception output was expected to be folded").asInstanceOf[Nothing])
         assertEquals(expectedTextStart.length, exceptionFolding.startOffset)
-        assertEquals(actualText.trimRight.length, exceptionFolding.endOffset)
+        assertEquals(actualText.stripTrailing.length, exceptionFolding.endOffset)
 
         if (expanded) {
           assertTrue("exception folding should be expanded", exceptionFolding.isExpanded)

@@ -110,7 +110,7 @@ object ReferencePassedToNlsInspection {
 
     private val isAllowedMethod: Set[String] = Set(
       "indent",
-      "trim", "trimRight",
+      "trim",
       "stripMargin", "stripTrailing", "stripLeading", "stripIndent", "stripLineEnd", "strip",
     )
   }
