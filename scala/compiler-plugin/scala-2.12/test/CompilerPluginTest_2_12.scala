@@ -1,7 +1,7 @@
 import CompilerPluginTest_2_12._
 import org.junit.{Assert, Test}
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import scala.reflect.internal.Reporter.{ERROR, INFO, Severity, WARNING}
 import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.VirtualFile
@@ -183,14 +183,19 @@ private object CompilerPluginTest_2_12 {
 
   private def compile(code: Seq[String]): Seq[StoreReporter.Info] = {
     // For some reason, VirtualDirectory (as well as VirtualDirectoryClassPath) works for regular sources but not for macros, using multiple runs
-    val output = Files.createTempDirectory(getClass.getName).toFile
-    try {
-      compile(code, output.getAbsolutePath)
-    } finally {
-      output.listFiles().foreach(_.delete())
-      output.delete()
-    }
+    val output = Files.createTempDirectory(getClass.getName)
+    try compile(code, output.toAbsolutePath.toString)
+    finally deleteRecursively(output)
   }
+
+  private def deleteRecursively(path: Path): Unit = {
+    if (Files.isDirectory(path))
+      using(Files.list(path))(_.forEach(deleteRecursively))
+    Files.delete(path)
+  }
+
+  private def using[A <: AutoCloseable, B](resource: A)(f: A => B): B =
+    try f(resource) finally resource.close()
 
   private def compile(code: Seq[String], output: String): Seq[StoreReporter.Info] = {
     val settings = new Settings()
