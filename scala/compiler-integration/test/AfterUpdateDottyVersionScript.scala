@@ -1,7 +1,5 @@
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.projectRoots.JavaSdkVersion
-import com.intellij.openapi.util.io.{FileUtilRt, NioFiles}
-import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
+import com.intellij.openapi.util.io.NioFiles
 import junit.framework.TestCase
 import junitparams.JUnitParamsRunner
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -21,8 +19,8 @@ import org.junit.{FixMethodOrder, Ignore, Test}
 import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardCopyOption}
-import scala.io.Source
 import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.jdk.StreamConverters.StreamHasToScala
 import scala.sys.process.Process
 import scala.util.Using
 
@@ -137,6 +135,8 @@ object AfterUpdateDottyVersionScript {
       val commands: Seq[String] =
         "git" :: "clone" :: "--branch" :: branch :: url :: "." :: "--depth=1" :: Nil
 
+      // .toFile must be used because of the Scala Process API
+      //noinspection SSBasedInspection
       val rc = Process(commands, path.toFile).!
       assert(rc == 0, s"Failed ($rc) to clone $url into $path")
     }
@@ -203,20 +203,13 @@ object AfterUpdateDottyVersionScript {
 
   private val testDataPath: Path = Path.of(TestUtils.getTestDataPath)
 
-  private def downloadRepository(url: String): Path = {
-    val repoFile = newTempFile()
-    DownloadUtil.downloadAtomically(new EmptyProgressIndicator, url, repoFile.toFile)
-
-    val repoDir = newTempDir()
-    GithubZipUtil.unzip(null, repoDir.toFile, repoFile.toFile, null, null, true)
-    repoDir
-  }
-
   //noinspection ScalaUnusedSymbol
   //might be used during local tests, e.g. if we use to reuse dotty repository and not clone it every time we run tests
   private def gitStashChanges(repository: Path): Unit = {
     //stash any modifications to repository
     val commands: Seq[String] = "git" :: "stash" :: Nil
+    // .toFile must be used because of the Scala Process API
+    //noinspection SSBasedInspection
     val rc = Process(commands, repository.toFile).!
     assert(rc == 0, s"Failed to stash changes in repository $repository")
   }
@@ -254,7 +247,7 @@ object AfterUpdateDottyVersionScript {
 
       //val tempRangeSourceDir = Path.of("/home/tobi/desktop/testing/pos")
       val tempRangeSourceDir = newTempDir().resolve("pos")
-      tempRangeSourceDir.toFile.mkdirs()
+      Files.createDirectories(tempRangeSourceDir)
 
       patchTestBlacklist(repo)
 
@@ -286,13 +279,11 @@ object AfterUpdateDottyVersionScript {
           .replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
 
         if (!ignoreFilesWithContent.exists(content.contains)) {
-          val targetFile = target.toFile
-
           val outputFileName = Iterator
-            .iterate(targetFile)(_.getParentFile)
+            .iterate(target)(_.getParent)
             .takeWhile(_ != null)
             .takeWhile(!_.isDirectory)
-            .map(_.getName.replace('.', '_').replace("++++", "."))
+            .map(_.getFileName.toString.replace('.', '_').replace("++++", "."))
             .toSeq
             .reverse
             .mkString("_")
@@ -301,19 +292,17 @@ object AfterUpdateDottyVersionScript {
           println(file.toString + " -> " + outputPath)
 
           {
-            val pw = new PrintWriter(outputPath.toFile)
-            pw.write(content)
-            if (content.last != '\n')
-              pw.write('\n')
-            pw.println("-----")
-            pw.close()
+            Using.resource(new PrintWriter(Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8))) { pw =>
+              pw.write(content)
+              if (content.last != '\n')
+                pw.write('\n')
+              pw.println("-----")
+            }
           }
 
           // print it into a temporary directory which we can use to run sbt tests on
           {
-            val pw = new PrintWriter(outputInRangeDir.toFile)
-            pw.write(content)
-            pw.close()
+            Files.writeString(outputInRangeDir, content, StandardCharsets.UTF_8)
           }
           atLeastOneFileProcessed = true
         }
@@ -335,7 +324,7 @@ object AfterUpdateDottyVersionScript {
      * This is done by patching multiple files in the dotty compiler/test source.
      * Most importantly we hook into the main parse function and traverse trees that were created there.
      *
-     * @param repoPath path to the complete dotty source code
+     * @param repo path to the complete dotty source code
      * @param testFilePath path to a directory that contains all test files
      */
     private def extractRanges(repo: ScalaRepository, testFilePath: Path): Unit = {
@@ -626,11 +615,13 @@ object AfterUpdateDottyVersionScript {
   //noinspection MutatorLikeMethodIsParameterless
   private def needDeleteTempFileOnExit = true
 
-  private def newTempFile(): Path =
-    FileUtilRt.createTempFile("imported-dotty-tests", "", needDeleteTempFileOnExit).toPath
-
-  private def newTempDir(): Path =
-    FileUtilRt.createTempDirectory("imported-dotty-tests", "", needDeleteTempFileOnExit).toPath
+  private def newTempDir(): Path = {
+    val dir = Files.createTempDirectory("imported-dotty-tests")
+    if (needDeleteTempFileOnExit) {
+      Runtime.getRuntime.addShutdownHook(new Thread(() => NioFiles.deleteRecursively(dir)))
+    }
+    dir
+  }
 
   private def allFilesIn(path: Path): Iterator[Path] = {
     if (!path.exists) Iterator.empty
@@ -639,22 +630,15 @@ object AfterUpdateDottyVersionScript {
   }
 
   private def clearDirectory(path: Path): Unit = {
-    val file = path.toFile
-    if (file.exists()) {
-      assert(file.isDirectory)
-      val files = file.listFiles()
+    if (path.exists) {
+      assert(path.isDirectory)
+      val files = path.children()
       assert(files != null)
-      files.map(_.toPath).foreach(deleteRecursively)
+      files.foreach(NioFiles.deleteRecursively)
     }
     else {
       // probably the folder is already deleted in the previous script run
     }
-  }
-
-  private def deleteRecursively(path: Path): Unit = {
-    if (Files.isDirectory(path))
-      path.children().foreach(deleteRecursively)
-    Files.delete(path)
   }
 
   private def copyRecursively(source: Path, target: Path): Unit =
@@ -681,6 +665,8 @@ object AfterUpdateDottyVersionScript {
     )
     val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
     val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
+    // .toFile must be used because of the Scala Process API
+    //noinspection SSBasedInspection
     val process = Process(sbtExecutable :: "--java-home" :: jdkDirectory.toCanonicalPath.toString :: cmdline :: Nil, dir.toFile)
     val sc2 = process.!
     assert(sc2 == 0, s"sbt failed with exit code $sc2")
@@ -705,16 +691,14 @@ object AfterUpdateDottyVersionScript {
            |""".stripMargin.trim)
     }
     val newContent = content.replace(searchString, replacement)
-    val w = new PrintWriter(path.toFile, StandardCharsets.UTF_8)
-    try w.write(newContent)
-    finally w.close()
+    Files.writeString(path, newContent, StandardCharsets.UTF_8)
   }
 
   private def linesInFile(path: Path): Seq[String] =
-    Using.resource(Source.fromFile(path.toFile))(_.getLines().toSeq)
+    Files.lines(path, StandardCharsets.UTF_8).toScala(List)
 
   private def readFile(path: Path): String =
-    Using.resource(Source.fromFile(path.toFile))(_.mkString)
+    Files.readString(path, StandardCharsets.UTF_8)
 
   private def loadBlacklist(repo: ScalaRepository): Set[String] =
     linesInFile(repo.`pos-from-tasty.blacklist`)
