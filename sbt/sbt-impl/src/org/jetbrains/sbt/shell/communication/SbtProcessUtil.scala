@@ -47,8 +47,4 @@ private[shell] object SbtProcessUtil {
   // "sucky" workaround for jdwp printing this line on the console when deactivating debugger
   def debuggerMessage(line: String): Boolean =
     line.contains("Listening for transport")
-
-  implicit class StringExt(private val str: String) extends AnyVal {
-    def trimRight: String = str.replaceAll("\\s+$", "")
-  }
 }
