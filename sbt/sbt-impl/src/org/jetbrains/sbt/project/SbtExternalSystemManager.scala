@@ -13,6 +13,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
@@ -36,7 +37,7 @@ class SbtExternalSystemManager
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])
-//    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]])
+    //    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toCanonicalPath.toString)
     classpath.add(jarWith[scala.App])
     classpath.add(jarWith[scala.xml.Node])
 
@@ -74,6 +75,7 @@ object SbtExternalSystemManager {
     executionSettingsFor(project, workingDirPath)
   }
 
+  @RequiresBackgroundThread
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     import scala.jdk.CollectionConverters.*
 
@@ -141,58 +143,61 @@ object SbtExternalSystemManager {
   private def getVmExecutable(project: Project, projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
     val jdkTable = ProjectJdkTable.getInstance(project)
 
-    val customVmExecutable =
-      Option(settings.customVMPath)
-        .map(Path.of(_))
-        .filter(JdkUtil.checkForJre)
-        .map: customPath =>
-          Log.debug(s"Using Java from custom VM path: $customPath")
-          @NonNls val javaExe = if SystemInfo.isWindows then "java.exe" else "java"
-          customPath / "bin" / javaExe
+    val customVmExecutable = getCustomJvmPath(settings)
+    val orProjectJdk = customVmExecutable.orElse(getProjectJdkPath(projectJdkName, jdkTable))
+    val orAutoDetect = orProjectJdk.orElse(getAutoDetectJdkPath(project, sbtVersion, jdkTable))
+    orAutoDetect.getOrElse {
+      throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
+    }
+  }
 
-    val realExe = customVmExecutable
-      .orElse {
-        val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
-          .filter(jdk => JdkUtil.checkForJdk(jdk.getHomePath)): @nowarn("cat=deprecation")
-        projectJdkFound
-          .map { sdk =>
-            Log.debug(s"Using Java project JDK: $sdk")
+  private def getCustomJvmPath(settings: SbtSettings.State): Option[Path] = {
+    Option(settings.customVMPath)
+      .map(Path.of(_))
+      .filter(JdkUtil.checkForJre)
+      .map: customPath =>
+        Log.debug(s"Using Java from custom VM path: $customPath")
+        @NonNls val javaExe = if SystemInfo.isWindows then "java.exe" else "java"
+        customPath / "bin" / javaExe
+  }
 
-            sdk.getSdkType match {
-              case sdkType: JavaSdkType =>
-                Path.of(sdkType.getVMExecutablePath(sdk))
-              case _ =>
-                // ugh
-                throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
-            }
-          }
+  private def getProjectJdkPath(projectJdkName: Option[String], jdkTable: ProjectJdkTable): Option[Path] = {
+    val projectJdkFound = projectJdkName
+      .safeMap(jdkTable.findJdk)
+      .filter(jdk => JdkUtil.checkForJdk(jdk.getHomePath)): @nowarn("cat=deprecation")
+    projectJdkFound.map { sdk =>
+      Log.debug(s"Using Java project JDK: $sdk")
+
+      sdk.getSdkType match {
+        case sdkType: JavaSdkType =>
+          Path.of(sdkType.getVMExecutablePath(sdk))
+        case _ =>
+          // ugh
+          throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
       }
-      .orElse {
-        //automatically detect JDK if none is defined
-        invokeAndWait {
-          val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
-          if (sdk.sdk.isEmpty) {
-            Log.debug("Preconfigure JDK table for SBT import")
-            SbtProcessJdkGuesser.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
-          }
-        }
+    }
+  }
 
-        val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
-        val autoDetectedSdk = suitableSdk.sdk
-          //if no suitable sdj >= 8 found, take any JDK, and hope that sbt import will work
-          .orElse(suitableSdk.allSdkSorted.lastOption)
-
-        autoDetectedSdk.map { sdk =>
-          Log.debug(s"Using Java from best auto-detected JDK: $sdk")
-
-          Path.of(JavaSdk.getInstance().getVMExecutablePath(sdk))
-        }
+  private def getAutoDetectJdkPath(project: Project, sbtVersion: SbtVersion, jdkTable: ProjectJdkTable): Option[Path] = {
+    //automatically detect JDK if none is defined
+    invokeAndWait {
+      val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+      if (sdk.sdk.isEmpty) {
+        Log.debug("Preconfigure JDK table for SBT import")
+        SbtProcessJdkGuesser.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
       }
-      .getOrElse {
-        throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
-      }
+    }
 
-    realExe
+    val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+    val autoDetectedSdk = suitableSdk.sdk
+      //if no suitable sdj >= 8 found, take any JDK, and hope that sbt import will work
+      .orElse(suitableSdk.allSdkSorted.lastOption)
+
+    autoDetectedSdk.map { sdk =>
+      Log.debug(s"Using Java from best auto-detected JDK: $sdk")
+
+      Path.of(JavaSdk.getInstance().getVMExecutablePath(sdk))
+    }
   }
 
   private def getVmOptions(
