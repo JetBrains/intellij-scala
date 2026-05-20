@@ -183,7 +183,7 @@ object bspConfigSteps {
     computeConfigurationTuple(jdk, workspace, configSetup).take(2)
 
   def workspaceSetupChoices(workspace: Path): List[ConfigSetup] = {
-    val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace.toFile)
+    val vfile = LocalFileSystem.getInstance().findFileByNioFile(workspace)
 
     val sbtChoice = if (SbtProjectImportProvider.canImport(vfile)) {
       val sbtVersion = detectSbtVersion(workspace, SbtUtil.defaultLauncherPath)

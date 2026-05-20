@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project.importing
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup
 
 import scala.Iterator.iterate
@@ -29,11 +30,15 @@ object FastpassProjectImportProvider {
 
   private val logger = Logger.getInstance(classOf[FastpassProjectImportProvider])
 
-  def canImport(vFile: VirtualFile): Boolean = try {
-    pantsRoot(vFile).isDefined
-  } catch {
-    case e: Throwable =>
-      logger.error(e)
-      false
+  def canImport(@Nullable vFile: VirtualFile): Boolean = {
+    if (vFile == null) return false
+
+    try {
+      pantsRoot(vFile).isDefined
+    } catch {
+      case e: Throwable =>
+        logger.error(e)
+        false
+    }
   }
 }

@@ -4,6 +4,7 @@ package project
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nullable
 
 import javax.swing.Icon
 
@@ -31,7 +32,7 @@ object SbtProjectImportProvider {
 
   import language.SbtFileType.isMyFileType
 
-  def canImport(file: VirtualFile): Boolean = file match {
+  def canImport(@Nullable file: VirtualFile): Boolean = file match {
     case null => false
     case directory if directory.isDirectory =>
       directory.getName == Sbt.ProjectDirectory ||
