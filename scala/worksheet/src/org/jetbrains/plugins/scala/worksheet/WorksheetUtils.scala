@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.util.text.Strings
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
@@ -74,6 +75,7 @@ object WorksheetUtils {
    */
   private[worksheet] def prependWithJdkCompatibilityWarning(text: String, project: Project): String = {
     val jdkFeature = CompileServerLauncher.compileServerJdkFeatureVersion(project)
-    ScalaJDKIncompatibilityDetector.prependWithWarning(text, jdkFeature)
+    val prepended = ScalaJDKIncompatibilityDetector.prependWithWarning(text, jdkFeature)
+    Strings.convertLineSeparators(prepended)
   }
 }
