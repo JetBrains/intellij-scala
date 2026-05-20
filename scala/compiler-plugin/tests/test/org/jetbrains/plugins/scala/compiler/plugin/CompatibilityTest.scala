@@ -16,6 +16,7 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util
+import scala.collection.immutable.ArraySeq
 import scala.concurrent.duration.DurationInt
 import scala.io.Source
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -163,10 +164,14 @@ object CompatibilityTest {
   }
 
   private def assertPresent(version: ScalaVersion, output: String, tpe: String): Unit = ignoreErrorsOnWindows(output) {
-    val lines = output.lines.toList
+    val lines = {
+      val outputLines = output.linesIterator.toSeq
+      if (version.isScala3) filterOutJdk25Warnings(outputLines) else outputLines
+    }
+
     val (count, index) = if (version.isScala2) (3, 0) else (4, 3)
-    assertEquals(count, lines.size())
-    assertThat(lines.get(index), containsString(tpe))
+    assertEquals(count, lines.size)
+    assertThat(lines(index), containsString(tpe))
   }
 
   private def ignoreErrorsOnWindows(output: String)(f: => Unit): Unit = {
@@ -180,5 +185,17 @@ object CompatibilityTest {
         println("Output:")
         println(output)
     }
+  }
+
+  private val jdk25Warnings: ArraySeq[String] = ArraySeq(
+    "WARNING: A terminally deprecated method in sun.misc.Unsafe has been called",
+    "WARNING: sun.misc.Unsafe::objectFieldOffset has been called by scala.runtime.LazyVals$",
+    "WARNING: Please consider reporting this to the maintainers of class scala.runtime.LazyVals$",
+    "WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release"
+  )
+
+  private def filterOutJdk25Warnings(lines: Seq[String]): Seq[String] = {
+    val predicate: String => Boolean = line => jdk25Warnings.exists(line.startsWith)
+    lines.filterNot(predicate)
   }
 }
