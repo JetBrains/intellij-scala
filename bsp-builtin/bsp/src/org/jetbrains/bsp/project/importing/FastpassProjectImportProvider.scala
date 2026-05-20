@@ -7,10 +7,6 @@ import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup
 
 import scala.Iterator.iterate
 
-class FastpassProjectImportProvider {
-
-}
-
 object FastpassProjectImportProvider {
   def folderContainsPantsExec(virtualFile: VirtualFile): Boolean = {
     val pantsChild = virtualFile.findChild("pants")
@@ -28,7 +24,7 @@ object FastpassProjectImportProvider {
   def pantsRoot(vFile: VirtualFile): Option[VirtualFile] =
     iterate(vFile)(_.getParent).takeWhile(_ != null).find(isFastpassCompatibleProjectRoot)
 
-  private val logger = Logger.getInstance(classOf[FastpassProjectImportProvider])
+  private val logger = Logger.getInstance(classOf[FastpassProjectImportProvider.type])
 
   def canImport(@Nullable vFile: VirtualFile): Boolean = {
     if (vFile == null) return false
