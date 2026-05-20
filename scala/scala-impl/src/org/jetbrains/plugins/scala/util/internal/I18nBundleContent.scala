@@ -24,7 +24,7 @@ case class I18nBundleContent(entries: Seq[Entry]) {
     writeTo(Path.of(path))
 
   def writeTo(path: Path): Unit =
-    writeTo(new PrintWriter(path.toFile))
+    writeTo(new PrintWriter(Files.newBufferedWriter(path)))
 
   def writeTo(outputStream: OutputStream): Unit =
     writeTo(new PrintWriter(outputStream))
