@@ -15,7 +15,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, checkOffset, findRegisteredQuickFixes}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, doesHighlightingErrorRangeOrQuickFixRangeIncludeCaret, findRegisteredQuickFixes}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, NonNullObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.{assertFalse, assertTrue, fail}
@@ -125,9 +125,9 @@ final class ScalaQuickFixTestFixture(
     assert(actionsMatching.nonEmpty,
       s"""Quick fixes not found.
          |Expected actions:
-         |  ${hints.mkString("  \n")}
+         |${hints.mkString("\n").indent(2)}
          |Available actions:
-         |  ${actions.map(getPresentableText).mkString("  \n")}""".stripMargin
+         |${actions.map(getPresentableText).mkString("\n").indent(2)}""".stripMargin
     )
     actionsMatching
   }
@@ -136,12 +136,31 @@ final class ScalaQuickFixTestFixture(
     configureByText(text)
 
     val highlights = findMatchingHighlights(text)
-    if (highlights.isEmpty && failOnEmptyErrors) {
-      fail("Errors not found.").asInstanceOf[Nothing]
+    if (highlights.matching.isEmpty && failOnEmptyErrors) {
+      val errorMessage = buildErrorMessage(text, highlights)
+      fail(errorMessage).asInstanceOf[Nothing]
     }
     else {
-      highlights.flatMap(findRegisteredQuickFixes)
+      highlights.matching.flatMap(findRegisteredQuickFixes)
     }
+  }
+
+  private def buildErrorMessage(text: String, highlights: MatchingHighlightInfos): String = {
+    val result = new StringBuilder()
+    result.append("Matching errors not found.")
+
+    if (text.contains(CARET)) {
+      result.append(s"\nCaret offset: ${getEditor.getCaretModel.getOffset}")
+    }
+
+    if (highlights.matchingDescriptionOnly.nonEmpty) {
+      result.append(
+        s"""\nMatching descriptions in other locations:
+           |${highlights.matchingDescriptionOnly.mkString("\n").indent(2)})""".stripMargin
+      )
+    }
+
+    result.toString()
   }
 
   def highlightsDebugText(highlights: Seq[HighlightInfo], fileText: String): String = {
@@ -159,7 +178,7 @@ final class ScalaQuickFixTestFixture(
   def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
     val expectedHighlights = configureByText(text)
     val actualHighlights = findMatchingHighlights(text)
-    assertTextHasError(expectedHighlights, actualHighlights, allowAdditionalHighlights)
+    assertTextHasError(expectedHighlights, actualHighlights.matching, allowAdditionalHighlights)
   }
 
   def assertTextHasError(
@@ -232,19 +251,29 @@ final class ScalaQuickFixTestFixture(
    * @param text the original text is only used to check if there is an explicit caret marker inside it.
    *             If there is a caret marker, only highlightings at caret are checked.
    */
-  def findMatchingHighlights(text: String): Seq[HighlightInfo] = {
+  def findMatchingHighlights(text: String): MatchingHighlightInfos = {
     val caretOffset = if (text.contains(CARET)) Some(getEditor.getCaretModel.getOffset) else None
     findMatchingHighlights(caretOffset)
   }
 
-  def findMatchingHighlights(caretOffset: Option[Int] = None): Seq[HighlightInfo] = {
+  case class MatchingHighlightInfos(
+    matching: Seq[HighlightInfo],
+    matchingDescriptionOnly: Seq[HighlightInfo],
+    all: Seq[HighlightInfo]
+  )
+
+  def findMatchingHighlights(caretOffset: Option[Int] = None): MatchingHighlightInfos = {
     val highlightsAll = baseFixture.doHighlighting().asScala.toSeq
     val highlightsMatchingDescription = highlightsAll.filter(highlightInfo => {
       val description = highlightInfo.getDescription
       description != null && descriptionMatcher(description)
     })
-    val highlightsInRange = highlightsMatchingDescription.filter(checkOffset(_, caretOffset))
-    highlightsInRange
+    val highlightsInHighlightOrQuickFixRange = highlightsMatchingDescription.filter(doesHighlightingErrorRangeOrQuickFixRangeIncludeCaret(_, caretOffset))
+    MatchingHighlightInfos(
+      highlightsInHighlightOrQuickFixRange,
+      highlightsMatchingDescription,
+      highlightsAll
+    )
   }
 
   private def createScratchFile(normalizedText: String) = {
@@ -270,10 +299,40 @@ object ScalaQuickFixTestFixture {
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
 
-  private def checkOffset(highlightInfo: HighlightInfo, caretOffset: Option[Int]): Boolean = {
-    caretOffset.forall { offset =>
-      val range = highlightedRange(highlightInfo)
-      range.containsOffset(offset)
-    }
+  private def doesHighlightingErrorRangeOrQuickFixRangeIncludeCaret(highlightInfo: HighlightInfo, caretOffset: Option[Int]): Boolean = {
+    caretOffset.forall(doesHighlightingErrorRangeOrQuickFixRangeIncludeCaret(highlightInfo, _))
+  }
+
+  /**
+   * Some errors have quick fixes which are located in range different from the highlighting error range.
+   * In the tests the caret marker currently kinda can represent both, for convenience.
+   * I do realize that in some more narrow tests this might be a problem. In this case we would need to split the test functionality
+   *
+   * Examples:
+   *  - See SCL-25481. The "Type mismatch" error is shown after `}` (as expected) but the F2 (Go To Next Error) and the quick fix are on "42"
+   *    {{{
+   *      def foo2: Int = {
+   *        "42"
+   *      }
+   *    }}}
+   */
+  //noinspection ApiStatus
+  private def doesHighlightingErrorRangeOrQuickFixRangeIncludeCaret(highlightInfo: HighlightInfo, caretOffset: Int): Boolean = {
+    val range = highlightedRange(highlightInfo)
+    val caretIsInHighlightingRange = range.containsOffset(caretOffset)
+
+    // NOTE: the API of `findRegisteredQuickFix` is peculiar - it does not return Boolean but rather with some non-null value,
+    // So we use Object return value instead of just `boolean` (but it could be any marker non-null object, even a String)
+    // For us here the main important thing is to check if the range matches
+    val matchingByQuickFixRange: java.lang.Boolean = highlightInfo.findRegisteredQuickFix((descriptor, _) => {
+      // Note: filtering by the quick fix test / hint is done on later stages, here we only filter by the range
+      val caretIsInFixRange = descriptor.getFixRange.containsOffset(caretOffset)
+      if (caretIsInFixRange)
+        java.lang.Boolean.TRUE
+      else
+        null
+    })
+    val caretIsInQuickFixRange = matchingByQuickFixRange != null
+    caretIsInHighlightingRange || caretIsInQuickFixRange
   }
 }

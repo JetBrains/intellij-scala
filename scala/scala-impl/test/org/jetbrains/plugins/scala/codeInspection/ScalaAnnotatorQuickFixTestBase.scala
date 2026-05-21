@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt}
@@ -46,7 +47,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
   protected def createTestText(text: String): String = text
   protected def trimExpectedText: Boolean = true
 
-  protected override def checkTextHasNoErrors(text: String): Unit = {
+  protected override def checkTextHasNoErrors(@Language("Scala") text: String): Unit = {
     configureByText(text)
     val highlights = findMatchingHighlightings(text)
 
@@ -61,43 +62,43 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     )
   }
 
-  protected def configureByText(text: String): Seq[ExpectedHighlight] =
+  protected def configureByText(@Language("Scala") text: String): Seq[ExpectedHighlight] =
     scalaQuickFixFixture.configureByText(text)
 
-  protected def findMatchingHighlightings(text: String): Seq[HighlightInfo] =
-    scalaQuickFixFixture.findMatchingHighlights(text)
+  protected def findMatchingHighlightings(@Language("Scala") text: String): Seq[HighlightInfo] =
+    scalaQuickFixFixture.findMatchingHighlights(text).matching
 
-  protected def testQuickFix(text: String, expected: String, hint: String): Unit =
+  protected def testQuickFix(@Language("Scala") text: String, @Language("Scala") expected: String, hint: String): Unit =
     scalaQuickFixFixture.testQuickFix(text, expected, hint)
 
-  protected def testQuickFixes(text: String, expected: String, hint: String): Unit =
+  protected def testQuickFixes(@Language("Scala") text: String, @Language("Scala") expected: String, hint: String): Unit =
     scalaQuickFixFixture.testQuickFixes(text, expected, hint)
 
-  protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit =
+  protected def testQuickFixAllInFile(@Language("Scala") text: String, @Language("Scala") expected: String, hint: String): Unit =
     scalaQuickFixFixture.testQuickFixAllInFile(text, expected, hint)
 
-  protected def testQuickFixAllInFile(text: String, expected: String, hints: Seq[String]): Unit =
+  protected def testQuickFixAllInFile(@Language("Scala") text: String, @Language("Scala") expected: String, hints: Seq[String]): Unit =
     scalaQuickFixFixture.testQuickFixAllInFile(text, expected, hints)
 
-  protected def checkNotFixable(text: String, hint: String): Unit =
+  protected def checkNotFixable(@Language("Scala") text: String, hint: String): Unit =
     scalaQuickFixFixture.checkNotFixable(text, hint)
 
-  protected def checkNotFixable(text: String, hintFilter: String => Boolean): Unit =
+  protected def checkNotFixable(@Language("Scala") text: String, hintFilter: String => Boolean): Unit =
     scalaQuickFixFixture.checkNotFixable(text, hintFilter)
 
-  protected def checkIsNotAvailable(text: String, hint: String): Unit =
+  protected def checkIsNotAvailable(@Language("Scala") text: String, hint: String): Unit =
     scalaQuickFixFixture.checkIsNotAvailable(text, hint)
 
-  protected def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
+  protected def doFindQuickFixes(@Language("Scala") text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
     scalaQuickFixFixture.doFindQuickFixes(text, hint, failOnEmptyErrors)
 
-  protected def doFindQuickFixes(text: String, hints: Seq[String], failOnEmptyErrors: Boolean): Seq[IntentionAction] =
+  protected def doFindQuickFixes(@Language("Scala") text: String, hints: Seq[String], failOnEmptyErrors: Boolean): Seq[IntentionAction] =
     scalaQuickFixFixture.doFindQuickFixes(text, hints, failOnEmptyErrors)
 
-  protected def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
+  protected def findAllQuickFixes(@Language("Scala") text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
     scalaQuickFixFixture.findAllQuickFixes(text, failOnEmptyErrors)
 
-  protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit =
+  protected def checkTextHasError(@Language("Scala") text: String, allowAdditionalHighlights: Boolean = false): Unit =
     scalaQuickFixFixture.checkTextHasError(text, allowAdditionalHighlights)
 
   protected def assertTextHasError(
