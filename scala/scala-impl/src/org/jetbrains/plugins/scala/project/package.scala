@@ -14,6 +14,10 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.path.EelPathException
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.workspace.jps.entities.{DependencyScope, LibraryEntity, _}
 import com.intellij.platform.workspace.storage.{EntitySource, MutableEntityStorage}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
@@ -352,10 +356,15 @@ package object project {
     def isTrailingCommasEnabled: Boolean =
       scalaModuleSettings.exists(_.isTrailingCommasEnabled)
 
-    def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String], compileOrder: CompileOrder = CompileOrder.Mixed): Unit = {
+    def configureScalaCompilerSettingsFrom(
+      source: String,
+      options: collection.Seq[String],
+      project: Project,
+      compileOrder: CompileOrder = CompileOrder.Mixed
+    ): Unit = {
       val baseDirectory = Option(ExternalSystemModulePropertyManager.getInstance(module).getRootProjectPath)
         .getOrElse(module.getProject.getBasePath)
-      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq), compileOrder)
+      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq, project), compileOrder)
       compilerConfiguration.configureSettingsForModule(module, source, compilerSettings)
     }
 
@@ -484,7 +493,7 @@ package object project {
         } else {
           project.getBasePath
         }
-      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq), compileOrder)
+      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq, project), compileOrder)
       val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
       compilerConfiguration.configureSettingsForModule(moduleEntity.getName, source, compilerSettings)
     }
@@ -906,31 +915,37 @@ package object project {
     def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar.toFile)
   }
 
-  private def withPathsRelativeTo(baseDirectory: String, options: Seq[String]): Seq[String] = options.map { option =>
-    if (option.startsWith("-Xplugin:")) {
-      val compoundPath = option.substring(9)
-      val compoundPathAbsolute = toAbsoluteCompoundPath(baseDirectory, compoundPath)
-      "-Xplugin:" + compoundPathAbsolute
-    } else {
-      option
+  private def withPathsRelativeTo(baseDirectory: String, options: Seq[String], project: Project): Seq[String] = {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    options.map { option =>
+      if (option.startsWith("-Xplugin:")) {
+        val compoundPath = option.substring(9)
+        val compoundPathAbsolute = toAbsoluteCompoundPath(baseDirectory, compoundPath, eelDescriptor)
+        "-Xplugin:" + compoundPathAbsolute
+      } else {
+        option
+      }
     }
   }
 
   // SCL-11861, SCL-18534
-  private def toAbsoluteCompoundPath(baseDirectory: String, compoundPath: String): String = {
+  private def toAbsoluteCompoundPath(baseDirectory: String, compoundPath: String, eelDescriptor: EelDescriptor): String = {
     // according to https://docs.scala-lang.org/overviews/compiler-options/index.html
     // `,` is used as plugins separator: `-Xplugin PATHS1,PATHS2`
     // but in SCL-11861 `;` is used
     val pluginSeparator = if (compoundPath.contains(";")) ';' else ','
 
     val paths = compoundPath.split(pluginSeparator)
-    val pathsAbsolute = paths.map(toAbsolutePath(baseDirectory, _))
+    val pathsAbsolute = paths.map(toAbsolutePath(baseDirectory, _, eelDescriptor))
     pathsAbsolute.mkString(pluginSeparator.toString)
   }
 
-  private def toAbsolutePath(baseDirectory: String, path: String): String = {
-    val file = Path.of(path).isAbsolute
-    if (file) path
-    else Path.of(baseDirectory, path).toString
+  private def toAbsolutePath(baseDirectory: String, rawPath: String, eelDescriptor: EelDescriptor): String = {
+    // If the `rawPath` is not an absolute path, then `EelPathException` is thrown
+    val path =
+      try EelPathUtils.getNioPath(rawPath, eelDescriptor)
+      catch { case _: EelPathException => Path.of(baseDirectory, rawPath) }
+
+    EelPathUtils.renderAsEelPath(path)
   }
 }

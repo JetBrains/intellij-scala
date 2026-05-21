@@ -81,7 +81,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val compilerOptions = compilerOptionsFrom(scalaData)
     val classpath = scalaData.getScalaClasspath.asScala.toSeq.map(_.toPath)
     modules.foreach { module =>
-      module.configureScalaCompilerSettingsFrom(GradleExternalSystemReadableName, compilerOptions)
+      module.configureScalaCompilerSettingsFrom(GradleExternalSystemReadableName, compilerOptions, project)
       configureScalaSdk(module, classpath)
     }
   }

@@ -29,7 +29,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       module <- modelsProvider.getIdeModuleByNode(dataNode)
     } {
       val ScalaSdkData(_, scalaVersion, scalacClasspath, _, scalacOptions) = dataNode.getData
-      module.configureScalaCompilerSettingsFrom("bsp", scalacOptions)
+      module.configureScalaCompilerSettingsFrom("bsp", scalacOptions, project)
       configureScalaSdk(
         project,
         module,
