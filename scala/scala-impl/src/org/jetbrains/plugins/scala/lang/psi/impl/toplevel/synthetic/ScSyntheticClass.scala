@@ -14,7 +14,7 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.containers.MultiMap
 import org.intellij.lang.annotations.Language
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -246,6 +246,10 @@ sealed class ScSyntheticFunction(
     with ScTypeParametersOwner {
 
   private var containingSyntheticClass: Option[ScSyntheticClass] = None
+
+  @TestOnly
+  @Nullable
+  def getContainingSyntheticClass: ScSyntheticClass = containingSyntheticClass.orNull // To match getContainingClass and the setter
 
   def setContainingSyntheticClass(value: ScSyntheticClass): Unit = {
     assert(containingSyntheticClass.isEmpty, s"Containing synthetic class was already assigned to method $name")
