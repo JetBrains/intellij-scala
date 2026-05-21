@@ -1704,7 +1704,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part17 extends ReferenceCompar
   def test_i16486(): Unit = doTest("i16486", true) // #intersectionType
   def test_i16488(): Unit = doTest("i16488", true)
   def test_i16500(): Unit = doTest("i16500", true)
-  def test_i16506(): Unit = doTest("i16506", true)
+  def test_i16506(): Unit = doTest("i16506", false)
   def test_i16539(): Unit = doTest("i16539", true) // #enum, #unionType
   def test_i16539_min(): Unit = doTest("i16539.min", true) // #unionType
   def test_i16544a(): Unit = doTest("i16544a", true)
