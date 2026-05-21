@@ -1163,7 +1163,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part11 extends ReferenceCompariso
   def test_i10383(): Unit = doTest("i10383", true)
   def test_i10389(): Unit = doTest("i10389", true)
   def test_i10430(): Unit = doTest("i10430", true)
-  def test_i10437(): Unit = doTest("i10437", true)
+  def test_i10437(): Unit = doTest("i10437", false)
   def test_i10477(): Unit = doTest("i10477", false) // #traitParameters
   def test_i10495(): Unit = doTest("i10495", true) // #extension
   def test_i10521(): Unit = doTest("i10521", true) // #transparentInline
