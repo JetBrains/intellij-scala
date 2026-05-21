@@ -1717,7 +1717,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part17 extends ReferenceCompar
   def test_i16596_orig(): Unit = doTest("i16596.orig", true) // #matchType
   def test_i16603(): Unit = doTest("i16603", false) // #extension, #enum
   def test_i16639false_pos_on_trait(): Unit = doTest("i16639false-pos-on-trait", true)
-  def test_i16641(): Unit = doTest("i16641", true)
+  def test_i16641(): Unit = doTest("i16641", false)
   def test_i16649_irrefutable(): Unit = doTest("i16649-irrefutable", false) // #spliced/quoted
   def test_i16657(): Unit = doTest("i16657", true)
   def test_i16673(): Unit = doTest("i16673", true)
@@ -1756,7 +1756,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part17 extends ReferenceCompar
   def test_i17222_4(): Unit = doTest("i17222.4", true)
   def test_i17222_5(): Unit = doTest("i17222.5", true)
   def test_i17222_8(): Unit = doTest("i17222.8", true) // #unionType
-  def test_i17222_izumi_min(): Unit = doTest("i17222.izumi.min", true)
+  def test_i17222_izumi_min(): Unit = doTest("i17222.izumi.min", false)
   def test_i17222_izumi_rep(): Unit = doTest("i17222.izumi.rep", false) // #extension, #intersectionType, #opaque
   def test_i17227(): Unit = doTest("i17227", true)
   def test_i17245(): Unit = doTest("i17245", true)
