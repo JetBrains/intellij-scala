@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.path.EelPathException
+import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.workspace.jps.entities.{DependencyScope, LibraryEntity, _}
@@ -53,6 +53,7 @@ import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
+import scala.util.Try
 
 package object project {
 
@@ -940,12 +941,34 @@ package object project {
     pathsAbsolute.mkString(pluginSeparator.toString)
   }
 
+  /**
+   * Converts `rawPath` to a local path which can be used inside the target machine.
+   *
+   * @param baseDirectory project's base directory; may have an eel environment prefix, e.g., `$devcontainer.ij/home/user/project`.
+   * @param rawPath       path to convert; may be:
+   *                       - a relative path (e.g., `target/plugins/foo.jar`),
+   *                       - a local absolute path (e.g., `/root/.cache/...` or `C:/Users/...`),
+   *                       - an eel-prefixed path (e.g., `$devcontainer.ij/...`).
+   * @todo add eel path tests for this method
+   */
   private def toAbsolutePath(baseDirectory: String, rawPath: String, eelDescriptor: EelDescriptor): String = {
-    // If the `rawPath` is not an absolute path, then `EelPathException` is thrown
-    val path =
-      try EelPathUtils.getNioPath(rawPath, eelDescriptor)
-      catch { case _: EelPathException => Path.of(baseDirectory, rawPath) }
-
-    EelPathUtils.renderAsEelPath(path)
+    // 1) First case: `rawPath` is already absolute and belongs to the target eel descriptor. It can be .e.g, an eel-prefixed path.
+    // `Path#isAbsolute` uses host-OS rules, so a path like `/usr/lib/...` in WSL is non-absolute by this method, even though in practice it is.
+    // That case is handled by the `EelPath.parse` below.
+    val path = Path.of(rawPath)
+    val isAbsoluteNio = path.isAbsolute && EelProviderUtil.getEelDescriptor(path) == eelDescriptor
+    if (isAbsoluteNio) {
+      EelPathUtils.renderAsEelPath(path)
+    } else {
+      // 2) second case: `EelPath.parse` throws an exception for paths that are not absolute in the target environment, so if it succeeds, we know that
+      // `rawPath` is absolute in the target environment and can be returned as-is.
+      val isAbsoluteInTargetEnv = Try(EelPath.parse(rawPath, eelDescriptor)).isSuccess
+      if (isAbsoluteInTargetEnv) rawPath
+      else {
+        // 2) Third case: `rawPath` is relative — resolve against `baseDirectory`.
+        val resolved = Path.of(baseDirectory).resolve(rawPath)
+        EelPathUtils.renderAsEelPath(resolved)
+      }
+    }
   }
 }
