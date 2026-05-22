@@ -23,12 +23,6 @@ sealed abstract class SbtProjectFileHighlightingTestBase(sbtVersion: String) ext
     case _ => throw new IllegalArgumentException(s"Unsupported sbt version: $sbtVersion")
   }
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
-
   def testSbtProjectFileHighlighting(): Unit = {
     val pluginsSbtPath = getTestProjectPath / "project" / "plugins.sbt"
     val buildSbtPath = getTestProjectPath / "build.sbt"

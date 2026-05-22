@@ -26,10 +26,6 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
     super.setUp()
   }
 
-  override protected def setUpInWriteAction(): Unit = {
-    super.setUpInWriteAction()
-  }
-
   private def downloadAndExtractProject(): Unit = {
     val outputZipFile = Path.of(outputZipFileName)
     val projectDir = getTestProjectPath

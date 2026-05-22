@@ -31,11 +31,9 @@ abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStruc
 
   protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
 
-  override protected def setUpFixtures(): Unit = {
-    val myTestFixture = IdeaTestFixtureFactory.getFixtureFactory
-      .createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture
-    myTestFixture.setUp()
-    setMyTestFixture(myTestFixture)
+  override protected def setupBeforeProjectImport(): Unit = {
+    super.setupBeforeProjectImport()
+    SbtShellTestUtil.setNewSbtShellEnabled(useNewShell, getTestRootDisposable)
   }
 
   override def setUp(): Unit = {

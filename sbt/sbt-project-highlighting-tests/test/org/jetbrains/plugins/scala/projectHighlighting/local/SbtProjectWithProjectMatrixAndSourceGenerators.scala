@@ -18,7 +18,8 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
 
   override protected val projectFileName = projectName
 
-  override protected def enableSeparateModulesForProdTest: Boolean = false
+  override protected def getTestSbtProjectSettings =
+    super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)
 
   override def testHighlighting(): Unit = {
     super.testHighlighting()

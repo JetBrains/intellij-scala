@@ -1,56 +1,79 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
 import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike.TestSbtProjectSettings
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.settings.SbtSettings
 
 import java.nio.file.Path
 
+/**
+ * Common sbt-specific layer over [[ScalaExternalSystemImportingTestBase]].
+ *
+ * This trait binds the generic external-system test fixture to sbt:
+ *  - selects `build.sbt` as the external-system config file
+ *  - selects [[SbtProjectSystem.Id]] as the external-system id
+ *  - creates and exposes the current [[SbtProjectSettings]] instance for the linked project
+ *  - configures the linked project JDK from the test-case JDK
+ *  - applies test-specific sbt project settings from [[getTestSbtProjectSettings]]
+ *  - sets up Coursier/Ivy cache forwarding for sbt imports
+ *  - suppresses duplicate sbt structure-dump error/warning console output
+ *  - provides a helper for injecting values into copied test-data files
+ *
+ * Subclasses supply the remaining test workflow:
+ *  - test-data path and fixture shape
+ *  - the point where [[importProject]] is invoked
+ *  - model, notification, highlighting, runtime, or other assertions around the imported project
+ *
+ * @todo make an abstract class instead, refactor the project-highlighting tests instead
+ */
 trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTestBase {
 
-  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
+  final override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
-  override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
+  final override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  protected def enableSeparateModulesForProdTest: Boolean = true
+  override protected def setupBeforeProjectImport(): Unit = {
+    super.setupBeforeProjectImport()
 
-  override protected def setupProjectJdk(): Unit = {
-    super.setupProjectJdk()
-    getCurrentExternalProjectSettings.jdk = getJdkConfiguredForTestCase.getName
+    setupSbtProjectSettings()
+
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
+    SbtProjectImportTestUtils.suppressSbtStructureDumpErrorAndWarningConsoleOutput(this)
   }
 
-  override def setUp(): Unit = {
-    getCurrentExternalProjectSettings.separateProdAndTestSources = enableSeparateModulesForProdTest
-    super.setUp()
-  }
+  protected def getTestSbtProjectSettings: TestSbtProjectSettings =
+    TestSbtProjectSettings.Default
 
-  override protected def setUpFixtures(): Unit = {
-    super.setUpFixtures()
-
-    //need to do this before actual import is started in `setUp` method
-    ProjectHighlightingTestUtils.dontPrintErrorsAndWarningsToConsole(this)
-  }
-
-  private lazy val currentExternalProjectSettings: SbtProjectSettings =
+  final override protected lazy val getCurrentExternalProjectSettings: SbtProjectSettings =
     new SbtProjectSettings
 
-  override protected def getCurrentExternalProjectSettings: SbtProjectSettings = currentExternalProjectSettings
-
-  /**
-   * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
-   * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
-   */
-  protected def linkSbtProject(path: String, prodTestSourcesSeparated: Boolean, project: Project): Unit = {
-    val settings = new SbtProjectSettings
+  private def setupSbtProjectSettings(): Unit = {
+    val settings = getCurrentExternalProjectSettings
     settings.jdk = getJdkConfiguredForTestCase.getName
-    settings.setExternalProjectPath(path)
-    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
-    SbtSettings.getInstance(project).linkProject(settings)
+
+    val testSbtSettings = getTestSbtProjectSettings
+    settings.separateProdAndTestSources = testSbtSettings.separateProdAndTestSources
+    settings.useSbtShellForImport = testSbtSettings.useSbtShellForImport
   }
 
   final protected def injectVariable(file: Path, variableName: String, value: String): Unit =
     SbtProjectImportTestUtils.injectVariable(file, variableName, value)
+}
+
+object SbtExternalSystemImportingTestLike {
+  final case class TestSbtProjectSettings(
+    separateProdAndTestSources: Boolean,
+    useSbtShellForImport: Boolean
+  )
+
+  object TestSbtProjectSettings {
+    val Default: TestSbtProjectSettings = {
+      val settings = new SbtProjectSettings
+      TestSbtProjectSettings(
+        separateProdAndTestSources = settings.separateProdAndTestSources,
+        useSbtShellForImport = settings.useSbtShellForImport
+      )
+    }
+  }
 }

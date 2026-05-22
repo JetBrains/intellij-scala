@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.CompilerTester
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{IdeaProjectFixtureOptions, TestProjectCopyOptions}
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
@@ -22,29 +23,17 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
   override protected lazy val getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
+  // `CompilerDataFactory.semanticDbOptionsFor` calculates the SemanticDB target relative to the IDEA project path.
+  // Keep the opened IDEA project path equal to the sbt project root used by the test.
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
-  @throws[Exception]
-  override protected def setUpFixtures(): Unit = {
-    //Copied from `com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase.setUpFixtures`
-    //But here we pass custom project path instead of using the default temporary empty project path
-    //(created in com.intellij.testFramework.fixtures.impl.HeavyIdeaTestFixtureImpl.generateProjectPath)
-    //This is needed because `org.jetbrains.jps.incremental.scala.data.CompilerDataFactory.semanticDbOptionsFor`
-    //needs the correct project path to be equal to the project actual root in order correct semanticDb target folder is calculated later
-    //(it's done in dotty.tools.dotc.semanticdb.ExtractSemanticDB#write)
-    val testProjectDir = getTestProjectPath
-    val projectParentFolder = testProjectDir.getParent
-    val projectName = testProjectDir.getFileName.toString
-    setMyTestFixture(IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(projectName, projectParentFolder, true).getFixture)
-    getMyTestFixture.setUp()
-  }
+  override protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions =
+    super.getIdeaProjectFixtureOptions.copy(useTestProjectAsIdeaProjectRoot = true)
 
   def testWithSemanticDb_Scala3(): Unit = {
     buildProjectAndCheckThatNoSemanticDbIsGeneratedInSrcFolder()
-    import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+
     val module = this.getMyTestFixture.getProject.modules.find(m => !m.isBuildModule && m.isMain).get
     assertTrue(
       "Custom compiler bridge is expected to be non empty for Scala 3 language in SBT projects (see SCL-21741)",
@@ -59,12 +48,15 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
   private def buildProjectAndCheckThatNoSemanticDbIsGeneratedInSrcFolder(): Unit = {
     importProject(false)
     buildProject()
+    assertNoSemanticDbIsGeneratedInSrcFolder()
+  }
 
+  private def assertNoSemanticDbIsGeneratedInSrcFolder(): Unit = {
     val projectRoot = getMyProjectRoot.toNioPath
 
     val srcFolder = projectRoot.resolve("src")
-    assertTrue("src folder not found", srcFolder.exists)
     val targetFolder = projectRoot.resolve("target")
+    assertTrue("src folder not found", srcFolder.exists)
     assertTrue("target folder not found", targetFolder.exists)
 
     val nonScalaFilesInSrc = getRecursiveFilesIn(srcFolder).map(projectRoot.relativize)
@@ -106,10 +98,10 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
     val settings = ScalaCompileServerSettings.getInstance()
     val compileServerWorkingDir = Files.createTempDirectory("scala-compile-server-working-dir")
 
-    //We need to use a completely-unrelated working directory for the compile server in order teh test tests the correct thing.
+    //We need to use a completely unrelated working directory for the compiler server in order the test tests the correct thing.
     //In `dotty.tools.dotc.semanticdb.ExtractSemanticDB#write` when `SourceFile.relativePath` is calculated
-    //for relative path of a source file it uses working directory by default (pwd ~ '.', if no options were passed to the compiler)
-    //If the directory is a parent folder for the project folder it will calculate relative path correctly
+    //for a relative path of a source file it uses working directory by default (pwd ~ '.', if no options were passed to the compiler)
+    //If the directory is a parent folder for the project folder, it will calculate the relative path correctly,
     //and we won't be able to reproduce SCL-20779 or SCL-17519
     val withModifiedCompileServerWorkingDir = RevertableChange.withModifiedSetting[String](
       settings.CUSTOM_WORKING_DIR_FOR_TESTS,

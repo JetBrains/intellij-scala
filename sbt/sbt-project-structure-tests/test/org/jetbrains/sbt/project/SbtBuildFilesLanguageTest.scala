@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.SbtTestDataUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.language.SbtLanguageScala3
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -24,7 +25,8 @@ class SbtBuildFilesLanguageTest extends SbtExternalSystemImportingTestLike {
       s"sbt-project-structure-tests/testdata/sbt/projects/${getTestName(true)}",
     )
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 

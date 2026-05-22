@@ -12,6 +12,7 @@ import org.junit.Assert.assertNotNull
 
 import java.nio.file.Path
 
+//TODO: analyse the history and context and document WTF we need this
 final class FixtureDelegate(projectFile: Path) extends IdeaProjectTestFixture {
   private var actualProject: Project = _
 

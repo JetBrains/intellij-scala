@@ -17,11 +17,6 @@ class ResolveReplClasspathTest_Scala_3_7 extends SbtExternalSystemImportingTestL
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/resolveReplClasspath_Scala37"
 
-  override def setUp(): Unit =
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-
   @Test
   def resolveReplClasspath(): Unit =
     importProject(false)

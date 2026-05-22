@@ -199,7 +199,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     indicator: ProgressIndicator,
     useShellImport: Boolean
   )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
+    if (isUnitTestMode) {
+      SbtProjectResolver.setProcessOutputOfLatestStructureDump("")
+    }
 
     val optString = makeOptionsStringLiteral(settings)
 
@@ -298,7 +300,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       lazy val processOutput = dumper.processOutput.mkString
       if (isUnitTestMode) {
-        SbtProjectResolver.processOutputOfLatestStructureDump = processOutput
+        SbtProjectResolver.setProcessOutputOfLatestStructureDump(processOutput)
       }
       if (result.isFailure) {
         //NOTE: exception is logged in other places
@@ -1517,7 +1519,15 @@ object SbtProjectResolver {
   //It's hard to access process output from tests, because we use quite high-level project import API in tests
   @TestOnly
   @ApiStatus.Internal
-  var processOutputOfLatestStructureDump: String = ""
+  private var processOutputOfLatestStructureDump: String = ""
+
+  @TestOnly
+  @ApiStatus.Internal
+  def getProcessOutputOfLatestStructureDump: String =
+    processOutputOfLatestStructureDump
+
+  private def setProcessOutputOfLatestStructureDump(processOutput: String): Unit =
+    processOutputOfLatestStructureDump = processOutput
 
   private case class LibraryIdentifierWithoutRevision(
     organization: String,
@@ -1618,7 +1628,7 @@ object SbtProjectResolver {
     timingCollector: Option[SbtImportTimingCollector.TimingCollector]
   ) {
     /**
-     * @see [[org.jetbrains.sbt.SbtUtil#getRepoDir]]
+     * @see [[SbtUtil#getRepoDir]]
      */
     val repoDir: Path = SbtUtil.getRepoDir(eelDescriptor)
 

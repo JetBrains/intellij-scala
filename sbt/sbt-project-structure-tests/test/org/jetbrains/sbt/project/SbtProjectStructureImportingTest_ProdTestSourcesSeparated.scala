@@ -75,7 +75,7 @@ import java.nio.file.Files
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 
@@ -1891,7 +1891,7 @@ import java.nio.file.Files
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     Assert.assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 
@@ -1931,7 +1931,7 @@ import java.nio.file.Files
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     Assert.assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 
@@ -1955,7 +1955,7 @@ import java.nio.file.Files
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     Assert.assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 

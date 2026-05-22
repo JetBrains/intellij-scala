@@ -7,7 +7,6 @@ import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.jetbrains.sbt.project.{SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
@@ -36,24 +35,13 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
    */
   protected def sbtVersionToInject: Option[SbtVersion] = None
 
-  override def setUpFixtures(): Unit = {
-    super.setUpFixtures()
+  override protected def setupBeforeProjectImport(): Unit = {
+    super.setupBeforeProjectImport()
 
     //need to do this before actual import is started in `setUp` method
-    ProjectHighlightingTestUtils.dontPrintErrorsAndWarningsToConsole(this)
-  }
+    SbtProjectImportTestUtils.suppressSbtStructureDumpErrorAndWarningConsoleOutput(this)
 
-  override def setUp(): Unit = {
-    super.setUp()
-
-    // Set the sbt version in the project before generating the BSP connection file.
-    // In theory, this might be enough to override the sbt version in the test case
-    // before importing the project, because when the sbt/BSP server
-    // starts to import the project, the sbt version from the properties file
-    // should override the version from the connection file (it's implemented in sbt).
-    // However, for correctness and clarity, let's keep it here.
     injectSbtVersion()
-
     generateSbtBspConfigurationFileIfNeeded()
   }
 

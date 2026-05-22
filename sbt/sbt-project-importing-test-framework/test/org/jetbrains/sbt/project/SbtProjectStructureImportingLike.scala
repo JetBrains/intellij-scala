@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.compiler.testUtils.CompilerUtils
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.utils.{ProjectComparisonOptions, ProjectStructureComparisonContext}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
@@ -25,6 +26,28 @@ import org.junit.Assert.fail
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
+/**
+ * Base class for tests that verify the IDE project model produced by an sbt import.
+ *
+ * The sbt-specific external-system setup is provided by [[SbtExternalSystemImportingTestLike]].
+ *
+ * This class builds on that setup and adds the project-structure testing layer:
+ *
+ *  - [[ProjectStructureMatcher]] and [[ExactMatch]] for describing and comparing the expected IDE project layout
+ *  - default sbt project test-data location under `testdata/sbt/projects`
+ *  - preview import support via [[isPreview]]
+ *  - [[runTest]] helpers that:
+ *    - import the project
+ *    - validate imported external project data
+ *    - compare the IDE structure
+ *    - and assert that no unexpected notifications were shown
+ *  - helpers for common sbt roots, directory-completion variants, compiler options, and test builds
+ *
+ * Use this base when the main assertion is the imported project structure.
+ *
+ * Tests that only need to import an sbt project and exercise runtime/process behavior
+ * should usually extend [[SbtExternalSystemImportingTestLike]] or a more focused runtime base.
+ */
 abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
   with ProjectStructureMatcher
   with ExactMatch {
@@ -39,7 +62,6 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   override protected def getTestDataProjectPath: String =
     generateTestProjectPath(getTestName(true))
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
 
   override def setUp(): Unit = {
     super.setUp()
@@ -78,8 +100,9 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     }
 
     // Always check the project dependencies order in the main/test modules mode
-    val compareContext = defaultCompareContext.withOptions(optionsModifier).withOptions(_.copy(checkProjectDependenciesOrder = enableSeparateModulesForProdTest))
-    assertProjectsEqual(expected, getMyProject, !enableSeparateModulesForProdTest)(compareContext)
+    val separateProdAndTestSources = getTestSbtProjectSettings.separateProdAndTestSources
+    val compareContext = defaultCompareContext.withOptions(optionsModifier).withOptions(_.copy(checkProjectDependenciesOrder = separateProdAndTestSources))
+    assertProjectsEqual(expected, getMyProject, !separateProdAndTestSources)(compareContext)
     assertNoNotificationsShown(getMyProject, notificationsCollector.getNotifications, mutedNotificationTitles)
   }
 

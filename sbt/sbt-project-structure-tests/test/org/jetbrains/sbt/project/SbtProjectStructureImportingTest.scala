@@ -28,9 +28,10 @@ import java.net.URI
 @Category(Array(classOf[SlowTests2]))
 final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase {
 
-  import ProjectStructureDsl._
+  import ProjectStructureDsl.*
 
-  override protected def enableSeparateModulesForProdTest: Boolean = false
+  override protected def getTestSbtProjectSettings =
+    super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)
 
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
@@ -47,7 +48,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 
@@ -122,7 +123,12 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false, getMyProject)
+    SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
+      getMyProject,
+      externalProjectPath = linkedSbtProjectPath,
+      prodTestSourcesSeparated = false,
+      jdkName = getJdkConfiguredForTestCase.getName
+    )
     runTest(
       new project("testTwoLinkedProjects") {
         modules := Seq(
@@ -1352,7 +1358,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
 
     assertSbtDirectoryCompletionContributorVariants(
