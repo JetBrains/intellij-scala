@@ -334,6 +334,10 @@
                 order="last"/>
         <codeInsight.completion.command.provider
                 language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.CreateScalaDocStubCommandProvider"
+                order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaIntroduceVariableCompletionCommandProvider"
                 order="last"/>
 <!-- TODO(SCL-24924): introduce field and introduce parameter don't work reliable enough yet to enable command completion -->

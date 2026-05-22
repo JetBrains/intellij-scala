@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.TextRange
@@ -157,7 +159,7 @@ object CreateScalaDocStubAction {
       }
 
     val commandBody: Runnable = () => {
-      inWriteAction {
+      IntentionPreviewUtils.write { () =>
         psiDocument.insertString(docCommentEnd, newIndentedCommentText)
         PsiDocumentManager.getInstance(project).commitDocument(psiDocument)
       }
@@ -165,12 +167,17 @@ object CreateScalaDocStubAction {
       docLocation.docComment match {
         case Some(docComment) =>
           val docRange = docComment.getTextRange
-          inWriteAction {
+          IntentionPreviewUtils.write { () =>
             CodeStyleManager.getInstance(project).reformatText(docLocation.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
           }
         case None => // I don't know when it could be the case, but just in case (see EA-246924)
       }
     }
-    CommandProcessor.getInstance().executeCommand(project, commandBody, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
+
+    if (!ApplicationManager.getApplication.isWriteIntentLockAcquired || IntentionPreviewUtils.isIntentionPreviewActive) {
+      commandBody.run()
+    } else {
+      CommandProcessor.getInstance().executeCommand(project, commandBody, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
+    }
   }
 }
