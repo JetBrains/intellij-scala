@@ -9,6 +9,7 @@ import org.junit.Test
  */
 final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTestBase {
   private val BlockCommentPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Comment with block")
+  private val ExplainRegexPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Explain regular expression")
   private val FileStructurePredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Go to members")
   private val LineCommentPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Comment with line")
   private val LiveTemplatesPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Show live templates")
@@ -197,5 +198,73 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
          |}""".stripMargin,
     predicate = lookupStringStartsWith(_, "Import 'java.util.ArrayList'"),
     expectedIcon = AllIcons.Actions.QuickfixBulb,
+  )
+
+  @Test
+  def explainRegexOnDotRString(): Unit = doCommandCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val regex = "abc".$CARET.r
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate,
+    finishLookup = false
+  )
+
+  @Test
+  def explainRegexOnLargerRegexPattern(): Unit = doCommandCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val regex = "[a-z]+\\\\d".$CARET.r
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate,
+    finishLookup = false
+  )
+
+  @Test
+  def explainRegexOnRegexInPatternCompile(): Unit = doCommandCompletionTest(
+    fileText =
+      s"""object Test {
+         |  val regex = java.util.regex.Pattern.compile("[a-z]+\\\\d".$CARET)
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate,
+    finishLookup = false
+  )
+
+  @Test
+  def noExplainRegexForRegularString(): Unit = checkNoCommandCompletion(
+    fileText =
+      s"""object Test {
+         |  val s = "abc".$CARET
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate
+  )
+
+  @Test
+  def noExplainRegexOnIntegerLiteral(): Unit = checkNoCommandCompletion(
+    fileText =
+      s"""object Test {
+         |  val x = 42.$CARET
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate
+  )
+
+  @Test // TODO: could be useful to support this
+  def noExplainRegexOnDotRCall(): Unit = checkNoCommandCompletion(
+    fileText =
+      s"""object Test {
+         |  def test(): Unit = {
+         |    val regex = "abc".r.$CARET
+         |  }
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate
+  )
+
+  @Test
+  def noExplainRegexOnPatternCompileCall(): Unit = checkNoCommandCompletion(
+    fileText =
+      s"""object Test {
+         |  val regex = java.util.regex.Pattern.compile("[a-z]+\\\\d").$CARET
+         |}""".stripMargin,
+    predicate = ExplainRegexPredicate
   )
 }

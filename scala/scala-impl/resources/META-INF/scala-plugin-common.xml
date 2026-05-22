@@ -287,6 +287,9 @@
                 order="last"/>
         <codeInsight.completion.command.provider
                 language="Scala"
+                implementationClass="org.intellij.lang.regexp.intention.ExplainRegExpCommandCompletionProvider"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
                 implementationClass="com.intellij.codeInsight.completion.command.commands.DirectIntentionCommandProvider"
                 order="last"/>
         <!--endregion-->
