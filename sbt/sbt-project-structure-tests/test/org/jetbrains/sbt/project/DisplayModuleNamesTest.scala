@@ -7,7 +7,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests2]))
 final class DisplayModuleNamesTest extends SbtProjectStructureTestBase {
 
-  override protected def enableSeparateModulesForProdTest: Boolean = false
+  override protected def getTestSbtProjectSettings =
+    super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)
 
   def testMultiBuildProjectWithTheSameProjectIdsInBuilds(): Unit = {
     importProject(false)

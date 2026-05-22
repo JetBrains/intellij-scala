@@ -20,11 +20,6 @@ final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalS
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
-
   // Reminder: trailing commas are supported since 2.12.2
   def testTrailing_comma_sbt_0_13_scala_2_12_1(): Unit = testTrailingCommaErrors(
     hasErrorInBuildSources = true,

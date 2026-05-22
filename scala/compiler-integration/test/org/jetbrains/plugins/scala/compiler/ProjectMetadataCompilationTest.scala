@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
@@ -26,7 +27,8 @@ class ProjectMetadataCompilationTest extends SbtExternalSystemImportingTestLike 
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/../../compiler-integration/testData/projectMetadata"
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_21
 

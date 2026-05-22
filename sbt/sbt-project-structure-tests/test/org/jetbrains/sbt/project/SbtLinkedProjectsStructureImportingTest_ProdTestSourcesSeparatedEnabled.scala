@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.sbt.project.SbtProjectImportTestUtils
 
 /**
  * Test suite for scenarios involving multiple linked sbt projects.
@@ -21,7 +22,12 @@ final class SbtLinkedProjectsStructureImportingTest_ProdTestSourcesSeparatedEnab
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = true, getMyProject)
+    SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
+      getMyProject,
+      externalProjectPath = linkedSbtProjectPath,
+      prodTestSourcesSeparated = true,
+      jdkName = getJdkConfiguredForTestCase.getName
+    )
     val siProjectPath = FileUtil.toSystemIndependentName(getProjectPath)
     val siLinkedSbtProjectPath = FileUtil.toSystemIndependentName(linkedSbtProjectPath)
     runTest(

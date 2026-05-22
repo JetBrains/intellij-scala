@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.SlowTests2
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{ExternalSystemImportRootOptions, TestProjectCopyOptions}
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -29,21 +30,18 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     basePath + TestProjectName
   }
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
-  override protected def setUpInWriteAction(): Unit = {
-    //NO OP, do the setup inside importProject instead
-  }
+  override protected def getExternalSystemImportRootOptions: ExternalSystemImportRootOptions =
+    super.getExternalSystemImportRootOptions.copy(setUpDuringSetUp = false)
 
-  override def importProject(): Unit = {
-    super.setUpInWriteAction()
-    super.importProject()
-  }
-
-  private val PastedSimpleCodeWithAddSbtPlugin =
+  //language=Scala
+  private val PastedSimpleCodeWithAddSbtPlugin: String =
     """addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
       |addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.0")""".stripMargin
 
+  //language=Scala
   private val PastedComplexCodeWithAddSbtPlugin =
     """//line comment
       |/*
@@ -62,6 +60,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
       |  "org.scalatest" %% "scalatest" % "3.2.16" % Test
       |)""".stripMargin
 
+  //language=Scala
   private val PastedCodeWithoutAddSbtPlugin =
     """//line comment
       |/*

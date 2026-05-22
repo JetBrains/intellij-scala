@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
@@ -16,7 +16,6 @@ class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLik
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
     importProject(false)
   }
 

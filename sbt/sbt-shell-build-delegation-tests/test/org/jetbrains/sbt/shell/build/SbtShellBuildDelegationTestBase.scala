@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell.build
 import com.intellij.openapi.module.{Module, ModuleManager}
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.jetbrains.sbt.shell.SbtShellTestUtil
 import org.junit.Assert.{assertNotNull, assertTrue}
@@ -27,7 +28,8 @@ abstract class SbtShellBuildDelegationTestBase extends SbtExternalSystemImportin
   protected final def fixture: SbtShellBuildTestFixture =
     buildTestFixture
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   // Running on EDT would lead to a deadlock as some logic inside SbtBuildCommandsFactory requires EDT
   override def runInDispatchThread(): Boolean = false

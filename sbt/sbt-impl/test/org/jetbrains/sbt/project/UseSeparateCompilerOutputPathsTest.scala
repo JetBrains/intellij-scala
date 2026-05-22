@@ -18,12 +18,6 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/separateCompilerOutputPaths"
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
-
   private val moduleDirectoryMapping: Map[String, String] = Map(
     "separateCompilerOutputPaths.main" -> "",
     "separateCompilerOutputPaths.test" -> "",

@@ -21,12 +21,6 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
-
   def testSetupScalaHighlighting(): Unit = {
     val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getMyProject)
 

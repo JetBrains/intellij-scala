@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
+import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -9,79 +10,97 @@ import junit.framework.TestCase.{assertFalse, assertNotNull, assertNull, assertT
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{ExternalSystemImportRootOptions, IdeaProjectFixtureOptions, TestProjectCopyOptions}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import java.nio.file.Path
+import java.util.function
+import javax.swing.JComponent
 
+// See SCL-23943
 @Category(Array(classOf[SlowTests]))
 @RunWith(classOf[JUnit4])
 class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImportingTestLike {
+
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/setupScalaHighlightingNestedSbtProject"
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
+  /*
+   * SCL-23943 was about Java sources at the IDEA project root being incorrectly treated as
+   * "sbt project not loaded" because an sbt project was linked from a nested directory.
+   *
+   * This test is still an approximation of the original "outer Java module + linked nested sbt module" setup:
+   * the runtime test project is copied as a whole and opened as the IDEA project root, while the external-system
+   * import root points to the nested sbt project directory. This keeps ProjectUtil.guessProjectDir(project)
+   * aligned with the production fix.
+   */
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(
+      copyToTemporaryDir = true,
+      deleteTempDirectoryOnTestProcessShutDown = false
+    )
 
-  override protected def setUpInWriteAction(): Unit = {
-    super.setUpInWriteAction()
-    setProjectRoot(Path.of(getTestDataProjectPath, "nestedSbtProject"))
-  }
+  override protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions =
+    super.getIdeaProjectFixtureOptions.copy(useTestProjectAsIdeaProjectRoot = true)
+
+  override protected def getExternalSystemImportRootOptions: ExternalSystemImportRootOptions =
+    super.getExternalSystemImportRootOptions.copy(relativePath = Some("nestedSbtProject"))
 
   @Test
   def setupScalaHighlighting(): Unit = {
-    // SCL-23943
-    // This test doesn't exactly correspond to the situation in the linked ticket.
-    // We don't really have a way to fully reproduce the inner sbt project within an outer IDEA project using the
-    // existing external system test framework. We consulted within our team to confirm this.
-    // In this test, the whole project inherits the nested sbt project directory as the base directory.
-    // The HelloJava.java file then doesn't even belong to the project instance.
-    // But it is still somewhat useful to assert that no notification banner is shown in that file.
+    val helloJavaFile = findVirtualFile(getTestProjectPath / "src" / "HelloJava.java")
+    val helloScalaFile = findVirtualFile(getTestProjectPath / "nestedSbtProject" / "src" / "main" / "scala" / "HelloScala.scala")
 
-    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getMyProject)
-
-    val helloJavaPath = getTestProjectPath / "src" / "HelloJava.java"
-    val helloScalaPath = getTestProjectPath / "nestedSbtProject" / "src" / "main" / "scala" / "HelloScala.scala"
-
-    val helloScalaPsiFileBefore = findPsiFile(helloScalaPath)
-
-    val shouldHighlightHelloScalaBefore = ProblemHighlightFilter.shouldHighlightFile(helloScalaPsiFileBefore)
-
-    assertFalse("HelloScala.scala should not be highlighted before the project has been imported", shouldHighlightHelloScalaBefore)
+    assertShouldNotHighlightFile(helloScalaFile, "before the project has been imported")
+    assertNoNotificationBannerShown(helloJavaFile, "before the project has been imported")
+    assertNoNotificationBannerShown(helloScalaFile, "before the project has been imported")
 
     importProject(false)
 
-    val helloJavaPsiFileAfter = findPsiFile(helloJavaPath)
-    val helloScalaPsiFileAfter = findPsiFile(helloScalaPath)
-
-    val shouldHighlightHelloScalaAfter = ProblemHighlightFilter.shouldHighlightFile(helloScalaPsiFileAfter)
-
-    val notificationBannerHelloJavaAfter = notificationProvider.collectNotificationData(getMyProject, helloJavaPsiFileAfter.getVirtualFile)
-    val notificationBannerHelloScalaAfter = notificationProvider.collectNotificationData(getMyProject, helloScalaPsiFileAfter.getVirtualFile)
-
-    assertTrue("HelloScala.scala should be highlighted after the project has been imported", shouldHighlightHelloScalaAfter)
-    assertNull("A notification banner should not be shown in HelloJava.java after the project has been imported", notificationBannerHelloJavaAfter)
-    assertNull("A notification banner should not be shown in HelloScala.scala after the project has been imported", notificationBannerHelloScalaAfter)
+    assertShouldHighlightFile(helloScalaFile, "after the project has been imported")
+    assertNoNotificationBannerShown(helloJavaFile, "after the project has been imported")
+    assertNoNotificationBannerShown(helloScalaFile, "after the project has been imported")
   }
 
-  private def findPsiFile(path: Path): PsiFile = {
-    val virtualFile = findVirtualFile(path)
+  private def assertShouldHighlightFile(file: VirtualFile, state: String): Unit = {
+    val actual = shouldHighlightFile(file)
+    assertTrue(s"${file.getName} should be highlighted $state", actual)
+  }
+
+  private def assertShouldNotHighlightFile(file: VirtualFile, state: String): Unit = {
+    val actual = shouldHighlightFile(file)
+    assertFalse(s"${file.getName} should not be highlighted $state", actual)
+  }
+
+  private def shouldHighlightFile(file: VirtualFile): Boolean = {
+    val psiFile = findPsiFile(file)
+    ProblemHighlightFilter.shouldHighlightFile(psiFile)
+  }
+
+  private def assertNoNotificationBannerShown(file: VirtualFile, state: String): Unit = {
+    val notificationBanner = collectNotificationData(file)
+    assertNull(s"A notification banner should not be shown in ${file.getName} $state", notificationBanner)
+  }
+
+  private def collectNotificationData(file: VirtualFile): function.Function[? >: FileEditor, ? <: JComponent] = {
+    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getMyProject)
+    notificationProvider.collectNotificationData(getMyProject, file)
+  }
+
+  private def findPsiFile(file: VirtualFile): PsiFile = {
     val manager = PsiManager.getInstance(getMyProject)
-    val psiFile = manager.findFile(virtualFile)
-    assertNotNull(s"Could not find psi file for virtual file: $virtualFile", psiFile)
+    val psiFile = manager.findFile(file)
+    assertNotNull(s"Could not find psi file for virtual file: $file", psiFile)
     psiFile
   }
 
   private def findVirtualFile(path: Path): VirtualFile = {
-    // It's necessary to refresh the virtual file system to get the up-to-date VirtualFile/PsiFile instances before
-    // and after project import.
+    // It's necessary to refresh the virtual file system to get the up-to-date VirtualFile/PsiFile instances before and after project import.
     val virtualFile = VfsUtil.findFile(path, true)
     assertNotNull(s"Could not find virtual file for path: $path", virtualFile)
     virtualFile
