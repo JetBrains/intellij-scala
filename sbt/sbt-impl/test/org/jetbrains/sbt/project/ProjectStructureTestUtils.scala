@@ -164,7 +164,6 @@ object ProjectStructureTestUtils {
    * @param useScalaSdkExtraClasspath whether to include [[org.jetbrains.sbt.project.ScalaSdkExpectedClasspath#extraClasspath]] in the Scala SDK library.
    *                                  In sbt 1.12+, the compiler classpath has been reduced to include only what is necessary for the `scala3-compiler` to be runnable -
    *                                  without the Scaladoc extra classpath. Therefore, for tests running with sbt 1.12+ & Scala 3, no extra classpath should be included.
-   *                                  For build tools other than sbt, it should always be `true`.
    *                                  See SCL-24645
    */
   private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(
@@ -258,18 +257,18 @@ object ProjectStructureTestUtils {
     relativePathToAbsolute: String => String
   ): ScalaSdkAttributes = {
     val classpathAbsolute = expectedData.classpath.map(relativePathToAbsolute)
+    val extraClasspathAbsolute = expectedData.extraClasspath.map(relativePathToAbsolute)
 
-    // note: in BSP extraClasspath is always empty
-    val extraClasspathForBuildSystemAbsolut =
-      if (projectSystemId == SbtProjectSystem.Id)
-        expectedData.extraClasspath.map(relativePathToAbsolute)
-      else
-        Seq.empty
-
+    // In sbt/BSP projects with sbt < 1.12, the classpath contains both the standard compiler classpath and the extra Scaladoc classpath.
+    // In other BSP implementations, this might not be the case (e.g., in Scala CLI).
+    // For them, `useScalaSdkExtraClasspath` should be set to `false` in `expectedScalaSdkLibraryFromCoursier`
+    // so that `extraClasspath` remains empty.
+    // https://github.com/build-server-protocol/build-server-protocol/issues/229
+    // SCL-24645
     ScalaSdkAttributes(
       scalaVersion.languageLevel,
-      classpath = classpathAbsolute,
-      extraClasspath = extraClasspathForBuildSystemAbsolut
+      classpath = if projectSystemId == SbtProjectSystem.Id then classpathAbsolute else classpathAbsolute ++ extraClasspathAbsolute,
+      extraClasspath = if projectSystemId == SbtProjectSystem.Id then extraClasspathAbsolute else Nil
     )
   }
 }

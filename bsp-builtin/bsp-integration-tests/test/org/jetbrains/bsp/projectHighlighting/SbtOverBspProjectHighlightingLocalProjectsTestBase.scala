@@ -15,7 +15,14 @@ abstract class SbtOverBspProjectHighlightingLocalProjectsTestBase
       "sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/local"
     )
 
+  // The BSP connection file is generated in `SbtOverBspExternalSystemImportingTestCase.setUp`.
+  // If the import happened earlier in `ScalaProjectHighlightingTestBase`, it could happen that no BSP connection file would be present.
+  override protected def importProjectDuringTestSetup = false
+
   override def getProjectFixture = codeInsightFixture
 
-  def testHighlighting(): Unit = doAllProjectHighlightingTest()
+  def testHighlighting(): Unit = {
+    importProject(false)
+    doAllProjectHighlightingTest()
+  }
 }

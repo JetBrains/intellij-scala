@@ -50,8 +50,8 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
   }
 
   override def testHighlighting(): Unit = {
-    assertHighlightedFiles()
     super.testHighlighting()
+    assertHighlightedFiles()
   }
 
   private def assertHighlightedFiles(): Unit = {
@@ -120,6 +120,8 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
   }
 
   def testProjectStructure(): Unit = {
+    importProject(false)
+
     import org.jetbrains.sbt.project.ProjectStructureDsl._
     val expectedProject: project = new project(projectName) {
       modules := Seq(

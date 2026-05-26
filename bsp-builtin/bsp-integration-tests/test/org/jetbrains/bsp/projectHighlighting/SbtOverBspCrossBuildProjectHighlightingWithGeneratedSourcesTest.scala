@@ -107,6 +107,8 @@ class SbtOverBspCrossBuildProjectHighlightingWithGeneratedSourcesTest extends Sb
   def testProjectStructure(): Unit = {
     import org.jetbrains.sbt.project.ProjectStructureDsl._
 
+    importProject(false)
+
     val expectedProject: project = new project(projectName) {
       val `sbt-crossproject-test-project-with-generated-sources` = new myModule("sbt-crossproject-test-project-with-generated-sources"){
         excluded := Seq(".bsp", ".bloop", "target")

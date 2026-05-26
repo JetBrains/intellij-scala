@@ -1220,7 +1220,7 @@ import java.nio.file.Files
 
     injectVariable(
       getTestProjectPath / "project" / "build.properties",
-      "$LATEST_SBT_2$",
+      "$SBT_VERSION$",
       SbtVersion.Latest.Sbt_2.minor
     )
 

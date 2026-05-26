@@ -8,8 +8,8 @@ import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase
+import org.jetbrains.sbt.{Sbt, SbtVersion}
+import org.jetbrains.sbt.project.{SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -27,26 +27,55 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
 
   override protected def getCurrentExternalProjectSettings: BspProjectSettings = new BspProjectSettings
 
+  protected def reuseExistingConnectionFile: Boolean = true
+
+  /**
+   * sbt version that should be injected into the `build.properties` file in the project.
+   *
+   * @see [[injectSbtVersion]]
+   */
+  protected def sbtVersionToInject: Option[SbtVersion] = None
+
   override def setUpFixtures(): Unit = {
     super.setUpFixtures()
 
     //need to do this before actual import is started in `setUp` method
     ProjectHighlightingTestUtils.dontPrintErrorsAndWarningsToConsole(this)
+  }
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    // Set the sbt version in the project before generating the BSP connection file.
+    // In theory, this might be enough to override the sbt version in the test case
+    // before importing the project, because when the sbt/BSP server
+    // starts to import the project, the sbt version from the properties file
+    // should override the version from the connection file (it's implemented in sbt).
+    // However, for correctness and clarity, let's keep it here.
+    injectSbtVersion()
 
     generateSbtBspConfigurationFileIfNeeded()
   }
+
+  private def injectSbtVersion(): Unit =
+    sbtVersionToInject.foreach { version =>
+      SbtProjectImportTestUtils.injectVariable(
+        getTestProjectPath / "project" / "build.properties",
+        "$SBT_VERSION$",
+        version.minor,
+      )
+    }
 
   protected def generateSbtBspConfigurationFileIfNeeded(): Unit = {
     val projectPath = getTestProjectPath
     val bspConfigFile = projectPath / ".bsp/sbt.json"
 
-    //NOTE: we could extract a setting to reuse or not to reuse bsp config file
-    if (!bspConfigFile.exists) {
+    if (!bspConfigFile.exists || !reuseExistingConnectionFile) {
       generateSbtBspConfigurationFile(projectPath)
     } else {
       println(
         s"""!!!
-           |!!! Reusing existing BSP connection configuration file ${bspConfigFile}
+           |!!! Reusing existing BSP connection configuration file $bspConfigFile
            |!!! """.stripMargin
       )
     }

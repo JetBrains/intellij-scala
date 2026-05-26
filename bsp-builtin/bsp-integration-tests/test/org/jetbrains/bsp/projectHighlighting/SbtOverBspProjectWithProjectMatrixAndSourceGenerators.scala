@@ -19,15 +19,7 @@ class SbtOverBspProjectWithProjectMatrixAndSourceGenerators
 
   override def projectName = "sbt-projectmatrix-with-source-generators"
 
-  override protected def importProjectDuringTestSetup: Boolean = false
-
   override protected val projectFileName = projectName
-
-  @Test
-  override def testHighlighting(): Unit = {
-    importProject(false)
-    super.testHighlighting()
-  }
 
   override protected def highlightSingleFile(
     virtualFile: VirtualFile,

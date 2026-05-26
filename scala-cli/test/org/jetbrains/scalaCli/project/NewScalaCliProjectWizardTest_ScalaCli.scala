@@ -84,7 +84,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
     useIndentationBasedSyntax: Boolean = false,
     shouldExcludeScalaBuild: Boolean = true // Scala CLI bundled in Scala 3.5.2 & 3.6.7 doesn't have '.scala-build' in the output paths
   ): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId, useScalaSdkExtraClasspath = true)
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId, useScalaSdkExtraClasspath = false)
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
       val projectLibraries = scalaLibraries :+ new library(s"BSP: semanticdb-javac-0.10.0")
