@@ -3,8 +3,9 @@ package org.jetbrains.bsp.projectHighlighting
 import com.intellij.java.library.{JavaLibraryUtil, MavenCoordinates}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
+import org.jetbrains.bsp.SbtOverBspExternalSystemImportingTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions._
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.*
 import org.junit.Assert.{assertEquals, fail}
 
 //

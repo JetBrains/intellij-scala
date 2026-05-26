@@ -1,9 +1,8 @@
-package org.jetbrains.bsp.projectHighlighting
+package org.jetbrains.bsp
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.testFramework.PlatformTestUtil
-import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
