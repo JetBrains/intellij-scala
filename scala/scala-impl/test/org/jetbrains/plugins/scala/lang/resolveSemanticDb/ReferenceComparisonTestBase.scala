@@ -17,13 +17,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget, physicalRefTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.Symbol._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.junit.Assert
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -107,6 +110,7 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
             }
 
             for (semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
+//              assertResolves(semanticDbRef.symbol, ref.targets.map(_.element))
               didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
@@ -153,6 +157,35 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
 
     val tags = files.filterByType[ScalaFile].flatMap(collectFeaturesIn).distinct
     Result(problems, refCount, failedToResolve, testedRefs, completeCorrect, partialCorrect, tags)
+  }
+
+  /**
+   *  Tests SemanticDB [[Symbol]] to `PsiElement` resolution, #SCL-25458
+   */
+  private def assertResolves(symbol: String, targets: Seq[PsiElement]): Unit = {
+    val path = parse(symbol)
+    val element = resolve(None, path)(getProject)
+
+    val expected = targets.map {
+      case p: ScPackageImpl => p.pack
+      case e => e
+    }
+
+    val actual = element.toOption.getOrElse("none")
+
+    val message =
+      s"""
+         |Symbol: $symbol
+         |Path: ${path.mkString(", ")}
+         |Expected: ${expected.mkString(", ")}
+         |Actual: $actual
+         |""".stripMargin
+
+    print(message)
+
+    if (symbol != "java/lang/String#`+`().") {
+      Assert.assertTrue(message, expected.contains(actual))
+    }
   }
 }
 
