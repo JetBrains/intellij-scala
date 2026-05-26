@@ -12,7 +12,7 @@ import com.intellij.psi.PsiManager
 import com.sun.jdi.IntegerValue
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.compiler.CompileServerTestUtil
+import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
