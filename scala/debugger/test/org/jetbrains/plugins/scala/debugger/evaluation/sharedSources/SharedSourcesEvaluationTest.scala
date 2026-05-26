@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction, inWriteAct
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
+import org.jetbrains.sbt.project.{ExternalSystemImportingTestCaseProxy, SbtCachesSetupUtil, SbtProjectSystem}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
@@ -55,12 +55,13 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
     val settings = new SbtProjectSettings()
     settings.separateProdAndTestSources = true
 
-    ExternalSystemImportingUtil.importProject(
+    ExternalSystemImportingTestCaseProxy.importProject(
       getProject,
       SbtProjectSystem.Id,
       settings,
       getTestAppPath,
-      false
+      ExternalSystemImportingTestCaseProxy.createImportSpec(getProject, SbtProjectSystem.Id),
+      ExternalSystemImportingTestCaseProxy.handleImportFailure(_, _)
     )
 
     val modules = ModuleManager.getInstance(getProject).getModules
