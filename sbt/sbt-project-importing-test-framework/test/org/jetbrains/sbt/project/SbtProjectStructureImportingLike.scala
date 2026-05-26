@@ -62,12 +62,8 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   override protected def getTestDataProjectPath: String =
     generateTestProjectPath(getTestName(true))
 
-
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override def createImportSpec() = {
     val importSpecBuilder = new ImportSpecBuilder(super.createImportSpec())

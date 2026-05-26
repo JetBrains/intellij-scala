@@ -485,6 +485,10 @@ lazy val sbtProjectImportingTestFramework =
       compilerIntegrationServerManagement % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
+    )
 
 lazy val sbtProjectStructureTests =
   newProject("sbt-project-structure-tests", file("sbt/sbt-project-structure-tests"))
@@ -493,6 +497,10 @@ lazy val sbtProjectStructureTests =
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtProjectHighlightingTests =
@@ -516,6 +524,10 @@ lazy val sbtShellRuntimeTests =
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
+    )
 
 lazy val sbtShellBuildDelegationTests =
   newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
@@ -524,6 +536,10 @@ lazy val sbtShellBuildDelegationTests =
       sbtShellRuntimeTests % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val compilerIntegration =
