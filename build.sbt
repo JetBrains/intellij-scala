@@ -509,6 +509,7 @@ lazy val sbtImpl =
       sbtKotlinUtils,
       sbtKotlinIjPluginInterop % "test->test",
       scalaImpl % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
