@@ -469,6 +469,7 @@ lazy val sbtImpl =
       sbtApi,
       sbtKotlinUtils,
       scalaImpl % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
