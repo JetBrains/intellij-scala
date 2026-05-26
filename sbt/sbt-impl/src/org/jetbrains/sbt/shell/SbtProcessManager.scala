@@ -304,7 +304,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   ) = {
     val pty = new PtyCommandLine()
     pty.withExePath(vmExecutable.toString)
-    pty.withWorkDirectory(workingDir.toFile)
+    pty.withWorkingDirectory(workingDir)
     pty.withEnvironment(environment.asJava)
 
     if isUnitTestMode && SystemInfo.isWindows then
