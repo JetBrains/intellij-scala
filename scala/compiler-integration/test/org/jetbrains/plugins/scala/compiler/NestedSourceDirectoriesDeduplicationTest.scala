@@ -5,6 +5,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}

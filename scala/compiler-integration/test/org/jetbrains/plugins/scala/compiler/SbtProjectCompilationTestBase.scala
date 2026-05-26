@@ -9,6 +9,7 @@ import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportin
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion

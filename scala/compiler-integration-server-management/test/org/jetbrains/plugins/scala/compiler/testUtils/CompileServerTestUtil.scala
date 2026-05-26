@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.scala.compiler.testUtils
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.testFramework.common.ThreadLeakTracker
