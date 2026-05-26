@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.project
 
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.project.template.SbtModuleBuilder.IdeSettingsPluginVersion
 
 /**
@@ -152,38 +154,38 @@ object NewSbtProjectWizardGeneratedFilesTest {
   object TestData {
     val sbt013ProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt0_13_project_template",
-      scalaVersion = "2.13.14",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14"),
       sbtVersion = SbtVersion.Latest.Sbt_0_13,
     )
 
     val sbt10ProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_0_project_template",
-      scalaVersion = "2.13.14",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14"),
       sbtVersion = SbtVersion("1.0.4"),
     )
 
     val sbt1LatestProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_project_template",
-      scalaVersion = "2.13.14",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14"),
       sbtVersion = SbtVersion.Latest.Sbt_1,
     )
 
     val sbt1LatestProjectWithPackagePrefixConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt1_project_template_with_prefix",
-      scalaVersion = "2.13.14",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14"),
       sbtVersion = SbtVersion.Latest.Sbt_1,
       packagePrefix = Some("org.example.prefix"),
     )
 
     val sbt2LatestProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template",
-      scalaVersion = "3.8.3",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "3"),
       sbtVersion = SbtVersion.Latest.Sbt_2,
     )
 
     val sbt2LatestProjectWithPackagePrefixConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template_with_prefix",
-      scalaVersion = "3.8.3",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "3"),
       sbtVersion = SbtVersion.Latest.Sbt_2,
       packagePrefix = Some("org.example.prefix"),
     )

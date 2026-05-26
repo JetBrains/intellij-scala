@@ -4,7 +4,7 @@ import com.intellij.execution.process.ProcessOutputType
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils._
+import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils.*
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.NioFiles
 import com.intellij.testFramework.FixtureRuleKt.useProject
@@ -14,11 +14,11 @@ import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.protocol.BspCommunicationService
-import org.jetbrains.plugins.scala.LatestScalaVersions._
+import org.jetbrains.plugins.scala.LatestScalaVersions.*
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils
-import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
 import org.jetbrains.sbt.project.utils.ProjectComparisonOptions
@@ -84,7 +84,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
     useIndentationBasedSyntax: Boolean = false,
     shouldExcludeScalaBuild: Boolean = true // Scala CLI bundled in Scala 3.5.2 & 3.6.7 doesn't have '.scala-build' in the output paths
   ): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId)
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId, useScalaSdkExtraClasspath = true)
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
       val projectLibraries = scalaLibraries :+ new library(s"BSP: semanticdb-javac-0.10.0")

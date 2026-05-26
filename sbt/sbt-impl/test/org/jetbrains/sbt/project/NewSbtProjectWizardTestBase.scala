@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.FixtureRuleKt.useProject
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
@@ -60,7 +61,7 @@ abstract class NewSbtProjectWizardTestBase extends NewScalaProjectWizardTestBase
       scalaBuildSystemData(step).setBuildSystem(NewProjectWizardConstants.BuildSystem.SBT)
 
       val sbtData = scalaSbtData(step)
-      sbtData.setScalaVersion(config.scalaVersion)
+      sbtData.setScalaVersion(config.scalaVersion.minor)
       sbtData.setSbtVersion(config.sbtVersion.minor)
       sbtData.setPackagePrefix(config.packagePrefix.getOrElse(""))
       sbtData.setUseIndentationBasedSyntax(config.useIndentationBasedSyntax)
@@ -110,7 +111,7 @@ object NewSbtProjectWizardTestBase {
 
   final case class SbtWizardProjectConfig(
     projectName: String,
-    scalaVersion: String,
+    scalaVersion: ScalaVersion,
     sbtVersion: SbtVersion,
     packagePrefix: Option[String] = None,
     useIndentationBasedSyntax: Boolean = false,
