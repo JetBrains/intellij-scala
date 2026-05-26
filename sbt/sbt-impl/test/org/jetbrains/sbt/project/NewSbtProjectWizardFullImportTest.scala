@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.junit.experimental.categories.Category
@@ -21,13 +22,13 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
   def testCreateProjectWithLowerCaseName(): Unit =
     runSimpleCreateSbtProjectTest(
       projectName = "lower_case_project_name",
-      scalaVersion = "2.13.14"
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14")
     )
 
   def testCreateProjectWithUpperCaseName(): Unit =
     runSimpleCreateSbtProjectTest(
       projectName = "UpperCaseProjectName",
-      scalaVersion = "2.13.14",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14"),
       packagePrefixOpt = Some("org.example.prefix")
     )
 
@@ -35,19 +36,19 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
   def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
     runSimpleCreateSbtProjectTest(
       projectName = "project_name_with_dots spaces and-dashes and UPPERCASE",
-      scalaVersion = "2.13.14"
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14")
     )
 
   def testCreateScala3ProjectAndUseIndentationBasedSyntax(): Unit =
     runSimpleCreateSbtProjectTest(
       projectName = "scala3-indentation-based-syntax",
-      scalaVersion = "3.3.3",
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_3, "3"),
       useIndentationBasedSyntax = true
     )
 
   private def runSimpleCreateSbtProjectTest(
     projectName: String,
-    scalaVersion: String,
+    scalaVersion: ScalaVersion,
     packagePrefixOpt: Option[String] = None,
     useIndentationBasedSyntax: Boolean = false,
   ): Unit = {
@@ -84,18 +85,19 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
 
   private def runProjectStructureOnlyTest(config: SbtWizardProjectConfig): Unit = {
     val useCoursier = config.sbtVersion >= SbtVersion("1.3.0")
+    // Since sbt 1.12, the compiler classpath has been reduced to include only what is necessary for the `scala3-compiler` to be runnable -
+    // without the Scaladoc extra classpath. Therefore, for tests running with sbt 1.12+ & Scala 3, no extra classpath should be included in the Scala SDK.
+    // See org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
+    val useScalaSdkExtraClasspath = config.sbtVersion < SbtVersion("1.12") || !config.scalaVersion.languageLevel.isScala3
     val expectedProjectStructure = createExpectedProjectStructure(
       config.projectName,
-      config.scalaVersion,
+      config.scalaVersion.minor,
       config.packagePrefix,
-      useCoursier = useCoursier
+      useCoursier = useCoursier,
+      useScalaSdkExtraClasspath
     )
     runImportEnabledTest(config) { project =>
-      val sbtVersion = config.sbtVersion
-      //TODO: adapt once SCL-24645 is fixed
-      val checkExtraScaladocClasspath = sbtVersion < SbtVersion("1.12")
-      val context = compareContext.withOptions(_.copy(checkExtraClasspath = checkExtraScaladocClasspath))
-      assertProjectsEqual(expectedProjectStructure, project, singleContentRootModules = false)(using context)
+      assertProjectsEqual(expectedProjectStructure, project, singleContentRootModules = false)
     }
   }
 
@@ -104,12 +106,13 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
     scalaVersion: String,
     packagePrefixOpt: Option[String],
     useCoursier: Boolean,
+    useScalaSdkExtraClasspath: Boolean
   ): project = {
     //noinspection TypeAnnotation
     val expectedIntellijProjectStructure: project = new project(projectName) {
       lazy val scalaLibraries =
         if (useCoursier)
-          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = false)(scalaVersion)
+          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = false)(scalaVersion, useScalaSdkExtraClasspath)
         else
           ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = false)(scalaVersion)
 

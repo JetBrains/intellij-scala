@@ -1286,8 +1286,8 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
    */
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3")
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2")
+    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedScalaLibraries = expectedScala_3_3 ++ expectedScala_3_6
 
@@ -1337,8 +1337,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
           },
         )
       },
-      //TODO: adopt once SCL-24645 is fixed
-      optionsModifier = _.copy(checkExtraClasspath = false),
+      optionsModifier = identity,
       mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title"))
     )
 

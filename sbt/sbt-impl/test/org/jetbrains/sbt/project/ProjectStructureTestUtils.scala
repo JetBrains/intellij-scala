@@ -76,10 +76,20 @@ object ProjectStructureTestUtils {
     expectedScalaLibraryFromCoursier(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, projectSystemId))
   }
 
-  def expectedScalaLibraryWithScalaSdkForSbt(useEnv: Boolean)(scalaVersion: String): Seq[library] =
-    expectedScalaLibraryWithScalaSdk(useEnv)(scalaVersion, SbtProjectSystem.Id)
+  /**
+   * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
+   */
+  def expectedScalaLibraryWithScalaSdkForSbt(useEnv: Boolean)(scalaVersion: String, useScalaSdkExtraClasspath: Boolean = true): Seq[library] =
+    expectedScalaLibraryWithScalaSdk(useEnv)(scalaVersion, SbtProjectSystem.Id, useScalaSdkExtraClasspath)
 
-  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean)(scalaVersionStr: String, projectSystemId: ProjectSystemId): Seq[library] = {
+  /**
+   * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
+   */
+  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean)(
+    scalaVersionStr: String,
+    projectSystemId: ProjectSystemId,
+    useScalaSdkExtraClasspath: Boolean
+  ): Seq[library] = {
     val scalaVersion = ScalaVersion.fromString(scalaVersionStr).get
 
     val scalaLibrary = expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion, createScalaLibraryName(scalaVersion, projectSystemId))
@@ -91,7 +101,7 @@ object ProjectStructureTestUtils {
       case "3.8.3" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.3", projectSystemId))
       case _ => Nil
     }
-    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId)
+    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
 
     scalaSdkLibrary +: scalaLibraryTransitive :+ scalaLibrary
   }
@@ -138,18 +148,38 @@ object ProjectStructureTestUtils {
     )
   }
 
-  def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersionStr: String, projectSystemId: ProjectSystemId): library = {
+  /**
+   * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
+   */
+  def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(
+    scalaVersionStr: String,
+    projectSystemId: ProjectSystemId,
+    useScalaSdkExtraClasspath: Boolean
+  ): library = {
     val scalaVersion = ScalaVersion.fromString(scalaVersionStr).get
-    expectedScalaSdkLibraryFromCoursier(useEnv)(scalaVersion, projectSystemId)
+    expectedScalaSdkLibraryFromCoursier(useEnv)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
   }
 
-  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, projectSystemId: ProjectSystemId): library = {
+  /**
+   * @param useScalaSdkExtraClasspath whether to include [[org.jetbrains.sbt.project.ScalaSdkExpectedClasspath#extraClasspath]] in the Scala SDK library.
+   *                                  In sbt 1.12+, the compiler classpath has been reduced to include only what is necessary for the `scala3-compiler` to be runnable -
+   *                                  without the Scaladoc extra classpath. Therefore, for tests running with sbt 1.12+ & Scala 3, no extra classpath should be included.
+   *                                  For build tools other than sbt, it should always be `true`.
+   *                                  See SCL-24645
+   */
+  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(
+    scalaVersion: ScalaVersion,
+    projectSystemId: ProjectSystemId,
+    useScalaSdkExtraClasspath: Boolean
+  ): library = {
     val scalaVersionStr = scalaVersion.minor
 
     val sdkLibraryName = s"${projectSystemId.getReadableName}: scala-sdk-$scalaVersionStr"
     val expectedData = ScalaSdkExpectedClasspath.Coursier.getForVersion(scalaVersion)
+    val effectiveData = if useScalaSdkExtraClasspath then expectedData else expectedData.copy(extraClasspath = Nil)
+
     new library(sdkLibraryName) {
-      scalaSdkSettings := Some(toScalaSdkAttributesCoursier(expectedData, scalaVersion, useEnv, projectSystemId))
+      scalaSdkSettings := Some(toScalaSdkAttributesCoursier(effectiveData, scalaVersion, useEnv, projectSystemId))
     }
   }
 

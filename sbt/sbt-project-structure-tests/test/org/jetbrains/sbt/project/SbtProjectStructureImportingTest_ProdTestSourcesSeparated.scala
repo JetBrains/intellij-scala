@@ -1213,8 +1213,8 @@ import java.nio.file.Files
 
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3")
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2")
+    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedScalaLibraries = expectedScala_3_3 ++ expectedScala_3_6
 
@@ -1366,9 +1366,7 @@ import java.nio.file.Files
             compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-3.6.2/subproject2/test-classes"
           },
         )
-      },
-      //TODO: adopt once SCL-24645 is fixed
-      optionsModifier = _.copy(checkExtraClasspath = false)
+      }
     )
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -2813,7 +2811,7 @@ import java.nio.file.Files
 
   def testBspDisabledConfigLevel(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
-    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true)("2.13.14", SbtProjectSystem.Id)
+    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true)("2.13.14", SbtProjectSystem.Id, useScalaSdkExtraClasspath = true)
     runTest(
       new project("root") {
         libraries := scalaLibraries
