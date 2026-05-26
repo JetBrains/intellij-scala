@@ -6,7 +6,7 @@ import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.io.{FileUtil, NioFiles}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
 import com.sun.jdi.IntegerValue
@@ -20,7 +20,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.junit.experimental.categories.Category
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
@@ -40,10 +40,10 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
   }
 
   override lazy val getTestAppPath: String = {
-    val originalTestDataProjectDir = (TestUtils.getTestDataDir / "debuggerTestData" / "sharedSourcesEvalTest").toCanonicalPath.toFile
-    val tempProjectDir = FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", false)
-    FileUtil.copyDir(originalTestDataProjectDir, tempProjectDir)
-    tempProjectDir.getCanonicalPath
+    val originalTestDataProjectDir = (TestUtils.getTestDataDir / "debuggerTestData" / "sharedSourcesEvalTest").toCanonicalPath
+    val tempProjectDir = Files.createTempDirectory("temp_projects").toRealPath() / "sharedSourcesEvalTest"
+    NioFiles.copyRecursively(originalTestDataProjectDir, tempProjectDir)
+    tempProjectDir.toCanonicalPath.toString
   }
 
   override def setUpProject(): Unit = {
