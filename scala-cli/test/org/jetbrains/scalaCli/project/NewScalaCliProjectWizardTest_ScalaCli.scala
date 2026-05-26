@@ -12,7 +12,7 @@ import com.intellij.testFramework.{JUnit38AssumeSupportRunner, UsefulTestCase}
 import com.intellij.util.system.CpuArch
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
-import org.jetbrains.bsp.BSP
+import org.jetbrains.bsp.{BSP, BspProjectStructureImportingTestUtils}
 import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.plugins.scala.LatestScalaVersions.*
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -92,12 +92,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       libraries := projectLibraries
       modules := Seq(
         new module(projectName) {
-          //note: in the Scala CLI project in the root (and the only) module most dependencies appear twice - one with TEST and one with the Compile SCOPE.
-          val allLibrariesWithoutScalaSDK = projectLibraries.filter(_.get(scalaSdkSettings).flatten.isEmpty)
-          val testLibraries = allLibrariesWithoutScalaSDK :+ new library(s"BSP: $projectName test dependencies")
-          // TODO test library dependencies scopes
-          val allLibraryDependencies = projectLibraries ++ testLibraries
-          libraryDependencies := allLibraryDependencies
+          libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(projectLibraries, projectName)
           sources := Seq("project.scala")
           testSources := Seq()
           resources := Seq()

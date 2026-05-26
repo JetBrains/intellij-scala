@@ -943,6 +943,7 @@ lazy val scalaCli =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       bsp % "compile->compile",
+      bspIntegrationTests % "test->test",
       sbtImpl % "test->test"
     ).settings(
       scalaVersion := Versions.scala3Version,
