@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.progress.ProgressIndicator
+import coursier.paths.CoursierPaths
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
 import org.jetbrains.plugins.scala.project.template.{CoursierSdkChoice, ScalaSdkDescriptor, SdkChoice}

@@ -5,8 +5,8 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{JavaModuleType, ModuleType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.SystemProperties
+import coursier.paths.CoursierPaths
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.settings.DisplayModuleName
