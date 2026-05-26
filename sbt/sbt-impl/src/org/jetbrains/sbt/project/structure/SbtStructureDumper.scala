@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
@@ -20,6 +19,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
+import java.io.IOException
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.annotation.unused
@@ -296,11 +296,13 @@ object SbtStructureDumper:
         if !globalPluginsDir.exists then
           Files.createDirectories(globalPluginsDir)
 
-        val tempPluginFile =
-          if eelDescriptor == LocalEelDescriptor.INSTANCE then
-            FileUtil.createTempFile(globalPluginsDir.toFile, "idea-structure", Sbt.Extension).toPath
-          else
-            EelPathKotlinUtils.createTemporaryFile("idea-structure", Sbt.Extension, globalPluginsDir, eelDescriptor)
+        val tempPluginFile = eelDescriptor match
+          case LocalEelDescriptor.INSTANCE =>
+            val f = Files.createTempFile(globalPluginsDir, "idea-structure", Sbt.Extension)
+            Runtime.getRuntime.addShutdownHook(Thread(() => deleteFileIfExists(f)))
+            f
+          case remote =>
+            EelPathKotlinUtils.createTemporaryFile("idea-structure", Sbt.Extension, globalPluginsDir, remote)
 
         // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
         // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
@@ -313,6 +315,10 @@ object SbtStructureDumper:
         StructureDumpConfig(commands, extraSbtFileToRemove = Some(tempPluginFile), launcherArgs = Nil)
       }
     }
+
+    private def deleteFileIfExists(path: Path): Unit =
+      try Files.deleteIfExists(path)
+      catch case _: IOException => ()
 
     private def getDumpProcessArgsForLegacySbt(
       structureFilePath: Path,
