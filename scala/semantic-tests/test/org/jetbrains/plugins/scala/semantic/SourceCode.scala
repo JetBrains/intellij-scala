@@ -122,11 +122,11 @@ object SourceCode {
         }
         name match {
           case Ident("<empty>") =>
-            printTrees(stats1, lineBreak())
+            printTrees(stats1, "\n" + lineBreak())
           case _ =>
             this += "package "
             printType(name.tpe)
-            inBlock(printTrees(stats1, lineBreak()))
+            inBlock(printTrees(stats1, "\n" + lineBreak()))
         }
 
       case Import(expr, selectors) =>
@@ -242,7 +242,7 @@ object SourceCode {
               }
             }
             this += lineBreak()
-            printTrees(stats1, lineBreak())
+            printTrees(stats1, "\n" + lineBreak())
           }
           this += lineBreak() += "}"
         }
