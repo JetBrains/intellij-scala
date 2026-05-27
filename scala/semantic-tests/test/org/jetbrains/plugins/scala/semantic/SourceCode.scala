@@ -117,7 +117,7 @@ object SourceCode {
       case tree @ PackageClause(name, stats) =>
         val stats1 = stats.collect {
           case stat: PackageClause => stat
-          case stat: Definition if !(stat.symbol.flags.is(Flags.Module) && stat.symbol.flags.is(Flags.Lazy)) => stat
+          case stat: Definition if !stat.symbol.flags.is(Flags.Synthetic) && !(stat.symbol.flags.is(Flags.Module) && stat.symbol.flags.is(Flags.Lazy)) => stat
           case stat @ (_:Import | _:Export) => stat
         }
         name match {
@@ -221,7 +221,7 @@ object SourceCode {
             })
           }
           def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Module)
-          !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject
+          !flags.is(Flags.Synthetic) && !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject
         }
         val stats1 = stats.collect {
           case stat: Definition if keepDefinition(stat) => stat
