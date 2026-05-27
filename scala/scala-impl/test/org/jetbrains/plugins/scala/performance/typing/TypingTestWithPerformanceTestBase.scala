@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import scala.annotation.nowarn
 
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
@@ -37,12 +38,12 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
     }
 
     try {
-      ApplicationManagerEx.setInStressTest(true)
+      ApplicationManagerEx.setInStressTest(true): @nowarn("cat=deprecation") // TODO: SCL-25494
       PlatformTestUtil
         .newBenchmark(testName, testBody)
         .start()
     } finally {
-      ApplicationManagerEx.setInStressTest(false)
+      ApplicationManagerEx.setInStressTest(false): @nowarn("cat=deprecation") // TODO: SCL-25494
     }
   }
 

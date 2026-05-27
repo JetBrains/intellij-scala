@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocSyntaxElement}
 import org.junit.{Assert, Test}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 /**
@@ -32,8 +33,7 @@ trait ScalaDocCorpusTest extends ProjectCorpusTestBase {
   @Test
   def testScalaDocParsing(): Unit = {
     // I set this so that the test log is not cluttered with useless log messages
-    ApplicationManagerEx.setInStressTest(true)
-
+    ApplicationManagerEx.setInStressTest(true): @nowarn("cat=deprecation") // TODO: SCL-25494
     val manager = ScalaPsiManager.instance(getProject)
 
     println("Collecting source files...")
@@ -115,7 +115,7 @@ trait ScalaDocCorpusTest extends ProjectCorpusTestBase {
   @Test
   def testLinkRegexMatchesPsiElements(): Unit = {
     // I set this so that the test log is not cluttered with useless log messages
-    ApplicationManagerEx.setInStressTest(true)
+    ApplicationManagerEx.setInStressTest(true): @nowarn("cat=deprecation") // TODO: SCL-25494
 
     println("Collecting source files...")
 

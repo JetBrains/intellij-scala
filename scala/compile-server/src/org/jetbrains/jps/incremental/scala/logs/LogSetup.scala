@@ -1,12 +1,11 @@
 package org.jetbrains.jps.incremental.scala.logs
 
 import com.intellij.openapi.diagnostic.{JulLogger, Logger}
-import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.server.{CompileServerLog, CompileServerProperties}
 
 import java.io.IOException
-import java.nio.file.{Path, Paths}
-import java.util.logging.Filter
+import java.nio.file.Paths
+import scala.annotation.nowarn
 
 /**
  * Similar to `org.jetbrains.jps.cmdline.LogSetup` which cannot itself be directly used, as it is compiled with JDK 11.
@@ -31,7 +30,7 @@ object LogSetup {
         /* onRotate            = */ null,
         /* filter              = */ null,
         /* inMemoryLogPath     = */ null
-      )
+      ): @nowarn("cat=deprecation") // TODO: SCL-25494
     } catch {
       case e: IOException =>
         Console.err.println("Failed to configure logging: ")

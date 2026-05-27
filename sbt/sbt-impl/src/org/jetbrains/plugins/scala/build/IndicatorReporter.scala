@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.sbt.SbtBundle
 
 import java.nio.file.Path
+import scala.annotation.nowarn
 
 class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   //text with ANSI escape sequences can come from sbt output (see SCL-20873)
@@ -67,7 +68,7 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
 
   private def positionString(position: Option[FilePosition]) = {
     position.fold("") { pos =>
-      s"${pos.getFile} [${pos.getStartLine}:${pos.getStartColumn}]"
+      s"${pos.getFile: @nowarn("cat=deprecation")} [${pos.getStartLine}:${pos.getStartColumn}]" // TODO: SCL-25494
     }
   }
 

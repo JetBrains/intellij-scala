@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.nio.file.Path
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 class CompilerEventReporter(project: Project,
@@ -35,14 +36,14 @@ class CompilerEventReporter(project: Project,
       val msg = Client.ClientMsg(
         kind = kind,
         text = stripAnsiCodes(text),
-        source = Some(SerializablePath(pos.getFile.toPath, pathTranslator)),
+        source = Some(SerializablePath(pos.getFile.toPath: @nowarn("cat=deprecation"), pathTranslator)), // TODO: SCL-25494
         pointer = None,
         problemStart = Some(problemStart),
         problemEnd = Some(problemEnd),
         diagnostics = Nil
       )
       val event = CompilerEvent.MessageEmitted(compilationId, None, None, msg)
-      files.add(pos.getFile.toPath)
+      files.add(pos.getFile.toPath: @nowarn("cat=deprecation")) // TODO: SCL-25494
       publisher.eventReceived(event)
     }
 

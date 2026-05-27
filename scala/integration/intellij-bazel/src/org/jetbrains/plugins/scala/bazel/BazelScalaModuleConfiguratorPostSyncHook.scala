@@ -15,11 +15,12 @@ import org.jetbrains.plugins.scala.project.{ModuleEntityExt, ReplClasspath}
 
 import java.nio.file.Path
 import kotlin.coroutines.Continuation
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, IteratorHasAsScala}
 
 class BazelScalaModuleConfiguratorPostSyncHook extends ProjectPostSyncHook {
 
-  override def isEnabled(project: Project): Boolean = BazelProjectPropertiesKt.isBazelProject(project)
+  override def isEnabled(project: Project): Boolean = BazelProjectPropertiesKt.isBazelProject(project): @nowarn("cat=deprecation")
 
   override def onPostSync(projectPostSyncHookEnvironment: ProjectPostSyncHook.ProjectPostSyncHookEnvironment, continuation: Continuation[? >: kotlin.Unit]): AnyRef = {
     val project = projectPostSyncHookEnvironment.getProject
