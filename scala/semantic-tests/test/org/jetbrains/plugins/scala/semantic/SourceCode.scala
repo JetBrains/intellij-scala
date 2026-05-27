@@ -847,10 +847,12 @@ object SourceCode {
     private def printAnnotations(trees: List[Term])(using elideThis: Option[Symbol]): this.type = {
       def printSeparated(list: List[Term]): Unit = list match {
         case Nil =>
-        case x :: Nil => printAnnotation(x)
+        case x :: Nil =>
+          printAnnotation(x)
+          this += lineBreak()
         case x :: xs =>
           printAnnotation(x)
-          this += " "
+          this += lineBreak()
           printSeparated(xs)
       }
       printSeparated(trees)
@@ -1314,8 +1316,7 @@ object SourceCode {
           false
       }
       printAnnotations(annots)
-      if (annots.nonEmpty) this += " "
-      else this
+      this
     }
 
     private def printRefinement(tpe: TypeRepr)(using elideThis: Option[Symbol]): this.type = {
