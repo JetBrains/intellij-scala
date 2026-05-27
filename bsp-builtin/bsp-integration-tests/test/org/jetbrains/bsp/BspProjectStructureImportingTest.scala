@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, excluded, libraries, libraryDependencies, module, modules, project, resources, sources, testResources, testSources}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
-import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, ProjectStructureTestUtils, RequiresJdk}
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk}
 import org.junit.experimental.categories.Category
 
 abstract class BspProjectStructureImportingTestBase
@@ -38,44 +38,26 @@ abstract class BspProjectStructureImportingTestBase
 @Category(Array(classOf[SlowTests2]))
 class BspProjectStructureImportingTest extends BspProjectStructureImportingTestBase {
 
-  def testSimple(): Unit =
-    runSimpleTest(
-      projectName = "simple",
-      scalaVersion = "2.13.14",
-      excludeTarget = true,
-      buildModuleSources = Nil,
-    )
-
-  private def runSimpleTest(
-    projectName: String,
-    scalaVersion: String,
-    excludeTarget: Boolean,
-    buildModuleSources: Seq[String]
-  ): Unit = {
+  def testSimple(): Unit = {
     importProject(false)
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)(
-      scalaVersion,
-      BSP.ProjectSystemId,
-      useScalaSdkExtraClasspath = true
-    )
+    val scalaLibraries = BspProjectStructureImportingTestUtils.expectedScalaLibraryWithScalaSdk("2.13.14", useScalaSdkExtraClasspath = true)
 
-    val _moduleName = projectName.toLowerCase
-    val expectedProject = new project(projectName) {
+    val expectedProject = new project("simple") {
       libraries := scalaLibraries
       libraries.inexactMatch()
 
       modules := Seq(
-        new module(_moduleName) {
-          libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(scalaLibraries, _moduleName)
+        new module("simple") {
+          libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(scalaLibraries, "simple")
           sources := Seq("src/main/scala", "src/main/java")
           testSources := Seq("src/test/scala", "src/test/java")
           resources := Seq("src/main/resources")
           testResources := Seq("src/test/resources")
-          excluded := Seq(".bloop", ".bsp") ++ { if excludeTarget then Seq("target") else Nil }
+          excluded := Seq("target", ".bloop", ".bsp")
         },
-        new module(s"$_moduleName-build") {
-          sources := buildModuleSources
+        new module("simple-build") {
+          sources := Nil
           testSources := Nil
           resources := Nil
           testResources := Nil
@@ -96,16 +78,8 @@ class BspProjectStructureImportingTestWithLatestSbt1 extends BspProjectStructure
   def testSimpleSbt1Latest(): Unit = {
     importProject(false)
 
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)(
-      "3.3.3",
-      BSP.ProjectSystemId,
-      useScalaSdkExtraClasspath = false
-    )
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)(
-      "3.6.2",
-      BSP.ProjectSystemId,
-      useScalaSdkExtraClasspath = false
-    )
+    val expectedScala_3_3 = BspProjectStructureImportingTestUtils.expectedScalaLibraryWithScalaSdk("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = BspProjectStructureImportingTestUtils.expectedScalaLibraryWithScalaSdk("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedProject = new project("simpleSbt1Latest") {
       libraries := expectedScala_3_3 ++ expectedScala_3_6
@@ -171,16 +145,8 @@ class BspProjectStructureImportingTestWithNewestSbt2 extends BspProjectStructure
         s"$getProjectPath/target/out/jvm/scala-$scalaVersion/${moduleName.toLowerCase}/resource_managed/test"
       )
 
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)(
-      "3.3.3",
-      BSP.ProjectSystemId,
-      useScalaSdkExtraClasspath = false
-    )
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)(
-      "3.6.2",
-      BSP.ProjectSystemId,
-      useScalaSdkExtraClasspath = false
-    )
+    val expectedScala_3_3 = BspProjectStructureImportingTestUtils.expectedScalaLibraryWithScalaSdk("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = BspProjectStructureImportingTestUtils.expectedScalaLibraryWithScalaSdk("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedScalaLibraries = expectedScala_3_3 ++ expectedScala_3_6
 

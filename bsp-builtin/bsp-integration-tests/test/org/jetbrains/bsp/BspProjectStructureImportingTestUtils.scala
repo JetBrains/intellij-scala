@@ -1,6 +1,7 @@
 package org.jetbrains.bsp
 
 import org.jetbrains.sbt.project.ProjectStructureDsl.{library, scalaSdkSettings}
+import org.jetbrains.sbt.project.ProjectStructureTestUtils
 
 object BspProjectStructureImportingTestUtils {
 
@@ -20,4 +21,9 @@ object BspProjectStructureImportingTestUtils {
     val testLibraries = allLibrariesWithoutScalaSDK :+ new library(s"BSP: $moduleName test dependencies")
     libraries ++ testLibraries
   }
+
+  // In BSP tests, `useEnv` is hardcoded to `false` because env variables from `SbtCachesSetupUtil.setupCoursierAndIvyCache`
+  // are not propagated during BSP import in any way.
+  def expectedScalaLibraryWithScalaSdk(scalaVersion: String, useScalaSdkExtraClasspath: Boolean): Seq[library] =
+    ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId, useScalaSdkExtraClasspath)
 }
