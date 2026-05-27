@@ -260,7 +260,10 @@ class IncrementalIdeaOnServerCompilationTest_Scala_3_LTS extends IncrementalIdea
 class IncrementalIdeaOnServerCompilationTest_Scala_3_Post_LTS extends IncrementalIdeaOnServerCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaOnServerCompilationTest_Scala_3_Next_RC extends IncrementalIdeaOnServerCompilationTest
 
@@ -308,7 +311,10 @@ class IncrementalIdeaCompilationTest_Scala_3_LTS extends IncrementalIdeaCompilat
 class IncrementalIdeaCompilationTest_Scala_3_Post_LTS extends IncrementalIdeaCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaCompilationTest_Scala_3_Next_RC extends IncrementalIdeaCompilationTest
 
@@ -399,7 +405,10 @@ class IncrementalSbtOnServerCompilationTest_Scala_3_LTS extends IncrementalSbtOn
 class IncrementalSbtOnServerCompilationTest_Scala_3_Post_LTS extends IncrementalSbtOnServerCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalSbtOnServerCompilationTest_Scala_3_Next_RC extends IncrementalSbtOnServerCompilationTest
 
@@ -448,6 +457,9 @@ class IncrementalSbtCompilationTest_Scala_3_LTS extends IncrementalSbtCompilatio
 class IncrementalSbtCompilationTest_Scala_3_Post_LTS extends IncrementalSbtCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalSbtCompilationTest_Scala_3_Next_RC extends IncrementalSbtCompilationTest
