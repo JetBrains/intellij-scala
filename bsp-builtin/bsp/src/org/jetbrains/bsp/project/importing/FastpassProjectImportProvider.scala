@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup
+import org.jetbrains.plugins.scala.extensions.PathExt
 
 import scala.Iterator.iterate
 
@@ -13,10 +14,10 @@ object FastpassProjectImportProvider {
     pantsChild != null && !pantsChild.isDirectory
   }
 
-  def containsFastpassExecutable(virtualFile: VirtualFile): Boolean = {
-    val fastpassFile = virtualFile.toNioPath.resolve(FastpassConfigSetup.fastpassRelativePath).toFile
-    fastpassFile.exists && fastpassFile.isFile
-  }
+  def containsFastpassExecutable(virtualFile: VirtualFile): Boolean =
+    Option(virtualFile.getFileSystem.getNioPath(virtualFile))
+      .map(_.resolve(FastpassConfigSetup.fastpassRelativePath))
+      .exists(f => f.exists && f.isRegularFile)
 
   def isFastpassCompatibleProjectRoot(virtualFile: VirtualFile): Boolean =
     folderContainsPantsExec(virtualFile) && containsFastpassExecutable(virtualFile)

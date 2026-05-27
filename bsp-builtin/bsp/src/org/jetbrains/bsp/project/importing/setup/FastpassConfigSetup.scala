@@ -10,13 +10,14 @@ import org.jetbrains.bsp.project.importing.FastpassProjectImportProvider
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.{FastpassProcessCheckTimeout, logger}
 import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
+import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.awt.datatransfer.StringSelection
 import java.io.{BufferedReader, InputStreamReader}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 object FastpassConfigSetup {
@@ -31,16 +32,15 @@ object FastpassConfigSetup {
     val relativeDir = pantsRoot.get.toNioPath.relativize(file)
     val projectName = relativeDir.toString.replace("/", ".")
     val bspWorkspace = pantsRoot.get.getParent.toNioPath.resolve("bsp-projects").resolve(projectName)
-    bspWorkspace.toFile.toPath
+    bspWorkspace
   }
 
   def create(baseDir: Path): Try[BspConfigSetup] = {
     val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(baseDir)
     val baseDirVFile = LocalFileSystem.getInstance().findFileByNioFile(baseDir)
     FastpassProjectImportProvider.pantsRoot(baseDirVFile) match {
-      case Some(_) if bspWorkspace.resolve(".bloop").toFile.exists()=> {
+      case Some(_) if bspWorkspace.resolve(".bloop").exists =>
         Success(new FastpassConfigSetupEmpty(bspWorkspace))
-      }
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
         val processBuilder = new ProcessBuilder(
