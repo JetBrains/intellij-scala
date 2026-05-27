@@ -2,18 +2,17 @@ package org.jetbrains.plugins.scala.bazel
 
 import com.intellij.openapi.project.Project
 import com.intellij.util.JavaCoroutines
-import org.jetbrains.bazel.config.BazelProjectPropertiesKt
+import org.jetbrains.bazel.config.ProjectKt
 import org.jetbrains.bazel.sync.ProjectPostSyncHook
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import kotlin.coroutines.Continuation
-import scala.annotation.nowarn
 
 class ScalaProjectSettingsConfigurePostSyncHook extends ProjectPostSyncHook {
 
-  override def isEnabled(project: Project): Boolean = BazelProjectPropertiesKt.isBazelProject(project): @nowarn("cat=deprecation")
+  override def isEnabled(project: Project): Boolean = ProjectKt.isBazelProject(project)
 
   override def onPostSync(projectPostSyncHookEnvironment: ProjectPostSyncHook.ProjectPostSyncHookEnvironment, continuation: Continuation[? >: kotlin.Unit]): AnyRef = {
     val project = projectPostSyncHookEnvironment.getProject

@@ -6,7 +6,7 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.entities.ModuleEntity
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.url.VirtualFileUrl
-import org.jetbrains.bazel.config.BazelProjectPropertiesKt
+import org.jetbrains.bazel.config.ProjectKt
 import org.jetbrains.bazel.sync.ProjectPostSyncHook
 import org.jetbrains.bazel.workspacemodel.entities.{BazelProjectEntitySource, ScalaAddendumEntityKt}
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -15,12 +15,11 @@ import org.jetbrains.plugins.scala.project.{ModuleEntityExt, ReplClasspath}
 
 import java.nio.file.Path
 import kotlin.coroutines.Continuation
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, IteratorHasAsScala}
 
 class BazelScalaModuleConfiguratorPostSyncHook extends ProjectPostSyncHook {
 
-  override def isEnabled(project: Project): Boolean = BazelProjectPropertiesKt.isBazelProject(project): @nowarn("cat=deprecation")
+  override def isEnabled(project: Project): Boolean = ProjectKt.isBazelProject(project)
 
   override def onPostSync(projectPostSyncHookEnvironment: ProjectPostSyncHook.ProjectPostSyncHookEnvironment, continuation: Continuation[? >: kotlin.Unit]): AnyRef = {
     val project = projectPostSyncHookEnvironment.getProject
