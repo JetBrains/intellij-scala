@@ -23,7 +23,6 @@ import org.jetbrains.sbt.asPath
 import java.net.URI
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import scala.annotation.nowarn
 import scala.collection.{immutable, mutable}
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters.*
@@ -284,7 +283,7 @@ class BspTask[T](project: Project,
 
           val start = diagnostic.getRange.getStart
           val end = diagnostic.getRange.getEnd
-          val position = Some(new FilePosition(filePath.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter): @nowarn("cat=deprecation")) // TODO: SCL-25494
+          val position = Some(new FilePosition(filePath, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
           val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
 
           import bsp4j.DiagnosticSeverity._

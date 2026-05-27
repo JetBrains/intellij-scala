@@ -4,7 +4,6 @@ import com.intellij.build.events.EventResult
 import com.intellij.openapi.diagnostic.Logger
 
 import java.nio.file.Path
-import scala.annotation.nowarn
 
 class LogReporter extends BuildReporter {
 
@@ -50,7 +49,7 @@ class LogReporter extends BuildReporter {
 
 
   private def filePositionText(pos: FilePosition): String = {
-    s"${pos.getFile: @nowarn("cat=deprecation")}, line: ${pos.getStartLine}, column: ${pos.getStartColumn}, end line: ${pos.getEndLine}, end column: ${pos.getEndColumn}" // TODO: SCL-25494
+    s"${pos.getPath}, line: ${pos.getStartLine}, column: ${pos.getStartColumn}, end line: ${pos.getEndLine}, end column: ${pos.getEndColumn}"
   }
 
   /** Clear any messages associated with file. */
