@@ -126,7 +126,8 @@ object SourceCode {
           case _ =>
             this += "package "
             printType(name.tpe)
-            inBlock(printTrees(stats1, "\n" + lineBreak()))
+            this += "\n\n"
+            printTrees(stats1, "\n" + lineBreak())
         }
 
       case Import(expr, selectors) =>
