@@ -1,4 +1,5 @@
 package org.jetbrains.bsp.project.importing.setup
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
@@ -17,7 +18,6 @@ import java.io.{BufferedReader, InputStreamReader}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 object FastpassConfigSetup {
@@ -43,15 +43,14 @@ object FastpassConfigSetup {
         Success(new FastpassConfigSetupEmpty(bspWorkspace))
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
-        val processBuilder = new ProcessBuilder(
+        val commandLine = new GeneralCommandLine(
           fastpassRelativePath,
           "create",
           s"--name=${bspWorkspace.getFileName}",
           relativeDir.toString + "::"
-        )
-        processBuilder.directory(pantsRoot.toNioPath.toFile)
-        logger.info(s"Creating BSP configuration with '${processBuilder.command().asScala.mkString(" ")}'")
-        Success(new FastpassConfigSetup(processBuilder))
+        ).withWorkingDirectory(pantsRoot.toNioPath)
+        logger.info(s"Creating BSP configuration with '${commandLine.getCommandLineString}'")
+        Success(new FastpassConfigSetup(commandLine))
       case None => Failure(new IllegalArgumentException(s"'$baseDir is not a pants directory'"))
     }
   }
@@ -81,7 +80,7 @@ class FastpassConfigSetupEmpty(bspWorkspace: Path) extends BspConfigSetup {
   }
 }
 
-class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup {
+class FastpassConfigSetup(commandLine: GeneralCommandLine) extends BspConfigSetup {
   override def cancel(): Unit = cancellationFlag.set(true)
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
@@ -109,15 +108,15 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
       Success(buildMessages.status(BuildMessages.OK))
     } else {
       Failure(BspErrorMessage(
-        s"""Command ${processBuilder.command.asScala} failed with:
+        s"""Command ${commandLine.getCommandLineString} failed with:
            |${buildMessages.errors.mkString("\n")}""".stripMargin))
     }
   }
 
   override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     reporter.start()
-    logger.info(s"Running '${processBuilder.command().asScala.mkString(" ")}' in ${processBuilder.directory()}")
-    val process = processBuilder.start()
+    logger.info(s"Running '${commandLine.getCommandLineString}' in ${commandLine.getWorkDirectory}")
+    val process = commandLine.createProcess()
     val result = waitFinish(process, reporter)
     result match {
       case Failure(err) => {
