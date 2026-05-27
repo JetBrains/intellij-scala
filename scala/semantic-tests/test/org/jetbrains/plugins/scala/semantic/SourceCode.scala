@@ -118,7 +118,8 @@ object SourceCode {
         val stats1 = stats.collect {
           case stat: PackageClause => stat
           case stat: Definition if !stat.symbol.flags.is(Flags.Synthetic) && !(stat.symbol.flags.is(Flags.Module) && stat.symbol.flags.is(Flags.Lazy)) => stat
-          case stat @ (_:Import | _:Export) => stat
+          case stat: Import if !fullNames => stat
+          case stat: Export => stat
         }
         name match {
           case Ident("<empty>") =>
