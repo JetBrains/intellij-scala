@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocSyntaxElement}
 import org.junit.{Assert, Test}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 
 /**
@@ -33,60 +32,61 @@ trait ScalaDocCorpusTest extends ProjectCorpusTestBase {
   @Test
   def testScalaDocParsing(): Unit = {
     // I set this so that the test log is not cluttered with useless log messages
-    ApplicationManagerEx.setInStressTest(true): @nowarn("cat=deprecation") // TODO: SCL-25494
-    val manager = ScalaPsiManager.instance(getProject)
+    ApplicationManagerEx.runInStressTest(true, () => {
+      val manager = ScalaPsiManager.instance(getProject)
 
-    println("Collecting source files...")
+      println("Collecting source files...")
 
-    val sourceFiles = allSources(Set.empty)
+      val sourceFiles = allSources(Set.empty)
 
-    println(s"Found ${sourceFiles.size} source files")
+      println(s"Found ${sourceFiles.size} source files")
 
-    var totalDocs = 0
-    var errorDocs = 0
-    val errors = scala.collection.mutable.ArrayBuffer[(String, String)]()
-    var expectedErrors = config.ignorePsiErrors
+      var totalDocs = 0
+      var errorDocs = 0
+      val errors = scala.collection.mutable.ArrayBuffer[(String, String)]()
+      var expectedErrors = config.ignorePsiErrors
 
-    sourceFiles.foreach { file =>
-      val scalaDocComments = file.depthFirst().filterByType[ScDocComment].toSeq
+      sourceFiles.foreach { file =>
+        val scalaDocComments = file.depthFirst().filterByType[ScDocComment].toSeq
 
-      scalaDocComments.foreach { doc =>
-        totalDocs += 1
+        scalaDocComments.foreach { doc =>
+          totalDocs += 1
 
-        val errorElements = doc.depthFirst().filterByType[PsiErrorElement].toSeq
-        if (errorElements.nonEmpty) {
-          errorDocs += 1
+          val errorElements = doc.depthFirst().filterByType[PsiErrorElement].toSeq
+          if (errorElements.nonEmpty) {
+            errorDocs += 1
 
-          errorElements.foreach { e =>
-            val errorDescriptor = psiLocation(e) -> e.getErrorDescription
-            if (expectedErrors.contains(errorDescriptor)) {
-              expectedErrors -= errorDescriptor
-            } else {
-              errors += errorDescriptor
+            errorElements.foreach { e =>
+              val errorDescriptor = psiLocation(e) -> e.getErrorDescription
+              if (expectedErrors.contains(errorDescriptor)) {
+                expectedErrors -= errorDescriptor
+              } else {
+                errors += errorDescriptor
+              }
             }
           }
         }
       }
-    }
 
-    println(s"Checked $totalDocs ScalaDoc comments, found $errorDocs with errors")
+      println(s"Checked $totalDocs ScalaDoc comments, found $errorDocs with errors")
 
-    if (expectedErrors.nonEmpty) {
-      val errorReport = expectedErrors.map { case (docId, msg) =>
-        s"ScalaDoc at $docId: $msg"
-      }.mkString("\n")
-      val fail = if (errors.nonEmpty) println(_: String) else Assert.fail(_: String)
-      fail(s"Expected errors not found:\n$errorReport")
-    }
+      if (expectedErrors.nonEmpty) {
+        val errorReport = expectedErrors.map { case (docId, msg) =>
+          s"ScalaDoc at $docId: $msg"
+        }.mkString("\n")
+        val fail = if (errors.nonEmpty) println(_: String) else Assert.fail(_: String)
+        fail(s"Expected errors not found:\n$errorReport")
+      }
 
 
-    if (errors.nonEmpty) {
-      val errorReport = errors.map { case (docId, msg) =>
-        s"$docId: $msg"
-      }.mkString("\n")
+      if (errors.nonEmpty) {
+        val errorReport = errors.map { case (docId, msg) =>
+          s"$docId: $msg"
+        }.mkString("\n")
 
-      Assert.fail(s"Found ${errors.length} ScalaDoc comments with parsing errors:\n$errorReport")
-    }
+        Assert.fail(s"Found ${errors.length} ScalaDoc comments with parsing errors:\n$errorReport")
+      }
+    })
   }
 
   private def findLinksByRegex(text: String): Int = {
@@ -115,61 +115,61 @@ trait ScalaDocCorpusTest extends ProjectCorpusTestBase {
   @Test
   def testLinkRegexMatchesPsiElements(): Unit = {
     // I set this so that the test log is not cluttered with useless log messages
-    ApplicationManagerEx.setInStressTest(true): @nowarn("cat=deprecation") // TODO: SCL-25494
+    ApplicationManagerEx.runInStressTest(true, () => {
+      println("Collecting source files...")
 
-    println("Collecting source files...")
+      val sourceFiles = allSources(Set.empty)
 
-    val sourceFiles = allSources(Set.empty)
+      println(s"Found ${sourceFiles.size} source files")
 
-    println(s"Found ${sourceFiles.size} source files")
+      var totalRegexMatches = 0
+      var totalPsiLinks = 0
+      val mismatches = mutable.ArrayBuffer.empty[(String, String)]
+      val expectedErrors = config.ignoreLinkRegexMismatch.to(mutable.Map)
 
-    var totalRegexMatches = 0
-    var totalPsiLinks = 0
-    val mismatches = mutable.ArrayBuffer.empty[(String, String)]
-    val expectedErrors = config.ignoreLinkRegexMismatch.to(mutable.Map)
+      sourceFiles
+        .flatMap(_.depthFirst().filterByType[ScDocComment])
+        .foreach { docComment =>
+          val fileText = docComment.getText
 
-    sourceFiles
-      .flatMap(_.depthFirst().filterByType[ScDocComment])
-      .foreach { docComment =>
-        val fileText = docComment.getText
+          // Count balanced bracket links using custom parsing
+          val regexMatches = findLinksByRegex(fileText)
 
-        // Count balanced bracket links using custom parsing
-        val regexMatches = findLinksByRegex(fileText)
+          val expectedFlags = ScalaDocTokenType.DOC_LINK_TAG.getFlagConst | ScalaDocTokenType.DOC_HTTP_LINK_TAG.getFlagConst
+          val psiLinks = docComment.depthFirst()
+            .filterByType[ScDocSyntaxElement]
+            .filter(e => (e.getFlags & expectedFlags) != 0)
+            .count(_.getText.startsWith("[["))
 
-        val expectedFlags = ScalaDocTokenType.DOC_LINK_TAG.getFlagConst | ScalaDocTokenType.DOC_HTTP_LINK_TAG.getFlagConst
-        val psiLinks = docComment.depthFirst()
-          .filterByType[ScDocSyntaxElement]
-          .filter(e => (e.getFlags & expectedFlags) != 0)
-          .count(_.getText.startsWith("[["))
-
-        totalRegexMatches += regexMatches
-        totalPsiLinks += psiLinks
-        val loc = psiLocation(docComment)
-        if (regexMatches != psiLinks) {
-          expectedErrors.remove(loc) match {
-            case Some((expectedRegexMatches, expectedPsiLinks)) =>
-              if (regexMatches != expectedRegexMatches) {
-                mismatches += ((loc, s"Expected $expectedRegexMatches regex matches, got $regexMatches"))
-              }
-              if (psiLinks != expectedPsiLinks) {
-                mismatches += ((loc, s"Expected $expectedPsiLinks psiLinks, got $psiLinks"))
-              }
-            case None =>
-              mismatches += ((loc, s"regex matches [$regexMatches] != psiLinks [$psiLinks]"))
+          totalRegexMatches += regexMatches
+          totalPsiLinks += psiLinks
+          val loc = psiLocation(docComment)
+          if (regexMatches != psiLinks) {
+            expectedErrors.remove(loc) match {
+              case Some((expectedRegexMatches, expectedPsiLinks)) =>
+                if (regexMatches != expectedRegexMatches) {
+                  mismatches += ((loc, s"Expected $expectedRegexMatches regex matches, got $regexMatches"))
+                }
+                if (psiLinks != expectedPsiLinks) {
+                  mismatches += ((loc, s"Expected $expectedPsiLinks psiLinks, got $psiLinks"))
+                }
+              case None =>
+                mismatches += ((loc, s"regex matches [$regexMatches] != psiLinks [$psiLinks]"))
+            }
           }
         }
+
+      println(s"Total regex matches: $totalRegexMatches")
+      println(s"Total PSI links: $totalPsiLinks")
+
+      if (mismatches.nonEmpty) {
+        val mismatchReport = mismatches.map { case (loc, msg) =>
+          s"$loc: $msg"
+        }.mkString("\n")
+
+        Assert.fail(s"Found ${mismatches.length} files with mismatched counts:\n$mismatchReport")
       }
-
-    println(s"Total regex matches: $totalRegexMatches")
-    println(s"Total PSI links: $totalPsiLinks")
-
-    if (mismatches.nonEmpty) {
-      val mismatchReport = mismatches.map { case (loc, msg) =>
-        s"$loc: $msg"
-      }.mkString("\n")
-
-      Assert.fail(s"Found ${mismatches.length} files with mismatched counts:\n$mismatchReport")
-    }
+    })
   }
 }
 
