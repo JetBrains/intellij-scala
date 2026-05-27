@@ -1306,7 +1306,7 @@ object SourceCode {
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
           sym != Symbol.requiredClass("scala.forceInline") &&
-          sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
+          sym.maybeOwner != Symbol.requiredClass("scala.annotation.internal")
         case x =>
           cannotBeShownAsSource(x.show(using Printer.TreeStructure))
           false
