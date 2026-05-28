@@ -36,6 +36,7 @@ import org.jetbrains.sbt.process.{SbtImportTimingCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
+import org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionBuildToolWindowWarning
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.data.*
@@ -316,9 +317,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.toCanonicalPath.toString)
       Failure(new FileNotFoundException(error))
     } else {
-      if (sbtVersion.isSbt0) {
-        LegacySbtVersionNotifications.warnForBuildToolWindow(project, projectRoot, sbtVersion, reporter)
-      }
+      LegacySbtVersionBuildToolWindowWarning.warnForBuildToolWindowIfNeeded(project, projectRoot, sbtVersion, reporter)
 
       if (!settings.separateProdTestSources) {
         LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
