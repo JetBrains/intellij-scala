@@ -287,10 +287,19 @@ object SourceCode {
         rhs match {
           case Some(tree) =>
             this += " = "
-            printTree(tree)
+            if (vdef.symbol.owner.isDefDef || vdef.symbol.owner.isValDef)
+              printTree(tree)
+            else
+              tree match {
+                case Block(_, _) => printTree(tree)
+                case _ => indented {
+                  this += lineBreak()
+                  printTree(tree)
+                }
+              }
           case None =>
-            this
         }
+        this
 
       case While(cond, body) =>
         (cond, body) match {
@@ -330,7 +339,16 @@ object SourceCode {
         rhs match {
           case Some(tree) =>
             this += " = "
-            printTree(tree)
+            if (ddef.symbol.owner.isDefDef || ddef.symbol.owner.isValDef)
+              printTree(tree)
+            else
+              tree match {
+                case Block(_, _) => printTree(tree)
+                case _ => indented {
+                  this += lineBreak()
+                  printTree(tree)
+                }
+              }
           case None =>
         }
         this
