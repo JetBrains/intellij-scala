@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.{Files, Path}
+import scala.annotation.nowarn
 import scala.concurrent.duration._
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -36,6 +37,7 @@ class BloopLauncherConnector(base: Path, compilerOutput: Path, capabilities: Bsp
 
     val java = JavaSdk.getInstance().getVMExecutablePath(jdk)
     val retainedBloopVersion = BloopRifleConfig.AtLeast(BloopVersion(bloopVersion))
+    @nowarn("cat=deprecation")
     val details = BloopRifleConfig.default(
       BloopRifleConfig.Address.DomainSocket(bloopDataStore),
       bloopClasspath,
