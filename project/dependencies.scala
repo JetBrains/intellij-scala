@@ -13,7 +13,7 @@ object Versions {
   // NOTE: sbt-launch won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = "1.12.11"
-  val bloopVersion = "2.0.14"
+  val bloopVersion = "2.1.0"
   val zincVersion = "1.12.0"
 
   val nailgunVersion = "1.3.1"
