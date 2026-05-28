@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadata
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
@@ -8,14 +7,7 @@ import java.nio.file.Path
 import scala.annotation.unused
 
 sealed trait CompileServerCommand {
-  @deprecated(message = "Use asArgs(PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def asArgs: Seq[String] = asArgs(NioPathTranslator)
-
-  def asArgs(translator: PathTranslator): Seq[String] = {
-    throw AbstractMethodError("Needs to be implemented, this exception here is thrown for preserving binary compatibility")
-  }
+  def asArgs(translator: PathTranslator): Seq[String]
 
   def id: String
 

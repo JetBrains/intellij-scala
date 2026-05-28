@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.scala.Extractor
-import org.jetbrains.jps.incremental.scala.remote.{NioPathTranslator, PathTranslator}
+import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 
 import java.nio.file.Path
 
@@ -17,11 +16,6 @@ case class ExpressionEvaluationArguments(
   localVariableNames: Set[String],
   packageName: String
 ) {
-
-  @deprecated(message = "Use asStrings(PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def asStrings: Seq[String] = asStrings(NioPathTranslator)
 
   def asStrings(translator: PathTranslator): Seq[String] = {
     import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.{pathToString, pathsToString, sequenceToString}

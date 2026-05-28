@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.data.serialization
 
-import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 
 import java.nio.file.{Files, Path, Paths}
@@ -13,16 +11,8 @@ import scala.util.Try
   final val EmptyArgumentStub = "#STUB#"
 
   // serializing
-  @deprecated(message = "Use pathToString(Path, PathTranslator).", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def pathToString(path: Path): String = FileUtil.toCanonicalPath(path.toAbsolutePath.normalize().toString)
   def pathToString(path: Path, translator: PathTranslator): String = translator.translate(path)
 
-  @deprecated(message = "Use pathsToString(Iterable[Path], PathTranslator).", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def pathsToString(paths: Iterable[Path]): String = sequenceToString(paths.map(pathToString))
   def pathsToString(paths: Iterable[Path], translator: PathTranslator): String = sequenceToString(paths.map(pathToString(_, translator)))
 
   def optionToString(s: Option[String]): String = s.getOrElse("")

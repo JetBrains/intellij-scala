@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.jps.incremental.scala.remote.{NioPathTranslator, PathTranslator}
+import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 
 import java.nio.file.Path
 
@@ -16,11 +15,6 @@ final case class DocumentCompilationData(
 object DocumentCompilationData {
 
   import Extractors.{StringToPath, StringToPaths, StringToSequence}
-
-  @deprecated(message = "Use serialize(DocumentCompilationData, PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def serialize(data: DocumentCompilationData): Seq[String] = serialize(data, NioPathTranslator)
 
   def serialize(data: DocumentCompilationData, translator: PathTranslator): Seq[String] = {
     val DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions) = data
