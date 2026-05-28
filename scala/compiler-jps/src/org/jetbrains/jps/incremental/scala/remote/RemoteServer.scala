@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.Server.ServerError.MissingScalaCompileServerSystemDirectoryException
 import org.jetbrains.jps.incremental.scala.{Client, ExitCode, Server}
@@ -17,15 +16,6 @@ final class RemoteServer(
   override protected val socketConnectTimeout: FiniteDuration
 ) extends Server
   with RemoteResourceOwner {
-
-  @deprecated(
-    message = "Use the new primary constructor which accepts a CompileServerPort as a second argument. Kept for preserving binary compatibility.",
-    since = "2026.1"
-  )
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def this(address: InetAddress, port: Int, socketConnectTimeout: FiniteDuration) =
-    this(address, CompileServerPort.Local(port), socketConnectTimeout)
 
   override def compile(sbtData: SbtData,
                        compilerData: CompilerData,

@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.annotations.{ApiStatus, Nullable}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.incremental.scala.*
 import org.jetbrains.plugins.scala.server.CompileServerPort
 
@@ -15,14 +15,7 @@ trait RemoteResourceOwner {
 
   protected def address: InetAddress
 
-  @deprecated(message = "Use compileServerPort. Currently kept for preserving binary compatibility.", since = "2026.1")
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  protected def port: Int = compileServerPort.forCommunication
-
-  protected def compileServerPort: CompileServerPort = {
-    throw AbstractMethodError("Needs to be implemented, this exception here is thrown for preserving binary compatibility")
-  }
+  protected def compileServerPort: CompileServerPort
 
   protected def socketConnectTimeout: FiniteDuration = 10.seconds
 

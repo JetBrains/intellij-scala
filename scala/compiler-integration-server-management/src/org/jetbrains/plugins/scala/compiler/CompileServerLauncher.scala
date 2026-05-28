@@ -452,11 +452,6 @@ object CompileServerLauncher {
     watcher
   }
 
-  @deprecated(message = "Use compileServerPort. Kept for preserving binary compatibility", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def port: Option[Int] = compileServerPort.map(_.forCommunication)
-
   def compileServerPort: Option[CompileServerPort] = serverInstance.map(_.port)
 
   def pid: Option[Long] = serverInstance.flatMap(_.watcher.pid)
