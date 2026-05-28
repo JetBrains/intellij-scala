@@ -244,7 +244,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   }
 
   private def readClassPath(jarFile: Path): Either[Seq[CompilerClasspathResolveFailure], Seq[Path]] = {
-    val classPath = JarManifestUtils.readClassPath(jarFile.toFile).map(_.map(_.toPath)).orNull
+    val classPath = JarManifestUtils.readClassPath(jarFile).orNull
     if (classPath != null) {
       val missingFiles = classPath.filterNot(_.exists)
       if (missingFiles.isEmpty)

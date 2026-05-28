@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
@@ -506,7 +507,7 @@ object SbtUtil {
         EelPathUtils.transferLocalContentToRemote(tmpPluginsSbtFile, TransferTarget.Temporary(eelDescriptor))
 
     Files.writeString(tmpPluginsSbtFile, content)
-    tmpPluginsSbtFile.toFile.deleteOnExit()
+    Runtime.getRuntime.addShutdownHook(Thread(() => NioFiles.deleteQuietly(tmpPluginsSbtFile)))
     tmpPluginsSbtFile
   }
 }
