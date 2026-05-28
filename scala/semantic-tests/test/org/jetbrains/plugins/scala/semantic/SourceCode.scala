@@ -1478,8 +1478,8 @@ object SourceCode {
         val name =
           if index == 1 then name0
           else s"`$name0${index.toString.toCharArray.map {x => (x - '0' + '₀').toChar}.mkString}`"
-        names(sym) = name
-        Some(name)
+        names(sym) = name0
+        Some(name0)
       }
     }
 
