@@ -90,6 +90,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
+      semanticTests % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectStructureTests % "test->test",
       sbtProjectHighlightingTests % "test->test",
@@ -352,6 +353,14 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     )
   )
   .settings(compilationCacheSettings)
+
+lazy val semanticTests = newProject("semantic-tests", file("scala/semantic-tests"))
+  .dependsOn(scalaImpl % "test->test;compile->compile")
+  .settings(
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions,
+    libraryDependencies += Dependencies.tastyInspector,
+  )
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
