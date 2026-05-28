@@ -163,7 +163,8 @@ class BspProjectStructureImportingTestWithNewestSbt2 extends BspProjectStructure
           resources := Seq("src/main/resources")
           testResources := Seq("src/test/resources")
           // Uncomment this when the problem with output paths is fixed in sbt https://github.com/sbt/sbt/issues/9268
-          //excluded := Seq(".bloop", ".bsp")
+          // The excluded folders should also include the output directories for subProject1 & subProject2 (SCL-25499)
+          //excluded := Seq("target/out/jvm/scala-3.3.3/root", ".bloop", ".bsp")
         },
         new module("subProject1") {
           contentRoots := moduleContentRoots("subProject1", "3.3.3")
