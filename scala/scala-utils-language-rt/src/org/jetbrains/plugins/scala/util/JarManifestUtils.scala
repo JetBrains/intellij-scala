@@ -9,10 +9,9 @@ import scala.util.Using
 object JarManifestUtils {
 
   def readManifest(jar: Path): java.util.jar.Manifest =
-    Using.resource(FileSystems.newFileSystem(jar, null: ClassLoader)) { fileSystem =>
+    Using.resource(FileSystems.newFileSystem(jar, null: ClassLoader)): fileSystem =>
       val manifestPath = fileSystem.getPath("META-INF", "MANIFEST.MF")
-      Using.resource(new BufferedInputStream(Files.newInputStream(manifestPath)))(new java.util.jar.Manifest(_))
-    }
+      Using.resource(BufferedInputStream(Files.newInputStream(manifestPath)))(java.util.jar.Manifest(_))
 
   def readManifestAttribute(jar: Path, attributeName: String): Option[String] =
     Option(readManifest(jar).getMainAttributes.getValue(attributeName))
