@@ -856,14 +856,6 @@ object CompileServerLauncher {
     }
   }
 
-  @deprecated(message = "No longer used", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def transferToRemoteProjectCacheDirectory(path: Path, project: Project): Path = {
-    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
-    transferredRemotePath(path, project, eelDescriptor)
-  }
-
   /**
    * Needs to match `cacheDirectory` in [[com.intellij.compiler.server.EelBuildCommandLineBuilder]].
    * @return a path to the cache directory if the project belongs to a remote machine, `None` if the
