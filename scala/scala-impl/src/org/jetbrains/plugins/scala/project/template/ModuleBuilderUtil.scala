@@ -53,23 +53,6 @@ object ModuleBuilderUtil {
     }
   }
 
-  @deprecated(message = "Use doSetupModule which takes a java.nio.file.Path argument", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def doSetupModule[T <: ExternalProjectSettings](
-    module: Module,
-    externalProjectSettings: T,
-    contentRootDir: java.io.File,
-    projectSystemId: ProjectSystemId
-  ): Unit = {
-    doSetupModule(
-      module = module,
-      externalProjectSettings = externalProjectSettings,
-      contentRootDir = contentRootDir.toPath,
-      projectSystemId = projectSystemId
-    )
-  }
-
   def doSetupModule[T <: ExternalProjectSettings](
     module: Module,
     externalProjectSettings: T,
