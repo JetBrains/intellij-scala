@@ -7,6 +7,8 @@ import runtime.impl.printers.*
 
 import scala.annotation.switch
 
+import scala.util.matching.Regex
+
 /** Printer for fully elaborated representation of the source code */
 object SourceCode {
 
@@ -784,7 +786,10 @@ object SourceCode {
           def printSeparated(list: List[TypeDef]): Unit = list match {
             case Nil =>
             case x :: Nil =>
-              this += x.name
+              this += (x.name match {
+                case WildcardName() => "_"
+                case s => s
+              })
               printParam(x.rhs)
             case x :: xs =>
               this += x.name
@@ -809,6 +814,8 @@ object SourceCode {
           printTypeTree(rhs)
       }
     }
+
+    private val WildcardName: Regex = "_\\$\\d+".r
 
     private def printSeparatedParamDefs(list: List[ValDef])(using elideThis: Option[Symbol]): Unit = list match {
       case Nil =>
