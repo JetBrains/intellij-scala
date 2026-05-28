@@ -192,7 +192,7 @@ object ImplicitConversionResolveResult {
     processor match {
       case methodProcessor: MethodResolveProcessor if noImplicitsForArgs =>
         for {
-          expressions <- methodProcessor.argumentClauses
+          expressions <- methodProcessor.invocationClauses.flatMap(_.args)
           expression  <- expressions
           typeResult   =
             expression.getTypeAfterImplicitConversion(

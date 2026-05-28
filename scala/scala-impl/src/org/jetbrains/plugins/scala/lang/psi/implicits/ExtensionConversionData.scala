@@ -71,7 +71,7 @@ object ExtensionConversionHelper {
                     (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
 
     foundInType.applicabilityConstraints match {
-      case Some(ConstraintSystem(substitutor)) =>
+      case ConstraintSystem(substitutor) =>
         val parameterType = candidate.inferredType
 
         val combinedSubstitutor = candidate.substitutor.followed(foundInType.substitutor).followed(substitutor)

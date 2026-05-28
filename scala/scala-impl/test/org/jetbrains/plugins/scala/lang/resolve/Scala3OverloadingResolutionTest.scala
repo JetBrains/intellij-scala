@@ -108,6 +108,29 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  def testLateApplyExpansionFails(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class Foo { def apply: Bar = new Bar {} }
+       |class Bar { def apply[B](b: B): String = "" }
+       |def foo[A](a: A): Foo = new Foo {}
+       |
+       |val z = foo(1)$CARET("")
+       |
+       |""".stripMargin
+  )
+
+
+  def testLateApplyExpansionWinsInferenceDependent(): Unit = checkTextHasNoErrors(
+    """
+      |object a {
+      |  trait Bar[A] { def apply(a: A): Int = 123 }
+      |  def foo[A](i: A)(b: String): String = ???
+      |  def foo[A](a: A): Bar[A] = ???
+      |  val z = foo(1)(2)
+      |}
+      |""".stripMargin
+  )
+
   def testLateApplyExpansionChainedApplyAmbiguous(): Unit = checkHasErrorAroundCaret(
     s"""
       |class Example {
@@ -208,6 +231,30 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
       |  def bar(x: Int): String = "1"
       |  def bar(x: Int)(t: Int): Unit = 2
       |  val z = bar(1)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadedMultiArgApply(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Example {
+       |  trait Baz
+       |  class Bar {
+       |    def apply(s: String)(x: String): Baz = ???
+       |    def apply(s: String)(x: Int): Baz = ???
+       |  }
+       |  def foo(i: Int): Bar = ???
+       |  val zz = foo(1)("213")(1)
+       |}""".stripMargin
+  )
+
+  // TODO[SIP-47]: requires cross-clause type-parameter propagation during applicability checks
+  def disabledTypeInferenceScattered(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  def foo[A](a: A)(b: Int)(d: Double): String = "123"
+      |  def foo[A](a: A)(b: Int)[B](c: A): Int = 123
+      |  val x = foo(1)(2)("")
       |}
       |""".stripMargin
   )

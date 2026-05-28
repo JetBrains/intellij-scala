@@ -77,7 +77,10 @@ object FunDef extends ParsingRule {
         }
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-        ParamClauses(expectAtLeastOneClause = true)
+        ParamClauses(
+          expectAtLeastOneClause = true,
+          allowInterleavingTypeParamClauses = false
+        )
 
         // just parse a type annotation here, even though it is not correct
         if (builder.getTokenType == ScalaTokenTypes.tCOLON) {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClausesOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
@@ -58,6 +59,21 @@ package object api {
     def instantiate: Seq[TypeParameter] = typeParameters match {
       case Array() => Seq.empty
       case array   => array.toSeq.map(TypeParameter(_))
+    }
+  }
+
+  implicit class PsiTypeParameterListOwnerExt(private val owner: PsiTypeParameterListOwner) extends AnyVal {
+    def typeParametersByClause: Seq[Seq[TypeParameter]] = owner match {
+      case interleavedOwner: ScInterleavedClausesOwner =>
+        interleavedOwner.signatureClauses.collect {
+          case ScSignatureClause.TypeClause(clause) => clause.typeParameters.map(TypeParameter(_))
+        }
+      case scalaOwner: ScTypeParametersOwner =>
+        val typeParametersClause = scalaOwner.typeParameters.map(TypeParameter(_))
+        if (typeParametersClause.isEmpty) Seq.empty else Seq(typeParametersClause)
+      case _ =>
+        val typeParametersClause = owner.getTypeParameters.instantiate
+        if (typeParametersClause.isEmpty) Seq.empty else Seq(typeParametersClause)
     }
   }
 

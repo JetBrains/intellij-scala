@@ -117,7 +117,9 @@ object SAMUtil {
 
       expected.extractClassType.flatMap {
         case (cls: PsiClass, subst) =>
-          if (cls.qualifiedName.startsWith("scala.ContextFunction")) None //@TODO: remove when implemented
+          val fqnOption = cls.qualifiedName.toOption
+
+          if (fqnOption.exists(_.startsWith("scala.ContextFunction"))) None //@TODO: remove when implemented
           else if (!hasValidConstructorAndSelfType(cls)) None
           else {
             for {

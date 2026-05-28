@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
-
   //SCL-5358
   def testSCL5358(): Unit = assertNoMessages(
       """final val x = 0

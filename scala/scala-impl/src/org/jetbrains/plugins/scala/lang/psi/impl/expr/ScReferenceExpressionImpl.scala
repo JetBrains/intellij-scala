@@ -430,7 +430,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 case Some(tp) =>
                   if (FunctionType.isFunctionType(tp)) {
                     val tp        = tail
-                    val processor = new MethodResolveProcessor(this, CommonNames.Apply, Nil, Nil, Nil)
+                    val processor = new MethodResolveProcessor(this, CommonNames.Apply, Seq.empty, Seq.empty)
                     processor.processType(tp, this)
                     val candidates = processor.candidates
                     if (candidates.length != 1) tail
@@ -540,7 +540,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       if (unresolvedTypeParameters.nonEmpty)
         inner match {
           case ScTypePolymorphicType(internal, typeParams) =>
-            ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams)
+            ScTypePolymorphicType(internal, typeParams ++ unresolvedTypeParameters)
           case _ =>
             ScTypePolymorphicType(inner, unresolvedTypeParameters)
         }
@@ -555,9 +555,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2))
+                    ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters))
                   case _ =>
-                    ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams)
+                    ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters)
                 }
               case _ => default
             }
@@ -568,9 +568,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2)))
+                return Right(
+                  ScalaPsiUtil.removeBadBounds(
+                    ScTypePolymorphicType(internal, typeParams2 ++ typeParams ++ unresolvedTypeParameters)
+                  )
+                )
               case _ =>
-                return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
+                return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
             }
           case _ => default
         }

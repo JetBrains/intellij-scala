@@ -15,75 +15,26 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
-
-  //This is a little bit tricky, since `foo[A](b)` can be either
-  //1. `foo.apply[A](b)` or 2. `foo.apply[A].apply(b)` and to resolve apply method correctly,
-  //we must provide resolve processor with a correct set of args.
-  //Since 1. is probably the more common scenario, let's first try to resolve with args,
-  //and if it fails, try 2.
-  private def processApplyOrUpdateMethod(tp: ScType, shapesOnly: Boolean): ScType = {
-    def workWithApplyCandidates(candidates: Array[ScalaResolveResult]): Option[ScType] = candidates match {
-      case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-        fun
-          .methodTypeProvider(elementScope)
-          .polymorphicType(s)
-          .updateTypeOfDynamicCall(srr.isDynamic)
-          .toOption
-      case _ => None
-  }
-
-    val applyResolveContext = getContext match {
-      case inv: MethodInvocation if inv.getInvokedExpr == this => inv
-      case _                                                   => this
-    }
-
-    val applyCandidates = this.resolveApplyOrUpdateMethod(
-      applyResolveContext,
-      tp,
-      shapesOnly    = shapesOnly,
-      stripTypeArgs = false,
-      withImplicits = true
-    )
-
-    workWithApplyCandidates(applyCandidates) match {
-      case Some(tp) => tp
-      case None =>
-        if (applyResolveContext.is[MethodInvocation]) {
-          val applyCandidatesWithoutArgs =
-            this.resolveApplyOrUpdateMethod(
-              this,
-              tp,
-              shapesOnly    = shapesOnly,
-              stripTypeArgs = false,
-              withImplicits = true
-            )
-
-          workWithApplyCandidates(applyCandidatesWithoutArgs).getOrElse(Nothing)
-        } else Nothing
-    }
-  }
-
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
       val targs            = typeArguments
       val targNames        = targs.flatMap(_.name)
       val hasNamedTypeArgs = targNames.nonEmpty
 
-      //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
       val subst =
         if (hasNamedTypeArgs) ScSubstitutor.bind(tps, targs)
-        else                  ScSubstitutor.bind(tps.takeRight(targs.length), targs)
+        else                  ScSubstitutor.bind(tps.take(targs.length), targs)
 
       val substedInternal = subst(internal)
 
       val trimmedTypeParams =
         if (hasNamedTypeArgs) tps.filterNot(tp => targNames.contains(tp.name))
-        else                  tps.dropRight(targs.length)
+        else                  tps.drop(targs.length)
 
       if (targs.length < tps.length) ScTypePolymorphicType(subst(internal), trimmedTypeParams)
       else                           substedInternal
@@ -109,7 +60,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
     case p: ScTypePolymorphicType => p
-    case t                        => processApplyOrUpdateMethod(t, isShape)
+    case t                        => ScGenericCallImpl.processApplyOrUpdateMethod(this, t, isShape)
   }
 
   private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
@@ -186,4 +137,34 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   }
 
   override def toString: String = "GenericCall"
+}
+
+object ScGenericCallImpl {
+  def processApplyOrUpdateMethod(
+    gen:        ScGenericCall,
+    tp:         ScType,
+    shapesOnly: Boolean
+  ): ScType = {
+    def workWithApplyCandidates(candidates: Array[ScalaResolveResult]): Option[ScType] = candidates match {
+      case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+        fun
+          .methodTypeProvider(gen.elementScope)
+          .polymorphicType(s)
+          .updateTypeOfDynamicCall(srr.isDynamic)
+          .toOption
+      case _ => None
+    }
+
+    val applyCandidates = gen.resolveApplyOrUpdateMethod(
+      gen.referencedExpr,
+      tp,
+      shapesOnly    = shapesOnly,
+      withImplicits = true
+    )
+
+    workWithApplyCandidates(applyCandidates) match {
+      case Some(tp) => tp
+      case None     => Nothing(gen.projectContext)
+    }
+  }
 }

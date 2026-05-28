@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry with ScBegin {
@@ -60,11 +61,12 @@ object ScTryImpl {
       .map(ScDesignatorType(_))
       .map(Compatibility.Expression(_))
       .map { compatibilityExpression =>
+        val clauses = Seq(InvocationClause.argsOnly(Seq(compatibilityExpression)))
+
         new MethodResolveProcessor(
           expression,
           CommonNames.Apply,
-          List(Seq(compatibilityExpression)),
-          Seq.empty,
+          clauses,
           Seq.empty
         )
       }

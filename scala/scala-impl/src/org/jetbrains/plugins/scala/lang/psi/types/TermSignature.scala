@@ -10,13 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScSignatureClause, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTypeParametersExt, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTypeParameterListOwnerExt, PsiTypeParametersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -55,7 +55,7 @@ import scala.collection.mutable
 class TermSignature(
   _name:                     String,
   private val typesEval:     Seq[Seq[() => ScType]],
-  private val tParams:       Seq[TypeParameter],
+  private val tParams:       Seq[Seq[TypeParameter]],
   override val substitutor:  ScSubstitutor,
   override val namedElement: PsiNamedElement,
   override val exportedInfo: Option[ExportedSigInfo] = None,
@@ -68,7 +68,7 @@ class TermSignature(
   def copy(
     _name:                 String                  = _name,
     typesEval:             Seq[Seq[() => ScType]]  = typesEval,
-    tParams:               Seq[TypeParameter]      = tParams,
+    tParams:               Seq[Seq[TypeParameter]] = tParams,
     substitutor:           ScSubstitutor           = substitutor,
     namedElement:          PsiNamedElement         = namedElement,
     exportedInfo:          Option[ExportedSigInfo] = exportedInfo,
@@ -97,9 +97,9 @@ class TermSignature(
 
   def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor(f()).unpackedType))
 
-  def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor))
+  def typeParams: Seq[Seq[TypeParameter]] = tParams.map(tParamClause => tParamClause.map(_.update(substitutor)))
 
-  def typeParamsLength: Int = tParams.length
+  def typeParamsLength: Int = tParams.flatten.length
 
   private def isField = namedElement.is[PsiField]
 
@@ -138,8 +138,12 @@ class TermSignature(
     constraints: ConstraintSystem,
     falseUndef:  Boolean
   ): ConstraintsResult = {
+    val typeParamsFlat      = typeParams.flatten
+    val otherTypeParamsFlat = other.typeParams.flatten
+    val unified             = other.substitutor.withBindings(typeParamsFlat, otherTypeParamsFlat)
 
-    if (isScala != other.isScala) return paramTypesEquivExtendedWithJava(other, constraints, falseUndef)
+    if (isScala != other.isScala)
+      return paramTypesEquivExtendedWithJava(other, unified, constraints, falseUndef)
 
     if (paramLength != other.paramLength ||
         paramLength > 0 && paramClauseSizes =!= other.paramClauseSizes ||
@@ -147,14 +151,14 @@ class TermSignature(
       return ConstraintsResult.Left
 
     val depParamTypeSubst   = depParamTypeSubstitutor(other)
-    val unified             = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator      = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
     var lastConstraints     = constraints
 
-    val boundsEquiv = typeParams.zip(other.typeParams).forall { case (lhsTp, rhsTp) =>
-      val res = unified(lhsTp.upperType).equiv(unified(rhsTp.upperType), lastConstraints, falseUndef).isRight
-      res
+    val boundsEquiv = typeParamsFlat.zip(otherTypeParamsFlat).forall { case (lhsTp, rhsTp) =>
+      unified(lhsTp.upperType)
+        .equiv(unified(rhsTp.upperType), lastConstraints, falseUndef)
+        .isRight
     }
 
     if (!boundsEquiv) return ConstraintsResult.Left
@@ -182,9 +186,10 @@ class TermSignature(
   }
 
   private def paramTypesEquivExtendedWithJava(
-    other:       TermSignature,
-    constraints: ConstraintSystem,
-    falseUndef:  Boolean
+    other:        TermSignature,
+    unifiedSubst: ScSubstitutor,
+    constraints:  ConstraintSystem,
+    falseUndef:   Boolean
   ): ConstraintsResult = {
     if (paramLength != other.paramLength || hasRepeatedParam =!= other.hasRepeatedParam)
       return ConstraintsResult.Left
@@ -194,7 +199,7 @@ class TermSignature(
       typesIterator      = substitutedTypes.flatten.iterator,
       otherTypesIterator = other.substitutedTypes.flatten.iterator,
       depParamTypeSubst  = depParamTypeSubstitutor(other),
-      unified            = other.substitutor.withBindings(typeParams, other.typeParams),
+      unified            = unifiedSubst,
       constraints        = constraints,
       falseUndef         = falseUndef,
     )
@@ -352,7 +357,7 @@ object TermSignature {
       new TermSignature(
         function.name,
         PhysicalMethodSignature.typesEval(function, extensionOwner),
-        function.getTypeParameters.instantiate,
+        function.typeParametersByClause,
         substitutor,
         function,
         exportedInfo,
@@ -409,8 +414,13 @@ object TermSignature {
 }
 
 object PhysicalMethodSignature {
-  def typeParamsWithExtension(m: PsiMethod, extensionTypeParameters: Seq[ScTypeParam]): Seq[TypeParameter] =
-    extensionTypeParameters.map(TypeParameter(_)) ++ m.getTypeParameters.instantiate
+  private def typeParamsWithExtension(m: PsiMethod, extensionTypeParameters: Seq[ScTypeParam]): Seq[Seq[TypeParameter]] = {
+    val methodTypeParameterClauses    = m.typeParametersByClause
+    val extensionTypeParametersClause = extensionTypeParameters.map(TypeParameter(_))
+
+    if (extensionTypeParametersClause.isEmpty) methodTypeParameterClauses
+    else extensionTypeParametersClause +: methodTypeParameterClauses
+  }
 
   @tailrec
   def typesEval(method: PsiMethod, extensionOwner: Option[ScExtension]): List[Seq[() => ScType]] = method match {

@@ -183,10 +183,12 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   @tailrec
   private def isOuterMostCall(e: ScalaPsiElement): Boolean = {
     val org = e.getDeepSameElementInContext
+
     e.getContext match {
       case MethodInvocation(`org`, _) => false
-      case p: ScParenthesisedExpr => isOuterMostCall(p)
-      case _ => true
+      case p: ScParenthesisedExpr     => isOuterMostCall(p)
+      case gen: ScGenericCall         => isOuterMostCall(gen)
+      case _                          => true
     }
   }
 
@@ -195,7 +197,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     def inner(expr: ScExpression, acc: Int): Int = expr match {
       case MethodInvocation(expr, _) => inner(expr, acc + 1)
       case ScParenthesisedExpr(expr) => inner(expr, acc)
-      case _ => acc
+      case ScGenericCall(expr, _)    => inner(expr, acc)
+      case _                         => acc
     }
 
     inner(call, 0)

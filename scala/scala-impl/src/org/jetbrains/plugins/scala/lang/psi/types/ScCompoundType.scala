@@ -37,7 +37,7 @@ final case class ScCompoundType private (
     val depths = signatureMap.map {
       case (sign: TermSignature, tp: ScType) =>
         tp.typeDepth
-          .max(sign.typeParams.depth)
+          .max(sign.typeParams.flatten.depth)
     } ++ typesMap.map {
       case (_: String, signature: TypeAliasSignature) =>
         signature.lowerBound.typeDepth

@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, Context, ScAbstractType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ConstraintSystem, Context, ScAbstractType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -25,15 +26,36 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
     else Iterator.empty
 
   private def doCollectTypeArgumentHints(editor: Editor, root: PsiFile): Iterator[Hint] = root.elements(_.isVisible(editor.getProject, root)).flatMap {
-    case ci@ScConstructorInvocation.reference(Resolved(r@ScalaResolveResult(TypeParamsOfMethodLike(typeParams), _))) =>
-      r.applicabilityConstraints.flatMap { cs =>
-        xRayTypeArgumentsHints(ci.typeElement, cs, typeParams, editor)
-      }.getOrElse(Seq.empty)
+    case ci @ ScConstructorInvocation.reference(Resolved(r @ ScalaResolveResult(cons: ScMethodLike, _))) =>
+      val (_, applicability, _) = Compatibility.checkConstructorApplicability(ci, cons, r)(ci)
+      val constraints = applicability.constraints
+      val typeParams  = cons.getConstructorTypeParameters
+
+      if (constraints.isEmpty) Seq.empty
+      else
+        xRayTypeArgumentsHints(
+          ci.typeElement,
+          constraints,
+          typeParams,
+          editor
+        ).getOrElse(Seq.empty)
     case CallWithTypeArguments(invoked, typeParams, methodCalls) =>
       val cs = methodCalls
         .flatMap { mc =>
+          val invokedExpr = mc.getEffectiveInvokedExpr
+
+          val applyMethodType = mc.applyOrUpdateElement.flatMap {
+            case ScalaResolveResult(fn: ScFunction, subst) => fn.polymorphicType(subst).toOption
+            case _                                         => None
+          }
+
+          val invokedType = applyMethodType.orElse(
+            invokedExpr.getNonValueType(fromUnderscore = true).toOption
+          )
+
           for {
-            typePoly <- mc.getNonValueType(fromUnderscore = true).toOption.flatMap(_.asOptionOf[ScTypePolymorphicType])
+            tpe               <- invokedType
+            typePoly          <- tpe.asOptionOf[ScTypePolymorphicType]
             matchedParameters = mc.matchedParameters
             inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(
               typePoly.internalType,

@@ -1248,7 +1248,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part12 extends ReferenceCompar
   def test_i10994(): Unit = doTest("i10994", true)
   def test_i10997(): Unit = doTest("i10997", true)
   def test_i11003(): Unit = doTest("i11003", false) // #intersectionType
-  def test_i11015(): Unit = doTest("i11015", false)
+  def test_i11015(): Unit = doTest("i11015", true)
   def test_i11020(): Unit = doTest("i11020", true) // #extension
   def test_i11022(): Unit = doTest("i11022", true)
 }
@@ -1293,7 +1293,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part13 extends ReferenceCompar
   def test_i11318c(): Unit = doTest("i11318c", true) // #extension
   def test_i11350(): Unit = doTest("i11350", true)
   def test_i11353(): Unit = doTest("i11353", true)
-  def test_i11358(): Unit = doTest("i11358", false) // #extension
+  def test_i11358(): Unit = doTest("i11358", true) // #extension
   def test_i11371(): Unit = doTest("i11371", true)
   def test_i11393(): Unit = doTest("i11393", true) // #matchType
   def test_i11420(): Unit = doTest("i11420", true)
@@ -2246,15 +2246,15 @@ final class ReferenceComparisonTest_Scala3_Newest_Part22 extends ReferenceCompar
   def test_innerclass(): Unit = doTest("innerclass", true)
   def test_interfaceObject(): Unit = doTest("interfaceObject", true)
   def test_interleaving_ba(): Unit = doTest("interleaving-ba", false)
-  def test_interleaving_chainedParams(): Unit = doTest("interleaving-chainedParams", false)
-  def test_interleaving_classless(): Unit = doTest("interleaving-classless", false)
-  def test_interleaving_functor(): Unit = doTest("interleaving-functor", false)
-  def test_interleaving_newline(): Unit = doTest("interleaving-newline", false)
+  def test_interleaving_chainedParams(): Unit = doTest("interleaving-chainedParams", true)
+  def test_interleaving_classless(): Unit = doTest("interleaving-classless", true)
+  def test_interleaving_functor(): Unit = doTest("interleaving-functor", true)
+  def test_interleaving_newline(): Unit = doTest("interleaving-newline", true)
   def test_interleaving_overload(): Unit = doTest("interleaving-overload", true)
   def test_interleaving_overload_cleanup(): Unit = doTest("interleaving-overload.cleanup", true)
-  def test_interleaving_params(): Unit = doTest("interleaving-params", false)
-  def test_interleaving_signatureCollision(): Unit = doTest("interleaving-signatureCollision", false)
-  def test_interleaving_typeApply(): Unit = doTest("interleaving-typeApply", false)
+  def test_interleaving_params(): Unit = doTest("interleaving-params", true)
+  def test_interleaving_signatureCollision(): Unit = doTest("interleaving-signatureCollision", true)
+  def test_interleaving_typeApply(): Unit = doTest("interleaving-typeApply", true)
   def test_interop_tostring(): Unit = doTest("interop-tostring", true)
   def test_interop_type_field(): Unit = doTest("interop-type-field", true)
   def test_intersection(): Unit = doTest("intersection", true) // #unionType, #intersectionType

@@ -169,7 +169,7 @@ trait ScalaTypePresentation extends TypePresentation {
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
 
-          val paramClauses: String = {
+          val signatureClauses: String = {
             val typeRenderer: TypeRenderer = t => typeText0(substitutor(t), function)
             val paramRenderer = new ParameterRenderer(
               typeRenderer,
@@ -183,14 +183,17 @@ trait ScalaTypePresentation extends TypePresentation {
               paramRenderer,
               shouldRenderImplicitModifier = true
             )
-            paramsRenderer.renderClauses(function)
+            val typeParamsRenderer = new TypeParamsRenderer(typeRenderer, boundsRenderer)
+
+            function.signatureClauses.map {
+              case ScSignatureClause.TypeClause(clause) => typeParamsRenderer.render(clause)
+              case ScSignatureClause.TermClause(clause) => paramsRenderer.renderClause(clause)
+            }.mkString
           }
 
           val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType), function) else s"this$ObjectTypeSuffix"
 
-          val typeParameters = typeParametersText(function, substitutor)
-
-          Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
+          Some(s"def ${s.name}$signatureClauses: $retType")
         case (s: TermSignature, returnType: ScType) if s.namedElement.is[ScTypedDefinition] =>
           val substitutor = s.substitutor
           val named: Option[ScTypedDefinition] = s.namedElement match {
@@ -370,7 +373,7 @@ trait ScalaTypePresentation extends TypePresentation {
           tpt.typeParamId
         )
       case PolyFunctionType(sig, retType) =>
-        val typeParamsClause = sig.typeParams.map(_.name).mkString("[", ", ", "]")
+        val typeParamsClause = sig.typeParams.head.map(_.name).mkString("[", ", ", "]")
         val paramTypes       = sig.substitutedTypes.head.map(_.apply())
 
         val paramClauseText =
