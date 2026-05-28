@@ -7,8 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.build.{BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
-import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtExternalSystemConfigurable
 
