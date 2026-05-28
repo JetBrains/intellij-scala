@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.{Files, Path}
-import scala.annotation.nowarn
 import scala.concurrent.duration._
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -24,12 +23,12 @@ class BloopLauncherConnector(base: Path, compilerOutput: Path, capabilities: Bsp
   val bloopVersion: String = BuildInfo.bloopVersion
 
   override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
-    def bloopClasspath(version: String) = {
+    def bloopClasspath(version: String): Either[Throwable, Seq[Path]] = {
       val dependencies = Seq(
         ("ch.epfl.scala" % "bloop-frontend_2.12" % version).transitive()
       )
 
-      val launcherClasspath = DependencyManager.resolve(dependencies*).map(_.file.toFile)
+      val launcherClasspath = DependencyManager.resolve(dependencies*).map(_.file)
       Right(launcherClasspath)
     }
 
@@ -37,11 +36,10 @@ class BloopLauncherConnector(base: Path, compilerOutput: Path, capabilities: Bsp
 
     val java = JavaSdk.getInstance().getVMExecutablePath(jdk)
     val retainedBloopVersion = BloopRifleConfig.AtLeast(BloopVersion(bloopVersion))
-    @nowarn("cat=deprecation")
     val details = BloopRifleConfig.default(
       BloopRifleConfig.Address.DomainSocket(bloopDataStore),
       bloopClasspath,
-      workingDir = base.toFile
+      workingDir = base
     ).copy(javaPath = java, retainedBloopVersion = retainedBloopVersion)
 
     reporter.log(BspBundle.message("bsp.protocol.starting.bloop"))
