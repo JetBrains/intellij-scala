@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}

@@ -9,14 +9,12 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState, Tran
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, RangeMarker}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util._
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
@@ -59,7 +57,6 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.{areClassesEquivalent, couldBeTupleNTupleHListCompatibility}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
-import java.io.File
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.Charset
@@ -1897,18 +1894,6 @@ package object extensions {
     def isDirectory: Boolean = Files.isDirectory(path)
     def isRegularFile: Boolean = Files.isRegularFile(path)
 
-    /**
-     * @return the real file name on the file system with actual case.
-     *         This can matter on OSes with case insensitive file names.
-     *         Suppose there is a directory with name "annotation"
-     *         On Windows & macOS new File("Annotation").exists will return true even though the names have a different case.
-     */
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def getFileWithRealOsPath: File =
-      path.toFile.getCanonicalFile
-
     def nameContains(str: String): Boolean = path.getFileName.toString.contains(str)
     def nameMatches(regex: String): Boolean = path.getFileName.toString.matches(regex)
 
@@ -1954,129 +1939,5 @@ package object extensions {
       try body
       finally lock.unlock()
     }
-  }
-
-  @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  implicit class RichFile(private val file: File) extends AnyVal {
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def /(@NonNls path: String): File = new File(file, path)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def `<<`: File = <<(1)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def `<<`(level: Int): File = parent(file, level)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    @NonNls def name: String = file.getName
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    @NonNls def path: String = file.getPath
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    @NonNls def absolutePath: String = file.getAbsolutePath
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    @NonNls def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def canonicalFile: File = new File(canonicalPath)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def parent: Option[File] = Option(file.getParentFile)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def parent(level: Int): Option[File] = Option(parent(file, level))
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def maybeFile: Option[File] = Option(file).filter(_.isFile)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def maybeDir: Option[File] = Option(file).filter(_.isDirectory)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
-
-    private def endsWith0(file: File, parts: Seq[String]): Boolean = if (parts.isEmpty) true else
-      parts.head == file.getName && Option(file.getParentFile).exists(endsWith0(_, parts.tail))
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def url: String = VfsUtil.getUrlForLibraryRoot(file)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def isUnder(root: File): Boolean = isUnder(root, strict = true)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def isUnder(root: File, strict: Boolean): Boolean = FileUtil.isAncestor(root, file, strict)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def isIn(root: File): Boolean = file.getParentFile == root
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def copyTo(destination: File): Unit = {
-      FileUtil.copyContent(file, destination)
-    }
-
-    @deprecated(message = "Replace with java.nio code as needed", since = "2026.1")
-    @Deprecated(since = "2026.1", forRemoval = true)
-    @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-    def ls(filter: String => Boolean): Seq[File] =
-      if (file.isDirectory) file.listFiles().filter(file => filter(file.getName)).toSeq
-      else Seq.empty
-
-    @Nullable
-    @tailrec
-    private def parent(@Nullable file: File, level: Int): File =
-      if (level > 0 && file != null) parent(file.getParentFile, level - 1)
-      else file
   }
 }
