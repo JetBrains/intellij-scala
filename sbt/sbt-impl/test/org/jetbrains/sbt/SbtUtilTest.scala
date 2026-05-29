@@ -111,25 +111,6 @@ class SbtUtilTest extends UsefulTestCase {
   }
 
   @Test
-  def testAreQuotesClosedCorrectly(): Unit = {
-    val inputs = Seq(
-      """ "sb's'b" """, """ "sb'sb" #aaaa """,
-      """ 'sb"sb''#fdfdfd' """, """ 'sb"sb'"b #" c """,
-      """ "sb's'#b """, """ 'sb"sb'b  " """, """ 'sb"sb'b  "c """, """ 'sb"sb'b  'c """, """ 'sb"sb"b  c """,
-      """ 'sb"sb"b'#  c """, """#'sb"sb"b'#  c """
-    )
-    val outputs = Seq(
-      Some(""" "sb's'b" """), Some(""" "sb'sb" """),
-      Some(""" 'sb"sb''#fdfdfd' """), Some(""" 'sb"sb'"b #" c """),
-      None, None, None, None, None,
-      Some(""" 'sb"sb"b'"""), Some("")
-    )
-    inputs.zip(outputs).foreach { case (input, output) =>
-      assertEquals(output, SbtUtil.removeCommentedOutPartsAndCheckQuotes(input))
-    }
-  }
-
-  @Test
   def testGetSbtStructureJar(): Unit = {
     val all = SbtVersion.Latest.AllSbt1 ++ SbtVersion.Latest.AllSbt2
     val allMinor = all.flatMap(_.generateAllMinorVersions).map(SbtVersion(_))

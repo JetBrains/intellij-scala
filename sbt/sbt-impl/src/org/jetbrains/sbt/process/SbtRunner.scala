@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.process
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
+import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.OSProcessHandler
@@ -15,11 +16,11 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
-import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, asLocalPath, eelDescriptor}
+import org.jetbrains.sbt.{SbtBundle, asLocalPath, eelDescriptor}
 
 import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -65,7 +66,13 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
       reportMessage,
       passParentEnvironment,
       timingCollector,
-      sbtProcessOptions = SbtUtil.collectAllOptions(directory, vmOptions, sbtOptions, passParentEnvironment, environment0, sbtLauncherArgs)
+      sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
+        directory,
+        vmOptions,
+        sbtOptions,
+        EnvironmentVariablesData.create(environment0.asJava, passParentEnvironment),
+        sbtLauncherArgs
+      )
     )
 
   /**

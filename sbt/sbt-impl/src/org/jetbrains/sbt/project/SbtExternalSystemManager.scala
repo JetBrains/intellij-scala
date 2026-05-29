@@ -21,8 +21,8 @@ import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion}
+import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.project.settings.*
-import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import java.nio.file.Path
@@ -101,7 +101,7 @@ object SbtExternalSystemManager {
     val vmExecutable = getVmExecutable(project, projectJdkName, settingsState, sbtVersion)
     val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
-    val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
+    val sbtOptions = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(settings.sbtOptions)
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,

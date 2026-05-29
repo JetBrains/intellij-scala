@@ -1,6 +1,7 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.sbt.project.structure
 
+import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.sbt.process.options.{SbtJvmOptionsUtils, SbtProcessOptions}
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
@@ -25,6 +26,7 @@ import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.annotation.unused
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.util.Try
 
 sealed trait SbtStructureDumper:
@@ -183,12 +185,11 @@ object SbtStructureDumper:
           )
         else Nil
 
-      val sbtProcessOptions = SbtUtil.collectAllOptions(
+      val sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
         vmOptions ++ additionalVmOptionsForNewImport ++ sbtTaskTimingOption,
         sbtOptions,
-        passParentEnvironment,
-        environment,
+        EnvironmentVariablesData.create(environment.asJava, passParentEnvironment),
         additionalLauncherArgs = Nil
       )
 
