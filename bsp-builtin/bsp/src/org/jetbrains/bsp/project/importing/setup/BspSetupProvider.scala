@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project.importing.setup
 
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
@@ -25,7 +26,7 @@ trait BspSetupProvider {
   /**
    * File names whose presence in the project root indicates the project belongs to this BSP setup provider.
    */
-  def bspBuildFileNames: Seq[String]
+  def bspBuildFileNames(project: Project): Seq[String]
 }
 
 private[bsp] object BspSetupProvider {
@@ -46,8 +47,8 @@ private[bsp] object BspSetupProvider {
   /**
    * Checks if the given file is recognized as a build file by any registered BSP setup provider.
    */
-  def isBuildFile(file: VirtualFile): Boolean =
-    getImplementations.exists(_.bspBuildFileNames.contains(file.getName)) && !file.isDirectory
+  def isBuildFile(file: VirtualFile, project: Project): Boolean =
+    getImplementations.exists(_.bspBuildFileNames(project).contains(file.getName)) && !file.isDirectory
 
   private def getImplementations: Seq[BspSetupProvider] =
     EP.getExtensionList.iterator().asScala.toSeq

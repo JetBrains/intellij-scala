@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
+import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.{Failure, Success, Try}
 
@@ -181,7 +182,8 @@ object BspUtil {
         .withWorkDirectory(directory.toString)
 
       val handler = new CapturingProcessHandler(generalCommandLine)
-      val output = handler.runProcessWithProgressIndicator(indicator, 120000) // 2-minute timeout
+      val timeout = 2.minute
+      val output = handler.runProcessWithProgressIndicator(indicator, timeout.toMillis.toInt)
 
       stderr.append(output.getStderr.trim)
 

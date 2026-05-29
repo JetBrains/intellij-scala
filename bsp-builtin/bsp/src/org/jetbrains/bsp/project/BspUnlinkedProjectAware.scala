@@ -38,18 +38,18 @@ class BspUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     val parent = buildFile.getParent
     if (parent == null) return false
     val containsSbtBuildFile = parent.findChild(Sbt.BuildFile) != null
-    !containsSbtBuildFile && isBspBuildFile(buildFile)
+    !containsSbtBuildFile && isBspBuildFile(buildFile, project)
   }
 
   /**
    * Any changes to the logic of this method should also be reflected in [[BspProjectOpenProcessor.canOpenProject]],
    * as both methods are responsible for determining whether a workspace (or a file within it) belongs to the BSP.
    */
-  private def isBspBuildFile(buildFile: VirtualFile): Boolean = {
+  private def isBspBuildFile(buildFile: VirtualFile, project: Project): Boolean = {
     val isBspConfigDir = BspConnectionConfig.isBspWorkspaceConfigDir(buildFile)
     val isBloopDir = BspUtil.isBloopConfigDir(buildFile)
 
-    isBspConfigDir || isBloopDir || BspSetupProvider.isBuildFile(buildFile)
+    isBspConfigDir || isBloopDir || BspSetupProvider.isBuildFile(buildFile, project)
   }
 
   override def isLinkedProject(project: Project, externalProjectPath: String): Boolean = {

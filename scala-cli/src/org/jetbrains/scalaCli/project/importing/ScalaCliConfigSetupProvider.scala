@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project.importing
 
+import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.importing.bspConfigSteps
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
@@ -20,11 +21,11 @@ class ScalaCliConfigSetupProvider extends BspSetupProvider {
   override def getBspConfigSetup(workspace: Path): BspConfigSetup =
     new ScalaCliConfigSetup(workspace)
 
-  override def bspBuildFileNames: Seq[String] =
+  override def bspBuildFileNames(project: Project): Seq[String] =
     Seq(ProjectDefinitionFileName)
 
   private def isScalaCli(directory: Path): Boolean =
-    bspBuildFileNames.exists(BspUtil.directoryContainsFile(directory, _))
+    BspUtil.directoryContainsFile(directory, ProjectDefinitionFileName)
 }
 
 private[scalaCli] object ScalaCliConfigSetupProvider {
