@@ -363,7 +363,7 @@ private class CommandTask(
       project,
       report,
       buildId,
-      processOutputBuilder = None,
+      processOutputCollector = None,
       startMessage = SbtBundle.message("sbt.shell.sbt.build"),
       finishMessage = SbtBundle.message("sbt.shell.sbt.build.finished"),
       onOutputLine = text => collector.processCompilerMessage(text)

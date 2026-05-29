@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.jetbrains.sbt.shell.SbtShellRunner
 import org.jetbrains.sbt.shell.communication.SbtShellBuildMessagesEventProcessor.*
 import org.jetbrains.sbt.shell.communication.ShellEvent.*
@@ -19,7 +20,7 @@ private[sbt] final class SbtShellBuildMessagesEventProcessor(
   project: Project,
   reporter: BuildReporter,
   dumpTaskId: EventId,
-  processOutputBuilder: Option[StringBuilder],
+  processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector],
   @Nls startMessage: String,
   @Nls finishMessage: String,
   onOutputLine: String => Unit,
@@ -73,7 +74,7 @@ private[sbt] final class SbtShellBuildMessagesEventProcessor(
           log.trace(s"messageAggregator Output: dumpTaskId=$dumpTaskId, text=$text")
         }
 
-        processOutputBuilder.foreach(_.append(text))
+        processOutputCollector.foreach(_.append(SbtShellProcessOutputTitle, text))
 
         val isError = isErrorOutput(text)
         val newMessages =
@@ -105,18 +106,19 @@ private[sbt] object SbtShellBuildMessagesEventProcessor {
 
   private val WarnPrefix = "[warn]"
   private val ErrorPrefix = "[error]"
+  private val SbtShellProcessOutputTitle = "SBT shell command output"
 
   def forSync(
     project: Project,
     reporter: BuildReporter,
     dumpTaskId: EventId,
-    processOutputBuilder: Option[StringBuilder],
+    processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector],
     @Nls startMessage: String,
     @Nls finishMessage: String,
   ): SbtShellCommandEventProcessor[BuildMessages] =
     new SbtShellBuildMessagesEventProcessor(
       project,
-      reporter, dumpTaskId, processOutputBuilder, startMessage, finishMessage,
+      reporter, dumpTaskId, processOutputCollector, startMessage, finishMessage,
       onOutputLine = _ => (),
       showSbtShellOnError = false,
     )
@@ -125,14 +127,14 @@ private[sbt] object SbtShellBuildMessagesEventProcessor {
     project: Project,
     reporter: BuildReporter,
     dumpTaskId: EventId,
-    processOutputBuilder: Option[StringBuilder],
+    processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector],
     @Nls startMessage: String,
     @Nls finishMessage: String,
     onOutputLine: String => Unit,
   ): SbtShellCommandEventProcessor[BuildMessages] =
     new SbtShellBuildMessagesEventProcessor(
       project,
-      reporter, dumpTaskId, processOutputBuilder, startMessage, finishMessage,
+      reporter, dumpTaskId, processOutputCollector, startMessage, finishMessage,
       onOutputLine,
       showSbtShellOnError = true,
     )

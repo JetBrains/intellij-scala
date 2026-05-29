@@ -31,7 +31,7 @@ import scala.concurrent.duration.{FiniteDuration, given}
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try, Using}
 
-final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = None):
+final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector] = None):
   import SbtRunner.*
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
@@ -254,15 +254,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       }
     }
 
-    val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
-
     val processListener: (OutputType, String) => Unit = (typ, line) => {
-      optProcessOutputBuilder.foreach { builder =>
-        builder.append(s"[${typ.name}] $line")
-        if (!line.endsWith("\n")) {
-          builder.append('\n')
-        }
-      }
       (typ, line) match {
         case (typ@OutputType.StdOut, text) =>
           outputDumpRecorder.onProcessOutput(typ, text)
@@ -283,6 +275,8 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     val handler = new OSProcessHandler(process, "sbt import", StandardCharsets.UTF_8)
     // TODO: rewrite this code, do not use try, throw
     val result = Try {
+      SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(handler, processTitle = "SBT separate process output")
+      processOutputCollector.foreach(_.collectProcessOutputFrom(handler, processTitle = "SBT separate process output"))
       handler.addProcessListener(new ListenerAdapter(processListener))
       Log.debug("handler.startNotify()")
       handler.startNotify()

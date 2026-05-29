@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
-import org.jetbrains.sbt.process.SbtRunner
+import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption.*
@@ -220,6 +220,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
         new ColoredProcessHandler(pty)
 
     cpty.setShouldKillProcessSoftly(true)
+    SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(
+      cpty,
+      processTitle = s"SBT shell process output (${if (useNewShell) "new-shell" else "old-shell"})",
+    )
 
     (cpty, debugConnection, projectSbtVersion, useNewShell)
   }

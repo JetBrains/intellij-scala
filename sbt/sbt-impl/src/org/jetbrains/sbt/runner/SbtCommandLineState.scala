@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.JarManifestUtils
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.jetbrains.sbt.project.{<<, SbtExternalSystemManager}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -28,6 +29,12 @@ class SbtCommandLineState(
 
   override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val r = super.execute(executor, runner)
+    Option(r.getProcessHandler).foreach { processHandler =>
+      SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(
+        processHandler,
+        processTitle = s"SBT run configuration process output (${configuration.getName})",
+      )
+    }
     listener.foreach(_ => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = super.onTextAvailable(event, outputType)
     })))
