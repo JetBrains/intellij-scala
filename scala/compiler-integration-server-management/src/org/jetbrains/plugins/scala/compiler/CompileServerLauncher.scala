@@ -20,7 +20,7 @@ import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUti
 import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.{ApiStatus, Nls, Nullable, TestOnly}
+import org.jetbrains.annotations.{Nls, Nullable, TestOnly}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
@@ -826,12 +826,6 @@ object CompileServerLauncher {
     val dir = scalaCompileServerSystemDir(eelDescriptor)
     asTargetLocalPathString(dir, eelDescriptor)
   }
-
-  @deprecated(message = "Use scalaCompileServerSystemDir(Project)", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def scalaCompileServerSystemDir: Path =
-    PathManager.getSystemDir.resolve(ScalaCompileServerDirName)
 
   /**
    * Transfers a local file to the remote project cache directory if the project is remote, or returns the path as-is for local projects.
