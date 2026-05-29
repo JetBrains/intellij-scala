@@ -1,20 +1,16 @@
-package org.jetbrains.sbt.shell.build.util
+package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.BuildProgressListener
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events.{BuildEvent, Failure, FailureResult, FinishEvent, MessageEvent, OutputBuildEvent, StartBuildEvent}
 import com.intellij.execution.process.ProcessOutputType
-import org.jetbrains.plugins.scala.build.BuildMessages
-import org.jetbrains.sbt.shell.build.util.BuildEventsProgressCollector._
+import org.jetbrains.plugins.scala.build.BuildEventsProgressCollector._
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue}
 import scala.jdk.CollectionConverters._
 
 /**
  * Collects Build Tool Window diagnostics for a single captured build.
- *
- * TODO Move to a common compiler/build-test module.<br>
- *  This collector is not sbt/sbt-shell specific and can be reused by other build-related integration tests.
  */
 final class BuildEventsProgressCollector extends BuildProgressListener {
 
@@ -87,9 +83,9 @@ object BuildEventsProgressCollector {
   )
 
   private def renderMessageEvent(messageEvent: MessageEvent): String = {
-    val message = normalizedAnsiText(messageEvent.getMessage)
+    val message = BuildDiagnosticsText.normalizedAnsiText(messageEvent.getMessage)
     val details =
-      normalizedAnsiTextNonempty(messageEvent.getDescription)
+      BuildDiagnosticsText.normalizedAnsiTextNonempty(messageEvent.getDescription)
         .filterNot(_ == message)
 
     val group = messageEvent.getGroup
@@ -100,7 +96,7 @@ object BuildEventsProgressCollector {
   }
 
   private def renderOutputEvent(outputEvent: OutputBuildEvent): String = {
-    val message = normalizedAnsiOutputText(outputEvent.getMessage)
+    val message = BuildDiagnosticsText.normalizedAnsiOutputText(outputEvent.getMessage)
     if (message.isEmpty) ""
     else {
       val outputType = normalizeOutputType(outputEvent.getOutputType)
@@ -109,7 +105,7 @@ object BuildEventsProgressCollector {
   }
 
   private def renderFailureResult(finishEvent: FinishEvent, failureResult: FailureResult): String = {
-    val eventMessage = normalizedAnsiText(finishEvent.getMessage)
+    val eventMessage = BuildDiagnosticsText.normalizedAnsiText(finishEvent.getMessage)
     val renderedFailures = Option(failureResult.getFailures)
       .toSeq
       .flatMap(_.asScala)
@@ -125,8 +121,8 @@ object BuildEventsProgressCollector {
     else "stdout"
 
   private def renderFailure(failure: Failure): Option[String] = {
-    val message = normalizedAnsiTextNonempty(failure.getMessage)
-    val description = normalizedAnsiTextNonempty(failure.getDescription)
+    val message = BuildDiagnosticsText.normalizedAnsiTextNonempty(failure.getMessage)
+    val description = BuildDiagnosticsText.normalizedAnsiTextNonempty(failure.getDescription)
     val throwable = normalizedOptionalText(Option(failure.getError).map(_.toString))
     val causes = Option(failure.getCauses).toSeq.flatMap(_.asScala).flatMap(renderFailure)
 
@@ -134,14 +130,8 @@ object BuildEventsProgressCollector {
     if (pieces.nonEmpty) Some(pieces.mkString(" | ")) else None
   }
 
-  private def normalizedAnsiText(text: String): String =
-    BuildMessages.stripAnsiCodes(text).trim
-
-  private def normalizedAnsiOutputText(text: String): String =
-    BuildMessages.stripAnsiCodes(text).replace('\r', '\n').trim
-
-  private def normalizedAnsiTextNonempty(text: String): Option[String] =
-    Option(text).map(normalizedAnsiText).filter(_.nonEmpty)
+  private def nonEmptyEntries(values: java.util.Collection[String]): Seq[String] =
+    values.iterator().asScala.filter(_.nonEmpty).toSeq
 
   private def normalizedOptionalText(text: Option[String]): Option[String] =
     text.map(_.trim).filter(_.nonEmpty)
