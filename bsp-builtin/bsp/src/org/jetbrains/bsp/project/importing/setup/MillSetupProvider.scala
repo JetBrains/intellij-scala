@@ -1,5 +1,7 @@
 package org.jetbrains.bsp.project.importing.setup
 
+import com.intellij.openapi.project.Project
+import com.intellij.platform.eel.provider.EelProviderUtil
 import org.jetbrains.bsp.project.importing.bspConfigSteps
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
 
@@ -17,6 +19,6 @@ class MillSetupProvider extends BspSetupProvider {
   override def getBspConfigSetup(workspace: Path): BspConfigSetup =
     new MillConfigSetup(workspace)
 
-  override def bspBuildFileNames: Seq[String] =
-    MillConfigSetup.BuildFileNames
+  override def bspBuildFileNames(project: Project): Seq[String] =
+    MillConfigSetup.buildFileNames(EelProviderUtil.getEelDescriptor(project))
 }

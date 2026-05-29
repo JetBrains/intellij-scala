@@ -1,10 +1,11 @@
 package org.jetbrains.bsp.project.importing.setup
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import org.jetbrains.bsp.BspUtil
-import org.jetbrains.bsp.project.importing.setup.MillConfigSetup._
+import org.jetbrains.bsp.project.importing.setup.MillConfigSetup.*
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.eelDescriptor
 
 import java.nio.file.Path
 import scala.annotation.unused
@@ -25,7 +26,7 @@ final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(
       // display in BspSetupConfigStepUi if not installed (the same in ScalaCliProjectInstaller)
       //According to the docs, Mill global installation is only available for macOS/Linux.
       //https://mill-build.org/mill/cli/installation-ide.html#_global_installation
-      case _ if !SystemInfo.isWindows && isMillInstalled(workspace, indicator) =>
+      case _ if !isWindows(workspace.eelDescriptor) && isMillInstalled(workspace, indicator) =>
         // If the launcher is not found in the project root but Mill is available in the PATH, then we can use it.
         Success(Seq("mill", "-i", "mill.bsp.BSP/install"))
       case _ => Failure(new IllegalStateException("Installation of BSP is unable to proceed as the Mill executable is missing from both the project root and the PATH."))
@@ -41,7 +42,8 @@ private[bsp] object MillConfigSetup {
    * File names that indicate a Mill project when present in the project root.
    * This list is not exhaustive (e.g., `build.mill.yaml` is missing) and could be improved in the future.
    */
-  val BuildFileNames: Seq[String] = Seq("build.mill", "build.mill.scala", getMillFileName)
+  def buildFileNames(eelDescriptor: EelDescriptor): Seq[String] =
+    Seq("build.mill", "build.mill.scala", getMillFileName(eelDescriptor))
 
   /**
    * Checks if the given workspace is a Mill project that can be imported.
@@ -53,12 +55,16 @@ private[bsp] object MillConfigSetup {
    * However, it has existed in this form for some time, so I don't touch it to avoid breaking anything.
    */
   def canImport(workspace: Path): Boolean =
-    workspace != null && workspace.isDirectory && BspUtil.directoryContainsFile(workspace, BuildFileNames*)
+    workspace != null && workspace.isDirectory &&
+      BspUtil.directoryContainsFile(workspace, buildFileNames(workspace.eelDescriptor)*)
 
   /** Get mill executable script, if exists. */
   private def getMillFile(workspace: Path): Option[Path] =
-    BspUtil.findFileByName(workspace, getMillFileName)
+    BspUtil.findFileByName(workspace, getMillFileName(workspace.eelDescriptor))
 
-  private def getMillFileName: String =
-    if SystemInfo.isWindows then "mill.bat" else "mill"
+  private def getMillFileName(eelDescriptor: EelDescriptor): String =
+    if isWindows(eelDescriptor) then "mill.bat" else "mill"
+
+  def isWindows(eelDescriptor: EelDescriptor): Boolean =
+    EelPlatformKt.isWindows(eelDescriptor.getOsFamily)
 }
