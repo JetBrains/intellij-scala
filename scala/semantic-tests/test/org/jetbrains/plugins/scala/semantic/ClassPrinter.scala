@@ -74,7 +74,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val derivations = {
       val refs = cls.extendsBlock.derivesClause.map(_.derivedReferences).getOrElse(Seq.empty)
-      val fqns = refs.map(_.resolve()).collect { case f: ScTemplateDefinition => "_root_." + f.qualifiedName }
+      val fqns = refs.map(_.resolve()).collect { case f: ScTemplateDefinition => f.qualifiedName }
       if (fqns.isEmpty) "" else s"${extendsSeparator}derives " + fqns.mkString(", ")
     }
 
@@ -280,7 +280,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textWithQualifiers(expr: ScExpression): String =
     expr.getText // TODO Use AST
-      .replaceAll("""(?<!\.|\w)Array\(""", "_root_.scala.Array(")
+      .replaceAll("""(?<!\.|\w)Array\(""", "scala.Array(")
       .replaceAll("""([a-z]+)(?<! n|cat|origin|msg|explain|serialCommandExec)=(?=\S)""", "$1 = ")
       .replace("\"\"\"", "\"")
 
@@ -311,7 +311,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case FunctionType(_, _) if !tpe.isAliasType && parens > 0 => "(" + tpe.canonicalText + ")"
 //    case AliasType(ta, _, _) => ta.containingClass.name + ".this." + ta.name
     case _ =>
-      tpe.canonicalText(context)
+      tpe.canonicalText(context).replace("_root_.", "")
   }
 
   private val context = TypePresentationContext.emptyContextIn(isScala3)
