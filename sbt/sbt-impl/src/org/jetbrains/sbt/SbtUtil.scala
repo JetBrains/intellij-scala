@@ -18,7 +18,7 @@ import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId,
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
-import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
@@ -62,28 +62,11 @@ object SbtUtil {
 
   /** Directory for global sbt plugins given sbt version */
   @VisibleForTesting
-  @deprecated(message = "Use globalPluginsDirectory(SbtVersion, EelDescriptor)", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def globalPluginsDirectory(sbtVersion: SbtVersion): Path =
-    globalPluginsDirectory(sbtVersion, LocalEelDescriptor.INSTANCE)
-
-  /** Directory for global sbt plugins given sbt version */
-  @VisibleForTesting
   def globalPluginsDirectory(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Path =
     getFileProperty(CommandLineOptions.globalPlugins).getOrElse {
       val base = globalBase(sbtVersion, eelDescriptor)
       base / "plugins"
     }
-
-  /** Directory for global sbt plugins from parameters if it is explicitly set,
-   * otherwise calculate from sbt version.
-   */
-  @deprecated(message = "Use globalPluginsDirectory(SbtVersion, ParametersList, EelDescriptor)", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def globalPluginsDirectory(sbtVersion: SbtVersion, parameters: ParametersList): Path =
-    globalPluginsDirectory(sbtVersion, parameters, LocalEelDescriptor.INSTANCE)
 
   /** Directory for global sbt plugins from parameters if it is explicitly set,
    * otherwise calculate from sbt version.
@@ -101,13 +84,6 @@ object SbtUtil {
     val pluginsUnderCustomGlobalBase = customGlobalBase.map(_ / "plugins")
     customGlobalPlugins.orElse(pluginsUnderCustomGlobalBase)
   }
-
-  /** Base directory for global sbt settings. */
-  @deprecated("Use globalBase(SbtVersion, EelDescriptor)", since = "2026.1")
-  @Deprecated(since = "2026.1", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
-  def globalBase(sbtVersion: SbtVersion): Path =
-    globalBase(sbtVersion, LocalEelDescriptor.INSTANCE)
 
   /** Base directory for global sbt settings. */
   def globalBase(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Path = {
