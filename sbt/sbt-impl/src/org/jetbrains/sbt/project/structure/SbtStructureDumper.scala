@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
+import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
@@ -28,8 +29,8 @@ import scala.concurrent.Future
 import scala.util.Try
 
 sealed trait SbtStructureDumper:
-  protected val processOutputCollector: Option[ProcessOutputCollector] =
-    ProcessOutputCollector.setUpProcessOutputCollection()
+  protected val processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector] =
+    SbtProcessOutputDiagnosticsCollector.createIfEnabled()
 
   final def processOutput: String = processOutputCollector.fold("")(_.processOutput)
 
@@ -103,12 +104,11 @@ object SbtStructureDumper:
         }
       }
 
-      val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
       val aggregator = SbtShellBuildMessagesEventProcessor.forSync(
         project,
         reporter,
         EventId(s"dump:${UUID.randomUUID()}"),
-        optProcessOutputBuilder,
+        processOutputCollector,
         startMessage = SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"),
         finishMessage = SbtBundle.message("sbt.project.structure.extracted")
       )

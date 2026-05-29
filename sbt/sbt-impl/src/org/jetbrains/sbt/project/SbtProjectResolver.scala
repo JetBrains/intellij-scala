@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, Scala
 import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
-import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
+import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector.PrintProcessOutputOnFailurePropertyName
 import org.jetbrains.sbt.process.{SbtImportTimingCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
