@@ -18,6 +18,7 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, ScalaLibraryProperties}
@@ -602,14 +603,7 @@ trait ProjectStructureMatcher {
     expected.flatMap(e => actual.find(a => convertIfScalaCli(nameOfU(a)) == nameOfT(e)).map((e, _)))
 
   def assertNoNotificationsShown(myProject: Project, notifications: Seq[Notification] = Nil, mutedNotificationTitles: Seq[String] = Nil): Unit = {
-    val nonMutedNotifications = notifications.filterNot(n => mutedNotificationTitles.contains(n.getTitle))
-    if (nonMutedNotifications.nonEmpty) {
-      val notificationsText = nonMutedNotifications.map(notificationMessage).mkString("\n")
-      org.junit.Assert.fail(
-        s"""Expected no notifications, but following notifications were shown:
-           |$notificationsText""".stripMargin
-      )
-    }
+    CollectingNotificationsListener.assertNoNotificationsShown(notifications, mutedNotificationTitles)
 
     // check no custom notifications are shown
     // (this MIGHT be redundant as `notifications` parameter might already cover this, shouldn't it?)
@@ -630,15 +624,6 @@ trait ProjectStructureMatcher {
        |Title: ${data.getTitle}
        |Message: ${data.getMessage}
        |NotificationSource: ${data.getNotificationSource}
-       |""".stripMargin
-  }
-
-  private def notificationMessage(shownNotification: Notification) = {
-    s"""Notification was shown during ${shownNotification.id} module creation.
-       |Group id: ${shownNotification.getGroupId}
-       |Title: ${shownNotification.getTitle}
-       |Subtitle: ${shownNotification.getSubtitle}
-       |Content: ${shownNotification.getContent}
        |""".stripMargin
   }
 }

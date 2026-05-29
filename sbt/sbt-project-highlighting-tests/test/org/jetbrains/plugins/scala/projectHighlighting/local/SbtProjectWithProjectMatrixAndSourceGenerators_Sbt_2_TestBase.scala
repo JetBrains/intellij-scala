@@ -10,8 +10,9 @@ import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, module, project}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy.CollectErrors
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
-import org.jetbrains.sbt.project.{CollectingNotificationsListener, ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
 
 abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
   extends SbtProjectHighlightingLocalProjectsTestBase

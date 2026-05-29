@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
-import org.jetbrains.sbt.project.CollectingNotificationsListener
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
 
 /**
  * Verifies sbt 2 project matrix highlighting/import structure for a mixed JVM-only and JVM+Native matrix setup.
