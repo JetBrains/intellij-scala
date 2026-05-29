@@ -12,8 +12,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
-import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
+import org.jetbrains.sbt.process.options.{SbtJvmOptionsUtils, SbtProcessOptions}
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext

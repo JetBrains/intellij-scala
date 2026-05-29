@@ -7,6 +7,12 @@ import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionConte
 
 import scala.concurrent.Future
 
+
+/**
+ * ATTENTION: Originally this interface was introduced to be able to mock it in tests.
+ * However, later it was decided that we will mock the SBT JVM process itself.
+ * Still, this interface is useful to have to highlight a separate arthitectural component.
+ */
 @Experimental
 trait SbtShellCommandSubmitter {
 
