@@ -2,6 +2,7 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.CantRunException
+import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.*
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.{ColoredProcessHandler, KillableProcessHandler, OSProcessHandler, OSProcessUtil}
@@ -40,9 +41,9 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
+import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
@@ -157,9 +158,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
     vmParams.add("-server")
 
-    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
-    val sbtOptsValues = sbtOpts.collect { case a: JvmOption => a.value }
-    val allOpts = buildVMParameters(sbtSettings, workingDir, sbtOptsValues)
+    val environmentVariables =
+      EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
+    val sbtProcessOptions =
+      SbtProcessOptionsResolver.resolveSbtOptionsForShell(workingDir, sbtSettings.sbtOptions, environmentVariables)
+
+    val allOpts = buildVMParameters(sbtSettings, workingDir, sbtProcessOptions.allVmOptions)
     vmParams.addAll(allOpts.asJava)
 
     // don't add runId when using addPluginSbtFile command
@@ -208,7 +212,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val commands = if (useNewShell) "shell" else "idea-shell"
 
     programParams.add(commands)
-    val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
+    val sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs
     programParams.addAll(sbtLauncherArgs *)
 
     val pty = createPtyCommandLine(vmExecutable, workingDir, vmParams, launcher, programParams, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
@@ -738,7 +742,11 @@ object SbtProcessManager {
     // which are not yet fully supported in sbt
     val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
     val jvmOpts = hardcoded ++
-      SbtUtil.collectAllOptionsFromJava(workingDir, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
+      SbtProcessOptionsResolver.resolveJavaOptions(
+        workingDir,
+        sbtSettings.vmOptions,
+        EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
+      ) ++
       sbtOpts
 
     val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))
