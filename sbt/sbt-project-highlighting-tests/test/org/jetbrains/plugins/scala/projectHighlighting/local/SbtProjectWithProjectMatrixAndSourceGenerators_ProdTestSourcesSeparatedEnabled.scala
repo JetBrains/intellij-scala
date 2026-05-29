@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProg
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, module}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy.CollectErrors
-import org.jetbrains.sbt.project.{CollectingNotificationsListener, ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
 
 class SbtProjectWithProjectMatrixAndSourceGenerators_ProdTestSourcesSeparatedEnabled
   extends SbtProjectHighlightingLocalProjectsTestBase

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
-import org.jetbrains.sbt.project.CollectingNotificationsListener
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
 
 class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_Jvm
   extends SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase {
