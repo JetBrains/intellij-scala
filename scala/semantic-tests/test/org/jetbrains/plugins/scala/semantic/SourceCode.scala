@@ -1147,6 +1147,7 @@ object SourceCode {
             case prefix: TypeRef if prefix.typeSymbol.isClassDef =>
               printType(prefix)
               this += "#"
+            case ThisType(tp) if elideThis.contains(tp.typeSymbol) =>
             case ThisType(TermRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
             case ThisType(TypeRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
             case prefix: TypeRepr =>
