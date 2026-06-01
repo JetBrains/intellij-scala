@@ -9,6 +9,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.sbt.SbtBundle
@@ -129,6 +130,12 @@ class BuildToolWindowReporter(project: Project,
   override def warning(message: String, position: Option[FilePosition]): Unit =
     viewManager.onEvent(buildId, event(message, Kind.WARNING, position))
 
+  override def warning(message: String, position: Option[FilePosition], details: String): Unit =
+    viewManager.onEvent(buildId, event(message, Kind.WARNING, position, details = details))
+
+  override def warning(message: String, position: Option[FilePosition], details: String, navigatable: Option[Navigatable]): Unit =
+    viewManager.onEvent(buildId, event(message, Kind.WARNING, position, details = details, navigatable = navigatable))
+
   override def error(message: String, position: Option[FilePosition]): Unit =
     viewManager.onEvent(buildId, event(message, Kind.ERROR, position))
 
@@ -152,9 +159,15 @@ class BuildToolWindowReporter(project: Project,
       .build()
   }
 
-  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {
+  private def event(
+    message: String,
+    kind: MessageEvent.Kind,
+    position: Option[FilePosition],
+    details: String = null,
+    navigatable: Option[Navigatable] = None
+  ) = {
     //noinspection ReferencePassedToNls
-    BuildMessages.message(buildId, message, kind, position, eventTime = System.currentTimeMillis)
+    BuildMessages.message(buildId, message, kind, position, eventTime = System.currentTimeMillis, details, navigatable)
   }
 }
 
