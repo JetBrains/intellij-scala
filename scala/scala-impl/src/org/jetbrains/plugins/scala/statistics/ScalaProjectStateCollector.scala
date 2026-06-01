@@ -12,10 +12,9 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.ScalaProjectStateCollector._
 import org.jetbrains.sbt.settings.SbtSettings
 
-import java.nio.file.{Files, Path}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{FileSystems, Files, Path}
 import java.util
-import java.util.zip.ZipFile
-import scala.io.Source
 import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsJava}
 import scala.util.Using
 import scala.xml.XML
@@ -92,10 +91,11 @@ object ScalaProjectStateCollector {
 
   private def readScalacPluginName(jar: Path): Option[String] =
     if (Files.isReadable(jar))
-      Using.resource(new ZipFile(jar.toFile)) { zipFile =>
+      Using.resource(FileSystems.newFileSystem(jar, null: ClassLoader)) { fileSystem =>
+        val pluginXml = fileSystem.getPath("scalac-plugin.xml")
         for {
-          entry <- Option(zipFile.getEntry("scalac-plugin.xml"))
-          content = Using.resource(Source.fromInputStream(zipFile.getInputStream(entry)))(_.mkString)
+          _ <- Option.when(Files.exists(pluginXml))(())
+          content = Files.readString(pluginXml, StandardCharsets.UTF_8)
           xml = XML.loadString(content)
           pluginNameNode <- (xml \ "name").headOption
         } yield pluginNameNode.text
