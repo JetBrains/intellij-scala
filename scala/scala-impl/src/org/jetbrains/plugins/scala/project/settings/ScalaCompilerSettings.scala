@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.io.JarUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-import java.nio.file.Paths
-import scala.util.Try
+import java.io.IOException
+import java.nio.file.{FileSystems, Files, Path, Paths}
+import scala.util.{Try, Using}
 
 /**
  * This class represents scala compiler settings which are supposed to be used
@@ -129,15 +129,20 @@ object ScalaCompilerSettings {
     }
 
     private def containScalacPluginXml(pathname: String): Boolean = {
-      val file = Try(Paths.get(pathname).toFile)
-      file.fold(
+      val jar = Try(Paths.get(pathname))
+      jar.fold(
         exc => {
           logger.warn(s"Cannot create a file from $pathname", exc)
           false
         },
-        file => JarUtil.containsEntry(file, "scalac-plugin.xml")
+        jarContainsScalacPluginXml
       )
     }
+
+    private def jarContainsScalacPluginXml(jar: Path): Boolean =
+      Files.isReadable(jar) &&
+        (try Using.resource(FileSystems.newFileSystem(jar, null: ClassLoader))(fs => Files.exists(fs.getPath("scalac-plugin.xml")))
+         catch { case _: IOException => false })
   }
 
   def scalaVersionSinceWhichHigherKindsAreAlwaysEnabled: ScalaVersion =
