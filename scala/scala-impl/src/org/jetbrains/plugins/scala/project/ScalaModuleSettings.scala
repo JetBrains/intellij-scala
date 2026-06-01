@@ -6,7 +6,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
-import com.intellij.openapi.util.io.JarUtil.getJarAttribute
 import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.FindProcessor
@@ -19,10 +18,11 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.util.JarManifestUtils
 import org.jetbrains.sbt.project.SbtVersionProvider
 
-import java.nio.file.Path
-import java.util.jar.Attributes
+import java.io.IOException
+import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
 private class ScalaModuleSettings private(
@@ -329,15 +329,25 @@ object ScalaModuleSettings {
     }
   }
 
+  private def readManifestSafely(jar: Path): Option[java.util.jar.Manifest] =
+    if (Files.isReadable(jar))
+      try Some(JarManifestUtils.readManifest(jar))
+      catch { case _: IOException => None }
+    else
+      None
+
   // Caching as the same path to the same plugin can be used in different modules
   private val isScalaMetaParadiseJar: String => Boolean = cached("isScalaMetaParadise", ModificationTracker.NEVER_CHANGED, (pathName: String) => try {
-    val file = Path.of(pathName).toFile
+    val jar = Path.of(pathName)
+    readManifestSafely(jar).exists { manifest =>
+      val attributes = manifest.getMainAttributes
 
-    def hasAttribute(attributeName: String, value: String) =
-      getJarAttribute(file, new Attributes.Name(attributeName)) == value
+      def hasAttribute(attributeName: String, value: String) =
+        attributes.getValue(attributeName) == value
 
-    hasAttribute("Specification-Vendor", "org.scalameta") &&
-      hasAttribute("Specification-Title", "paradise")
+      hasAttribute("Specification-Vendor", "org.scalameta") &&
+        hasAttribute("Specification-Title", "paradise")
+    }
   } catch {
     // Handle any unexpected exceptions more gracefully, e.g., InvalidPathException, SCL-23825, SCL-23794
     case NonFatal(ex) =>
