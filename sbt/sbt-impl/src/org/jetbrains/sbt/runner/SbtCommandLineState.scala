@@ -32,18 +32,22 @@ class SbtCommandLineState(
   def getListener: Option[String => Unit] = listener
 
   override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
-    val r = super.execute(executor, runner)
-    Option(r.getProcessHandler).foreach { processHandler =>
+    val result = super.execute(executor, runner)
+    Option(result.getProcessHandler).foreach { processHandler =>
       SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(
         processHandler,
         processTitle = s"SBT run configuration process output (${configuration.getName})",
       )
     }
-    listener.foreach(_ => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = super.onTextAvailable(event, outputType)
-    })))
-    r
-  }
+
+    listener.foreach(_ => {
+      val outputListener = new OutputListener() {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
+          super.onTextAvailable(event, outputType)
+      }
+      val processHandler = Option(result.getProcessHandler)
+      processHandler.foreach(_.addProcessListener(outputListener))
+    })
 
     result
   }
