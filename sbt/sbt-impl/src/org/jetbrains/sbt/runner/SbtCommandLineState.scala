@@ -7,11 +7,15 @@ import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.execution.util.JavaParametersUtil
 import com.intellij.execution.{ExecutionResult, Executor, OutputListener}
 import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.JarManifestUtils
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
+import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.{<<, SbtExternalSystemManager}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -41,12 +45,16 @@ class SbtCommandLineState(
     r
   }
 
-  def determineMainClass(launcherPath: String): String = {
-    val jar = Path.of(launcherPath)
-    JarManifestUtils.readManifestAttribute(jar, "Main-Class").getOrElse("xsbt.boot.Boot")
+    result
   }
 
   override def createJavaParameters(): JavaParameters = {
+    val params = createJavaParametersImpl
+    MockSbtProcessForTests.configureJavaParametersForNonSbtShell(configuration.getProject, params)
+    params
+  }
+
+  private def createJavaParametersImpl: JavaParameters = {
     val project = configuration.getProject
     val params: JavaParameters = new JavaParameters
 
@@ -54,16 +62,7 @@ class SbtCommandLineState(
 
     val sbtExecutionSettings = SbtExternalSystemManager.executionSettingsFor(project)
 
-    val customJdk = for {
-      vmExecutablePath <- sbtExecutionSettings.getCustomVMExecutableOrWarn(project)
-      // The java installation directory is two levels up.
-      // See org.jetbrains.sbt.project.SbtExternalSystemManager.getVmExecutable
-      javaHome = vmExecutablePath << 2
-      if javaHome != null
-      jdk <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.toCanonicalPath.toString))
-    } yield jdk
-
-    val jdk = customJdk.getOrElse(JavaParametersUtil.createProjectJdk(project, null))
+    val jdk = getJdk(project, sbtExecutionSettings)
     params.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
 
     val environmentVariables = new util.HashMap(configuration.environmentVariables)
@@ -72,6 +71,15 @@ class SbtCommandLineState(
 
     val sbtSystemSettings = SbtSettings.getInstance(project).getState
 
+    setClasspathAndMainClass(params, sbtSystemSettings)
+
+    params.getVMParametersList.addParametersString(configuration.vmparams)
+    params.getProgramParametersList.addParametersString(processedCommands)
+
+    params
+  }
+
+  private def setClasspathAndMainClass(params: JavaParameters, sbtSystemSettings: SbtSettings.State): Unit = {
     // One of these checks might be redundant.
     // Why do we need the customLauncherEnabled at all?
     if (sbtSystemSettings.customLauncherPath != null) {
@@ -83,10 +91,25 @@ class SbtCommandLineState(
       params.getClassPath.add(launcherPath)
       params.setMainClass(determineMainClass(launcherPath))
     }
+  }
 
-    params.getVMParametersList.addParametersString(configuration.vmparams)
-    params.getProgramParametersList.addParametersString(processedCommands)
+  private def determineMainClass(launcherPath: String): String = {
+    val jar = Path.of(launcherPath)
+    JarManifestUtils.readManifestAttribute(jar, "Main-Class").getOrElse("xsbt.boot.Boot")
+  }
 
-    params
+  private def getJdk(project: Project, sbtExecutionSettings: SbtExecutionSettings): Sdk = {
+    val customJdk: Option[Sdk] = for {
+      vmExecutablePath <- sbtExecutionSettings.getCustomVMExecutableOrWarn(project)
+      // The java installation directory is two levels up.
+      // See org.jetbrains.sbt.project.SbtExternalSystemManager.getVmExecutable
+      javaHome = vmExecutablePath << 2
+      if javaHome != null
+      jdk <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.toCanonicalPath.toString))
+    } yield jdk
+
+    customJdk.getOrElse {
+      JavaParametersUtil.createProjectJdk(project, null)
+    }
   }
 }

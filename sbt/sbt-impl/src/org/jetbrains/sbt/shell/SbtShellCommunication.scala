@@ -104,8 +104,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       afterRestartCommands.put(qc)
     } else {
       // TODO it's some imperfection at this place to address in SCL-24338
-      // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted three times:
-      // during #initCommunication, when the shell becomes ready, and here.
+      // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted here
+      // and may be emitted again when the shell becomes ready and the prompt listener observes pending work.
       // Introducing an explicit "Start" state would likely be a solution.
 
       Log.debug(s"command: enqueue to commands: requestId=$requestId...")
@@ -216,9 +216,6 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     PooledThreadExecutor.INSTANCE.submit(new Runnable {
       override def run(): Unit = try {
         Log.info(s"startQueueProcessing start: state=$currentState...")
-
-        // queue ready signal is given by initCommunication.stateChanger
-        shellQueueReady.drainPermits()
 
         //
         // Main loop of commands queue processing
@@ -391,6 +388,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
     if (lockAcquired) {
+      // Reset only after communication is acquired: from here on, the ready listener owns the prompt permit for this process.
+      shellQueueReady.drainPermits()
+
       val releaseCommandQueueListener = new SbtShellReadyLineListener(
         "release command queue",
         whenReady = {
@@ -400,7 +400,6 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
         whenWorking = (),
         project
       )
-      emitShellStateEvent(shellEventBasedOnCommandsQueue())
       handler.addProcessListener(releaseCommandQueueListener)
 
       handler.addProcessListener(new InitialErrorDetectorListener())
