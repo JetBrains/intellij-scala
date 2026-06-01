@@ -70,13 +70,9 @@ object IntellijSdkSubsetInfo {
       "lib/intellij.libraries.asm.jar",
 
       //If you need any extra plugin dependencies, add the jars here
-      "plugins/java/lib/jps-builders.jar",
-      "plugins/java/lib/jps-builders-6.jar",
       "plugins/java/lib/jps-javac-extension.jar",
-      "plugins/java/lib/javac2.jar",
       "plugins/java/lib/java-impl.jar",
-      "plugins/java/lib/aether-dependency-resolver.jar",
-      "plugins/java/lib/modules/intellij.platform.jps.build.jar",
+      "plugins/java/lib/modules/intellij.platform.jps.build.jar"
     ),
   )
 
