@@ -172,6 +172,7 @@ object SourceCode {
         }
 
         val parents1 = parents.filter {
+          case tpt: TypeTree => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case Apply(Select(New(tpt), _), _) => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case TypeSelect(Select(Ident("_root_"), "scala"), "Product") => false
           case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") => false
