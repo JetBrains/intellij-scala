@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util.*
@@ -15,15 +15,15 @@ import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, VisibleForTesting}
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
-import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion}
 import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 import java.nio.file.Path
 import scala.annotation.nowarn
@@ -70,6 +70,7 @@ object SbtExternalSystemManager {
 
   private val Log = Logger.getInstance(classOf[SbtExternalSystemManager])
 
+  @RequiresBackgroundThread
   def executionSettingsFor(project: Project): SbtExecutionSettings = {
     val workingDirPath = SbtUtil.getWorkingDirPath(project)
     executionSettingsFor(project, workingDirPath)
@@ -140,6 +141,7 @@ object SbtExternalSystemManager {
     result
   }
 
+  @RequiresBackgroundThread
   private def getVmExecutable(project: Project, projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
     val jdkTable = ProjectJdkTable.getInstance(project)
 
@@ -178,26 +180,76 @@ object SbtExternalSystemManager {
     }
   }
 
-  private def getAutoDetectJdkPath(project: Project, sbtVersion: SbtVersion, jdkTable: ProjectJdkTable): Option[Path] = {
-    //automatically detect JDK if none is defined
-    invokeAndWait {
-      val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
-      if (sdk.sdk.isEmpty) {
-        Log.debug("Preconfigure JDK table for SBT import")
-        SbtProcessJdkGuesser.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
-      }
-    }
+  @VisibleForTesting
+  private[project] trait AutoDetectJdkProvider {
+    def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): SbtProcessJdkGuesser.SdkCandidate
 
-    val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
-    val autoDetectedSdk = suitableSdk.sdk
-      //if no suitable sdj >= 8 found, take any JDK, and hope that sbt import will work
+    def preconfigureJdkForSbt(project: Project, jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): Unit
+  }
+
+  @VisibleForTesting
+  private[project] object SbtProcessAutoDetectJdkProvider extends AutoDetectJdkProvider {
+    override def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): SbtProcessJdkGuesser.SdkCandidate =
+      SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+
+    override def preconfigureJdkForSbt(project: Project, jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): Unit =
+      SbtProcessJdkGuesser.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
+  }
+
+  @RequiresBackgroundThread
+  private def getAutoDetectJdkPath(project: Project, sbtVersion: SbtVersion, jdkTable: ProjectJdkTable): Option[Path] =
+    getAutoDetectJdkPath(project, sbtVersion, jdkTable, SbtProcessAutoDetectJdkProvider)
+
+  @RequiresBackgroundThread
+  private[project] def getAutoDetectJdkPath(
+    project: Project,
+    sbtVersion: SbtVersion,
+    jdkTable: ProjectJdkTable,
+    autoDetectJdkProvider: AutoDetectJdkProvider,
+  ): Option[Path] = {
+    //automatically detect JDK if none is defined
+    val suitableSdk = autoDetectJdkProvider.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+    val sdk = suitableSdk.sdk
+      .orElse {
+        preconfigureJdkTableForSbtImportIfAllowed(project, jdkTable, sbtVersion, autoDetectJdkProvider)
+        val suitableSdk2 = autoDetectJdkProvider.findJdkWithSuitableVersion(jdkTable, sbtVersion)
+        suitableSdk2.sdk
+      }
+      //if no suitable sdk >= 8 found, take any JDK, and hope that sbt import will work
       .orElse(suitableSdk.allSdkSorted.lastOption)
 
-    autoDetectedSdk.map { sdk =>
+    sdk.map { sdk =>
       Log.debug(s"Using Java from best auto-detected JDK: $sdk")
 
       Path.of(JavaSdk.getInstance().getVMExecutablePath(sdk))
     }
+  }
+
+  @RequiresBackgroundThread
+  private def preconfigureJdkTableForSbtImportIfAllowed(
+    project: Project,
+    jdkTable: ProjectJdkTable,
+    sbtVersion: SbtVersion,
+    autoDetectJdkProvider: AutoDetectJdkProvider,
+  ): Unit = {
+    val application = ApplicationManager.getApplication
+    if (application.isReadAccessAllowed) {
+      Log.debug("Skip preconfiguring JDK table for SBT import because a read action is already active")
+    } else {
+      invokeAndWait {
+        preconfigureJdkTableForSbtImport(project, jdkTable, sbtVersion, autoDetectJdkProvider)
+      }
+    }
+  }
+
+  private def preconfigureJdkTableForSbtImport(
+    project: Project,
+    jdkTable: ProjectJdkTable,
+    sbtVersion: SbtVersion,
+    autoDetectJdkProvider: AutoDetectJdkProvider,
+  ): Unit = {
+    Log.debug("Preconfigure JDK table for SBT import")
+    autoDetectJdkProvider.preconfigureJdkForSbt(project, jdkTable, sbtVersion)
   }
 
   private def getVmOptions(
@@ -242,7 +294,7 @@ object SbtExternalSystemManager {
   /** @param select Allow only options that pass this filter on the option name */
   private def proxyOptions(select: String => Boolean): Seq[String] = {
     val optionsMap = SbtUtil.getStaticProxyConfigurationJvmOptions
-    optionsMap.toSeq.collect { case (name,value) if select(name) => s"-D$name=$value" }
+    optionsMap.toSeq.collect { case (name, value) if select(name) => s"-D$name=$value" }
   }
 
   private implicit class OptionsOps(options: Seq[String]) {
@@ -252,7 +304,7 @@ object SbtExternalSystemManager {
       // use no MaxPermSize param if we know jdk version is >= 8 or user set it anyway
       val withoutPermSize = for {
         home <- jreHome
-        if ! hasOption(maxPermSize.key)
+        if !hasOption(maxPermSize.key)
         jreVersion <- Option(JdkVersionDetector.getInstance().detectJdkVersionInfo(home.toCanonicalPath.toString))
         if jreVersion.version.feature >= 8
       } yield options

@@ -1,17 +1,22 @@
 package org.jetbrains.plugins.scala.ui
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.UIUtil
 import org.junit.Assert
 
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 object AwaitTestUtils {
 
+  private val DefaultAttempts = 100
+
   @RequiresEdt
-  def waitFutureDispatchingAllEdtEvents[T](future: Future[T],  duration: Duration, attempts: Int = 100): T = {
+  def waitFutureDispatchingAllEdtEvents[T](future: Future[T],  duration: Duration, attempts: Int = DefaultAttempts): T = {
     waitConditionedDispatchingAllEdtEvents(duration, attempts) { () => future.isCompleted }
 
     if (future.isCompleted)
@@ -21,13 +26,31 @@ object AwaitTestUtils {
   }
 
   @RequiresEdt
-  def waitDispatchingAllEdtEvents(duration: Duration, attempts: Int = 100): Unit =
+  def waitDispatchingAllEdtEvents(duration: Duration, attempts: Int = DefaultAttempts): Unit =
     waitConditionedDispatchingAllEdtEvents(duration, attempts)()
+
+  def waitForLatchDispatchingAllEdtEvents(
+    latch: CountDownLatch,
+    duration: Duration,
+    failMessage: String,
+    earlyBreakCondition: () => Boolean = () => false,
+  ): Unit = {
+    val deadline = System.nanoTime() + duration.toNanos
+    while (!earlyBreakCondition() && !latch.await(10, TimeUnit.MILLISECONDS)) {
+      if (ApplicationManager.getApplication.isDispatchThread) {
+        UIUtil.dispatchAllInvocationEvents()
+        PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+      }
+      if (System.nanoTime() > deadline) {
+        Assert.fail(failMessage)
+      }
+    }
+  }
 
   @RequiresEdt
   def waitConditionedDispatchingAllEdtEvents(
     duration: Duration,
-    attempts: Int = 100,
+    attempts: Int = DefaultAttempts,
   )(earlyBreakCondition: () => Boolean = () => false): Unit = {
     val timeout = duration.toMillis
     var idx = 0
@@ -45,7 +68,7 @@ object AwaitTestUtils {
 
   def waitConditioned(
     duration: Duration,
-    attempts: Int = 100,
+    attempts: Int = DefaultAttempts,
   )(earlyBreakCondition: () => Boolean = () => false): Unit = {
     val timeout = duration.toMillis
     var idx = 0
@@ -60,11 +83,29 @@ object AwaitTestUtils {
   def waitForConditionOrFail(
     duration: Duration,
     failMessageBase: String,
-    attempts: Int = 100,
+    attempts: Int = DefaultAttempts,
   )(condition: () => Boolean = () => false): Unit = {
     waitConditioned(duration, attempts)(condition)
     if (!condition()) {
       Assert.fail(failMessageBase + s" (in a $duration time frame)")
+    }
+  }
+
+  def waitFutureOrFail[T](
+    future: Future[T],
+    duration: Duration,
+    actionDescription: String,
+    attempts: Int = DefaultAttempts,
+  ): T = {
+    waitForConditionOrFail(duration, s"Timed out while $actionDescription", attempts)(() => future.isCompleted)
+
+    future.value match {
+      case Some(Success(value)) =>
+        value
+      case Some(Failure(exception)) =>
+        throw new AssertionError(s"Failed while $actionDescription. Cause: ${exception.getClass.getName}: ${exception.getMessage}")
+      case None =>
+        throw new AssertionError(s"Future was not completed after waiting while $actionDescription")
     }
   }
 }
