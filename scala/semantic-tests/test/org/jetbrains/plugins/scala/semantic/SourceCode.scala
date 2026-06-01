@@ -1076,8 +1076,20 @@ object SourceCode {
         inBlock(printTrees(refinements, "; "))
 
       case Applied(tpt, args) =>
-        printTypeTree(tpt)
-        inSquare(printTrees(args, ", "))
+        tpt.tpe match {
+          case tr: TypeRef if  tr.qualifier.typeSymbol.companionModule == Symbol.requiredModule("scala") && tr.name.startsWith("Tuple") =>
+            inParens(printTrees(args, ", "))
+          case tr: TypeRef if  tr.qualifier.typeSymbol.companionModule == Symbol.requiredModule("scala") && tr.name.startsWith("Function") =>
+            if (tr.name.endsWith("Function1"))
+              printTree(args.head)
+            else
+              inParens(printTrees(args.init, ", "))
+            this += " => "
+            printTree(args.last)
+          case _ =>
+            printTypeTree(tpt)
+            inSquare(printTrees(args, ", "))
+        }
 
       case Annotated(tpt, annot) =>
         val Annotation(ref, args) = annot: @unchecked
