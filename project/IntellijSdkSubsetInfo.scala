@@ -60,7 +60,6 @@ object IntellijSdkSubsetInfo {
     subsetName = "jps",
     jarsRelativePaths = Seq(
       /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
-      "lib/util.jar",
       "lib/util-8.jar",
       "lib/util_rt.jar",
       "lib/intellij.libraries.protobuf.jar",
