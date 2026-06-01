@@ -5,11 +5,10 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, PackageScop
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiPackage, PsiReference}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
@@ -117,10 +116,16 @@ private object ScalaUseScope {
     asMember.map(_.union(asNamedArgument))
   }
 
-  private def memberScope(member: ScMember): Option[SearchScope] = {
-    syntheticMethodScope(member)
-      .orElse(byAccessModifier(member))
-      .orElse(fromContainingBlockOrMember(member))
+  @tailrec
+  private def memberScope(member: ScMember): Option[SearchScope] = member match {
+    case ec: ScEnumCase =>
+      // An enum case cannot be inherited or otherwise leak outside the enum's
+      // access scope, so its use scope coincides with that of its enum.
+      memberScope(ec.enumParent)
+    case _ =>
+      syntheticMemberScope(member)
+        .orElse(byAccessModifier(member))
+        .orElse(fromContainingBlockOrMember(member))
   }
 
   private def byAccessModifier(member: ScMember): Option[SearchScope] =
@@ -137,13 +142,15 @@ private object ScalaUseScope {
     else scope
   }
 
-  //private top level classes may be used in the same package
+  //Scala 3 top-level `private` declarations are visible in the entire enclosing package,
+  //not just the defining file. This applies to top-level defs, vals, vars, types, givens,
+  //extensions, and (top-level) classes/objects/traits/enums alike.
   private def forTopLevelPrivate(modifierListOwner: ScModifierListOwner) = modifierListOwner match {
-    case td: ScTypeDefinition if td.isTopLevel =>
+    case m: ScMember if m.isTopLevel =>
       for {
-        qName <- Option(td.qualifiedName)
-        parentPackage <- ScalaPsiUtil.parentPackage(qName, td.getProject)
-      } yield new PackageScope(parentPackage, /*includeSubpackages*/ true, /*includeLibraries*/ true)
+        packageName <- m.topLevelQualifier
+        pkg <- ScPackageImpl.findPackage(m.getProject, packageName)
+      } yield new PackageScope(pkg, /*includeSubpackages*/ true, /*includeLibraries*/ true)
     case _ => None
   }
 
@@ -226,11 +233,12 @@ private object ScalaUseScope {
     }
   } yield scope
 
-  private def syntheticMethodScope(member: ScMember): Option[SearchScope] = {
-    member match {
-      case fun: ScFunction if fun.isSynthetic =>
-        Some(fun.syntheticNavigationElement.getUseScope)
-      case _ => None
-    }
+  private def syntheticMemberScope(member: ScMember): Option[SearchScope] = {
+    // Synthetic members (e.g. the implicit companion object of a Scala 3 enum
+    // or the fake companion module of a case class) inherit their use scope
+    // from the original declaration. Without this, the synthetic carries the
+    // wrong modifier in some PSI configurations and ends up with an artificially
+    // narrow scope (see SCL-25515).
+    Option(member.syntheticNavigationElement).map(_.getUseScope)
   }
 }
