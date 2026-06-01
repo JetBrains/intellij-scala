@@ -83,8 +83,6 @@ object IntellijSdkSubsetInfo {
   val JpsShared: IntellijSdkSubsetInfo = IntellijSdkSubsetInfo(
     subsetName = "jps-shared",
     jarsRelativePaths = Seq(
-      "lib/app.jar",
-      "lib/app-client.jar",
       "lib/util.jar",
       "lib/util-8.jar",
       "lib/util_rt.jar"
