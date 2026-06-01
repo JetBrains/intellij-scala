@@ -166,7 +166,7 @@ object SourceCode {
           for paramClause <- paramss do
             paramClause match
               case TermParamClause(params) =>
-                printMethdArgsDefs(params)
+                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params)
               case TypeParamClause(params) =>
                 printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params))
         }
