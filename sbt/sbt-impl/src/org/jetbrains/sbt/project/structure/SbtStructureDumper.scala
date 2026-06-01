@@ -361,7 +361,7 @@ object SbtStructureDumper:
    * Its value (a unique import id) is passed to the sbt import process and checked inside the generated global plugin file
    * to ensure the plugin settings are activated only for the current import.
    *
-   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.SbtProcessManager#IdeaRunIdVmOption]]
+   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.process.utils.SpecialSbtVmOptions.IdeaRunIdVmOption]]
    *
    * @see [[createGuardedPluginContent]]
    */
