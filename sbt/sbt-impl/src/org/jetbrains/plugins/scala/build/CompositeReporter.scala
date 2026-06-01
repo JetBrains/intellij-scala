@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
+import com.intellij.build.issue.BuildIssue
+import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 import java.nio.file.Path
@@ -22,11 +24,23 @@ class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
   override def warning(message: String, position: Option[FilePosition]): Unit =
     reporters.foreach(_.warning(message, position))
 
+  override def warning(message: String, position: Option[FilePosition], details: String): Unit =
+    reporters.foreach(_.warning(message, position, details))
+
+  override def warning(issue: BuildIssue): Unit =
+    reporters.foreach(_.warning(issue))
+
+  override def warning(message: String, position: Option[FilePosition], details: String, navigatable: Option[Navigatable]): Unit =
+    reporters.foreach(_.warning(message, position, details, navigatable))
+
   override def error(message: String, position: Option[FilePosition]): Unit =
     reporters.foreach(_.error(message, position))
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    reporters.foreach(_.info(message,position))
+    reporters.foreach(_.info(message, position))
+
+  override def info(issue: BuildIssue): Unit =
+    reporters.foreach(_.info(issue))
 
   override def log(message: String): Unit =
     reporters.foreach(_.log(message))
@@ -47,7 +61,7 @@ class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
     reporters.foreach(_.clear(file))
 
   def compose(reporter: BuildReporter) =
-  new CompositeReporter(reporters :+ reporter*)
+    new CompositeReporter(reporters :+ reporter *)
 
   /** Clear any messages associated with file. */
 }
