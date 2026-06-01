@@ -15,6 +15,8 @@
 !.idea/uiDesigner.xml
 
 *.class
+# We have a pre-compiled mock SBT process as a .class file that we use in tests
+!sbt/sbt-shell-runtime-tests/testdata/mockSbtProcess/classes/*.class
 *.log
 !scala/scala-impl/testdata/decompiler/**/*.class
 !scala/runners/resources/org/jetbrains/plugins/scala/worksheet/*.class

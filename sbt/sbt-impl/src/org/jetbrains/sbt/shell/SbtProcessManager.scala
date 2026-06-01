@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
+import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
 import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
@@ -46,6 +47,7 @@ import scala.jdk.CollectionConverters.*
  * Manages the sbt shell process instance for the project.
  * Instantiates an sbt instance when initially requested.
  */
+//noinspection ApiStatus,UnstableApiUsage
 @Service(Array(Service.Level.PROJECT))
 final class SbtProcessManager(project: Project) extends Disposable {
 
@@ -84,6 +86,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       TransferTarget.Temporary(eelDescriptor)
     )
 
+    // Use sbtStructureVersion as an approximation of compatible IDEA versions.
     val runId: SbtShellRunId =
       SbtShellRunId(BuildInfo.sbtStructureVersion)
 
@@ -208,7 +211,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     passParentEnvironment: Boolean,
     environment: Map[String, String],
     withNewShell: Boolean
-  ) = {
+  ): PtyCommandLine = {
     val pty = new PtyCommandLine()
     pty.withExePath(vmExecutable.toString)
     pty.withWorkingDirectory(workingDir)
@@ -218,8 +221,13 @@ final class SbtProcessManager(project: Project) extends Disposable {
       pty.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
 
     pty.addParameters(vmParams.getList)
-    pty.addParameters("-jar", launcher.normalizedLocalPath)
-    pty.addParameters(programParams.getList)
+
+    if (MockSbtProcessForTests.isEnabled(project)) {
+      pty.addParameters(MockSbtProcessForTests.mockMainClassCommandLineTailForSbtShell(project, withNewShell) *)
+    } else {
+      pty.addParameters("-jar", launcher.normalizedLocalPath)
+      pty.addParameters(programParams.getList)
+    }
 
     val parentEnvironmentType = if (passParentEnvironment) ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
     pty.withParentEnvironmentType(parentEnvironmentType)
@@ -293,6 +301,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
     processDataMutex.synchronized {
       processData = Some(_processData)
 
+      val communication = SbtShellCommunication.forProject(project)
+      communication.initCommunication(_processData.processHandler)
+
       _processData match {
         case pd: AbstractConsoleProcessData =>
           pd.runner.initAndRun()
@@ -332,7 +343,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
    *   - If minimized to 0 rows, the prompt becomes "...>", which breaks the logic for detecting when the sbt shell is ready for input.
    *
    * To prevent these problems, the terminal size is adjusted so that the number of rows is always greater than JLine’s `MIN_ROWS`.
-
    */
   private def createTerminalConsole(handler: OSProcessHandler): TerminalExecutionConsole = {
     val console = TerminalExecutionConsoleBuilder(project).build()
@@ -354,7 +364,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   /** Supply a PrintWriter that writes to the current process. */
   def usingWriter[T](f: PrintWriter => T): T = {
-    val processInput  = acquireShellProcessHandler().getProcessInput
+    val processInput = acquireShellProcessHandler().getProcessInput
     val writer = new PrintWriter(new OutputStreamWriter(processInput))
     f(writer)
   }
@@ -414,6 +424,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     updateProcessData()
   }
 
+  //TODO: extract common "retry" utilities
   private def terminateProcessGracefully(process: Process): Unit = {
     def attemptTermination(): Unit = {
       try OSProcessUtil.terminateProcessGracefully(process)
@@ -429,7 +440,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     var timeout = 3L
     val backoff = 3L // Back off for additional 3 seconds before each retry.
 
-    while (!success &&  tries > 0) {
+    while (!success && tries > 0) {
       attemptTermination()
       try {
         process.onExit().get(timeout, TimeUnit.SECONDS)
@@ -543,8 +554,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private def initTerminalConsole(processData: TerminalConsoleProcessData): Unit =
     executeOnPooledThread {
       processData.processHandler.startNotify()
-
-      SbtShellCommunication.forProject(project).initCommunication(processData.processHandler)
 
       val actionGroup = createActionGroupForTerminalConsole(processData.console)
       SbtShellToolWindowFactory.initUi(project, actionGroup, component = processData.console.getComponent)

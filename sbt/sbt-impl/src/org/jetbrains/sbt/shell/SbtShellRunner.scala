@@ -109,7 +109,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
     myProcessHandler.addProcessListener(shellPromptChanger(consoleView))
 
-    SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
+    // Do not initialize shell communication here: SbtProcessManager does it before startNotify, so prompt output cannot race ahead of the command queue listener.
 
     SbtShellToolWindowFactory.initUi(
       project,
