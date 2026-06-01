@@ -1,29 +1,19 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.debugger.engine.DebuggerUtils
-import com.intellij.execution.CantRunException
 import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.*
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.{ColoredProcessHandler, KillableProcessHandler, OSProcessHandler, OSProcessUtil}
-import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, AnActionEvent, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ActionGroup, DefaultActionGroup}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.options.ex.SingleConfigurableEditor
-import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
-import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
-import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
-import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
@@ -32,26 +22,22 @@ import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
 import com.sun.jna.Platform
 import org.jetbrains.annotations.ApiStatus.Internal
-import org.jetbrains.annotations.{NonNls, TestOnly}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.isUnitTestMode
-import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
-import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
-import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.project.SbtExternalSystemManager
-import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
+import org.jetbrains.sbt.shell.process.utils.{SbtSettingsInjector, SbtShellJdkSelector, SbtShellRunId, SbtShellVmOptionsBuilder}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 
-import java.io.{IOException, OutputStreamWriter, PrintWriter}
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
+import java.io.{OutputStreamWriter, PrintWriter}
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
@@ -80,39 +66,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
-  @NonNls private def repoPath: String = SbtUtil.getRepoDir(eelDescriptor).normalizedLocalPath
-
-  @NonNls private def pluginResolverSetting: String =
-    raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
-         |""".stripMargin
-
-  /** Plugins injected into user's global sbt build. */
-  // TODO add configurable plugins somewhere for users and via API; factor this stuff out
-  // this *might* get messy if multiple IDEA projects start messing with the global settings.
-  // but we should be fine since it is written before every sbt boot
-  private def getInjectedPluginsCommands(sbtVersion: SbtVersion): Seq[String] = {
-    val sbtBinaryVersion = sbtVersion.binaryVersion
-    val sbtStructureVersion = BuildInfo.sbtStructureVersion
-    val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
-
-    val sbtStructurePluginBinVersion = structurePluginBinaryVersion(sbtVersion)
-    log.debug(s"sbtBinVersion = $sbtBinaryVersion")
-    log.debug(s"sbtStructurePluginBinVersion = $sbtStructurePluginBinVersion")
-    log.debug(s"sbtIdeaShellBinVersion = $sbtBinaryVersion")
-
-    sbtBinaryVersion.presentation match {
-      case _ =>
-        Seq(
-          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion", "$sbtStructurePluginBinVersion")""",
-          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion", "$sbtBinaryVersion")""",
-        )
-        // SCL-22858 compiler bytecode indices are disabled in sbt shell
-        // ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
-    }
-  }
-
-  private val IdeaRunIdVmOption = "idea.runid"
-
   /**
    * @return A tuple containing:
    *         - `OSProcessHandler`: the configured process handler instance for the sbt shell.
@@ -131,78 +84,101 @@ final class SbtProcessManager(project: Project) extends Disposable {
       TransferTarget.Temporary(eelDescriptor)
     )
 
-    // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
-    // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
-    // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
-    val runId = BuildInfo.sbtStructureVersion
+    val runId: SbtShellRunId =
+      SbtShellRunId(BuildInfo.sbtStructureVersion)
 
-    val vmParams = new ParametersList
-    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(vmParams)) else None
-
-    if (!isUnitTestMode) {
-      invokeAndWait {
-        inWriteAction {
-          //By saving all documents ew ensure that edits in `project/build.properties` are saved to disk
-          //otherwise user might change `sbt.version`, reload the project and there will be a warning in sbt shell
-          //"[warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value."
-          //This is because `saveAllDocuments` will be called anyway after sbt process is started, but before it does the check which produces the warning
-          FileDocumentManager.getInstance().saveAllDocuments()
-        }
-      }
-    }
+    saveAllDocumentsToDisk()
 
     val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
     val addPluginCommandSupported = SbtVersionCapabilities.isAddPluginCommandSupported(projectSbtVersion)
     log.debug(s"projectSbtVersion = $projectSbtVersion")
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
 
-    vmParams.add("-server")
-
-    val environmentVariables =
-      EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
-    val sbtProcessOptions =
-      SbtProcessOptionsResolver.resolveSbtOptionsForShell(workingDir, sbtSettings.sbtOptions, environmentVariables)
-
-    val allOpts = buildVMParameters(sbtSettings, workingDir, sbtProcessOptions.allVmOptions)
-    vmParams.addAll(allOpts.asJava)
-
-    // don't add runId when using addPluginSbtFile command
-    if (!addPluginCommandSupported)
-      vmParams.add(s"-D$IdeaRunIdVmOption=$runId")
-
     // Allow using the "new shell" only with sbt >= 1.4, because starting from this version, JLine 3 is utilized within the "shell" command.
     // This provides better completion support and is used for detecting when the shell is ready (see org.jetbrains.sbt.shell.SbtProcessUtil.promptReady).
     val useNewShell = Registry.is("sbt.new.shell") && projectSbtVersion >= SbtVersion.apply("1.4")
 
-    // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
-    // When the new shell is enabled and TerminalExecutionConsole is used, the colors can be enabled again on Windows
-    if (SystemInfo.isWindows && !useNewShell)
-      vmParams.add("-Dsbt.log.noformat=true")
+    val shellSbtProcessOptions: SbtProcessOptions =
+      SbtProcessOptionsResolver.resolveSbtOptionsForShell(
+        workingDir,
+        sbtSettings.sbtOptions,
+        EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
+      )
 
-    val sdk = selectSdkOrWarn(sbtSettings)
-    // The exception looks scary, but in the previous implementation, it was also thrown if the JDK was not of the JavaSdkType
-    // (see com.intellij.openapi.projectRoots.JdkCommandLineSetup.setupJavaExePath)
-    lazy val sdkExecutable = sdk.getSdkType match {
-      case jst: JavaSdkType => Path.of(jst.getVMExecutablePath(sdk))
-      case _ => throw CantRunException.jdkMisconfigured(sdk)
-    }
-    val vmExecutable = sbtSettings.getCustomVMExecutableOrWarn(project).getOrElse(sdkExecutable)
+    val vmOptionsData: SbtShellVmOptionsData =
+      new SbtShellVmOptionsBuilder().createVmOptions(
+        sbtSettings,
+        workingDir,
+        addPluginCommandSupported,
+        runId,
+        shellSbtProcessOptions.allVmOptions,
+        useNewShell = useNewShell
+      )
 
-    val programParams = new ParametersList
+    val vmOptions: ParametersList =
+      vmOptionsData.vmOptions
 
+    val settingsInjector = new SbtSettingsInjector(project)
     val settingsFile: Path =
-      getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, vmParams, projectSbtVersion.binaryVersion, eelDescriptor)
+      settingsInjector.getOrCreateSettingsFileWithInjectedSettings(runId, projectSbtVersion, addPluginCommandSupported, vmOptions)
 
-    val injectPluginsSettings = getInjectedPluginsCommands(projectSbtVersion)
-    val settingsAll = pluginResolverSetting +: injectPluginsSettings
-    // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
-    injectSettings(
-      projectSbtVersion,
-      runId,
-      !addPluginCommandSupported,
-      settingsFile,
-      settingsAll
+    val programParams: ParametersList =
+      createProgramParameters(
+        settingsFile,
+        shellSbtProcessOptions.sbtLauncherArgs,
+        addPluginCommandSupported = addPluginCommandSupported,
+        useNewShell = useNewShell
+      )
+
+    val vmExecutable: Path =
+      new SbtShellJdkSelector(project).selectVmExecutableForSettings(sbtSettings)
+
+    val commandLine: PtyCommandLine =
+      createPtyCommandLine(vmExecutable, workingDir, vmOptions, launcher, programParams, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
+
+    // KillableProcessHandler is a handler compatible with TerminalExecutionConsole. Maybe it will change IJPL-212220
+    val processHandler: KillableProcessHandler =
+      if (useNewShell)
+        new KillableProcessHandler(commandLine)
+      else
+        new ColoredProcessHandler(commandLine)
+
+    processHandler.setShouldKillProcessSoftly(true)
+    SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(
+      processHandler,
+      processTitle = s"SBT shell process output (${if (useNewShell) "new-shell" else "old-shell"})",
     )
+
+    (processHandler, vmOptionsData.debugConnection, projectSbtVersion, useNewShell)
+  }
+
+  /**
+   * By saving all documents we ensure that edits in `project/build.properties` are saved to disk.<br>
+   * Otherwise, user might change `sbt.version`, reload the project, and there will be a warning in sbt shell:
+   * ```
+   * [warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value.
+   * ```
+   *
+   * Without this call the `saveAllDocuments` would be called anyway after the sbt process is started.
+   * But it would be too late already, because the warning would be already generated by sbt.
+   */
+  private def saveAllDocumentsToDisk(): Unit = {
+    if (!isUnitTestMode) {
+      invokeAndWait {
+        inWriteAction {
+          FileDocumentManager.getInstance().saveAllDocuments()
+        }
+      }
+    }
+  }
+
+  private def createProgramParameters(
+    settingsFile: Path,
+    sbtLauncherArgs: Seq[String],
+    addPluginCommandSupported: Boolean,
+    useNewShell: Boolean,
+  ): ParametersList = {
+    val programParams = new ParametersList
 
     if (addPluginCommandSupported) {
       val settingsPath = settingsFile.normalizedLocalPath
@@ -212,86 +188,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val commands = if (useNewShell) "shell" else "idea-shell"
 
     programParams.add(commands)
-    val sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs
     programParams.addAll(sbtLauncherArgs *)
 
-    val pty = createPtyCommandLine(vmExecutable, workingDir, vmParams, launcher, programParams, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
-    // KillableProcessHandler is a handler compatible with TerminalExecutionConsole. Maybe it will change IJPL-212220
-    val cpty =
-      if (useNewShell)
-        new KillableProcessHandler(pty)
-      else
-        new ColoredProcessHandler(pty)
-
-    cpty.setShouldKillProcessSoftly(true)
-    SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(
-      cpty,
-      processTitle = s"SBT shell process output (${if (useNewShell) "new-shell" else "old-shell"})",
-    )
-
-    (cpty, debugConnection, projectSbtVersion, useNewShell)
-  }
-
-  private def getOrCreateExtraSbtSettingsFile(
-    addPluginCommandSupported: Boolean,
-    vmParametersList: ParametersList,
-    sbtBinVersion: Version,
-    eelDescriptor: EelDescriptor
-  ): Path = {
-    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), vmParametersList, eelDescriptor)
-    // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
-    if (!globalPluginsDir.exists) {
-      Files.createDirectories(globalPluginsDir)
-    }
-    if (addPluginCommandSupported)
-       EelPathUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
-    else
-      globalPluginsDir / "idea.sbt"
-  }
-
-  private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
-
-    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk(_, project))
-    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
-
-    configuredSdk.getOrElse {
-      if (projectSdk != null) projectSdk
-      else {
-        val message = SbtBundle.message("sbt.shell.no.project.jdk.configured")
-        val noProjectSdkNotification =
-          ScalaNotificationGroups.sbtShell.createNotification(message, NotificationType.ERROR)
-        noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
-        noProjectSdkNotification.notify(project)
-        throw new RuntimeException(message)
-      }
-    }
-  }
-
-  private object ConfigureProjectJdkAction extends NotificationAction(SbtBundle.message("sbt.shell.configure.project.jdk")) {
-
-    // copied from ShowStructureSettingsAction
-    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-      new SingleConfigurableEditor(project, ProjectStructureConfigurable.getInstance(project), SettingsDialog.DIMENSION_KEY) {
-        override protected def getStyle = DialogStyle.COMPACT
-      }.show()
-      notification.expire()
-    }
-  }
-
-  /**
-   * Add debug parameters to ParametersList and create remote connection
-   */
-  private def addDebugParameters(vmParams: ParametersList): RemoteConnection = {
-
-    val host = "localhost"
-    val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
-    val remoteConnection = new RemoteConnection(true, host, port, false)
-
-    val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
-    vmParams.prepend("-Xdebug")
-    vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
-
-    remoteConnection
+    programParams
   }
 
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
@@ -355,43 +254,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
 
     pty
-  }
-
-  /**
-   * Inject custom settings or plugins into an sbt directory.
-   * This seems to be the most straightforward way to add our own sbt settings
-   */
-  private def injectSettings(
-    sbtVersion: SbtVersion,
-    runId: String,
-    guardSettings: Boolean,
-    settingsFile: Path,
-    settings: Seq[String]
-  ): Unit = {
-    @NonNls
-    val header =
-      """// Generated by IntelliJ-IDEA Scala plugin.
-        |// Adds settings when starting sbt from IDEA.
-        |// Manual changes to this file will be lost.
-        |""".stripMargin
-    val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
-    val settingsString = settings.mkString(s"$SeqFqn(\n",",\n","\n)")
-
-    // any idea-specific settings should be added conditional on sbt being started from idea
-    val guardedSettings =
-      if (guardSettings)
-        s"""if (java.lang.System.getProperty("$IdeaRunIdVmOption", "false") == "$runId") $settingsString else $SeqFqn.empty"""
-      else settingsString
-
-    val content = header + "\n" + guardedSettings
-
-    try {
-      Files.writeString(settingsFile, content, StandardCharsets.UTF_8)
-    } catch {
-      case x : IOException =>
-        log.error(s"unable to write ${settingsFile.toCanonicalPath} which is required for sbt shell support", x)
-        throw x
-    }
   }
 
   /**
@@ -694,6 +556,11 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
 object SbtProcessManager {
 
+  case class SbtShellVmOptionsData(
+    vmOptions: ParametersList,
+    debugConnection: Option[RemoteConnection],
+  )
+
   def forProject(project: Project): SbtProcessManager = {
     val pm = project.getService(classOf[SbtProcessManager])
     if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
@@ -734,30 +601,5 @@ object SbtProcessManager {
     isNewShell: Boolean
   ) extends ProcessData {
     override def flushText(): Unit = console.flushImmediately()
-  }
-
-  private[shell]
-  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: Path, sbtOpts: Seq[String]): Seq[String] = {
-    //TODO #SCL-22878 "-Djdk.console=java.base" is needed due to modifications made to the System.console() after JDK 21,
-    // which are not yet fully supported in sbt
-    val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
-    val jvmOpts = hardcoded ++
-      SbtProcessOptionsResolver.resolveJavaOptions(
-        workingDir,
-        sbtSettings.vmOptions,
-        EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
-      ) ++
-      sbtOpts
-
-    val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))
-    val xmsPrefix = "-Xms"
-    def minMaxHeapSize = jvmOpts.reverseIterator
-      .find(_.startsWith(xmsPrefix))
-      .map(_.drop(xmsPrefix.length))
-      .flatMap(JvmMemorySize.parse)
-    def xmxNotNeeded = minMaxHeapSize.exists(_ >= sbtSettings.hiddenDefaultMaxHeapSize)
-
-    if (hasXmx || xmxNotNeeded) jvmOpts
-    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: jvmOpts
   }
 }
