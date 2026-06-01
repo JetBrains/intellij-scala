@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.build
+
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
+import com.intellij.build.issue.BuildIssue
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.pom.Navigatable
 
 import java.nio.file.Path
 
@@ -33,6 +36,15 @@ class LogReporter extends BuildReporter {
   override def warning(message: String, position: Option[FilePosition]): Unit = {
     logger.warn(s"$message${filePositionText(position)}")
   }
+
+  override def warning(message: String, position: Option[FilePosition], details: String): Unit =
+    warning(s"$message\n$details", position)
+
+  override def warning(issue: BuildIssue): Unit =
+    logger.warn(s"${issue.getTitle}\n${issue.getDescription}")
+
+  override def warning(message: String, position: Option[FilePosition], details: String, navigatable: Option[Navigatable]): Unit =
+    warning(message, position, details)
 
   /** Show error message. */
   override def error(message: String, position: Option[FilePosition]): Unit = {
