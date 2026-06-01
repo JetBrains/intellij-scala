@@ -45,4 +45,20 @@ class Scala3PolymorphicTypeTest extends TypeInferenceTestBase {
       |  (1, 1).map([T] => (x: T) => Option(x))
       |""".stripMargin
   )
+
+  def testSCL25516(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  type F = [T] => T => Unit
+      |
+      |  // BAD: Type info on "x" -> Nothing
+      |  val value1: F =
+      |    [U] => x => {}
+      |
+      |  // OK: Type info on "x" -> U
+      |  val value2: [T] => T => Unit =
+      |    [U] => x => {}
+      |}
+      |""".stripMargin
+  )
 }

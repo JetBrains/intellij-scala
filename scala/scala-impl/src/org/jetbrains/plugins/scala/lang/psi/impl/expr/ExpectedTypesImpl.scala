@@ -261,7 +261,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     def fromPolyFunction(tyParams: Seq[ScTypeParam])(tp: ParameterType): Array[ParameterType] = {
-      tp._1 match {
+      tp._1.removeAliasDefinitionsIn(expr) match {
         case PolyFunctionType(sig, retType) =>
           // match
           //   [pParams..] => bodyType
