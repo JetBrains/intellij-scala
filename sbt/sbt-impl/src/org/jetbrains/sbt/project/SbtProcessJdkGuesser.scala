@@ -21,14 +21,15 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.math.Ordered.orderingToOrdered
 
 /**
- * This class contains helper utilities to find JDK with most suitable version to run SBT.
- * It's only needed when Project SDK is not configured, for example during initial project loading.
- * Using "latest" java is not an option, because if a user has some non-release JDK version installed then SBT import process can fail.
- * (e.g. sbt 1.5.1 doesn't support JDK 18)
+ * This class contains helper utilities to find JDK with the most suitable version to run SBT.
  *
- * @note In some cases it won't work,
- *       e.g. if user uses old SBT version which only supports JDK 8 but user has JDK 17 installed
+ * It's only necessary when Project SDK is not configured, for example, during initial project loading.
  *
+ * Using "latest" java is not an option because if a user has some non-release JDK version installed, then the SBT import process can fail.
+ * (For example, sbt 1.5.1 doesn't support JDK 18)
+ *
+ * @note In some cases it won't work.<br>
+ *       For example, if the user uses an old SBT version which only supports JDK 8 but the user has JDK 17 installed.
  * @see https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html
  */
 object SbtProcessJdkGuesser {
