@@ -19,10 +19,11 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
-class ExternalSystemNotificationReporter(workingDir: String,
-                                         taskId: ExternalSystemTaskId,
-                                         notifications: ExternalSystemTaskNotificationListener)
-  extends BuildReporter {
+class ExternalSystemNotificationReporter(
+  workingDir: String,
+  taskId: ExternalSystemTaskId,
+  notifications: ExternalSystemTaskNotificationListener
+) extends BuildReporter {
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
@@ -101,20 +102,23 @@ class ExternalSystemNotificationReporter(workingDir: String,
     @Nls @Nullable details: String = null,
     navigatable: Option[Navigatable] = None
   ): Unit = {
+    val event = createBuildEvent(message, kind, position, details, navigatable)
+    notifications.onStatusChange(new ExternalSystemBuildEvent(taskId, event))
     viewManager.foreach { manager =>
-      val event = createBuildEvent(message, kind, position, details, navigatable)
       manager.onEvent(taskId, event)
     }
   }
 
-  private def onEvent(issue: BuildIssue, kind: Kind): Unit =
+  private def onEvent(issue: BuildIssue, kind: Kind): Unit = {
+    val event = BuildEvents.getInstance()
+      .buildIssue(issue, kind)
+      .withParentId(taskId)
+      .build()
+    notifications.onStatusChange(new ExternalSystemBuildEvent(taskId, event))
     viewManager.foreach { manager =>
-      val event = BuildEvents.getInstance()
-        .buildIssue(issue, kind)
-        .withParentId(taskId)
-        .build()
       manager.onEvent(taskId, event)
     }
+  }
 
   override def log(message: String): Unit =
     log(message, isStdOut = true)
