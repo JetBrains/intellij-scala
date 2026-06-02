@@ -5,6 +5,13 @@ import com.intellij.execution.runners.{ExecutionEnvironment, GenericProgramRunne
 import com.intellij.execution.ui.RunContentDescriptor
 
 /**
+ * Handles SBT task run configurations only when they are delegated to the SBT shell.
+ *
+ * When [[SbtRunConfiguration.useSbtShell]] is disabled, this runner intentionally does not claim the configuration in [[canRun]].<br>
+ * In that mode the standard platform run runner executes the [[SbtCommandLineState]] as a
+ * [[com.intellij.execution.configurations.JavaCommandLineState]],
+ * using the Java command line assembled by [[SbtCommandLineState.createJavaParameters]].
+ *
  * @see [[org.jetbrains.sbt.runner.SbtDebugProgramRunner]]
  */
 class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProgramRunnerBase {
