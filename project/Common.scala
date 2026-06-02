@@ -206,10 +206,12 @@ object Common {
       intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
       intellijTestJars ~= { _.filter(_.exists()) },
       intellijPlugins ++= Seq(
-        "com.intellij.java".toPlugin,
+        "com.intellij.java",
         // required for Java plugin (IJPL-244879)
-        "com.intellij.moduleSet.todoView".toPlugin,
-      ),
+        "com.intellij.moduleSet.todoView",
+        // required for Java plugin (IJPL-245969)
+        "intellij.libraries.misc.plugin"
+      ).map(_.toPlugin),
       pathExcludeFilter := excludePathsFromPackage _
     )
 
