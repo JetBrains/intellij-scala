@@ -4,17 +4,16 @@ import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellRuntimeTestBase, SbtShellTestUtil, SettingQueryHandler}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtRuntimeTest_WithSbtShell, SbtShellTestUtil, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.FiniteDuration
 
 @Category(Array(classOf[SlowTests2]))
 //noinspection ApiStatus
-abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
+abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
 
   private lazy val sbtProjectUriAndId = SbtProjectUriAndId(
     uri = getTestProjectPath.toUri.toString,
@@ -22,7 +21,12 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
   )
 
   def testFailedCommand(): Unit = {
-    Await.result(comm.runAndCollectOutput("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
+    SbtShellTestUtil.awaitFutureWithShellLog(
+      comm.runAndCollectOutput("set npSuchSetting:=42"),
+      DefaultCommandWaitTimeout,
+      "running failing sbt command `set npSuchSetting:=42`",
+      processListener
+    )
     flush()
     val logNoAnsi = BuildMessages.stripAnsiCodes(processListener.getLog)
     assert(logNoAnsi.contains(SbtShellTestUtil.ErrorPrefix))
@@ -53,15 +57,17 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
     commandBefore: SbtSetCommand,
     settingName: String,
     expectedValue: String,
-    timeout: Duration = DefaultCommandWaitTimeout,
+    timeout: FiniteDuration = DefaultCommandWaitTimeout,
   ): Unit = {
     val handler = new SettingQueryHandler(Some(sbtProjectUriAndId), settingName, comm)
 
     val sbtVersion = comm.getRunningOrDetectedSbtVersion
     val sbtCommand = commandBefore.toSbtCommand(sbtVersion)
-    val res = Await.result(
+    val res = SbtShellTestUtil.awaitFutureWithShellLog(
       comm.runAndCollectOutput(sbtCommand).flatMap { _ => handler.getSettingValue },
-      timeout
+      timeout,
+      s"reading sbt setting '$settingName' after running `$sbtCommand`",
+      processListener
     )
     flush()
 
@@ -74,14 +80,16 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
   protected def doTestSetSetting(
     settingName: String,
     expectedValue: String,
-    timeout: Duration = DefaultCommandWaitTimeout,
+    timeout: FiniteDuration = DefaultCommandWaitTimeout,
   ): Unit = {
     val setHandler = new SettingQueryHandler(Some(sbtProjectUriAndId), settingName, comm)
     val handler = new SettingQueryHandler(Some(sbtProjectUriAndId), settingName, comm)
 
-    val res = Await.result(
+    val res = SbtShellTestUtil.awaitFutureWithShellLog(
       setHandler.setSettingValue(expectedValue).flatMap { _ => handler.getSettingValue },
-      timeout
+      timeout,
+      s"setting sbt setting '$settingName' to '$expectedValue' and reading it back",
+      processListener
     )
     flush()
     val log = processListener.getLog
@@ -94,19 +102,21 @@ abstract class SettingQueryHandlerTestBase extends SbtShellRuntimeTestBase {
     setCommand: SbtSetCommand,
     addValue: String,
     expectedValue: String,
-    timeout: Duration = DefaultCommandWaitTimeout,
+    timeout: FiniteDuration = DefaultCommandWaitTimeout,
   ): Unit = {
     val handler = new SettingQueryHandler(Some(sbtProjectUriAndId), settingName, comm)
     val addHandler = new SettingQueryHandler(Some(sbtProjectUriAndId), settingName, comm)
 
     val setSbtCommandText = setCommand.toSbtCommand(comm.getRunningOrDetectedSbtVersion)
-    val res = Await.result(
+    val res = SbtShellTestUtil.awaitFutureWithShellLog(
       for {
         _ <- comm.runAndCollectOutput(setSbtCommandText)
         _ <- addHandler.addToSettingValue(addValue)
         v <- handler.getSettingValue
       } yield v,
-      timeout
+      timeout,
+      s"adding '$addValue' to sbt setting '$settingName' after running `$setSbtCommandText`",
+      processListener
     ).trim
     flush()
     val log = processListener.getLog

@@ -31,7 +31,7 @@ object SbtShellTestUtil {
     override def processTerminated(event: ProcessEvent): Unit =
       termination.success(event.getExitCode)
 
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
       synchronized {
         logBuilder.append(event.getText)
       }
@@ -57,5 +57,27 @@ object SbtShellTestUtil {
     }
 
     shellProcessHandler
+  }
+
+  def awaitFutureWithShellLog[T](
+    future: Future[T],
+    timeout: FiniteDuration,
+    actionDescription: String,
+    processListener: TestSbtShellProcessListener,
+  ): T = {
+    AwaitTestUtils.waitFutureOrFail(
+      future,
+      timeout,
+      s"$actionDescription.${shellLogSuffix(processListener)}"
+    )
+  }
+
+  private def shellLogSuffix(processListener: TestSbtShellProcessListener): String = {
+    val log = Option(processListener)
+      .map(_.getLog)
+      .filter(_.nonEmpty)
+      .getOrElse("<empty sbt shell log>")
+
+    s"\nCaptured sbt shell log:\n$log"
   }
 }
