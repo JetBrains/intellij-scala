@@ -379,6 +379,39 @@ object Common {
     clean.all(scopeFilter).map(_ => ())
   }
 
+  lazy val verifyJpsSdkSubsetBytecode: TaskKey[Unit] =
+    taskKey(s"Verify the IntelliJ SDK subset (JPS) classpaths contain no Java ${JpsSdkSubsetBytecodeVerifier.MaxAllowedJavaVersion + 1}+ bytecode (SCL-25518)")
+
+  def verifyJpsSdkSubsetBytecodeTask: Def.Initialize[Task[Unit]] = Def.task {
+    val log = sLog.value
+    val intellijBaseDir = intellijBaseDirectory.value
+    val buildNumber = productInfo.value.buildNumber
+
+    // Reference the subset definitions directly so this check always reflects their current contents.
+    val subsets = Seq(IntellijSdkSubsetInfo.Jps, IntellijSdkSubsetInfo.JpsShared)
+    val maxJava = JpsSdkSubsetBytecodeVerifier.MaxAllowedJavaVersion
+    val result = JpsSdkSubsetBytecodeVerifier.verify(subsets, buildNumber, intellijBaseDir)
+
+    if (result.hasProblems) {
+      val missingSection =
+        if (result.missingJars.nonEmpty)
+          Some("Missing jars (IntellijSdkSubsetInfo paths are stale):\n" + result.missingJars
+            .map(m => s"  - [${m.subsetName}] ${m.relativePath} (expected at ${m.file})")
+            .mkString("\n"))
+        else None
+      val violationSection =
+        if (result.violations.nonEmpty)
+          Some(s"Bytecode requiring newer than Java $maxJava:\n" + result.violations
+            .map(v => s"  - ${v.jar.getName} -> ${v.entry}: class major ${v.classMajorVersion} (Java ${v.requiredJavaVersion})")
+            .mkString("\n"))
+        else None
+      val sections = Seq(missingSection, violationSection).flatten
+      sys.error((s"JPS SDK subset bytecode verification failed (SCL-25518): code in these classpaths must run on Java $maxJava or older." +: sections).mkString("\n\n"))
+    } else {
+      log.info(s"JPS SDK subset bytecode OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars, all bytecode <= Java $maxJava.")
+    }
+  }
+
   def forkOptionsWithJBR: Def.Initialize[Task[ForkOptions]] = Def.task {
     val opts = (Test / forkOptions).value
     import org.jetbrains.sbtidea.download.jbr.JbrInstaller

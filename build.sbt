@@ -58,6 +58,10 @@ Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDi
 
 ThisBuild / cleanAll := Common.cleanAllTask.value
 
+// Verifies the IntelliJ SDK subset classpaths (IntellijSdkSubsetInfo.Jps / .JpsShared) used to compile
+// modules that run outside the IDE contain only bytecode runnable on older Java versions (SCL-25518).
+ThisBuild / verifyJpsSdkSubsetBytecode := Common.verifyJpsSdkSubsetBytecodeTask.value
+
 // Disable Jupiter auto-registration of launcher and test execution listeners to suppress
 // log spam during test discovery (see SCL-25184)
 ThisBuild / JupiterKeys.jupiterLauncherSessionListenerAutoRegistrationEnabled := false
