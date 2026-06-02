@@ -194,13 +194,13 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
     val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(project)
 
     val (configSetupOpt, sdkOpt) =
-      if (setupChoices.size > 1 && existingJdk.isEmpty)  {
+      if (setupChoices.size > 1 || existingJdk.isEmpty)  {
         val dialog = new GenerateBspConfigDialog(setupChoices, project, existingJdk.isEmpty)
         if (dialog.showAndGet()) {
-          val selectedConfigSetup = dialog.selectedConfigSetup
           val selectedJdk = dialog.getSelectedJdkIfRequired()
           selectedJdk.foreach(SdkUtils.addJdkIfNotExists)
-          (Some(selectedConfigSetup), selectedJdk)
+          val sdk = existingJdk.orElse(selectedJdk)
+          (Some(dialog.selectedConfigSetup), sdk)
         } else (None, None)
       } else {
         (setupChoices.headOption, existingJdk)
