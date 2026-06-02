@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatch
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
@@ -119,7 +120,18 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     def nameWithSignature = ScReferenceAnnotator.nameWithSignature(element)
 
     // mark problematic clauses where parameters are missing
-    val missedParams = problems.collect { case MissedValueParameter(p) => p}
+    val shouldSuppressMissingParentTraitConstructorParams = (element, constrInvocation) match {
+      case (ScalaConstructor.in(parentTrait: ScTrait), invocation: ScConstructorInvocation)
+        if invocation.arguments.isEmpty =>
+        invocation.templateDefinitionContext
+          .flatMap(_.superClass)
+          .exists(ScalaPsiUtil.isInheritorDeep(_, parentTrait))
+      case _ => false
+    }
+
+    val missedParams =
+      if (shouldSuppressMissingParentTraitConstructorParams) Seq.empty
+      else problems.collect { case MissedValueParameter(p) => p}
     val missedParamsPerArgList = element match {
       case ScalaConstructor(constr) =>
         missedParams.groupBy(parameterToArgClause(_, constr, constrInvocation.arguments))
@@ -237,4 +249,3 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       Some(res.element).collect { case constr: ScMethodLike => constr }
   }
 }
-

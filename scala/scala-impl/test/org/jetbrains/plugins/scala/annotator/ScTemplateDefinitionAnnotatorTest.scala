@@ -28,23 +28,19 @@ class ScTemplateDefinitionAnnotatorTest
     )
 
   def testDontCallConstructorTwice(): Unit =
-    assertMessagesText(
+    assertNoErrors(
       """trait Foo(x: Int)
         |class F extends Foo(123)
         |case class Bar() extends F with Foo
-        |""".stripMargin,
-      //TODO: remove when SCL-23134 is fixed
-      """Error(Foo,Unspecified value parameters: x: Int)""".stripMargin
+        |""".stripMargin
     )
 
   def testDontCallConstructorTwice_1(): Unit =
-    assertMessagesText(
+    assertNoErrors(
       """trait Foo(x: Int)
         |class F extends Foo(1)
         |class Baz extends F with Foo
-        |""".stripMargin,
-      //TODO: remove when SCL-23134 is fixed
-      """Error(Foo,Unspecified value parameters: x: Int)""".stripMargin
+        |""".stripMargin
     )
 
   def testIndirectImplementation(): Unit =
