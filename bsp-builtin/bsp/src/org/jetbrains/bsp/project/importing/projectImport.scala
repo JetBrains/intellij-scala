@@ -33,6 +33,7 @@ import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig._
 import org.jetbrains.bsp.settings._
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
@@ -171,7 +172,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
-      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty && settings.serverConfig != BloopConfig
+      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty
       if (shouldGenerateBspConfig)
         generateBspConfig(workspace, setupChoices, project, settings)
 
@@ -210,13 +211,17 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       sdk <- sdkOpt
     } {
       val params = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, configSetup)
+      val hasConnectionFile = params.serverConfig.exists(_.is[BspConfigFile])
+      // If the project has no connection file, it means it will be generated
+      // In practice, #generateBspConfig is only called when there are no existing connection files,
+      // but let's keep this just in case.
+      settings.setBspConfigGenerated(!hasConnectionFile)
+
+      params.preImportConfig.foreach(settings.setPreImportConfig)
+      params.serverConfig.foreach(settings.setServerConfig)
+      params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
+
       if (params.bspConfigSetup != NoConfigSetup) {
-        settings.setBspConfigGenerated(true)
-
-        params.preImportConfig.foreach(settings.setPreImportConfig)
-        params.serverConfig.foreach(settings.setServerConfig)
-        params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
-
         val task = new BspConfigSetupTask(params.bspConfigSetup)
         task.queue()
       }
