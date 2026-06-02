@@ -49,7 +49,7 @@ import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 import java.net.{URI, URL}
 import java.nio.file.Path
 import kotlin.Unit.{INSTANCE => KUnit}
-import scala.annotation.unused
+import scala.annotation.{nowarn, unused}
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
@@ -913,7 +913,7 @@ package object project {
           throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
-    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar.toFile)
+    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar.toFile): @nowarn("cat=deprecation")
   }
 
   private def withPathsRelativeTo(baseDirectory: String, options: Seq[String], project: Project): Seq[String] = {

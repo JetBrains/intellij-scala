@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.runner.{ScalaTargetAwareCommandLineState, Sca
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import java.nio.file.Path
+import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.scalaUtilChainingOps
@@ -166,7 +167,7 @@ class ScalaConsoleRunConfiguration(
         case JlineResolveResult.NotRequired =>
           true
         case JlineResolveResult.RequiredFound(file) =>
-          classPathList.add(file.toFile)
+          classPathList.add(file.toFile): @nowarn("cat=deprecation")
           true
         case JlineResolveResult.RequiredNotFound =>
           showJLineMissingNotification(module, subsystemName)
@@ -203,7 +204,7 @@ class ScalaConsoleRunConfiguration(
       module.replClasspath match {
         case ReplClasspath.Bundled =>
         case ReplClasspath.Provided(classpath) =>
-          params.getClassPath.addAllFiles(classpath.map(_.toFile).asJava)
+          params.getClassPath.addAllFiles(classpath.map(_.toFile).asJava): @nowarn("cat=deprecation")
       }
 
       params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)

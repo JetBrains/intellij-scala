@@ -22,7 +22,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "262.6653.48"
+  val intellijVersion = "262.7132.9"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -270,7 +270,8 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect
+    scalaReflect,
+    apacheCommonsText
   )
 
   val testRunners: Seq[ModuleID] = Seq(

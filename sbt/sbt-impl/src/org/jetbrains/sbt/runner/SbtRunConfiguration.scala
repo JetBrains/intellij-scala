@@ -27,6 +27,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import java.nio.file.Path
 import java.util
+import scala.annotation.nowarn
 import scala.beans.BeanProperty
 
 /**
@@ -257,7 +258,7 @@ class SbtCommandLineState(
       params.setMainClass(determineMainClass(sbtSystemSettings.customLauncherPath))
     } else {
       val launcher = SbtUtil.defaultLauncherPath.toFile
-      params.getClassPath.add(launcher)
+      params.getClassPath.add(launcher): @nowarn("cat=deprecation")
       params.setMainClass(determineMainClass(launcher.getAbsolutePath))
     }
 
