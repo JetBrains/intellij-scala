@@ -1,35 +1,31 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.sbt.SbtTestDataUtils
-import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
-import org.junit.Assert.assertNotNull
+import org.jetbrains.sbt.SbtRuntimeTestBase
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.compiletime.uninitialized
+import scala.concurrent.duration.FiniteDuration
 
 @Category(Array(classOf[SlowTests2]))
-abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStructureImportingLike {
-
-  protected def getRelativeTestProjectPath: String
-
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
 
   protected def useNewShell: Boolean = false
 
-  override protected def getTestDataProjectPath: String =
-    SbtTestDataUtils.resolveRelativePath(getRelativeTestProjectPath)
+  override protected def getTestSbtProjectSettings =
+    super.getTestSbtProjectSettings.copy(useSbtShellForImport = true)
 
-  protected def comm: SbtShellCommunication = myComm
-  protected def shellProcessHandler: OSProcessHandler = myShellProcessHandler
+  protected def comm: SbtShellCommunication = sbtShellFixture.getSbtShellCommunication
 
-  protected var myComm: SbtShellCommunication = _
-  protected var myShellProcessHandler: OSProcessHandler = _
-  protected var processListener: SbtShellTestUtil.TestSbtShellProcessListener = _
+  protected def shellProcessHandler: OSProcessHandler = sbtShellFixture.getSbtShellProcessHandler
 
-  protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
+  protected def processListener: SbtShellTestUtil.TestSbtShellProcessListener = sbtShellFixture.getTestSbtShellProcessListener
+
+  private var sbtShellFixture: SbtShellTestFixture = uninitialized
+
+  protected val DefaultCommandWaitTimeout: FiniteDuration = SbtShellTestFixture.DefaultCommandWaitTimeout
 
   override protected def setupBeforeProjectImport(): Unit = {
     super.setupBeforeProjectImport()
@@ -37,21 +33,10 @@ abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStruc
   }
 
   override def setUp(): Unit = {
-    getCurrentExternalProjectSettings.useSbtShellForImport = true
     super.setUp()
 
-    SbtShellTestUtil.setNewSbtShellEnabled(useNewShell, getTestRootDisposable)
-
-    importProject()
-
-    val project = getMyProject
-
-    myComm = SbtShellCommunication.forProject(project)
-    assertNotNull(myComm)
-
-    myShellProcessHandler = SbtShellTestUtil.acquireShellProcessHandler(project)
-
-    processListener = new SbtShellTestUtil.TestSbtShellProcessListener
-    myShellProcessHandler.addProcessListener(processListener)
+    sbtShellFixture = new SbtShellTestFixture(getMyProject)
+    Disposer.register(getTestRootDisposable, sbtShellFixture)
+    sbtShellFixture.setUp()
   }
 }
