@@ -9,12 +9,22 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionException, ExecutionResult, Executor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.shell.SbtProcessManager
-import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 /**
+ * Handles SBT task debug sessions only when they are delegated to the SBT shell.
+ *
+ * When [[SbtRunConfiguration.useSbtShell]] is disabled, this runner intentionally does not claim the configuration in [[canRun]].
+ *
+ * In that mode the standard platform debug runner executes the [[SbtCommandLineState]] as a
+ * [[com.intellij.execution.configurations.JavaCommandLineState]],
+ * using the Java command line assembled by [[SbtCommandLineState.createJavaParameters]].
+ *
+ * The fallback in [[shouldFallbackToNonDebugRunner]] is different: the configuration is still claimed by this runner,
+ * but this runner executes it through SBT shell delegation instead of attaching the debugger.
+ *
  * @see [[org.jetbrains.sbt.runner.SbtProgramRunner]]
  */
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
@@ -105,9 +115,12 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
    * @return true - when sbt run configuration is executed as part of "Before launch" of another configuration,
    *         and sbt shell is used, and the debugging is not enabled for sbt shell
    *         false - otherwise
+   *
    * @note If sbt shell is already running without a debug agent, we can't attach it without restarting sbt shell (which we don't do).<br>
    *       If sbt shell is not yet running, and debugging is enabled in the sbt settings, we can be sure that we will be able to attach the debug agent once sbt shell is acquired<br>
    *       If sbt shell is not yet running, and debugging is disabled, we don't override the setting here; it could be a confusing behavior.
+   *
+   * @see SCL-24434
    */
   private[runner] def shouldFallbackToNonDebugRunner(environment: ExecutionEnvironment, state: RunProfileState): Boolean = {
     val isInsideBeforeLaunch = isRunConfigurationExecutedAsPartOfBeforeLaunchStep(environment)
@@ -123,6 +136,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
     }
   }
 
+  //See SCL-24434
   //noinspection UnstableApiUsage,ApiStatus
   private def isRunConfigurationExecutedAsPartOfBeforeLaunchStep(environment: ExecutionEnvironment): Boolean = {
     val config = environment.getRunnerAndConfigurationSettings
