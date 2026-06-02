@@ -20,6 +20,17 @@ object JpsSdkSubsetBytecodeVerifier {
   final val MaxAllowedJavaVersion = 11
 
   /**
+   * Jars (matched by file name) that are known to contain bytecode newer than [[MaxAllowedJavaVersion]]
+   * but are tolerated for now. They are still scanned, but their violations are reported as warnings
+   * instead of failing the check.
+   *
+   * `java-impl.jar` is entirely Java 25 bytecode in the 262 platform; tracked under SCL-25518.
+   */
+  final val KnownNonCompliantJars: Set[String] = Set(
+    "java-impl.jar"
+  )
+
+  /**
    * Class-file major version corresponding to a Java feature version.
    * Java 1 == 45, and every feature version since adds 1 (Java 8 == 52, Java 11 == 55, Java 12 == 56).
    */
@@ -41,6 +52,7 @@ object JpsSdkSubsetBytecodeVerifier {
 
   final case class Result(
     violations: Seq[Violation],
+    suppressedViolations: Seq[Violation],
     missingJars: Seq[MissingJar],
     scannedJars: Int,
     scannedClasses: Int,
@@ -75,13 +87,17 @@ object JpsSdkSubsetBytecodeVerifier {
       .sortBy(_.getPath)
 
     var scannedClasses = 0
-    val violations = existingJars.flatMap { jarFile =>
+    val allViolations = existingJars.flatMap { jarFile =>
       val (jarViolations, classCount) = scanJar(jarFile)
       scannedClasses += classCount
       jarViolations
     }
 
-    Result(violations, missingJars, existingJars.size, scannedClasses)
+    // Known non-compliant jars are still scanned, but their violations are suppressed (reported, not fatal).
+    val (suppressedViolations, violations) =
+      allViolations.partition(violation => KnownNonCompliantJars.contains(violation.jar.getName))
+
+    Result(violations, suppressedViolations, missingJars, existingJars.size, scannedClasses)
   }
 
   private def scanJar(jarFile: File): (Seq[Violation], Int) = {

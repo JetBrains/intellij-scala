@@ -392,6 +392,16 @@ object Common {
     val maxJava = JpsSdkSubsetBytecodeVerifier.MaxAllowedJavaVersion
     val result = JpsSdkSubsetBytecodeVerifier.verify(subsets, buildNumber, intellijBaseDir)
 
+    if (result.suppressedViolations.nonEmpty) {
+      val summary = result.suppressedViolations
+        .groupBy(_.jar.getName)
+        .toSeq
+        .sortBy(_._1)
+        .map { case (jarName, vs) => s"$jarName (${vs.size} classes up to Java ${vs.map(_.requiredJavaVersion).max})" }
+        .mkString(", ")
+      log.warn(s"JPS SDK subset bytecode: suppressed violations in known non-compliant jar(s) (SCL-25518): $summary")
+    }
+
     if (result.hasProblems) {
       val missingSection =
         if (result.missingJars.nonEmpty)
@@ -408,7 +418,10 @@ object Common {
       val sections = Seq(missingSection, violationSection).flatten
       sys.error((s"JPS SDK subset bytecode verification failed (SCL-25518): code in these classpaths must run on Java $maxJava or older." +: sections).mkString("\n\n"))
     } else {
-      log.info(s"JPS SDK subset bytecode OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars, all bytecode <= Java $maxJava.")
+      val suppressedSuffix =
+        if (result.suppressedViolations.nonEmpty) s"; ${result.suppressedViolations.size} suppressed violation(s) in known non-compliant jar(s)"
+        else ""
+      log.info(s"JPS SDK subset bytecode OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars, all (non-suppressed) bytecode <= Java $maxJava$suppressedSuffix.")
     }
   }
 
