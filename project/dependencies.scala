@@ -270,7 +270,8 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect
+    scalaReflect,
+    apacheCommonsText
   )
 
   val testRunners: Seq[ModuleID] = Seq(

@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
+import scala.annotation.nowarn
+
 class ScalaPluginDynamicLoadingTest extends ScalaFixtureTestCase with AssertionMatchers {
   def test_ScalaPluginIsLoadableInPrinciple(): Unit = {
     val scalaPluginDescription =
@@ -15,7 +17,7 @@ class ScalaPluginDynamicLoadingTest extends ScalaFixtureTestCase with AssertionM
         .asOptionOf[IdeaPluginDescriptorImpl]
         .getOrElse(throw new AssertionError(s"Expected descriptor to be IdeaPluginDescriptorImpl but was $scalaPluginDescription"))
 
-    val result = DynamicPlugins.allowLoadUnloadWithoutRestart(scalaPluginDescriptionImpl)
+    val result = DynamicPlugins.allowLoadUnloadWithoutRestart(scalaPluginDescriptionImpl): @nowarn("cat=deprecation")
 
     /*
      * If this fails, there was done something that doesn't fulfill the formal requirements for dynamic plugins.
