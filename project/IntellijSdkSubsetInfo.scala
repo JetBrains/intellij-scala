@@ -64,21 +64,18 @@ object IntellijSdkSubsetInfo {
       "lib/util_rt.jar",
       "lib/intellij.libraries.protobuf.jar",
       "lib/jps-model.jar",
-      "lib/forms_rt.jar",
-      "lib/idea_rt.jar",
       "lib/intellij.libraries.asm.jar",
 
       //If you need any extra plugin dependencies, add the jars here
-      "plugins/java/lib/jps-javac-extension.jar",
       "plugins/java/lib/java-impl.jar",
       "plugins/java/lib/modules/intellij.platform.jps.build.jar"
-    ),
+    )
   )
 
   val JpsShared: IntellijSdkSubsetInfo = IntellijSdkSubsetInfo(
     subsetName = "jps-shared",
     jarsRelativePaths = Seq(
       "lib/util-8.jar"
-    ),
+    )
   )
 }
