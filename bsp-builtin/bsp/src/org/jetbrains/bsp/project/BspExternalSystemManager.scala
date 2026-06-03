@@ -6,21 +6,20 @@ import com.intellij.openapi
 import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ProjectData}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
+import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, UserDataHolder}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.Function
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.*
 import org.jetbrains.bsp.project.BspExternalSystemManager.{DetectExternalProjectFiles, ScalaCliAffectedProjectFiles}
 import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.*
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.project.ExternalSystemAutoImportAwareCompat
 
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path}
@@ -30,7 +29,7 @@ import scala.util.{Try, Using}
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware
-  with ExternalSystemAutoImportAware
+  with ExternalSystemAutoImportAwareCompat
 {
 
   override def getSystemId: ProjectSystemId = BSP.ProjectSystemId
@@ -88,13 +87,6 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
       Collections.emptyList()
     }
   }
-
-  @deprecated(message = "Deprecated in the platform. Use getAffectedExternalProjectFilePaths. This method will be removed.", since = "2026.2")
-  @Deprecated(since = "2026.2", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.3")
-  //noinspection SSBasedInspection
-  override def getAffectedExternalProjectFiles(projectPath: String, project: Project): java.util.List[java.io.File] =
-    ContainerUtil.map(getAffectedExternalProjectFilePaths(projectPath, project), (p: Path) => p.toFile)
 
   private def getScalaCliAffectedFiles(project: Project, projectPath: String): List[Path] = {
     val projectNode = ExternalSystemApiUtil.findProjectNode(project, BSP.ProjectSystemId, projectPath)

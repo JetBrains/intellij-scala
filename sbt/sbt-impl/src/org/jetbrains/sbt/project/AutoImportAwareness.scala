@@ -1,16 +1,13 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware
 import com.intellij.openapi.project.Project
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.{ApiStatus, NonNls}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.*
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.*
 
-trait AutoImportAwareness extends ExternalSystemAutoImportAware {
+trait AutoImportAwareness extends ExternalSystemAutoImportAwareCompat {
   override final def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project): String =
     if (isProjectDefinitionFile(project, changedFileOrDirPath)) project.getBasePath
     else null
@@ -26,16 +23,6 @@ trait AutoImportAwareness extends ExternalSystemAutoImportAware {
 
     files.asJava
   }
-
-  /**
-   * @note This method only works in the local filesystem. This method is not safe with eel paths, e.g., WSL.
-   */
-  @deprecated(message = "Deprecated in the platform. Use getAffectedExternalProjectFilePaths. This method will be removed.", since = "2026.2")
-  @Deprecated(since = "2026.2", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.3")
-  //noinspection SSBasedInspection
-  override def getAffectedExternalProjectFiles(@NonNls projectPath: String, project: Project): java.util.List[java.io.File] =
-    ContainerUtil.map(getAffectedExternalProjectFilePaths(projectPath, project), (p: Path) => p.toFile)
 
   private def isProjectDefinitionFile(project: Project, changedFileOrDirPath: String): Boolean = {
     val baseDir = Path.of(project.getBasePath)
