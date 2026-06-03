@@ -100,7 +100,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt2LatestProjectConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """scalaVersion := "3.8.3"
+          """scalaVersion := "3.8.2"
             |
             |lazy val root = rootProject
             |  .settings(
@@ -125,7 +125,7 @@ class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase 
       config = sbt2LatestProjectWithPackagePrefixConfig,
       expectedFiles = GeneratedProjectFilesExpectation(
         buildSbt =
-          """scalaVersion := "3.8.3"
+          """scalaVersion := "3.8.2"
             |
             |lazy val root = rootProject
             |  .settings(
@@ -179,13 +179,13 @@ object NewSbtProjectWizardGeneratedFilesTest {
 
     val sbt2LatestProjectConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template",
-      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "3"),
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "2"),
       sbtVersion = SbtVersion.Latest.Sbt_2,
     )
 
     val sbt2LatestProjectWithPackagePrefixConfig: SbtWizardProjectConfig = SbtWizardProjectConfig(
       projectName = "sbt2_project_template_with_prefix",
-      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "3"),
+      scalaVersion = ScalaVersion(ScalaLanguageLevel.Scala_3_8, "2"),
       sbtVersion = SbtVersion.Latest.Sbt_2,
       packagePrefix = Some("org.example.prefix"),
     )
