@@ -35,10 +35,10 @@ class SbtExternalSystemManager
   override def enhanceRemoteProcessing(parameters: SimpleJavaParameters): Unit = {
     val classpath = parameters.getClassPath
 
-    classpath.add(jarWith[this.type].toFile): @nowarn("cat=deprecation")
-//    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toFile)
-    classpath.add(jarWith[scala.App].toFile): @nowarn("cat=deprecation")
-    classpath.add(jarWith[scala.xml.Node].toFile): @nowarn("cat=deprecation")
+    classpath.add(jarWith[this.type])
+//    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]])
+    classpath.add(jarWith[scala.App])
+    classpath.add(jarWith[scala.xml.Node])
 
     parameters.getVMParametersList.addProperty(
       ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY, SbtProjectSystem.Id.getId)
