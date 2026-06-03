@@ -1,12 +1,11 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.{ExternalSystemActivityKey, ExternalSystemUtil}
 import com.intellij.openapi.project.Project
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.project.CoroutineScopeService.ProjectExt
 import org.jetbrains.sbt.project.autolink.SbtUnlinkedProjectAware
 
 private object SbtExternalSystemUtil {
@@ -46,22 +45,11 @@ private object SbtExternalSystemUtil {
     // identical.
     //noinspection IncorrectParentDisposable
     val extensionDisposable = createExtensionDisposable(ExternalSystemUnlinkedProjectAwareProxy.companion().getEP_NAME, extension, project)
-    val scope = coroutineScope(project)
+    val scope = project.coroutineScope
     launch(scope, extensionDisposable, EmptyCoroutineContext.INSTANCE, CoroutineStart.DEFAULT, (_, cont1) => {
       trackActivity[kotlin.Unit](project, ExternalSystemActivityKey.INSTANCE, cont2 => {
         extension.linkAndLoadProjectAsync(project, externalProjectPath, cont2)
       }, cont1)
     })
   }
-
-  /**
-   * A service created for the only purpose of getting a coroutine scope from the platform.
-   *
-   * @note Any service can get a coroutine scope injected in its constructor.
-   */
-  @Service(Array(Service.Level.PROJECT))
-  private final class CoroutineScopeService(val coroutineScope: CoroutineScope)
-
-  private def coroutineScope(project: Project): CoroutineScope =
-    project.getService(classOf[CoroutineScopeService]).coroutineScope
 }
