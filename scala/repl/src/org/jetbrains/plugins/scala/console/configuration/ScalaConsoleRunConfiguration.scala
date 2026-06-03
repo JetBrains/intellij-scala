@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.runner.{ScalaTargetAwareCommandLineState, Sca
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import java.nio.file.Path
-import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.scalaUtilChainingOps
@@ -167,7 +166,7 @@ class ScalaConsoleRunConfiguration(
         case JlineResolveResult.NotRequired =>
           true
         case JlineResolveResult.RequiredFound(file) =>
-          classPathList.add(file.toFile): @nowarn("cat=deprecation")
+          classPathList.add(file)
           true
         case JlineResolveResult.RequiredNotFound =>
           showJLineMissingNotification(module, subsystemName)
@@ -187,8 +186,10 @@ class ScalaConsoleRunConfiguration(
       "-Xnojline"
   }
 
-  private def addScalaCompilerClassPath(classPath: PathsList, module: Module): Unit =
-    module.scalaCompilerClasspath.foreach(jar => classPath.add(jar.toCanonicalPath.toString))
+  private def addScalaCompilerClassPath(classPath: PathsList, module: Module): Unit = {
+    val compilerClasspath = module.scalaCompilerClasspath.map(_.toCanonicalPath.toString)
+    classPath.addAll(compilerClasspath.asJava)
+  }
 
   private def createParams: JavaParameters = {
     val module = requireModule
@@ -204,7 +205,7 @@ class ScalaConsoleRunConfiguration(
       module.replClasspath match {
         case ReplClasspath.Bundled =>
         case ReplClasspath.Provided(classpath) =>
-          params.getClassPath.addAllFiles(classpath.map(_.toFile).asJava): @nowarn("cat=deprecation")
+          params.getClassPath.addAllPaths(classpath.asJava)
       }
 
       params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)

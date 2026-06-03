@@ -16,9 +16,9 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.EelProviderUtil
-import com.intellij.platform.workspace.jps.entities.{DependencyScope, LibraryEntity, _}
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.workspace.jps.entities.{DependencyScope, _}
 import com.intellij.platform.workspace.storage.{EntitySource, MutableEntityStorage}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
@@ -49,7 +49,7 @@ import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 import java.net.{URI, URL}
 import java.nio.file.Path
 import kotlin.Unit.{INSTANCE => KUnit}
-import scala.annotation.{nowarn, unused}
+import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
@@ -906,14 +906,14 @@ package object project {
     @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
     def addScalaCompilerClassPath(module: Module): Unit =
       try {
-        val files = module.scalaCompilerClasspath.map(_.toFile).asJava
-        list.addAllFiles(files)
+        val files = module.scalaCompilerClasspath.asJava
+        list.addAllPaths(files)
       } catch {
         case e: IllegalArgumentException => //noinspection ReferencePassedToNls
           throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
-    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar.toFile): @nowarn("cat=deprecation")
+    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar)
   }
 
   private def withPathsRelativeTo(baseDirectory: String, options: Seq[String], project: Project): Seq[String] = {
