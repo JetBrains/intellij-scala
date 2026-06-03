@@ -5,7 +5,7 @@ Document tests/pos/mt-deskolemize.scala
 (6:34..6:35) _empty_/Expr.ExtractValue#[F] -> 6:21
 (7:10..7:14) _empty_/Expr. -> 4:8
 (7:15..7:17) _empty_/Expr.Of# -> 5:8
-(7:24..7:25) local1 -> 7:18
+(7:24..7:25) local0 -> 7:18
 (8:8..8:12) _empty_/Expr. -> 4:8
 (10:20..10:24) _empty_/Expr# -> 1:7
 (11:16..11:21) _empty_/Prim#Alias# -> 12:8
@@ -98,6 +98,6 @@ Document tests/pos/mt-deskolemize.scala
 (53:37..53:43) scala/package.Vector.
 (55:10..55:14) _empty_/Expr# -> 1:7
 (55:30..55:33) scala/Int#
-(55:48..55:53) local10 -> 55:22
+(55:48..55:53) local9 -> 55:22
 (55:58..55:69) _empty_/Test.fromLiteral(). -> 43:7
 

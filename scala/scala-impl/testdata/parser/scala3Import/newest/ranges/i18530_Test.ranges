@@ -1,0 +1,15 @@
+[0,54]: PackageDef
+[0,0]: Ident
+[0,54]: ModuleDef
+[16,52]: Template
+[16,16]: DefDef
+[16,16]: TypeTree
+[16,52]: ValDef
+[21,21]: TypeTree
+[24,52]: Apply
+[28,50]: Select
+[28,50]: New
+[28,50]: Select
+[28,41]: Select
+[28,36]: Select
+[28,31]: Ident

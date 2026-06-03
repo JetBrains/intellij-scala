@@ -57,12 +57,12 @@ Document tests/pos/i19479.scala
 (35:12..35:14) scala/`*:`#
 (35:22..35:24) scala/`*:`#
 (35:32..35:33) _empty_/i19479$package.ZipWith#[F] -> 34:48
-(35:34..35:36) local4 -> 35:9
-(35:38..35:40) local6 -> 35:19
+(35:34..35:36) local3 -> 35:9
+(35:38..35:40) local5 -> 35:19
 (35:42..35:44) scala/`*:`#
 (35:45..35:52) _empty_/i19479$package.ZipWith# -> 34:14
-(35:53..35:55) local5 -> 35:15
-(35:57..35:59) local7 -> 35:25
+(35:53..35:55) local4 -> 35:15
+(35:57..35:59) local6 -> 35:25
 (35:61..35:62) _empty_/i19479$package.ZipWith#[F] -> 34:48
 (36:9..36:19) scala/Tuple$package.EmptyTuple#
 (36:32..36:42) scala/Tuple$package.EmptyTuple#

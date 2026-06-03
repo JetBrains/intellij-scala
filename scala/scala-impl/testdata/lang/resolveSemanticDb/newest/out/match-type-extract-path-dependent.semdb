@@ -8,7 +8,7 @@ Document tests/pos/match-type-extract-path-dependent.scala
 (13:21..13:25) _empty_/Base# -> 3:7
 (13:29..13:30) _empty_/Extractor.Extract#[B] -> 13:16
 (14:10..14:16) _empty_/Extractor.Helper# -> 11:8
-(14:23..14:24) local1 -> 14:17
+(14:23..14:24) local0 -> 14:17
 (15:5..15:14) _empty_/Extractor. -> 10:8
 (18:10..18:19) _empty_/Extractor. -> 10:8
 (25:14..25:18) _empty_/Base# -> 3:7

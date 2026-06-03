@@ -10,7 +10,7 @@ Document tests/pos/i22944.scala
 (28:5..28:10) _empty_/Servo# -> 20:7
 (28:11..28:14) _empty_/Servo.Aux#[Alg] -> 27:12
 (29:27..29:29) _empty_/Servo.Aux#[Op] -> 27:23
-(29:30..29:31) local1 -> 29:22
+(29:30..29:31) _empty_/Servo.Aux#Operation#[I] -> 29:22
 (37:26..37:31) _empty_/Servo. -> 25:8
 (37:32..37:35) _empty_/Servo.Aux# -> 27:8
 (37:36..37:39) _empty_/BSPBuilder2#[Alg] -> 36:30

@@ -5,9 +5,9 @@ object Module {
     case 1 => Any *: Fill[0]
   }
   extension[N <: Int] (f: Fun[N])
-    def apply: Fill[N] => Any = ???
+    def apply(): Fill[N] => Any = ???
 
-  Fun[1]()(???)
+  Fun[1]()()(???)
 }
 -----
 ScalaFile
@@ -181,7 +181,9 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(identifier)('apply')
               Parameters
-                <empty list>
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               FunctionalType: Fill[N] => Any
@@ -209,15 +211,19 @@ ScalaFile
         PsiWhiteSpace('\n\n  ')
         MethodCall
           MethodCall
-            GenericCall
-              ReferenceExpression: Fun
-                PsiElement(identifier)('Fun')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(])(']')
+            MethodCall
+              GenericCall
+                ReferenceExpression: Fun
+                  PsiElement(identifier)('Fun')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
             ArgumentList
               PsiElement(()('(')
               PsiElement())(')')

@@ -1,7 +1,7 @@
 Document tests/pos/depfun.scala
 (8:22..8:23) _empty_/Test.F#[S] -> 8:10
 (8:28..8:34) scala/Option#
-(8:35..8:36) local0 -> 8:19
+(8:35..8:36) _empty_/Test.F#apply().(x) -> 8:19
 (8:42..8:43) scala/`&`#
 (8:44..8:45) _empty_/Test.F#[T] -> 8:13
 (11:20..11:21) _empty_/Test.F# -> 8:8

@@ -3,7 +3,7 @@ Document tests/pos/match-type-enumeration-value-hack.scala
 (3:21..3:32) scala/Enumeration#
 (3:36..3:37) _empty_/`match-type-enumeration-value-hack$package`.EnumValue#[E] -> 3:16
 (4:8..4:20) _empty_/`match-type-enumeration-value-hack$package`.EnumValueAux# -> 1:6
-(4:27..4:28) local2 -> 4:21
+(4:27..4:28) local0 -> 4:21
 (6:21..6:32) scala/Enumeration#
 (7:41..7:44) scala/Enumeration#Val#
 (10:3..10:9) scala/Predef.summon().

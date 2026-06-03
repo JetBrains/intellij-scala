@@ -5,7 +5,7 @@ Document tests/pos/i20136a.scala
 (6:34..6:35) _empty_/Expr.ExtractValue#[E] -> 6:21
 (7:10..7:14) _empty_/Expr. -> 4:8
 (7:15..7:17) _empty_/Expr.Of# -> 5:8
-(7:24..7:25) local1 -> 7:18
+(7:24..7:25) local0 -> 7:18
 (9:15..9:19) _empty_/Expr# -> 2:7
 (10:15..10:19) _empty_/Expr. -> 4:8
 (10:20..10:32) _empty_/Expr.ExtractValue# -> 6:8

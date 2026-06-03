@@ -16,7 +16,7 @@ Document tests/pos/mirror-implicit-scope.scala
 (12:26..12:32) scala/deriving/Mirror#
 (12:48..12:50) _empty_/Test.K1. -> 11:10
 (12:86..12:87) _empty_/Test.K1.Generic#[F] -> 12:18
-(12:88..12:89) local4 -> 12:79
+(12:88..12:89) _empty_/Test.K1.Generic#MirroredType#[X] -> 12:79
 (13:24..13:31) scala/Product#
 (13:41..13:48) _empty_/Test.K1.Generic# -> 12:10
 (13:49..13:50) _empty_/Test.K1.toRepr().[F] -> 13:16
