@@ -9,7 +9,7 @@ Document tests/pos/match-type-extract-matchalias.scala
 (7:26..7:30) _empty_/Base# -> 1:7
 (7:34..7:35) _empty_/Base.ExtractValue#[B] -> 7:21
 (8:10..8:16) _empty_/Base.BaseOf# -> 6:8
-(8:23..8:24) local1 -> 8:17
+(8:23..8:24) local0 -> 8:17
 (11:13..11:17) _empty_/Base. -> 5:8
 (11:18..11:30) _empty_/Base.ExtractValue# -> 7:8
 (11:31..11:34) _empty_/Sub# -> 3:7

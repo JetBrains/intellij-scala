@@ -3,7 +3,7 @@ Document tests/pos/i17395-spec.ordered.scala
 (2:51..2:52) _empty_/`i17395-spec.ordered$package`.PartField#[A] -> 2:18
 (3:23..3:24) _empty_/`i17395-spec.ordered$package`.ExtractPart#[B] -> 3:18
 (3:38..3:47) _empty_/`i17395-spec.ordered$package`.PartField# -> 2:8
-(3:54..3:55) local6 -> 3:48
+(3:54..3:55) local5 -> 3:48
 (7:39..7:41) _empty_/TC# -> 5:7
 (7:42..7:53) _empty_/`i17395-spec.ordered$package`.ExtractPart# -> 3:6
 (7:54..7:55) _empty_/TC.tcForOptionPart().[D] -> 7:23

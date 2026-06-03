@@ -1,0 +1,21 @@
+Document tests/pos/i25500.scala
+(5:9..5:10) _empty_/A# -> 1:7
+(6:14..6:20) scala/Option#
+(6:21..6:24) scala/Int#
+(8:25..8:26) _empty_/A.apply().[E] -> 8:13
+(8:27..8:28) _empty_/A.apply().[F] -> 8:19
+(8:40..8:41) _empty_/A# -> 1:7
+(8:42..8:43) _empty_/A.apply().[E] -> 8:13
+(8:47..8:48) _empty_/A.apply().(a) -> 8:37
+(8:49..8:50) _empty_/A#C# -> 2:8
+(8:53..8:56) scala/Predef.`???`().
+(10:28..10:29) _empty_/A# -> 1:7
+(10:30..10:31) _empty_/i25500$package.apply().[D] -> 10:11
+(10:38..10:39) local0 -> 10:25
+(10:40..10:41) _empty_/A#C# -> 2:8
+(10:44..10:47) scala/Any#
+(10:50..10:53) scala/Predef.`???`().
+(13:3..13:8) _empty_/i25500$package.apply(). -> 10:5
+(13:9..13:10) _empty_/A. -> 4:8
+(13:11..13:17) scala/Option.
+

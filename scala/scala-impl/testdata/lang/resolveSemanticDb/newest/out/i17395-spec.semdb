@@ -25,5 +25,5 @@ Document tests/pos/i17395-spec.scala
 (27:15..27:30) _empty_/TC.optionTCForPart(). -> 4:7
 (27:31..27:46) _empty_/ValuePartHolder# -> 16:7
 (28:3..28:10) scala/Predef.println(+1).
-(28:11..28:13) local6 -> 27:7
+(28:11..28:13) local5 -> 27:7
 

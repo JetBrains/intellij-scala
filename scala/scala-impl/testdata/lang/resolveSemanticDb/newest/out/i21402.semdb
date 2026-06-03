@@ -7,14 +7,14 @@ Document tests/pos/i21402.scala
 (8:29..8:30) _empty_/i21402$package.Service#[K] -> 8:14
 (9:8..9:11) _empty_/i21402$package.Aux# -> 7:6
 (9:18..9:26) _empty_/ActorRef# -> 13:7
-(9:27..9:28) local8 -> 9:12
+(9:27..9:28) local7 -> 9:12
 (10:22..10:25) _empty_/i21402$package.Aux# -> 7:6
 (10:32..10:33) _empty_/i21402$package.Subscriber#[K] -> 10:17
 (11:8..11:11) _empty_/i21402$package.Aux# -> 7:6
 (11:18..11:26) _empty_/ActorRef# -> 13:7
 (11:27..11:47) _empty_/ReceptionistMessages. -> 15:8
 (11:48..11:55) _empty_/ReceptionistMessages.Listing# -> 16:20
-(11:56..11:57) local10 -> 11:12
+(11:56..11:57) local9 -> 11:12
 (16:36..16:46) _empty_/ServiceKey# -> 4:16
 (16:47..16:48) _empty_/ReceptionistMessages.Listing#[T] -> 16:28
 (18:26..18:32) scala/AnyRef#

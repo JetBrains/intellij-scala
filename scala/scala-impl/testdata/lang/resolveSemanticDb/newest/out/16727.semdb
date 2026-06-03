@@ -1,0 +1,6 @@
+Document tests/pos/16727/A_1.scala
+(2:17..2:20) scala/Int#
+(3:31..3:32) _empty_/A#getOrElse().[V] -> 3:19
+(3:35..3:36) _empty_/A#getOrElse().[V] -> 3:19
+(3:39..3:42) scala/Predef.`???`().
+

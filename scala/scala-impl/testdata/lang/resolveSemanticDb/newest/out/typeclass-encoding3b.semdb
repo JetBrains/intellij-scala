@@ -52,7 +52,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (98:38..98:42) _empty_/runtime.TypeClass#This# -> 46:10
 (98:45..98:50) _empty_/semiGroups.IntOps.inject().($this) -> 96:16
 (98:51..98:52) scala/Int#`+`(+4).
-(98:53..98:57) local8 -> 98:15
+(98:53..98:57) local5 -> 98:15
 (102:37..102:49) _empty_/semiGroups.MonoidCommon# -> 84:9
 (103:17..103:23) scala/Predef.String#
 (104:21..104:27) _empty_/semiGroups.Monoid# -> 80:9
@@ -62,7 +62,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (108:38..108:42) _empty_/runtime.TypeClass#This# -> 46:10
 (108:45..108:50) _empty_/semiGroups.StringOps.inject().($this) -> 106:16
 (108:51..108:57) java/lang/String#concat().
-(108:58..108:62) local14 -> 108:15
+(108:58..108:62) local11 -> 108:15
 (112:20..112:26) _empty_/semiGroups.Monoid# -> 80:9
 (114:15..114:18) _empty_/semiGroups.Nat# -> 112:8
 (116:19..116:22) _empty_/semiGroups.Nat# -> 112:8
@@ -71,7 +71,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (117:17..117:21) _empty_/semiGroups.Nat#add().(that) -> 116:13
 (118:12..118:13) _empty_/semiGroups.Nat.S.
 (118:20..118:21) _empty_/semiGroups.Nat.S.
-(118:22..118:23) local19 -> 118:14
+(118:22..118:23) local16 -> 118:14
 (118:24..118:27) _empty_/semiGroups.Nat#add(). -> 116:9
 (118:28..118:32) _empty_/semiGroups.Nat#add().(that) -> 116:13
 (121:18..121:21) _empty_/semiGroups.Nat. -> 123:10
@@ -100,9 +100,9 @@ Document tests/pos/typeclass-encoding3b.scala
 (134:24..134:28) _empty_/runtime.TypeClassCompanion#impl(). -> 57:9
 (134:29..134:30) _empty_/semiGroups.sum().[T] -> 133:11
 (134:32..134:36) _empty_/semiGroups.MonoidCommon#unit(). -> 86:9
-(134:48..134:49) local21 -> 134:39
+(134:48..134:49) local18 -> 134:39
 (134:50..134:55) _empty_/semiGroups.SemiGroup#add(). -> 71:9
-(134:56..134:57) local22 -> 134:42
+(134:56..134:57) local19 -> 134:42
 (136:3..136:6) _empty_/semiGroups.sum(). -> 133:7
 (136:7..136:11) scala/package.List.
 (137:3..137:6) _empty_/semiGroups.sum(). -> 133:7
@@ -142,13 +142,13 @@ Document tests/pos/typeclass-encoding3b.scala
 (198:28..198:36) scala/Int.MinValue.
 (199:23..199:26) scala/Int#
 (199:34..199:37) _empty_/ord.Ord# -> 180:9
-(201:14..201:21) local24 -> 200:11
+(201:14..201:21) local20 -> 200:11
 (202:32..202:36) _empty_/runtime.TypeClass#This# -> 46:10
 (202:39..202:42) scala/Int#
 (203:18..203:19) _empty_/ord.Ord#`<`(). -> 184:9
-(203:20..203:24) local25 -> 202:21
+(203:20..203:24) local21 -> 202:21
 (203:43..203:44) _empty_/ord.Ord#`>`(). -> 185:9
-(203:45..203:49) local25 -> 202:21
+(203:45..203:49) local21 -> 202:21
 (207:33..207:36) _empty_/ord.Ord. -> 191:10
 (207:37..207:41) _empty_/ord.Ord.Impl# -> 192:10
 (207:42..207:43) _empty_/ord.ListOrd#[T] -> 207:17
@@ -164,27 +164,27 @@ Document tests/pos/typeclass-encoding3b.scala
 (211:38..211:41) _empty_/ord.Ord# -> 180:9
 (212:20..212:24) _empty_/ord.ListOrd# -> 207:9
 (212:32..212:36) _empty_/ord.ListOrd# -> 207:9
-(213:14..213:21) local31 -> 212:11
+(213:14..213:21) local27 -> 212:11
 (214:27..214:31) scala/package.List#
 (214:32..214:33) _empty_/ord.ListOrd#[T] -> 207:17
 (214:37..214:40) scala/Int#
 (214:44..214:49) _empty_/ord.ListOrd#inject().($this) -> 211:16
-(214:51..214:55) local32 -> 214:21
+(214:51..214:55) local28 -> 214:21
 (215:15..215:18) scala/package.Nil.
 (215:20..215:23) scala/package.Nil.
 (216:15..216:18) scala/package.Nil.
 (217:18..217:21) scala/package.Nil.
 (218:17..218:19) scala/package.`::`.
 (218:26..218:28) scala/package.`::`.
-(219:21..219:22) local33 -> 218:15
+(219:21..219:22) local29 -> 218:15
 (219:23..219:32) _empty_/ord.Ord#compareTo(). -> 183:9
-(219:33..219:34) local35 -> 218:24
-(220:15..220:18) local37 -> 219:15
+(219:33..219:34) local31 -> 218:24
+(220:15..220:18) local33 -> 219:15
 (220:19..220:21) scala/Int#`!=`(+3).
-(220:25..220:28) local37 -> 219:15
-(220:34..220:36) local34 -> 218:20
+(220:25..220:28) local33 -> 219:15
+(220:34..220:36) local30 -> 218:20
 (220:37..220:46) _empty_/ord.Ord#compareTo(). -> 183:9
-(220:47..220:49) local36 -> 218:29
+(220:47..220:49) local32 -> 218:29
 (225:40..225:43) _empty_/ord.Ord. -> 191:10
 (225:44..225:48) _empty_/ord.Ord.Impl# -> 192:10
 (225:49..225:50) _empty_/ord.listOrd().[T] -> 225:24
@@ -215,7 +215,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (232:32..232:39) _empty_/ord.OrdCommon#minimum(). -> 189:9
 (233:5..233:7) _empty_/ord.inf().(xs) -> 231:14
 (233:8..233:16) scala/collection/LinearSeqOps#foldLeft().
-(233:17..233:25) local42 -> 232:9
+(233:17..233:25) local38 -> 232:9
 (233:27..233:30) _empty_/ord.min(). -> 228:7
 (236:3..236:6) _empty_/ord.inf(). -> 231:7
 (236:7..236:11) scala/package.List.
@@ -245,7 +245,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (283:59..283:63) _empty_/runtime1.TypeClassCommon1# -> 280:9
 (287:24..287:40) _empty_/runtime1.TypeClassCommon1# -> 280:9
 (287:63..287:64) _empty_/runtime1.TypeClassCompanion1#Impl#[T] -> 287:15
-(287:65..287:66) local47 -> 287:56
+(287:65..287:66) _empty_/runtime1.TypeClassCompanion1#Impl#This#[X] -> 287:56
 (288:33..288:37) _empty_/runtime1.TypeClassCompanion1#Impl# -> 287:10
 (288:38..288:39) _empty_/runtime1.TypeClassCompanion1#impl().[T] -> 288:14
 (288:43..288:47) _empty_/runtime1.TypeClassCompanion1#Impl# -> 287:10
@@ -255,12 +255,12 @@ Document tests/pos/typeclass-encoding3b.scala
 (291:44..291:45) _empty_/runtime1.inject1().[A] -> 291:24
 (292:21..292:37) _empty_/runtime1.TypeClassCommon1# -> 280:9
 (293:29..293:33) _empty_/runtime1.inject1().[From] -> 291:27
-(293:34..293:35) local49 -> 293:22
+(293:34..293:35) local43 -> 293:22
 (294:11..294:13) _empty_/runtime1.inject1().(ev) -> 292:17
 (294:14..294:22) _empty_/runtime1.TypeClassCommon1#Instance# -> 282:10
 (294:23..294:24) _empty_/runtime1.inject1().[A] -> 291:24
 (294:48..294:52) _empty_/runtime1.inject1().[From] -> 291:27
-(294:53..294:54) local51 -> 294:41
+(294:53..294:54) local45 -> 294:41
 (295:5..295:7) _empty_/runtime1.inject1().(ev) -> 292:17
 (295:8..295:14) _empty_/runtime1.TypeClassCommon1#inject(). -> 283:9
 (295:15..295:16) _empty_/runtime1.inject1().(x) -> 291:36
@@ -281,7 +281,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (310:26..310:45) _empty_/runtime1.TypeClassCompanion1# -> 286:9
 (311:23..311:36) _empty_/functors.FunctorCommon# -> 306:9
 (311:59..311:60) _empty_/functors.Functor.Impl#[T] -> 311:15
-(311:61..311:62) local53 -> 311:52
+(311:61..311:62) _empty_/functors.Functor.Impl#This#[X] -> 311:52
 (314:26..314:33) _empty_/functors.Functor# -> 301:9
 (314:34..314:35) _empty_/functors.Monad#[A] -> 314:15
 (315:18..315:29) _empty_/functors.MonadCommon# -> 320:9
@@ -304,7 +304,7 @@ Document tests/pos/typeclass-encoding3b.scala
 (323:24..323:43) _empty_/runtime1.TypeClassCompanion1# -> 286:9
 (324:23..324:34) _empty_/functors.MonadCommon# -> 320:9
 (324:57..324:58) _empty_/functors.Monad.Impl#[T] -> 324:15
-(324:59..324:60) local56 -> 324:50
+(324:59..324:60) _empty_/functors.Monad.Impl#This#[X] -> 324:50
 (327:27..327:30) scala/Int#
 (327:35..327:36) _empty_/functors.develop().[A] -> 327:15
 (327:41..327:42) _empty_/functors.develop().[A] -> 327:15
@@ -342,15 +342,15 @@ Document tests/pos/typeclass-encoding3b.scala
 (335:41..335:46) _empty_/functors.Monad# -> 314:9
 (335:47..335:48) _empty_/functors.ListMonad.inject().[A] -> 335:16
 (336:42..336:51) _empty_/functors.ListMonad. -> 331:19
-(337:14..337:21) local58 -> 336:11
+(337:14..337:21) local48 -> 336:11
 (338:25..338:26) _empty_/functors.ListMonad.inject().[A] -> 335:16
 (338:30..338:34) scala/package.List#
-(338:35..338:36) local59 -> 338:19
+(338:35..338:36) local49 -> 338:19
 (338:40..338:44) scala/package.List#
-(338:45..338:46) local59 -> 338:19
+(338:45..338:46) local49 -> 338:19
 (338:50..338:55) _empty_/functors.ListMonad.inject().($this) -> 335:19
 (338:56..338:63) scala/collection/immutable/List#flatMap().
-(338:64..338:65) local60 -> 338:22
+(338:64..338:65) local50 -> 338:22
 (343:35..343:36) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
 (343:37..343:38) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
 (343:39..343:40) _empty_/functors.MonadFlatten.flattened().[A] -> 343:25

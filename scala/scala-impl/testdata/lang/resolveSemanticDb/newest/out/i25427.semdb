@@ -1,0 +1,16 @@
+Document tests/pos/i25427.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:38) scala/compiletime/package$package.summonInline().
+(6:19..6:25) scala/Predef.String#
+(8:16..8:26) _empty_/MyEvidence# -> 3:7
+(8:27..8:28) _empty_/Scope.T# -> 6:15
+(10:35..10:45) _empty_/MyEvidence# -> 3:7
+(10:46..10:51) _empty_/Scope. -> 5:8
+(10:52..10:53) _empty_/Scope.T# -> 6:15
+(10:57..10:69) scala/compiletime/package$package.summonInline().
+(10:70..10:80) _empty_/MyEvidence# -> 3:7
+(10:81..10:86) _empty_/Scope. -> 5:8
+(10:87..10:88) _empty_/Scope.T# -> 6:15
+(14:3..14:24) _empty_/i25427$package.summonInlineNoOpProxy(). -> 10:12
+

@@ -1,0 +1,26 @@
+Document tests/pos/tuple-unchecked-deconstruct-complex.scala
+(2:17..2:18) _empty_/A# -> 1:7
+(3:17..3:18) _empty_/A# -> 1:7
+(6:15..6:19) scala/package.List#
+(6:20..6:21) _empty_/A# -> 1:7
+(6:24..6:28) scala/package.List#
+(6:29..6:30) _empty_/A# -> 1:7
+(6:35..6:38) scala/Predef.`???`().
+(7:15..7:19) scala/package.List#
+(7:20..7:21) _empty_/B# -> 2:7
+(7:28..7:32) scala/package.List#
+(7:33..7:34) _empty_/C# -> 3:7
+(7:38..7:42) scala/Unit#
+(10:20..10:23) _empty_/Test.foo(). -> 6:7
+(11:13..11:17) scala/package.List#
+(11:18..11:19) _empty_/B# -> 2:7
+(11:21..11:30) scala/unchecked#
+(11:37..11:41) scala/package.List#
+(11:42..11:43) _empty_/C# -> 3:7
+(11:45..11:54) scala/unchecked#
+(11:64..11:66) local0 -> 10:10
+(11:69..11:71) local1 -> 10:14
+(12:5..12:8) _empty_/Test.bar(). -> 7:7
+(12:9..12:10) local2 -> 11:10
+(12:12..12:13) local3 -> 11:34
+

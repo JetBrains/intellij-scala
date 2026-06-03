@@ -1,0 +1,451 @@
+sealed trait Updater
+final class Initializer extends Updater
+final class Mutator extends Updater
+
+final class IArray[+A]
+val Empty = new IArray[Nothing]
+
+def partitionCollect2[A, A1, A2](
+    as: IArray[A],
+    t1: PartialFunction[A, A1],
+    t2: PartialFunction[A, A2],
+): (IArray[A1], IArray[A2], IArray[A]) =
+  ???
+
+def test(updaters: IArray[Updater]) =
+  val (mutators: IArray[Mutator], initializers: IArray[Initializer], Empty) =
+    partitionCollect2(
+      updaters,
+      { case x: Mutator     => x },
+      { case x: Initializer => x },
+    )
+-----
+ScalaFile
+  ScTrait: Updater
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Updater')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Initializer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Initializer')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Updater
+            CodeReferenceElement: Updater
+              PsiElement(identifier)('Updater')
+  PsiWhiteSpace('\n')
+  ScClass: Mutator
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mutator')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Updater
+            CodeReferenceElement: Updater
+              PsiElement(identifier)('Updater')
+  PsiWhiteSpace('\n\n')
+  ScClass: IArray
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IArray')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: Empty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: Empty
+        PsiElement(identifier)('Empty')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: IArray[Nothing]
+              SimpleType: IArray
+                CodeReferenceElement: IArray
+                  PsiElement(identifier)('IArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: partitionCollect2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('partitionCollect2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A1
+        PsiElement(identifier)('A1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A2
+        PsiElement(identifier)('A2')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        Parameter: as
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('as')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: IArray[A]
+              SimpleType: IArray
+                CodeReferenceElement: IArray
+                  PsiElement(identifier)('IArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: PartialFunction[A, A1]
+              SimpleType: PartialFunction
+                CodeReferenceElement: PartialFunction
+                  PsiElement(identifier)('PartialFunction')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: A1
+                    CodeReferenceElement: A1
+                      PsiElement(identifier)('A1')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: t2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: PartialFunction[A, A2]
+              SimpleType: PartialFunction
+                CodeReferenceElement: PartialFunction
+                  PsiElement(identifier)('PartialFunction')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: A2
+                    CodeReferenceElement: A2
+                      PsiElement(identifier)('A2')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (IArray[A1], IArray[A2], IArray[A])
+      PsiElement(()('(')
+      TypesList
+        ParametrizedType: IArray[A1]
+          SimpleType: IArray
+            CodeReferenceElement: IArray
+              PsiElement(identifier)('IArray')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: A1
+                CodeReferenceElement: A1
+                  PsiElement(identifier)('A1')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: IArray[A2]
+          SimpleType: IArray
+            CodeReferenceElement: IArray
+              PsiElement(identifier)('IArray')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: A2
+                CodeReferenceElement: A2
+                  PsiElement(identifier)('A2')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: IArray[A]
+          SimpleType: IArray
+            CodeReferenceElement: IArray
+              PsiElement(identifier)('IArray')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: updaters
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('updaters')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: IArray[Updater]
+              SimpleType: IArray
+                CodeReferenceElement: IArray
+                  PsiElement(identifier)('IArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Updater
+                    CodeReferenceElement: Updater
+                      PsiElement(identifier)('Updater')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: mutators, initializers
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              Scala3 TypedPattern
+                ReferencePattern: mutators
+                  PsiElement(identifier)('mutators')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: IArray[Mutator]
+                    SimpleType: IArray
+                      CodeReferenceElement: IArray
+                        PsiElement(identifier)('IArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Mutator
+                          CodeReferenceElement: Mutator
+                            PsiElement(identifier)('Mutator')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: initializers
+                  PsiElement(identifier)('initializers')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: IArray[Initializer]
+                    SimpleType: IArray
+                      CodeReferenceElement: IArray
+                        PsiElement(identifier)('IArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Initializer
+                          CodeReferenceElement: Initializer
+                            PsiElement(identifier)('Initializer')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              StableElementPattern
+                ReferenceExpression: Empty
+                  PsiElement(identifier)('Empty')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: partitionCollect2
+            PsiElement(identifier)('partitionCollect2')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n      ')
+            ReferenceExpression: updaters
+              PsiElement(identifier)('updaters')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: Mutator
+                        CodeReferenceElement: Mutator
+                          PsiElement(identifier)('Mutator')
+                  PsiWhiteSpace('     ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: Initializer
+                        CodeReferenceElement: Initializer
+                          PsiElement(identifier)('Initializer')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            PsiElement())(')')
