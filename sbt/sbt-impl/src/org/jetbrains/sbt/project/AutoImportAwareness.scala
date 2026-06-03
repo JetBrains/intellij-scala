@@ -2,7 +2,8 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.NonNls
+import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.annotations.{ApiStatus, NonNls}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.*
 
@@ -14,10 +15,7 @@ trait AutoImportAwareness extends ExternalSystemAutoImportAware {
     if (isProjectDefinitionFile(project, changedFileOrDirPath)) project.getBasePath
     else null
 
-  /**
-   * @note This method only works in the local filesystem. This method is not safe with eel paths, e.g., WSL.
-   */
-  override def getAffectedExternalProjectFiles(@NonNls projectPath: String, project: Project): java.util.List[java.io.File] = {
+  override def getAffectedExternalProjectFilePaths(projectPath: String, project: Project): java.util.List[Path] = {
     val baseDir = Path.of(projectPath)
     val projectDir = baseDir / Sbt.ProjectDirectory
 
@@ -26,8 +24,18 @@ trait AutoImportAwareness extends ExternalSystemAutoImportAware {
         projectDir / Sbt.PropertiesFile +:
         projectDir.ls(name => name.endsWith(Sbt.Extension) || name.endsWith(".scala"))
 
-    files.map(_.toFile).asJava
+    files.asJava
   }
+
+  /**
+   * @note This method only works in the local filesystem. This method is not safe with eel paths, e.g., WSL.
+   */
+  @deprecated(message = "Deprecated in the platform. Use getAffectedExternalProjectFilePaths. This method will be removed.", since = "2026.2")
+  @Deprecated(since = "2026.2", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.3")
+  //noinspection SSBasedInspection
+  override def getAffectedExternalProjectFiles(@NonNls projectPath: String, project: Project): java.util.List[java.io.File] =
+    ContainerUtil.map(getAffectedExternalProjectFilePaths(projectPath, project), (p: Path) => p.toFile)
 
   private def isProjectDefinitionFile(project: Project, changedFileOrDirPath: String): Boolean = {
     val baseDir = Path.of(project.getBasePath)
