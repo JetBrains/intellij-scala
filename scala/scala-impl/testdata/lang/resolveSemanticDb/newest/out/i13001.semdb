@@ -57,12 +57,12 @@ Document tests/pos/i13001/Main_1.scala
 (28:17..28:31) _empty_/K0.ProductGeneric# -> 22:8
 (28:32..28:33) _empty_/K0.derive().[T] -> 25:20
 (28:40..28:41) _empty_/K0.derive().(f) -> 26:23
-(28:48..28:49) local6 -> 28:14
+(28:48..28:49) local3 -> 28:14
 (28:50..28:62) scala/Any#asInstanceOf().
 (29:17..29:33) _empty_/K0.CoproductGeneric# -> 23:8
 (29:34..29:35) _empty_/K0.derive().[T] -> 25:20
 (29:40..29:41) _empty_/K0.derive().(g) -> 26:70
-(29:48..29:49) local7 -> 29:14
+(29:48..29:49) local4 -> 29:14
 (29:50..29:62) scala/Any#asInstanceOf().
 
 Document tests/pos/i13001/Test_2.scala

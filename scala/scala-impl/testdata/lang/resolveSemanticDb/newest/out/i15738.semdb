@@ -14,5 +14,5 @@ Document tests/pos/i15738.scala
 (11:12..11:23) _empty_/Test.Transaction# -> 2:9
 (12:14..12:16) _empty_/Test.ff(). -> 5:7
 (12:17..12:18) _empty_/Test.fff().(x) -> 10:11
-(13:5..13:7) local4 -> 12:9
+(13:5..13:7) local2 -> 12:9
 

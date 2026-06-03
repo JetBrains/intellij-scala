@@ -93,10 +93,10 @@ Document tests/pos/i16408.scala
 (55:48..55:51) scala/util/Try#map().
 (55:57..55:61) _empty_/Test#rops. -> 52:28
 (55:62..55:66) _empty_/ROps#auth(). -> 28:7
-(55:67..55:68) local12 -> 55:52
+(55:67..55:68) local10 -> 55:52
 (57:2..57:6) scala/main#
 (58:19..58:27) _empty_/TraitRDF. -> 39:8
 (59:3..59:10) scala/Predef.println(+1).
-(59:11..59:15) local13 -> 58:7
+(59:11..59:15) local11 -> 58:7
 (59:16..59:17) _empty_/Test#x. -> 55:12
 

@@ -122,5 +122,4 @@ Document tests/pos/i17465.scala
 (39:29..39:49) scala/reflect/Selectable.reflectiveSelectable().
 (42:12..42:13) local41 -> 41:11
 (42:16..42:17) local42 -> 41:14
-(42:18..42:19) scala/reflect/Selectable#applyDynamic().
 

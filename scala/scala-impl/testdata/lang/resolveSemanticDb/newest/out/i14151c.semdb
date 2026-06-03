@@ -4,5 +4,5 @@ Document tests/pos/i14151c.scala
 (2:27..2:33) _empty_/Single# -> 1:7
 (2:34..2:35) _empty_/Single#Retrieve#[A] -> 2:17
 (2:50..2:56) _empty_/Single# -> 1:7
-(2:63..2:64) local0 -> 2:57
+(2:63..2:64) _empty_/Single#Retrieve#b# -> 2:57
 
