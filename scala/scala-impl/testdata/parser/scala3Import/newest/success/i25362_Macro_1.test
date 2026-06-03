@@ -134,10 +134,9 @@ ScalaFile
                   PsiElement(identifier)('TC')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: Left
-                    CodeReferenceElement: Left
-                      PsiElement(identifier)('Left')
+                SimpleType: Left
+                  CodeReferenceElement: Left
+                    PsiElement(identifier)('Left')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -151,19 +150,17 @@ ScalaFile
                   PsiElement(identifier)('derivedImpl')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeArgument
-                    SimpleType: Left
-                      CodeReferenceElement: Left
-                        PsiElement(identifier)('Left')
+                  SimpleType: Left
+                    CodeReferenceElement: Left
+                      PsiElement(identifier)('Left')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  TypeArgument
-                    SimpleType: m.MirroredElemTypes
-                      CodeReferenceElement: m.MirroredElemTypes
-                        CodeReferenceElement: m
-                          PsiElement(identifier)('m')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('MirroredElemTypes')
+                  SimpleType: m.MirroredElemTypes
+                    CodeReferenceElement: m.MirroredElemTypes
+                      CodeReferenceElement: m
+                        PsiElement(identifier)('m')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('MirroredElemTypes')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(})('}')
@@ -218,18 +215,16 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  ParametrizedType: TC[Left]
-                    SimpleType: TC
-                      CodeReferenceElement: TC
-                        PsiElement(identifier)('TC')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      TypeArgument
-                        SimpleType: Left
-                          CodeReferenceElement: Left
-                            PsiElement(identifier)('Left')
-                      PsiElement(])(']')
+                ParametrizedType: TC[Left]
+                  SimpleType: TC
+                    CodeReferenceElement: TC
+                      PsiElement(identifier)('TC')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Left
+                      CodeReferenceElement: Left
+                        PsiElement(identifier)('Left')
+                    PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -250,10 +245,9 @@ ScalaFile
                             PsiElement(identifier)('TC')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeArgument
-                            SimpleType: Left
-                              CodeReferenceElement: Left
-                                PsiElement(identifier)('Left')
+                          SimpleType: Left
+                            CodeReferenceElement: Left
+                              PsiElement(identifier)('Left')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   ScTemplateBody

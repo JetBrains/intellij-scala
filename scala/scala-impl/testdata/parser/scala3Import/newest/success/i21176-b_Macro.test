@@ -72,10 +72,9 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeArgument
-                    SimpleType: NameTuple_T
-                      CodeReferenceElement: NameTuple_T
-                        PsiElement(identifier)('NameTuple_T')
+                  SimpleType: NameTuple_T
+                    CodeReferenceElement: NameTuple_T
+                      PsiElement(identifier)('NameTuple_T')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -90,10 +89,9 @@ ScalaFile
                 PsiElement(identifier)('tuple')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: NameTuple_T
-                    CodeReferenceElement: NameTuple_T
-                      PsiElement(identifier)('NameTuple_T')
+                SimpleType: NameTuple_T
+                  CodeReferenceElement: NameTuple_T
+                    PsiElement(identifier)('NameTuple_T')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -150,10 +148,9 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeArgument
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -241,10 +238,9 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeArgument
-                    SimpleType: Tuple_T
-                      CodeReferenceElement: Tuple_T
-                        PsiElement(identifier)('Tuple_T')
+                  SimpleType: Tuple_T
+                    CodeReferenceElement: Tuple_T
+                      PsiElement(identifier)('Tuple_T')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -264,9 +260,8 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: Tuple_T
-                    CodeReferenceElement: Tuple_T
-                      PsiElement(identifier)('Tuple_T')
+                SimpleType: Tuple_T
+                  CodeReferenceElement: Tuple_T
+                    PsiElement(identifier)('Tuple_T')
                 PsiElement(])(']')
             PsiElement())(')')

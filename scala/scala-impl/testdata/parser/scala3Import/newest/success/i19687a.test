@@ -76,16 +76,14 @@ ScalaFile
                 PsiElement(identifier)('Eq2')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeArgument
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeArgument
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: T2
@@ -149,16 +147,14 @@ ScalaFile
                     PsiElement(identifier)('Eq2')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeArgument
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  TypeArgument
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -173,10 +169,9 @@ ScalaFile
                 PsiElement(identifier)('T2')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeArgument
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: I2
@@ -216,16 +211,14 @@ ScalaFile
                     PsiElement(identifier)('Eq2')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TypeArgument
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  TypeArgument
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -240,10 +233,9 @@ ScalaFile
                 PsiElement(identifier)('T2')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeArgument
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: test
@@ -272,10 +264,9 @@ ScalaFile
                   PsiElement(identifier)('T2')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')

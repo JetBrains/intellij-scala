@@ -101,10 +101,9 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: P
-                    CodeReferenceElement: P
-                      PsiElement(identifier)('P')
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')

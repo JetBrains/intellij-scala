@@ -98,10 +98,9 @@ ScalaFile
                       PsiElement(identifier)('MyEvidence')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeArgument
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -129,13 +128,12 @@ ScalaFile
           PsiElement(identifier)('MyEvidence')
       TypeArgumentsList
         PsiElement([)('[')
-        TypeArgument
-          SimpleType: Scope.T
-            CodeReferenceElement: Scope.T
-              CodeReferenceElement: Scope
-                PsiElement(identifier)('Scope')
-              PsiElement(.)('.')
-              PsiElement(identifier)('T')
+        SimpleType: Scope.T
+          CodeReferenceElement: Scope.T
+            CodeReferenceElement: Scope
+              PsiElement(identifier)('Scope')
+            PsiElement(.)('.')
+            PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -145,21 +143,19 @@ ScalaFile
         PsiElement(identifier)('summonInline')
       TypeArgumentsList
         PsiElement([)('[')
-        TypeArgument
-          ParametrizedType: MyEvidence[Scope.T]
-            SimpleType: MyEvidence
-              CodeReferenceElement: MyEvidence
-                PsiElement(identifier)('MyEvidence')
-            TypeArgumentsList
-              PsiElement([)('[')
-              TypeArgument
-                SimpleType: Scope.T
-                  CodeReferenceElement: Scope.T
-                    CodeReferenceElement: Scope
-                      PsiElement(identifier)('Scope')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-              PsiElement(])(']')
+        ParametrizedType: MyEvidence[Scope.T]
+          SimpleType: MyEvidence
+            CodeReferenceElement: MyEvidence
+              PsiElement(identifier)('MyEvidence')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Scope.T
+              CodeReferenceElement: Scope.T
+                CodeReferenceElement: Scope
+                  PsiElement(identifier)('Scope')
+                PsiElement(.)('.')
+                PsiElement(identifier)('T')
+            PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: smoke
@@ -183,21 +179,19 @@ ScalaFile
           PsiElement(identifier)('summonInline')
         TypeArgumentsList
           PsiElement([)('[')
-          TypeArgument
-            ParametrizedType: MyEvidence[Scope.T]
-              SimpleType: MyEvidence
-                CodeReferenceElement: MyEvidence
-                  PsiElement(identifier)('MyEvidence')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TypeArgument
-                  SimpleType: Scope.T
-                    CodeReferenceElement: Scope.T
-                      CodeReferenceElement: Scope
-                        PsiElement(identifier)('Scope')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('T')
-                PsiElement(])(']')
+          ParametrizedType: MyEvidence[Scope.T]
+            SimpleType: MyEvidence
+              CodeReferenceElement: MyEvidence
+                PsiElement(identifier)('MyEvidence')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Scope.T
+                CodeReferenceElement: Scope.T
+                  CodeReferenceElement: Scope
+                    PsiElement(identifier)('Scope')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
           PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace('\n  ')

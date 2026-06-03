@@ -457,10 +457,9 @@ ScalaFile
                 PsiElement(identifier)('derived')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeArgument
-                  SimpleType: BigTuple
-                    CodeReferenceElement: BigTuple
-                      PsiElement(identifier)('BigTuple')
+                SimpleType: BigTuple
+                  CodeReferenceElement: BigTuple
+                    PsiElement(identifier)('BigTuple')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

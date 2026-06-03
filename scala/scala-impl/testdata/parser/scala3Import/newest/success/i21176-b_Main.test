@@ -47,8 +47,7 @@ ScalaFile
               PsiElement(identifier)('nameTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeArgument
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
               PsiElement(])(']')
