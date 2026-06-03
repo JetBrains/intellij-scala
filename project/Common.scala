@@ -209,7 +209,7 @@ object Common {
         "com.intellij.java",
         // required for Java plugin (IJPL-244879)
         "com.intellij.moduleSet.todoView",
-        // required for Java plugin (IJPL-245969)
+        // required for Java plugin (IJPL-245969), but also for Scala (SCL-25534)
         "intellij.libraries.misc.plugin"
       ).map(_.toPlugin),
       pathExcludeFilter := excludePathsFromPackage _

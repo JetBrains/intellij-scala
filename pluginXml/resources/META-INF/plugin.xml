@@ -45,8 +45,10 @@
     <!-- Required dependencies of the plugin. If they cannot be loaded, the Scala Plugin cannot be loaded -->
     <dependencies>
         <plugin id="com.intellij.java"/>
+        <plugin id="intellij.libraries.misc.plugin"/>
         <plugin id="org.intellij.intelliLang"/>
         <module name="intellij.java.backend"/>
+        <module name="intellij.libraries.commons.text"/>
     </dependencies>
 
     <content namespace="jetbrains">

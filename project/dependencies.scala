@@ -125,7 +125,6 @@ object Dependencies {
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val coursierPaths: ModuleID = "io.get-coursier" % "coursier-paths" % "2.1.25-M25"
-  val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.14.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2-1"
@@ -241,7 +240,6 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     coursierPaths,
-    apacheCommonsText,
     ivy2,
     compilerIndicesProtocol,
     scalafmtDynamic
@@ -270,8 +268,7 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect,
-    apacheCommonsText
+    scalaReflect
   )
 
   val testRunners: Seq[ModuleID] = Seq(
