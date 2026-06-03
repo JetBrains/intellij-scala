@@ -821,6 +821,10 @@ object AfterUpdateDottyVersionScript {
         |cc-use-alternatives.scala
         |i10256.scala
         |given-syntax.scala
+        |
+        |# release-3.8.4
+        |i23317.scala
+        |i24990.scala
         |""".stripMargin.trim
     )
 
