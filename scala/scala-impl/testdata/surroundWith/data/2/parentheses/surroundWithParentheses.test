@@ -1,0 +1,7 @@
+class a {
+  <start>abc<parenthesis>
+}
+-----
+class a {
+  (abc)
+}

@@ -1,0 +1,24 @@
+Document tests/pos/i16641.scala
+(2:21..2:26) _empty_/Logger#debug# -> 3:14
+(2:29..2:36) scala/Predef.valueOf().
+(2:37..2:42) _empty_/Logger#debug# -> 3:14
+(6:34..6:40) scala/Predef.String#
+(6:43..6:47) scala/Unit#
+(7:16..7:21) _empty_/Logger#debug(). -> 2:14
+(7:23..7:30) scala/Predef.println(+1).
+(7:31..7:32) _empty_/Logger#log().(s) -> 6:31
+(10:26..10:32) _empty_/Logger# -> 1:7
+(12:15..12:18) _empty_/Logger#log(). -> 6:20
+(16:21..16:27) scala/Predef.String#
+(16:30..16:34) scala/Unit#
+(17:16..17:23) scala/Predef.valueOf().
+(17:24..17:30) _empty_/Logger# -> 1:7
+(17:31..17:36) _empty_/Logger#debug# -> 3:14
+(17:39..17:46) scala/Predef.println(+1).
+(17:47..17:48) _empty_/Logger.log().(s) -> 16:18
+(21:16..21:26) _empty_/BaseLogger# -> 10:7
+(22:5..22:6) _empty_/Test#fails().(x) -> 21:13
+(22:7..22:10) _empty_/Logger#log(). -> 6:20
+(25:5..25:11) _empty_/Logger. -> 15:8
+(25:12..25:15) _empty_/Logger.log(). -> 16:14
+

@@ -1,0 +1,11 @@
+val a =
+	id"""
+			|  blah blah {<caret>}
+		""".stripMargin
+-----
+val a =
+	id"""
+			|  blah blah {
+			|  <caret>
+			|  }
+		""".stripMargin

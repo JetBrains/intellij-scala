@@ -1,0 +1,5 @@
+include "<caret>simple"
+-----
+[other]
+-----
+include "other"

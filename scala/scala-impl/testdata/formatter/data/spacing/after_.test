@@ -1,0 +1,80 @@
+object Main1 {
+  val a_* : Int = 1
+  val a_: : Int = 1
+  val a_= : Int = 1
+  val a_# : Int = 1
+  val a_@ : Int = 1
+  val a_⚕ : Int = 1
+  val a_⨀ : Int = 1
+  val a_🌀 : Int = 1
+
+  val a_** : Int = 1
+  val a_:: : Int = 1
+  val a_== : Int = 1
+  val a_## : Int = 1
+  val a_@@ : Int = 1
+  val a_⚕⚕ : Int = 1
+  val a_⨀⨀ : Int = 1
+  val a_🌀🌀 : Int = 1
+}
+
+object Main2 {
+  val __* : Int = 1
+  val __: : Int = 1
+  val __= : Int = 1
+  val __# : Int = 1
+  val __@ : Int = 1
+  val __⚕ : Int = 1
+  val __⨀ : Int = 1
+  val __🌀 : Int = 1
+
+  val __** : Int = 1
+  val __:: : Int = 1
+  val __== : Int = 1
+  val __## : Int = 1
+  val __@@ : Int = 1
+  val __⚕⚕ : Int = 1
+  val __⨀⨀ : Int = 1
+  val __🌀🌀 : Int = 1
+}
+
+------
+object Main1 {
+  val a_* : Int = 1
+  val a_: : Int = 1
+  val a_= : Int = 1
+  val a_# : Int = 1
+  val a_@ : Int = 1
+  val a_⚕ : Int = 1
+  val a_⨀ : Int = 1
+  val a_🌀 : Int = 1
+
+  val a_** : Int = 1
+  val a_:: : Int = 1
+  val a_== : Int = 1
+  val a_## : Int = 1
+  val a_@@ : Int = 1
+  val a_⚕⚕ : Int = 1
+  val a_⨀⨀ : Int = 1
+  val a_🌀🌀 : Int = 1
+}
+
+object Main2 {
+  val __* : Int = 1
+  val __: : Int = 1
+  val __= : Int = 1
+  val __# : Int = 1
+  val __@ : Int = 1
+  val __⚕ : Int = 1
+  val __⨀ : Int = 1
+  val __🌀 : Int = 1
+
+  val __** : Int = 1
+  val __:: : Int = 1
+  val __== : Int = 1
+  val __## : Int = 1
+  val __@@ : Int = 1
+  val __⚕⚕ : Int = 1
+  val __⨀⨀ : Int = 1
+  val __🌀🌀 : Int = 1
+}

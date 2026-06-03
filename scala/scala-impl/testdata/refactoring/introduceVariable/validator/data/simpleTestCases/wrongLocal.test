@@ -1,0 +1,8 @@
+class a {
+  def foo = {
+    <selection>2</selection>
+    val value = 3
+  }
+}
+------
+Introduced variable conflicts with (or may be hidden by) local variable: value

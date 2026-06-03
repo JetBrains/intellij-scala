@@ -1,0 +1,5 @@
+object Example {
+  def foo(o: AnyRef) {
+    println(<spot>"base" + o.toString</spot>$key)
+  }
+}

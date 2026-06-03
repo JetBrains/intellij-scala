@@ -1,0 +1,15 @@
+class a {
+  a match {
+    case 1+
+    2+
+    3 =>
+  }
+}
+-----
+class a {
+  a match {
+    case 1 +
+      2 +
+      3 =>
+  }
+}

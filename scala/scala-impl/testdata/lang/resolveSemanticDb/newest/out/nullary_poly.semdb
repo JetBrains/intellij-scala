@@ -1,0 +1,9 @@
+Document tests/pos/nullary_poly.scala
+(4:3..4:15) java/lang/Object#synchronized().
+(6:10..6:16) scala/Predef.String#
+(6:23..6:35) scala/Any#asInstanceOf().
+(6:36..6:42) scala/Predef.String#
+(9:23..9:27) scala/package.List#
+(9:28..9:29) _empty_/A#polyNullary().[T] -> 9:19
+(9:33..9:36) scala/package.Nil.
+

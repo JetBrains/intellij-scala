@@ -1,0 +1,161 @@
+def Test =
+  val members = collection.immutable.SortedSet.empty[String]
+  members.collect {
+    var upNumber = 0
+    {
+      case m =>
+        // upNumber += 1
+        m
+    }
+  }
+
+  members.collect {
+    var upNumber = 0
+    {
+      m => m
+    }
+  }
+
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: members
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: members
+            PsiElement(identifier)('members')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: collection.immutable.SortedSet.empty
+            ReferenceExpression: collection.immutable.SortedSet
+              ReferenceExpression: collection.immutable
+                ReferenceExpression: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('immutable')
+              PsiElement(.)('.')
+              PsiElement(identifier)('SortedSet')
+            PsiElement(.)('.')
+            PsiElement(identifier)('empty')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: members.collect
+          ReferenceExpression: members
+            PsiElement(identifier)('members')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collect')
+        PsiWhiteSpace(' ')
+        ArgumentList
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScVariableDefinition: upNumber
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: upNumber
+                  PsiElement(identifier)('upNumber')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: m
+                    PsiElement(identifier)('m')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n        ')
+                  PsiComment(comment)('// upNumber += 1')
+                  PsiWhiteSpace('\n        ')
+                  BlockOfExpressions
+                    ReferenceExpression: m
+                      PsiElement(identifier)('m')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        ReferenceExpression: members.collect
+          ReferenceExpression: members
+            PsiElement(identifier)('members')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collect')
+        PsiWhiteSpace(' ')
+        ArgumentList
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScVariableDefinition: upNumber
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: upNumber
+                  PsiElement(identifier)('upNumber')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: m
+                      PsiElement(identifier)('m')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: m
+                    PsiElement(identifier)('m')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

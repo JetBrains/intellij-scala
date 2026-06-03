@@ -1,0 +1,23 @@
+Document tests/pos/i11393/Format_1.scala
+(2:22..2:27) scala/Tuple#
+(2:31..2:32) _empty_/Formatt.ToFormat#[X] -> 2:17
+(3:12..3:22) scala/Tuple$package.EmptyTuple#
+(3:26..3:32) scala/Predef.String#
+(4:16..4:18) scala/`*:`#
+(4:23..4:25) scala/`*:`#
+(4:33..4:39) scala/Predef.String#
+(4:43..4:51) _empty_/Formatt.ToFormat# -> 2:8
+(4:52..4:54) local0 -> 2:7
+(5:12..5:16) scala/Char#
+(5:17..5:19) scala/`*:`#
+(5:26..5:34) _empty_/Formatt.ToFormat# -> 2:8
+(5:35..5:37) local1 -> 5:20
+
+Document tests/pos/i11393/Test_2.scala
+(1:2..1:6) scala/main#
+(1:18..1:22) scala/Unit#
+(2:10..2:17) _empty_/Formatt. -> 1:8
+(2:18..2:26) _empty_/Formatt.ToFormat# -> 2:8
+(2:31..2:33) scala/`*:`#
+(2:34..2:44) scala/Tuple$package.EmptyTuple#
+

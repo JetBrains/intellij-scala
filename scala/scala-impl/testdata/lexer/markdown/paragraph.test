@@ -1,0 +1,60 @@
+/**
+ * A very simple text
+ * with multiple lines.
+ *
+ * A new paragraph that has a comma,
+ * which is probably correct.
+ * Ok, let's do one more line.
+ *
+ * How about some *italic text*?
+ */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {A very simple text}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {with multiple lines.}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {A new paragraph that has a comma,}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {which is probably correct.}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {Ok,}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {let}
+DOC_COMMENT_DATA {'}
+DOC_COMMENT_DATA {s do one more line.}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {How about some}
+DOC_WHITESPACE { }
+DOC_MD_ASTERISKS {*}
+DOC_COMMENT_DATA {italic text}
+DOC_MD_ASTERISKS {*}
+DOC_COMMENT_DATA {?}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_END {*/}

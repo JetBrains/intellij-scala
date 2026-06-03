@@ -1,0 +1,7 @@
+object Aaa {
+  val _: Int = ???
+}
+---------
+object Aaa {
+  val _: Int = ???
+}

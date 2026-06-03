@@ -1,0 +1,8 @@
+Document tests/pos/i7445a.scala
+(5:24..5:28) scala/Unit#
+(6:16..6:24) local1 -> 5:10
+(6:25..6:26) _empty_/Main.O1#[A] -> 4:11
+(9:11..9:13) _empty_/Main.O1# -> 4:8
+(9:14..9:17) scala/Int#
+(9:25..9:28) scala/Predef.`???`().
+

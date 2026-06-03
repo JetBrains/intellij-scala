@@ -1,0 +1,105 @@
+/*
+ * Copyright 2000-2008 JetBrains s.r.o.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jetbrains.plugins.scala.lang.resolve
+
+import com.intellij.openapi.editor.CaretState
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiReference
+import org.jetbrains.plugins.scala.TypecheckerTests
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
+import org.junit.experimental.categories.Category
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Path
+import scala.collection.mutable
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+
+/**
+ * Also see [[org.jetbrains.plugins.scala.lang.resolve2.ResolveTestBase]]
+ */
+@Category(Array(classOf[TypecheckerTests]))
+abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase {
+  def folderPath: Path = Path.of(TestUtils.getTestDataPath)
+
+  protected def findReferenceAtCaret(): PsiReference =
+    getFile.findReferenceAt(getEditor.getCaretModel.getOffset)
+
+  protected def findAllReferencesAtCarets: Seq[PsiReference] = {
+    val carets = getEditor.getCaretModel.getAllCarets.asScala.toSeq
+    assertTrue("no carets found", carets.nonEmpty)
+    carets.map { caret =>
+      val offset = caret.getOffset
+      getFile.findReferenceAt(offset)
+    }
+  }
+
+  protected var testFilePath: String = _ //for debugging
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    var extention = ".scala"
+    var fileName = getTestName(false)
+    if (fileName.startsWith("JavaFileWithName")) {
+      extention = ".java"
+      fileName = fileName.substring("JavaFileWithName".length())
+    }
+    val nioFile = folderPath / (fileName + extention)
+    testFilePath = nioFile.toString
+
+    val fileTextRaw = nioFile.readAllBytesToString(StandardCharsets.UTF_8)
+    val fileTextOriginal = StringUtil.convertLineSeparators(fileTextRaw)
+
+    setupEditor(nioFile.getFileName.toString, fileTextOriginal)
+  }
+
+  private val RefTag = "<ref>"
+
+  private def setupEditor(fileName: String, fileTextWithRefs: String): String = {
+    val caretOffsets = mutable.ArrayBuffer.empty[Int]
+
+    var fileText = fileTextWithRefs
+    var offset = fileText.indexOf(RefTag)
+    while (offset != -1) {
+      caretOffsets += offset
+
+      fileText = fileText.substring(0, offset) + fileText.substring(offset + RefTag.length, fileText.length)
+      offset = fileText.indexOf(RefTag)
+    }
+
+    configureFromFileText(fileName, fileText)
+
+    val caretModel = getEditor.getCaretModel
+    caretOffsets.toSeq match {
+      case Seq()       =>
+      case Seq(offset) => caretModel.moveToOffset(offset)
+      case offsets     =>
+        val caretStates = offsets.map { o =>
+          val position = getEditor.offsetToLogicalPosition(o)
+          new CaretState(position, null, null)
+        }
+        caretModel.setCaretsAndSelections(caretStates.asJava)
+
+        val carets = caretModel.getAllCarets.asScala
+        assertTrue(carets.size == caretStates.length)
+    }
+
+    fileText
+  }
+}

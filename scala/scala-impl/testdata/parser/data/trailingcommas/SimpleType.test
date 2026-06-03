@@ -1,0 +1,90 @@
+trait SimpleType {
+  def f: (
+    Int,
+      String,
+    )
+
+  // the Tuple1 type case, the trailing comma is ignored so the type is Int and the value 23
+  def g: (
+    Int,
+    ) = 23
+
+}
+-----
+ScalaFile
+  ScTrait: SimpleType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SimpleType')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (
+    Int,
+      String,
+    )
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: g
+          PsiComment(comment)('// the Tuple1 type case, the trailing comma is ignored so the type is Int and the value 23')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (
+    Int,
+    )
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('23')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

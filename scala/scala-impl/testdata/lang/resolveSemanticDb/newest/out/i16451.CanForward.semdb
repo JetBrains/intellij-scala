@@ -1,0 +1,62 @@
+Document tests/pos/i16451.CanForward.scala
+(5:21..5:27) scala/Predef.String#
+(9:31..9:34) _empty_/Namer#Mbr# -> 8:9
+(9:37..9:47) _empty_/Namer#CanForward# -> 3:16
+(9:50..9:60) _empty_/Namer#CanForward.
+(9:61..9:64) _empty_/Namer#CanForward.Yes. -> 4:10
+(11:33..11:43) _empty_/Namer#CanForward# -> 3:16
+(11:51..11:57) scala/Predef.String#
+(11:62..11:64) _empty_/Namer#applyOrElse().[A1] -> 11:27
+(11:75..11:77) _empty_/Namer#applyOrElse().[A1] -> 11:27
+(11:81..11:83) _empty_/Namer#applyOrElse().[B1] -> 11:45
+(11:86..11:88) _empty_/Namer#applyOrElse().[B1] -> 11:45
+(11:91..11:92) _empty_/Namer#applyOrElse().(x) -> 11:59
+(12:10..12:20) _empty_/Namer#CanForward.
+(12:21..12:23) _empty_/Namer#CanForward.No.
+(12:39..12:45) local0 -> 12:24
+(15:32..15:36) scala/package.List#
+(15:37..15:40) _empty_/Namer#Mbr# -> 8:9
+(16:18..16:22) _empty_/Namer#addForwardersNamed().(mbrs) -> 15:26
+(16:23..16:26) scala/collection/immutable/List#map().
+(16:27..16:37) _empty_/Namer#canForward(). -> 9:15
+(16:39..16:46) scala/collection/immutable/List#collect().
+(17:12..17:22) _empty_/Namer#CanForward.
+(17:23..17:25) _empty_/Namer#CanForward.No.
+(17:37..17:43) local3 -> 17:26
+(18:7..18:17) scala/collection/LinearSeqOps#headOption().
+(18:18..18:27) scala/Option#getOrElse().
+(21:34..21:38) scala/package.List#
+(21:39..21:42) _empty_/Namer#Mbr# -> 8:9
+(22:20..22:24) _empty_/Namer#ClassCompleter#addForwardersNamed().(mbrs) -> 21:28
+(22:25..22:28) scala/collection/immutable/List#map().
+(22:29..22:39) _empty_/Namer#canForward(). -> 9:15
+(22:41..22:48) scala/collection/immutable/List#collect().
+(23:14..23:24) _empty_/Namer#CanForward.
+(23:25..23:27) _empty_/Namer#CanForward.No.
+(23:39..23:45) local7 -> 23:28
+(24:9..24:19) scala/collection/LinearSeqOps#headOption().
+(24:20..24:29) scala/Option#getOrElse().
+(27:36..27:40) scala/package.List#
+(27:41..27:44) _empty_/Namer#Mbr# -> 8:9
+(28:22..28:26) local9 -> 27:30
+(28:27..28:30) scala/collection/immutable/List#map().
+(28:31..28:41) _empty_/Namer#canForward(). -> 9:15
+(28:43..28:50) scala/collection/immutable/List#collect().
+(29:16..29:26) _empty_/Namer#CanForward.
+(29:27..29:29) _empty_/Namer#CanForward.No.
+(29:41..29:47) local12 -> 29:30
+(30:11..30:21) scala/collection/LinearSeqOps#headOption().
+(30:22..30:31) scala/Option#getOrElse().
+(31:12..31:16) local9 -> 27:30
+(31:17..31:21) scala/collection/SeqOps#size().
+(31:22..31:24) scala/Int#`==`(+3).
+(32:24..32:28) local9 -> 27:30
+(32:29..32:32) scala/collection/immutable/List#map().
+(32:33..32:43) _empty_/Namer#canForward(). -> 9:15
+(32:45..32:52) scala/collection/immutable/List#collect().
+(33:18..33:28) _empty_/Namer#CanForward.
+(33:29..33:31) _empty_/Namer#CanForward.No.
+(33:43..33:49) local16 -> 33:32
+(34:13..34:23) scala/collection/LinearSeqOps#headOption().
+(34:24..34:33) scala/Option#getOrElse().
+

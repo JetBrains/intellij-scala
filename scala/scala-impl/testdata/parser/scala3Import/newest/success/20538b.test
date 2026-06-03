@@ -1,0 +1,269 @@
+trait A:
+  type T
+  type U = T
+
+trait B extends A:
+  type T = String
+
+object C extends B
+
+
+type F[X] = A { type U = X } // works when `U` is replaced with `T`
+
+type InvF[Y] = Y match
+  case F[x] => x
+
+
+object Test:
+  summon[InvF[C.type] =:= String] // ok
+  summon[InvF[B] =:= String] // error: selector B does not uniquely determine parameter x
+-----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: U
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('U')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+  PsiWhiteSpace('\n\n')
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+  PsiWhiteSpace('\n\n')
+  ScObject: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
+  PsiWhiteSpace('\n\n\n')
+  ScTypeAliasDefinition: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: A { type U = X }
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: U
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('U')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// works when `U` is replaced with `T`')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: InvF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InvF')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Y match
+  case F[x] => x
+      SimpleType: Y
+        CodeReferenceElement: Y
+          PsiElement(identifier)('Y')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F[x]
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: x
+                  PsiElement(identifier)('x')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: x
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+  PsiWhiteSpace('\n\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: InvF[C.type] =:= String
+                ParametrizedType: InvF[C.type]
+                  SimpleType: InvF
+                    CodeReferenceElement: InvF
+                      PsiElement(identifier)('InvF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: C.type
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: InvF[B] =:= String
+                ParametrizedType: InvF[B]
+                  SimpleType: InvF
+                    CodeReferenceElement: InvF
+                      PsiElement(identifier)('InvF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error: selector B does not uniquely determine parameter x')

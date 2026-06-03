@@ -1,0 +1,132 @@
+import util.chaining.*
+
+class ann(x: Int = 1, y: Int) extends annotation.Annotation
+
+@ann(y = 22.tap(println)) @main def blop = ()
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: util.chaining
+        CodeReferenceElement: util
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('chaining')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScClass: ann
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ann')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.Annotation
+            CodeReferenceElement: annotation.Annotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: blop
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: ann
+              CodeReferenceElement: ann
+                PsiElement(identifier)('ann')
+            ArgumentList
+              PsiElement(()('(')
+              AssignStatement
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: 22.tap
+                    IntegerLiteral
+                      PsiElement(integer)('22')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('tap')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: println
+                      PsiElement(identifier)('println')
+                    PsiElement())(')')
+              PsiElement())(')')
+      PsiWhiteSpace(' ')
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('blop')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')

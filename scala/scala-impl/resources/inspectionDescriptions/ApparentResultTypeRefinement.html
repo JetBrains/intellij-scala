@@ -1,0 +1,16 @@
+<html>
+<body>
+<p>Reports <code>=</code> missing between result type and function body.</p>
+<p>A type cannot be refined when used as the result type of a function.
+    However, when a <code>=</code> is missing between the result type and function body it might look refined.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): T {}
+</code></pre>
+<p>After the quick-fix is applied</p>
+<pre><code>
+  def test(): T = {}
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

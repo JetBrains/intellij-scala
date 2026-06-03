@@ -1,0 +1,6 @@
+Document tests/pos/i20300.scala
+(6:14..6:18) scala/Unit#
+(7:24..7:28) scala/Unit#
+(7:31..7:32) _empty_/T#v(). -> 3:7
+(8:7..8:9) local0 -> 7:18
+

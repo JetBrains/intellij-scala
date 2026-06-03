@@ -1,0 +1,16 @@
+Document tests/pos/annotations1/a.scala
+(1:17..1:23) scala/Predef.String#
+(1:33..1:38) scala/
+(1:39..1:49) scala/annotation/
+(1:50..1:66) scala/annotation/StaticAnnotation#
+(2:17..2:22) scala/Predef.Class#
+(2:35..2:40) scala/
+(2:41..2:51) scala/annotation/
+(2:52..2:68) scala/annotation/StaticAnnotation#
+
+Document tests/pos/annotations1/b.scala
+(1:2..1:8) _empty_/Annot1# -> 1:7
+(2:2..2:8) _empty_/Annot2# -> 2:7
+(2:9..2:16) scala/Predef.classOf().
+(2:17..2:23) scala/AnyRef#
+

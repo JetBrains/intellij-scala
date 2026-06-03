@@ -1,0 +1,13 @@
+include file("stuff"
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HInclude(INCLUDE)
+      PsiElement(UNQUOTED_CHARS)('include')
+      PsiWhiteSpace(' ')
+      HIncluded(INCLUDED)
+        PsiElement(UNQUOTED_CHARS)('file(')
+        HIncludeTarget(INCLUDE_TARGET)
+          PsiElement(QUOTED_STRING)('"stuff"')
+        PsiErrorElement:expected ')'
+          <empty list>

@@ -1,0 +1,7 @@
+class a {
+  def foo(): Unit = {
+    <selection>123</selection>
+  }
+}
+------
+i

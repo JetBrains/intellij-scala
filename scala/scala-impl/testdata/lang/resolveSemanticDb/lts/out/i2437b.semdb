@@ -1,0 +1,6 @@
+Document tests/pos/i2437b.scala
+(3:19..3:22) _empty_/Foo# -> 1:7
+(3:23..3:24) _empty_/Test.foo().[T] -> 3:11
+(3:29..3:32) _empty_/Test.foo().(arg) -> 3:14
+(4:15..4:18) _empty_/Foo# -> 1:7
+

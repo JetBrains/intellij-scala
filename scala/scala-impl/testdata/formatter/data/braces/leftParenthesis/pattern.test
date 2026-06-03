@@ -1,0 +1,11 @@
+class a {
+  {
+    case Some () =>
+  }
+}
+------
+class a {
+  {
+    case Some() =>
+  }
+}

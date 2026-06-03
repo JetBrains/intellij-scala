@@ -1,0 +1,581 @@
+
+object Scaffold {
+
+  trait Arrow
+  object Arrow {
+    trait Outbound extends Arrow
+  }
+
+  trait NodeKOrGraphK {}
+
+  trait NodeK extends NodeKOrGraphK {
+
+    type FBound <: Induction
+
+    protected def getInduction: Seq[FBound]
+  }
+
+  trait Induction {
+    def arrow: Arrow
+    def node: NodeK
+  }
+
+  object Induction {
+
+    trait FP[+N <: NodeK] extends Induction { // short for "fixed point"
+      def node: N
+    }
+  }
+
+  trait GraphK extends NodeKOrGraphK {
+
+    type Batch[+T] <: Iterable[T]
+
+    type _Node <: NodeK
+
+    def entries: Batch[_Node]
+  }
+
+  trait Topology {
+
+    type Node = NodeK { type FBound <: Topology.this.FBound }
+    trait Node_ extends NodeK {
+      type FBound = Topology.this.FBound
+    }
+
+    type FP = Induction.FP[Node]
+    type FBound <: FP
+
+    type Graph = GraphK { type _Node <: Node }
+  }
+
+}
+-----
+ScalaFile
+  ScObject: Scaffold
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Scaffold')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Arrow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Arrow')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: Arrow
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Arrow')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Outbound
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Outbound')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Arrow
+                        CodeReferenceElement: Arrow
+                          PsiElement(identifier)('Arrow')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: NodeKOrGraphK
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NodeKOrGraphK')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: NodeK
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NodeK')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: NodeKOrGraphK
+                  CodeReferenceElement: NodeKOrGraphK
+                    PsiElement(identifier)('NodeKOrGraphK')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDeclaration: FBound
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FBound')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Induction
+                  CodeReferenceElement: Induction
+                    PsiElement(identifier)('Induction')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDeclaration: getInduction
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(protected)('protected')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('getInduction')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Seq[FBound]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: FBound
+                        CodeReferenceElement: FBound
+                          PsiElement(identifier)('FBound')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Induction
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Induction')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: arrow
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('arrow')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Arrow
+                  CodeReferenceElement: Arrow
+                    PsiElement(identifier)('Arrow')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('node')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: NodeK
+                  CodeReferenceElement: NodeK
+                    PsiElement(identifier)('NodeK')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Induction
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Induction')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScTrait: FP
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FP')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: N
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('N')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: NodeK
+                      CodeReferenceElement: NodeK
+                        PsiElement(identifier)('NodeK')
+                  PsiElement(])(']')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Induction
+                        CodeReferenceElement: Induction
+                          PsiElement(identifier)('Induction')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    PsiComment(comment)('// short for "fixed point"')
+                    PsiWhiteSpace('\n      ')
+                    ScFunctionDeclaration: node
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('node')
+                      Parameters
+                        <empty list>
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: GraphK
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GraphK')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: NodeKOrGraphK
+                  CodeReferenceElement: NodeKOrGraphK
+                    PsiElement(identifier)('NodeKOrGraphK')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDeclaration: Batch
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Batch')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('T')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[T]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDeclaration: _Node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('_Node')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: NodeK
+                  CodeReferenceElement: NodeK
+                    PsiElement(identifier)('NodeK')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDeclaration: entries
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('entries')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Batch[_Node]
+                  SimpleType: Batch
+                    CodeReferenceElement: Batch
+                      PsiElement(identifier)('Batch')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: _Node
+                        CodeReferenceElement: _Node
+                          PsiElement(identifier)('_Node')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Topology
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Topology')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDefinition: Node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Node')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: NodeK { type FBound <: Topology.this.FBound }
+                  SimpleType: NodeK
+                    CodeReferenceElement: NodeK
+                      PsiElement(identifier)('NodeK')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDeclaration: FBound
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('FBound')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Topology.this.FBound
+                        CodeReferenceElement: Topology.this.FBound
+                          ThisReference
+                            CodeReferenceElement: Topology
+                              PsiElement(identifier)('Topology')
+                            PsiElement(.)('.')
+                            PsiElement(this)('this')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('FBound')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScTrait: Node_
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Node_')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: NodeK
+                        CodeReferenceElement: NodeK
+                          PsiElement(identifier)('NodeK')
+                  PsiWhiteSpace(' ')
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: FBound
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('FBound')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Topology.this.FBound
+                        CodeReferenceElement: Topology.this.FBound
+                          ThisReference
+                            CodeReferenceElement: Topology
+                              PsiElement(identifier)('Topology')
+                            PsiElement(.)('.')
+                            PsiElement(this)('this')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('FBound')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDefinition: FP
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FP')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Induction.FP[Node]
+                  SimpleType: Induction.FP
+                    CodeReferenceElement: Induction.FP
+                      CodeReferenceElement: Induction
+                        PsiElement(identifier)('Induction')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('FP')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: FBound
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('FBound')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: FP
+                  CodeReferenceElement: FP
+                    PsiElement(identifier)('FP')
+              PsiWhiteSpace('\n\n    ')
+              ScTypeAliasDefinition: Graph
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Graph')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: GraphK { type _Node <: Node }
+                  SimpleType: GraphK
+                    CodeReferenceElement: GraphK
+                      PsiElement(identifier)('GraphK')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDeclaration: _Node
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('_Node')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

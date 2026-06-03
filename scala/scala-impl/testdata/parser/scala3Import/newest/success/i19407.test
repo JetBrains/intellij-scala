@@ -1,0 +1,156 @@
+trait GeneratedEnum
+trait Decoder[A]
+
+object Decoder:
+  given Decoder[Int] = ???
+
+object GeneratedEnumDecoder:
+
+  given [A <: GeneratedEnum] => Decoder[A] =
+    summon[Decoder[Int]]
+    ???
+-----
+ScalaFile
+  ScTrait: GeneratedEnum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GeneratedEnum')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Decoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Decoder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Decoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Decoder')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Decoder_Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: Decoder[Int]
+            SimpleType: Decoder
+              CodeReferenceElement: Decoder
+                PsiElement(identifier)('Decoder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: GeneratedEnumDecoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GeneratedEnumDecoder')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_Decoder_A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: GeneratedEnum
+                CodeReferenceElement: GeneratedEnum
+                  PsiElement(identifier)('GeneratedEnum')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: Decoder[A]
+            SimpleType: Decoder
+              CodeReferenceElement: Decoder
+                PsiElement(identifier)('Decoder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Decoder[Int]
+                    SimpleType: Decoder
+                      CodeReferenceElement: Decoder
+                        PsiElement(identifier)('Decoder')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')

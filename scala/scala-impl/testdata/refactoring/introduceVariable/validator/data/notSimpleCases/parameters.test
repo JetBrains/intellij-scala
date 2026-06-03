@@ -1,0 +1,7 @@
+class a {
+  def foo(value: Int) = {
+    <selection>2</selection>
+  }
+}
+------
+Introduced variable conflicts with (or may be hidden by) parameter: value

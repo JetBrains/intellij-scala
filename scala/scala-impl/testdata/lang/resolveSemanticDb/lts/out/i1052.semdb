@@ -1,0 +1,5 @@
+Document tests/pos/i1052.scala
+(3:22..3:25) scala/App#
+(4:3..4:10) scala/Predef.println(+1).
+(9:3..9:10) scala/Predef.println(+1).
+

@@ -1,0 +1,15 @@
+class test {
+  def value = ???
+
+  def junk0 = 0
+
+  def value_=(value: Int) = ???
+}
+--------------------
+class test {
+  def value = ???
+
+  def value_=(value: Int) = ???
+
+  def junk0 = 0
+}

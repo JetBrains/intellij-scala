@@ -1,0 +1,90 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+case class Rule(name: String)
+
+def foo = List("1", "2").map(Rule.apply)
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScClass: Rule
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Rule')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: List("1", "2").map
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"2"')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('map')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: Rule.apply
+          ReferenceExpression: Rule
+            PsiElement(identifier)('Rule')
+          PsiElement(.)('.')
+          PsiElement(identifier)('apply')
+        PsiElement())(')')

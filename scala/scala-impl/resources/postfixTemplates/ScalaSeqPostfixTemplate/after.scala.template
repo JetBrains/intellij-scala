@@ -1,0 +1,5 @@
+object Example {
+  def foo(o: AnyRef) {
+    Seq(o)
+  }
+}

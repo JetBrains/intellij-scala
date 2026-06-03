@@ -1,0 +1,19 @@
+Document tests/pos/match-type-extract-matchalias.scala
+(3:16..3:21) scala/Tuple#
+(3:31..3:35) _empty_/Base# -> 1:7
+(4:16..4:21) scala/Tuple.
+(4:22..4:26) scala/Tuple.Head#
+(4:27..4:28) _empty_/Sub#[T] -> 3:11
+(6:20..6:24) _empty_/Base# -> 1:7
+(6:40..6:41) _empty_/Base.BaseOf#[V] -> 6:15
+(7:26..7:30) _empty_/Base# -> 1:7
+(7:34..7:35) _empty_/Base.ExtractValue#[B] -> 7:21
+(8:10..8:16) _empty_/Base.BaseOf# -> 6:8
+(8:23..8:24) local1 -> 8:17
+(11:13..11:17) _empty_/Base. -> 5:8
+(11:18..11:30) _empty_/Base.ExtractValue# -> 7:8
+(11:31..11:34) _empty_/Sub# -> 3:7
+(11:35..11:38) scala/Int#
+(11:39..11:41) scala/`*:`#
+(11:42..11:52) scala/Tuple$package.EmptyTuple#
+

@@ -1,0 +1,25 @@
+Document tests/pos/i14726.scala
+(1:18..1:19) _empty_/i14726$package.test().[X] -> 1:10
+(1:23..1:24) _empty_/i14726$package.test().[X] -> 1:10
+(1:31..1:34) scala/Int#
+(3:25..3:29) local1 -> 2:8
+(3:30..3:31) _empty_/i14726$package.test().[A] -> 1:13
+(4:25..4:29) local1 -> 2:8
+(4:30..4:31) _empty_/i14726$package.test().[B] -> 1:26
+(6:10..6:14) local27
+(8:15..8:19) local1 -> 2:8
+(8:20..8:21) _empty_/i14726$package.test().[A] -> 1:13
+(8:28..8:32) local1 -> 2:8
+(8:33..8:34) _empty_/i14726$package.test().[B] -> 1:26
+(8:39..8:41) local28 -> 8:11
+(9:10..9:14) local23
+(10:7..10:9) local29 -> 8:24
+(11:14..11:18) local12
+(14:19..14:20) _empty_/i14726$package.test().[X] -> 1:10
+(14:23..14:26) scala/Predef.`???`().
+(15:19..15:22) scala/Int#
+(15:25..15:27) local30 -> 14:15
+(16:19..16:22) scala/Int#
+(16:25..16:27) local30 -> 14:15
+(16:30..16:31) _empty_/i14726$package.test().[A] -> 1:13
+

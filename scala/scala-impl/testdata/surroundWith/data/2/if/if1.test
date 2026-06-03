@@ -1,0 +1,9 @@
+class a {
+  <start>abc<if>
+}
+-----
+class a {
+  if () {
+    abc
+  }
+}

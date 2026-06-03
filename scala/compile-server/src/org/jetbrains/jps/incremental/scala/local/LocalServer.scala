@@ -1,0 +1,127 @@
+package org.jetbrains.jps.incremental.scala.local
+
+import org.jetbrains.jps.incremental.scala.local.zinc.{AnalysisStoreFactory, StampReader}
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, DelegateClient, ExitCode, Server}
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, DocumentCompilationArguments, SbtData}
+import sbt.internal.inc.{Analysis, PlainVirtualFileConverter}
+import xsbti.compile.AnalysisContents
+
+import java.nio.file.Path
+import java.util.ServiceLoader
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
+import scala.util.control.NonFatal
+
+final class LocalServer extends Server {
+
+  private var cachedCompilerFactory: Option[CompilerFactory] = None
+  private val lock = new Object()
+
+  override def compile(
+    sbtData: SbtData,
+    compilerData: CompilerData,
+    compilationData: CompilationData,
+    client: Client
+  ): Either[Server.ServerError, ExitCode] =
+    Right(doCompile(sbtData, compilerData, compilationData, client))
+
+  def doCompile(
+    sbtData: SbtData,
+    compilerData: CompilerData,
+    compilationData: CompilationData,
+    client: Client
+  ): ExitCode = {
+    val collectingSourcesClient = new CollectingSourcesClient(client)
+    val compiler = try {
+      val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
+      collectingSourcesClient.progress(CompileServerBundle.message("instantiating.compiler"), done = None)
+      compilerFactory.createCompiler(compilerData, collectingSourcesClient, AnalysisStoreFactory.createAnalysisStore)
+    } catch {
+      case e: Throwable =>
+        compilationData.sources.foreach(f => collectingSourcesClient.sourceStarted(f.toString))
+        throw e
+    }
+
+    if (!collectingSourcesClient.isCanceled) {
+      client.compilationStart()
+      compiler.compile(compilationData, collectingSourcesClient)
+      client.compilationEnd(collectingSourcesClient.sources ++ compilationData.sources)
+    }
+
+    ExitCode.Ok
+  }
+
+  override def computeStamps(outputFiles: Seq[Path], analysisFile: Path, client: Client): Right[Server.ServerError, ExitCode] = {
+    val analysisStore = AnalysisStoreFactory.createAnalysisStore(analysisFile)
+
+    analysisStore.get().toScala match {
+      case Some(analysisContents) =>
+        analysisContents.getAnalysis match {
+          case analysis: Analysis =>
+            val originalStamps = analysis.stamps
+            var newStamps = originalStamps
+            val stamper = StampReader.Instance
+            val converter = PlainVirtualFileConverter.converter
+            val iterator = outputFiles.iterator
+            while (iterator.hasNext) {
+              val classFile = iterator.next()
+              val virtualFile = converter.toVirtualFile(classFile)
+              val oldStamp = originalStamps.product(virtualFile)
+              val stamp = stamper.product(virtualFile)
+              if (oldStamp != stamp) {
+                newStamps = newStamps.markProduct(virtualFile, stamp)
+              }
+            }
+            val newAnalysis = analysis.copy(stamps = newStamps)
+            val newAnalysisContents = AnalysisContents.create(newAnalysis, analysisContents.getMiniSetup)
+            analysisStore.set(newAnalysisContents)
+          case _ =>
+        }
+      case _ =>
+    }
+
+    Right(ExitCode.Ok)
+  }
+
+  override def compileDocument(arguments: DocumentCompilationArguments, client: Client): Unit = {
+    val DocumentCompilationArguments(sbtData, compilerData, compilationData) = arguments
+
+    val collectingSourcesClient = new CollectingSourcesClient(client)
+
+    val compiler = (try {
+      val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
+      compilerFactory.createCompiler(compilerData, collectingSourcesClient, null)
+    } catch {
+      case NonFatal(t) =>
+        collectingSourcesClient.sourceStarted(compilationData.sourcePath.toString)
+        throw t
+    }) match {
+      case idea: IdeaIncrementalCompiler => idea
+      case c => sys.error(s"Document compilation can only be done with the IdeaIncrementalCompiler, compiler class: ${c.getClass.getName}")
+    }
+
+    if (!collectingSourcesClient.isCanceled) {
+      client.compilationStart()
+      compiler.compileDocument(compilationData, collectingSourcesClient)
+      client.compilationEnd(collectingSourcesClient.sources + compilationData.sourcePath)
+    }
+  }
+
+  // NOTE: `LocalServer` can be used both in JPS process (when can't connect to the scala compile server)
+  // and in ScalaCompileServer process. We need to use client.internalInfo instead of just Log,
+  // because when run in SCS `Log.info` doesn't do anything (it uses DefaultLogger, which is NoOp)
+  private def compilerFactoryFrom(
+    sbtData: SbtData,
+    compilerData: CompilerData,
+    client: Client
+  ): CompilerFactory = cachedCompilerFactory.getOrElse {
+    val cf = ServiceLoader.load(classOf[CompilerFactoryService])
+    val registeredCompilerFactories = cf.iterator().asScala.toList
+    client.internalInfo(s"Registered factories of ${classOf[CompilerFactoryService].getName}: $registeredCompilerFactories")
+    val firstEnabledCompilerFactory = registeredCompilerFactories.find(_.isEnabled(compilerData))
+    client.internalInfo(s"First enabled factory (if any): $firstEnabledCompilerFactory")
+    val factory = new CachingFactory(firstEnabledCompilerFactory.map(_.get(sbtData)).getOrElse(new CompilerFactoryImpl(sbtData)), 10, 10)
+    cachedCompilerFactory = Some(factory)
+    factory
+  }
+}

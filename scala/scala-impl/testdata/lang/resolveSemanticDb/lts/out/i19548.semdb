@@ -1,0 +1,10 @@
+Document tests/pos/i19548.scala
+(1:21..1:22) _empty_/i19548$package.byName().[T] -> 1:12
+(1:25..1:26) _empty_/i19548$package.byName().[T] -> 1:12
+(1:29..1:30) _empty_/i19548$package.byName().(p) -> 1:15
+(2:16..2:19) scala/Predef.`???`().
+(2:25..2:31) _empty_/i19548$package.byName(). -> 1:5
+(2:38..2:41) scala/Predef.`???`().
+(2:49..2:52) scala/Int#
+(2:57..2:60) scala/Int#
+

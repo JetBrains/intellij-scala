@@ -1,0 +1,23 @@
+<html>
+<body>
+<p>Reports methods with mutator-like names that have no parameter clauses.</p>
+
+<p>For a method with <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>,
+    it is convention to have an empty parameter clause to indicate that it is not just an accessor method.</p>
+
+<p>The quick-fix adds an empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  trait Test {
+    def updateAll: Boolean
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  trait Test {
+    def updateAll(): Boolean
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

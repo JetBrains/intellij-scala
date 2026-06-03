@@ -1,0 +1,144 @@
+package org.jetbrains.plugins.scala.lang.typeConformance
+
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement}
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestCase}
+import org.jetbrains.plugins.scala.extensions.{PathExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
+import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
+import org.junit.Assert.fail
+import org.junit.experimental.categories.Category
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Path
+
+@Category(Array(classOf[TypecheckerTests]))
+abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestCase with FailableTest {
+  protected val caretMarker = "/*caret*/"
+
+  def folderPath: Path = Path.of(TestUtils.getTestDataPath, "typeConformance")
+
+  protected def doTest(fileText: String, checkEquivalence: Boolean = false): Unit = {
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
+    doTestInner(checkEquivalence)
+  }
+
+  private def errorMessage(title: String, expected: Boolean, declaredType: ScType, rhsType: ScType)(implicit tpc: TypePresentationContext) = {
+    s"""$title
+       |Expected result: $expected
+       |declared type:   ${declaredType.presentableText}
+       |rhs type:        ${rhsType.presentableText}""".stripMargin
+  }
+
+  private def doTestInner(checkEquivalence: Boolean): Unit = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
+    val (declaredType, rhsType) = declaredAndExpressionTypes()
+    val expected = expectedResult
+    if (checkEquivalence) {
+      val equiv1 = rhsType.equiv(declaredType)
+      val equiv2 = declaredType.equiv(rhsType)
+      if (equiv1 != expected || equiv2 != expected) {
+        if (!shouldPass) return
+        fail(errorMessage("Equivalence failure", expected, declaredType, rhsType))
+      }
+
+      if (expected) {
+        val conforms = rhsType.conforms(declaredType)
+        if (!conforms) {
+          if (!shouldPass) return
+          fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
+        }
+      }
+    }
+    else {
+      val res: Boolean = rhsType.conforms(declaredType)
+      if (expected != res) {
+        if (!shouldPass) return
+        fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
+      }
+    }
+    if (!shouldPass) fail(failingPassed)
+  }
+
+  protected def doTest(): Unit = {
+    doTest(false)
+  }
+
+  protected def doTest(checkEquivalence: Boolean): Unit = {
+    configureFromFile()
+    doTestInner(checkEquivalence)
+  }
+
+  protected def configureFromFile(fileName: String = getTestName(false) + ".scala"): Unit = {
+    val filePath = folderPath / fileName
+    val fileText = StringUtil.convertLineSeparators(filePath.readAllBytesToString(StandardCharsets.UTF_8))
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
+  }
+
+  protected def declaredAndExpressionTypes(): (ScType, ScType) = {
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
+    val caretIndex = scalaFile.getText.indexOf(caretMarker)
+    val patternDef =
+      if (caretIndex > 0) {
+        PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScPatternDefinition], false)
+      }
+      else {
+        val patternDefinitions = scalaFile.depthFirst().filter(_.getNode.getElementType == ScalaElementType.PATTERN_DEFINITION).toSeq
+        patternDefinitions .lastOption.orNull
+      }
+    assert(patternDef != null, "Not specified expression in range to check conformance.")
+    val valueDecl = patternDef.asInstanceOf[ScPatternDefinition]
+    val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
+
+    val expr = valueDecl.expr.getOrElse(sys.error("Expression not found"))
+    expr.`type`() match {
+      case Right(rhsType) => (declaredType, rhsType)
+      case Failure(msg) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
+    }
+  }
+
+  private def expectedResult: Boolean = {
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
+    val ExpectedResultFromLastComment(_, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
+    val expectedResult = java.lang.Boolean.parseBoolean(output)
+    expectedResult
+  }
+
+  def doApplicationConformanceTest(fileText: String): Unit = {
+    import org.junit.Assert._
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
+    val caretIndex = scalaFile.getText.indexOf(caretMarker)
+    val element = if (caretIndex > 0) {
+      PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScMethodCall], false)
+    }
+    else scalaFile.findLastChildByTypeScala[PsiElement](ScalaElementType.METHOD_CALL).orNull
+    assertNotNull("Failed to locate application",element)
+    val application = element.asInstanceOf[ScMethodCall]
+    val errors = scala.collection.mutable.ArrayBuffer[String]()
+    val expectedResult = scalaFile.findElementAt(scalaFile.getText.length - 1) match {
+      case c: PsiComment => c.getText
+      case _ => "True"
+    }
+    for ((expr, param) <- application.matchedParameters) {
+      val exprTp = expr.`type`().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
+      val res = exprTp.conforms(param.paramType)
+      if (res != expectedResult.toBoolean)
+        errors +=
+          s"""
+             |Expected: $expectedResult
+             |Param tp: ${param.paramType.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+             |Arg   tp: ${exprTp.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+          """.stripMargin
+    }
+    assertTrue(if (shouldPass) "Conformance failure:\n"+ errors.mkString("\n\n").trim else failingPassed, !shouldPass ^ errors.isEmpty)
+  }
+}

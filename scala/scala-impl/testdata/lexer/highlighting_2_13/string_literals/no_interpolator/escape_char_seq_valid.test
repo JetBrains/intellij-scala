@@ -1,0 +1,19 @@
+"\\"
+"\\${}"
+"\t\n\r"
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+string content {"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+string content {${}"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\t}
+VALID_STRING_ESCAPE_TOKEN {\n}
+VALID_STRING_ESCAPE_TOKEN {\r}
+string content {"}

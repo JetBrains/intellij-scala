@@ -1,0 +1,31 @@
+object A /**/ { /**
+
+/*
+
+*/  }
+-----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiComment(BlockComment)('/**/')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiErrorElement:'}' expected
+          <empty list>
+  PsiWhiteSpace(' ')
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('\n\n')
+      ScPsiDocToken(DOC_COMMENT_DATA)('/*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n\n')
+      ScPsiDocToken(DOC_COMMENT_DATA)('*/  }')

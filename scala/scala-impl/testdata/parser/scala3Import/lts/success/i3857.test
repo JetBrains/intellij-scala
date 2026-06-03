@@ -1,0 +1,2502 @@
+object foo {
+  abstract sealed class num
+  final case class One() extends num
+  final case class Bit0(a: num) extends num
+  final case class Bit1(a: num) extends num
+
+  abstract sealed class abschar
+  final case class zero_char() extends abschar
+  final case class Char(a: num) extends abschar
+
+  def integer_of_char(x0: abschar): BigInt = {
+    def f(x: Int): Int = x
+    x0 match {
+    case Char(Bit0(Bit1(Bit0(Bit1(Bit0(One())))))) => BigInt(42)
+    case Char(Bit1(Bit0(Bit0(Bit1(Bit0(One())))))) => BigInt(41)
+    case Char(Bit0(Bit0(Bit0(Bit1(Bit0(One())))))) => BigInt(40)
+    case Char(Bit1(Bit1(Bit1(Bit0(Bit0(One())))))) => BigInt(39)
+    case Char(Bit0(Bit1(Bit1(Bit0(Bit0(One())))))) => BigInt(38)
+    case Char(Bit1(Bit0(Bit1(Bit0(Bit0(One())))))) => BigInt(37)
+    case Char(Bit0(Bit0(Bit1(Bit0(Bit0(One())))))) => BigInt(36)
+    case Char(Bit1(Bit1(Bit0(Bit0(Bit0(One())))))) => BigInt(35)
+    case Char(Bit0(Bit1(Bit0(Bit0(Bit0(One())))))) => BigInt(34)
+    case Char(Bit1(Bit0(Bit0(Bit0(Bit0(One())))))) => BigInt(33)
+    case Char(Bit0(Bit0(Bit0(Bit0(Bit0(One())))))) => BigInt(32)
+    case Char(Bit1(Bit1(Bit1(Bit1(One()))))) => BigInt(31)
+    case Char(Bit0(Bit1(Bit1(Bit1(One()))))) => BigInt(30)
+    case Char(Bit1(Bit0(Bit1(Bit1(One()))))) => BigInt(29)
+    case Char(Bit0(Bit0(Bit1(Bit1(One()))))) => BigInt(28)
+    case Char(Bit1(Bit1(Bit0(Bit1(One()))))) => BigInt(27)
+    case Char(Bit0(Bit1(Bit0(Bit1(One()))))) => BigInt(26)
+    case Char(Bit1(Bit0(Bit0(Bit1(One()))))) => BigInt(25)
+    case Char(Bit0(Bit0(Bit0(Bit1(One()))))) => BigInt(24)
+    case Char(Bit1(Bit1(Bit1(Bit0(One()))))) => BigInt(23)
+    case Char(Bit0(Bit1(Bit1(Bit0(One()))))) => BigInt(22)
+    case Char(Bit1(Bit0(Bit1(Bit0(One()))))) => BigInt(21)
+    case Char(Bit0(Bit0(Bit1(Bit0(One()))))) => BigInt(20)
+    case Char(Bit1(Bit1(Bit0(Bit0(One()))))) => BigInt(19)
+    case Char(Bit0(Bit1(Bit0(Bit0(One()))))) => BigInt(18)
+    case Char(Bit1(Bit0(Bit0(Bit0(One()))))) => BigInt(17)
+    case Char(Bit0(Bit0(Bit0(Bit0(One()))))) => BigInt(16)
+    case Char(Bit1(Bit1(Bit1(One())))) => BigInt(15)
+    case Char(Bit0(Bit1(Bit1(One())))) => BigInt(14)
+    case Char(Bit1(Bit0(Bit1(One())))) => BigInt(13)
+    case Char(Bit0(Bit0(Bit1(One())))) => BigInt(12)
+    case Char(Bit1(Bit1(Bit0(One())))) => BigInt(11)
+    case Char(Bit0(Bit1(Bit0(One())))) => BigInt(10)
+    case Char(Bit1(Bit0(Bit0(One())))) => BigInt(9)
+    case Char(Bit0(Bit0(Bit0(One())))) => BigInt(8)
+    case Char(Bit1(Bit1(One()))) => BigInt(7)
+    case Char(Bit0(Bit1(One()))) => BigInt(6)
+    case Char(Bit1(Bit0(One()))) => BigInt(5)
+    case Char(Bit0(Bit0(One()))) => BigInt(4)
+    case Char(Bit1(One())) => BigInt(3)
+    case Char(Bit0(One())) => BigInt(2)
+    case Char(One()) => BigInt(1)
+    case zero_char() => BigInt(0)
+  }
+  }
+}
+-----
+ScalaFile
+  ScObject: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: num
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('num')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: One
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('One')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: num
+                  CodeReferenceElement: num
+                    PsiElement(identifier)('num')
+        PsiWhiteSpace('\n  ')
+        ScClass: Bit0
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bit0')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: num
+                      CodeReferenceElement: num
+                        PsiElement(identifier)('num')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: num
+                  CodeReferenceElement: num
+                    PsiElement(identifier)('num')
+        PsiWhiteSpace('\n  ')
+        ScClass: Bit1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bit1')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: num
+                      CodeReferenceElement: num
+                        PsiElement(identifier)('num')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: num
+                  CodeReferenceElement: num
+                    PsiElement(identifier)('num')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: abschar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('abschar')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: zero_char
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('zero_char')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: abschar
+                  CodeReferenceElement: abschar
+                    PsiElement(identifier)('abschar')
+        PsiWhiteSpace('\n  ')
+        ScClass: Char
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Char')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: num
+                      CodeReferenceElement: num
+                        PsiElement(identifier)('num')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: abschar
+                  CodeReferenceElement: abschar
+                    PsiElement(identifier)('abschar')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: integer_of_char
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('integer_of_char')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x0
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x0')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: abschar
+                    CodeReferenceElement: abschar
+                      PsiElement(identifier)('abschar')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: BigInt
+            CodeReferenceElement: BigInt
+              PsiElement(identifier)('BigInt')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('f')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ReferenceExpression: x0
+                PsiElement(identifier)('x0')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('42')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('41')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('40')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('39')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('38')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('37')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('36')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('35')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('34')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('33')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: Bit0
+                                          PsiElement(identifier)('Bit0')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          ConstructorPattern
+                                            CodeReferenceElement: One
+                                              PsiElement(identifier)('One')
+                                            Pattern Argument List
+                                              PsiElement(()('(')
+                                              PsiElement())(')')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('32')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('31')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('30')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('29')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('28')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('27')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('26')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('25')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit1
+                                      PsiElement(identifier)('Bit1')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('24')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('23')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('22')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('21')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('20')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('19')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('18')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('17')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Bit0
+                                      PsiElement(identifier)('Bit0')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ConstructorPattern
+                                        CodeReferenceElement: One
+                                          PsiElement(identifier)('One')
+                                        Pattern Argument List
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('16')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('15')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('14')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('13')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit1
+                                  PsiElement(identifier)('Bit1')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('12')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('11')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('10')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('9')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: Bit0
+                                  PsiElement(identifier)('Bit0')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ConstructorPattern
+                                    CodeReferenceElement: One
+                                      PsiElement(identifier)('One')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('8')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('7')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit1
+                              PsiElement(identifier)('Bit1')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('6')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('5')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: Bit0
+                              PsiElement(identifier)('Bit0')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ConstructorPattern
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('4')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit1
+                          PsiElement(identifier)('Bit1')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: One
+                              PsiElement(identifier)('One')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('3')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: Bit0
+                          PsiElement(identifier)('Bit0')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ConstructorPattern
+                            CodeReferenceElement: One
+                              PsiElement(identifier)('One')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ConstructorPattern
+                        CodeReferenceElement: One
+                          PsiElement(identifier)('One')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: zero_char
+                      PsiElement(identifier)('zero_char')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: BigInt
+                        PsiElement(identifier)('BigInt')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

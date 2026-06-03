@@ -1,0 +1,25 @@
+Document tests/pos/i18453.workaround.scala
+(4:18..4:19) _empty_/Test#f().[A] -> 4:9
+(4:23..4:24) _empty_/Test#f().[A] -> 4:9
+(4:25..4:26) scala/`&`#
+(4:27..4:28) _empty_/Test#f().[B] -> 4:12
+(4:40..4:43) _empty_/Box# -> 1:7
+(4:44..4:45) _empty_/Test#f().[A] -> 4:9
+(4:49..4:53) scala/Unit#
+(4:56..4:59) scala/Predef.`???`().
+(6:25..6:28) _empty_/Box# -> 1:7
+(6:29..6:30) _empty_/Test#g().[X] -> 6:9
+(6:34..6:38) scala/Unit#
+(7:14..7:15) _empty_/Test#g().[X] -> 6:9
+(7:18..7:19) _empty_/Test#g().[X] -> 6:9
+(7:20..7:21) scala/`&`#
+(7:22..7:23) _empty_/Test#g().[Y] -> 6:12
+(7:26..7:27) local0 -> 7:11
+(7:28..7:40) scala/Any#asInstanceOf().
+(7:41..7:42) _empty_/Test#g().[X] -> 6:9
+(7:43..7:44) scala/`&`#
+(7:45..7:46) _empty_/Test#g().[Y] -> 6:12
+(8:5..8:6) _empty_/Test#f(). -> 4:7
+(8:12..8:13) local1 -> 7:9
+(8:14..8:15) local2 -> 8:7
+

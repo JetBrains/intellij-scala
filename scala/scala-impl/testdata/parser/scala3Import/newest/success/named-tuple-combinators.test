@@ -1,0 +1,3588 @@
+
+object Test:
+  // original code from issue https://github.com/scala/scala3/issues/20427
+  type NT = NamedTuple.Concat[(hi: Int), (bla: String)]
+  def foo(x: NT) =
+    x.hi // error
+    val y: (hi: Int, bla: String) = x
+    y.hi // ok
+
+  // SELECTOR (reduces to apply)
+  def foo1(x: NT) =
+    val res1 = x.hi // error
+    summon[res1.type <:< Int]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.hi // ok
+    summon[res2.type <:< Int]
+
+  // toTuple
+  def foo2(x: NT) =
+    val res1 = x.toTuple
+    summon[res1.type <:< (Int, String)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.toTuple
+    summon[res2.type <:< (Int, String)]
+
+  // apply
+  def foo3(x: NT) =
+    val res1 = x.apply(1)
+    summon[res1.type <:< String]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.apply(1)
+    summon[res2.type <:< String]
+
+  // size
+  def foo4(x: NT) =
+    class Box:
+      final val res1 = x.size // final val constrains to a singleton type
+      summon[res1.type <:< 2]
+      val y: (hi: Int, bla: String) = x
+      final val res2 = y.size // final val constrains to a singleton type
+      summon[res2.type <:< 2]
+
+  // head
+  def foo5(x: NT) =
+    val res1 = x.head
+    summon[res1.type <:< Int]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.head
+    summon[res2.type <:< Int]
+
+  // last
+  def foo6(x: NT) =
+    val res1 = x.last
+    summon[res1.type <:< String]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.last
+    summon[res2.type <:< String]
+
+  // init
+  def foo7(x: NT) =
+    val res1 = x.init
+    summon[res1.type <:< (hi: Int)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.init
+    summon[res2.type <:< (hi: Int)]
+
+  // tail
+  def foo8(x: NT) =
+    val res1 = x.tail
+    summon[res1.type <:< (bla: String)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.tail
+    summon[res2.type <:< (bla: String)]
+
+  // take
+  def foo9(x: NT) =
+    val res1 = x.take(1)
+    summon[res1.type <:< (hi: Int)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.take(1)
+    summon[res2.type <:< (hi: Int)]
+
+  // drop
+  def foo10(x: NT) =
+    val res1 = x.drop(1)
+    summon[res1.type <:< (bla: String)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.drop(1)
+    summon[res2.type <:< (bla: String)]
+
+  // splitAt
+  def foo11(x: NT) =
+    val res1 = x.splitAt(1)
+    summon[res1.type <:< ((hi: Int), (bla: String))]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.splitAt(1)
+    summon[res2.type <:< ((hi: Int), (bla: String))]
+
+  // ++
+  def foo12(x: NT) =
+    val res1 = x ++ (baz = 23)
+    summon[res1.type <:< (hi: Int, bla: String, baz: Int)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y ++ (baz = 23)
+    summon[res2.type <:< (hi: Int, bla: String, baz: Int)]
+
+  // map
+  def foo13(x: NT) =
+    val res1 = x.map([T] => (t: T) => Option(t))
+    summon[res1.type <:< (hi: Option[Int], bla: Option[String])]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.map([T] => (t: T) => Option(t))
+    summon[res2.type <:< (hi: Option[Int], bla: Option[String])]
+
+  // reverse
+  def foo14(x: NT) =
+    val res1 = x.reverse
+    summon[res1.type <:< (bla: String, hi: Int)]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.reverse
+    summon[res2.type <:< (bla: String, hi: Int)]
+
+  // zip
+  def foo15(x: NT) =
+    val res1 = x.zip((hi = "xyz", bla = true))
+    summon[res1.type <:< (hi: (Int, String), bla: (String, Boolean))]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.zip((hi = "xyz", bla = true))
+    summon[res2.type <:< (hi: (Int, String), bla: (String, Boolean))]
+
+  // toList
+  def foo16(x: NT) =
+    val res1 = x.toList
+    summon[res1.type <:< List[Tuple.Union[(Int, String)]]]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.toList
+    summon[res2.type <:< List[Tuple.Union[(Int, String)]]]
+
+  // toArray
+  def foo17(x: NT) =
+    val res1 = x.toArray
+    summon[res1.type <:< Array[Object]]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.toArray
+    summon[res2.type <:< Array[Object]]
+
+  // toIArray
+  def foo18(x: NT) =
+    val res1 = x.toIArray
+    summon[res1.type <:< IArray[Object]]
+    val y: (hi: Int, bla: String) = x
+    val res2 = y.toIArray
+    summon[res2.type <:< IArray[Object]]
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: NT
+          PsiComment(comment)('// original code from issue https://github.com/scala/scala3/issues/20427')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NT')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: NamedTuple.Concat[(hi: Int), (bla: String)]
+            SimpleType: NamedTuple.Concat
+              CodeReferenceElement: NamedTuple.Concat
+                CodeReferenceElement: NamedTuple
+                  PsiElement(identifier)('NamedTuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Concat')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                NamedTupleType: (hi: Int)
+                  PsiElement(()('(')
+                  NamedTupleTypeComponent: hi: Int
+                    PsiElement(identifier)('hi')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                NamedTupleType: (bla: String)
+                  PsiElement(()('(')
+                  NamedTupleTypeComponent: bla: String
+                    PsiElement(identifier)('bla')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: x.hi
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement(.)('.')
+              PsiElement(identifier)('hi')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// error')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: y.hi
+              ReferenceExpression: y
+                PsiElement(identifier)('y')
+              PsiElement(.)('.')
+              PsiElement(identifier)('hi')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo1
+          PsiComment(comment)('// SELECTOR (reduces to apply)')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.hi
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('hi')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// error')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< Int
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.hi
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('hi')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// ok')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< Int
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo2
+          PsiComment(comment)('// toTuple')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.toTuple
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toTuple')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (Int, String)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    TupleType: (Int, String)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.toTuple
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toTuple')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (Int, String)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    TupleType: (Int, String)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo3
+          PsiComment(comment)('// apply')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo3')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.apply
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< String
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.apply
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< String
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo4
+          PsiComment(comment)('// size')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo4')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScClass: Box
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Box')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              ExtendsBlock
+                ScTemplateBody
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: res1
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(final)('final')
+                    PsiWhiteSpace(' ')
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: res1
+                        PsiElement(identifier)('res1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.size
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('size')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// final val constrains to a singleton type')
+                  PsiWhiteSpace('\n      ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        InfixType: res1.type <:< 2
+                          SimpleType: res1.type
+                            CodeReferenceElement: res1
+                              PsiElement(identifier)('res1')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: <:<
+                            PsiElement(identifier)('<:<')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                      PsiElement(])(']')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: y
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: y
+                        PsiElement(identifier)('y')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int, bla: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: res2
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(final)('final')
+                    PsiWhiteSpace(' ')
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: res2
+                        PsiElement(identifier)('res2')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: y.size
+                      ReferenceExpression: y
+                        PsiElement(identifier)('y')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('size')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// final val constrains to a singleton type')
+                  PsiWhiteSpace('\n      ')
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        InfixType: res2.type <:< 2
+                          SimpleType: res2.type
+                            CodeReferenceElement: res2
+                              PsiElement(identifier)('res2')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: <:<
+                            PsiElement(identifier)('<:<')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo5
+          PsiComment(comment)('// head')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo5')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.head
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('head')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< Int
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.head
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('head')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< Int
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo6
+          PsiComment(comment)('// last')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo6')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.last
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('last')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< String
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.last
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('last')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< String
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo7
+          PsiComment(comment)('// init')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo7')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.init
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('init')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (hi: Int)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.init
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('init')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (hi: Int)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo8
+          PsiComment(comment)('// tail')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo8')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.tail
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('tail')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (bla: String)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.tail
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('tail')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (bla: String)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo9
+          PsiComment(comment)('// take')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo9')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.take
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('take')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (hi: Int)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.take
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('take')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (hi: Int)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo10
+          PsiComment(comment)('// drop')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo10')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.drop
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('drop')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (bla: String)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.drop
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('drop')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (bla: String)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo11
+          PsiComment(comment)('// splitAt')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo11')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.splitAt
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('splitAt')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< ((hi: Int), (bla: String))
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    TupleType: ((hi: Int), (bla: String))
+                      PsiElement(()('(')
+                      TypesList
+                        NamedTupleType: (hi: Int)
+                          PsiElement(()('(')
+                          NamedTupleTypeComponent: hi: Int
+                            PsiElement(identifier)('hi')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement())(')')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        NamedTupleType: (bla: String)
+                          PsiElement(()('(')
+                          NamedTupleTypeComponent: bla: String
+                            PsiElement(identifier)('bla')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.splitAt
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('splitAt')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< ((hi: Int), (bla: String))
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    TupleType: ((hi: Int), (bla: String))
+                      PsiElement(()('(')
+                      TypesList
+                        NamedTupleType: (hi: Int)
+                          PsiElement(()('(')
+                          NamedTupleTypeComponent: hi: Int
+                            PsiElement(identifier)('hi')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement())(')')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        NamedTupleType: (bla: String)
+                          PsiElement(()('(')
+                          NamedTupleTypeComponent: bla: String
+                            PsiElement(identifier)('bla')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo12
+          PsiComment(comment)('// ++')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo12')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                NamedTuple
+                  PsiElement(()('(')
+                  ScNamedTupleExprComponentImpl(named tuple component)
+                    PsiElement(identifier)('baz')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('23')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (hi: Int, bla: String, baz: Int)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int, bla: String, baz: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: baz: Int
+                        PsiElement(identifier)('baz')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ++
+                  PsiElement(identifier)('++')
+                PsiWhiteSpace(' ')
+                NamedTuple
+                  PsiElement(()('(')
+                  ScNamedTupleExprComponentImpl(named tuple component)
+                    PsiElement(identifier)('baz')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('23')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (hi: Int, bla: String, baz: Int)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Int, bla: String, baz: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: baz: Int
+                        PsiElement(identifier)('baz')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo13
+          PsiComment(comment)('// map')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo13')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.map
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  PolyFunctionExpression
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: t
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('t')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: Option
+                          PsiElement(identifier)('Option')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: t
+                            PsiElement(identifier)('t')
+                          PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (hi: Option[Int], bla: Option[String])
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Option[Int], bla: Option[String])
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Option[Int]
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Option[Int]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: Option[String]
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Option[String]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.map
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  PolyFunctionExpression
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: T
+                        PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: t
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('t')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: Option
+                          PsiElement(identifier)('Option')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: t
+                            PsiElement(identifier)('t')
+                          PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (hi: Option[Int], bla: Option[String])
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: Option[Int], bla: Option[String])
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: Option[Int]
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Option[Int]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: Option[String]
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Option[String]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo14
+          PsiComment(comment)('// reverse')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo14')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.reverse
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('reverse')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (bla: String, hi: Int)
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String, hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.reverse
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('reverse')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (bla: String, hi: Int)
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (bla: String, hi: Int)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: bla: String
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: hi: Int
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo15
+          PsiComment(comment)('// zip')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo15')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: x.zip
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('zip')
+                ArgumentList
+                  PsiElement(()('(')
+                  NamedTuple
+                    PsiElement(()('(')
+                    ScNamedTupleExprComponentImpl(named tuple component)
+                      PsiElement(identifier)('hi')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('"xyz"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ScNamedTupleExprComponentImpl(named tuple component)
+                      PsiElement(identifier)('bla')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      BooleanLiteral
+                        PsiElement(true)('true')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< (hi: (Int, String), bla: (String, Boolean))
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: (Int, String), bla: (String, Boolean))
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: (Int, String)
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TupleType: (Int, String)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: (String, Boolean)
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TupleType: (String, Boolean)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Boolean
+                              CodeReferenceElement: Boolean
+                                PsiElement(identifier)('Boolean')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: y.zip
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('zip')
+                ArgumentList
+                  PsiElement(()('(')
+                  NamedTuple
+                    PsiElement(()('(')
+                    ScNamedTupleExprComponentImpl(named tuple component)
+                      PsiElement(identifier)('hi')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      StringLiteral
+                        PsiElement(string content)('"xyz"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ScNamedTupleExprComponentImpl(named tuple component)
+                      PsiElement(identifier)('bla')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      BooleanLiteral
+                        PsiElement(true)('true')
+                    PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< (hi: (Int, String), bla: (String, Boolean))
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    NamedTupleType: (hi: (Int, String), bla: (String, Boolean))
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: hi: (Int, String)
+                        PsiElement(identifier)('hi')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TupleType: (Int, String)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: bla: (String, Boolean)
+                        PsiElement(identifier)('bla')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TupleType: (String, Boolean)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Boolean
+                              CodeReferenceElement: Boolean
+                                PsiElement(identifier)('Boolean')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo16
+          PsiComment(comment)('// toList')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo16')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.toList
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toList')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< List[Tuple.Union[(Int, String)]]
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: List[Tuple.Union[(Int, String)]]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Union[(Int, String)]
+                            SimpleType: Tuple.Union
+                              CodeReferenceElement: Tuple.Union
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Union')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                TupleType: (Int, String)
+                                  PsiElement(()('(')
+                                  TypesList
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: String
+                                      CodeReferenceElement: String
+                                        PsiElement(identifier)('String')
+                                  PsiElement())(')')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.toList
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toList')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< List[Tuple.Union[(Int, String)]]
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: List[Tuple.Union[(Int, String)]]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Union[(Int, String)]
+                            SimpleType: Tuple.Union
+                              CodeReferenceElement: Tuple.Union
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Union')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                TupleType: (Int, String)
+                                  PsiElement(()('(')
+                                  TypesList
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: String
+                                      CodeReferenceElement: String
+                                        PsiElement(identifier)('String')
+                                  PsiElement())(')')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo17
+          PsiComment(comment)('// toArray')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo17')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.toArray
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toArray')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< Array[Object]
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Array[Object]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Object
+                            CodeReferenceElement: Object
+                              PsiElement(identifier)('Object')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.toArray
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toArray')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< Array[Object]
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Array[Object]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Object
+                            CodeReferenceElement: Object
+                              PsiElement(identifier)('Object')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo18
+          PsiComment(comment)('// toIArray')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo18')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NT
+                    CodeReferenceElement: NT
+                      PsiElement(identifier)('NT')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x.toIArray
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toIArray')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res1.type <:< IArray[Object]
+                    SimpleType: res1.type
+                      CodeReferenceElement: res1
+                        PsiElement(identifier)('res1')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: IArray[Object]
+                      SimpleType: IArray
+                        CodeReferenceElement: IArray
+                          PsiElement(identifier)('IArray')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Object
+                            CodeReferenceElement: Object
+                              PsiElement(identifier)('Object')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              NamedTupleType: (hi: Int, bla: String)
+                PsiElement(()('(')
+                NamedTupleTypeComponent: hi: Int
+                  PsiElement(identifier)('hi')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                NamedTupleTypeComponent: bla: String
+                  PsiElement(identifier)('bla')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: y.toIArray
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toIArray')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: res2.type <:< IArray[Object]
+                    SimpleType: res2.type
+                      CodeReferenceElement: res2
+                        PsiElement(identifier)('res2')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: IArray[Object]
+                      SimpleType: IArray
+                        CodeReferenceElement: IArray
+                          PsiElement(identifier)('IArray')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Object
+                            CodeReferenceElement: Object
+                              PsiElement(identifier)('Object')
+                        PsiElement(])(']')
+                PsiElement(])(']')

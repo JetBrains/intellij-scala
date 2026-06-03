@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Non-local return statement</title>
+</head>
+<body>
+<p>Reports when a <code>return</code> keyword is used inside an anonymous function to jump out of it early.
+    Nonlocal returns are implemented by throwing and catching <code>scala.runtime.NonLocalReturnException</code>-s.
+    This is rarely what is intended by the programmer. It can be problematic because of the hidden performance cost of
+    throwing and catching exceptions. </p>
+<p>Furthermore, it is a leaky implementation: a catch-all exception handler can intercept a <code>NonLocalReturnException</code>.</p>
+
+<pre><code>
+def foo(numbers: Seq[Int]): Int =
+  numbers.map { n =>
+    if (n > 5)
+      return 0 // highlighted
+    n * 2
+  }.sum
+</code></pre>
+
+<!-- tooltip end -->
+</body>
+</html>

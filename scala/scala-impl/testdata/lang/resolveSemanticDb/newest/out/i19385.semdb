@@ -1,0 +1,23 @@
+Document tests/pos/i19385.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:35) scala/compiletime/package$package.summonAll().
+(3:19..3:24) scala/Tuple#
+(3:27..3:31) scala/Unit#
+(4:16..4:21) scala/Tuple.
+(4:22..4:25) scala/Tuple.Map#
+(4:26..4:27) _empty_/i19385$package.f().[M] -> 3:14
+(4:37..4:44) scala/package.Numeric#
+(4:45..4:46) local0 -> 4:30
+(5:3..5:12) scala/compiletime/package$package.summonAll().
+(5:13..5:18) scala/Tuple.
+(5:19..5:22) scala/Tuple.Map#
+(5:23..5:24) _empty_/i19385$package.f().[M] -> 3:14
+(5:34..5:41) scala/package.Numeric#
+(5:42..5:43) _empty_/i19385$package.f().[X] -> 5:27
+(6:3..6:12) scala/compiletime/package$package.summonAll().
+(6:13..6:18) local1 -> 4:8
+(8:10..8:11) _empty_/i19385$package.f(). -> 3:12
+(8:13..8:16) scala/Int#
+(8:18..8:21) scala/Int#
+

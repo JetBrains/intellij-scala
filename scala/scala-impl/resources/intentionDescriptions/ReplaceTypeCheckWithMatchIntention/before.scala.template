@@ -1,0 +1,7 @@
+val value = 0
+  if (<spot>value.isInstanceOf[Int]</spot>) {
+    val x = value.asInstanceOf[Int]
+    val y = value.asInstanceOf[Int] + 2
+  } else if (value != 0 && value.isInstanceOf[Long]) {
+    val x = value.asInstanceOf[Long] + 1
+  }

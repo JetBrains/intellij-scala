@@ -1,0 +1,33 @@
+UFile (package = A.B.C)
+    UClass (name = Foo)
+        UMethod (name = Foo)
+    UClass (name = FooWithParam)
+        UField (name = num)
+            ULiteralExpression (value = 5)
+        UMethod (name = FooWithParam)
+    UClass (name = Bar)
+        UMethod (name = Bar)
+        UMethod (name = getFoo)
+            UBlockExpression
+                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 0))
+                    USimpleNameReferenceExpression (identifier = FooWithParam)
+                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                    USimpleNameReferenceExpression (identifier = FooWithParam)
+                    ULiteralExpression (value = 4)
+                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 1))
+                    USimpleNameReferenceExpression (identifier = FooWithParam)
+                    UNamedExpression (name = num)
+                        ULiteralExpression (value = 8)
+                UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 0))
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            UQualifiedReferenceExpression
+                                USimpleNameReferenceExpression (identifier = A)
+                                USimpleNameReferenceExpression (identifier = B)
+                            USimpleNameReferenceExpression (identifier = C)
+                        USimpleNameReferenceExpression (identifier = Foo)
+                UReturnExpression
+                    UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 0))
+                        USimpleNameReferenceExpression (identifier = Foo)
+        UClass (name = BarInner)
+            UMethod (name = BarInner)

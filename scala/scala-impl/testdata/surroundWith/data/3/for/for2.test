@@ -1,0 +1,10 @@
+class a:
+  <start>i+2
+  i+3<for>
+end a
+-----
+class a:
+  for  do
+    i + 2
+    i + 3
+end a

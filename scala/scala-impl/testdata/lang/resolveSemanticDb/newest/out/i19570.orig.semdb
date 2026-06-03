@@ -1,0 +1,26 @@
+Document tests/pos/i19570.orig.scala
+(2:25..2:27) _empty_/Op# -> 1:6
+(2:28..2:29) _empty_/Op.Dup#[T] -> 2:12
+(2:32..2:33) _empty_/Op.Dup#[T] -> 2:12
+(2:35..2:36) _empty_/Op.Dup#[T] -> 2:12
+(4:46..4:47) _empty_/`i19570.orig$package`.foo().[R] -> 4:9
+(5:5..5:6) _empty_/`i19570.orig$package`.foo().(f) -> 4:12
+(5:7..5:9) _empty_/Op.
+(5:10..5:13) _empty_/Op.Dup.
+(8:3..8:6) _empty_/`i19570.orig$package`.foo(). -> 4:5
+(8:21..8:23) _empty_/Op# -> 1:6
+(8:24..8:25) local4 -> 8:8
+(8:27..8:28) local5 -> 8:11
+(9:5..9:6) local6 -> 8:18
+(10:15..10:17) _empty_/Op.
+(10:18..10:21) _empty_/Op.Dup# -> 2:8
+(11:9..11:15) scala/Predef.summon().
+(11:16..11:17) local4 -> 8:8
+(11:18..11:21) scala/`=:=`#
+(11:22..11:23) local7 -> 10:22
+(12:9..12:15) scala/Predef.summon().
+(12:16..12:17) local5 -> 8:11
+(12:18..12:21) scala/`=:=`#
+(12:23..12:24) local7 -> 10:22
+(12:26..12:27) local7 -> 10:22
+

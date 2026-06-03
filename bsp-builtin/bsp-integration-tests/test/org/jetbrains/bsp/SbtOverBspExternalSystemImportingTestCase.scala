@@ -1,0 +1,118 @@
+package org.jetbrains.bsp
+
+import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.testFramework.PlatformTestUtil
+import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
+import org.jetbrains.bsp.settings.BspProjectSettings
+import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
+import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
+import org.jetbrains.sbt.{Sbt, SbtVersion}
+import org.jetbrains.sbt.project.{SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
+
+import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
+import scala.util.{Failure, Success}
+
+/** See also [[org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike]] */
+trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImportingTestBase {
+
+  //To open SBT project as BSP you still need `build.sbt` file
+  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
+
+  override protected def getExternalSystemId: ProjectSystemId = BSP.ProjectSystemId
+
+  override protected def getTestsTempDir: String = "" // Use default temp directory
+
+  override protected def getCurrentExternalProjectSettings: BspProjectSettings = new BspProjectSettings
+
+  protected def reuseExistingConnectionFile: Boolean = true
+
+  /**
+   * sbt version that should be injected into the `build.properties` file in the project.
+   *
+   * @see [[injectSbtVersion]]
+   */
+  protected def sbtVersionToInject: Option[SbtVersion] = None
+
+  override def setUpFixtures(): Unit = {
+    super.setUpFixtures()
+
+    //need to do this before actual import is started in `setUp` method
+    ProjectHighlightingTestUtils.dontPrintErrorsAndWarningsToConsole(this)
+  }
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    // Set the sbt version in the project before generating the BSP connection file.
+    // In theory, this might be enough to override the sbt version in the test case
+    // before importing the project, because when the sbt/BSP server
+    // starts to import the project, the sbt version from the properties file
+    // should override the version from the connection file (it's implemented in sbt).
+    // However, for correctness and clarity, let's keep it here.
+    injectSbtVersion()
+
+    generateSbtBspConfigurationFileIfNeeded()
+  }
+
+  private def injectSbtVersion(): Unit =
+    sbtVersionToInject.foreach { version =>
+      SbtProjectImportTestUtils.injectVariable(
+        getTestProjectPath / "project" / "build.properties",
+        "$SBT_VERSION$",
+        version.minor,
+      )
+    }
+
+  protected def generateSbtBspConfigurationFileIfNeeded(): Unit = {
+    val projectPath = getTestProjectPath
+    val bspConfigFile = projectPath / ".bsp/sbt.json"
+
+    if (!bspConfigFile.exists || !reuseExistingConnectionFile) {
+      generateSbtBspConfigurationFile(projectPath)
+    } else {
+      println(
+        s"""!!!
+           |!!! Reusing existing BSP connection configuration file $bspConfigFile
+           |!!! """.stripMargin
+      )
+    }
+  }
+
+  protected def generateSbtBspConfigurationFile(projectPath: Path): Unit = {
+    val title = "Generating sbt bsp configuration"
+    println(s"$title Started")
+
+    //it's done in `setupSdk` but in this test we need JDK earlier
+    setupProjectJdk()
+    val jdk = getJdkConfiguredForTestCase
+
+    val future = new CompletableFuture[Unit]()
+    val task = new Task.Backgroundable(null, title, false) {
+      override def run(indicator: ProgressIndicator): Unit = {
+        val sbtBspConfigSetup = SbtConfigSetup(projectPath, jdk)
+        val reporter = new ConsoleReporter(name = "") {
+          override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = {
+            //do nothing, in tests it's enough to see the console output which is already printed by SbtStructureDump
+          }
+        }
+        val buildMessages = sbtBspConfigSetup.run(indicator)(using reporter)
+        buildMessages match {
+          case Failure(exception) =>
+            future.completeExceptionally(exception)
+          case Success(messages) =>
+            if (messages.errors.nonEmpty) {
+              future.completeExceptionally(new AssertionError(s"$title Failed: ${messages.errors.map(_.getMessage).mkString("\n")}"))
+            } else {
+              println(s"$title Completed")
+              future.complete(())
+            }
+        }
+      }
+    }
+    task.queue()
+    PlatformTestUtil.waitForFuture(future)
+  }
+}

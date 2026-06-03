@@ -1,0 +1,62 @@
+class a {
+  +a + -b + ~c + !d
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          InfixExpression
+            InfixExpression
+              PrefixExpression
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              PrefixExpression
+                ReferenceExpression: -
+                  PsiElement(identifier)('-')
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            PrefixExpression
+              ReferenceExpression: ~
+                PsiElement(identifier)('~')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          PrefixExpression
+            ReferenceExpression: !
+              PsiElement(identifier)('!')
+            ReferenceExpression: d
+              PsiElement(identifier)('d')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

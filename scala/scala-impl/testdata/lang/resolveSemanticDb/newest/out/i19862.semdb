@@ -1,0 +1,13 @@
+Document tests/pos/i19862.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(4:38..4:39) _empty_/Test.uhOh().[A] -> 4:28
+(4:42..4:43) _empty_/Test.uhOh().[A] -> 4:28
+(5:5..5:16) scala/compiletime/
+(5:17..5:22) scala/compiletime/package$package.error().
+(8:5..8:11) scala/Predef.summon().
+(8:12..8:21) scala/Function1#
+(8:22..8:25) scala/Int#
+(8:27..8:30) scala/Int#
+

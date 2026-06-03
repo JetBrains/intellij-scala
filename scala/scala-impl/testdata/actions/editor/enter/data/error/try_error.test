@@ -1,0 +1,12 @@
+class C {
+  try {}
+  catch {<caret>
+  }
+}
+-----
+class C {
+  try {}
+  catch {
+    <caret>
+  }
+}

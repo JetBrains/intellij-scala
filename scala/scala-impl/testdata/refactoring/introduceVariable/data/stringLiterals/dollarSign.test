@@ -1,0 +1,15 @@
+//### replaceAll=true
+class a {
+  def foo() = {
+    "Hello, <selection>$Bob</selection>!"
+    s"$Bob"
+  }
+}
+------
+class a {
+  def foo() = {
+    val value: String = "$Bob"
+    "Hello, " + value + "!"
+    s"$Bob"
+  }
+}

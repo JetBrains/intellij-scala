@@ -1,0 +1,7 @@
+Document tests/pos/inline-t2425.scala
+(1:21..1:24) scala/App#
+(2:26..2:27) _empty_/Test.foo().[T] -> 2:18
+(3:5..3:8) _empty_/Test.foo().(bar) -> 2:21
+(7:3..7:6) _empty_/Test.foo(). -> 2:14
+(7:7..7:12) scala/Array.
+

@@ -1,0 +1,10 @@
+[0,43]: PackageDef
+[0,0]: Ident
+[0,43]: DefDef
+[14,14]: TypeTree
+[19,43]: Select
+[19,40]: Select
+[19,34]: Apply
+[23,32]: Select
+[23,32]: New
+[23,32]: Ident

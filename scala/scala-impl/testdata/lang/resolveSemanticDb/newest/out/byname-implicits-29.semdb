@@ -1,0 +1,16 @@
+Document tests/pos/byname-implicits-29.scala
+(4:47..4:51) _empty_/Test.Loop# -> 2:9
+(4:52..4:53) _empty_/Test.Loop.mkLoop().[T] -> 4:25
+(4:55..4:56) _empty_/Test.Loop.mkLoop().[U] -> 4:28
+(4:66..4:70) _empty_/Test.Loop# -> 2:9
+(4:71..4:72) _empty_/Test.Loop.mkLoop().[U] -> 4:28
+(4:74..4:75) _empty_/Test.Loop.mkLoop().[T] -> 4:25
+(4:79..4:83) _empty_/Test.Loop# -> 2:9
+(4:84..4:85) _empty_/Test.Loop.mkLoop().[T] -> 4:25
+(4:87..4:88) _empty_/Test.Loop.mkLoop().[U] -> 4:28
+(4:92..4:95) scala/Predef.`???`().
+(7:3..7:13) scala/Predef.implicitly().
+(7:14..7:18) _empty_/Test.Loop# -> 2:9
+(7:19..7:22) scala/Int#
+(7:24..7:30) scala/Predef.String#
+

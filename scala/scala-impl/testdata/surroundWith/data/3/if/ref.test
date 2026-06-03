@@ -1,0 +1,9 @@
+class a:
+  <start>s<else>.startsWith("t")
+end a
+------
+class a:
+  (if  then
+    s
+  else {}).startsWith("t")
+end a

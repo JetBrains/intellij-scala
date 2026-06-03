@@ -1,0 +1,36 @@
+#if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != ""))package ${PACKAGE_NAME}
+
+#end
+
+/**
+ * Scala collections comprise a vast set of data structures that offer powerful and flexible ways to manipulate and organize data.
+ * The Scala collections framework is designed to be both user-friendly and expressive, enabling you to perform complex operations with
+ * concise and readable code. To achieve this, numerous methods take functions as arguments.
+ */
+val numbers: Seq[Int] = 1 to 100
+
+/**
+ * $ProductName can help you learn methods of Scala collections with <b>Code Completion</b>. Look at the method below.
+ * We take a sequence of integers from 1 to 100 (`numbers`), we turn the sequence into a view (`view`) to make our computations lazy,
+ * then we square each number with `map`, and use `find` to find the first even squared number greater than 100.
+ * At the end, we use `.getOrElse` to get that number or to get `0` if it turns out that there is no number in the collection
+ * that fulfills the requirement we provided to the `find` method.
+ *
+ * Now, modify the code or write a new method that uses other Scala collection methods.
+ * When you type `numbers` and the dot, $ProductName will display a list of possible method calls. Browse through them.
+ * Every time you highlight one of the methods, you will see another popup with its documentation. This way you can quickly
+ * get a grasp what Scala collections are capable of.
+ *
+ * What's more, when you select a method that requires parameters, and you start to type them, $ProductName will try to
+ * guess what you want to write and display proposals to choose from.
+ *
+ *
+ * If you have access to <b>AI Assistant</b> you can get even more complex code completion tips.
+ * Go to <b>Settings | Editor | General | Code completion</b> and see what your $ProductName is capable of.
+ */
+def firstEvenSquareGreaterThan100(numbers: Seq[Int]): Int =
+  numbers
+    .view
+    .map(n => n * n)
+    .find(n => n > 100 && n % 2 == 0)
+    .getOrElse(0)

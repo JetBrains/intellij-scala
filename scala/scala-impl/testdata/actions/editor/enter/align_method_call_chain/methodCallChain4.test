@@ -1,0 +1,10 @@
+class C {
+  val x = myObject.method1().method2()
+                  .method3()<caret>.method4()
+}
+-----
+class C {
+  val x = myObject.method1().method2()
+                  .method3()
+                  <caret>.method4()
+}

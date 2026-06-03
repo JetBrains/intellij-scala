@@ -1,0 +1,35 @@
+// SCL-22003
+"""a\
+b"""
+
+raw"""a\
+b"""
+
+s"""a\
+b"""
+-----
+comment {// SCL-22003}
+white space in line {
+}
+multiline string {"""a}
+multiline string {\
+}
+multiline string {b"""}
+white space in line {
+
+}
+interpolated string id {raw}
+interpolated multiline string {"""a}
+interpolated multiline string {\
+}
+interpolated multiline string {b}
+interpolated string end {"""}
+white space in line {
+
+}
+interpolated string id {s}
+interpolated multiline string {"""a}
+INVALID_CHARACTER_ESCAPE_TOKEN {\
+}
+interpolated multiline string {b}
+interpolated string end {"""}

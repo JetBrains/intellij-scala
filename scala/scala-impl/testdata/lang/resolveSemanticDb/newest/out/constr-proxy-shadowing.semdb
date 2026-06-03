@@ -1,0 +1,6 @@
+Document tests/pos/constr-proxy-shadowing.scala
+(1:17..1:20) scala/Int#
+(2:9..2:15) _empty_/Number# -> 1:7
+(4:14..4:17) scala/Int#
+(5:9..5:12) scala/package.Seq.
+

@@ -1,0 +1,25 @@
+a = <ul>{ {<li></li>} }</ul>;
+-----
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {ul}
+XML_TAG_END {>}
+ScalaXmlInjectionStart {{}
+white space in line { }
+{ {{}
+XML_START_TAG_START {<}
+XML_NAME {li}
+XML_TAG_END {>}
+XML_END_TAG_START {</}
+XML_NAME {li}
+XML_TAG_END {>}
+} {}}
+white space in line { }
+ScalaXmlInjection End {}}
+XML_END_TAG_START {</}
+XML_NAME {ul}
+XML_TAG_END {>}
+; {;}

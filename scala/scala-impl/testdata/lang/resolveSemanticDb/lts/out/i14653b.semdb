@@ -1,0 +1,31 @@
+Document tests/pos/i14653b.scala
+(1:15..1:21) _empty_/i14653b$package.Amount. -> 2:8
+(1:22..1:26) _empty_/i14653b$package.Amount.Type# -> 3:15
+(3:22..3:25) scala/Int#
+(4:23..4:27) _empty_/i14653b$package.Amount.Type# -> 3:15
+(4:30..4:34) _empty_/i14653b$package.Amount.Type# -> 3:15
+(4:37..4:38) _empty_/i14653b$package.Amount.twice().(x) -> 4:20
+(4:39..4:40) scala/Int#`+`(+4).
+(4:41..4:42) _empty_/i14653b$package.Amount.twice().(x) -> 4:20
+(6:8..6:14) _empty_/i14653b$package.Amount# -> 1:6
+(6:17..6:20) scala/Predef.`???`().
+(7:8..7:14) _empty_/i14653b$package.Amount. -> 2:8
+(7:15..7:19) _empty_/i14653b$package.Amount.Type# -> 3:15
+(7:22..7:25) scala/Predef.`???`().
+(8:13..8:19) _empty_/i14653b$package.Amount# -> 1:6
+(8:24..8:30) _empty_/i14653b$package.Amount. -> 2:8
+(8:31..8:35) _empty_/i14653b$package.Amount.Type# -> 3:15
+(8:38..8:42) scala/Unit#
+(9:4..9:10) _empty_/i14653b$package.Amount. -> 2:8
+(9:11..9:16) _empty_/i14653b$package.Amount.twice(). -> 4:14
+(9:17..9:18) _empty_/i14653b$package.a(). -> 6:5
+(10:4..10:10) _empty_/i14653b$package.Amount. -> 2:8
+(10:11..10:16) _empty_/i14653b$package.Amount.twice(). -> 4:14
+(10:17..10:18) _empty_/i14653b$package.b(). -> 7:5
+(11:4..11:10) _empty_/i14653b$package.Amount. -> 2:8
+(11:11..11:16) _empty_/i14653b$package.Amount.twice(). -> 4:14
+(11:17..11:18) _empty_/i14653b$package.test().(c) -> 8:10
+(12:4..12:10) _empty_/i14653b$package.Amount. -> 2:8
+(12:11..12:16) _empty_/i14653b$package.Amount.twice(). -> 4:14
+(12:17..12:18) _empty_/i14653b$package.test().(d) -> 8:21
+

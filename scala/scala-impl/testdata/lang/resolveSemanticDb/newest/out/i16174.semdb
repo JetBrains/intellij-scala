@@ -1,0 +1,7 @@
+Document tests/pos/i16174.scala
+(1:20..1:21) local0 -> 1:10
+(1:26..1:27) local1 -> 1:17
+(2:10..2:11) _empty_/i16174$package.f. -> 1:5
+(2:18..2:21) scala/Int#
+(3:10..3:11) _empty_/i16174$package.f. -> 1:5
+

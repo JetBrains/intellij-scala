@@ -1,0 +1,45 @@
+Document tests/pos/i12715/full.scala
+(3:8..3:19) scala/compiletime/
+(3:21..3:31) scala/compiletime/package$package.constValue().
+(3:33..3:44) scala/compiletime/package$package.erasedValue().
+(7:16..7:31) repro/ValidateExprInt# -> 5:14
+(7:38..7:53) repro/ValidateExprInt# -> 5:14
+(7:63..7:78) repro/ValidateExprInt# -> 5:14
+(8:24..8:27) scala/Int#
+(8:63..8:78) repro/ValidateExprInt# -> 5:14
+(11:28..11:43) repro/ValidateExprInt# -> 5:14
+(11:48..11:51) scala/Int#
+(11:54..11:60) scala/Predef.String#
+(12:19..12:28) repro/Repro.validateV(). -> 16:26
+(12:29..12:30) repro/Repro.validate().[E] -> 11:23
+(12:32..12:33) repro/Repro.validate().(v) -> 11:45
+(13:8..13:15) local0 -> 5:14
+(13:16..13:18) scala/Any#`==`().
+(16:41..16:56) repro/ValidateExprInt# -> 5:14
+(16:61..16:64) scala/Int#
+(16:67..16:73) scala/Predef.String#
+(17:12..17:23) scala/compiletime/package$package.erasedValue().
+(17:24..17:25) repro/Repro.validateV().[E] -> 16:36
+(18:15..18:26) repro/GreaterThan# -> 8:7
+(20:15..20:18) repro/And# -> 7:7
+(21:16..21:25) repro/Repro.validateV(). -> 16:26
+(21:26..21:27) local2 -> 20:19
+(21:29..21:30) repro/Repro.validateV().(v) -> 16:58
+(23:13..23:22) repro/Repro.validateV(). -> 16:26
+(23:23..23:24) local3 -> 20:22
+(23:26..23:27) repro/Repro.validateV().(v) -> 16:58
+(25:13..25:18) local4 -> 24:16
+(27:4..27:8) scala/main#
+(27:21..27:25) scala/Unit#
+(28:5..28:12) scala/Predef.println(+1).
+(28:13..28:21) repro/Repro.validate(). -> 11:14
+(28:22..28:25) repro/And# -> 7:7
+(28:26..28:37) repro/GreaterThan# -> 8:7
+(28:43..28:54) repro/GreaterThan# -> 8:7
+
+Document tests/pos/i12715/minimized.scala
+(1:27..1:33) scala/Predef.String#
+(5:18..5:24) scala/Predef.String#
+(5:28..5:29) local0 -> 5:14
+(8:24..8:25) _empty_/minimized$package.f(). -> 1:24
+

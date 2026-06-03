@@ -1,0 +1,16 @@
+Document tests/pos/i15821.scala
+(2:3..2:6) foo/
+(2:7..2:10) foo/package.bar(+1). -> 7:7
+(3:3..3:6) foo/
+(3:7..3:10) foo/package.bar(). -> 6:7
+(6:18..6:22) scala/Unit#
+(6:25..6:28) scala/Predef.`???`().
+(7:20..7:23) scala/Int#
+(7:26..7:30) scala/Unit#
+(7:33..7:36) scala/Predef.`???`().
+(8:11..8:14) foo/
+(8:33..8:36) scala/Int#
+(8:54..8:67) scala/DummyImplicit#
+(8:70..8:74) scala/Unit#
+(8:77..8:80) scala/Predef.`???`().
+

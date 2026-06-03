@@ -1,0 +1,4 @@
+def f1 = {
+}
+
+new Runnable {def run = {}} // -

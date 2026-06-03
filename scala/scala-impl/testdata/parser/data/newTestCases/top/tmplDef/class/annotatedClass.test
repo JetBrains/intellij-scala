@@ -1,0 +1,28 @@
+@Nullable
+class a
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Nullable
+              CodeReferenceElement: Nullable
+                PsiElement(identifier)('Nullable')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

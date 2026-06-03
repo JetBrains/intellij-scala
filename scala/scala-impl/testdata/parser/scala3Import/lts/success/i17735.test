@@ -1,0 +1,335 @@
+//> using options -Xfatal-warnings -Wvalue-discard
+
+import scala.collection.mutable
+import scala.annotation.nowarn
+
+object Foo:
+
+  def f(b: Boolean): String =
+    val messageBuilder = mutable.StringBuilder()
+    if b then
+      // Here @nowarn is effective with or without -Wfatal-warnings
+      // i.e. no warning without -Wfatal-warnings and no error with -Wfatal-warnings
+      messageBuilder.append("helloworld").append("\n"): @nowarn("msg=discarded non-Unit value*")
+
+    messageBuilder.result()
+
+  def g(x: String => Unit) = ???
+  def h: String =
+    val messageBuilder = mutable.StringBuilder()
+    g: s =>
+      // here @nowarn is effective without -Wfatal-warnings (i.e. no warning)
+      // But with -Wfatal-warnings we get an error
+      messageBuilder.append("\n").append(s): @nowarn("msg=discarded non-Unit value*")
+    messageBuilder.result()
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wvalue-discard')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection.mutable
+        CodeReferenceElement: scala.collection
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('collection')
+        PsiElement(.)('.')
+        PsiElement(identifier)('mutable')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.nowarn
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('nowarn')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: messageBuilder
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: messageBuilder
+                  PsiElement(identifier)('messageBuilder')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: mutable.StringBuilder
+                  ReferenceExpression: mutable
+                    PsiElement(identifier)('mutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('StringBuilder')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace('\n      ')
+              PsiComment(comment)('// Here @nowarn is effective with or without -Wfatal-warnings')
+              PsiWhiteSpace('\n      ')
+              PsiComment(comment)('// i.e. no warning without -Wfatal-warnings and no error with -Wfatal-warnings')
+              PsiWhiteSpace('\n      ')
+              TypedExpression
+                MethodCall
+                  ReferenceExpression: messageBuilder.append("helloworld").append
+                    MethodCall
+                      ReferenceExpression: messageBuilder.append
+                        ReferenceExpression: messageBuilder
+                          PsiElement(identifier)('messageBuilder')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('append')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"helloworld"')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('append')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"\n"')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: nowarn
+                          CodeReferenceElement: nowarn
+                            PsiElement(identifier)('nowarn')
+                        ArgumentList
+                          PsiElement(()('(')
+                          StringLiteral
+                            PsiElement(string content)('"msg=discarded non-Unit value*"')
+                          PsiElement())(')')
+            PsiWhiteSpace('\n\n    ')
+            MethodCall
+              ReferenceExpression: messageBuilder.result
+                ReferenceExpression: messageBuilder
+                  PsiElement(identifier)('messageBuilder')
+                PsiElement(.)('.')
+                PsiElement(identifier)('result')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: g
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('g')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: String => Unit
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: h
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('h')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: messageBuilder
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: messageBuilder
+                  PsiElement(identifier)('messageBuilder')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: mutable.StringBuilder
+                  ReferenceExpression: mutable
+                    PsiElement(identifier)('mutable')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('StringBuilder')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: g
+                PsiElement(identifier)('g')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: s
+                          PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    PsiComment(comment)('// here @nowarn is effective without -Wfatal-warnings (i.e. no warning)')
+                    PsiWhiteSpace('\n      ')
+                    PsiComment(comment)('// But with -Wfatal-warnings we get an error')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      TypedExpression
+                        MethodCall
+                          ReferenceExpression: messageBuilder.append("\n").append
+                            MethodCall
+                              ReferenceExpression: messageBuilder.append
+                                ReferenceExpression: messageBuilder
+                                  PsiElement(identifier)('messageBuilder')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('append')
+                              ArgumentList
+                                PsiElement(()('(')
+                                StringLiteral
+                                  PsiElement(string content)('"\n"')
+                                PsiElement())(')')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('append')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: s
+                              PsiElement(identifier)('s')
+                            PsiElement())(')')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        AnnotationsList
+                          Annotation
+                            PsiElement(@)('@')
+                            AnnotationExpression
+                              ConstructorInvocation
+                                SimpleType: nowarn
+                                  CodeReferenceElement: nowarn
+                                    PsiElement(identifier)('nowarn')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  StringLiteral
+                                    PsiElement(string content)('"msg=discarded non-Unit value*"')
+                                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: messageBuilder.result
+                ReferenceExpression: messageBuilder
+                  PsiElement(identifier)('messageBuilder')
+                PsiElement(.)('.')
+                PsiElement(identifier)('result')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')

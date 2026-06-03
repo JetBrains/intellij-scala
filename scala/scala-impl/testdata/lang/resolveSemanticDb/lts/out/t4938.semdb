@@ -1,0 +1,8 @@
+Document tests/pos/t4938.scala
+(2:10..2:15) scala/
+(2:16..2:26) scala/collection/
+(2:27..2:34) scala/collection/mutable/
+(3:12..3:16) scala/package.List.
+(3:17..3:20) scala/collection/mutable/Set.
+(3:24..3:27) scala/collection/mutable/Seq.
+

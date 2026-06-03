@@ -1,0 +1,48 @@
+<html>
+<body>
+<p>Reports usages of advanced language features that are not enabled in the current file.</p>
+
+<p>Advanced language features need to be enabled either by the corresponding compiler option
+    or by importing an explicit feature flag in the file where they are used.</p>
+
+<p>
+    Postfix operator notation:<br>
+    <code>val s = 123 toString</code>
+</p>
+
+<p>
+    Reflective call:<br>
+    <code>def foo(v: {def bar()}) = v.bar()</code>
+</p>
+
+<p>
+    Dynamic member selection:<br>
+    <code>class Foo extends Dynamic</code>
+</p>
+
+<p>
+    Implicit conversion:<br>
+    <code>implicit def toInt(s: String) = s.toInt</code>
+</p>
+
+<p>
+    Higher-kinded type <small>(enabled by default since <em>Scala 2.13.1</em>)</small>:<br>
+    <code>class Bar[M[A]]</code>
+</p>
+
+<p>
+    Existential type:<br>
+    <code>def foo(v: Seq[T] forSome { type T })</code>
+</p>
+
+<p>
+    Macro definition:<br>
+    <code>def assert(s: String) = macro Asserts.assertImpl</code>
+</p>
+<!-- tooltip end -->
+
+<p>Scala compiler may also emit these warnings when "-feature" option is provided. </p>
+
+<p>For compiler options see: <a href="settings://scala.compiler?Features">File | Settings | Build, Execution, Deployment | Compiler | Scala Compiler | Features</a></p>
+</body>
+</html>

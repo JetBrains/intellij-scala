@@ -1,0 +1,53 @@
+class Bug {
+  private def bug: String = {
+    if (`type` != null) t = `type`.getText();
+  }
+}
+------
+class {class}
+white space in line { }
+identifier {Bug}
+white space in line { }
+{ {{}
+white space in line {
+  }
+private {private}
+white space in line { }
+def {def}
+white space in line { }
+identifier {bug}
+: {:}
+white space in line { }
+identifier {String}
+white space in line { }
+= {=}
+white space in line { }
+{ {{}
+white space in line {
+    }
+if {if}
+white space in line { }
+( {(}
+identifier {`type`}
+white space in line { }
+identifier {!=}
+white space in line { }
+null {null}
+) {)}
+white space in line { }
+identifier {t}
+white space in line { }
+= {=}
+white space in line { }
+identifier {`type`}
+. {.}
+identifier {getText}
+( {(}
+) {)}
+; {;}
+white space in line {
+  }
+} {}}
+white space in line {
+}
+} {}}

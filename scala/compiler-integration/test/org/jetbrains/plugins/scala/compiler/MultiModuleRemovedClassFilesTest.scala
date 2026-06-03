@@ -1,0 +1,83 @@
+package org.jetbrains.plugins.scala.compiler
+
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.testFramework.CompilerTester
+import org.jetbrains.plugins.scala.CompilationTests_Zinc
+import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
+import org.junit.Assert.assertNotNull
+import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
+import java.nio.file.Path
+import scala.jdk.CollectionConverters._
+
+@Category(Array(classOf[CompilationTests_Zinc]))
+@RunWith(classOf[Parameterized])
+class MultiModuleRemovedClassFilesTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+
+  private var module1: Module = _
+
+  private var module2: Module = _
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala")
+    createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
+    createProjectSubFile("module1/src/main/scala/Foo.scala", "class Foo")
+    createProjectSubFile("module2/src/main/scala/Bar.scala", "class Bar extends Foo")
+    createProjectConfig(
+      """lazy val root = project.in(file("."))
+        |  .aggregate(module1, module2)
+        |
+        |lazy val module1 = project.in(file("module1"))
+        |  .settings(scalaVersion := "2.13.12")
+        |
+        |lazy val module2 = project.in(file("module2"))
+        |  .dependsOn(module1)
+        |  .settings(scalaVersion := "2.13.12")
+        |""".stripMargin)
+
+    importProject(false)
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
+
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    module1 = modules.find(_.getName == "root.module1").orNull
+    assertNotNull("Could not find module with name 'root.module1'", module1)
+    module2 = modules.find(_.getName == "root.module2").orNull
+    assertNotNull("Could not find module with name 'root.module2'", module2)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+  }
+
+  @Test
+  def removeDependencyClassFile(): Unit = {
+    val messages1 = compiler.make().asScala.toSeq
+    assertNoErrorsOrWarnings(messages1)
+
+    val fooClass = findClassFile(module1, "Foo")
+    removeFile(fooClass)
+
+    val projectPath = Path.of(getProjectPath)
+    val srcMainScala = Path.of("src", "main", "scala")
+
+    val barSourcePath = projectPath.resolve(Path.of("module2").resolve(srcMainScala).resolve("Bar.scala"))
+    val barSource = VfsUtil.findFile(barSourcePath, true)
+    inWriteAction {
+      VfsUtil.saveText(barSource, "class Bar extends Foo { def foo = 1 }")
+    }
+
+    val messages2 = compiler.make().asScala.toSeq
+    assertNoErrorsOrWarnings(messages2)
+  }
+}
+
+private object MultiModuleRemovedClassFilesTest extends JdkVersionParameters

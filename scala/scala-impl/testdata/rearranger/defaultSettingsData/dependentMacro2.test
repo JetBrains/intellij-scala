@@ -1,0 +1,11 @@
+def a = macro c
+
+def b = ???
+
+def c = ???
+---------
+def b = ???
+
+def a = macro c
+
+def c = ???

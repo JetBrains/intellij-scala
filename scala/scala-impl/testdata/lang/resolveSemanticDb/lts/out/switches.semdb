@@ -1,0 +1,37 @@
+Document tests/pos/switches.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:31) scala/annotation/switch#
+(6:10..6:14) _empty_/Test. -> 50:8
+(8:16..8:19) scala/Int#
+(8:22..8:25) scala/Int#
+(8:29..8:30) _empty_/Test#test1().(x) -> 8:13
+(15:16..15:20) scala/Char#
+(15:23..15:30) scala/Boolean#
+(15:34..15:35) _empty_/Test#test2().(c) -> 15:13
+(16:10..16:12) _empty_/Test.LF. -> 51:13
+(16:15..16:17) _empty_/Test.CR. -> 52:13
+(16:20..16:22) _empty_/Test.FF. -> 53:13
+(16:25..16:27) _empty_/Test.SU. -> 54:13
+(21:16..21:19) scala/Int#
+(21:24..21:27) scala/Int#
+(21:30..21:33) scala/Int#
+(21:37..21:38) _empty_/Test#test3().(x) -> 21:13
+(22:15..22:16) _empty_/Test#test3().(y) -> 21:21
+(22:17..22:18) scala/Int#`>`(+3).
+(29:16..29:20) scala/Byte#
+(29:23..29:30) scala/Boolean#
+(29:34..29:35) _empty_/Test#test4().(x) -> 29:13
+(34:16..34:21) scala/Short#
+(34:24..34:31) scala/Boolean#
+(34:35..34:36) _empty_/Test#test5().(x) -> 34:13
+(39:16..39:25) _empty_/IntAnyVal# -> 48:12
+(39:30..39:31) _empty_/Test#test6().(x) -> 39:13
+(40:10..40:19) _empty_/IntAnyVal.
+(41:10..41:19) _empty_/IntAnyVal.
+(42:10..42:19) _empty_/IntAnyVal.
+(43:10..43:19) _empty_/IntAnyVal.
+(44:10..44:19) _empty_/IntAnyVal.
+(48:25..48:28) scala/Int#
+(48:38..48:44) scala/AnyVal#
+

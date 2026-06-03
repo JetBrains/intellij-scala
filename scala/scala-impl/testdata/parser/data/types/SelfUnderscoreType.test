@@ -1,0 +1,51 @@
+trait RepliableReactor extends Repliable[Any, Any] {
+  _: ReplyReactor =>
+}
+-----
+ScalaFile
+  ScTrait: RepliableReactor
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RepliableReactor')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Repliable[Any, Any]
+            SimpleType: Repliable
+              CodeReferenceElement: Repliable
+                PsiElement(identifier)('Repliable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType: _
+          PsiElement(_)('_')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ReplyReactor
+            CodeReferenceElement: ReplyReactor
+              PsiElement(identifier)('ReplyReactor')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,11 @@
+Document tests/pos/i8801.scala
+(2:2..2:9) scala/Predef.locally().
+(7:14..7:17) scala/Any#
+(7:26..7:29) scala/Any#
+(7:36..7:39) scala/Any#
+(7:42..7:43) _empty_/Foo2#foo().(x) -> 7:11
+(8:11..8:14) _empty_/Foo2#foo(). -> 7:7
+(8:15..8:16) _empty_/Foo2#foo().(y) -> 7:23
+(8:39..8:42) scala/Int#
+(8:47..8:48) _empty_/Foo2#foo().(x) -> 7:11
+

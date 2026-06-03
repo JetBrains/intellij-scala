@@ -1,0 +1,8 @@
+Document tests/pos/t3430.scala
+(4:13..4:19) scala/Predef.String#
+(4:23..4:30) scala/Boolean#
+(4:34..4:35) _empty_/A.f1().(f) -> 4:10
+(6:13..6:20) scala/Boolean#
+(7:5..7:7) _empty_/A.f1(). -> 4:7
+(8:7..8:9) _empty_/A.f1(). -> 4:7
+

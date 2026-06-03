@@ -1,0 +1,16 @@
+Document tests/pos/transparent-union.scala
+(2:27..2:33) scala/Predef.String#
+(2:43..2:45) _empty_/ID# -> 1:19
+(3:27..3:30) scala/Int#
+(3:40..3:42) _empty_/ID# -> 1:19
+(5:15..5:23) _empty_/Password# -> 3:12
+(5:26..5:34) _empty_/Password.
+(6:12..6:20) _empty_/UserName.
+(7:14..7:17) scala/Predef.`???`().
+(7:23..7:27) _empty_/`transparent-union$package`.name. -> 6:5
+(7:33..7:41) _empty_/`transparent-union$package`.password. -> 5:5
+(8:8..8:16) _empty_/UserName# -> 2:12
+(8:17..8:18) scala/`|`#
+(8:19..8:27) _empty_/Password# -> 3:12
+(8:30..8:33) _empty_/`transparent-union$package`.res. -> 7:5
+

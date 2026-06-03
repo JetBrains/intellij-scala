@@ -1,0 +1,55 @@
+class A {
+42 match {case Some (`m`) => true}
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        MatchStatement
+          IntegerLiteral
+            PsiElement(integer)('42')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: Some
+                  PsiElement(identifier)('Some')
+                PsiWhiteSpace(' ')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  StableElementPattern
+                    ReferenceExpression: `m`
+                      PsiElement(identifier)('`m`')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,17 @@
+package scala.test.org.jetbrains
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala.test.org.jetbrains
+      CodeReferenceElement: scala.test.org
+        CodeReferenceElement: scala.test
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('test')
+        PsiElement(.)('.')
+        PsiElement(identifier)('org')
+      PsiElement(.)('.')
+      PsiElement(identifier)('jetbrains')

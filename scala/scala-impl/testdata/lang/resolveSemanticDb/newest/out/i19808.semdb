@@ -1,0 +1,13 @@
+Document tests/pos/i19808.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:32) scala/reflect/Selectable.
+(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
+(3:36..3:40) scala/package.List#
+(3:41..3:47) scala/Predef.String#
+(4:3..4:7) _empty_/i19808$package.saveRedir().(what) -> 3:15
+(4:8..4:16) scala/reflect/Selectable#selectDynamic().
+(5:10..5:13) scala/package.Nil.
+(5:17..5:20) scala/Predef.`???`().
+(6:17..6:20) scala/Predef.`???`().
+

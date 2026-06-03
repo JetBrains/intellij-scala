@@ -1,0 +1,6 @@
+Document tests/pos/match-constant-type.scala
+(2:32..2:35) scala/Predef.Set.
+(2:36..2:41) scala/collection/immutable/Set.empty().
+(2:47..2:48) scala/collection/immutable/SetOps#`+`().
+(2:49..2:50) local0 -> 2:27
+

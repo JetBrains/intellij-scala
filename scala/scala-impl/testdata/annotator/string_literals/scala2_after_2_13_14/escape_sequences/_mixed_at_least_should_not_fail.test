@@ -1,0 +1,4 @@
+// invalid """ in the middle of multiline string
+raw"""\b \n \t \r \f \""" \\"""
+// comment
+-----

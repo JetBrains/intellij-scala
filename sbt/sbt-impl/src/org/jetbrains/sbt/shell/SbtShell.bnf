@@ -1,0 +1,52 @@
+{
+  parserClass = "org.jetbrains.sbt.shell.grammar.SbtShellParser"
+  extends = "com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix = "SbtShell"
+  psiImplClassSuffix = "Impl"
+  psiPackage = "org.jetbrains.sbt.shell.grammar"
+  psiImplPackage = "org.jetbrains.sbt.shell.grammar.impl"
+
+  elementTypeHolderClass = "org.jetbrains.sbt.shell.grammar.SbtShellTypes"
+  elementTypeClass = "org.jetbrains.sbt.shell.SbtShellElementType"
+  tokenTypeClass = "org.jetbrains.sbt.shell.SbtShellTokenType"
+
+  tokens = [
+    COLON=":"
+    DOUBLE_COLON="::"
+    SEMICOLON=";"
+    SLASH="/"
+    // sbt commands can have pretty much any syntax, just exclude stuff used by key syntax for sanity
+    ID="regexp:[^\s{}:;/]+"
+    URISTRING="regexp:\{[A-Za-z0-9._~:/?#@!$&'()*+,;=`.\[\]-]+\}"
+    OPEN_BRACE="{"
+    CLOSE_BRACE="}"
+    ANYCHAR="regexp:[^;\s]"
+  ]
+}
+
+private sbtShellLine ::= commandOrKey | chainedCommands?
+
+private commandOrKey ::= (scopedKey | command) (params)*
+private chainedCommands ::= (SEMICOLON commandOrKey)+
+private id ::= ID
+// hacky way to allow arbitrary strings and still have lexer tokens for key syntax. only the ; shall stay reserved
+private anything ::= (COLON | DOUBLE_COLON | SLASH | ID | URISTRING | OPEN_BRACE | CLOSE_BRACE | ANYCHAR)+
+
+scopedKey ::= uri? (projectId SLASH)? (config COLON)? (intask DOUBLE_COLON)? key
+
+command ::= id
+
+params ::= anything
+
+// TODO proper uri syntax (see https://tools.ietf.org/html/rfc3986#appendix-A)
+uri ::= URISTRING
+
+projectId ::= id
+
+config ::= id
+
+intask ::= id
+
+key ::= id
+

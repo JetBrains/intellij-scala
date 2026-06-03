@@ -1,0 +1,3 @@
+object O
+
+println(/* */ O)

@@ -1,0 +1,28 @@
+
+class MyRunConfigurationScala extends RunConfigurationBase
+-----
+ScalaFile
+  ScClass: MyRunConfigurationScala
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyRunConfigurationScala')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: RunConfigurationBase
+            CodeReferenceElement: RunConfigurationBase
+              PsiElement(identifier)('RunConfigurationBase')

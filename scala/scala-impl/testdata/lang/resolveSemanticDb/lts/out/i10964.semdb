@@ -1,0 +1,93 @@
+Document tests/pos/i10964.scala
+(14:47..14:51) _empty_/Sync# -> 12:7
+(14:52..14:53) _empty_/Sync.syncForFooT().[F] -> 14:28
+(14:57..14:61) _empty_/Sync# -> 12:7
+(14:70..14:74) _empty_/FooT# -> 3:7
+(14:75..14:76) _empty_/Sync.syncForFooT().[F] -> 14:28
+(14:78..14:79) _empty_/Sync.syncForFooT().[X] -> 14:63
+(14:84..14:87) scala/Predef.`???`().
+(15:47..15:51) _empty_/Sync# -> 12:7
+(15:52..15:53) _empty_/Sync.syncForBarT().[F] -> 15:28
+(15:57..15:61) _empty_/Sync# -> 12:7
+(15:70..15:74) _empty_/BarT# -> 4:7
+(15:75..15:76) _empty_/Sync.syncForBarT().[F] -> 15:28
+(15:78..15:79) _empty_/Sync.syncForBarT().[X] -> 15:63
+(15:84..15:87) scala/Predef.`???`().
+(16:47..16:51) _empty_/Sync# -> 12:7
+(16:52..16:53) _empty_/Sync.syncForQuxT().[F] -> 16:28
+(16:57..16:61) _empty_/Sync# -> 12:7
+(16:70..16:74) _empty_/QuxT# -> 5:7
+(16:75..16:76) _empty_/Sync.syncForQuxT().[F] -> 16:28
+(16:78..16:79) _empty_/Sync.syncForQuxT().[X] -> 16:63
+(16:84..16:87) scala/Predef.`???`().
+(17:47..17:51) _empty_/Sync# -> 12:7
+(17:52..17:53) _empty_/Sync.syncForBazT().[F] -> 17:28
+(17:57..17:61) _empty_/Sync# -> 12:7
+(17:70..17:74) _empty_/BazT# -> 6:7
+(17:75..17:76) _empty_/Sync.syncForBazT().[F] -> 17:28
+(17:78..17:79) _empty_/Sync.syncForBazT().[X] -> 17:63
+(17:84..17:87) scala/Predef.`???`().
+(18:47..18:51) _empty_/Sync# -> 12:7
+(18:52..18:53) _empty_/Sync.syncForZepT().[F] -> 18:28
+(18:57..18:61) _empty_/Sync# -> 12:7
+(18:70..18:74) _empty_/ZepT# -> 7:7
+(18:75..18:76) _empty_/Sync.syncForZepT().[F] -> 18:28
+(18:78..18:79) _empty_/Sync.syncForZepT().[X] -> 18:63
+(18:84..18:87) scala/Predef.`???`().
+(19:47..19:51) _empty_/Sync# -> 12:7
+(19:52..19:53) _empty_/Sync.syncForJazT().[F] -> 19:28
+(19:57..19:61) _empty_/Sync# -> 12:7
+(19:70..19:74) _empty_/JazT# -> 8:7
+(19:75..19:76) _empty_/Sync.syncForJazT().[F] -> 19:28
+(19:78..19:79) _empty_/Sync.syncForJazT().[X] -> 19:63
+(19:84..19:87) scala/Predef.`???`().
+(21:47..21:51) _empty_/Sync# -> 12:7
+(21:52..21:53) _empty_/Sync.syncForLafT().[F] -> 21:28
+(21:57..21:61) _empty_/Sync# -> 12:7
+(21:70..21:74) _empty_/LafT# -> 9:7
+(21:75..21:76) _empty_/Sync.syncForLafT().[F] -> 21:28
+(21:78..21:79) _empty_/Sync.syncForLafT().[X] -> 21:63
+(21:84..21:87) scala/Predef.`???`().
+(22:47..22:51) _empty_/Sync# -> 12:7
+(22:52..22:53) _empty_/Sync.syncForPogT().[F] -> 22:28
+(22:57..22:61) _empty_/Sync# -> 12:7
+(22:70..22:74) _empty_/PogT# -> 10:7
+(22:75..22:76) _empty_/Sync.syncForPogT().[F] -> 22:28
+(22:78..22:79) _empty_/Sync.syncForPogT().[X] -> 22:63
+(22:84..22:87) scala/Predef.`???`().
+(28:23..28:36) _empty_/Ref.MakeInstances# -> 30:9
+(30:31..30:55) _empty_/Ref.MakeLowPriorityInstances# -> 34:9
+(31:56..31:67) _empty_/Applicative# -> 1:7
+(31:68..31:69) _empty_/Ref.MakeInstances#applicativeInstance().[F] -> 31:38
+(31:73..31:77) _empty_/Ref.Make# -> 27:9
+(31:78..31:79) _empty_/Ref.MakeInstances#applicativeInstance().[F] -> 31:38
+(31:83..31:86) scala/Predef.`???`().
+(35:49..35:53) _empty_/Sync# -> 12:7
+(35:54..35:55) _empty_/Ref.MakeLowPriorityInstances#syncInstance().[F] -> 35:31
+(35:59..35:63) _empty_/Ref.Make# -> 27:9
+(35:64..35:65) _empty_/Ref.MakeLowPriorityInstances#syncInstance().[F] -> 35:31
+(35:69..35:72) scala/Predef.`???`().
+(38:22..38:23) _empty_/Ref.of().[A] -> 38:16
+(38:38..38:42) _empty_/Ref.Make# -> 27:9
+(38:43..38:44) _empty_/Ref.of().[F] -> 38:10
+(38:48..38:49) _empty_/Ref.of().[F] -> 38:10
+(38:50..38:53) _empty_/Ref# -> 25:7
+(38:54..38:55) _empty_/Ref.of().[F] -> 38:10
+(38:57..38:58) _empty_/Ref.of().[A] -> 38:16
+(38:63..38:66) scala/Predef.`???`().
+(42:51..42:55) _empty_/Sync# -> 12:7
+(42:56..42:57) _empty_/Resource#syncForResource().[F] -> 42:32
+(42:61..42:65) _empty_/Sync# -> 12:7
+(42:74..42:82) _empty_/Resource# -> 41:7
+(42:83..42:84) _empty_/Resource#syncForResource().[F] -> 42:32
+(42:86..42:87) _empty_/Resource#syncForResource().[X] -> 42:67
+(42:92..42:95) scala/Predef.`???`().
+(44:14..44:15) _empty_/Resource#[F] -> 41:16
+(44:16..44:20) scala/Unit#
+(44:35..44:46) _empty_/Applicative# -> 1:7
+(44:47..44:48) _empty_/Resource#[F] -> 41:16
+(45:5..45:8) _empty_/Ref. -> 26:8
+(45:9..45:11) _empty_/Ref.of(). -> 38:7
+(45:42..45:43) _empty_/Resource#foo().(x) -> 44:11
+(45:45..45:46) _empty_/Resource#foo().(x) -> 44:11
+

@@ -1,0 +1,6 @@
+Document tests/pos/i5915.scala
+(3:16..3:22) _empty_/RunDSL# -> 1:7
+(5:22..5:28) _empty_/RunDSL# -> 1:7
+(5:31..5:35) _empty_/i5915$package.rdsl. -> 3:5
+(7:22..7:28) _empty_/RunDSL# -> 1:7
+

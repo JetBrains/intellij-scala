@@ -1,0 +1,8 @@
+class a:
+  <start>abc<while>
+end a
+-----
+class a:
+  while true do
+    abc
+end a

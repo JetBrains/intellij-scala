@@ -1,0 +1,700 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
+package typedef
+
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightMethod
+import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScNamedTupleComponent
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
+
+import java.{util => ju}
+
+object TypeDefinitionMembers {
+
+  def isValSignature(signature: TermSignature): Boolean = signature match {
+    case _: PhysicalMethodSignature => false
+    case _ =>
+      val element = signature.namedElement
+      element.nameContext match {
+        case _: ScValueOrVariable |
+             _: ScClassParameter => element.name == signature.name
+        case _: PsiField => true
+        case _ => false
+      }
+  }
+
+  object TypeNodes extends MixinNodes[TypeSignature](TypesCollector)
+
+  object TermNodes extends MixinNodes[TermSignature](TermsCollector)
+
+  //we need to have separate map for stable elements to avoid recursion processing declarations from imports
+  object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
+
+  def getSignatures(clazz: PsiClass, withSupers: Boolean): TermNodes.Map =
+    ifValid(clazz)(_.TermNodesCache.cachedMap(clazz, withSupers))
+
+  def getStableSignatures(clazz: PsiClass, withSupers: Boolean): StableNodes.Map =
+    ifValid(clazz)(_.StableNodesCache.cachedMap(clazz, withSupers))
+
+  def getTypes(clazz: PsiClass, withSupers: Boolean): TypeNodes.Map =
+    ifValid(clazz)(_.TypeNodesCache.cachedMap(clazz, withSupers))
+
+  def getSignatures(clazz: PsiClass): TermNodes.Map =
+    getSignatures(clazz, withSupers = true)
+
+  def getStableSignatures(clazz: PsiClass): StableNodes.Map =
+    getStableSignatures(clazz, withSupers = true)
+
+  def getTypes(clazz: PsiClass): TypeNodes.Map =
+    getTypes(clazz, withSupers = true)
+
+  private def ifValid[T <: Signature](clazz: PsiClass)
+                                     (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
+    clazz match {
+      case Valid(c) =>
+        val manager = ScalaPsiManager.instance(c.getProject)
+        cache(manager)
+      case _ => MixinNodes.emptyMap
+    }
+  }
+
+  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): StableNodes.Map = {
+    ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)
+  }
+
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TypeNodes.Map = {
+    ScalaPsiManager.instance(tp.projectContext).getTypes(tp, compoundTypeThisType)
+  }
+
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TermNodes.Map = {
+    ScalaPsiManager.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
+  }
+
+  def getStableSignatures(tp: ScAndType): StableNodes.Map =
+    ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp)
+
+  def getTypes(tp: ScAndType): TypeNodes.Map =
+    ScalaPsiManager.instance(tp.projectContext).getTypes(tp)
+
+  def getSignatures(tp: ScAndType): TermNodes.Map =
+    ScalaPsiManager.instance(tp.projectContext).getSignatures(tp)
+
+  def getSelfTypeSignatures(clazz: PsiClass)(implicit context: Context): TermNodes.Map = {
+    @annotation.tailrec
+    def extractFromThisType(clsType: ScType, thisType: ScType): TermNodes.Map = thisType match {
+      case c: ScCompoundType       => getSignatures(c, Option(clsType))
+      case ScExistentialType(q, _) => extractFromThisType(clsType, q)
+      case tp =>
+        val cls = tp.extractClass.getOrElse(clazz)
+        getSignatures(cls)
+    }
+
+    clazz match {
+      case td: ScTypeDefinition =>
+        td.selfType match {
+          case Some(selfType) =>
+            val clsType  = td.getTypeWithProjections().getOrAny
+            val thisType = selfType.glb(clsType)
+            extractFromThisType(clsType, thisType)
+          case None => getSignatures(clazz)
+        }
+      case _ => getSignatures(clazz)
+    }
+  }
+
+  def getSelfTypeTypes(clazz: PsiClass)(implicit context: Context): TypeNodes.Map = {
+    clazz match {
+      case td: ScTypeDefinition =>
+        td.selfType match {
+          case Some(selfType) =>
+            val clazzType = td.getTypeWithProjections().getOrAny
+            selfType.glb(clazzType) match {
+              case c: ScCompoundType =>
+                getTypes(c, Some(clazzType))
+              case tp =>
+                val cl = tp.extractClass.getOrElse(clazz)
+                getTypes(cl)
+            }
+          case _ =>
+            getTypes(clazz)
+        }
+      case _ => getTypes(clazz)
+    }
+  }
+
+  /** Take extra care to avoid reentrancy issues when processing package objects */
+  private[this] val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = new UnloadableThreadLocal(new ju.HashMap)
+
+  private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
+    processing.value.getOrDefault(fqn, 0L) != 0L
+
+  private[this] def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
+    try {
+      processing.value.merge(fqn, 1L, (old, _) => old + 1)
+      action
+    } finally {
+      processing.value.merge(fqn, 0L, (old, _) => if (old == 1L) null else old - 1)
+    }
+
+  def processClassDeclarations(
+    clazz:      PsiClass,
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    @Nullable
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
+    if (BaseProcessor.isImplicitProcessor(processor) && !clazz.is[ScTemplateDefinition]) return true
+
+    val pkgObjectFqn = clazz match {
+      case obj: ScObject if obj.isPackageObject => Option(obj.qualifiedName)
+      case _                                    => None
+    }
+
+    val isPackageObject          = pkgObjectFqn.isDefined
+    val isReentrantPackageObject = pkgObjectFqn.exists(checkPackageObjectReentrancy)
+
+    val signatures =
+      if (isReentrantPackageObject) AllSignatures.NonInherited(clazz)
+      else                          AllSignatures(clazz)
+
+    def processDeclarationsInner(): Boolean = privateProcessDeclarations(processor, state, place, signatures)
+
+    val processDeclsResult =
+      if (isPackageObject) withReentrancyGuard(pkgObjectFqn.get)(processDeclarationsInner())
+      else                 processDeclarationsInner()
+
+    if (!processDeclsResult)
+      return false
+
+    processor match {
+      case _: CompletionProcessor if isPackageObject =>
+        // do not suggest Any/AnyRef methods during completion of package object's members
+      case _ =>
+        if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
+          return false
+    }
+
+    if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state)))
+      return false
+
+    if (place.isInScala3File) {
+      val member = processor match {
+        case p: ResolveProcessor => p.name
+        case _ => ""
+      }
+
+      if (place.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_3_8) {
+        stdLibPatches(clazz, member).foreach {
+          processClassDeclarations(_, processor, state, lastParent, place)
+        }
+      }
+    }
+
+    true
+  }
+
+  def processSuperDeclarations(td: ScTemplateDefinition,
+                               processor: PsiScopeProcessor,
+                               state: ResolveState,
+                               @Nullable
+                               lastParent: PsiElement,
+                               place: PsiElement): Boolean = {
+
+    if (!privateProcessDeclarations(processor, state, place, AllSignatures(td), isSupers = true))
+      return false
+
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
+      return false
+
+    true
+  }
+
+  def processDeclarations(comp: ScCompoundType,
+                          processor: PsiScopeProcessor,
+                          state: ResolveState,
+                          @Nullable
+                          lastParent: PsiElement,
+                          place: PsiElement): Boolean = {
+
+    if (!privateProcessDeclarations(processor, state, place, AllSignatures(comp, state.compoundOrThisType)))
+      return false
+
+    //@TODO: this is actually incorrect, compound type might be comprised purely of AnyVal types for example
+    //       instead we should fix linearization for CompoundTypes to properly include java.lang.Object when
+    //       needed.
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
+      return false
+
+    true
+  }
+
+  def processDeclarations(
+    tpe:        ScAndType,
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    @Nullable
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
+    if (!privateProcessDeclarations(processor, state, place, AllSignatures(tpe)))
+      return false
+
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
+      return false
+
+    true
+  }
+
+  private trait SignatureMapsProvider {
+    def allSignatures: MixinNodes.Map[TermSignature]
+    def stable       : MixinNodes.Map[TermSignature]
+    def types        : MixinNodes.Map[TypeSignature]
+    def fromCompanion: MixinNodes.Map[TermSignature]
+  }
+
+  private object AllSignatures {
+    object NonInherited {
+      def apply(c: PsiClass): SignatureMapsProvider =
+        new ClassSignatures(c, withSupers = false)
+    }
+
+    def apply(c: PsiClass): SignatureMapsProvider =
+      new ClassSignatures(c, withSupers = true)
+
+    def apply(comp: ScCompoundType, compoundTypeThisType: Option[ScType]): SignatureMapsProvider =
+      new CompoundTypeSignatures(comp, compoundTypeThisType)
+
+    def apply(tpe: ScAndType): SignatureMapsProvider = new AndTypeSignatures(tpe)
+
+    private class ClassSignatures(c: PsiClass, withSupers: Boolean) extends SignatureMapsProvider {
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(c, withSupers)
+
+      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(c, withSupers)
+
+      override def types: MixinNodes.Map[TypeSignature] = getTypes(c, withSupers)
+
+      override def fromCompanion: MixinNodes.Map[TermSignature] = signaturesFromCompanion(c, withSupers)
+    }
+
+
+    private class CompoundTypeSignatures(ct: ScCompoundType, compoundTypeThisType: Option[ScType]) extends SignatureMapsProvider {
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(ct, compoundTypeThisType)
+
+      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(ct, compoundTypeThisType)
+
+      override def types: MixinNodes.Map[TypeSignature] = getTypes(ct, compoundTypeThisType)
+
+      override def fromCompanion: MixinNodes.Map[TermSignature] = MixinNodes.emptyMap[TermSignature]
+    }
+
+    private class AndTypeSignatures(tpe: ScAndType) extends SignatureMapsProvider {
+      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(tpe)
+      override def stable: MixinNodes.Map[TermSignature]        = getStableSignatures(tpe)
+      override def types: MixinNodes.Map[TypeSignature]         = getTypes(tpe)
+      override def fromCompanion: MixinNodes.Map[TermSignature] = MixinNodes.emptyMap
+    }
+  }
+
+  private def privateProcessDeclarations(
+    processor: PsiScopeProcessor,
+    state:     ResolveState,
+    place:     PsiElement,
+    provider:  SignatureMapsProvider,
+    isSupers:  Boolean = false
+  ): Boolean = {
+
+    val subst               = state.substitutor
+    val nameHint            = getNameHint(processor, state)
+    val isScalaProcessor    = processor.is[BaseProcessor]
+    val processMethods      = shouldProcessMethods(processor)
+    val processMethodRefs   = shouldProcessMethodRefs(processor)
+    val processValsForScala = isScalaProcessor && shouldProcessVals(processor)
+    val processOnlyStable   = ProcessorUtils.shouldProcessOnlyStable(processor)
+    val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
+
+    def process(signature: Signature): Boolean =
+      if (signature.namedElement.isValid) {
+        val withSubst                 = state.withSubstitutor(signature.substitutor.followed(subst))
+        val withRenamed               = withSubst.withRename(signature.renamed)
+        val intersectedReturnType     = signature.asOptionOf[TermSignature].flatMap(_.intersectedReturnType)
+        val withIntersectedReturnType = intersectedReturnType.fold(withRenamed)(withRenamed.withIntersectedReturnType)
+
+        val withExportedInfo =
+          signature.exportedInfo.fold(withIntersectedReturnType)(withIntersectedReturnType.withExportedInfo)
+
+        processor.execute(signature.namedElement, withExportedInfo)
+      } else true
+
+
+    def processTermNode(node: MixinNodes.Node[TermSignature]): Boolean = {
+
+      val named = node.info.namedElement
+
+      named match {
+        case _: PsiMethod if processMethods || processMethodRefs =>
+          if (!process(node.info))
+            return false
+
+        case p: ScClassParameter if processValsForScala && !p.isClassMember =>
+          //this is member only for class scope
+          val clazz = p.containingClass
+
+          val isAccesible = clazz != null && isContextAncestor(clazz, place, false) && {
+            //enum constructor parameters cannot be accessed inside enum cases
+            !clazz.is[ScEnum] ||
+              PsiTreeUtil.getContextOfType(place, classOf[ScEnumCase], classOf[ScEnum]) == clazz
+          }
+
+          if (isAccesible) {
+            if (!process(node.info))
+              return false
+          }
+
+        case _: ScTypedDefinition if processValsForScala =>
+
+          if (!process(node.info))
+            return false
+
+          if (!isImplicitProcessor) {
+            val iterator = syntheticPropertyMethods(nameHint, node.info).iterator
+            while (iterator.hasNext) {
+              if (!process(iterator.next()))
+                return false
+            }
+          }
+        case _ =>
+          if (!process(node.info))
+            return false
+      }
+      true
+    }
+
+    def processTypeNode(node: MixinNodes.Node[TypeSignature]): Boolean = process(node.info)
+
+    val signatures =
+      if (processOnlyStable) provider.stable
+      else                   provider.allSignatures
+
+    if (processMethods || processMethodRefs || processValsForScala) {
+      val nodesIterator = signatures.nodesIterator(nameHint, isSupers, onlyImplicit = isImplicitProcessor)
+
+      if (!nodesIterator.filtered(nameHint)(processTermNode))
+        return false
+    }
+
+    //add object methods as static java methods
+    if (processMethods && !isScalaProcessor) {
+      val nodesIterator = provider.fromCompanion.nodesIterator(nameHint, isSupers)
+
+      if (!nodesIterator.filtered(nameHint)(processTermNode))
+        return false
+    }
+
+    if (shouldProcessTypes(processor) || shouldProcessJavaInnerClasses(processor)) {
+      val iterator = provider.types.nodesIterator(nameHint, isSupers)
+
+      if (!iterator.filtered(nameHint, mayProcessTypeSignature(processor, _))(processTypeNode))
+        return false
+    }
+
+    true
+  }
+
+  import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+
+  private def shouldProcessVals(processor: PsiScopeProcessor): Boolean = processor match {
+    case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
+    case _ =>
+      val hint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
+      hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.VARIABLE)
+  }
+
+  private def shouldProcessMethods(processor: PsiScopeProcessor): Boolean = processor match {
+    case BaseProcessor(kinds) => kinds contains METHOD
+    case _ =>
+      val hint = processor.getHint(ElementClassHint.KEY)
+      hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.METHOD)
+  }
+
+  private def shouldProcessMethodRefs(processor: PsiScopeProcessor): Boolean = processor match {
+    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAR) || (kinds contains VAL)
+    case _ => true
+  }
+
+  private def shouldProcessTypes(processor: PsiScopeProcessor): Boolean = processor match {
+    case b: BaseProcessor if b.isImplicitProcessor => false
+    case BaseProcessor(kinds) => (kinds contains CLASS) || (kinds contains METHOD)
+    case _ => false //important: do not process inner classes!
+  }
+
+  private def shouldProcessJavaInnerClasses(processor: PsiScopeProcessor): Boolean = {
+    if (processor.is[BaseProcessor]) return false
+    val hint = processor.getHint(ElementClassHint.KEY)
+    hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)
+  }
+
+  private def mayProcessTypeSignature(processor: PsiScopeProcessor, typeSignature: TypeSignature): Boolean = {
+    if (processor.is[BaseProcessor]) true
+    else typeSignature.namedElement.is[ScTypeDefinition]
+  }
+
+  def processEnum(clazz: PsiClass, process: PsiMethod => Boolean): Boolean = {
+    var containsValues = false
+    if (clazz.isEnum && !clazz.is[ScTemplateDefinition]) {
+      containsValues = clazz.getMethods.exists {
+        method =>
+          method.getName == "values" && method.getParameterList.getParametersCount == 0 && isStaticJava(method)
+      }
+    }
+
+    if (!containsValues && clazz.isEnum) {
+      val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
+      //todo: cache like in PsiClassImpl
+      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
+        "[] values() {}", clazz)
+      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
+        " valueOf(java.lang.String name) throws java.lang.IllegalArgumentException {}", clazz)
+      val values = new LightMethod(clazz.getManager, valuesMethod, clazz)
+      val valueOf = new LightMethod(clazz.getManager, valueOfMethod, clazz)
+
+      if (!process(values))
+        return false
+
+      if (!process(valueOf))
+        return false
+    }
+    true
+  }
+
+  def processNamedTuple(p: ScType, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
+                       (implicit context: Context): Boolean = {
+    // Components of named tuples can be accessed in reference expressions via their names, even though
+    // there are no physical accessor methods. Rather, the compiler rewrites these accesses to the
+    // corresponding component index. We just link to the component that is referenced in its name literal
+    // or synthesize a dummy method.
+    p match {
+      case NamedTupleType(comps) =>
+        comps.forall {
+          case (NamedTupleType.NameType.WithLiteral(name, lit), compType) =>
+            def fallbackToSynthetic(navigationElement: Option[PsiElement]): Boolean = {
+              val property = ScalaPsiElementFactory.createMethodFromText(
+                text = s"def $name: ${compType.canonicalText}",
+                features = ScalaFeatures.defaultScala3,
+              )(p.projectContext)
+
+              navigationElement.foreach {
+                // This enables navigation to "a" in `NamedTuple[("a", "b"), (Int, Int)](???)`
+                property.syntheticNavigationElement = _
+              }
+
+              execute(property, state)
+            }
+
+            lit.psiElement match {
+              case navigationElement@Some(named: ScNamedTupleComponent) =>
+                // We need the correct substitutor for `named`, so calculate that
+                val result = named.`type`().toOption.flatMap {
+                  rawType =>
+                    val prepared = rawType.updateLeaves { case TypeParameterType(p) => UndefinedType(p) }
+                    prepared.conformanceSubstitutor(compType)
+                }
+
+                result match {
+                  case Some(substr) =>
+                    val updatedState = state.withSubstitutor(substr)
+                    execute(named, updatedState)
+                  case _ =>
+                    // When the tuple type was not conformant to the abstract type of the element,
+                    // we need to synthesize the property.
+                    // This might happen if the named tuple was transformed, for example, with NamedTuple.Map
+                    fallbackToSynthetic(navigationElement)
+                }
+
+
+              case navigationElement =>
+                fallbackToSynthetic(navigationElement)
+            }
+          case _ =>
+            true
+        }
+      case _ =>
+        true
+    }
+  }
+
+  def processScala3Tuple(p: ParameterizedType, execute: PsiElement => Boolean): Boolean = {
+    if (TupleType.TupleHList.isCons(p)) {
+      p match {
+        case TupleType(comps) =>
+          comps.zipWithIndex.forall { case (comp, i) =>
+            val index = i + 1
+            val property = ScalaPsiElementFactory.createMethodFromText(
+              text = s"def _$index: ${comp.canonicalText}",
+              features = ScalaFeatures.defaultScala3,
+            )(p.projectContext)
+
+            execute(property)
+          }
+        case _ =>
+      }
+    }
+    true
+  }
+
+  private def isSelectable(tpe: ScType)(implicit context: Context): Boolean = {
+    val selectableFqn = "scala.Selectable"
+    val baseTpes = BaseTypes.iterator(tpe)
+    baseTpes.exists {
+      case ExtractClass(cls) if cls.qualifiedName == selectableFqn => true
+      case _                                                    => false
+    }
+  }
+
+  def processSelectable(typ: ScType, place: PsiElement, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
+                       (implicit context: Context): Boolean = {
+    if (!isSelectable(typ)) {
+      return true
+    }
+
+    // Search a type alias called "Fields"
+    val processor = new CompletionProcessor(StdKinds.stableQualOrClass, place, withImplicitConversions = true) {
+      override protected val forName: Option[String] = Some("Fields")
+    }
+    processor.processType(typ, place)
+    val results = processor.candidatesS
+
+    val it = results.iterator
+
+    while (it.hasNext) {
+      it.next() match {
+        case ScalaResolveResult(alias: ScTypeAlias, subst) =>
+          alias.upperBound match {
+            case Right(fieldsType) =>
+              val updatedState = state.withSubstitutor(subst)
+              return processNamedTuple(subst(fieldsType), updatedState, execute)
+            case _ =>
+          }
+      }
+    }
+    true
+  }
+
+  private def signaturesFromCompanion(clazz: PsiClass, withSupers: Boolean): TermNodes.Map = {
+    clazz match {
+      case td: ScTypeDefinition =>
+        getCompanionModule(td) match {
+          case Some(obj: ScObject) => getSignatures(obj, withSupers)
+          case _                   => MixinNodes.emptyMap
+        }
+      case _ => MixinNodes.emptyMap
+    }
+  }
+
+  private def processSyntheticAnyRefAndAny(processor: PsiScopeProcessor,
+                                           state: ResolveState,
+                                           @Nullable lastParent: PsiElement,
+                                           place: PsiElement): Boolean = {
+    implicit val context: ProjectContext = place
+
+    processSyntheticClass(api.AnyRef, processor, state, lastParent, place) &&
+      processSyntheticClass(api.Any, processor, state, lastParent, place)
+  }
+
+  private def processSyntheticClass(stdType: StdType,
+                                    processor: PsiScopeProcessor,
+                                    state: ResolveState,
+                                    @Nullable lastParent: PsiElement,
+                                    place: PsiElement): Boolean = {
+    stdType.syntheticClass.forall(_.processDeclarations(processor, state, lastParent, place))
+  }
+
+  private def getNameHint(processor: PsiScopeProcessor, state: ResolveState): String = {
+    val hint = processor.getHint(NameHint.KEY)
+    val name = if (hint == null) "" else hint.getName(state)
+
+    ScalaNamesUtil.clean(if (name != null) name else "")
+  }
+
+  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): Seq[TermSignature] = {
+    val sigName = signature.name
+
+    val syntheticMethods = signature.namedElement match {
+      case t: ScTypedDefinition if isProperty(t) =>
+         if (nameHint.isEmpty) getPropertyMethod(t, EQ) ++: getBeanMethods(t)
+         else methodRole(sigName, t.name).flatMap(getPropertyMethod(t, _)).toSeq
+      case _ => Seq.empty
+    }
+    syntheticMethods.map(TermSignature(_, signature.substitutor))
+  }
+
+  private object stdLibPatches {
+    private val map = Map(
+      "scala.Predef" -> "scala.runtime.stdLibPatches.Predef",
+      "scala.language" -> "scala.runtime.stdLibPatches.language",
+      "scala.language.experimental" -> "scala.runtime.stdLibPatches.language.experimental"
+    )
+
+    def apply(clazz: PsiClass, member: String): Option[ScObject] =
+      for {
+        obj       <- clazz.asOptionOf[ScObject]
+        patchName <- map.get(obj.qualifiedName) if !map.contains(obj.qualifiedName + "." + member)
+        patchObj  <- clazz.elementScope.getCachedObject(patchName)
+      } yield patchObj
+
+  }
+
+
+  private implicit class TermNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TermSignature]]) extends AnyVal
+    with NodesIteratorFilteredOps[TermSignature] {
+
+    override protected def checkName(s: TermSignature, nameHint: String): Boolean =
+      nameHint.isEmpty || s.name == nameHint || syntheticPropertyMethods(nameHint, s).nonEmpty
+  }
+
+  private implicit class TypeNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TypeSignature]]) extends AnyVal
+    with NodesIteratorFilteredOps[TypeSignature] {
+
+    override protected def checkName(named: TypeSignature, nameHint: String): Boolean =
+      nameHint.isEmpty || ScalaNamesUtil.clean(named.name) == nameHint
+  }
+
+  private trait NodesIteratorFilteredOps[T <: Signature] extends Any {
+    def iterator: Iterator[MixinNodes.Node[T]]
+
+    def filtered(name: String, condition: T => Boolean = Function.const(true))
+                (action: MixinNodes.Node[T] => Boolean): Boolean = {
+      while (iterator.hasNext) {
+        val n = iterator.next()
+        if (checkName(n.info, name) && condition(n.info)) {
+          ProgressManager.checkCanceled()
+          if (!action(n))
+            return false
+        }
+      }
+      true
+    }
+
+    protected def checkName(t: T, nameHint: String): Boolean
+  }
+}

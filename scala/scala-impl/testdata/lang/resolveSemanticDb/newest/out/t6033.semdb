@@ -1,0 +1,10 @@
+Document tests/pos/t6033.scala
+(1:21..1:24) scala/App#
+(2:15..2:19) java/
+(2:20..2:24) java/math/
+(2:25..2:35) java/math/BigInteger#
+(3:14..3:20) scala/package.BigInt.
+(3:21..3:22) _empty_/Test.b. -> 2:7
+(4:13..4:19) scala/package.BigInt#
+(4:22..4:23) _empty_/Test.b. -> 2:7
+

@@ -1,0 +1,5 @@
+Document tests/pos/t3792.scala
+(2:14..2:17) scala/package.Nil.
+(3:10..3:13) _empty_/Test.Hui# -> 2:8
+(3:16..3:19) scala/package.Nil.
+

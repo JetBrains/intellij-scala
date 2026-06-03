@@ -1,0 +1,15 @@
+Document tests/pos/patmat-exhaustive.scala
+(3:10..3:14) scala/Unit#
+(6:19..6:20) local3
+(6:21..6:22) local0 -> 5:27
+(7:19..7:20) local3
+(7:21..7:22) local0 -> 5:27
+(9:10..9:11) local3
+(9:12..9:13) local0 -> 5:27
+(9:16..9:19) scala/Predef.`???`().
+(10:3..10:4) local8 -> 9:7
+(11:13..11:14) local4 -> 6:9
+(11:18..11:21) scala/Predef.`???`().
+(12:13..12:14) local6 -> 7:9
+(12:18..12:21) scala/Predef.`???`().
+

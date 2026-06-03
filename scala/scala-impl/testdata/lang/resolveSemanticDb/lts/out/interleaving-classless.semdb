@@ -1,0 +1,29 @@
+Document tests/pos/interleaving-classless.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:54) scala/language.experimental.clauseInterleaving.
+(3:19..3:20) _empty_/`interleaving-classless$package`.f1().[T] -> 3:8
+(3:25..3:26) _empty_/`interleaving-classless$package`.f1().[U] -> 3:13
+(3:30..3:31) _empty_/`interleaving-classless$package`.f1().[T] -> 3:8
+(3:33..3:34) _empty_/`interleaving-classless$package`.f1().[U] -> 3:13
+(3:39..3:40) _empty_/`interleaving-classless$package`.f1().(x) -> 3:16
+(3:42..3:43) _empty_/`interleaving-classless$package`.f1().(y) -> 3:22
+(4:14..4:15) _empty_/`interleaving-classless$package`.f2().[T] -> 4:8
+(4:23..4:24) _empty_/`interleaving-classless$package`.f2().[U] -> 4:17
+(4:28..4:29) _empty_/`interleaving-classless$package`.f2().[T] -> 4:8
+(4:31..4:32) _empty_/`interleaving-classless$package`.f2().[U] -> 4:17
+(4:37..4:38) _empty_/`interleaving-classless$package`.f2().(x) -> 4:11
+(4:40..4:41) _empty_/`interleaving-classless$package`.f2().(y) -> 4:20
+(5:20..5:33) scala/DummyImplicit#
+(5:41..5:42) _empty_/`interleaving-classless$package`.f3().[T] -> 5:8
+(5:45..5:46) _empty_/`interleaving-classless$package`.f3().[U] -> 5:11
+(5:49..5:52) scala/Predef.`???`().
+(6:14..6:15) _empty_/`interleaving-classless$package`.f4().[T] -> 6:8
+(6:22..6:23) _empty_/`interleaving-classless$package`.f4().(x) -> 6:11
+(6:33..6:34) _empty_/`interleaving-classless$package`.f4().[U] -> 6:17
+(6:38..6:39) _empty_/`interleaving-classless$package`.f4().[T] -> 6:8
+(6:41..6:42) _empty_/`interleaving-classless$package`.f4().[U] -> 6:17
+(6:47..6:48) _empty_/`interleaving-classless$package`.f4().(x) -> 6:11
+(6:50..6:51) _empty_/`interleaving-classless$package`.f4().(y) -> 6:30
+

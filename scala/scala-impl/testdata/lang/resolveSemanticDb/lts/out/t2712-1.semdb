@@ -1,0 +1,10 @@
+Document tests/pos/t2712-1.scala
+(7:23..7:24) test/Test.meh().[M] -> 7:11
+(7:25..7:26) test/Test.meh().[A] -> 7:17
+(7:30..7:31) test/Test.meh().[M] -> 7:11
+(7:32..7:33) test/Test.meh().[A] -> 7:17
+(7:37..7:38) test/Test.meh().(x) -> 7:20
+(8:3..8:6) test/Test.meh(). -> 7:7
+(8:11..8:14) scala/Int#
+(8:19..8:20) local0 -> 8:8
+

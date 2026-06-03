@@ -1,0 +1,12 @@
+Document tests/pos/t805.scala
+(3:27..3:35) _empty_/MatcherYYY#NodeImpl# -> 2:9
+(4:29..4:33) scala/Unit#
+(7:31..7:41) _empty_/MatcherYYY# -> 1:7
+(8:33..8:41) _empty_/MatcherYYY#NodeImpl# -> 2:9
+(9:28..9:37) _empty_/BraceMatcherXXX#BracePair# -> 11:9
+(9:41..9:45) scala/Unit#
+(12:29..12:38) _empty_/BraceMatcherXXX#NodeImpl2# -> 8:9
+(12:44..12:53) _empty_/MatcherYYY#Matchable# -> 3:9
+(13:30..13:34) scala/Unit#
+(14:15..14:22) _empty_/MatcherYYY#Matchable#doMatch(). -> 4:19
+

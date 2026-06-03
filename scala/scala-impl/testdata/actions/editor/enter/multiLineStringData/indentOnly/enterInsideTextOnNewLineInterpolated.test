@@ -1,0 +1,10 @@
+def foo() {
+  val a =
+    s"""blah<caret>blah"""
+}
+-----
+def foo() {
+  val a =
+    s"""blah
+        <caret>blah"""
+}

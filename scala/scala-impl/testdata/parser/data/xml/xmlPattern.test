@@ -1,0 +1,69 @@
+class a {
+  {
+    case <xml> {(a,b),_*} </xml> => 
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              XmlPattern
+                XmlStartTag
+                  PsiElement(XML_START_TAG_START)('<')
+                  PsiElement(XML_NAME)('xml')
+                  PsiElement(XML_TAG_END)('>')
+                PsiWhiteSpace(' ')
+                PsiElement(ScalaXmlInjectionStart)('{')
+                ArgumentPatterns
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: a
+                        PsiElement(identifier)('a')
+                      PsiElement(,)(',')
+                      ReferencePattern: b
+                        PsiElement(identifier)('b')
+                    PsiElement())(')')
+                  PsiElement(,)(',')
+                  SequenceWildcardPattern: _
+                    PsiElement(_)('_')
+                    PsiElement(identifier)('*')
+                PsiElement(ScalaXmlInjection End)('}')
+                PsiWhiteSpace(' ')
+                XmlEndTag
+                  PsiElement(XML_END_TAG_START)('</')
+                  PsiElement(XML_NAME)('xml')
+                  PsiElement(XML_TAG_END)('>')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace(' \n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

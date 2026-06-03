@@ -1,0 +1,126 @@
+Document tests/pos/i17465.scala
+(1:18..1:22) scala/Unit#
+(2:15..2:16) local0 -> 2:9
+(2:27..2:30) scala/Int#
+(2:33..2:34) local0 -> 2:9
+(2:39..2:40) local0 -> 2:9
+(2:43..2:46) scala/Predef.`???`().
+(3:14..3:15) local4 -> 2:7
+(3:16..3:21) scala/
+(3:22..3:32) scala/collection/
+(3:33..3:42) scala/collection/StringOps#
+(3:43..3:44) scala/`|`#
+(3:45..3:51) scala/Predef.String#
+(4:3..4:10) scala/Predef.locally().
+(5:18..5:23) scala/
+(5:24..5:34) scala/collection/
+(5:35..5:44) scala/collection/StringOps#
+(5:45..5:46) scala/`|`#
+(5:47..5:53) scala/Predef.String#
+(5:66..5:69) scala/Int#
+(5:73..5:78) scala/
+(5:79..5:89) scala/collection/
+(5:90..5:99) scala/collection/StringOps#
+(5:100..5:101) scala/`|`#
+(5:102..5:108) scala/Predef.String#
+(5:114..5:117) scala/Predef.`???`().
+(6:18..6:23) scala/
+(6:24..6:34) scala/collection/
+(6:35..6:44) scala/collection/StringOps#
+(6:45..6:46) scala/`|`#
+(6:47..6:53) scala/Predef.String#
+(6:66..6:69) scala/Int#
+(6:73..6:78) scala/
+(6:79..6:89) scala/collection/
+(6:90..6:99) scala/collection/StringOps#
+(6:100..6:101) scala/`|`#
+(6:102..6:108) scala/Predef.String#
+(6:114..6:119) local8 -> 5:9
+(8:3..8:10) scala/Predef.locally().
+(9:18..9:21) scala/Int#
+(9:22..9:23) scala/`|`#
+(9:24..9:30) scala/Predef.String#
+(9:45..9:48) scala/Int#
+(9:51..9:54) scala/Int#
+(9:59..9:62) scala/Predef.`???`().
+(10:18..10:21) scala/Int#
+(10:22..10:23) scala/`|`#
+(10:24..10:30) scala/Predef.String#
+(10:45..10:48) scala/Int#
+(10:51..10:54) scala/Int#
+(10:59..10:64) local14 -> 9:9
+(12:3..12:10) scala/Predef.locally().
+(13:19..13:22) scala/Int#
+(13:23..13:24) scala/`|`#
+(13:25..13:31) scala/Predef.String#
+(13:33..13:34) scala/`&`#
+(13:35..13:38) scala/Any#
+(13:53..13:56) scala/Int#
+(13:61..13:64) scala/Predef.`???`().
+(14:19..14:22) scala/Int#
+(14:23..14:24) scala/`|`#
+(14:25..14:31) scala/Predef.String#
+(14:33..14:34) scala/`&`#
+(14:35..14:38) scala/Any#
+(14:53..14:56) scala/Int#
+(14:61..14:66) local19 -> 13:9
+(16:3..16:10) scala/Predef.locally().
+(17:17..17:20) scala/Int#
+(17:34..17:37) scala/Int#
+(17:42..17:45) scala/Predef.`???`().
+(18:17..18:20) scala/Int#
+(18:34..18:37) scala/Int#
+(18:42..18:47) local23 -> 17:9
+(20:3..20:10) scala/Predef.locally().
+(21:18..21:21) scala/Int#
+(21:22..21:23) scala/`|`#
+(21:24..21:30) scala/Predef.String#
+(21:45..21:48) scala/Int#
+(21:53..21:56) scala/Predef.`???`().
+(22:18..22:21) scala/Int#
+(22:22..22:23) scala/`|`#
+(22:24..22:30) scala/Predef.String#
+(22:32..22:33) scala/`&`#
+(22:34..22:37) scala/Any#
+(22:40..22:45) local27 -> 21:9
+(24:3..24:10) scala/Predef.locally().
+(25:18..25:21) scala/Int#
+(25:22..25:23) scala/`|`#
+(25:24..25:25) _empty_/i17465$package.test1().[B] -> 1:14
+(25:38..25:41) scala/Int#
+(25:44..25:47) scala/Int#
+(25:52..25:55) scala/Predef.`???`().
+(26:18..26:21) scala/Int#
+(26:22..26:23) scala/`|`#
+(26:24..26:25) _empty_/i17465$package.test1().[B] -> 1:14
+(26:38..26:41) scala/Int#
+(26:44..26:47) scala/Int#
+(26:52..26:57) local31 -> 25:9
+(28:3..28:10) scala/Predef.locally().
+(29:18..29:21) scala/Int#
+(29:22..29:23) scala/`|`#
+(29:24..29:30) scala/Predef.String#
+(29:34..29:37) scala/Predef.`???`().
+(30:18..30:21) scala/Int#
+(30:22..30:23) scala/`|`#
+(30:24..30:30) scala/Predef.String#
+(30:34..30:39) local35 -> 29:9
+(32:14..32:17) scala/Int#
+(32:18..32:19) scala/`|`#
+(32:20..32:26) scala/Predef.String#
+(33:3..33:10) scala/Predef.locally().
+(34:17..34:20) local37 -> 32:8
+(34:32..34:35) scala/Int#
+(34:40..34:43) scala/Predef.`???`().
+(35:18..35:21) scala/Int#
+(35:22..35:23) scala/`|`#
+(35:24..35:30) scala/Predef.String#
+(35:34..35:39) local39 -> 34:9
+(38:12..38:16) scala/Unit#
+(39:10..39:17) scala/reflect/
+(39:18..39:28) scala/reflect/Selectable.
+(39:29..39:49) scala/reflect/Selectable.reflectiveSelectable().
+(42:12..42:13) local41 -> 41:11
+(42:16..42:17) local42 -> 41:14
+(42:18..42:19) scala/reflect/Selectable#applyDynamic().
+

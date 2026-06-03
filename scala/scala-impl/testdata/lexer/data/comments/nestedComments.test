@@ -1,0 +1,31 @@
+class temp(x:int){
+/*
+  object f{ //It's static in this class.
+  /*
+    val x = 4
+    */
+  } */ //It's not interesting.
+}
+-----
+class {class}
+white space in line { }
+identifier {temp}
+( {(}
+identifier {x}
+: {:}
+identifier {int}
+) {)}
+{ {{}
+white space in line {
+}
+BlockComment {/*
+  object f{ //It's static in this class.
+  /*
+    val x = 4
+    */
+  } */}
+white space in line { }
+comment {//It's not interesting.}
+white space in line {
+}
+} {}}

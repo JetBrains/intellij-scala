@@ -1,0 +1,99 @@
+object T {
+    def f(a: Array[Int]) = a match {
+        case Array(1, 2, _@_*) => 0
+    }
+}
+-----
+ScalaFile
+  ScObject: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[Int]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Array
+                    PsiElement(identifier)('Array')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamingPattern: _
+                      PsiElement(_)('_')
+                      PsiElement(@)('@')
+                      SequenceWildcardPattern: _
+                        PsiElement(_)('_')
+                        PsiElement(identifier)('*')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

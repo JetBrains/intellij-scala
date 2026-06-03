@@ -1,0 +1,23 @@
+object A {
+    val notXml = a<b
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {notXml}
+white space in line { }
+= {=}
+white space in line { }
+identifier {a}
+identifier {<}
+identifier {b}
+white space in line {
+}
+} {}}

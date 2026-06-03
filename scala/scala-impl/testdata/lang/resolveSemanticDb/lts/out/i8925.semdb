@@ -1,0 +1,16 @@
+Document tests/pos/i8925.scala
+(6:19..6:22) scala/Int#
+(6:25..6:28) scala/Int#
+(6:31..6:34) scala/Predef.`???`().
+(8:42..8:48) scala/Predef.String#
+(8:51..8:54) scala/Int#
+(10:32..10:38) _empty_/Parent# -> 1:7
+(10:41..10:44) scala/Int#
+(12:21..12:27) scala/Predef.String#
+(15:5..15:11) _empty_/Demo.params(). -> 6:7
+(15:12..15:15) _empty_/Demo.params().(arr) -> 6:14
+(15:18..15:30) _empty_/Demo.parametersOf(). -> 8:7
+(15:31..15:37) _empty_/Parent# -> 1:7
+(15:39..15:40) _empty_/Demo.combineInternal().(p) -> 10:29
+(15:41..15:46) _empty_/Parent#Child# -> 2:8
+

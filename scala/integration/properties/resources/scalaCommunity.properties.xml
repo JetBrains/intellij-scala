@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="com.intellij.properties"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="Properties"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor"
+                                order="first, after ml_context" id="sbtVersionCompletionContributor"/>
+    </extensions>
+
+</idea-plugin>

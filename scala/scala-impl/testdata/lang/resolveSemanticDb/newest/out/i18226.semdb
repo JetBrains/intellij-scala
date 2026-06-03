@@ -1,0 +1,27 @@
+Document tests/pos/i18226.scala
+(5:24..5:25) _empty_/F# -> 1:7
+(5:26..5:27) _empty_/i18226$package.eliminateInt().[R] -> 5:18
+(5:28..5:29) scala/`&`#
+(5:30..5:33) _empty_/Row# -> 3:7
+(5:34..5:37) scala/Int#
+(5:42..5:43) _empty_/F# -> 1:7
+(5:44..5:45) _empty_/i18226$package.eliminateInt().[R] -> 5:18
+(5:53..5:54) _empty_/F# -> 1:7
+(5:55..5:56) _empty_/i18226$package.eliminateInt().[R] -> 5:18
+(7:13..7:14) _empty_/F# -> 1:7
+(7:15..7:18) _empty_/Row# -> 3:7
+(7:19..7:22) scala/Int#
+(7:24..7:25) scala/`&`#
+(7:26..7:29) _empty_/Row# -> 3:7
+(7:30..7:36) scala/Predef.String#
+(9:9..9:21) _empty_/i18226$package.eliminateInt(). -> 5:5
+(9:22..9:25) _empty_/Row# -> 3:7
+(9:26..9:32) scala/Predef.String#
+(9:35..9:36) _empty_/i18226$package.x. -> 7:5
+(10:9..10:21) _empty_/i18226$package.eliminateInt(). -> 5:5
+(10:22..10:23) _empty_/i18226$package.x. -> 7:5
+(11:8..11:9) _empty_/F# -> 1:7
+(11:10..11:13) _empty_/Row# -> 3:7
+(11:14..11:20) scala/Predef.String#
+(11:25..11:26) _empty_/i18226$package.y. -> 10:5
+

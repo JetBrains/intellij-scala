@@ -1,0 +1,40 @@
+Document tests/pos/i23158.scala
+(4:28..4:31) scala/Int#
+(4:36..4:39) scala/Int#
+(5:10..5:14) test/Pair# -> 4:20
+(5:17..5:20) scala/Predef.`???`().
+(7:8..7:12) test/ -> 3:9
+(11:20..11:24) test/Pair# -> 4:20
+(11:27..11:37) scala/NamedTuple.
+(11:38..11:48) scala/NamedTuple.NamedTuple#
+(11:62..11:65) scala/Int#
+(11:67..11:70) scala/Int#
+(11:75..11:78) scala/Predef.`???`().
+(13:5..13:6) test/i23158$package.x(). -> 5:7
+(14:12..14:18) p/Unpack. -> 10:10
+(14:28..14:31) scala/Predef.`???`().
+(20:20..20:24) test/Pair# -> 4:20
+(20:31..20:34) scala/Int#
+(20:39..20:42) scala/Int#
+(20:46..20:49) scala/Predef.`???`().
+(22:5..22:6) test/i23158$package.x(). -> 5:7
+(23:12..23:18) q/Unpack. -> 19:10
+(23:28..23:31) scala/Predef.`???`().
+(29:20..29:24) test/Pair# -> 4:20
+(29:27..29:31) scala/Some#
+(29:36..29:39) scala/Int#
+(29:44..29:47) scala/Int#
+(29:52..29:55) scala/Predef.`???`().
+(31:5..31:6) test/i23158$package.x(). -> 5:7
+(32:12..32:18) r/Unpack. -> 28:10
+(32:28..32:31) scala/Predef.`???`().
+(38:20..38:24) test/Pair# -> 4:20
+(38:27..38:37) scala/NamedTuple.
+(38:38..38:48) scala/NamedTuple.NamedTuple#
+(38:62..38:65) scala/Int#
+(38:67..38:70) scala/Int#
+(38:75..38:78) scala/Predef.`???`().
+(40:5..40:6) test/i23158$package.x(). -> 5:7
+(41:12..41:18) s/Unpack. -> 37:10
+(41:28..41:31) scala/Predef.`???`().
+

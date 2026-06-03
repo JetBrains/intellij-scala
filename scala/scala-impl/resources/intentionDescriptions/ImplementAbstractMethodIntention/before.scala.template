@@ -1,0 +1,5 @@
+trait X {
+  <spot>def f: Int</spot>
+}
+
+class Y extends X

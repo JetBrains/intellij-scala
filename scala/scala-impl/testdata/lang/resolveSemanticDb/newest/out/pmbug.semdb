@@ -1,0 +1,14 @@
+Document tests/pos/pmbug.scala
+(5:21..5:25) scala/package.List#
+(5:26..5:30) scala/package.List#
+(5:31..5:32) _empty_/Test.flatten().[a] -> 5:15
+(5:37..5:41) scala/package.List#
+(5:42..5:43) _empty_/Test.flatten().[a] -> 5:15
+(5:47..5:48) _empty_/Test.flatten().(l) -> 5:18
+(6:10..6:13) scala/package.Nil.
+(6:17..6:20) scala/package.Nil.
+(7:15..7:17) scala/package.`::`.
+(7:26..7:30) local0 -> 7:10
+(7:35..7:42) _empty_/Test.flatten(). -> 5:7
+(7:43..7:47) local1 -> 7:18
+

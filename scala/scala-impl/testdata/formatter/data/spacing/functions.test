@@ -1,0 +1,18 @@
+class a {
+  def foo(): Int
+  def doo(): Boolean = true
+  val y = 1
+  val x = 3
+  def too(): String = ""
+}
+------
+class a {
+  def foo(): Int
+
+  def doo(): Boolean = true
+
+  val y = 1
+  val x = 3
+
+  def too(): String = ""
+}

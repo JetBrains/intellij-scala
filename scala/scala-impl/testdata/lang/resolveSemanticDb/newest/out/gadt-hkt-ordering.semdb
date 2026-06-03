@@ -1,0 +1,13 @@
+Document tests/pos/gadt-hkt-ordering.scala
+(4:30..4:36) _empty_/test.HKTVar# -> 2:15
+(4:37..4:38) _empty_/test.foo().[G] -> 4:17
+(4:43..4:44) _empty_/test.foo().(m) -> 4:26
+(5:14..5:20) _empty_/test.HKTVar# -> 2:15
+(5:21..5:22) _empty_/test.foo().[F] -> 4:11
+(6:16..6:17) _empty_/test.foo().[F] -> 4:11
+(6:18..6:19) _empty_/test.foo().[X] -> 4:23
+(6:23..6:26) scala/Predef.`???`().
+(7:16..7:17) _empty_/test.foo().[G] -> 4:17
+(7:18..7:19) _empty_/test.foo().[X] -> 4:23
+(7:23..7:25) local0 -> 6:11
+

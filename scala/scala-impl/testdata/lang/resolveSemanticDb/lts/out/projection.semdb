@@ -1,0 +1,5 @@
+Document tests/pos/projection.scala
+(5:10..5:11) _empty_/C# -> 3:7
+(5:12..5:13) _empty_/C#T# -> 3:16
+(5:16..5:19) scala/Predef.`???`().
+

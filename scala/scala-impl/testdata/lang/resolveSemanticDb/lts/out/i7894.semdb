@@ -1,0 +1,30 @@
+Document tests/pos/i7894.scala
+(1:22..1:23) _empty_/Box#[T] -> 1:16
+(3:17..3:22) scala/Tuple#
+(3:27..3:32) scala/Tuple#
+(3:35..3:36) _empty_/i7894$package.Boxed#[T] -> 3:12
+(4:8..4:18) scala/Tuple$package.EmptyTuple#
+(4:22..4:32) scala/Tuple$package.EmptyTuple#
+(5:10..5:12) scala/`*:`#
+(5:18..5:21) _empty_/Box# -> 1:12
+(5:22..5:23) local0 -> 5:8
+(5:25..5:27) scala/`*:`#
+(5:28..5:33) _empty_/i7894$package.Boxed# -> 3:6
+(5:34..5:35) local1 -> 5:13
+(8:16..8:21) scala/Tuple#
+(8:36..8:37) _empty_/Cmp#[T] -> 8:11
+(8:42..8:47) _empty_/i7894$package.Boxed# -> 3:6
+(8:48..8:49) _empty_/Cmp#[T] -> 8:11
+(8:53..8:60) scala/Boolean#
+(10:24..10:27) _empty_/Cmp# -> 8:7
+(10:28..10:38) scala/Tuple$package.EmptyTuple#
+(11:14..11:24) scala/Tuple$package.EmptyTuple#
+(11:29..11:39) scala/Tuple$package.EmptyTuple#
+(11:42..11:49) scala/Boolean#
+(14:25..14:28) _empty_/Cmp# -> 8:7
+(14:29..14:39) scala/Tuple$package.EmptyTuple#
+(15:14..15:24) scala/Tuple$package.EmptyTuple#
+(15:29..15:34) _empty_/i7894$package.Boxed# -> 3:6
+(15:35..15:45) scala/Tuple$package.EmptyTuple#
+(15:49..15:56) scala/Boolean#
+

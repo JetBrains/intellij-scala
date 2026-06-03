@@ -1,0 +1,25 @@
+Document tests/pos/i18226a.scala
+(7:17..7:18) _empty_/Spec#[R] -> 6:13
+(7:28..7:38) _empty_/TestAspect# -> 4:7
+(7:39..7:41) _empty_/Spec#foo().[R1] -> 7:11
+(7:43..7:45) _empty_/Spec#foo().[R1] -> 7:11
+(7:49..7:53) scala/Unit#
+(10:25..10:28) _empty_/Has# -> 1:7
+(12:11..12:15) _empty_/Spec# -> 6:7
+(12:16..12:17) _empty_/SuiteBuilder#[R] -> 10:20
+(12:18..12:19) scala/`&`#
+(12:20..12:23) _empty_/Has# -> 1:7
+(12:24..12:27) _empty_/Foo# -> 2:7
+(13:13..13:23) _empty_/TestAspect# -> 4:7
+(14:7..14:8) _empty_/SuiteBuilder#[R] -> 10:20
+(14:9..14:10) scala/`&`#
+(14:11..14:14) _empty_/Has# -> 1:7
+(14:15..14:18) _empty_/Foo# -> 2:7
+(15:7..15:8) _empty_/SuiteBuilder#[R] -> 10:20
+(15:9..15:10) scala/`&`#
+(15:11..15:14) _empty_/Has# -> 1:7
+(15:15..15:18) _empty_/Foo# -> 2:7
+(18:5..18:9) _empty_/SuiteBuilder#toSpec().(spec) -> 12:5
+(18:10..18:13) _empty_/Spec#foo(). -> 7:7
+(18:14..18:20) _empty_/SuiteBuilder#toSpec().(aspect) -> 13:5
+

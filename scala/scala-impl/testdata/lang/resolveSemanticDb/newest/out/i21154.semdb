@@ -1,0 +1,17 @@
+Document tests/pos/i21154/A.scala
+(1:8..1:9) _empty_/Z. -> 8:8
+(4:10..4:16) scala/Option#
+(4:17..4:25) _empty_/Z.AOptions# -> 9:9
+(4:29..4:32) scala/Predef.`???`().
+(5:10..5:16) scala/Option#
+(5:17..5:25) _empty_/Z.BOptions# -> 10:9
+(5:29..5:32) scala/Predef.`???`().
+(6:10..6:16) scala/Option#
+(6:17..6:25) _empty_/Z.COptions# -> 11:9
+(6:29..6:32) scala/Predef.`???`().
+
+Document tests/pos/i21154/Z.scala
+(9:28..9:29) _empty_/Z# -> 6:14
+(10:28..10:29) _empty_/Z# -> 6:14
+(11:28..11:29) _empty_/Z# -> 6:14
+

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module>
+    <info organisation="org.jetbrains"
+        module="test-two"
+        revision="0.0.2" />
+</ivy-module>

@@ -1,0 +1,368 @@
+trait Foo:
+  case class Bar[A](value: A)
+
+object FooBar extends Foo
+
+object Test:
+  type UnwrapTypes[Xs] =
+    Xs match
+      case EmptyTuple => Xs
+      case x *: xs => UnwrapTypes[x] *: UnwrapTypes[xs]
+      case Foo#Bar[x] => UnwrapTypes[x]
+      case String => String
+      case Int => Int
+
+  val x: Int = ??? : UnwrapTypes[FooBar.Bar[Int]]
+  val tup: (Int, String)  = ??? : UnwrapTypes[(FooBar.Bar[Int], FooBar.Bar[String])]
+end Test
+-----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: FooBar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooBar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: UnwrapTypes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('UnwrapTypes')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Xs
+              PsiElement(identifier)('Xs')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: Xs match
+      case EmptyTuple => Xs
+      case x *: xs => UnwrapTypes[x] *: UnwrapTypes[xs]
+      case Foo#Bar[x] => UnwrapTypes[x]
+      case String => String
+      case Int => Int
+            SimpleType: Xs
+              CodeReferenceElement: Xs
+                PsiElement(identifier)('Xs')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Xs
+                  CodeReferenceElement: Xs
+                    PsiElement(identifier)('Xs')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: x *: xs
+                  TypeVariable: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: xs
+                    PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: UnwrapTypes[x] *: UnwrapTypes[xs]
+                  ParametrizedType: UnwrapTypes[x]
+                    SimpleType: UnwrapTypes
+                      CodeReferenceElement: UnwrapTypes
+                        PsiElement(identifier)('UnwrapTypes')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: UnwrapTypes[xs]
+                    SimpleType: UnwrapTypes
+                      CodeReferenceElement: UnwrapTypes
+                        PsiElement(identifier)('UnwrapTypes')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: xs
+                          CodeReferenceElement: xs
+                            PsiElement(identifier)('xs')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Foo#Bar[x]
+                  TypeProjection: Foo#Bar
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    PsiElement(#)('#')
+                    PsiElement(identifier)('Bar')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: UnwrapTypes[x]
+                  SimpleType: UnwrapTypes
+                    CodeReferenceElement: UnwrapTypes
+                      PsiElement(identifier)('UnwrapTypes')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypedExpression
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: UnwrapTypes[FooBar.Bar[Int]]
+              SimpleType: UnwrapTypes
+                CodeReferenceElement: UnwrapTypes
+                  PsiElement(identifier)('UnwrapTypes')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: FooBar.Bar[Int]
+                    SimpleType: FooBar.Bar
+                      CodeReferenceElement: FooBar.Bar
+                        CodeReferenceElement: FooBar
+                          PsiElement(identifier)('FooBar')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Bar')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: tup
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: tup
+              PsiElement(identifier)('tup')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (Int, String)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement())(')')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypedExpression
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: UnwrapTypes[(FooBar.Bar[Int], FooBar.Bar[String])]
+              SimpleType: UnwrapTypes
+                CodeReferenceElement: UnwrapTypes
+                  PsiElement(identifier)('UnwrapTypes')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  TupleType: (FooBar.Bar[Int], FooBar.Bar[String])
+                    PsiElement(()('(')
+                    TypesList
+                      ParametrizedType: FooBar.Bar[Int]
+                        SimpleType: FooBar.Bar
+                          CodeReferenceElement: FooBar.Bar
+                            CodeReferenceElement: FooBar
+                              PsiElement(identifier)('FooBar')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Bar')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: FooBar.Bar[String]
+                        SimpleType: FooBar.Bar
+                          CodeReferenceElement: FooBar.Bar
+                            CodeReferenceElement: FooBar
+                              PsiElement(identifier)('FooBar')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Bar')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

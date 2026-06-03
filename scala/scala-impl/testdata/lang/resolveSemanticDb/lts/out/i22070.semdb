@@ -1,0 +1,46 @@
+Document tests/pos/i22070/macro.scala
+(2:25..2:26) _empty_/Featureful#[T] -> 1:18
+(2:29..2:35) scala/IArray$package.IArray#
+(2:36..2:41) scala/Float#
+(5:31..5:36) scala/
+(5:37..5:45) scala/deriving/
+(5:46..5:52) scala/deriving/Mirror.
+(5:53..5:55) scala/deriving/Mirror.Of#
+(5:56..5:57) _empty_/Featureful.derived().[T] -> 5:22
+(5:65..5:76) _empty_/Featureful.inline$derivedImpl().
+(5:77..5:78) _empty_/Featureful.derived().[T] -> 5:22
+(7:10..7:15) scala/
+(7:16..7:22) scala/quoted/
+(8:30..8:34) scala/quoted/Type#
+(8:42..8:48) scala/quoted/Quotes#
+(8:51..8:55) scala/quoted/Expr#
+(8:56..8:66) _empty_/Featureful# -> 1:7
+(8:67..8:68) _empty_/Featureful.derivedImpl().[T] -> 8:27
+(9:12..9:18) scala/quoted/Quotes$package.quotes().
+(9:19..9:26) scala/quoted/Quotes#reflect.
+(11:11..11:21) _empty_/Featureful# -> 1:7
+(11:22..11:23) _empty_/Featureful.derivedImpl().[T] -> 8:27
+(12:31..12:32) _empty_/Featureful.derivedImpl().[T] -> 8:27
+(13:25..13:31) scala/IArray$package.IArray.
+(13:32..13:37) scala/IArray$package.IArray.empty().
+(13:38..13:48) _empty_/Featureful# -> 1:7
+(14:25..14:30) local1 -> 12:24
+(14:31..14:43) scala/Any#asInstanceOf().
+(14:44..14:51) scala/Product#
+(15:11..15:18) local3 -> 14:15
+(15:19..15:34) scala/Product#productIterator().
+(15:35..15:47) scala/collection/Iterator#zipWithIndex().
+(15:48..15:55) scala/collection/IterableOnceOps#foreach().
+(16:13..16:18) local2 -> 13:15
+(16:13..16:18) scala/IArray$package.IArray.apply(+7).
+(16:19..16:22) local5
+(16:24..16:34) _empty_/Featureful#toFeatures(). -> 2:7
+(16:35..16:38) local6
+(16:39..16:51) scala/Any#asInstanceOf().
+(17:11..17:17) scala/IArray$package.IArray.
+(17:18..17:23) scala/IArray$package.IArray.empty().
+
+Document tests/pos/i22070/usage.scala
+(1:22..1:29) scala/Boolean#
+(1:34..1:41) scala/Boolean#
+

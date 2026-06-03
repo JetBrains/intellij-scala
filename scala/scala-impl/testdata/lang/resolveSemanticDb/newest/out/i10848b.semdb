@@ -1,0 +1,6 @@
+Document tests/pos/i10848b.scala
+(4:16..4:19) scala/Int#
+(5:27..5:30) scala/Int#
+(5:33..5:37) scala/Unit#
+(6:3..6:6) _empty_/Foo#foo(). -> 5:7
+

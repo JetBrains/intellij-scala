@@ -1,0 +1,14 @@
+//### replaceAll=true
+class B(i: Int)
+
+class A(s: Seq[Int]) extends B(<selection>s.size</selection>) {
+  s.size
+}
+------
+class B(i: Int)
+
+class A(s: Seq[Int]) extends {
+  private val value: Int = s.size
+} with B(value) {
+  value
+}

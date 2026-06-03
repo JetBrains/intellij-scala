@@ -1,0 +1,73 @@
+class a {
+  for {i <- 1 to n
+      val x = 5
+      if true}
+   yield true
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          Enumerators
+            Generator
+              ReferencePattern: i
+                PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: to
+                  PsiElement(identifier)('to')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+            PsiWhiteSpace('\n      ')
+            ForBinding
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('5')
+            PsiWhiteSpace('\n      ')
+            Guard
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(true)('true')
+          PsiElement(})('}')
+          PsiWhiteSpace('\n   ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

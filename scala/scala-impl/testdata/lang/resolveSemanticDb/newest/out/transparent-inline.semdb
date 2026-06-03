@@ -1,0 +1,5 @@
+Document tests/pos/transparent-inline.scala
+(1:17..1:20) scala/Any#
+(2:29..2:32) scala/Any#
+(3:12..3:15) _empty_/`transparent-inline$package`.bar(). -> 2:24
+

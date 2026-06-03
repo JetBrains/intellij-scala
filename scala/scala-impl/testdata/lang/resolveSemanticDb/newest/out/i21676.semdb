@@ -1,0 +1,13 @@
+Document tests/pos/i21676.scala
+(2:17..2:27) scala/collection/
+(2:28..2:37) scala/collection/immutable/
+(2:38..2:47) scala/collection/immutable/SortedSet.
+(2:48..2:53) scala/collection/EvidenceIterableFactory.Delegate#empty().
+(2:54..2:60) scala/Predef.String#
+(3:3..3:10) local0 -> 2:7
+(3:11..3:18) scala/collection/SortedSetOps#collect().
+(8:9..8:10) local3 -> 6:12
+(12:3..12:10) local0 -> 2:7
+(12:11..12:18) scala/collection/SortedSetOps#collect().
+(15:12..15:13) local5 -> 15:7
+

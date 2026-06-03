@@ -1,0 +1,11 @@
+Document tests/pos/i7424c.scala
+(3:22..3:23) _empty_/Extends.Ev#[B] -> 3:14
+(3:36..3:37) _empty_/Extends.Ev#[A] -> 3:17
+(3:38..3:45) _empty_/Extends# -> 2:15
+(3:46..3:47) _empty_/Extends.Ev#[B] -> 3:14
+(5:18..5:19) _empty_/Extends#[A] -> 2:23
+(5:22..5:23) _empty_/Extends#[B] -> 2:26
+(6:13..6:20) _empty_/Extends.
+(6:21..6:23) _empty_/Extends.Ev.
+(6:29..6:30) _empty_/Extends#cast().(a) -> 5:15
+

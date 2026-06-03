@@ -1,0 +1,22 @@
+{a = [1}
+-----
+HOCON_FILE
+  HObject(OBJECT)
+    PsiElement(LBRACE)('{')
+    HObjectEntries(OBJECT_ENTRIES)
+      HObjectField(OBJECT_FIELD)
+        HValuedField(VALUED_FIELD)
+          HKey(KEY)
+            HKeyPart(KEY_PART)
+              HUnquotedString(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(EQUALS)('=')
+          PsiWhiteSpace(' ')
+          HArray(ARRAY)
+            PsiElement(LBRACKET)('[')
+            HNumber(NUMBER)
+              PsiElement(UNQUOTED_CHARS)('1')
+            PsiErrorElement:expected ']'
+              <empty list>
+    PsiElement(RBRACE)('}')

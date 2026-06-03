@@ -1,0 +1,11 @@
+class a {
+  if (a) {
+  true
+  }
+}
+-----
+class a {
+  if (a) {
+    true
+  }
+}

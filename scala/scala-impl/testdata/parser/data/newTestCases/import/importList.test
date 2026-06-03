@@ -1,0 +1,26 @@
+import a.b,c.d,e.f
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: a.b
+        CodeReferenceElement: a
+          PsiElement(identifier)('a')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+    PsiElement(,)(',')
+    ImportExpression
+      CodeReferenceElement: c.d
+        CodeReferenceElement: c
+          PsiElement(identifier)('c')
+        PsiElement(.)('.')
+        PsiElement(identifier)('d')
+    PsiElement(,)(',')
+    ImportExpression
+      CodeReferenceElement: e.f
+        CodeReferenceElement: e
+          PsiElement(identifier)('e')
+        PsiElement(.)('.')
+        PsiElement(identifier)('f')

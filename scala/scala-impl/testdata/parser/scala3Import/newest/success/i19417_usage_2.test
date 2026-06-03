@@ -1,0 +1,113 @@
+given[E](using e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(_ => Right(???))
+trait EnumOf[E]
+-----
+ScalaFile
+  ScGivenAliasDefinition: given_QueryParamDecoder_E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: e
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('e')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: EnumOf[E]
+              SimpleType: EnumOf
+                CodeReferenceElement: EnumOf
+                  PsiElement(identifier)('EnumOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: QueryParamDecoder[E]
+      SimpleType: QueryParamDecoder
+        CodeReferenceElement: QueryParamDecoder
+          PsiElement(identifier)('QueryParamDecoder')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: QueryParamDecoder[String].emap
+        GenericCall
+          ReferenceExpression: QueryParamDecoder
+            PsiElement(identifier)('QueryParamDecoder')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('emap')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              Parameter: _
+                PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Right
+              PsiElement(identifier)('Right')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScTrait: EnumOf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumOf')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

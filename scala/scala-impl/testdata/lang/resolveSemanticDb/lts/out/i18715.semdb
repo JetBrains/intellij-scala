@@ -1,0 +1,7 @@
+Document tests/pos/i18715.scala
+(1:19..1:22) scala/Int#
+(3:15..3:18) scala/Any#
+(4:3..4:10) _empty_/
+(4:21..4:24) _empty_/Foo.
+(5:10..5:13) _empty_/i18715$package.foo(). -> 4:15
+

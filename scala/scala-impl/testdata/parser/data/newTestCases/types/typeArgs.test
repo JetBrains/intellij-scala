@@ -1,0 +1,55 @@
+class a {
+  val a: Type[Arg,Arg]
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: a
+              PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Type[Arg,Arg]
+            SimpleType: Type
+              CodeReferenceElement: Type
+                PsiElement(identifier)('Type')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Arg
+                  CodeReferenceElement: Arg
+                    PsiElement(identifier)('Arg')
+              PsiElement(,)(',')
+              TypeArgument
+                SimpleType: Arg
+                  CodeReferenceElement: Arg
+                    PsiElement(identifier)('Arg')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

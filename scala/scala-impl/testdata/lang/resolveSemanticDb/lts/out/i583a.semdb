@@ -1,0 +1,25 @@
+Document tests/pos/i583a.scala
+(5:12..5:13) _empty_/Test.C#T# -> 4:10
+(5:16..5:19) scala/Predef.`???`().
+(6:16..6:17) _empty_/Test.C#T# -> 4:10
+(6:20..6:21) _empty_/Test.C#T# -> 4:10
+(6:24..6:25) _empty_/Test.C#foo().(x) -> 6:13
+(9:15..9:16) _empty_/Test.C# -> 3:9
+(10:11..10:12) _empty_/Test.x(). -> 9:7
+(10:13..10:16) _empty_/Test.C#foo(). -> 6:9
+(10:17..10:20) scala/Predef.`???`().
+(15:19..15:20) _empty_/Test1.Box#[B] -> 15:13
+(19:14..19:17) _empty_/Test1.Box# -> 15:9
+(19:18..19:19) _empty_/Test1.C#T# -> 18:10
+(19:23..19:26) scala/Predef.`???`().
+(20:14..20:15) _empty_/Test1.C#T# -> 18:10
+(20:18..20:19) _empty_/Test1.C#T# -> 18:10
+(20:22..20:25) scala/Predef.`???`().
+(21:12..21:13) _empty_/Test1.C#T# -> 18:10
+(21:16..21:19) scala/Predef.`???`().
+(24:10..24:11) _empty_/Test1.C# -> 17:9
+(24:18..24:19) _empty_/Test1.C# -> 17:9
+(26:11..26:12) _empty_/Test1.c(). -> 24:7
+(26:13..26:16) _empty_/Test1.C#box. -> 19:9
+(28:11..28:12) _empty_/Test1.c(). -> 24:7
+

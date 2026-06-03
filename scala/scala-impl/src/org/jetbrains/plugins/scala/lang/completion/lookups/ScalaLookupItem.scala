@@ -1,0 +1,400 @@
+package org.jetbrains.plugins.scala.lang.completion.lookups
+
+import com.intellij.codeInsight.completion.{InsertionContext, JavaCompletionUtil}
+import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil._
+import org.jetbrains.plugins.scala.autoImport.quickFix._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
+import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import scala.annotation.{nowarn, tailrec}
+
+@nowarn("msg=LookupItem is deprecated")
+final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
+                                    override val getLookupString: String,
+                                    private[completion] val containingClass: PsiClass)(implicit context: Context)
+  extends LookupItem[PsiNamedElement](getPsiElement, getLookupString) {
+  private implicit def tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+
+  import ScalaInsertHandler._
+  import ScalaLookupItem._
+
+  def this(element: PsiNamedElement,
+           name: String,
+           maybeContainingClass: Option[PsiClass] = None)(implicit context: Context) = this(
+    element,
+    name match {
+      case ScalaKeyword.THIS => name
+      case _ => escapeKeyword(name)
+    },
+    maybeContainingClass.orElse(element.containingClassOfNameContext).orNull
+  )
+
+  var isClassName: Boolean = false
+  var isRenamed: Option[String] = None
+  var isAssignment: Boolean = false
+  var substitutor: ScSubstitutor = ScSubstitutor.empty
+  var shouldImport: Boolean = false
+  var isNamedParameter: Boolean = false
+  var isUnderlined: Boolean = false
+  var isInImport: Boolean = false
+  var isInStableCodeReference: Boolean = false
+  var elementToImport: Option[(ScFunction, ScObject)] = None
+  var someSmartCompletion: Boolean = false
+  var bold: Boolean = false
+  var etaExpanded: Boolean = false
+  var prefixCompletion: Boolean = false
+  var isLocalVariable: Boolean = false
+  var isSbtLookupItem: Boolean = false
+  var isInSimpleString: Boolean = false
+  var isInSimpleStringNoBraces: Boolean = false
+  var isInInterpolatedString: Boolean = false
+  var isInStableElementPattern: Boolean = false
+
+  def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
+
+  override def equals(o: Any): Boolean = super.equals(o) &&
+    (o match {
+      case s: ScalaLookupItem => isNamedParameter == s.isNamedParameter && containingClass == s.containingClass
+      case _ => true
+    })
+
+  override def hashCode(): Int =
+    super.hashCode() #+ isNamedParameter #+ containingClass
+
+  // todo define private
+  val containingClassName: String = containingClass match {
+    case null => null
+    case clazz => clazz.name
+  }
+
+  override def renderElement(presentation: LookupElementPresentation): Unit = {
+    val itemText =
+      if (isRenamed.nonEmpty)
+        s"$getLookupString <= ${getPsiElement.name}"
+      else if (isClassName && shouldImport && containingClassName != null)
+        s"$containingClassName.$getLookupString"
+      else getLookupString
+
+    presentation.setItemText(itemText)
+    wrapOptionIfNeeded(presentation)
+
+    presentation.setStrikeout(getPsiElement)
+
+    presentation.setItemTextBold(bold)
+    if (ScalaProjectSettings.getInstance(getPsiElement.getProject).isShowImplicitConversions) {
+      presentation.setItemTextUnderlined(isUnderlined)
+    }
+  }
+
+  override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = (element: LookupElement, presentation) => {
+    element.renderElement(presentation)
+
+    val nonObjComp = getPsiElement.asOptionOf[ScTypeDefinition]
+      .flatMap(_.baseCompanion)
+      .map {
+        case _: ScObject => getPsiElement
+        case comp => comp
+      }
+
+    nonObjComp match {
+      case Some(_: ScEnum | _: ScEnumCase) => presentation.setIcon(Icons.ENUM_AND_OBJECT)
+      case Some(_: ScClass) => presentation.setIcon(Icons.CLASS_AND_OBJECT)
+      case _ => presentation.setIcon(getPsiElement)
+    }
+
+    val grayed = getPsiElement match {
+      case _: PsiPackage | _: PsiClass => true
+      case _ => false
+    }
+
+    val tail = if (isNamedParameter) AssignmentText else tailText
+    presentation.setTailText(tail, grayed)
+    presentation.setTypeText(typeText)
+  }
+
+  private[lookups] def wrapOptionIfNeeded(presentation: LookupElementPresentation): Unit =
+    if (someSmartCompletion) {
+      presentation.setItemText("Some(" + presentation.getItemText + ")")
+    }
+
+  private[lookups] def shiftOptionIfNeeded: Int =
+    if (someSmartCompletion) 5 else 0
+
+  private lazy val typeText: String = {
+    implicit val pc: Project = getPsiElement.getProject
+    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
+    getPsiElement match {
+      case fun: ScFunction =>
+        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
+        presentationStringForScalaType(scType, substitutor)
+      case fun: ScSyntheticFunction =>
+        presentationStringForScalaType(fun.retType, substitutor)
+      case alias: ScTypeAliasDefinition if !alias.isEffectivelyOpaque =>
+        presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
+      case param: ScParameter =>
+        presentationStringForScalaType(param.insideParamType.getOrAny, substitutor)
+      case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
+        t.getTypeWithProjections(thisProjections = true) match {
+          case Right(tp) =>
+            tp.presentableText
+          case _ => ""
+        }
+      case f: PsiField =>
+        presentationStringForJavaType(f.getType, substitutor)
+      case m: PsiMethod =>
+        presentationStringForJavaType(m.getReturnType, substitutor)
+      case t: Typeable =>
+        presentationStringForScalaType(t.`type`().getOrAny, substitutor)
+      case _ => ""
+    }
+  }
+
+  private lazy val tailText: String = {
+    implicit val pc: Project = getPsiElement.getProject
+    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    getPsiElement match {
+      //scala
+      case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
+        locationText
+      case fun: ScFunction =>
+        if (etaExpanded)
+          " _"
+        else if (isAssignment)
+          AssignmentText +
+            LookupItemPresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+        else
+          signatureClausesText(fun) +
+            locationText
+      case fun: ScSyntheticFunction =>
+        val paramClausesText = fun.paramClauses.map { clause =>
+          clause.map {
+            LookupItemPresentationUtil.presentationStringForParameter(_, substitutor)
+          }.commaSeparated(Model.Parentheses)
+        }.mkString
+
+        typeParametersText(fun.typeParameters) + paramClausesText
+      case clazz: PsiClass =>
+        typeParametersText(clazz) +
+          classLocationSuffix(clazz)
+      case method: PsiMethod =>
+        typeParametersText(method) +
+          (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
+          locationText
+      case p: PsiPackage =>
+        s"    (${p.getQualifiedName})"
+      case _ => ""
+    }
+  }
+
+  private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
+                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    if (typeParameters.isEmpty)
+      ""
+    else
+      typeParameters.map { typeParameter =>
+        val substitutor = typeParameter match {
+          case _: ScTypeParam => this.substitutor
+          case _ => ScSubstitutor.empty
+        }
+        LookupItemPresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
+      }.commaSeparated(Model.SquareBrackets)
+
+  private def typeParametersText(typeParametersClause: ScTypeParamClause)
+                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    LookupItemPresentationUtil.presentationStringForPsiElement(typeParametersClause, substitutor)
+
+  private def typeParametersText(owner: PsiTypeParameterListOwner)
+                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String = owner match {
+    case owner: ScTypeParametersOwner =>
+      owner.typeParameterClauses.map(typeParametersText).mkString
+    case owner =>
+      typeParametersText(owner.getTypeParameters.toSeq)
+  }
+
+  private def parametersText(parameterClause: ScParameterClause)
+                            (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    if (shouldRenderEllipsisParameterText)
+      "(...)"
+    else
+      LookupItemPresentationUtil.presentationStringForPsiElement(parameterClause, substitutor)
+
+  private def signatureClausesText(function: ScFunction)
+                                  (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+    function.signatureClauses.map {
+      case ScSignatureClause.TypeClause(clause) => typeParametersText(clause)
+      case ScSignatureClause.TermClause(clause) => parametersText(clause)
+    }.mkString
+
+  private def parametersText(parametersList: PsiParameterList)
+                            (implicit project: Project, tpc: TypePresentationContext, context: Context) =
+    if (shouldRenderEllipsisParameterText)
+      "(...)"
+    else
+      LookupItemPresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
+
+  private def shouldRenderEllipsisParameterText: Boolean =
+    Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1)
+
+  private def locationText: String =
+    if (isClassName && containingClass != null)
+      if (shouldImport) classLocationSuffix(containingClass)
+      else s" (${containingClass.qualifiedName})" // todo unify location abstraction
+    else
+      ""
+
+  override def handleInsert(context: InsertionContext): Unit = {
+    if (getInsertHandler != null) super.handleInsert(context)
+    else if (isClassName || prefixCompletion) {
+      context.commitDocument()
+
+      getPsiElement match {
+        case element@(_: PsiClass |
+                      _: ScTypeAlias |
+                      _: ScPackage) =>
+          if (isRenamed.isDefined) return
+
+          if (isInSimpleString) {
+            new StringInsertPreHandler().handleInsert(context, this)
+
+            new StringInsertPostHandler().handleInsert(context, this)
+          }
+
+          var ref = findReferenceAtOffset(context)
+          if (ref == null) return
+
+          // todo: is it basically this.isInImport && ...
+          val isInImport = getParentOfType(ref, classOf[ScImportStmt]) != null &&
+            getParentOfType(ref, classOf[ScImportSelectors]) == null //do not complete in sel
+
+          ref = findQualifier(ref)
+
+          val cl = element match {
+            case clazz: PsiClass                            => ClassToImport(clazz)
+            case (ta: ScTypeAlias) & ContainingClass(clazz) => MemberToImport(ta, clazz)
+            case ta: ScTypeAlias if ta.isTopLevel           => ta.getContext match {
+              case p: ScPackaging => MemberToImport(ta, p)
+              case _: ScFile => return
+            }
+            case pack: ScPackage                            => PrefixPackageToImport(pack)
+          }
+
+          def nameToUse(qualifiedName: String = cl.qualifiedName) = ref match {
+            case _: ScDocResolvableCodeReference => qualifiedName
+            case _ if isInImport => qualifiedName
+            case _ => cl.name
+          }
+
+          val referenceText = if (prefixCompletion) {
+            val qualifiedName = cl.qualifiedName
+            val parts = qualifiedName.split('.')
+            val last = parts.length - 1
+
+            if (last >= 0)
+              parts(last - 1) + "." + parts(last)
+            else
+              nameToUse(qualifiedName)
+          } else
+            nameToUse()
+
+          replaceReference(ref, referenceText)(element)()
+
+          element match {
+            case _: ScObject if isInStableCodeReference =>
+              context.scheduleAutoPopup()
+            case _ =>
+          }
+        case p: PsiPackage =>
+          new ScalaImportingInsertHandler(null) {
+
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              ScImportsHolder(reference).addImportForPath(p.getQualifiedName)
+          }.handleInsert(context, this)
+        case _ if containingClass != null =>
+          new ScalaImportingInsertHandler(containingClass) {
+
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              super.qualifyOnly(reference)
+
+            override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
+          }.handleInsert(context, this)
+        case _ =>
+      }
+    } else {
+      new ScalaInsertHandler().handleInsert(context, this)
+    }
+  }
+
+  private[completion] def findReferenceAtOffset(context: InsertionContext) = findElementOfClassAtOffset(
+    context.getFile,
+    realStartOffset(context),
+    classOf[ScReference],
+    false
+  )
+
+  private def realStartOffset(context: InsertionContext): Int = {
+    val simpleStringAdd =
+      if (isInSimpleString && isInSimpleStringNoBraces) 1
+      else if (isInSimpleString) 2
+      else if (isInInterpolatedString) 1
+      else 0
+
+    context.getStartOffset + shiftOptionIfNeeded + simpleStringAdd
+  }
+}
+
+object ScalaLookupItem {
+
+  @tailrec
+  def delegate(element: LookupElement): LookupElement = element match {
+    case decorator: LookupElementDecorator[_] => delegate(decorator.getDelegate)
+    case _ => element
+  }
+
+  def unapply(element: LookupElement): Option[(ScalaLookupItem, PsiNamedElement)] =
+    delegate(element) match {
+      case item: ScalaLookupItem => Some(item, item.getPsiElement)
+      case _ => None
+    }
+
+  @tailrec
+  private def findQualifier(reference: ScReference): ScReference = reference.getParent match {
+    case parent: ScReference if !parent.qualifier.contains(reference) => findQualifier(parent)
+    case _ => reference
+  }
+
+  private def classLocationSuffix(`class`: PsiClass) = {
+    val location = `class`.getPresentation match {
+      case null => null
+      case presentation => presentation.getLocationString
+    }
+
+    location match {
+      case null | "" => ""
+      case _ => " " + location
+    }
+  }
+}

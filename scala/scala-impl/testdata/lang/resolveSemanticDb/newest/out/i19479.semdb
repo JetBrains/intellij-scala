@@ -1,0 +1,99 @@
+Document tests/pos/i19479.scala
+(1:23..1:26) scala/Int#
+(4:3..4:9) scala/Predef.summon().
+(4:10..4:20) _empty_/PdxEncoder# -> 7:7
+(4:21..4:27) _empty_/Person# -> 1:12
+(8:17..8:18) _empty_/PdxEncoder#[A] -> 7:18
+(8:21..8:28) scala/Boolean#
+(11:27..11:40) _empty_/ObjectEncoder# -> 15:7
+(12:28..12:38) _empty_/PdxEncoder# -> 7:7
+(12:39..12:42) scala/Int#
+(12:46..12:49) scala/Predef.`???`().
+(16:28..16:38) _empty_/PdxEncoder# -> 7:7
+(16:39..16:49) scala/Tuple$package.EmptyTuple#
+(16:53..16:56) scala/Predef.`???`().
+(18:27..18:33) scala/Predef.String#
+(18:43..18:48) scala/Tuple#
+(19:10..19:17) scala/ValueOf#
+(19:18..19:19) _empty_/ObjectEncoder#tupleEncoder().[K] -> 18:22
+(20:17..20:27) _empty_/PdxEncoder# -> 7:7
+(20:28..20:29) _empty_/ObjectEncoder#tupleEncoder().[H] -> 18:35
+(21:17..21:27) _empty_/PdxEncoder# -> 7:7
+(21:28..21:29) _empty_/ObjectEncoder#tupleEncoder().[T] -> 18:38
+(22:6..22:16) _empty_/PdxEncoder# -> 7:7
+(22:17..22:26) _empty_/i19479$package.FieldType# -> 32:14
+(22:27..22:28) _empty_/ObjectEncoder#tupleEncoder().[K] -> 18:22
+(22:30..22:31) _empty_/ObjectEncoder#tupleEncoder().[H] -> 18:35
+(22:33..22:35) scala/`*:`#
+(22:36..22:37) _empty_/ObjectEncoder#tupleEncoder().[T] -> 18:38
+(22:41..22:44) scala/Predef.`???`().
+(24:34..24:39) scala/Tuple#
+(25:12..25:27) _empty_/LabelledGeneric. -> 45:16
+(25:28..25:31) _empty_/LabelledGeneric.Aux# -> 46:8
+(25:32..25:33) _empty_/ObjectEncoder#objectEncoder().[A] -> 24:23
+(25:35..25:39) _empty_/ObjectEncoder#objectEncoder().[Repr] -> 24:26
+(26:21..26:31) _empty_/PdxEncoder# -> 7:7
+(26:32..26:36) _empty_/ObjectEncoder#objectEncoder().[Repr] -> 24:26
+(27:6..27:16) _empty_/PdxEncoder# -> 7:7
+(27:17..27:18) _empty_/ObjectEncoder#objectEncoder().[A] -> 24:23
+(27:22..27:25) scala/Predef.`???`().
+(30:8..30:13) scala/
+(30:14..30:22) scala/deriving/
+(30:23..30:29) scala/deriving/Mirror#
+(30:23..30:29) scala/deriving/Mirror.
+(32:1..32:8) _empty_/
+(32:33..32:34) _empty_/i19479$package.FieldType#[V] -> 32:28
+(32:35..32:36) scala/`&`#
+(32:37..32:43) _empty_/i19479$package.KeyTag# -> 33:14
+(32:44..32:45) _empty_/i19479$package.FieldType#[K] -> 32:24
+(32:47..32:48) _empty_/i19479$package.FieldType#[V] -> 32:28
+(33:1..33:8) _empty_/
+(34:1..34:8) _empty_/
+(34:28..34:33) scala/Tuple#
+(34:41..34:46) scala/Tuple#
+(34:60..34:65) scala/Tuple#
+(34:69..34:71) _empty_/i19479$package.ZipWith#[T1] -> 34:22
+(34:73..34:75) _empty_/i19479$package.ZipWith#[T2] -> 34:35
+(35:12..35:14) scala/`*:`#
+(35:22..35:24) scala/`*:`#
+(35:32..35:33) _empty_/i19479$package.ZipWith#[F] -> 34:48
+(35:34..35:36) local4 -> 35:9
+(35:38..35:40) local6 -> 35:19
+(35:42..35:44) scala/`*:`#
+(35:45..35:52) _empty_/i19479$package.ZipWith# -> 34:14
+(35:53..35:55) local5 -> 35:15
+(35:57..35:59) local7 -> 35:25
+(35:61..35:62) _empty_/i19479$package.ZipWith#[F] -> 34:48
+(36:9..36:19) scala/Tuple$package.EmptyTuple#
+(36:32..36:42) scala/Tuple$package.EmptyTuple#
+(37:12..37:22) scala/Tuple$package.EmptyTuple#
+(37:32..37:42) scala/Tuple$package.EmptyTuple#
+(38:8..38:9) scala/Any#
+(38:32..38:37) scala/Tuple#
+(41:1..41:8) _empty_/
+(45:1..45:8) _empty_/
+(46:20..46:35) _empty_/LabelledGeneric# -> 41:15
+(46:36..46:37) _empty_/LabelledGeneric.Aux#[A] -> 46:12
+(46:53..46:54) _empty_/LabelledGeneric.Aux#[R] -> 46:15
+(48:45..48:52) scala/Product#
+(49:10..49:16) scala/deriving/Mirror.
+(49:17..49:26) scala/deriving/Mirror.ProductOf#
+(49:27..49:28) _empty_/LabelledGeneric.productInst().[A] -> 48:40
+(50:6..50:21) _empty_/LabelledGeneric. -> 45:16
+(50:22..50:25) _empty_/LabelledGeneric.Aux# -> 46:8
+(50:26..50:27) _empty_/LabelledGeneric.productInst().[A] -> 48:40
+(50:29..50:36) _empty_/i19479$package.ZipWith# -> 34:14
+(50:37..50:38) _empty_/LabelledGeneric.productInst().(m) -> 49:7
+(50:39..50:57) scala/deriving/Mirror#MirroredElemLabels#
+(50:59..50:60) _empty_/LabelledGeneric.productInst().(m) -> 49:7
+(50:80..50:89) _empty_/i19479$package.FieldType# -> 32:14
+(51:9..51:24) _empty_/LabelledGeneric# -> 41:15
+(51:25..51:26) _empty_/LabelledGeneric.productInst().[A] -> 48:40
+(52:19..52:24) scala/Tuple#
+(52:25..52:26) scala/`&`#
+(52:27..52:34) _empty_/i19479$package.ZipWith# -> 34:14
+(52:35..52:36) _empty_/LabelledGeneric.productInst().(m) -> 49:7
+(52:37..52:55) scala/deriving/Mirror#MirroredElemLabels#
+(52:57..52:58) _empty_/LabelledGeneric.productInst().(m) -> 49:7
+(52:78..52:87) _empty_/i19479$package.FieldType# -> 32:14
+

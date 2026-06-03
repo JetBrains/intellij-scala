@@ -1,0 +1,4 @@
+Document tests/pos/t4188.scala
+(5:12..5:15) scala/Any#
+(5:33..5:37) _empty_/A#Ding. -> 3:10
+

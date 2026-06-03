@@ -1,0 +1,3 @@
+a.b.c.d<caret>.e.f = 42
+-----
+a.b.c.d

@@ -1,0 +1,24 @@
+package A.B.C
+
+class Foo {
+    public fun Foo() : void = UastEmptyExpression
+}
+
+public class FooWithParam {
+    public final var num: int = 5
+    public fun FooWithParam() : void = UastEmptyExpression
+}
+
+class Bar {
+    public fun Bar() : void = UastEmptyExpression
+    public fun getFoo() : A.B.C.Foo {
+        FooWithParam()
+        FooWithParam(4)
+        FooWithParam(num = 8)
+        A.B.C.Foo()
+        return Foo()
+    }
+    private class BarInner {
+        public fun BarInner() : void = UastEmptyExpression
+    }
+}

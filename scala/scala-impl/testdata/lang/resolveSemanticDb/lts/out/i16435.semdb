@@ -1,0 +1,16 @@
+Document tests/pos/i16435.scala
+(4:19..4:25) scala/Option#
+(4:26..4:32) scala/Option#
+(4:33..4:38) _empty_/Base#Value# -> 3:8
+(4:43..4:47) scala/None.
+(5:12..5:18) scala/Option#
+(5:19..5:24) _empty_/Base#Value# -> 3:8
+(7:17..7:21) _empty_/Base# -> 2:7
+(8:21..8:27) scala/Option#
+(8:28..8:33) _empty_/Base#Value# -> 3:8
+(9:5..9:8) _empty_/Base#oov(). -> 4:14
+(10:12..10:16) scala/Some.
+(10:24..10:26) local0 -> 10:17
+(11:12..11:16) scala/None.
+(11:20..11:24) scala/None.
+

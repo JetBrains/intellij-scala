@@ -1,0 +1,18 @@
+Document tests/pos/i5700.scala
+(3:37..3:38) local1 -> 3:19
+(3:39..3:42) scala/Any#
+(3:47..3:48) local1 -> 3:19
+(3:49..3:56) scala/Nothing#
+(4:10..4:11) _empty_/noRecursionLimit.M# -> 3:8
+(4:17..4:29) scala/Any#asInstanceOf().
+(4:30..4:31) _empty_/noRecursionLimit.M# -> 3:8
+(5:16..5:17) _empty_/noRecursionLimit.M. -> 4:7
+(5:18..5:19) local1 -> 3:19
+(5:20..5:23) scala/Any#
+(5:27..5:28) _empty_/noRecursionLimit.M. -> 4:7
+(5:29..5:30) local1 -> 3:19
+(5:31..5:34) scala/Int#
+(5:38..5:39) _empty_/noRecursionLimit.dcast().(m) -> 5:13
+(5:41..5:42) _empty_/noRecursionLimit.M. -> 4:7
+(5:43..5:45) local2 -> 3:31
+

@@ -1,0 +1,32 @@
+Document tests/pos/i2104.scala
+(1:27..1:28) _empty_/Pair#[A] -> 1:17
+(1:34..1:35) _empty_/Pair#[B] -> 1:20
+(6:22..6:23) _empty_/Cons.apply().[H] -> 6:13
+(6:28..6:29) _empty_/Cons.apply().[T] -> 6:16
+(6:32..6:36) _empty_/Cons# -> 3:7
+(6:37..6:38) _empty_/Cons.apply().[H] -> 6:13
+(6:40..6:41) _empty_/Cons.apply().[T] -> 6:16
+(6:45..6:48) scala/Predef.`???`().
+(7:24..7:28) _empty_/Cons# -> 3:7
+(7:29..7:30) _empty_/Cons.unapply().[H] -> 7:15
+(7:32..7:33) _empty_/Cons.unapply().[T] -> 7:18
+(7:37..7:43) scala/Option#
+(7:44..7:48) _empty_/Pair# -> 1:12
+(7:49..7:50) _empty_/Cons.unapply().[H] -> 7:15
+(7:52..7:53) _empty_/Cons.unapply().[T] -> 7:18
+(7:58..7:61) scala/Predef.`???`().
+(13:18..13:23) scala/Array#
+(13:24..13:30) scala/Predef.String#
+(13:34..13:38) scala/Unit#
+(14:5..14:9) _empty_/Cons. -> 5:8
+(14:10..14:16) scala/Option.
+(14:21..14:25) scala/None.
+(15:12..15:16) _empty_/Cons. -> 5:8
+(15:17..15:21) scala/Some.
+(15:26..15:30) scala/None.
+(16:9..16:10) local0 -> 15:22
+(16:12..16:15) scala/Int#
+(17:9..17:15) scala/Predef.assert(+1).
+(17:16..17:17) local0 -> 15:22
+(17:18..17:20) scala/Int#`==`(+3).
+

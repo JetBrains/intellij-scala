@@ -1,0 +1,5 @@
+Document tests/pos/i4395b.scala
+(2:14..2:16) scala/Any#`==`().
+(3:14..3:16) scala/Any#`!=`().
+(4:14..4:22) scala/Any#getClass().
+

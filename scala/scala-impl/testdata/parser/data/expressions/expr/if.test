@@ -1,0 +1,50 @@
+class a{
+  if ({"hello"
+    true})
+    true; else false
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          BlockExpression
+            PsiElement({)('{')
+            StringLiteral
+              PsiElement(string content)('"hello"')
+            PsiWhiteSpace('\n    ')
+            BooleanLiteral
+              PsiElement(true)('true')
+            PsiElement(})('}')
+          PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          BooleanLiteral
+            PsiElement(true)('true')
+          PsiElement(;)(';')
+          PsiWhiteSpace(' ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(false)('false')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

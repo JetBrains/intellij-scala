@@ -1,0 +1,13 @@
+class A {
+  val a = """blah blah
+blah blah""" + """blah blah blah
+  blah blah blah"""
+}
+-----
+class A {
+  val a =
+    """blah blah
+blah blah""" +
+    """blah blah blah
+  blah blah blah"""
+}

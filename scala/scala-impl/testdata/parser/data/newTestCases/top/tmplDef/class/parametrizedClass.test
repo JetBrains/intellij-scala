@@ -1,0 +1,52 @@
+class a[+b,c,_[d],f >: g <% h]
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: b
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('b')
+      PsiElement(,)(',')
+      TypeParameter: c
+        PsiElement(identifier)('c')
+      PsiElement(,)(',')
+      TypeParameter: _
+        PsiElement(_)('_')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: d
+            PsiElement(identifier)('d')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      TypeParameter: f
+        PsiElement(identifier)('f')
+        PsiWhiteSpace(' ')
+        PsiElement(>:)('>:')
+        PsiWhiteSpace(' ')
+        SimpleType: g
+          CodeReferenceElement: g
+            PsiElement(identifier)('g')
+        PsiWhiteSpace(' ')
+        PsiElement(<%)('<%')
+        PsiWhiteSpace(' ')
+        SimpleType: h
+          CodeReferenceElement: h
+            PsiElement(identifier)('h')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

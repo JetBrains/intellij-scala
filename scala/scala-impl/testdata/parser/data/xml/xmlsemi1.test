@@ -1,0 +1,51 @@
+object Foo {
+    def body = <span> {42;} </span>
+}
+-----
+ScalaFile
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: body
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('body')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          XmlExpression
+            XmlElement
+              XmlStartTag
+                PsiElement(XML_START_TAG_START)('<')
+                PsiElement(XML_NAME)('span')
+                PsiElement(XML_TAG_END)('>')
+              PsiWhiteSpace(' ')
+              PsiElement(ScalaXmlInjectionStart)('{')
+              BlockOfExpressions
+                IntegerLiteral
+                  PsiElement(integer)('42')
+                PsiElement(;)(';')
+              PsiElement(ScalaXmlInjection End)('}')
+              PsiWhiteSpace(' ')
+              XmlEndTag
+                PsiElement(XML_END_TAG_START)('</')
+                PsiElement(XML_NAME)('span')
+                PsiElement(XML_TAG_END)('>')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

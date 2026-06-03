@@ -1,0 +1,495 @@
+trait Error
+sealed abstract class Codec[A] {
+  type AvroType
+  def encode(a: A): Either[Error, AvroType]
+  // def decode(value: Any): Either[Error, A]
+}
+
+object Codec {
+  type Aux[AvroType0, A] = Codec[A] {
+    type AvroType = AvroType0
+  }
+
+  final def instance[AvroType0, A](
+      encode: A => Either[Error, AvroType0],
+      // decode: Any => Either[Error, A]
+  ): Codec.Aux[AvroType0, A]  = ???
+
+  implicit final def option[A](implicit codec: Codec[A]): Codec[Option[A]] = ???
+  given Codec.Aux[Int, Int] = ???
+}
+
+
+@main def test() = {
+  implicit val codec: Codec[Option[Int]] =
+    Codec.instance(
+      Codec.option[Int].encode
+        // expands to:
+        // {
+        //   val a: Codec[Option[Int]] = Codec.option[Int](Codec.given_Aux_Int_Int)
+        //   a.encode
+        // },
+      // Codec.option[Int].decode
+    )
+}
+-----
+ScalaFile
+  ScTrait: Error
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Error')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Codec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Codec')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: AvroType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AvroType')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: encode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('encode')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Either[Error, AvroType]
+            SimpleType: Either
+              CodeReferenceElement: Either
+                PsiElement(identifier)('Either')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Error
+                  CodeReferenceElement: Error
+                    PsiElement(identifier)('Error')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: AvroType
+                  CodeReferenceElement: AvroType
+                    PsiElement(identifier)('AvroType')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// def decode(value: Any): Either[Error, A]')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Codec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Codec')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Aux
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aux')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: AvroType0
+              PsiElement(identifier)('AvroType0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Codec[A] {
+    type AvroType = AvroType0
+  }
+            ParametrizedType: Codec[A]
+              SimpleType: Codec
+                CodeReferenceElement: Codec
+                  PsiElement(identifier)('Codec')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: AvroType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AvroType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: AvroType0
+                  CodeReferenceElement: AvroType0
+                    PsiElement(identifier)('AvroType0')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: instance
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('instance')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: AvroType0
+              PsiElement(identifier)('AvroType0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: encode
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('encode')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => Either[Error, AvroType0]
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Either[Error, AvroType0]
+                      SimpleType: Either
+                        CodeReferenceElement: Either
+                          PsiElement(identifier)('Either')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Error
+                            CodeReferenceElement: Error
+                              PsiElement(identifier)('Error')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: AvroType0
+                            CodeReferenceElement: AvroType0
+                              PsiElement(identifier)('AvroType0')
+                        PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              PsiComment(comment)('// decode: Any => Either[Error, A]')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Codec.Aux[AvroType0, A]
+            SimpleType: Codec.Aux
+              CodeReferenceElement: Codec.Aux
+                CodeReferenceElement: Codec
+                  PsiElement(identifier)('Codec')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: AvroType0
+                  CodeReferenceElement: AvroType0
+                    PsiElement(identifier)('AvroType0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: option
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('option')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: codec
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('codec')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Codec[A]
+                    SimpleType: Codec
+                      CodeReferenceElement: Codec
+                        PsiElement(identifier)('Codec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Codec[Option[A]]
+            SimpleType: Codec
+              CodeReferenceElement: Codec
+                PsiElement(identifier)('Codec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Option[A]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Aux_Int_Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: Codec.Aux[Int, Int]
+            SimpleType: Codec.Aux
+              CodeReferenceElement: Codec.Aux
+                CodeReferenceElement: Codec
+                  PsiElement(identifier)('Codec')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: codec
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(implicit)('implicit')
+        PsiWhiteSpace(' ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: codec
+            PsiElement(identifier)('codec')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Codec[Option[Int]]
+          SimpleType: Codec
+            CodeReferenceElement: Codec
+              PsiElement(identifier)('Codec')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Option[Int]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: Codec.instance
+            ReferenceExpression: Codec
+              PsiElement(identifier)('Codec')
+            PsiElement(.)('.')
+            PsiElement(identifier)('instance')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n      ')
+            ReferenceExpression: Codec.option[Int].encode
+              GenericCall
+                ReferenceExpression: Codec.option
+                  ReferenceExpression: Codec
+                    PsiElement(identifier)('Codec')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('encode')
+            PsiWhiteSpace('\n        ')
+            PsiComment(comment)('// expands to:')
+            PsiWhiteSpace('\n        ')
+            PsiComment(comment)('// {')
+            PsiWhiteSpace('\n        ')
+            PsiComment(comment)('//   val a: Codec[Option[Int]] = Codec.option[Int](Codec.given_Aux_Int_Int)')
+            PsiWhiteSpace('\n        ')
+            PsiComment(comment)('//   a.encode')
+            PsiWhiteSpace('\n        ')
+            PsiComment(comment)('// },')
+            PsiWhiteSpace('\n      ')
+            PsiComment(comment)('// Codec.option[Int].decode')
+            PsiWhiteSpace('\n    ')
+            PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

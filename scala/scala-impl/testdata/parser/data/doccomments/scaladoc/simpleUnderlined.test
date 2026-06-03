@@ -1,0 +1,25 @@
+/**
+ * This is plain text
+ * __this is underlined node __
+ *
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('This is plain text')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 4
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+        ScPsiDocToken(DOC_COMMENT_DATA)('this is underlined node ')
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

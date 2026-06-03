@@ -1,0 +1,101 @@
+class A {
+  val a = f"${(for (i <- 1 until 100) yield i).foldLeft(0)(_ + _)}%2d"
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InterpolatedStringLiteral
+            InterpolatedExpressionPrefix: f
+              PsiElement(interpolated string id)('f')
+            PsiElement(interpolated string)('"')
+            PsiElement(interpolated string injection)('$')
+            BlockExpression
+              PsiElement({)('{')
+              MethodCall
+                MethodCall
+                  ReferenceExpression: (for (i <- 1 until 100) yield i).foldLeft
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      ForStatement
+                        PsiElement(for)('for')
+                        PsiWhiteSpace(' ')
+                        PsiElement(()('(')
+                        Enumerators
+                          Generator
+                            ReferencePattern: i
+                              PsiElement(identifier)('i')
+                            PsiWhiteSpace(' ')
+                            PsiElement(<-)('<-')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: until
+                                PsiElement(identifier)('until')
+                              PsiWhiteSpace(' ')
+                              IntegerLiteral
+                                PsiElement(integer)('100')
+                        PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(yield)('yield')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: i
+                          PsiElement(identifier)('i')
+                      PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('foldLeft')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                  PsiElement())(')')
+              PsiElement(})('}')
+            PsiElement(interpolated string)('%2d')
+            PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

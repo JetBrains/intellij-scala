@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.settings.sections.WorksheetSettingsSectionPanel">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="8" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="9" left="9" bottom="9" right="9"/>
+    <constraints>
+      <xy x="20" y="20" width="574" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <vspacer id="8a5fe">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="4" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="69265" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.output.cutoff.limit"/>
+        </properties>
+      </component>
+      <component id="b981a" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.treat.sc.files.as"/>
+        </properties>
+      </component>
+      <component id="7ba01" class="javax.swing.JComboBox" binding="scTypeSelectionCombobox">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="2cf30" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.delay.before.auto.run"/>
+        </properties>
+      </component>
+      <component id="2a273" class="javax.swing.JSpinner" binding="outputSpinner">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="3fe38" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.output.cutoff.limit.units"/>
+        </properties>
+      </component>
+      <hspacer id="bb6cc">
+        <constraints>
+          <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <hspacer id="e1706">
+        <constraints>
+          <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="b53b9" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.delay.before.auto.run.units"/>
+        </properties>
+      </component>
+      <component id="ee307" class="javax.swing.JSpinner" binding="worksheetAutoRunDelaySpinner">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="63679" class="javax.swing.JCheckBox" binding="runWorksheetInTheCheckBox" default-binding="true">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.run.worksheet.in.the.compiler.process"/>
+        </properties>
+      </component>
+      <component id="82bd1" class="javax.swing.JCheckBox" binding="useEclipseCompatibilityModeCheckBox" default-binding="true">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.use.eclipse.compatibility.mode"/>
+        </properties>
+      </component>
+      <component id="ccd9e" class="javax.swing.JCheckBox" binding="treatScalaScratchFilesCheckBox" default-binding="true">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.treat.scala.scratch.files.as.worksheet.files"/>
+        </properties>
+      </component>
+      <component id="c68ac" class="javax.swing.JCheckBox" binding="collapseWorksheetFoldByCheckBox">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.collapse.long.output.by.default"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

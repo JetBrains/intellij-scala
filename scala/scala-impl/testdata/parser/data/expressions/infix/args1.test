@@ -1,0 +1,63 @@
+class C {
+  foo.pair add (1,2)
+  foo add 1 add 2
+}
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ReferenceExpression: foo.pair
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            PsiElement(identifier)('pair')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: add
+            PsiElement(identifier)('add')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(,)(',')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          InfixExpression
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: add
+            PsiElement(identifier)('add')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

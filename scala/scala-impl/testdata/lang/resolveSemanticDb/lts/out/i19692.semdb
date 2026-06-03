@@ -1,0 +1,14 @@
+Document tests/pos/i19692.scala
+(2:30..2:37) scala/reflect/
+(2:38..2:46) scala/reflect/TypeTest#
+(2:47..2:50) scala/Int#
+(2:52..2:53) _empty_/UsingTypeTest#[B] -> 2:21
+(4:15..4:18) scala/Int#
+(4:22..4:23) _empty_/UsingTypeTest#M#[U] -> 4:10
+(5:10..5:11) _empty_/UsingTypeTest#[B] -> 2:21
+(5:15..5:21) scala/Predef.String#
+(7:12..7:15) scala/Int#
+(7:18..7:19) _empty_/UsingTypeTest#M# -> 4:8
+(7:20..7:23) scala/Int#
+(7:27..7:28) _empty_/UsingTypeTest#m().(t) -> 7:9
+

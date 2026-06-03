@@ -1,0 +1,80 @@
+class a {
+  for (i <- 1 until n if i!=5) res+=1.0/(i-5)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: i
+                PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: until
+                  PsiElement(identifier)('until')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+            PsiWhiteSpace(' ')
+            Guard
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: i
+                  PsiElement(identifier)('i')
+                ReferenceExpression: !=
+                  PsiElement(identifier)('!=')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: res
+              PsiElement(identifier)('res')
+            ReferenceExpression: +=
+              PsiElement(identifier)('+=')
+            InfixExpression
+              DoubleLiteral
+                PsiElement(double)('1.0')
+              ReferenceExpression: /
+                PsiElement(identifier)('/')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: i
+                    PsiElement(identifier)('i')
+                  ReferenceExpression: -
+                    PsiElement(identifier)('-')
+                  IntegerLiteral
+                    PsiElement(integer)('5')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

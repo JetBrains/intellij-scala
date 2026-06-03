@@ -1,0 +1,18 @@
+Document tests/pos/i20136a.scala
+(5:16..5:20) _empty_/Expr# -> 2:7
+(5:36..5:37) _empty_/Expr.Of#[V] -> 5:11
+(6:26..6:30) _empty_/Expr# -> 2:7
+(6:34..6:35) _empty_/Expr.ExtractValue#[E] -> 6:21
+(7:10..7:14) _empty_/Expr. -> 4:8
+(7:15..7:17) _empty_/Expr.Of# -> 5:8
+(7:24..7:25) local1 -> 7:18
+(9:15..9:19) _empty_/Expr# -> 2:7
+(10:15..10:19) _empty_/Expr. -> 4:8
+(10:20..10:32) _empty_/Expr.ExtractValue# -> 6:8
+(10:33..10:34) _empty_/TC#[E] -> 9:10
+(11:22..11:26) _empty_/Expr# -> 2:7
+(12:16..12:22) scala/package.BigInt#
+(13:19..13:21) _empty_/TC# -> 9:7
+(13:22..13:28) _empty_/BIExpr# -> 11:7
+(14:10..14:14) _empty_/TC#Elem# -> 10:8
+

@@ -1,0 +1,25 @@
+Document tests/pos/i22068.scala
+(2:24..2:30) scala/Predef.String#
+(4:32..4:36) _empty_/foos.bars.Bar2# -> 5:11
+(4:39..4:43) scala/Unit#
+(6:27..6:31) _empty_/foos.bars.Bar1# -> 4:11
+(6:32..6:33) _empty_/foos.bars.mkBar1().[A] -> 6:23
+(6:41..6:45) _empty_/foos.bars.Bar1# -> 4:11
+(6:46..6:47) _empty_/foos.bars.mkBar1().[A] -> 6:23
+(7:27..7:31) _empty_/foos.bars.Bar2# -> 5:11
+(7:41..7:45) _empty_/foos.bars.Bar2# -> 5:11
+(8:8..8:12) _empty_/foos. -> 1:8
+(8:16..8:20) _empty_/foos.bars. -> 3:10
+(11:24..11:28) _empty_/foos.bars.Bar1# -> 4:11
+(11:29..11:30) _empty_/Test#m1().[X] -> 11:17
+(11:37..11:41) _empty_/foos.bars.Bar2# -> 5:11
+(11:44..11:48) scala/Unit#
+(12:5..12:7) _empty_/Test#m1().(b1) -> 11:20
+(12:8..12:11) _empty_/foos.bars.Bar1#and(). -> 4:25
+(12:12..12:14) _empty_/Test#m1().(b2) -> 11:33
+(14:13..14:17) scala/Unit#
+(14:20..14:22) _empty_/Test#m1(). -> 11:14
+(14:23..14:29) _empty_/foos.bars.mkBar1(). -> 6:16
+(14:30..14:33) scala/Int#
+(14:36..14:42) _empty_/foos.bars.mkBar2(). -> 7:16
+

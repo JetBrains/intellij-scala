@@ -1,0 +1,2 @@
+<spot>val explicit: Int = 0</spot>
+<spot>val inferred = 0</spot>

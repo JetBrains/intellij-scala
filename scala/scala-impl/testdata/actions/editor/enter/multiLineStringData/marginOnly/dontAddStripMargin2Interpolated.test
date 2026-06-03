@@ -1,0 +1,12 @@
+val a =
+  s"""bl<caret>ah blah blah
+       blah blah blah
+         blah blah blah
+   """
+-----
+val a =
+  s"""bl
+      <caret>ah blah blah
+       blah blah blah
+         blah blah blah
+   """

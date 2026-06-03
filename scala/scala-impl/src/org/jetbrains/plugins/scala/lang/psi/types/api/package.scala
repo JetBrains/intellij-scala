@@ -1,0 +1,114 @@
+package org.jetbrains.plugins.scala.lang.psi.types
+
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClausesOwner, ScSignatureClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.project.ProjectContext
+
+package object api {
+  object TypeConstructor {
+    def unapply(downer: ScType): Option[ScTypePolymorphicType] =
+      downer.typeConstructor
+  }
+
+  implicit class TypeConstructorOps(private val tpe: ScType) extends AnyVal {
+    def typeConstructor: Option[ScTypePolymorphicType] = {
+      val canBeEtaExpanded = tpe match {
+        case downer: DesignatorOwner => Option(downer)
+        case tpt: TypeParameterType  => Option(tpt)
+        case abs: ScAbstractType     => Option(abs)
+        case _                       => None
+      }
+
+      def extractTypeParams(des: PsiNamedElement): Option[Seq[TypeParameter]] =
+        des match {
+          case alias: ScTypeParametersOwner  => Option(alias.typeParameters.map(TypeParameter(_)))
+          case cls: PsiClass                 => Option(cls.getTypeParameters.instantiate)
+          case _                             => None
+        }
+
+      for {
+        tc      <- canBeEtaExpanded
+        des     <- tc.extractDesignated(expandAliases = false)
+        tparams <- extractTypeParams(des)
+        if tparams.nonEmpty
+      } yield {
+        val appliedToParams = ScParameterizedType(tc, tparams.map(TypeParameterType(_)))
+        ScTypePolymorphicType(appliedToParams, tparams)
+      }
+    }
+  }
+
+
+  implicit class TypeParametersArrayExt(private val typeParameters: Array[TypeParameter]) extends AnyVal {
+    def depth: Int = typeParameters.toSeq.depth
+  }
+
+  implicit class TypeParametersSeqExt(private val typeParameters: Seq[TypeParameter]) extends AnyVal {
+    def depth: Int = {
+      def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max
+
+      val maxDepth = if (typeParameters.isEmpty) 0 else typeParameters.map(depth).max
+      1 + maxDepth
+    }
+  }
+
+  implicit class PsiTypeParametersExt(private val typeParameters: Array[PsiTypeParameter]) extends AnyVal {
+    def instantiate: Seq[TypeParameter] = typeParameters match {
+      case Array() => Seq.empty
+      case array   => array.toSeq.map(TypeParameter(_))
+    }
+  }
+
+  implicit class PsiTypeParameterListOwnerExt(private val owner: PsiTypeParameterListOwner) extends AnyVal {
+    def typeParametersByClause: Seq[Seq[TypeParameter]] = owner match {
+      case interleavedOwner: ScInterleavedClausesOwner =>
+        interleavedOwner.signatureClauses.collect {
+          case ScSignatureClause.TypeClause(clause) => clause.typeParameters.map(TypeParameter(_))
+        }
+      case scalaOwner: ScTypeParametersOwner =>
+        val typeParametersClause = scalaOwner.typeParameters.map(TypeParameter(_))
+        if (typeParametersClause.isEmpty) Seq.empty else Seq(typeParametersClause)
+      case _ =>
+        val typeParametersClause = owner.getTypeParameters.instantiate
+        if (typeParametersClause.isEmpty) Seq.empty else Seq(typeParametersClause)
+    }
+  }
+
+  def Any(implicit pc: ProjectContext): StdType = StdTypes.instance.Any
+
+  def AnyRef(implicit pc: ProjectContext): StdType = StdTypes.instance.AnyRef
+
+  def Null(implicit pc: ProjectContext): StdType = StdTypes.instance.Null
+
+  def Nothing(implicit pc: ProjectContext): StdType = StdTypes.instance.Nothing
+
+  def Singleton(implicit pc: ProjectContext): StdType = StdTypes.instance.Singleton
+
+  def AnyVal(implicit pc: ProjectContext): StdType = StdTypes.instance.AnyVal
+
+  def Unit(implicit pc: ProjectContext): ValType = StdTypes.instance.Unit
+
+  def Boolean(implicit pc: ProjectContext): ValType = StdTypes.instance.Boolean
+
+  def Char(implicit pc: ProjectContext): ValType = StdTypes.instance.Char
+
+  def Byte(implicit pc: ProjectContext): ValType = StdTypes.instance.Byte
+
+  def Short(implicit pc: ProjectContext): ValType = StdTypes.instance.Short
+
+  def Int(implicit pc: ProjectContext): ValType = StdTypes.instance.Int
+
+  def Long(implicit pc: ProjectContext): ValType = StdTypes.instance.Long
+
+  def Float(implicit pc: ProjectContext): ValType = StdTypes.instance.Float
+
+  def Double(implicit pc: ProjectContext): ValType = StdTypes.instance.Double
+
+  val Bivariant: Variance = Variance.Bivariant
+  val Covariant: Variance = Variance.Covariant
+  val Contravariant: Variance = Variance.Contravariant
+  val Invariant: Variance = Variance.Invariant
+}

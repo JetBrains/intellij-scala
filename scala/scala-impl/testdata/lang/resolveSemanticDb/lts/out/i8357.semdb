@@ -1,0 +1,31 @@
+Document tests/pos/i8357.scala
+(2:18..2:26) _empty_/i8357$package.ALL_TYPE# -> 17:6
+(5:26..5:32) scala/Predef.String#
+(8:13..8:19) scala/Predef.String#
+(9:23..9:27) scala/package.List#
+(9:28..9:38) _empty_/i8357$package.TypeSymbol# -> 5:13
+(10:16..10:23) scala/Boolean#
+(14:17..14:24) scala/Boolean#
+(17:17..17:29) _empty_/ConcreteType# -> 7:7
+(17:30..17:31) scala/`|`#
+(17:32..17:42) _empty_/i8357$package.TypeSymbol# -> 5:13
+(19:34..19:40) scala/Predef.String#
+(19:58..19:62) scala/package.List#
+(19:63..19:73) _empty_/i8357$package.TypeSymbol# -> 5:13
+(19:84..19:96) _empty_/ConcreteType# -> 7:7
+(20:28..20:34) scala/Predef.String#
+(20:52..20:56) scala/package.List#
+(20:57..20:67) _empty_/i8357$package.TypeSymbol# -> 5:13
+(20:78..20:90) _empty_/ConcreteType# -> 7:7
+(23:18..23:27) _empty_/FieldInfo# -> 1:7
+(23:30..23:37) scala/Boolean#
+(24:5..24:6) _empty_/UnionKind.unapply().(f) -> 23:15
+(24:7..24:16) _empty_/FieldInfo#fieldType. -> 2:7
+(25:15..25:30) _empty_/StaticUnionInfo# -> 19:12
+(26:15..26:24) _empty_/AliasInfo# -> 20:12
+(26:28..26:29) local0 -> 26:12
+(26:30..26:37) _empty_/ConcreteType#isUnion. -> 10:7
+(27:15..27:29) _empty_/UnionContainer# -> 13:7
+(27:33..27:34) local1 -> 27:12
+(27:35..27:43) _empty_/UnionContainer#hasUnion. -> 14:7
+

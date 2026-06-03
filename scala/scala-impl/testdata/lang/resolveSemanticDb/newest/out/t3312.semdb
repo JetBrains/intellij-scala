@@ -1,0 +1,15 @@
+Document tests/pos/t3312.scala
+(2:12..2:18) scala/Predef.String#
+(5:17..5:21) _empty_/Root# -> 1:7
+(6:21..6:27) scala/Predef.String#
+(9:17..9:21) _empty_/Root# -> 1:7
+(10:21..10:27) scala/Predef.String#
+(13:20..13:21) _empty_/A# -> 5:7
+(13:27..13:28) _empty_/B# -> 9:7
+(14:21..14:27) scala/Predef.String#
+(14:30..14:33) _empty_/Foo.foo(). -> 16:7
+(14:43..14:46) _empty_/A#say(). -> 6:16
+(16:17..16:23) scala/Predef.String#
+(16:26..16:32) scala/Predef.String#
+(16:35..16:36) _empty_/Foo.foo().(p) -> 16:11
+

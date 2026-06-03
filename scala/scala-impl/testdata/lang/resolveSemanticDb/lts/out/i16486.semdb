@@ -1,0 +1,37 @@
+Document tests/pos/i16486/defs_1.scala
+(2:8..2:12) java/
+(2:13..2:17) java/time/
+(5:3..5:7) java/
+(5:8..5:11) java/sql/
+(5:12..5:16) java/sql/Date#
+(5:17..5:18) scala/`|`#
+(6:3..6:16) java/time/LocalDateTime#
+(6:17..6:18) scala/`|`#
+(6:19..6:28) java/time/LocalDate#
+(6:29..6:30) scala/`|`#
+(6:31..6:40) java/time/LocalTime#
+(6:41..6:42) scala/`|`#
+(7:3..7:10) java/time/Instant#
+(9:7..9:17) scala/Conversion#
+(9:18..9:24) scala/Predef.String#
+(9:25..9:26) scala/`|`#
+(9:27..9:35) _empty_/defs_1$package.Temporal# -> 4:6
+(9:37..9:44) _empty_/JsValue# -> 11:14
+(9:49..9:52) scala/Predef.`???`().
+(12:28..12:31) scala/Predef.Map#
+(12:32..12:38) scala/Predef.String#
+(12:40..12:47) _empty_/JsValue# -> 11:14
+(15:19..15:25) scala/Tuple2#
+(15:26..15:32) scala/Predef.String#
+(15:35..15:42) _empty_/JsValue# -> 11:14
+(15:43..15:44) scala/`|`#
+(15:45..15:51) scala/Option#
+(15:52..15:59) _empty_/JsValue# -> 11:14
+(15:66..15:74) _empty_/JsObject# -> 12:12
+(15:77..15:80) scala/Predef.`???`().
+
+Document tests/pos/i16486/usage_2.scala
+(3:20..3:24) _empty_/Json. -> 14:8
+(3:25..3:28) _empty_/Json.obj(). -> 15:7
+(3:35..3:37) scala/Predef.ArrowAssoc#`->`().
+

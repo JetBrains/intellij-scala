@@ -1,0 +1,512 @@
+trait Wrapper {
+  type Member
+}
+
+object Wrapper {
+
+  type Aux[M] =
+    Wrapper {
+      type Member = M
+    }
+
+}
+
+// note: the `private` and `private val` are probably not necessary
+final case class Demo[M] private (
+    private val service: Wrapper.Aux[M],
+    private val endpoints: Vector[service.Member]
+)
+
+trait Servo[Alg[_[_]]] {
+
+  type Operation[I]
+}
+
+object Servo {
+
+  type Aux[Alg[_[_]], Op[_]] =
+    Servo[Alg] {
+      type Operation[I] = Op[I]
+    }
+
+}
+
+trait MyEndpoint[Op[_]]
+
+final case class BSPBuilder2[Alg[_[_]], Op[_]] private (
+    private val service: Servo.Aux[Alg, Op],
+    private val endpoints: Vector[MyEndpoint[service.Operation]]
+)
+-----
+ScalaFile
+  ScTrait: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Member
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Member')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Aux
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aux')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          CompoundType: Wrapper {
+      type Member = M
+    }
+            SimpleType: Wrapper
+              CodeReferenceElement: Wrapper
+                PsiElement(identifier)('Wrapper')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScTypeAliasDefinition: Member
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Member')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Demo
+    PsiComment(comment)('// note: the `private` and `private val` are probably not necessary')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Demo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: M
+        PsiElement(identifier)('M')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiWhiteSpace('\n    ')
+          ClassParameter: service
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('service')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Wrapper.Aux[M]
+                SimpleType: Wrapper.Aux
+                  CodeReferenceElement: Wrapper.Aux
+                    CodeReferenceElement: Wrapper
+                      PsiElement(identifier)('Wrapper')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: M
+                      CodeReferenceElement: M
+                        PsiElement(identifier)('M')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n    ')
+          ClassParameter: endpoints
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('endpoints')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Vector[service.Member]
+                SimpleType: Vector
+                  CodeReferenceElement: Vector
+                    PsiElement(identifier)('Vector')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: service.Member
+                      CodeReferenceElement: service.Member
+                        CodeReferenceElement: service
+                          PsiElement(identifier)('service')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Member')
+                  PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Servo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Servo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Alg
+        PsiElement(identifier)('Alg')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: Operation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operation')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Servo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Servo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Aux
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Aux')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Alg
+              PsiElement(identifier)('Alg')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: _
+                      PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Op
+              PsiElement(identifier)('Op')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          CompoundType: Servo[Alg] {
+      type Operation[I] = Op[I]
+    }
+            ParametrizedType: Servo[Alg]
+              SimpleType: Servo
+                CodeReferenceElement: Servo
+                  PsiElement(identifier)('Servo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Alg
+                    CodeReferenceElement: Alg
+                      PsiElement(identifier)('Alg')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScTypeAliasDefinition: Operation
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Operation')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: I
+                    PsiElement(identifier)('I')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Op[I]
+                  SimpleType: Op
+                    CodeReferenceElement: Op
+                      PsiElement(identifier)('Op')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MyEndpoint
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEndpoint')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Op
+        PsiElement(identifier)('Op')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: BSPBuilder2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BSPBuilder2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Alg
+        PsiElement(identifier)('Alg')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: _
+                PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Op
+        PsiElement(identifier)('Op')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiWhiteSpace('\n    ')
+          ClassParameter: service
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('service')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Servo.Aux[Alg, Op]
+                SimpleType: Servo.Aux
+                  CodeReferenceElement: Servo.Aux
+                    CodeReferenceElement: Servo
+                      PsiElement(identifier)('Servo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Alg
+                      CodeReferenceElement: Alg
+                        PsiElement(identifier)('Alg')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Op
+                      CodeReferenceElement: Op
+                        PsiElement(identifier)('Op')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n    ')
+          ClassParameter: endpoints
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('endpoints')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Vector[MyEndpoint[service.Operation]]
+                SimpleType: Vector
+                  CodeReferenceElement: Vector
+                    PsiElement(identifier)('Vector')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: MyEndpoint[service.Operation]
+                      SimpleType: MyEndpoint
+                        CodeReferenceElement: MyEndpoint
+                          PsiElement(identifier)('MyEndpoint')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: service.Operation
+                            CodeReferenceElement: service.Operation
+                              CodeReferenceElement: service
+                                PsiElement(identifier)('service')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Operation')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiWhiteSpace('\n')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

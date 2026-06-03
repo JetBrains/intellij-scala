@@ -1,0 +1,86 @@
+s"\u0025"
+s"\uu0025"
+s"\uuu0025"
+s"\u0025666"
+s"\uu0025666"
+s"\uuu0025666"
+s"\u0025\u0025\u0025666"
+s"\uu0025\uu0025\uu0025666"
+s"\uuu0025\uuu0025\uuu0025666"
+s"uu\uuu0025uu\uuu0025uu\uuu0025666"
+-----
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string {666}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+interpolated string {666}
+interpolated string end {"}

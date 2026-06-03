@@ -1,0 +1,11 @@
+class a {
+  a . b
+  c .
+      d
+}
+------
+class a {
+  a.b
+  c.
+    d
+}

@@ -1,0 +1,11 @@
+def a = c
+
+def b = 2
+
+def c = 2
+---------
+def a = c
+
+def c = 2
+
+def b = 2

@@ -1,0 +1,8 @@
+Document tests/pos/i16778.scala
+(4:29..4:53) _empty_/ForcedRecompilationToken# -> 1:22
+(4:66..4:78) scala/Any#asInstanceOf().
+(4:79..4:103) _empty_/ForcedRecompilationToken# -> 1:22
+(7:53..7:77) _empty_/ForcedRecompilationToken# -> 1:22
+(7:78..7:79) _empty_/PluginDef#[T] -> 7:17
+(12:9..12:13) local0 -> 11:17
+

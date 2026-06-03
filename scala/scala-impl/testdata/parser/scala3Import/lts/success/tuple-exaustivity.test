@@ -1,0 +1,85 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+def test(t: Tuple)  =
+  t match
+    case Tuple() =>
+    case head *: tail =>
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+        PsiElement())(')')
+    PsiWhiteSpace('  ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      ReferenceExpression: t
+        PsiElement(identifier)('t')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+            Pattern Argument List
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            ReferencePattern: head
+              PsiElement(identifier)('head')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ReferencePattern: tail
+              PsiElement(identifier)('tail')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>

@@ -1,0 +1,4 @@
+public final class Test$ {
+    public static fun foo(@scala.Any a: int, @scala.Any foo: java.lang.String) : void {
+    }
+}

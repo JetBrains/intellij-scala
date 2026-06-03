@@ -1,0 +1,60 @@
+Document tests/pos/refinedSubtyping.scala
+(1:8..1:19) scala/compiletime/
+(1:20..1:33) scala/compiletime/package$package.uninitialized().
+(6:13..6:14) _empty_/Test#C# -> 4:9
+(6:26..6:29) scala/Int#
+(8:14..8:16) _empty_/Test#T1# -> 6:8
+(8:31..8:34) scala/Predef.Set#
+(8:35..8:38) scala/Int#
+(10:13..10:14) _empty_/Test#C# -> 4:9
+(10:29..10:32) scala/Predef.Set#
+(10:33..10:34) _empty_/Test#C#T# -> 4:18
+(12:14..12:16) _empty_/Test#T2# -> 10:8
+(12:28..12:31) scala/Int#
+(14:10..14:13) _empty_/Test#T11# -> 8:8
+(14:16..14:29) scala/compiletime/package$package.uninitialized().
+(15:10..15:13) _empty_/Test#T22# -> 12:8
+(15:16..15:29) scala/compiletime/package$package.uninitialized().
+(17:3..17:4) _empty_/Test#`x_=`().
+(17:7..17:8) _empty_/Test#y(). -> 15:7
+(18:3..18:4) _empty_/Test#`y_=`().
+(18:7..18:8) _empty_/Test#x(). -> 14:7
+(29:13..29:14) _empty_/Test2#C# -> 27:9
+(29:27..29:28) _empty_/Test2#A# -> 24:9
+(29:43..29:44) _empty_/Test2#B# -> 25:9
+(31:13..31:14) _empty_/Test2#C# -> 27:9
+(31:27..31:28) _empty_/Test2#B# -> 25:9
+(31:43..31:44) _empty_/Test2#A# -> 24:9
+(33:10..33:12) _empty_/Test2#T1# -> 29:8
+(33:15..33:28) scala/compiletime/package$package.uninitialized().
+(34:10..34:12) _empty_/Test2#U1# -> 31:8
+(34:15..34:28) scala/compiletime/package$package.uninitialized().
+(36:3..36:4) _empty_/Test2#`x_=`().
+(36:7..36:8) _empty_/Test2#y(). -> 34:7
+(37:3..37:4) _empty_/Test2#`y_=`().
+(37:7..37:8) _empty_/Test2#x(). -> 33:7
+(48:13..48:14) _empty_/Test3#C# -> 46:9
+(48:27..48:28) _empty_/Test3#A# -> 43:9
+(49:13..49:15) _empty_/Test3#T1# -> 48:8
+(49:28..49:29) _empty_/Test3#B# -> 44:9
+(51:13..51:14) _empty_/Test3#C# -> 46:9
+(51:27..51:28) _empty_/Test3#B# -> 44:9
+(52:13..52:15) _empty_/Test3#U1# -> 51:8
+(52:28..52:29) _empty_/Test3#A# -> 43:9
+(54:10..54:12) _empty_/Test3#T2# -> 49:8
+(54:15..54:28) scala/compiletime/package$package.uninitialized().
+(55:10..55:12) _empty_/Test3#U2# -> 52:8
+(55:15..55:28) scala/compiletime/package$package.uninitialized().
+(57:12..57:13) _empty_/Test3#x(). -> 54:7
+(58:12..58:13) _empty_/Test3#y(). -> 55:7
+(60:3..60:4) _empty_/Test3#`x_=`().
+(60:7..60:8) _empty_/Test3#y(). -> 55:7
+(61:3..61:4) _empty_/Test3#`y_=`().
+(61:7..61:8) _empty_/Test3#x(). -> 54:7
+(66:38..66:41) scala/Any#
+(68:11..68:12) _empty_/Test4#A# -> 66:18
+(68:23..68:24) _empty_/Test4#A#T# -> 66:27
+(70:11..70:12) _empty_/Test4#A# -> 66:18
+(70:23..70:24) _empty_/Test4#A#T# -> 66:27
+(70:29..70:31) _empty_/Test4#yy. -> 68:7
+

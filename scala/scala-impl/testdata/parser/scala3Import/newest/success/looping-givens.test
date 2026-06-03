@@ -1,0 +1,233 @@
+
+class A
+class B
+
+given joint(using a: A, b: B): (A & B) = ???
+
+def foo(using a: A, b: B) =
+  given aa: A = summon       // resolves to a
+  given bb: B = summon       // resolves to b
+  given ab: (A & B) = summon // resolves to joint(aa, bb)
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: joint
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('joint')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (A & B)
+      PsiElement(()('(')
+      InfixType: A & B
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: &
+          PsiElement(identifier)('&')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScGivenAliasDefinition: aa
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('aa')
+        PsiElement(:)(':')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+      PsiWhiteSpace('       ')
+      PsiComment(comment)('// resolves to a')
+      PsiWhiteSpace('\n  ')
+      ScGivenAliasDefinition: bb
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('bb')
+        PsiElement(:)(':')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+      PsiWhiteSpace('       ')
+      PsiComment(comment)('// resolves to b')
+      PsiWhiteSpace('\n  ')
+      ScGivenAliasDefinition: ab
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(given)('given')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('ab')
+        PsiElement(:)(':')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        TypeInParenthesis: (A & B)
+          PsiElement(()('(')
+          InfixType: A & B
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// resolves to joint(aa, bb)')

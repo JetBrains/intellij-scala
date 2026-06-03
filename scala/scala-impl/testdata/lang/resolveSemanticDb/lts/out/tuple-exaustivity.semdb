@@ -1,0 +1,6 @@
+Document tests/pos/tuple-exaustivity.scala
+(3:13..3:18) scala/Tuple#
+(4:3..4:4) _empty_/`tuple-exaustivity$package`.test().(t) -> 3:10
+(5:10..5:15) scala/Tuple.
+(6:15..6:17) scala/`*:`.
+

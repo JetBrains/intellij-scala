@@ -1,0 +1,31 @@
+Document tests/pos/i22592.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(6:20..6:23) _empty_/Foo# -> 3:7
+(8:21..8:24) scala/Any#
+(10:20..10:26) scala/quoted/Quotes#
+(10:29..10:33) scala/quoted/Expr#
+(10:34..10:38) scala/Unit#
+(10:45..10:50) _empty_/Bar.local(). -> 7:7
+(11:20..11:26) scala/quoted/Quotes#
+(11:29..11:33) scala/quoted/Expr#
+(11:34..11:38) scala/Unit#
+(11:45..11:48) _empty_/Bar. -> 6:8
+(11:49..11:58) _empty_/Foo#inherited(). -> 4:7
+(12:20..12:26) scala/quoted/Quotes#
+(12:29..12:33) scala/quoted/Expr#
+(12:34..12:38) scala/Unit#
+(12:45..12:54) _empty_/Foo#inherited(). -> 4:7
+(13:20..13:26) scala/quoted/Quotes#
+(13:29..13:33) scala/quoted/Expr#
+(13:34..13:38) scala/Unit#
+(13:50..13:55) _empty_/Bar.local(). -> 7:7
+(14:20..14:26) scala/quoted/Quotes#
+(14:29..14:33) scala/quoted/Expr#
+(14:34..14:38) scala/Unit#
+(14:50..14:59) _empty_/Foo#inherited(). -> 4:7
+(15:20..15:26) scala/quoted/Quotes#
+(15:29..15:33) scala/quoted/Expr#
+(15:34..15:38) scala/Unit#
+(15:45..15:53) _empty_/Bar.localArg(). -> 8:7
+

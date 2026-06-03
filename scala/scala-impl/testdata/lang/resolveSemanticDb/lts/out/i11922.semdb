@@ -1,0 +1,45 @@
+Document tests/pos/i11922.scala
+(3:22..3:28) _empty_/example.MyType# -> 2:9
+(3:29..3:30) _empty_/example.Alias#[B] -> 3:17
+(7:10..7:17) _empty_/example. -> 1:8
+(8:17..8:23) _empty_/bug.MyType# -> 7:19
+(8:24..8:25) _empty_/bug.bug().[A] -> 8:11
+(8:29..8:35) _empty_/bug.MyType# -> 7:19
+(8:36..8:37) _empty_/bug.bug().[A] -> 8:11
+(8:41..8:42) _empty_/bug.bug().(m) -> 8:14
+(9:13..9:19) _empty_/bug.MyType# -> 7:19
+(9:20..9:26) scala/Predef.String#
+(9:31..9:37) _empty_/bug.MyType# -> 7:19
+(9:38..9:44) scala/Predef.String#
+(9:53..9:54) local0 -> 9:48
+(10:21..10:26) _empty_/bug.Alias# -> 7:27
+(10:27..10:28) _empty_/bug.bug3().[A] -> 10:12
+(10:30..10:31) _empty_/bug.bug3().[B] -> 10:15
+(10:35..10:41) _empty_/bug.MyType# -> 7:19
+(10:42..10:43) _empty_/bug.bug3().[B] -> 10:15
+(10:47..10:48) _empty_/bug.bug3().(m) -> 10:18
+(11:21..11:26) _empty_/bug.Alias# -> 7:27
+(11:27..11:28) _empty_/bug.bug4().[A] -> 11:12
+(11:30..11:31) _empty_/bug.bug4().[B] -> 11:15
+(11:35..11:40) _empty_/bug.Alias# -> 7:27
+(11:41..11:44) scala/Int#
+(11:46..11:47) _empty_/bug.bug4().[B] -> 11:15
+(11:51..11:52) _empty_/bug.bug4().(m) -> 11:18
+(14:23..14:30) _empty_/example. -> 1:8
+(14:31..14:37) _empty_/example.MyType# -> 2:9
+(14:38..14:39) _empty_/bug.thisWorks().[A] -> 14:17
+(14:43..14:49) _empty_/bug.MyType# -> 7:19
+(14:50..14:51) _empty_/bug.thisWorks().[A] -> 14:17
+(14:55..14:56) _empty_/bug.thisWorks().(m) -> 14:20
+(15:19..15:26) _empty_/example. -> 1:8
+(15:27..15:33) _empty_/example.MyType# -> 2:9
+(15:34..15:40) scala/Predef.String#
+(15:45..15:51) _empty_/bug.MyType# -> 7:19
+(15:52..15:58) scala/Predef.String#
+(15:67..15:68) local1 -> 15:62
+(16:19..16:25) _empty_/bug.MyType# -> 7:19
+(16:26..16:32) scala/Predef.String#
+(16:37..16:40) scala/Predef.`???`().
+(16:43..16:49) _empty_/bug.MyType# -> 7:19
+(16:50..16:56) scala/Predef.String#
+

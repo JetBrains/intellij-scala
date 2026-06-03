@@ -1,0 +1,17 @@
+Document tests/pos/i15274.scala
+(2:24..2:30) _empty_/Format# -> 1:6
+(2:31..2:35) _empty_/Format.Str#[Next] -> 2:12
+(2:46..2:52) _empty_/Format# -> 1:6
+(2:54..2:60) scala/Predef.String#
+(2:62..2:66) _empty_/Format.Str#[Next] -> 2:12
+(4:23..4:29) _empty_/Format# -> 1:6
+(4:30..4:31) _empty_/i15274$package.printf().[A] -> 4:12
+(4:42..4:43) _empty_/i15274$package.printf().[A] -> 4:12
+(4:46..4:50) scala/Unit#
+(4:54..4:60) _empty_/i15274$package.printf().(format) -> 4:15
+(4:62..4:68) _empty_/i15274$package.printf().(params) -> 4:34
+(5:9..5:15) _empty_/Format.
+(5:16..5:19) _empty_/Format.Str.
+(6:12..6:18) scala/Predef.String#
+(6:21..6:24) local2 -> 5:28
+

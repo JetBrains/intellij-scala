@@ -1,0 +1,41 @@
+Document tests/pos/spec-short.scala
+(1:24..1:35) scala/specialized#
+(1:40..1:51) scala/specialized#
+(3:16..3:17) _empty_/AbsFun#[T] -> 1:36
+(3:20..3:21) _empty_/AbsFun#[U] -> 1:52
+(6:15..6:19) scala/package.List#
+(6:20..6:21) _empty_/AbsFun#[T] -> 1:36
+(6:25..6:28) scala/Int#
+(8:16..8:20) scala/package.List#
+(8:21..8:22) _empty_/AbsFun#[T] -> 1:36
+(8:31..8:34) scala/Int#
+(8:36..8:37) _empty_/AbsFun#[T] -> 1:36
+(8:42..8:45) scala/Int#
+(8:48..8:51) scala/Int#
+(9:5..9:7) _empty_/AbsFun#prod().(xs) -> 8:12
+(9:8..9:16) scala/collection/LinearSeqOps#foldLeft().
+(9:20..9:23) _empty_/AbsFun#prod().(mul) -> 8:25
+(12:14..12:20) scala/Predef.String#
+(12:23..12:29) scala/Predef.String#
+(12:32..12:33) _empty_/AbsFun#bar().(m) -> 12:11
+(15:14..15:17) scala/Int#
+(15:20..15:23) scala/Int#
+(18:22..18:28) _empty_/AbsFun# -> 1:16
+(18:29..18:32) scala/Int#
+(18:34..18:37) scala/Int#
+(19:16..19:19) scala/Int#
+(19:22..19:25) scala/Int#
+(19:28..19:29) _empty_/Square#apply().(x) -> 19:13
+(19:30..19:31) scala/Int#`*`(+3).
+(19:32..19:33) _empty_/Square#apply().(x) -> 19:13
+(21:15..21:19) scala/package.List#
+(21:20..21:23) scala/Int#
+(21:27..21:30) scala/Int#
+(22:5..22:7) _empty_/Square#sum().(xs) -> 21:11
+(22:8..22:16) scala/collection/LinearSeqOps#foldLeft().
+(22:23..22:24) scala/Int#`+`(+4).
+(24:14..24:17) scala/Int#
+(24:20..24:23) scala/Int#
+(25:5..25:8) _empty_/Square#sum(). -> 21:7
+(25:9..25:13) scala/package.List.
+

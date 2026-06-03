@@ -1,0 +1,16 @@
+Document tests/pos/i7790.scala
+(3:9..3:12) scala/Int#
+(4:14..4:17) scala/Int#
+(4:22..4:25) scala/Int#
+(4:29..4:30) _empty_/Foo#map().(f) -> 4:11
+(5:14..5:17) scala/Int#
+(5:22..5:28) scala/Predef.String#
+(5:32..5:33) _empty_/Foo#map(+1).(f) -> 5:11
+(7:2..7:6) scala/main#
+(8:10..8:13) _empty_/Foo# -> 2:7
+(8:16..8:19) scala/Predef.`???`().
+(9:3..9:4) local0 -> 8:7
+(9:5..9:8) _empty_/Foo#map(). -> 4:7
+(9:13..9:16) scala/Int#
+(9:22..9:23) local1 -> 9:10
+

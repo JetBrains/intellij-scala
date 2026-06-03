@@ -1,0 +1,18 @@
+import imports_list Closeable : InputStream
+
+public final class Test$ {
+    public static fun foo() : void {
+        final var runnable: java.lang.Runnable = anonymous new Runnable {
+              override def run() {}
+            }
+        runnable.run()
+        final var closeableRunnable: java.lang.Runnable = anonymous new Runnable with Closeable {
+              override def close() {}
+              override def run() {}
+            }
+        final var runnableIs: java.io.InputStream = anonymous new InputStream with Runnable {
+              override def read(): Int = 0
+              override def run() {}
+            }
+    }
+}

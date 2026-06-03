@@ -1,0 +1,557 @@
+import java.util.function.Function
+
+trait HttpClient
+trait HttpRequest
+trait HttpResponse
+trait ClientRequestContext
+
+trait DecoratingHttpClientFunction {
+  def execute(delegate: HttpClient, ctx: ClientRequestContext, req: HttpRequest): HttpResponse
+}
+
+class AbstractClientOptionsBuilder:
+  def decorator(fn: Function[? <: HttpClient, ? <: HttpClient]): AbstractClientOptionsBuilder = ???
+  def decorator(fn: DecoratingHttpClientFunction): AbstractClientOptionsBuilder = ???
+
+class WebClientBuilder extends AbstractClientOptionsBuilder:
+  override def decorator(fn: Function[? <: HttpClient, ? <: HttpClient]): WebClientBuilder = ???
+  override def decorator(fn: DecoratingHttpClientFunction): WebClientBuilder = ???
+
+class ArmeriaClientBuilder[F[_]]:
+  type DecoratingFunction = (HttpClient, ClientRequestContext, HttpRequest) => HttpResponse
+  def clientBuilder: WebClientBuilder = ???
+
+  def withDecorator(decorator: DecoratingFunction): ArmeriaClientBuilder[F] = {
+    clientBuilder.decorator(decorator(_, _, _))
+    this
+  }
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.function.Function
+        CodeReferenceElement: java.util.function
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('function')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Function')
+  PsiWhiteSpace('\n\n')
+  ScTrait: HttpClient
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpClient')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: HttpRequest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpRequest')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: HttpResponse
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpResponse')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: ClientRequestContext
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClientRequestContext')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: DecoratingHttpClientFunction
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DecoratingHttpClientFunction')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: execute
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('execute')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: delegate
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('delegate')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: HttpClient
+                    CodeReferenceElement: HttpClient
+                      PsiElement(identifier)('HttpClient')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: ctx
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ctx')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: ClientRequestContext
+                    CodeReferenceElement: ClientRequestContext
+                      PsiElement(identifier)('ClientRequestContext')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: req
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('req')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: HttpRequest
+                    CodeReferenceElement: HttpRequest
+                      PsiElement(identifier)('HttpRequest')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: HttpResponse
+            CodeReferenceElement: HttpResponse
+              PsiElement(identifier)('HttpResponse')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: AbstractClientOptionsBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractClientOptionsBuilder')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: decorator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('decorator')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fn
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fn')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Function[? <: HttpClient, ? <: HttpClient]
+                    SimpleType: Function
+                      CodeReferenceElement: Function
+                        PsiElement(identifier)('Function')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: AbstractClientOptionsBuilder
+            CodeReferenceElement: AbstractClientOptionsBuilder
+              PsiElement(identifier)('AbstractClientOptionsBuilder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: decorator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('decorator')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fn
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fn')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: DecoratingHttpClientFunction
+                    CodeReferenceElement: DecoratingHttpClientFunction
+                      PsiElement(identifier)('DecoratingHttpClientFunction')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: AbstractClientOptionsBuilder
+            CodeReferenceElement: AbstractClientOptionsBuilder
+              PsiElement(identifier)('AbstractClientOptionsBuilder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: WebClientBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WebClientBuilder')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AbstractClientOptionsBuilder
+            CodeReferenceElement: AbstractClientOptionsBuilder
+              PsiElement(identifier)('AbstractClientOptionsBuilder')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: decorator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('decorator')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fn
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fn')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Function[? <: HttpClient, ? <: HttpClient]
+                    SimpleType: Function
+                      CodeReferenceElement: Function
+                        PsiElement(identifier)('Function')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: WebClientBuilder
+            CodeReferenceElement: WebClientBuilder
+              PsiElement(identifier)('WebClientBuilder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: decorator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('decorator')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fn
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fn')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: DecoratingHttpClientFunction
+                    CodeReferenceElement: DecoratingHttpClientFunction
+                      PsiElement(identifier)('DecoratingHttpClientFunction')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: WebClientBuilder
+            CodeReferenceElement: WebClientBuilder
+              PsiElement(identifier)('WebClientBuilder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: ArmeriaClientBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ArmeriaClientBuilder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: DecoratingFunction
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DecoratingFunction')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionalType: (HttpClient, ClientRequestContext, HttpRequest) => HttpResponse
+            TupleType: (HttpClient, ClientRequestContext, HttpRequest)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: HttpClient
+                  CodeReferenceElement: HttpClient
+                    PsiElement(identifier)('HttpClient')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: ClientRequestContext
+                  CodeReferenceElement: ClientRequestContext
+                    PsiElement(identifier)('ClientRequestContext')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: HttpRequest
+                  CodeReferenceElement: HttpRequest
+                    PsiElement(identifier)('HttpRequest')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: HttpResponse
+              CodeReferenceElement: HttpResponse
+                PsiElement(identifier)('HttpResponse')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: clientBuilder
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('clientBuilder')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: WebClientBuilder
+            CodeReferenceElement: WebClientBuilder
+              PsiElement(identifier)('WebClientBuilder')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: withDecorator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('withDecorator')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: decorator
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('decorator')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: DecoratingFunction
+                    CodeReferenceElement: DecoratingFunction
+                      PsiElement(identifier)('DecoratingFunction')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ArmeriaClientBuilder[F]
+            SimpleType: ArmeriaClientBuilder
+              CodeReferenceElement: ArmeriaClientBuilder
+                PsiElement(identifier)('ArmeriaClientBuilder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: clientBuilder.decorator
+                ReferenceExpression: clientBuilder
+                  PsiElement(identifier)('clientBuilder')
+                PsiElement(.)('.')
+                PsiElement(identifier)('decorator')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: decorator
+                    PsiElement(identifier)('decorator')
+                  ArgumentList
+                    PsiElement(()('(')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    UnderscoreSection
+                      PsiElement(_)('_')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ThisReference
+              PsiElement(this)('this')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

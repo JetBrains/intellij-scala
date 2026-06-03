@@ -1,0 +1,17 @@
+class a {
+  val u = if (true) true
+  else if (true) true
+  else if (false) false
+  else {
+    "never true"
+  }
+}
+------
+class a {
+  val u = if (true) true
+  else if (true) true
+  else if (false) false
+  else {
+    "never true"
+  }
+}

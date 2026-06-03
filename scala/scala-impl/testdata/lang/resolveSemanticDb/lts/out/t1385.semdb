@@ -1,0 +1,4 @@
+Document tests/pos/t1385.scala
+(1:21..1:33) scala/package.Serializable#
+(2:28..2:34) scala/AnyRef#
+

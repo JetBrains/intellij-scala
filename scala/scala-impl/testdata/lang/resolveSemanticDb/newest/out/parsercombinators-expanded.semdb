@@ -1,0 +1,117 @@
+Document tests/pos/parsercombinators-expanded.scala
+(3:8..3:18) scala/collection/
+(3:19..3:26) scala/collection/mutable/
+(13:20..13:21) _empty_/Combinator#[T] -> 6:18
+(15:24..15:31) _empty_/Combinator#Context# -> 9:8
+(15:34..15:40) scala/Option#
+(15:41..15:48) _empty_/Combinator#Element# -> 11:8
+(16:5..16:15) _empty_/Combinator# -> 6:7
+(18:38..18:39) _empty_/Apply#[C] -> 18:24
+(18:43..18:49) scala/Option#
+(18:50..18:51) _empty_/Apply#[E] -> 18:27
+(19:39..19:40) _empty_/Combine#[A] -> 19:26
+(19:50..19:51) _empty_/Combine#[B] -> 19:29
+(23:29..23:39) _empty_/Combinator# -> 6:7
+(23:40..23:45) _empty_/Apply# -> 18:18
+(23:46..23:47) _empty_/test.apply#[C] -> 23:15
+(23:49..23:50) _empty_/test.apply#[E] -> 23:18
+(24:20..24:21) _empty_/test.apply#[C] -> 23:15
+(25:20..25:21) _empty_/test.apply#[E] -> 23:18
+(26:21..26:26) _empty_/Apply# -> 18:18
+(26:27..26:28) _empty_/test.apply#[C] -> 23:15
+(26:30..26:31) _empty_/test.apply#[E] -> 23:18
+(27:26..27:27) _empty_/test.apply#[C] -> 23:15
+(27:30..27:36) scala/Option#
+(27:37..27:38) _empty_/test.apply#[E] -> 23:18
+(27:42..27:46) _empty_/test.apply#parse().(self) -> 26:15
+(27:47..27:53) _empty_/Apply#action. -> 18:30
+(27:54..27:61) _empty_/test.apply#parse().(context) -> 27:17
+(29:20..29:25) _empty_/test.apply# -> 23:9
+(29:26..29:27) _empty_/test.apply().[C] -> 29:13
+(29:29..29:30) _empty_/test.apply().[E] -> 29:16
+(29:38..29:43) _empty_/test.apply# -> 23:9
+(29:44..29:45) _empty_/test.apply().[C] -> 29:13
+(29:47..29:48) _empty_/test.apply().[E] -> 29:16
+(32:22..32:32) _empty_/Combinator# -> 6:7
+(32:33..32:34) _empty_/test.combine#[A] -> 31:17
+(33:22..33:32) _empty_/Combinator# -> 6:7
+(33:33..33:34) _empty_/test.combine#[B] -> 31:20
+(33:53..33:54) _empty_/test.combine#`<init>`().(f)
+(33:55..33:62) _empty_/Combinator#Context# -> 9:8
+(34:13..34:23) _empty_/Combinator# -> 6:7
+(34:24..34:31) _empty_/Combine# -> 19:18
+(34:32..34:33) _empty_/test.combine#[A] -> 31:17
+(34:35..34:36) _empty_/test.combine#[B] -> 31:20
+(35:20..35:21) _empty_/test.combine#f. -> 32:19
+(35:22..35:29) _empty_/Combinator#Context# -> 9:8
+(36:21..36:22) _empty_/test.combine#f. -> 32:19
+(36:23..36:30) _empty_/Combinator#Element# -> 11:8
+(36:32..36:33) _empty_/test.combine#s. -> 33:19
+(36:34..36:41) _empty_/Combinator#Element# -> 11:8
+(37:21..37:28) _empty_/Combine# -> 19:18
+(37:29..37:30) _empty_/test.combine#[A] -> 31:17
+(37:32..37:33) _empty_/test.combine#[B] -> 31:20
+(38:26..38:33) _empty_/test.combine#Context# -> 35:10
+(38:36..38:42) scala/Option#
+(38:43..38:50) _empty_/test.combine#Element# -> 36:10
+(38:54..38:57) scala/Predef.`???`().
+(41:11..41:21) _empty_/Combinator# -> 6:7
+(41:22..41:23) _empty_/test.combine().[A] -> 40:15
+(42:11..42:21) _empty_/Combinator# -> 6:7
+(42:22..42:23) _empty_/test.combine().[B] -> 40:18
+(42:42..42:44) _empty_/test.combine().(_f) -> 41:7
+(42:45..42:52) _empty_/Combinator#Context# -> 9:8
+(43:13..43:20) _empty_/test.combine# -> 31:9
+(43:21..43:22) _empty_/test.combine().[A] -> 40:15
+(43:24..43:25) _empty_/test.combine().[B] -> 40:18
+(43:27..43:29) _empty_/test.combine().(_f) -> 41:7
+(43:31..43:33) _empty_/test.combine().(_s) -> 42:7
+(47:23..47:30) scala/collection/mutable/
+(47:31..47:41) scala/collection/mutable/ListBuffer#
+(47:42..47:43) _empty_/test.popFirst().[A] -> 47:14
+(48:8..48:11) _empty_/test.popFirst().(buf) -> 47:18
+(48:12..48:19) scala/collection/mutable/ListBuffer#isEmpty().
+(48:25..48:29) scala/None.
+(49:14..49:18) scala/Some.
+(49:19..49:22) _empty_/test.popFirst().(buf) -> 47:18
+(49:23..49:27) scala/collection/IterableOps#head().
+(49:37..49:40) _empty_/test.popFirst().(buf) -> 47:18
+(49:41..49:47) scala/collection/mutable/ListBuffer#remove().
+(51:4..51:8) scala/main#
+(51:20..51:24) scala/Unit#
+(52:21..52:23) scala/runtime/RichInt#to().
+(52:28..52:34) scala/collection/IterableOnceOps#toList().
+(53:18..53:24) local5 -> 52:9
+(53:25..53:27) scala/collection/IterableOnceOps#to().
+(53:28..53:35) scala/collection/mutable/
+(53:36..53:46) scala/collection/mutable/ListBuffer.
+(55:13..55:18) _empty_/Apply.
+(55:19..55:26) scala/collection/mutable/
+(55:27..55:37) scala/collection/mutable/ListBuffer#
+(55:38..55:41) scala/Int#
+(55:44..55:47) scala/Int#
+(55:54..55:55) local7 -> 55:49
+(55:56..55:64) _empty_/test.popFirst(). -> 47:50
+(56:13..56:20) _empty_/Combine.
+(56:21..56:22) local8 -> 55:9
+(56:24..56:25) local8 -> 55:9
+(58:13..58:20) _empty_/test.combine(). -> 40:7
+(59:9..59:14) _empty_/test.apply(). -> 29:7
+(59:15..59:22) scala/collection/mutable/
+(59:23..59:33) scala/collection/mutable/ListBuffer#
+(59:34..59:37) scala/Int#
+(59:40..59:43) scala/Int#
+(60:9..60:14) _empty_/test.apply(). -> 29:7
+(60:15..60:22) scala/collection/mutable/
+(60:23..60:33) scala/collection/mutable/ListBuffer#
+(60:34..60:37) scala/Int#
+(60:40..60:43) scala/Int#
+(62:13..62:14) local10 -> 58:9
+(62:15..62:20) _empty_/test.combine#parse(). -> 38:11
+(62:21..62:22) local9 -> 56:9
+(62:24..62:30) local6 -> 53:9
+(63:13..63:19) scala/Option#
+(63:21..63:24) scala/Int#
+(63:26..63:29) scala/Int#
+(63:34..63:35) local13 -> 62:9
+

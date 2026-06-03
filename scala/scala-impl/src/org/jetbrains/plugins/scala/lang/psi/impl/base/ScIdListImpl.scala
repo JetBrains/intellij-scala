@@ -1,0 +1,23 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.base
+
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFieldIdFactory
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScIdList}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
+
+import scala.annotation.nowarn
+
+class ScIdListImpl private (stub: ScIdListStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, IDENTIFIER_LIST, node) with ScIdList {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScIdListStub) = this(stub, null)
+
+  @nowarn("cat=deprecation") // TODO: SCL-23400
+  override def fieldIds: Seq[ScFieldId] = getStubOrPsiChildren(FIELD_ID, ScFieldIdFactory).toSeq
+
+  override def toString: String = "ListOfIdentifiers"
+}

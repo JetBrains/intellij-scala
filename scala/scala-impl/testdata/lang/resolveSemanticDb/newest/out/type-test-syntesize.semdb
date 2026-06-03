@@ -1,0 +1,59 @@
+Document tests/pos/type-test-syntesize.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:30) scala/reflect/TypeTest#
+(1:22..1:30) scala/reflect/TypeTest.
+(4:24..4:32) scala/reflect/TypeTest#
+(4:33..4:34) _empty_/Test.test().[S] -> 4:12
+(4:36..4:37) _empty_/Test.test().[T] -> 4:15
+(4:41..4:45) scala/Unit#
+(5:10..5:11) _empty_/A# -> 26:7
+(5:14..5:17) scala/Predef.`???`().
+(7:3..7:7) _empty_/Test.test(). -> 4:7
+(7:8..7:11) scala/Any#
+(7:13..7:16) scala/Any#
+(8:3..8:7) _empty_/Test.test(). -> 4:7
+(8:8..8:11) scala/Int#
+(8:13..8:16) scala/Int#
+(10:3..10:7) _empty_/Test.test(). -> 4:7
+(10:8..10:11) scala/Int#
+(10:13..10:16) scala/Any#
+(11:3..11:7) _empty_/Test.test(). -> 4:7
+(11:8..11:14) scala/Predef.String#
+(11:16..11:19) scala/Any#
+(12:3..12:7) _empty_/Test.test(). -> 4:7
+(12:8..12:14) scala/Predef.String#
+(12:16..12:22) scala/AnyRef#
+(14:3..14:7) _empty_/Test.test(). -> 4:7
+(14:8..14:11) scala/Any#
+(14:13..14:16) scala/Int#
+(15:3..15:7) _empty_/Test.test(). -> 4:7
+(15:8..15:11) scala/Any#
+(15:13..15:19) scala/Predef.String#
+(16:3..16:7) _empty_/Test.test(). -> 4:7
+(16:8..16:11) scala/Any#
+(16:13..16:17) scala/Some#
+(17:3..17:7) _empty_/Test.test(). -> 4:7
+(17:8..17:11) scala/Any#
+(17:13..17:18) scala/Array#
+(17:19..17:22) scala/Int#
+(18:3..18:7) _empty_/Test.test(). -> 4:7
+(18:8..18:11) scala/package.Seq#
+(18:12..18:15) scala/Int#
+(18:18..18:22) scala/package.List#
+(18:23..18:26) scala/Int#
+(20:3..20:7) _empty_/Test.test(). -> 4:7
+(20:8..20:11) scala/Any#
+(20:13..20:17) scala/Some#
+(20:18..20:21) scala/Int#
+(21:3..21:7) _empty_/Test.test(). -> 4:7
+(21:8..21:11) scala/Any#
+(21:13..21:14) _empty_/Test.a. -> 5:7
+(21:15..21:16) _empty_/A#X# -> 27:8
+(22:3..22:7) _empty_/Test.test(). -> 4:7
+(22:8..22:9) _empty_/Test.a. -> 5:7
+(22:10..22:11) _empty_/A#X# -> 27:8
+(22:13..22:14) _empty_/Test.a. -> 5:7
+(22:15..22:16) _empty_/A#Y# -> 28:8
+(28:13..28:14) _empty_/A#X# -> 27:8
+

@@ -1,0 +1,13 @@
+class s {
+  def foo = {
+    <selection>x</selection>
+  }
+  def x(implicit i: Int) = 33
+}
+------
+class s {
+  def foo = {
+    val value: Int = x
+  }
+  def x(implicit i: Int) = 33
+}

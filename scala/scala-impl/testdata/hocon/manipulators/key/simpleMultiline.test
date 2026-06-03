@@ -1,0 +1,11 @@
+"""<caret>value""" = null
+-----
+[some
+multi
+line
+text]
+-----
+"""some
+multi
+line
+text""" = null

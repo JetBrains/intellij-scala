@@ -1,0 +1,13 @@
+Document tests/pos/infer2-pos.scala
+(5:23..5:24) test/cons#[T] -> 5:17
+(5:30..5:33) test/Lst# -> 4:7
+(5:34..5:35) test/cons#[T] -> 5:17
+(5:46..5:49) test/Lst# -> 4:7
+(5:50..5:51) test/cons#[T] -> 5:17
+(6:29..6:32) test/Lst# -> 4:7
+(6:33..6:34) test/nil#[T] -> 6:16
+(8:3..8:10) scala/Console.
+(8:11..8:18) scala/Console.println(+1).
+(8:19..8:23) test/cons.
+(8:27..8:30) test/nil.
+

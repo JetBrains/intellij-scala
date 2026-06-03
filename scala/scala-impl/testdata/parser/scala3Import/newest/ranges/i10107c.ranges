@@ -1,0 +1,16 @@
+[0,139]: PackageDef
+[0,0]: Ident
+[0,33]: DefDef
+[19,26]: Ident
+[29,33]: Literal
+[35,118]: DefDef
+[55,61]: Ident
+[64,118]: Block
+[68,116]: InlineIf
+[78,84]: Ident
+[94,99]: Literal
+[111,116]: Literal
+[120,139]: DefDef
+[129,129]: TypeTree
+[132,139]: Apply
+[132,137]: Ident

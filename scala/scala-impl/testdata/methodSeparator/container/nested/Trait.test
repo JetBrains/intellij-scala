@@ -1,0 +1,9 @@
+trait T1 {
+  trait T2 {
+    def f1 = {
+    }
+
+    def f2 = { // -
+    }
+  }
+}

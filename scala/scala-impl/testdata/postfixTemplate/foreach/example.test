@@ -1,0 +1,11 @@
+object Example {
+  def foo(list: List[Integer]) {
+    <start>list<for>
+  }
+}
+-----
+object Example {
+  def foo(list: List[Integer]) {
+    for (elem <- list) {}
+  }
+}

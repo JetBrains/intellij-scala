@@ -1,0 +1,4 @@
+class Test {
+  <start>"foo_bar"<assert>
+}
+-----

@@ -1,0 +1,17 @@
+//### replaceAll=true
+class a {
+  def foo() = {
+    val x = "testtesttest"
+    val y = s"testtest"
+    <selection>"test"</selection>
+  }
+}
+------
+class a {
+  def foo() = {
+    val value: String = "test"
+    val x = value + value + value
+    val y = s"$value$value"
+    value
+  }
+}

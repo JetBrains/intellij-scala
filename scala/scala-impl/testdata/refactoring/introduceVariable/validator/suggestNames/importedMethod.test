@@ -1,0 +1,13 @@
+object Foo {
+  def bar(string: String): Bar = ???
+}
+
+class Bar
+
+object Bar {
+  import Foo.bar
+
+  <selection>bar("baz")</selection>.toString
+}
+-----
+bar1

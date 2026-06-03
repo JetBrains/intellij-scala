@@ -1,0 +1,15 @@
+Document tests/pos/i14042.scala
+(2:27..2:30) scala/Int#
+(2:33..2:37) scala/Unit#
+(3:5..3:8) _empty_/T#bar(). -> 5:22
+(3:9..3:16) _empty_/T#foo().(handler) -> 2:18
+(5:35..5:38) scala/Int#
+(5:41..5:45) scala/Unit#
+(8:16..8:17) _empty_/T# -> 1:7
+(9:3..9:6) _empty_/T#foo(). -> 2:14
+(10:8..10:11) _empty_/T#foo(). -> 2:14
+(11:19..11:22) _empty_/T#foo(). -> 2:14
+(14:14..14:15) _empty_/T# -> 1:7
+(15:3..15:4) _empty_/i14042$package.test2().(t) -> 14:11
+(15:5..15:8) _empty_/T#foo(). -> 2:14
+

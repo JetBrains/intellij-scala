@@ -1,0 +1,8 @@
+Document tests/pos/i2056.scala
+(4:7..4:14) scala/Predef.println(+1).
+(6:15..6:24) scala/package.Exception#
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(11:5..11:10) _empty_/Test.crash(). -> 2:14
+

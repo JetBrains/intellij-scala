@@ -1,0 +1,114 @@
+@main def Test =
+  val builder: AbstractShapeBuilder[? <: AbstractShapeBuilder[?, ?], ? <: Shape] = ???
+  List.empty[Trait].foreach(builder.addTrait(_))
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: builder
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: builder
+            PsiElement(identifier)('builder')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: AbstractShapeBuilder[? <: AbstractShapeBuilder[?, ?], ? <: Shape]
+          SimpleType: AbstractShapeBuilder
+            CodeReferenceElement: AbstractShapeBuilder
+              PsiElement(identifier)('AbstractShapeBuilder')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: ? <: AbstractShapeBuilder[?, ?]
+                PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: AbstractShapeBuilder[?, ?]
+                  SimpleType: AbstractShapeBuilder
+                    CodeReferenceElement: AbstractShapeBuilder
+                      PsiElement(identifier)('AbstractShapeBuilder')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeArgument
+              WildcardType: ? <: Shape
+                PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: List.empty[Trait].foreach
+          GenericCall
+            ReferenceExpression: List.empty
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Trait
+                  CodeReferenceElement: Trait
+                    PsiElement(identifier)('Trait')
+              PsiElement(])(']')
+          PsiElement(.)('.')
+          PsiElement(identifier)('foreach')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: builder.addTrait
+              ReferenceExpression: builder
+                PsiElement(identifier)('builder')
+              PsiElement(.)('.')
+              PsiElement(identifier)('addTrait')
+            ArgumentList
+              PsiElement(()('(')
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement())(')')
+          PsiElement())(')')

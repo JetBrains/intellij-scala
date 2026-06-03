@@ -1,0 +1,13 @@
+public class ClassWithInners {
+    public fun ClassWithInners() : void = UastEmptyExpression
+    public class InnerClass {
+        public fun InnerClass() : void = UastEmptyExpression
+    }
+    public class InnerEnum {
+        public fun InnerEnum() : void = UastEmptyExpression
+    }
+}
+
+public abstract interface ATrait {
+    public abstract fun method() : java.lang.Object = UastEmptyExpression
+}

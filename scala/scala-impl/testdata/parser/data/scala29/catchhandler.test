@@ -1,0 +1,78 @@
+try a catch b
+try a catch {b}
+try a catch (b)
+try a catch super[X].b
+try a catch this
+-----
+ScalaFile
+  TryStatement
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+  PsiWhiteSpace('\n')
+  TryStatement
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        ReferenceExpression: b
+          PsiElement(identifier)('b')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  TryStatement
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        ReferenceExpression: b
+          PsiElement(identifier)('b')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  TryStatement
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: super[X].b
+        SuperReference
+          PsiElement(super)('super')
+          PsiElement([)('[')
+          PsiElement(identifier)('X')
+          PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+  PsiWhiteSpace('\n')
+  TryStatement
+    PsiElement(try)('try')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ThisReference
+        PsiElement(this)('this')

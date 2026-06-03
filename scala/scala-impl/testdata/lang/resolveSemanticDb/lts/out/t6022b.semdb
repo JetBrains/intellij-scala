@@ -1,0 +1,26 @@
+Document tests/pos/t6022b.scala
+(4:18..4:19) _empty_/B# -> 2:7
+(4:25..4:26) _empty_/A# -> 1:7
+(7:21..7:24) scala/App#
+(8:14..8:17) scala/Any#
+(8:21..8:22) _empty_/Test.foo().(x) -> 8:11
+(9:14..9:15) _empty_/C# -> 3:7
+(9:20..9:27) scala/Predef.println(+1).
+(10:14..10:16) _empty_/AB# -> 4:7
+(10:20..10:27) scala/Predef.println(+1).
+(11:15..11:16) _empty_/A# -> 1:7
+(11:22..11:23) _empty_/B# -> 2:7
+(11:28..11:35) scala/Predef.println(+1).
+(12:14..12:15) _empty_/B# -> 2:7
+(12:20..12:27) scala/Predef.println(+1).
+(13:14..13:15) _empty_/A# -> 1:7
+(13:20..13:27) scala/Predef.println(+1).
+(16:3..16:6) _empty_/Test.foo(). -> 8:7
+(16:11..16:12) _empty_/A# -> 1:7
+(17:3..17:6) _empty_/Test.foo(). -> 8:7
+(17:11..17:12) _empty_/B# -> 2:7
+(18:3..18:6) _empty_/Test.foo(). -> 8:7
+(18:11..18:13) _empty_/AB# -> 4:7
+(19:3..19:6) _empty_/Test.foo(). -> 8:7
+(19:11..19:12) _empty_/C# -> 3:7
+

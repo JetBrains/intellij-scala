@@ -1,0 +1,13 @@
+Document tests/pos/t1272.scala
+(2:20..2:23) scala/Int#
+(3:31..3:34) scala/Int#
+(3:38..3:43) scala/Array#
+(3:44..3:48) scala/Byte#
+(4:34..4:37) scala/Int#
+(4:41..4:46) scala/Array#
+(4:47..4:48) _empty_/ImplicitTest.b().[T] -> 4:18
+(6:26..6:27) _empty_/ImplicitTest.fn().[T] -> 6:10
+(8:11..8:13) _empty_/ImplicitTest.fn(). -> 6:7
+(8:14..8:19) scala/Array#
+(8:20..8:24) scala/Byte#
+

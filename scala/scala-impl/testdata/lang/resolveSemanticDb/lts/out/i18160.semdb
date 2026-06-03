@@ -1,0 +1,46 @@
+Document tests/pos/i18160/Test_2.scala
+(2:42..2:58) _empty_/RescalaInterface# -> 24:7
+(2:69..2:72) _empty_/SynchronizedReevaluationApi#[Api] -> 2:35
+(3:10..3:13) _empty_/SynchronizedReevaluationApi#api. -> 2:64
+(5:40..5:45) _empty_/EventBundle#Event# -> 17:9
+(5:46..5:47) _empty_/SynchronizedReevaluationApi#SynchronizedReevaluation().[A] -> 5:32
+(6:19..6:33) _empty_/Operators#CreationTicket# -> 22:8
+(7:7..7:31) _empty_/SynchronizedReevaluation# -> 1:7
+(7:33..7:38) _empty_/EventBundle#Event# -> 17:9
+(7:39..7:40) _empty_/SynchronizedReevaluationApi#SynchronizedReevaluation().[A] -> 5:32
+(8:20..8:44) _empty_/SynchronizedReevaluation# -> 1:7
+(9:6..9:10) local0 -> 8:9
+(9:12..9:15) _empty_/SynchronizedReevaluationApi#SynchronizedReevaluation().(evt) -> 5:35
+(9:16..9:19) _empty_/EventCompatBundle#EventCompat#map(). -> 12:22
+(9:20..9:28) scala/Predef.identity().
+(9:30..9:40) _empty_/SynchronizedReevaluationApi#SynchronizedReevaluation().(turnSource) -> 6:7
+
+Document tests/pos/i18160/repro_1.scala
+(5:42..5:43) _empty_/ReadAs#[S] -> 5:14
+(5:44..5:45) _empty_/ReadAs#State#[V] -> 5:37
+(8:11..8:20) _empty_/Operators# -> 20:7
+(10:33..10:39) _empty_/ReadAs# -> 5:7
+(10:40..10:45) _empty_/Operators#State# -> 21:8
+(10:47..10:53) scala/Option#
+(10:54..10:55) _empty_/EventCompatBundle#EventCompat#[T] -> 10:22
+(11:15..11:20) _empty_/EventBundle#Event# -> 17:9
+(11:21..11:22) _empty_/EventCompatBundle#EventCompat#[T] -> 10:22
+(12:48..12:49) _empty_/EventCompatBundle#EventCompat#[T] -> 10:22
+(12:53..12:54) _empty_/EventCompatBundle#EventCompat#map().[B] -> 12:26
+(12:73..12:87) _empty_/Operators#CreationTicket# -> 22:8
+(12:90..12:95) _empty_/EventBundle#Event# -> 17:9
+(12:96..12:97) _empty_/EventCompatBundle#EventCompat#map().[B] -> 12:26
+(12:102..12:105) scala/Predef.`???`().
+(16:27..16:44) _empty_/EventCompatBundle# -> 7:7
+(16:53..16:62) _empty_/Operators# -> 20:7
+(17:27..17:38) _empty_/EventCompatBundle#EventCompat# -> 10:9
+(17:39..17:40) _empty_/EventBundle#Event#[T] -> 17:16
+(18:36..18:40) _empty_/EventBundle# -> 16:7
+(18:41..18:46) _empty_/Operators#State# -> 21:8
+(18:47..18:48) _empty_/EventBundle#Event#State#[V] -> 18:31
+(20:25..20:36) _empty_/EventBundle# -> 16:7
+(22:25..22:29) _empty_/core. -> 1:8
+(22:30..22:44) _empty_/core.CreationTicket# -> 2:15
+(22:45..22:50) _empty_/Operators#State# -> 21:8
+(24:32..24:41) _empty_/Operators# -> 20:7
+

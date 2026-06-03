@@ -1,0 +1,4 @@
+Document tests/pos/t6072.scala
+(2:26..2:29) scala/Int#
+(2:33..2:36) scala/Predef.`???`().
+

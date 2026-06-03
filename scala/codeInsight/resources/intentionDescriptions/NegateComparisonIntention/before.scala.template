@@ -1,0 +1,5 @@
+class X {
+  def f(a: Int, b: Int) {
+    if (<spot>a == b</spot>) return;
+  }
+}

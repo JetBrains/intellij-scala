@@ -1,0 +1,123 @@
+//> using options -Xfatal-warnings -Wvalue-discard
+
+case class F(i: Int)
+
+object Main {
+  def example() =
+    List(1, 2, 3).map(F): @annotation.nowarn
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wvalue-discard')
+  PsiWhiteSpace('\n\n')
+  ScClass: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: i
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('i')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: example
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('example')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          TypedExpression
+            MethodCall
+              ReferenceExpression: List(1, 2, 3).map
+                MethodCall
+                  ReferenceExpression: List
+                    PsiElement(identifier)('List')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: F
+                  PsiElement(identifier)('F')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: annotation.nowarn
+                      CodeReferenceElement: annotation.nowarn
+                        CodeReferenceElement: annotation
+                          PsiElement(identifier)('annotation')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nowarn')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

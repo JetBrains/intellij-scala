@@ -1,0 +1,7 @@
+a match {
+  case c1 :: (rest@(c2 :: cs)) =>
+}
+------
+a match {
+  case c1 :: (rest@(c2 :: cs)) =>
+}

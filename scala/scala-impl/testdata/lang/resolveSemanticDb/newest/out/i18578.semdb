@@ -1,0 +1,27 @@
+Document tests/pos/i18578.scala
+(3:19..3:25) _empty_/Animal# -> 2:7
+(7:7..7:9) _empty_/Ev# -> 5:7
+(7:10..7:13) _empty_/Dog# -> 3:7
+(7:17..7:20) scala/Predef.`???`().
+(8:7..8:9) _empty_/Ev# -> 5:7
+(8:10..8:16) _empty_/Animal# -> 2:7
+(8:20..8:23) scala/Predef.`???`().
+(9:10..9:12) _empty_/Ev# -> 5:7
+(9:10..9:12) _empty_/i18578$package.given_Ev_Set().[T] -> 9:7
+(9:15..9:17) _empty_/Ev# -> 5:7
+(9:18..9:21) scala/Predef.Set#
+(9:22..9:23) _empty_/i18578$package.given_Ev_Set().[T] -> 9:7
+(9:28..9:31) scala/Predef.`???`().
+(11:10..11:12) _empty_/Ev# -> 5:7
+(11:10..11:12) _empty_/i18578$package.f().[T] -> 11:7
+(11:17..11:18) _empty_/i18578$package.f().[T] -> 11:7
+(11:21..11:25) scala/Unit#
+(11:28..11:31) scala/Predef.`???`().
+(14:10..14:13) scala/Predef.Set.
+(14:18..14:21) _empty_/Dog# -> 3:7
+(15:2..15:3) _empty_/i18578$package.f(). -> 11:5
+(15:4..15:5) local0 -> 14:6
+(16:2..16:3) _empty_/i18578$package.f(). -> 11:5
+(16:4..16:7) scala/Predef.Set.
+(16:12..16:15) _empty_/Dog# -> 3:7
+

@@ -1,0 +1,10 @@
+val _ =
+  """hello
+    |world<caret>
+    |""".stripMargin
+-----
+val _ =
+  """hello
+    |world
+    |<caret>
+    |""".stripMargin

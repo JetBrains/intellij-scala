@@ -1,0 +1,6 @@
+class C {
+  import scala.collection.immutable.List
+
+  def f = {
+  }
+}

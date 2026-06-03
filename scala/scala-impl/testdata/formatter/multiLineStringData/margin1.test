@@ -1,0 +1,23 @@
+val a =
+        """
+              | class A {
+|   val a = 1
+           |   val b = 2
+                  |
+|   def foo() {
+           |     val c = a + b
+      |   }
+     | }
+"""
+-----
+val a =
+  """
+     | class A {
+     |   val a = 1
+     |   val b = 2
+     |
+     |   def foo() {
+     |     val c = a + b
+     |   }
+     | }
+"""

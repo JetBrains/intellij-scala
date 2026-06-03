@@ -1,0 +1,106 @@
+import scala.annotation.{experimental,unroll}
+
+@experimental final class Foo {
+  def bar(@unroll x: Int = 0) = x + 1
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('annotation')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: experimental
+            PsiElement(identifier)('experimental')
+        PsiElement(,)(',')
+        ImportSelector
+          CodeReferenceElement: unroll
+            PsiElement(identifier)('unroll')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: experimental
+              CodeReferenceElement: experimental
+                PsiElement(identifier)('experimental')
+    PsiWhiteSpace(' ')
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: unroll
+                          CodeReferenceElement: unroll
+                            PsiElement(identifier)('unroll')
+                Modifiers
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

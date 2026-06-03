@@ -1,0 +1,113 @@
+package org.jetbrains.plugins.scala.gotoclass
+
+import com.intellij.navigation.{GotoClassContributor, NavigationItem}
+import com.intellij.openapi.project.{PossiblyDumbAware, Project}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubIndex
+import com.intellij.util.indexing.DumbModeAccessType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import java.util
+import scala.collection.mutable.ArrayBuffer
+
+/**
+ * Other typical contributors which contribute to the final result in Scala code:
+ *  - [[com.intellij.ide.util.gotoByName.DefaultSymbolNavigationContributor]]
+ */
+class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbAware {
+
+  override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
+    val stubIndex: StubIndex = StubIndex.getInstance
+    val keys: util.ArrayList[String] = new util.ArrayList[String]
+    DumbModeAccessType.RAW_INDEX_DATA_ACCEPTABLE.ignoreDumbMode { () =>
+      keys.addAll(stubIndex.getAllKeys(METHOD_NAME_KEY, project))
+      keys.addAll(stubIndex.getAllKeys(PROPERTY_NAME_KEY, project))
+      keys.addAll(stubIndex.getAllKeys(CLASS_PARAMETER_NAME_KEY, project))
+      keys.addAll(stubIndex.getAllKeys(TYPE_ALIAS_NAME_KEY, project))
+      keys.addAll(stubIndex.getAllKeys(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, project))
+      keys.toArray(new Array[String](keys.size))
+    }
+  }
+
+  override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
+    implicit val p: Project = project
+
+    val searchAll: Boolean = ScalaProjectSettings.getInstance(project).isSearchAllSymbols
+    val scope =
+      if (includeNonProjectItems) GlobalSearchScope.allScope(project)
+      else GlobalSearchScope.projectScope(project)
+
+    val cleanName: String = ScalaNamesUtil.cleanFqn(name)
+
+    DumbModeAccessType.RELIABLE_DATA_ONLY.ignoreDumbMode { () =>
+      val methods = METHOD_NAME_KEY.elements(cleanName, scope)
+      val typeAliases = TYPE_ALIAS_NAME_KEY.elements(cleanName, scope)
+      val items = ArrayBuffer.empty[NavigationItem]
+      if (searchAll) {
+        items ++= methods
+        items ++= typeAliases
+      }
+      else {
+        items ++= methods.filter(isNonLocal)
+        items ++= typeAliases.filter(isNonLocal)
+      }
+      for (property <- PROPERTY_NAME_KEY.elements(cleanName, scope)) {
+        if (isNonLocal(property) || searchAll) {
+          val elems = property.declaredElementsArray
+          for (elem <- elems) {
+            elem match {
+              case item: NavigationItem =>
+                val navigationItemName: String = ScalaNamesUtil.scalaName(elem)
+                if (ScalaNamesUtil.equivalentFqn(name, navigationItemName))
+                  items += item
+              case _ =>
+            }
+          }
+        }
+      }
+      for (clazz <- NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope)) {
+        if (isNonLocal(clazz) || searchAll) {
+          val navigationItemName: String = ScalaNamesUtil.scalaName(clazz)
+          if (ScalaNamesUtil.equivalentFqn(name, navigationItemName))
+            items += clazz
+        }
+      }
+      items ++= CLASS_PARAMETER_NAME_KEY.elements(cleanName, scope)
+      items.toArray
+    }
+  }
+
+  import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+
+  /**
+   * @inheritdoc
+   * @note this method is only used during filtering but not for displaying
+   */
+  override def getQualifiedName(item: NavigationItem): String =
+    item match {
+      case named: ScNamedElement =>
+        val qualifier = named.nameContext match {
+          case member: ScMember => member.qualifier
+          case _ => None
+        }
+        val name = named.name
+        qualifier.fold(name)(_ + "." + name)
+      case _ => null
+    }
+
+  override def getQualifiedNameSeparator: String = "."
+
+  private def isNonLocal(item: NavigationItem): Boolean = {
+    item match {
+      case m: ScMember => !m.isLocal
+      case _ => false
+    }
+  }
+
+  override def isDumbAware: Boolean = true
+}

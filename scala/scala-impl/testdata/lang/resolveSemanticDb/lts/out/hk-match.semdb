@@ -1,0 +1,10 @@
+Document tests/pos/hk-match/a.scala
+(2:21..2:25) scala/package.List#
+(2:26..2:27) _empty_/A#HKAlias#[X] -> 2:16
+(4:10..4:13) scala/Any#
+(4:31..4:36) _empty_/Bippy# -> 1:7
+(4:37..4:44) _empty_/A#HKAlias# -> 2:8
+(4:49..4:50) local0 -> 4:28
+
+Document tests/pos/hk-match/b.scala
+

@@ -1,0 +1,10 @@
+Document tests/pos/i3323.scala
+(4:19..4:23) scala/package.List#
+(4:24..4:28) scala/package.List#
+(4:29..4:30) _empty_/Foo#foo().[A] -> 4:11
+(4:35..4:39) scala/Unit#
+(5:5..5:8) _empty_/Foo#foo().(lss) -> 4:14
+(6:17..6:21) scala/package.List#
+(6:22..6:26) scala/package.List#
+(6:27..6:28) _empty_/Foo#foo().[A] -> 4:11
+

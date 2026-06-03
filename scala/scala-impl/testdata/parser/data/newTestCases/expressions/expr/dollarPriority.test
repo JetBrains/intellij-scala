@@ -1,0 +1,19 @@
+1 infix 2 $ 3
+-----
+ScalaFile
+  InfixExpression
+    InfixExpression
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: infix
+        PsiElement(identifier)('infix')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: $
+      PsiElement(identifier)('$')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('3')

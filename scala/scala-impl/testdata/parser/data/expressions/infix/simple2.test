@@ -1,0 +1,56 @@
+class C {
+1 + {2}.toString
+1 + {3}
+}
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: {2}.toString
+            BlockExpression
+              PsiElement({)('{')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement(})('}')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toString')
+        PsiWhiteSpace('\n')
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

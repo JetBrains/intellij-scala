@@ -1,0 +1,11 @@
+package src
+
+class B requires T{
+  new {val x = 3} with T<caret>
+}
+------
+package src
+
+class B requires T{
+  new {val x = 3} with <caret>
+}

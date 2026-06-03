@@ -1,0 +1,8 @@
+class a:
+  <start>abc<if>
+end a
+-----
+class a:
+  if  then
+    abc
+end a

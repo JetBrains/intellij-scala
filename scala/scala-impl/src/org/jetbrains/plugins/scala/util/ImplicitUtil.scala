@@ -1,0 +1,175 @@
+package org.jetbrains.plugins.scala.util
+
+import com.intellij.lang.{ASTNode, Language}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
+import com.intellij.psi.impl.PsiElementBase
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind._
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.annotation.tailrec
+
+object ImplicitUtil {
+  implicit class ImplicitTargetExt(private val targetImplicit: PsiElement) extends AnyVal {
+    private def isContextBound(target: PsiElement, element: PsiElement) = {
+      target.is[ScContextBound] && target == element.getNavigationElement.getContext
+    }
+
+    private def isTarget(srr: ScalaResolveResult): Boolean = srr.element match {
+      case `targetImplicit`                                              => true
+      case f: ScMember if targetImplicit == f.syntheticNavigationElement => true
+      case f: ScFunction if f.name == CommonNames.Apply                  => srr.innerResolveResult.exists(isTarget)
+      case p: ScParameter if isContextBound(targetImplicit, p)           => true
+      case _                                                             => false
+    }
+
+    private def matches(srr: ScalaResolveResult): Boolean =
+      isTarget(srr) ||
+        srr.implicitArguments.flatMap(_.args).exists(matches) ||
+        srr.implicitConversion.exists(matches)
+
+    private def isImplicitConversionOrParameter(e: ScExpression): Boolean =
+      e.implicitConversion().exists(matches) || implicitArgumentOf(e)
+
+    private def implicitArgumentOf(e: ImplicitArgumentsOwner): Boolean =
+      e.findImplicitArguments
+        .flatMap(_.args)
+        .exists(matches)
+
+    def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
+      case ref: ScReference if ref.bind().exists(isTarget)        => Some(ref)
+      case e: ScExpression if isImplicitConversionOrParameter(e)  => Some(ImplicitReference(e, targetImplicit))
+      case c: ScConstructorInvocation if implicitArgumentOf(c)    => Some(ImplicitReference(c, targetImplicit))
+      case c: ScContextBound if isContextBound(c, targetImplicit) => Some(ImplicitReference(c, targetImplicit))
+      case p@ScTypedPattern(Typeable(ty)) if targetsClassTagFor(ty) =>
+        // ClassTag/Manifest evidence used by type test pattern: `case _: T`
+        Some(ImplicitReference(p, targetImplicit))
+      case _ => None
+    }
+
+    private def targetsClassTagFor(testedType: ScType): Boolean = {
+      targetImplicit match {
+        case ImplicitSearchTarget(target) =>
+          val declaredTypeOfTarget = target match {
+            case p: ScParameter => p.insideParamType.toOption
+            case td: Typeable => td.`type`().toOption
+            case _ => None
+          }
+
+          declaredTypeOfTarget.exists {
+            case ParameterizedType(des, Seq(arg)) =>
+              des.extractClass.exists(_.qualifiedName == "scala.reflect.ClassTag") && arg.equiv(testedType)
+            case _ => false
+          }
+        case _ =>
+          false
+      }
+    }
+  }
+
+  object ImplicitSearchTarget {
+    def unapply(e: PsiElement): Option[PsiNamedElement] = e match {
+      case cb: ScContextBound    => contextBoundKind.target(cb)
+      case named: ScNamedElement => namedKind.target(named)
+      case ref: ScReference      => refKind.target(ref)
+      case _                     => None
+    }
+  }
+
+  @tailrec
+  private def range(usage: PsiElement): TextRange = {
+    val simpleRange = usage.getTextRange
+
+    def startingFrom(elem: PsiElement): TextRange = {
+      val start = elem.getTextRange.getStartOffset
+      TextRange.create(start, simpleRange.getEndOffset)
+    }
+
+    def forTypeElem(typeElem: ScSimpleTypeElement) = {
+      def newTd =
+        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScNewTemplateDefinition]))
+          .filter(_.firstConstructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
+
+      def constructor =
+        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructorInvocation]))
+          .filter(_.simpleTypeElement.contains(typeElem))
+
+      newTd
+        .orElse(constructor)
+        .getOrElse(typeElem)
+        .getTextRange
+    }
+
+    usage match {
+      case ScMethodCall(ScParenthesisedExpr(_), _)          => simpleRange
+      case ScMethodCall(_: ScThisReference, _)              => simpleRange
+      case MethodRepr(_: ScMethodCall, Some(base), None, _) => range(base)
+      case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
+      case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
+      case ref: ScReference                                 => startingFrom(ref.nameId)
+      case _                                                => simpleRange
+    }
+  }
+
+  private[this] def relativeRangeInElement(usage: PsiElement): TextRange =
+    range(usage).shiftLeft(usage.getTextRange.getStartOffset)
+
+  final case class ImplicitReference(e: PsiElement, targetImplicit: PsiElement)
+      extends PsiReferenceBase[PsiElement](e, relativeRangeInElement(e), false) {
+    override def resolve(): PsiElement      = targetImplicit
+    override def getVariants: Array[AnyRef] = Array.empty
+  }
+
+  final case class UnresolvedImplicitFakePsiElement(project: Project, file: PsiFile, lineOffset: Int)
+      extends PsiElementBase {
+    override def getContainingFile: PsiFile        = file
+    override def isValid: Boolean                  = true
+    override def getProject: Project               = project
+    override def getTextRange: TextRange           = TextRange.EMPTY_RANGE.shiftRight(lineOffset)
+    override def getTextOffset: Int                = lineOffset
+    override def getText: String                   = ""
+    override def getChildren: Array[PsiElement]    = PsiElement.EMPTY_ARRAY
+    override def getTextLength: Int                = 0
+    override def getStartOffsetInParent: Int       = 0
+    override def textToCharArray(): Array[Char]    = Array.emptyCharArray
+    override def getParent: PsiElement             = null
+    override def getLanguage: Language             = ScalaLanguage.INSTANCE
+    override def getNode: ASTNode                  = null
+    override def findElementAt(i: Int): PsiElement = null
+  }
+
+  private[this] object UnresolvedImplicitFakePsiElement {
+    def apply(targetImplicit: PsiElement, file: PsiFile, lineOffset: Int): UnresolvedImplicitFakePsiElement = {
+      val project = inReadAction(targetImplicit.getProject)
+      new UnresolvedImplicitFakePsiElement(project, file, lineOffset)
+    }
+  }
+
+  final case class UnresolvedImplicitReference(targetImplicit: PsiElement, file: PsiFile, lineOffset: Int)
+      extends PsiReferenceBase[PsiElement](
+        UnresolvedImplicitFakePsiElement(targetImplicit, file, lineOffset),
+        TextRange.EMPTY_RANGE,
+        false
+      ) {
+    override def resolve(): PsiElement      = targetImplicit
+    override def getVariants: Array[AnyRef] = Array.empty
+  }
+}

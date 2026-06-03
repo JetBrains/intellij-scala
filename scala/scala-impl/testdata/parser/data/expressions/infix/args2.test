@@ -1,0 +1,72 @@
+class C {
+  1 add (1,2) sub (3,4) mul 5 div {qoo} 
+}
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: add
+                  PsiElement(identifier)('add')
+                PsiWhiteSpace(' ')
+                Tuple
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: sub
+                PsiElement(identifier)('sub')
+              PsiWhiteSpace(' ')
+              Tuple
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement(,)(',')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: mul
+              PsiElement(identifier)('mul')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('5')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: div
+            PsiElement(identifier)('div')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: qoo
+              PsiElement(identifier)('qoo')
+            PsiElement(})('}')
+        PsiWhiteSpace(' \n')
+        PsiElement(})('}')

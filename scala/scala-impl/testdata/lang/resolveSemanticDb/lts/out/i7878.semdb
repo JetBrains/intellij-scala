@@ -1,0 +1,25 @@
+Document tests/pos/i7878.scala
+(4:10..4:15) scala/
+(4:16..4:27) scala/compiletime/
+(5:19..5:22) scala/Int#
+(5:29..5:32) scala/Int#
+(7:38..7:41) scala/Int#
+(7:48..7:51) scala/Int#
+(7:54..7:58) _empty_/Boom.Fail# -> 5:9
+(7:59..7:60) _empty_/Boom.fail().[X] -> 7:33
+(7:62..7:63) _empty_/Boom.fail().[Y] -> 7:43
+(9:16..9:20) _empty_/Boom.Fail# -> 5:9
+(9:21..9:22) _empty_/Boom.fail().[X] -> 7:33
+(9:30..9:40) scala/compiletime/package$package.constValue().
+(9:41..9:42) local0 -> 9:24
+(9:44..9:45) scala/Int#`<`(+3).
+(9:46..9:56) scala/compiletime/package$package.constValue().
+(9:57..9:58) _empty_/Boom.fail().[Y] -> 7:43
+(9:63..9:66) scala/Predef.`???`().
+(13:10..13:13) scala/Int#
+(14:14..14:18) _empty_/Boom.Fail# -> 5:9
+(14:19..14:20) _empty_/Boom.a. -> 13:7
+(16:3..16:9) scala/Predef.summon().
+(16:10..16:14) _empty_/Boom.Fail# -> 5:9
+(16:15..16:16) _empty_/Boom.a. -> 13:7
+

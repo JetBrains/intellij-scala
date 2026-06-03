@@ -1,0 +1,17 @@
+<html>
+<body><p>Reports redundant conversion method call (<code>toInt</code>, <code>toString</code>, and so on).</p>
+
+<p>A conversion is redundant if the conversion doesn't change the type of the collection.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  "Test".toString
+  Seq(1, 2).toSeq
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  "Test"
+  Seq(1, 2)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

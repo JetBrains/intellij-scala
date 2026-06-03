@@ -1,0 +1,10 @@
+Document tests/pos/gadt-strip-refinement.scala
+(2:22..2:25) _empty_/Tag# -> 1:7
+(2:26..2:29) scala/Int#
+(4:15..4:18) _empty_/Tag# -> 1:7
+(4:19..4:20) _empty_/`gadt-strip-refinement$package`.foo().[T] -> 4:9
+(4:24..4:25) _empty_/`gadt-strip-refinement$package`.foo().[T] -> 4:9
+(4:28..4:29) _empty_/`gadt-strip-refinement$package`.foo().(x) -> 4:12
+(5:11..5:17) _empty_/IntTag# -> 2:7
+(5:29..5:35) scala/Predef.String#
+

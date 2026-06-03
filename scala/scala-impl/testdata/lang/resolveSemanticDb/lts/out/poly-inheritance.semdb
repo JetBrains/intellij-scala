@@ -1,0 +1,84 @@
+Document tests/pos/poly-inheritance.scala
+(2:8..2:15) scala/reflect/
+(2:16..2:24) scala/reflect/ClassTag#
+(2:16..2:24) scala/reflect/ClassTag.
+(3:8..3:14) scala/Predef.
+(3:15..3:18) scala/Predef.`???`().
+(5:22..5:25) _empty_/Ops# -> 7:7
+(5:26..5:27) _empty_/It#[A] -> 5:11
+(5:33..5:35) _empty_/It# -> 5:7
+(5:36..5:37) _empty_/It#[A] -> 5:11
+(7:35..7:38) scala/Any#
+(8:17..8:18) _empty_/Ops#[A] -> 7:12
+(8:22..8:29) scala/Boolean#
+(8:32..8:33) _empty_/Ops#[C] -> 7:24
+(8:36..8:39) scala/Predef.`???`().
+(9:17..9:18) _empty_/Ops#[A] -> 7:12
+(9:22..9:23) _empty_/Ops#map().[B] -> 9:11
+(9:26..9:28) _empty_/Ops#[CC] -> 7:16
+(9:29..9:30) _empty_/Ops#map().[B] -> 9:11
+(9:34..9:37) scala/Predef.`???`().
+(10:14..10:16) _empty_/It# -> 5:7
+(10:17..10:18) _empty_/Ops#[A] -> 7:12
+(10:22..10:25) scala/Predef.`???`().
+(13:27..13:29) _empty_/It# -> 5:7
+(13:30..13:31) _empty_/ArraySeq#[A] -> 13:16
+(13:38..13:41) _empty_/Ops# -> 7:7
+(13:42..13:43) _empty_/ArraySeq#[A] -> 13:16
+(13:55..13:63) _empty_/ArraySeq# -> 13:7
+(13:64..13:65) _empty_/ArraySeq#[A] -> 13:16
+(17:34..17:39) scala/Array#
+(17:40..17:41) _empty_/LP#arrayToSeq().[A] -> 17:27
+(17:45..17:53) _empty_/ArraySeq# -> 13:7
+(17:54..17:55) _empty_/LP#arrayToSeq().[A] -> 17:27
+(17:59..17:62) scala/Predef.`???`().
+(19:21..19:23) _empty_/LP# -> 16:7
+(21:36..21:41) scala/Array#
+(21:42..21:43) _empty_/Test.ArrOps#[A] -> 21:25
+(21:54..21:60) scala/AnyVal#
+(21:66..21:69) _empty_/Ops# -> 7:7
+(21:70..21:71) _empty_/Test.ArrOps#[A] -> 21:25
+(21:83..21:88) scala/Array#
+(21:89..21:90) _empty_/Test.ArrOps#[A] -> 21:25
+(22:16..22:24) scala/reflect/ClassTag#
+(22:29..22:30) _empty_/Test.ArrOps#[A] -> 21:25
+(22:34..22:35) _empty_/Test.ArrOps#map().[B] -> 22:13
+(22:38..22:43) scala/Array#
+(22:44..22:45) _empty_/Test.ArrOps#map().[B] -> 22:13
+(22:49..22:52) scala/Predef.`???`().
+(23:25..23:33) _empty_/ArraySeq# -> 13:7
+(23:34..23:35) _empty_/Test.ArrOps#[A] -> 21:25
+(23:39..23:49) _empty_/LP#arrayToSeq(). -> 17:16
+(23:50..23:52) _empty_/Test.ArrOps#xs. -> 21:32
+(26:13..26:18) scala/Array.
+(27:13..27:16) _empty_/Test.xs1. -> 26:7
+(27:17..27:23) _empty_/Ops#filter(). -> 8:7
+(27:26..27:27) scala/Int#`%`(+3).
+(27:30..27:32) scala/Int#`==`(+3).
+(28:13..28:18) scala/Array#
+(28:19..28:22) scala/Int#
+(28:26..28:29) _empty_/Test.xs2. -> 27:7
+(29:13..29:16) _empty_/Test.xs1. -> 26:7
+(29:17..29:20) _empty_/Test.ArrOps#map(). -> 22:9
+(29:23..29:24) scala/Int#`+`().
+(30:13..30:18) scala/Array#
+(30:19..30:25) java/lang/String#
+(30:29..30:32) _empty_/Test.xs3. -> 29:7
+(32:15..32:18) scala/Int#
+(32:22..32:23) _empty_/Test.f().[T] -> 32:9
+(33:15..33:20) scala/Array.
+(34:15..34:18) local0 -> 33:9
+(34:19..34:25) _empty_/Ops#filter(). -> 8:7
+(34:28..34:29) scala/Int#`%`(+3).
+(34:32..34:34) scala/Int#`==`(+3).
+(35:15..35:20) scala/Array#
+(35:21..35:24) scala/Int#
+(35:28..35:31) local1 -> 34:9
+(36:15..36:18) local0 -> 33:9
+(36:19..36:24) _empty_/Test.ArrOps#toSeq(). -> 23:18
+(36:25..36:28) _empty_/Ops#map(). -> 9:7
+(36:29..36:30) _empty_/Test.f().(f) -> 32:12
+(37:15..37:23) _empty_/ArraySeq# -> 13:7
+(37:24..37:25) _empty_/Test.f().[T] -> 32:9
+(37:29..37:32) local3 -> 36:9
+

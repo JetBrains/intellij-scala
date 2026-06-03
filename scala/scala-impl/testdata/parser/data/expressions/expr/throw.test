@@ -1,0 +1,31 @@
+class a{
+  throw Exception
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ThrowStatement
+          PsiElement(throw)('throw')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Exception
+            PsiElement(identifier)('Exception')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

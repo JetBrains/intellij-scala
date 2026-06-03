@@ -1,0 +1,42 @@
+package nyaya
+
+package object prop {
+  case class Input(a: scala.Any) {
+    def show: scala.Predef.String = ???
+  }
+
+  type Name = scalaz.Need[scala.Predef.String]
+
+  type FailureReason = scala.Predef.String
+
+  type FailureReasonO = scala.Option[nyaya.prop.FailureReason]
+
+  type Eval_[x] = nyaya.prop.Eval
+
+  type EvalL = nyaya.prop.Logic[nyaya.prop.Eval_, scala.Nothing]
+
+  type Prop[A] = nyaya.prop.Logic[nyaya.prop.PropA, A]
+
+  implicit class Prop_AnyExt[A](a: A) extends scala.AnyVal {
+    @scala.annotation.elidable(2000)
+    def assertSatisfies(p: nyaya.prop.Prop[A]): scala.Unit = ???
+  }
+
+  implicit class LogicPropExt[A](prop: nyaya.prop.Prop[A]) extends scala.AnyVal {
+    @scala.inline
+    def apply(a: A): nyaya.prop.Eval = ???
+
+    @scala.inline
+    def forall[B, F[_]: scalaz.Foldable](f: B => F[A]): nyaya.prop.Prop[B] = ???
+
+    @scala.inline
+    def forallS[B, F[_]: scalaz.Foldable, C](f: B => F[C])(implicit ev: scala.Predef.<:<[C, A]): nyaya.prop.Prop[B] = ???
+
+    @scala.inline
+    def forallF[F[_]: scalaz.Foldable]: nyaya.prop.Prop[F[A]] = ???
+
+    @scala.annotation.elidable(2000)
+    @scala.inline
+    def assert(a: A): scala.Unit = ???
+  }
+}

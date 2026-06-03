@@ -1,0 +1,12 @@
+Document tests/pos/t10373.scala
+(4:14..4:18) scala/Unit#
+(5:10..5:15) _empty_/Foo_1.
+(6:10..6:15) _empty_/Foo_2.
+(10:17..10:20) _empty_/Foo# -> 3:16
+(10:23..10:27) scala/Unit#
+(10:37..10:41) _empty_/Foo#baz().(that) -> 10:11
+(11:11..11:16) _empty_/Foo_1.
+(12:11..12:16) _empty_/Foo_2.
+(16:28..16:31) _empty_/Foo# -> 3:16
+(17:28..17:31) _empty_/Foo# -> 3:16
+

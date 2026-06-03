@@ -1,0 +1,37 @@
+Document tests/pos/i20512.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:41) scala/language.experimental.namedTuples.
+(3:8..3:18) scala/NamedTuple.
+(5:25..5:35) scala/Selectable#
+(6:23..6:26) scala/Int#
+(6:33..6:39) scala/Predef.String#
+(8:27..8:33) scala/Predef.String#
+(8:41..8:45) _empty_/Selector1#selectDynamic().(name) -> 8:21
+(8:51..8:54) scala/`<:<`#
+(8:55..8:60) scala/Tuple.
+(8:61..8:66) scala/Tuple.Union#
+(8:67..8:77) scala/NamedTuple.
+(8:78..8:83) scala/NamedTuple.Names#
+(8:84..8:90) _empty_/Selector1#Fields# -> 6:8
+(8:96..8:99) scala/Predef.`???`().
+(12:10..12:19) _empty_/Selector1# -> 5:7
+(12:26..12:35) _empty_/Selector1# -> 5:7
+(13:13..13:14) local2 -> 12:7
+(13:15..13:18) _empty_/Selector1#selectDynamic(). -> 8:7
+(14:13..14:14) local2 -> 12:7
+(14:15..14:18) _empty_/Selector1#selectDynamic(). -> 8:7
+(19:25..19:35) scala/Selectable#
+(20:23..20:26) scala/Int#
+(20:33..20:36) scala/Int#
+(21:32..21:38) scala/Predef.String#
+(21:46..21:49) _empty_/Ctx# -> 17:7
+(21:52..21:55) scala/Any#
+(21:58..21:61) scala/Predef.`???`().
+(23:21..23:24) _empty_/Ctx# -> 17:7
+(24:11..24:20) _empty_/Selector2# -> 19:7
+(25:13..25:14) local5 -> 24:7
+(25:15..25:18) _empty_/Selector2#selectDynamic(). -> 21:7
+(26:13..26:14) local5 -> 24:7
+(26:15..26:18) _empty_/Selector2#selectDynamic(). -> 21:7
+

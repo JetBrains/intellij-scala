@@ -1,0 +1,8 @@
+val a = id"""blah blah blah
+						|  blah blah<caret>
+					"""
+-----
+val a = id"""blah blah blah
+						|  blah blah
+						|  <caret>
+					"""

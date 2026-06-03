@@ -1,0 +1,5 @@
+Document tests/pos/i19530.scala
+(2:11..2:18) scala/Predef.classOf().
+(2:19..2:24) scala/
+(2:25..2:34) scala/Singleton#
+

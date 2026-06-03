@@ -1,0 +1,242 @@
+trait AbstractCurrency{
+  type Currency <: AbstractCurrency
+  def value : Double
+
+  def make(d:Double) : Currency
+  def +(x: AbstractCurrency) = make(x.value + value)
+}
+
+class USD(val value: Double) extends {type Currency = USD} with AbstractCurrency {
+  def make(d: Double) = new USD(d)
+}
+-------
+ScalaFile
+  ScTrait: AbstractCurrency
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractCurrency')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Currency
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Currency')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: AbstractCurrency
+            CodeReferenceElement: AbstractCurrency
+              PsiElement(identifier)('AbstractCurrency')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('value')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: make
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('make')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: d
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('d')
+                PsiElement(:)(':')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Currency
+            CodeReferenceElement: Currency
+              PsiElement(identifier)('Currency')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: +
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: AbstractCurrency
+                    CodeReferenceElement: AbstractCurrency
+                      PsiElement(identifier)('AbstractCurrency')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: make
+              PsiElement(identifier)('make')
+            ArgumentList
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x.value
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('value')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: value
+                  PsiElement(identifier)('value')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: USD
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('USD')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      EarlyDefinitions
+        PsiElement({)('{')
+        ScTypeAliasDefinition: Currency
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Currency')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: USD
+            CodeReferenceElement: USD
+              PsiElement(identifier)('USD')
+        PsiElement(})('}')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AbstractCurrency
+            CodeReferenceElement: AbstractCurrency
+              PsiElement(identifier)('AbstractCurrency')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: make
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('make')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: d
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('d')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NewTemplateDefinition
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: USD
+                    CodeReferenceElement: USD
+                      PsiElement(identifier)('USD')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: d
+                      PsiElement(identifier)('d')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

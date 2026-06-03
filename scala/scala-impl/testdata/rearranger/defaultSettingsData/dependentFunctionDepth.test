@@ -1,0 +1,20 @@
+def a = b + d
+
+def e = 3
+
+def d = e
+
+def c = 1
+
+def b = c
+--------------------
+def a = b + d
+
+def d = e
+
+def e = 3
+
+def b = c
+
+def c = 1
+

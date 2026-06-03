@@ -1,0 +1,21 @@
+Document tests/pos/1567/PosZInt_1.scala
+(1:41..1:44) scala/Int#
+(1:54..1:60) scala/AnyVal#
+(4:19..4:22) scala/Int#
+(4:25..4:31) scala/Option#
+(4:32..4:39) _empty_/PosZInt# -> 1:13
+(5:9..5:14) _empty_/PosZInt.from().(value) -> 4:12
+(5:15..5:17) scala/Int#`>=`(+3).
+(5:21..5:25) scala/Some.
+(5:30..5:37) _empty_/PosZInt# -> 1:13
+(5:38..5:43) _empty_/PosZInt.from().(value) -> 4:12
+(5:51..5:55) scala/None.
+
+Document tests/pos/1567/Test_2.scala
+(2:3..2:8) scala/
+(2:9..2:13) scala/util/
+(2:14..2:17) scala/util/Try.
+(2:18..2:25) _empty_/PosZInt. -> 3:8
+(2:26..2:30) _empty_/PosZInt.from(). -> 4:7
+(2:34..2:37) scala/Option#get().
+

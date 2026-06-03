@@ -1,0 +1,36 @@
+Document tests/pos/i16451.default.scala
+(3:8..3:12) java/
+(3:13..3:17) java/lang/
+(3:18..3:25) java/lang/reflect/
+(4:8..4:13) scala/
+(4:14..4:24) scala/annotation/
+(4:25..4:32) scala/annotation/tailrec#
+(7:4..7:11) scala/annotation/tailrec#
+(7:43..7:52) scala/package.Throwable#
+(7:55..7:64) scala/package.Throwable#
+(7:67..7:68) _empty_/Test#unwrapThrowable().(x) -> 7:40
+(8:14..8:39) java/lang/reflect/InvocationTargetException#
+(9:14..9:41) java/lang/ExceptionInInitializerError#
+(10:14..10:42) java/lang/reflect/UndeclaredThrowableException#
+(11:14..11:36) java/lang/ClassNotFoundException#
+(12:14..12:34) java/lang/NoClassDefFoundError#
+(13:10..13:11) _empty_/Test#unwrapThrowable().(x) -> 7:40
+(13:12..13:20) java/lang/Throwable#getCause().
+(13:21..13:23) scala/Any#`!=`().
+(14:7..14:22) _empty_/Test#unwrapThrowable(). -> 7:24
+(14:23..14:24) _empty_/Test#unwrapThrowable().(x) -> 7:40
+(14:25..14:33) java/lang/Throwable#getCause().
+(15:15..15:16) _empty_/Test#unwrapThrowable().(x) -> 7:40
+(18:36..18:51) scala/PartialFunction#
+(18:52..18:61) scala/package.Throwable#
+(18:63..18:64) _empty_/Test#unwrapHandler().[T] -> 18:29
+(18:68..18:83) scala/PartialFunction#
+(18:84..18:93) scala/package.Throwable#
+(18:95..18:96) _empty_/Test#unwrapHandler().[T] -> 18:29
+(19:5..19:7) _empty_/Test#unwrapHandler().(pf) -> 18:32
+(19:8..19:15) scala/PartialFunction#compose().
+(19:29..19:44) _empty_/Test#unwrapThrowable(). -> 7:24
+(19:45..19:47) local1 -> 19:23
+(22:5..22:18) _empty_/Test#unwrapHandler(). -> 18:15
+(22:38..22:40) local3 -> 22:26
+

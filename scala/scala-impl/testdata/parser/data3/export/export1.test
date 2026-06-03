@@ -1,0 +1,12 @@
+export foo.bar
+-----
+ScalaFile
+  ScExportStatement
+    PsiElement(export)('export')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: foo.bar
+        CodeReferenceElement: foo
+          PsiElement(identifier)('foo')
+        PsiElement(.)('.')
+        PsiElement(identifier)('bar')

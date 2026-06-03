@@ -1,0 +1,194 @@
+package org.jetbrains.plugins.scala.project.settings
+
+import com.intellij.openapi.components._
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker}
+import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
+import org.jdom.Element
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes.{IncrementalityTypeAttr, ModulesAttr, NameAttr, OptionAttr, ProfileAttr, SeparateProdTestSourcesAttr, ValueAttr}
+import org.jetbrains.plugins.scala.compiler.data.{IncrementalityType, ScalaCompilerSettingsState}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
+
+import scala.annotation.{nowarn, tailrec}
+import scala.jdk.CollectionConverters._
+
+@State(
+  name = "ScalaCompilerConfiguration",
+  storages = Array(new Storage("scala_compiler.xml")),
+  //reportStatistic = true // TODO: will not be recorded due to state is Element
+)
+class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
+
+  var incrementalityType: IncrementalityType = IncrementalityType.SBT
+
+  var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile(DefaultProfileName)
+
+  var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
+
+  /**
+   * Indicates whether the main/test modules feature is enabled.
+   *
+   * ATTENTION!
+   *
+   * This setting is scoped to the IDEA project level, which causes incorrect behavior
+   * when multiple sbt projects are linked within a single IDEA project. Each linked
+   * project has its own `SbtProjectSettings#separateProdAndTestSources`,
+   * meaning one project may be imported with main/test separation while another is not.
+   * However, this field is shared across the entire IDEA project. As a result, the last
+   * imported sbt project overwrites the value in this field (it happens in
+   * `SbtProjectDataService#updateSeparateProdTestSources`).
+   * This leads to a problem where, for example, a project imported with main/test
+   * may have this field set to false (and vice versa). Since this field is used for compilation
+   * purposes, it may result in incorrect module dependencies being determined for compilation.
+   *
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-23719 SCL-23719]]
+   */
+  var separateProdTestSources: Boolean = false
+
+  @TestOnly
+  def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
+    assert(!allProfiles.exists(_.getName == profileName))
+    val profile = new ScalaCompilerSettingsProfile(profileName)
+    val moduleName = module.getName
+    profile.addModuleName(moduleName)
+    customProfiles = customProfiles :+ profile
+    allProfiles.foreach(_.removeModuleName(moduleName))
+    ScalaCompilerConfiguration.incModificationCount()
+    profile
+  }
+
+  private[settings] def getProfileForModule(module: Module): ScalaCompilerSettingsProfile =
+    customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+
+  def findByProfileName(profileName: String): Option[ScalaCompilerSettingsProfile] =
+    allProfiles.find(_.getName == profileName)
+
+  private def getSettingsForModule(module: Module): ScalaCompilerSettings =
+    getProfileForModule(module).getSettings
+
+  def allCompilerPlugins: Seq[ScalacPlugin] = allProfiles.map(_.getSettings).flatMap(_.plugins)
+
+  def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
+
+  //currently we cannot rely on compiler options for shared source modules
+  def settingsForHighlighting(module: Module): Seq[ScalaCompilerSettings] = {
+    val modules = module.getModuleTypeName match{
+      case "SHARED_SOURCES_MODULE" =>
+        ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
+      case _ => Seq(module)
+    }
+
+    modules.iterator.map(getSettingsForModule).toSeq
+  }
+
+  def configureSettingsForModule(module: Module, source: String, settings: ScalaCompilerSettings): Unit =
+    configureSettingsForModule(module.getName, source, settings)
+
+  def configureSettingsForModule(moduleName: String, source: String, settings: ScalaCompilerSettings): Unit = {
+    customProfiles.foreach { profile =>
+      profile.removeModuleName(moduleName)
+      if (profile.getName.startsWith(source) && profile.moduleNames.isEmpty) {
+        customProfiles = customProfiles.filterNot(_ == profile)
+      }
+    }
+    customProfiles.find(_.getSettings.toState == settings.toState) match {
+      case Some(profile) => profile.addModuleName(moduleName)
+      case None =>
+        val profileNames = customProfiles.iterator.map(_.getName).filter(_.startsWith(source)).toSet
+        @tailrec def firstFreeName(i: Int): String = {
+          val name = source + " " + i
+          if (profileNames.contains(name)) firstFreeName(i + 1) else name
+        }
+        val profile = new ScalaCompilerSettingsProfile(firstFreeName(1))
+        profile.setSettings(settings)
+        profile.addModuleName(moduleName)
+        customProfiles = (customProfiles :+ profile).sortBy(_.getName)
+    }
+  }
+
+  override def getState: Element = {
+    // yes, default profile options are currently serialized as root options of element node
+    val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
+
+    // TODO if we only set the incrementalityType option element when `incrementalityType` value is different from SBT
+    //  and `separateProdTestSources` element when `separateProdTestSources` value is true,
+    //  then we can skip adding attribute values and we can only leave attribute names (without values).
+    //  The presence of the attribute with the given name will already indicate its value,
+    //  as `incrementalityType` and `separateProdTestSources` can only have two possible values.
+
+    if (incrementalityType != IncrementalityType.SBT) {
+      val optionElement = new Element(OptionAttr)
+      optionElement.setAttribute(NameAttr, IncrementalityTypeAttr)
+      optionElement.setAttribute(ValueAttr, incrementalityType.toString)
+      configurationElement.addContent(optionElement)
+    }
+
+    // TODO If `separateProdTestSources` is enabled by default, then this condition should changed to `separateProdTestSources` == `false`
+    if (separateProdTestSources) {
+      val optionElement = new Element(OptionAttr)
+      optionElement.setAttribute(NameAttr, SeparateProdTestSourcesAttr)
+      optionElement.setAttribute(ValueAttr, separateProdTestSources.toString)
+      configurationElement.addContent(optionElement)
+    }
+
+    customProfiles.foreach { profile =>
+      val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
+      profileElement.setName(ProfileAttr)
+      profileElement.setAttribute(NameAttr, profile.getName)
+      profileElement.setAttribute(ModulesAttr, profile.moduleNames.sorted.mkString(","))
+
+      configurationElement.addContent(profileElement)
+    }
+
+    configurationElement
+  }
+
+  override def loadState(configurationElement: Element): Unit = {
+    val optionElements = configurationElement.getChildren(OptionAttr).asScala
+    incrementalityType = optionElements
+      .find(_.getAttributeValue(NameAttr) == IncrementalityTypeAttr)
+      .map(it => IncrementalityType.valueOf(it.getAttributeValue(ValueAttr)))
+      .getOrElse(IncrementalityType.SBT)
+
+    separateProdTestSources = optionElements
+      .find(_.getAttributeValue(NameAttr) == SeparateProdTestSourcesAttr)
+      .exists(it => it.getAttributeValue(ValueAttr).toBoolean)
+
+    defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
+
+    customProfiles = configurationElement.getChildren(ProfileAttr).asScala.map { profileElement =>
+      val profile = new ScalaCompilerSettingsProfile(profileElement.getAttributeValue(NameAttr))
+
+      val settings = ScalaCompilerSettings.fromState(XmlSerializer.deserialize(profileElement, classOf[ScalaCompilerSettingsState]))
+      profile.setSettings(settings)
+
+      val moduleNames = profileElement.getAttributeValue(ModulesAttr).split(",").filter(!_.isEmpty)
+      moduleNames.foreach(profile.addModuleName)
+
+      profile
+    }.toSeq
+  }
+
+  override def getModificationCount: Long =
+    ScalaCompilerConfiguration.getModificationCount + ProjectRootManager.getInstance(project).getModificationCount
+}
+
+object ScalaCompilerConfiguration extends SimpleModificationTracker {
+
+  val DefaultProfileName = "Default"
+
+  def instanceIn(project: Project): ScalaCompilerConfiguration =
+    project.getService(classOf[ScalaCompilerConfiguration])
+  def apply(project: Project): ScalaCompilerConfiguration =
+    instanceIn(project)
+
+  def modTracker(project: Project): ModificationTracker = instanceIn(project)
+
+  //to call as static method from java
+  override def incModificationCount(): Unit = super.incModificationCount()
+
+}

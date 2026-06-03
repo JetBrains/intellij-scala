@@ -1,0 +1,8 @@
+Document tests/pos/i1795.scala
+(3:24..3:26) _empty_/T1# -> 1:14
+(7:24..7:26) _empty_/T2# -> 5:14
+(10:18..10:20) _empty_/T1# -> 1:14
+(10:32..10:38) _empty_/TestX#TestT2# -> 11:8
+(11:18..11:20) _empty_/T2# -> 5:14
+(11:32..11:38) _empty_/TestX#TestT1# -> 10:8
+

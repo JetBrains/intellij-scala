@@ -1,0 +1,8 @@
+Document tests/pos/if-parse.scala
+(1:8..1:13) scala/
+(1:14..1:18) scala/math/
+(1:19..1:27) scala/math/Ordering.
+(1:28..1:37) scala/math/Ordering.Implicits.
+(1:38..1:54) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
+(4:13..4:14) scala/math/Ordering#OrderingOps#`<`().
+

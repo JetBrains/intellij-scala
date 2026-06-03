@@ -1,0 +1,63 @@
+Document tests/pos/inf.scala
+(3:15..3:16) _empty_/Test.f().[T] -> 3:9
+(3:21..3:22) _empty_/Test.f().[T] -> 3:9
+(3:25..3:26) _empty_/Test.f().[T] -> 3:9
+(3:29..3:30) _empty_/Test.f().(x) -> 3:12
+(4:15..4:16) _empty_/Test.g().[T] -> 4:9
+(4:21..4:22) _empty_/Test.g().[T] -> 4:9
+(4:25..4:26) _empty_/Test.g().[T] -> 4:9
+(4:29..4:30) _empty_/Test.g().(x) -> 4:12
+(6:10..6:13) scala/Int#
+(7:10..7:14) scala/Long#
+(7:17..7:18) _empty_/Test.x. -> 6:7
+(9:11..9:14) scala/package.Seq#
+(9:15..9:18) scala/Int#
+(9:22..9:25) scala/package.Seq.
+(10:11..10:22) scala/package.Traversable#
+(10:23..10:26) scala/Int#
+(10:30..10:32) _empty_/Test.xs. -> 9:7
+(12:12..12:13) _empty_/Test.f(). -> 3:7
+(12:14..12:15) _empty_/Test.x. -> 6:7
+(12:17..12:18) _empty_/Test.y. -> 7:7
+(13:11..13:17) scala/AnyVal#
+(13:20..13:22) _empty_/Test.r1. -> 12:7
+(14:12..14:13) _empty_/Test.f(). -> 3:7
+(14:14..14:15) _empty_/Test.y. -> 7:7
+(14:17..14:18) _empty_/Test.x. -> 6:7
+(15:11..15:17) scala/AnyVal#
+(15:20..15:22) _empty_/Test.r2. -> 14:7
+(16:12..16:13) _empty_/Test.f(). -> 3:7
+(16:14..16:16) _empty_/Test.xs. -> 9:7
+(16:18..16:20) _empty_/Test.ys. -> 10:7
+(17:11..17:22) scala/package.Traversable#
+(17:23..17:26) scala/Int#
+(17:30..17:32) _empty_/Test.r3. -> 16:7
+(18:12..18:13) _empty_/Test.f(). -> 3:7
+(18:14..18:16) _empty_/Test.ys. -> 10:7
+(18:18..18:20) _empty_/Test.xs. -> 9:7
+(19:11..19:22) scala/package.Traversable#
+(19:23..19:26) scala/Int#
+(19:30..19:32) _empty_/Test.r4. -> 18:7
+(20:12..20:13) _empty_/Test.g(). -> 4:7
+(20:14..20:15) _empty_/Test.x. -> 6:7
+(20:17..20:18) _empty_/Test.y. -> 7:7
+(21:11..21:17) scala/AnyVal#
+(21:20..21:22) _empty_/Test.r5. -> 20:7
+(22:12..22:13) _empty_/Test.g(). -> 4:7
+(22:14..22:15) _empty_/Test.y. -> 7:7
+(22:17..22:18) _empty_/Test.x. -> 6:7
+(23:11..23:17) scala/AnyVal#
+(23:20..23:22) _empty_/Test.r6. -> 22:7
+(24:12..24:13) _empty_/Test.g(). -> 4:7
+(24:14..24:16) _empty_/Test.xs. -> 9:7
+(24:18..24:20) _empty_/Test.ys. -> 10:7
+(25:11..25:22) scala/package.Traversable#
+(25:23..25:26) scala/Int#
+(25:29..25:31) _empty_/Test.r7. -> 24:7
+(26:12..26:13) _empty_/Test.g(). -> 4:7
+(26:14..26:16) _empty_/Test.ys. -> 10:7
+(26:18..26:20) _empty_/Test.xs. -> 9:7
+(27:11..27:22) scala/package.Traversable#
+(27:23..27:26) scala/Int#
+(27:30..27:32) _empty_/Test.r8. -> 26:7
+

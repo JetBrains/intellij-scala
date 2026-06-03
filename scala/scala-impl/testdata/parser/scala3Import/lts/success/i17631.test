@@ -1,0 +1,638 @@
+//> using options -Xfatal-warnings -Wunused:all -deprecation -feature
+
+object foo {
+  type Bar
+}
+
+import foo.Bar
+
+def Test = {
+
+  type Person = { val name: String }
+
+  def good: Person = ???
+  def bad1: { val name: String } = ???
+  def bad2 = (good: { val name: String })
+  def justIs: { val bar: Bar } = ???
+  (bad1, bad2, justIs)
+}
+
+class Record(elems: (String, Any)*) extends Selectable:
+  private val fields = elems.toMap
+  def selectDynamic(name: String): Any = fields(name)
+
+object Main {
+
+  type Person = Record { val name: String; val age: Int }
+
+  locally {
+    def good: Person = ???
+    def bad1: Record { val name: String; val age: Int } = ???
+    def bad2 = (good: Record { val name: String; val age: Int })
+    (bad1, bad2)
+  }
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wunused:all')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScObject: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bar')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: foo.Bar
+        CodeReferenceElement: foo
+          PsiElement(identifier)('foo')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Bar')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n\n  ')
+      ScTypeAliasDefinition: Person
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Person')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        CompoundType: { val name: String }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScValueDeclaration: name
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfIdentifiers
+                Field identifier: name
+                  PsiElement(identifier)('name')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n\n  ')
+      ScFunctionDefinition: good
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('good')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Person
+          CodeReferenceElement: Person
+            PsiElement(identifier)('Person')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: bad1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('bad1')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        CompoundType: { val name: String }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScValueDeclaration: name
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfIdentifiers
+                Field identifier: name
+                  PsiElement(identifier)('name')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: bad2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('bad2')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          TypedExpression
+            ReferenceExpression: good
+              PsiElement(identifier)('good')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            CompoundType: { val name: String }
+              Refinement
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScValueDeclaration: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: name
+                      PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: justIs
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('justIs')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        CompoundType: { val bar: Bar }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScValueDeclaration: bar
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfIdentifiers
+                Field identifier: bar
+                  PsiElement(identifier)('bar')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      Tuple
+        PsiElement(()('(')
+        ReferenceExpression: bad1
+          PsiElement(identifier)('bad1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: bad2
+          PsiElement(identifier)('bad2')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: justIs
+          PsiElement(identifier)('justIs')
+        PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Record
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Record')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: elems
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('elems')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TupleType: (String, Any)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+                PsiElement())(')')
+              PsiElement(identifier)('*')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Selectable
+            CodeReferenceElement: Selectable
+              PsiElement(identifier)('Selectable')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fields
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fields
+              PsiElement(identifier)('fields')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: elems.toMap
+            ReferenceExpression: elems
+              PsiElement(identifier)('elems')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toMap')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: selectDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selectDynamic')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: fields
+              PsiElement(identifier)('fields')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: name
+                PsiElement(identifier)('name')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Person
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Person')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Record { val name: String; val age: Int }
+            SimpleType: Record
+              CodeReferenceElement: Record
+                PsiElement(identifier)('Record')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScValueDeclaration: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: name
+                    PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(;)(';')
+              PsiWhiteSpace(' ')
+              ScValueDeclaration: age
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: age
+                    PsiElement(identifier)('age')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: good
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('good')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Person
+                  CodeReferenceElement: Person
+                    PsiElement(identifier)('Person')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: bad1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('bad1')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: Record { val name: String; val age: Int }
+                  SimpleType: Record
+                    CodeReferenceElement: Record
+                      PsiElement(identifier)('Record')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScValueDeclaration: name
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfIdentifiers
+                        Field identifier: name
+                          PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScValueDeclaration: age
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfIdentifiers
+                        Field identifier: age
+                          PsiElement(identifier)('age')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: bad2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('bad2')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  TypedExpression
+                    ReferenceExpression: good
+                      PsiElement(identifier)('good')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    CompoundType: Record { val name: String; val age: Int }
+                      SimpleType: Record
+                        CodeReferenceElement: Record
+                          PsiElement(identifier)('Record')
+                      PsiWhiteSpace(' ')
+                      Refinement
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        ScValueDeclaration: name
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfIdentifiers
+                            Field identifier: name
+                              PsiElement(identifier)('name')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(;)(';')
+                        PsiWhiteSpace(' ')
+                        ScValueDeclaration: age
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfIdentifiers
+                            Field identifier: age
+                              PsiElement(identifier)('age')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              Tuple
+                PsiElement(()('(')
+                ReferenceExpression: bad1
+                  PsiElement(identifier)('bad1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: bad2
+                  PsiElement(identifier)('bad2')
+                PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

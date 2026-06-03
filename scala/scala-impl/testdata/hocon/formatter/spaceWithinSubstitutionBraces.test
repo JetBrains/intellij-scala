@@ -1,0 +1,24 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_WITHIN_SUBSTITUTION_BRACES" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+sub = ${path.more}
+sub = ${ path.more}
+sub = ${path.more }
+sub = ${ path.more }
+sub = ${  path.more  }
+sub = ${?path.more  }
+sub = ${? path.more  }
+sub = ${?  path.more  }
+-----
+sub = ${ path.more }
+sub = ${ path.more }
+sub = ${ path.more }
+sub = ${ path.more }
+sub = ${ path.more }
+sub = ${?path.more }
+sub = ${?path.more }
+sub = ${?path.more }
+

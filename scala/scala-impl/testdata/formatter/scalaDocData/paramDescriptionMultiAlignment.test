@@ -1,0 +1,27 @@
+/**
+  * Foos the given x, returning foo'ed x.
+  *
+  * @note this could spoil all the nice alignment
+  * @param x Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *       eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *       eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *           eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @throws RuntimeException whenever it feels like it
+  */
+def foo(x: Int, longParamName: Int): Int
+-------
+/**
+  * Foos the given x, returning foo'ed x.
+  *
+  * @note this could spoil all the nice alignment
+  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  * @throws RuntimeException whenever it feels like it
+  */
+def foo(x: Int, longParamName: Int): Int

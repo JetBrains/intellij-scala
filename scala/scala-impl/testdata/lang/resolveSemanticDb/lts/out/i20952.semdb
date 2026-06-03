@@ -1,0 +1,23 @@
+Document tests/pos/i20952.scala
+(3:28..3:31) scala/Any#
+(3:34..3:37) scala/Predef.`???`().
+(6:26..6:29) scala/Any#
+(6:32..6:35) scala/Predef.`???`().
+(9:15..9:21) packer/
+(9:22..9:32) packer/package.SuperClass# -> 2:9
+(11:21..11:27) _empty_/i20952$package.Target# -> 9:6
+(13:16..13:23) packer/package.SuperClass#problem. -> 3:19
+(13:31..13:38) packer/package.SuperClass#problem. -> 3:19
+(14:16..14:23) packer/package.SuperClass#problem. -> 3:19
+(16:19..16:22) scala/Any#
+(16:34..16:41) packer/package.SuperClass#problem. -> 3:19
+(16:50..16:53) scala/Predef.`???`().
+(17:20..17:23) scala/Any#
+(17:35..17:40) _empty_/Child#Alias# -> 14:8
+(17:44..17:47) scala/Predef.`???`().
+(18:20..18:23) scala/Any#
+(18:35..18:42) _empty_/Child#aliased. -> 13:7
+(18:51..18:54) scala/Predef.`???`().
+(20:25..20:31) _empty_/i20952$package.Target# -> 9:6
+(20:37..20:42) _empty_/Child# -> 11:7
+

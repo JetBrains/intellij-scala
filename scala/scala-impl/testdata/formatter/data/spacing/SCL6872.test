@@ -1,0 +1,17 @@
+trait Foo
+
+class Bar
+  extends Any
+  with Foo // TODO should not use Foo here
+  //another comment
+  //and one more comment
+{}
+------
+trait Foo
+
+class Bar
+  extends Any
+    with Foo // TODO should not use Foo here
+    //another comment
+    //and one more comment
+{}

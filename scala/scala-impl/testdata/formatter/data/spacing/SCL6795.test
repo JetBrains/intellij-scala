@@ -1,0 +1,13 @@
+val myRegex = new Regex(
+  """(?s)first line of regex
+    |  foo (.*)
+    |  bar (.*)
+    |  baz (.*)
+    |""".stripMargin)
+-----
+val myRegex = new Regex(
+  """(?s)first line of regex
+    |  foo (.*)
+    |  bar (.*)
+    |  baz (.*)
+    |""".stripMargin)

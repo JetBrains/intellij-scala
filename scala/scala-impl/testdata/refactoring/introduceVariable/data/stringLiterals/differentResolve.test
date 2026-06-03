@@ -1,0 +1,24 @@
+//### replaceAll=true
+class a {
+  def foo() = {
+    val x = "true"
+    <selection>s"Is $x"</selection>
+
+    if (false) {
+      val x = "false"
+      s"Is $x"
+    }
+  }
+}
+------
+class a {
+  def foo() = {
+    val x = "true"
+    val value: String = s"Is $x"
+
+    if (false) {
+      val x = "false"
+      s"Is $x"
+    }
+  }
+}

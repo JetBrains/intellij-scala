@@ -1,0 +1,6 @@
+Document tests/pos/i7863.scala
+(3:16..3:17) _empty_/i7863$package.f(). -> 1:5
+(3:26..3:29) scala/Int#
+(3:33..3:34) _empty_/i7863$package.g().[R] -> 3:19
+(5:9..5:10) _empty_/i7863$package.g(). -> 3:12
+

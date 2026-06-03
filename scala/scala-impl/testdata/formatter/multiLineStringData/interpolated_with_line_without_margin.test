@@ -1,0 +1,13 @@
+val a =
+  s"""
+        |first line
+ second line
+|third line
+  """
+-----
+val a =
+  s"""
+        |first line
+ second line
+|third line
+  """

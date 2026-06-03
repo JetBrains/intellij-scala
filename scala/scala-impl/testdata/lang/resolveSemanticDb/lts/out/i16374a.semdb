@@ -1,0 +1,16 @@
+Document tests/pos/i16374a.scala
+(1:18..1:24) scala/Predef.String#
+(1:27..1:33) scala/Predef.String#
+(1:36..1:39) scala/Predef.`???`().
+(3:36..3:42) scala/Predef.String#
+(3:46..3:50) scala/Unit#
+(3:58..3:64) scala/Predef.String#
+(3:67..3:71) scala/Unit#
+(4:3..4:10) scala/Predef.println(+1).
+(4:11..4:13) _empty_/i16374a$package.inlineMethod().(op) -> 3:32
+(4:14..4:20) _empty_/i16374a$package.method(). -> 1:5
+(6:16..6:22) scala/Predef.String#
+(7:3..7:15) _empty_/i16374a$package.inlineMethod(). -> 3:12
+(7:21..7:26) scala/Predef.print().
+(7:27..7:28) local0 -> 7:16
+

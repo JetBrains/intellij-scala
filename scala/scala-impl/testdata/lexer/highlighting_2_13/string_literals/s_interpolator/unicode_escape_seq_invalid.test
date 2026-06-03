@@ -1,0 +1,137 @@
+s"\u"
+s"\uu"
+s"\uuu"
+//////////////////////
+s"\u002"
+s"\u002 \u"
+s"\u002 \u002"
+s"\uu002"
+s"\uuu002"
+//////////////////////
+s" \u002"
+s"\u002 "
+//////////////////////
+s"\u0025 \u002"
+s"\u0025 ${""} \u002"
+s"${""} \u0025 \u002"
+s"\u0025 \u002 ${""}"
+-----
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uu}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uuu}
+interpolated string end {"}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uu002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uuu002}
+interpolated string end {"}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {" }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string { }
+interpolated string end {"}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string { }
+interpolated string injection {$}
+{ {{}
+string content {""}
+} {}}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+{ {{}
+string content {""}
+} {}}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+interpolated string { }
+interpolated string injection {$}
+{ {{}
+string content {""}
+} {}}
+interpolated string end {"}

@@ -1,0 +1,10 @@
+Document tests/pos/comma-separated.scala
+(3:19..3:22) _empty_/Bar# -> 1:7
+(3:23..3:24) _empty_/Bar.derived().[T] -> 3:15
+(3:32..3:35) _empty_/Bar# -> 1:7
+(3:36..3:37) _empty_/Bar.derived().[T] -> 3:15
+(8:19..8:22) _empty_/Baz# -> 6:7
+(8:23..8:24) _empty_/Baz.derived().[T] -> 8:15
+(8:32..8:35) _empty_/Baz# -> 6:7
+(8:36..8:37) _empty_/Baz.derived().[T] -> 8:15
+

@@ -1,0 +1,16 @@
+Document tests/pos/10747-shapeless-min.scala
+(2:17..2:22) scala/Tuple#
+(5:24..5:32) _empty_/Monoidal# -> 1:7
+(8:17..8:22) scala/Tuple#
+(8:25..8:29) _empty_/eithers.Wrap# -> 6:9
+(8:30..8:31) _empty_/eithers.to#[t] -> 8:11
+(9:10..9:14) _empty_/eithers.Wrap# -> 6:9
+(9:15..9:21) scala/package.Either#
+(9:34..9:36) local0 -> 9:22
+(9:37..9:39) scala/`*:`#
+(9:40..9:42) _empty_/eithers.to# -> 8:8
+(9:43..9:45) local1 -> 9:26
+(10:10..10:14) _empty_/eithers.Wrap# -> 6:9
+(10:15..10:22) scala/Nothing#
+(10:27..10:37) scala/Tuple$package.EmptyTuple#
+

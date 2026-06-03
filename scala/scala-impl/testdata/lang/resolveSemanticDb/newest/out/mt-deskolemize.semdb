@@ -1,0 +1,103 @@
+Document tests/pos/mt-deskolemize.scala
+(5:16..5:20) _empty_/Expr# -> 1:7
+(5:36..5:37) _empty_/Expr.Of#[V] -> 5:11
+(6:26..6:30) _empty_/Expr# -> 1:7
+(6:34..6:35) _empty_/Expr.ExtractValue#[F] -> 6:21
+(7:10..7:14) _empty_/Expr. -> 4:8
+(7:15..7:17) _empty_/Expr.Of# -> 5:8
+(7:24..7:25) local1 -> 7:18
+(8:8..8:12) _empty_/Expr. -> 4:8
+(10:20..10:24) _empty_/Expr# -> 1:7
+(11:16..11:21) _empty_/Prim#Alias# -> 12:8
+(12:16..12:22) scala/package.BigInt#
+(14:20..14:24) _empty_/Expr# -> 1:7
+(14:34..14:38) _empty_/Expr# -> 1:7
+(15:16..15:22) scala/package.Vector#
+(15:23..15:35) _empty_/Expr.ExtractValue# -> 6:8
+(15:36..15:37) _empty_/VecExpr#[E] -> 14:15
+(18:16..18:21) scala/Tuple#
+(20:24..20:28) _empty_/Expr# -> 1:7
+(21:20..21:31) _empty_/Description# -> 17:7
+(22:16..22:21) scala/Tuple.
+(22:22..22:25) scala/Tuple.Map#
+(22:26..22:37) _empty_/ProdExpr#description. -> 21:7
+(22:38..22:42) _empty_/Description#Elem# -> 18:8
+(22:52..22:64) _empty_/Expr.ExtractValue# -> 6:8
+(22:65..22:66) _empty_/ProdExpr#Value#[X] -> 22:45
+(22:67..22:68) scala/`&`#
+(22:69..22:73) _empty_/Expr# -> 1:7
+(24:23..24:31) _empty_/ProdExpr# -> 20:7
+(25:31..25:42) _empty_/Description# -> 17:7
+(26:18..26:25) _empty_/VecExpr# -> 14:7
+(26:26..26:30) _empty_/Prim# -> 10:7
+(26:33..26:37) _empty_/Prim# -> 10:7
+(28:23..28:31) _empty_/ProdExpr# -> 20:7
+(29:31..29:42) _empty_/Description# -> 17:7
+(30:18..30:25) _empty_/VecExpr# -> 14:7
+(30:26..30:33) _empty_/VecExpr# -> 14:7
+(30:34..30:41) _empty_/MyExpr1# -> 24:7
+(30:45..30:49) _empty_/Prim# -> 10:7
+(32:24..32:29) scala/Tuple#
+(32:39..32:43) _empty_/Expr# -> 1:7
+(33:16..33:21) scala/Tuple.
+(33:22..33:25) scala/Tuple.Map#
+(33:26..33:27) _empty_/ProdExprAlt#[T] -> 32:19
+(33:37..33:49) _empty_/Expr.ExtractValue# -> 6:8
+(33:50..33:51) _empty_/ProdExprAlt#Value#[X] -> 33:30
+(33:52..33:53) scala/`&`#
+(33:54..33:58) _empty_/Expr# -> 1:7
+(35:23..35:34) _empty_/ProdExprAlt# -> 32:7
+(35:36..35:40) _empty_/Prim# -> 10:7
+(35:42..35:49) _empty_/VecExpr# -> 14:7
+(35:50..35:54) _empty_/Prim# -> 10:7
+(35:57..35:61) _empty_/Prim# -> 10:7
+(37:22..37:26) _empty_/Expr# -> 1:7
+(38:14..38:26) _empty_/Expr.ExtractValue# -> 6:8
+(38:27..38:28) _empty_/Constable#[E] -> 37:17
+(38:32..38:33) _empty_/Constable#[E] -> 37:17
+(40:15..40:19) _empty_/Expr# -> 1:7
+(40:24..40:33) _empty_/Constable# -> 37:7
+(40:34..40:35) _empty_/Constable.given_Constable_E().[E] -> 40:10
+(40:39..40:42) scala/Predef.`???`().
+(43:24..43:28) _empty_/Expr# -> 1:7
+(43:31..43:40) _empty_/Constable# -> 37:7
+(43:31..43:40) _empty_/Test.fromLiteral().[E] -> 43:19
+(43:45..43:57) _empty_/Expr.ExtractValue# -> 6:8
+(43:58..43:59) _empty_/Test.fromLiteral().[E] -> 43:19
+(43:63..43:64) _empty_/Test.fromLiteral().[E] -> 43:19
+(44:5..44:11) scala/Predef.summon().
+(44:12..44:21) _empty_/Constable# -> 37:7
+(44:22..44:23) _empty_/Test.fromLiteral().[E] -> 43:19
+(44:26..44:29) _empty_/Constable#lit(). -> 38:7
+(44:30..44:31) _empty_/Test.fromLiteral().(v) -> 43:42
+(45:10..45:14) _empty_/Prim# -> 10:7
+(45:17..45:28) _empty_/Test.fromLiteral(). -> 43:7
+(46:10..46:17) _empty_/VecExpr# -> 14:7
+(46:18..46:22) _empty_/Prim# -> 10:7
+(46:26..46:37) _empty_/Test.fromLiteral(). -> 43:7
+(46:38..46:44) scala/package.Vector.
+(47:10..47:17) _empty_/MyExpr1# -> 24:7
+(47:20..47:31) _empty_/Test.fromLiteral(). -> 43:7
+(47:33..47:39) scala/package.Vector.
+(48:10..48:17) _empty_/MyExpr2# -> 28:7
+(48:20..48:31) _empty_/Test.fromLiteral(). -> 43:7
+(48:32..48:38) scala/package.Vector.
+(48:39..48:45) scala/package.Vector.
+(48:47..48:53) scala/package.Vector.
+(49:10..49:17) _empty_/MyExpr3# -> 35:7
+(49:20..49:31) _empty_/Test.fromLiteral(). -> 43:7
+(49:36..49:42) scala/package.Vector.
+(50:10..50:21) _empty_/ProdExprAlt# -> 32:7
+(50:23..50:30) _empty_/MyExpr1# -> 24:7
+(50:32..50:39) _empty_/VecExpr# -> 14:7
+(50:40..50:47) _empty_/MyExpr3# -> 35:7
+(50:53..50:64) _empty_/Test.fromLiteral(). -> 43:7
+(52:8..52:14) scala/package.Vector.
+(53:7..53:13) scala/package.Vector.
+(53:18..53:24) scala/package.Vector.
+(53:37..53:43) scala/package.Vector.
+(55:10..55:14) _empty_/Expr# -> 1:7
+(55:30..55:33) scala/Int#
+(55:48..55:53) local10 -> 55:22
+(55:58..55:69) _empty_/Test.fromLiteral(). -> 43:7
+

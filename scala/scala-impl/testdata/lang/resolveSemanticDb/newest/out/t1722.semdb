@@ -1,0 +1,7 @@
+Document tests/pos/t1722/Test.scala
+(4:15..4:21) scala/AnyRef#
+(4:27..4:28) t1722/C# -> 4:7
+
+Document tests/pos/t1722/Top.scala
+(5:28..5:31) t1722/Top# -> 3:14
+

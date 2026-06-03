@@ -1,0 +1,9 @@
+object A {
+  val a = foo"""blah<caret> ${1}blah"""
+}
+-----
+object A {
+  val a =
+    foo"""blah
+          | <caret>${1}blah""".stripMargin
+}

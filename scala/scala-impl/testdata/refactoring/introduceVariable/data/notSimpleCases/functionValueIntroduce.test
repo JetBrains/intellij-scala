@@ -1,0 +1,14 @@
+class a {
+  def foo = {
+    <selection>x</selection>("balletik")
+  }
+  val x: (Any => Boolean) = _.isInstanceOf[String]
+}
+------
+class a {
+  def foo = {
+    val value: Any => Boolean = x
+    value("balletik")
+  }
+  val x: (Any => Boolean) = _.isInstanceOf[String]
+}

@@ -1,0 +1,209 @@
+package org.jetbrains.sbt.shell
+
+import com.intellij.ide.actions.ActivateToolWindowAction
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, KeyboardShortcut}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.wm._
+import com.intellij.openapi.wm.impl.ToolWindowImpl
+import com.intellij.toolWindow.ToolWindowHeadlessManagerImpl.MockToolWindow
+import com.intellij.ui.BadgeIconSupplier
+import com.intellij.ui.content.{Content, ContentFactory}
+import org.jetbrains.annotations.{Nls, NotNull}
+import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
+import org.jetbrains.sbt.icons.Icons
+import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.Log
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
+
+import java.awt.event.{InputEvent, KeyEvent}
+import java.awt.{BorderLayout, Component, Container, FocusTraversalPolicy}
+import java.util.concurrent.TimeUnit
+import javax.swing.{JComponent, JPanel, KeyStroke}
+
+/**
+  * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
+  *
+  * This factory is registered in SBT.xml
+  */
+class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
+  /**
+   * @note usage of "badge is originally inspired by "Build" tool window
+   *       (see [[com.intellij.build.BuildContentManagerImpl]])
+   */
+  private val ToolWindowIconSupplier = new BadgeIconSupplier(Icons.SBT_SHELL_TOOL_WINDOW)
+
+  /**
+   * NOTE: when a new project is created this returns false<br>
+   * In this case [[org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject]] explicitly activates the tool window
+   */
+  override def shouldBeAvailable(project: Project): Boolean =
+    SbtUtil.isSbtProject(project)
+
+  // called once per project open
+  override def init(toolWindow: ToolWindow): Unit = {
+    Log.debug("init")
+    toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
+    toolWindow.setIcon(ToolWindowIconSupplier.getOriginalIcon)
+
+    val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
+    val actionId = ActivateToolWindowAction.Manager.getActionIdForToolWindow(toolWindowId)
+
+    addShortcuts(actionId)
+  }
+
+  // called once per project open, is not called during sbt shell restart OR close/open etc...
+  override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
+    Log.debug("createToolWindowContent")
+    // focus sbt shell input when opening toolWindow with shortcut. #SCL-13225
+    val defaultFocusPolicy = toolWindow.getComponent.getFocusTraversalPolicy
+    val focusPolicy = new shell.SbtShellToolWindowFactory.TraversalPolicy(project, defaultFocusPolicy)
+    toolWindow.getComponent.setFocusTraversalPolicy(focusPolicy)
+
+    scheduleIconUpdate(project, toolWindow)
+
+    SbtProcessManager.forProject(project).initAndRunAsync()
+  }
+
+  private def scheduleIconUpdate(project: Project, toolWindow: ToolWindow): Unit =
+    schedulePeriodicTask(500L, TimeUnit.MILLISECONDS, toolWindow.getContentManager) {
+      invokeLater {
+        if (!project.isDisposed) {
+          val isAlive = !project.isDisposed && SbtProcessManager.forProject(project).isAlive
+          val icon = ToolWindowIconSupplier.getLiveIndicatorIcon(isAlive)
+          toolWindow.setIcon(icon)
+        }
+      }
+    }
+
+  private def addShortcuts(actionId: String): Unit = {
+    val keymapManager = KeymapManager.getInstance()
+
+    val defaultShortcut =
+      new KeyboardShortcut(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), null)
+
+    val defaultKeymap = keymapManager.getKeymap("$default")
+    if (defaultKeymap != null) {
+      defaultKeymap.addShortcut(actionId, defaultShortcut)
+    }
+
+    // NetBeans SaveAll is the only conflicting shortcut, and has the alternative ctrl+s
+    // so I think it's low impact to just remove this one conflict
+    val netbeansKeymap = keymapManager.getKeymap("NetBeans 6.5")
+    if (netbeansKeymap != null) {
+      netbeansKeymap.removeShortcut("SaveAll", defaultShortcut)
+    }
+  }
+}
+
+object SbtShellToolWindowFactory {
+
+  private val Log = Logger.getInstance(getClass)
+
+  @Nls
+  def Title: String = SbtBundle.message("sbt.shell.title")
+  val ID = "sbt-shell-toolwindow"
+
+  // TODO: we could pass ToolWindow directly to ProcessManager ans SbtShellRunner
+  def instance(implicit project: Project): Option[ToolWindow] = {
+    val result = for {
+      manager <- Option(ToolWindowManager.getInstance(project))
+      window <- Option(manager.getToolWindow(ID))
+    } yield window
+
+    if (result.isEmpty) {
+      // Similar to `com.intellij.openapi.externalSystem.service.ui.ExternalToolWindowManager#getToolWindow`.
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        return Some(new MockToolWindow(project))
+      }
+
+      Log.error(s"Failed to create sbt shell toolwindow content for $project.")
+    }
+
+    result
+  }
+
+  private class TraversalPolicy(project: Project, defaultPolicy: FocusTraversalPolicy) extends FocusTraversalPolicy {
+    override def getComponentAfter(aContainer: Container, aComponent: Component): Component =
+      defaultPolicy.getComponentAfter(aContainer, aComponent)
+
+    override def getComponentBefore(aContainer: Container, aComponent: Component): Component =
+      defaultPolicy.getComponentBefore(aContainer, aComponent)
+
+    override def getFirstComponent(aContainer: Container): Component =
+      defaultPolicy.getFirstComponent(aContainer)
+
+    override def getLastComponent(aContainer: Container): Component =
+      defaultPolicy.getLastComponent(aContainer)
+
+    override def getDefaultComponent(aContainer: Container): Component = {
+      // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
+      val sbtManager = SbtProcessManager.forProject(project)
+
+      def getShellComponent: Option[JComponent] =
+        if (sbtManager.isRunWithNewShell) {
+          sbtManager.terminalConsole.map(_.getComponent)
+        } else {
+          for {
+            shellRunner <- sbtManager.shellRunner
+            view <- Option(shellRunner.getConsoleView)
+            editor <- Option(view.getConsoleEditor)
+          } yield editor.getContentComponent
+        }
+
+      val shellComponent =
+        if (!sbtManager.isAlive) None
+        else getShellComponent
+
+      shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
+    }
+  }
+
+  private[shell] def initUi(
+    project: Project,
+    actionGroup: ActionGroup,
+    component: => JComponent,
+  ): Unit =
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
+      invokeLater {
+        val content = createToolWindowContent(actionGroup, component, project.getName)
+        setContent(toolWindow, content)
+      }
+    }
+
+  private[shell] def setContent(toolWindow: ToolWindow, @NotNull content: Content): Unit = {
+    Log.trace("setContent")
+    val twContentManager = toolWindow.getContentManager
+    twContentManager.removeAllContents(true)
+    twContentManager.addContent(content)
+  }
+
+  private def createToolWindowContent(
+    actionGroup: ActionGroup,
+    component: JComponent,
+    @Nls projectName: String
+  ): Content = {
+    Log.debug("createToolWindowContent")
+
+    val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
+
+    val toolbarPanel = new JPanel()
+    toolbarPanel.setLayout(new BorderLayout)
+    toolbarPanel.add(actionToolBar.getComponent)
+
+    val mainPanel = new JPanel()
+    mainPanel.setLayout(new BorderLayout)
+    mainPanel.add(toolbarPanel, BorderLayout.WEST)
+    mainPanel.add(component, BorderLayout.CENTER)
+    actionToolBar.setTargetComponent(mainPanel)
+
+    //noinspection ScalaExtractStringToBundle
+    val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
+    content.setTabName(projectName)
+    content.setDisplayName(projectName)
+    content.setToolwindowTitle(projectName)
+
+    content
+  }
+}

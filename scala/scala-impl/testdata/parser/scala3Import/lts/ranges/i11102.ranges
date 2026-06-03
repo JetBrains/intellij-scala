@@ -1,0 +1,14 @@
+[0,82]: PackageDef
+[0,0]: Ident
+[0,30]: ValDef
+[9,18]: SingletonTypeTree
+[9,18]: Literal
+[21,30]: Literal
+[48,67]: ValDef
+[54,59]: SingletonTypeTree
+[54,59]: Literal
+[62,67]: Literal
+[68,82]: ValDef
+[77,78]: SingletonTypeTree
+[77,78]: Literal
+[81,82]: Number

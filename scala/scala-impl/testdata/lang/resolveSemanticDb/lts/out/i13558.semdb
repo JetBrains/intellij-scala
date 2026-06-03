@@ -1,0 +1,25 @@
+Document tests/pos/i13558.scala
+(2:8..2:16) scala/language.
+(2:17..2:29) scala/language.experimental.
+(2:30..2:53) scala/language.experimental.relaxedExtensionImports.
+(9:20..9:21) testcode/A# -> 4:7
+(14:20..14:21) testcode/B# -> 6:7
+(20:19..20:24) scala/Array#
+(20:25..20:31) scala/Predef.String#
+(20:35..20:39) scala/Unit#
+(21:12..21:22) testcode/ExtensionB. -> 13:8
+(22:12..22:22) testcode/ExtensionA. -> 8:8
+(23:13..23:14) testcode/A# -> 4:7
+(24:5..24:12) scala/Predef.println(+1).
+(24:13..24:14) local0 -> 23:9
+(24:15..24:17) testcode/ExtensionA.id(). -> 10:9
+(26:19..26:24) scala/Array#
+(26:25..26:31) scala/Predef.String#
+(26:35..26:39) scala/Unit#
+(27:12..27:22) testcode/ExtensionA. -> 8:8
+(28:12..28:22) testcode/ExtensionB. -> 13:8
+(29:13..29:14) testcode/A# -> 4:7
+(30:5..30:12) scala/Predef.println(+1).
+(30:13..30:14) local1 -> 29:9
+(30:15..30:17) testcode/ExtensionA.id(). -> 10:9
+

@@ -1,0 +1,171 @@
+object Test:
+  type Disj[A, B] =
+    A match
+      case B => true
+      case _ => false
+
+  def f(a: Disj[1 | Nothing, 2 | Nothing]): Unit = ()
+
+  val t = f(false)
+end Test
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Disj
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Disj')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: A match
+      case B => true
+      case _ => false
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Disj[1 | Nothing, 2 | Nothing]
+                    SimpleType: Disj
+                      CodeReferenceElement: Disj
+                        PsiElement(identifier)('Disj')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        InfixType: 1 | Nothing
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        InfixType: 2 | Nothing
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              BooleanLiteral
+                PsiElement(false)('false')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

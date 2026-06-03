@@ -1,0 +1,34 @@
+Document tests/pos/i5588a.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:5..3:26) _empty_/TestMain.testExtensionProperty(). -> 14:7
+(6:27..6:33) scala/Predef.String#
+(10:25..10:28) _empty_/TestMain.Foo# -> 6:14
+(10:42..10:48) scala/Predef.String#
+(10:51..10:58) _empty_/TestMain.fooExt.fooExt().(thisFoo) -> 10:16
+(10:59..10:62) _empty_/TestMain.Foo#foo(). -> 6:22
+(11:25..11:28) _empty_/TestMain.Foo# -> 6:14
+(11:51..11:57) scala/Predef.String#
+(11:60..11:64) scala/Unit#
+(11:69..11:76) _empty_/TestMain.fooExt.`fooExt_=`().(thisFoo) -> 11:16
+(11:77..11:80) _empty_/TestMain.Foo#`foo_=`().
+(11:83..11:88) _empty_/TestMain.fooExt.`fooExt_=`().(value) -> 11:44
+(14:32..14:36) scala/Unit#
+(15:12..15:18) _empty_/TestMain.fooExt. -> 8:10
+(16:15..16:18) _empty_/TestMain.Foo.
+(17:5..17:11) scala/Predef.assert(+1).
+(17:12..17:15) local0 -> 16:9
+(17:16..17:22) _empty_/TestMain.fooExt.fooExt(). -> 10:34
+(17:23..17:25) scala/Any#`==`().
+(18:5..18:8) local0 -> 16:9
+(18:9..18:15) _empty_/TestMain.fooExt.`fooExt_=`(). -> 11:34
+(19:5..19:11) scala/Predef.assert(+1).
+(19:12..19:15) local0 -> 16:9
+(19:16..19:19) _empty_/TestMain.Foo#foo(). -> 6:22
+(19:20..19:22) scala/Any#`==`().
+(20:5..20:11) scala/Predef.assert(+1).
+(20:12..20:15) local0 -> 16:9
+(20:16..20:22) _empty_/TestMain.fooExt.fooExt(). -> 10:34
+(20:23..20:25) scala/Any#`==`().
+

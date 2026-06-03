@@ -1,0 +1,18 @@
+Document tests/pos/6697.scala
+(3:29..3:32) _empty_/Test.Of#[sup] -> 3:17
+(3:44..3:47) _empty_/Test.Off# -> 2:16
+(4:17..4:20) _empty_/Test.Off# -> 2:16
+(4:24..4:25) _empty_/Test.Sup#[O] -> 4:12
+(4:39..4:41) _empty_/Test.Of# -> 3:14
+(4:55..4:58) local0 -> 4:42
+(5:17..5:20) _empty_/Test.Off# -> 2:16
+(5:24..5:25) _empty_/Test.Sub#[O] -> 5:12
+(5:39..5:41) _empty_/Test.Of# -> 3:14
+(5:55..5:58) local3 -> 5:47
+(6:18..6:21) _empty_/Test.Off# -> 2:16
+(6:25..6:27) _empty_/Test.Of# -> 3:14
+(6:28..6:31) _empty_/Test.Sup# -> 4:8
+(6:32..6:33) _empty_/Test.Copy#[O] -> 6:13
+(6:36..6:39) _empty_/Test.Sub# -> 5:8
+(6:40..6:41) _empty_/Test.Copy#[O] -> 6:13
+

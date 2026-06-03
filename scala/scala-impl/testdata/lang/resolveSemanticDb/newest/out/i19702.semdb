@@ -1,0 +1,10 @@
+Document tests/pos/i19702/Macro_1.scala
+(8:15..8:18) scala/Int#
+
+Document tests/pos/i19702/Test_2.scala
+(1:2..1:6) scala/main#
+(2:3..2:7) test/ -> 1:9
+(2:8..2:9) test/$. -> 7:8
+(2:10..2:14) test/$.test(). -> 8:7
+(4:3..4:10) scala/Predef.println(+1).
+

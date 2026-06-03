@@ -1,0 +1,66 @@
+/**
+ * Pavel Fatin
+ */
+
+object AccessorLikeMethodIsEmptyParen {
+  def getFoo() = "foo"
+}
+
+object AccessorLikeMethodIsUnit {
+  def getFoo() {}
+}
+
+trait ApparentRefinementOfResultType {
+  def foo(): Unit {}
+}
+
+object EmptyParenMethodAccessedAsParameterless {
+  def foo() {}
+  foo
+}
+
+object EmptyParenMethodOverriddenAsParameterless {
+  trait T { def foo() = "foo" }
+  class C extends T { def foo = "bar" }
+}
+
+object JavaAccessorMethodCalledAsEmptyParen {
+  new J().getFoo()
+}
+
+object JavaAccessorMethodOverriddenAsEmptyParen {
+  class C extends J { def getFoo() = "bar" }
+}
+
+object JavaMutatorMethodOverriddenAsParameterless {
+  class C extends J { def addFoo {} }
+}
+
+object JavaMutatorMethodAccessedAsParameterless {
+  new J().addFoo
+}
+
+object MutatorLikeMethodIsParameterless {
+  def addFoo = true
+}
+
+object ParameterlessMemberOverriddenAsEmptyParen {
+  trait T { def foo = "foo" }
+  class C extends T { def foo() = "bar" }
+}
+
+trait UnitMethodDeclaredWithTypeAnnotation {
+  def foo(): Unit
+}
+
+object UnitMethodDefinedLikeFunction {
+  def foo(): Unit = {}
+}
+
+object UnitMethodDefinedWithEqualsSign {
+  def foo() = {}
+}
+
+object UnitMethodIsParameterless {
+  def foo {}
+}

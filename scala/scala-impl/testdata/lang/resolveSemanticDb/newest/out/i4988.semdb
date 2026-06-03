@@ -1,0 +1,15 @@
+Document tests/pos/i4988.scala
+(7:21..7:26) _empty_/Trees. -> 1:8
+(7:27..7:37) _empty_/Trees.PackageDef# -> 2:9
+(8:17..8:22) _empty_/Trees. -> 1:8
+(8:23..8:29) _empty_/Trees.ValDef# -> 3:9
+(10:18..10:19) _empty_/ReplCompiler#errors().[A] -> 10:14
+(10:22..10:25) scala/Predef.`???`().
+(11:16..11:22) _empty_/ReplCompiler#ValDef# -> 8:8
+(11:25..11:28) scala/Predef.`???`().
+(13:23..13:30) scala/Boolean#
+(13:33..13:39) _empty_/ReplCompiler#ValDef# -> 8:8
+(14:9..14:13) _empty_/ReplCompiler#typeCheck().(cond) -> 13:17
+(14:15..14:22) _empty_/ReplCompiler#success(). -> 11:7
+(14:28..14:34) _empty_/ReplCompiler#errors(). -> 10:7
+

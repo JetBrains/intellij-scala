@@ -1,0 +1,11 @@
+class a {
+  {
+    case x  @  (a | b) => _
+  }
+}
+-----
+class a {
+  {
+    case x@(a | b) => _
+  }
+}

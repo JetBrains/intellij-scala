@@ -1,0 +1,29 @@
+Document tests/pos/i17395-spec.scala
+(4:39..4:41) _empty_/TC# -> 1:7
+(4:42..4:53) _empty_/`i17395-spec$package`.ExtractPart# -> 11:6
+(4:54..4:55) _empty_/TC.optionTCForPart().[T] -> 4:23
+(4:60..4:62) _empty_/TC# -> 1:7
+(4:63..4:69) scala/Option#
+(4:70..4:81) _empty_/`i17395-spec$package`.ExtractPart# -> 11:6
+(4:82..4:83) _empty_/TC.optionTCForPart().[T] -> 4:23
+(4:93..4:95) _empty_/TC# -> 1:7
+(4:96..4:102) scala/Option#
+(4:103..4:114) _empty_/`i17395-spec$package`.ExtractPart# -> 11:6
+(4:115..4:116) _empty_/TC.optionTCForPart().[T] -> 4:23
+(11:23..11:24) _empty_/`i17395-spec$package`.ExtractPart#[T] -> 11:18
+(12:8..12:17) _empty_/`i17395-spec$package`.PartField# -> 14:6
+(12:24..12:25) local4 -> 12:18
+(14:21..14:34) _empty_/ThingWithPart# -> 7:7
+(14:49..14:50) _empty_/`i17395-spec$package`.PartField#[T] -> 14:16
+(16:31..16:44) _empty_/ThingWithPart# -> 7:7
+(17:15..17:20) _empty_/Value# -> 20:7
+(22:25..22:27) _empty_/TC# -> 1:7
+(22:28..22:33) _empty_/Value# -> 20:7
+(25:2..25:6) scala/main#
+(25:19..25:23) scala/Unit#
+(27:12..27:14) _empty_/TC. -> 3:8
+(27:15..27:30) _empty_/TC.optionTCForPart(). -> 4:7
+(27:31..27:46) _empty_/ValuePartHolder# -> 16:7
+(28:3..28:10) scala/Predef.println(+1).
+(28:11..28:13) local6 -> 27:7
+

@@ -1,0 +1,95 @@
+object A {
+  def
+  var
+  val
+  type
+  class
+  object
+  trait
+  import
+  for
+
+  val x = 1
+}
+-----
+ScalaFile
+  ScObject: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PsiElement(def)('def')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(var)('var')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(val)('val')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        PsiElement(type)('type')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(class)('class')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(trait)('trait')
+        PsiErrorElement:Identifier expected
+          <empty list>
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiErrorElement:Identifier expected
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiErrorElement:Enumerators expected in the 'for' statement
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,142 @@
+def Test: Unit =
+  val sb = new StringBuilder
+  var key = ""
+  var map = Map.empty[String, String]
+  map += key -> sb.toString()
+  map += key -> sb.toString
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: sb
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: sb
+            PsiElement(identifier)('sb')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: StringBuilder
+                  CodeReferenceElement: StringBuilder
+                    PsiElement(identifier)('StringBuilder')
+      PsiWhiteSpace('\n  ')
+      ScVariableDefinition: key
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: key
+            PsiElement(identifier)('key')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        StringLiteral
+          PsiElement(string content)('""')
+      PsiWhiteSpace('\n  ')
+      ScVariableDefinition: map
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(var)('var')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: map
+            PsiElement(identifier)('map')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: Map.empty
+            ReferenceExpression: Map
+              PsiElement(identifier)('Map')
+            PsiElement(.)('.')
+            PsiElement(identifier)('empty')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: map
+          PsiElement(identifier)('map')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: +=
+          PsiElement(identifier)('+=')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: key
+            PsiElement(identifier)('key')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ->
+            PsiElement(identifier)('->')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: sb.toString
+              ReferenceExpression: sb
+                PsiElement(identifier)('sb')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toString')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        ReferenceExpression: map
+          PsiElement(identifier)('map')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: +=
+          PsiElement(identifier)('+=')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: key
+            PsiElement(identifier)('key')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ->
+            PsiElement(identifier)('->')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: sb.toString
+            ReferenceExpression: sb
+              PsiElement(identifier)('sb')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toString')

@@ -1,0 +1,175 @@
+object o {
+  opaque type T = String
+
+  summon[o.T =:= T]      // OK
+  summon[o.T =:= String] // OK
+
+  def test1(t: T): Int =
+    t.length // OK
+
+  def test2(t: o.T): Int =
+    t.length // Error: value length is not a member of Playground.o.T
+}
+-----
+ScalaFile
+  ScObject: o
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('o')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: o.T =:= T
+                SimpleType: o.T
+                  CodeReferenceElement: o.T
+                    CodeReferenceElement: o
+                      PsiElement(identifier)('o')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+            PsiElement(])(']')
+        PsiWhiteSpace('      ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: o.T =:= String
+                SimpleType: o.T
+                  CodeReferenceElement: o.T
+                    CodeReferenceElement: o
+                      PsiElement(identifier)('o')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: t.length
+            ReferenceExpression: t
+              PsiElement(identifier)('t')
+            PsiElement(.)('.')
+            PsiElement(identifier)('length')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: t.length
+            ReferenceExpression: t
+              PsiElement(identifier)('t')
+            PsiElement(.)('.')
+            PsiElement(identifier)('length')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// Error: value length is not a member of Playground.o.T')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

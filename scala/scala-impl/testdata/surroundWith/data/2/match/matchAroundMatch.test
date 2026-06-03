@@ -1,0 +1,13 @@
+class a {
+  <start>b && c match {
+    case _ => d
+  }<match>
+}
+------
+class a {
+  (b && c match {
+    case _ => d
+  }) match {
+    case  =>
+  }
+}

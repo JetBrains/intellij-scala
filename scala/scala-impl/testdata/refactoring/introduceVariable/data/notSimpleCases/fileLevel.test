@@ -1,0 +1,5 @@
+val x = 33
+<selection>x</selection>
+------
+val x = 33
+val value: Int = x

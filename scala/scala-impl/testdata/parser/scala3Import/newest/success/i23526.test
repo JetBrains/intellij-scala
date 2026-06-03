@@ -1,0 +1,352 @@
+trait B[-A, +To] {
+  def addOne(e: A): this.type = this
+  def res(): To
+}
+
+class Col[A]
+
+object Factory {
+  def newB[A](using reflect.ClassTag[A]) = new B[A, Col[A]] { def res(): Col[A] = new Col[A] }
+}
+
+def test =
+  val a = Factory.newB.addOne(1).res()
+  val b = collection.immutable.ArraySeq.newBuilder.addOne(1).result()
+-----
+ScalaFile
+  ScTrait: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: To
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('To')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: addOne
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('addOne')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: this.type
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: res
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('res')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: To
+            CodeReferenceElement: To
+              PsiElement(identifier)('To')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Col
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Col')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Factory
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Factory')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: newB
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('newB')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: reflect.ClassTag[A]
+                    SimpleType: reflect.ClassTag
+                      CodeReferenceElement: reflect.ClassTag
+                        CodeReferenceElement: reflect
+                          PsiElement(identifier)('reflect')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ClassTag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: B[A, Col[A]]
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: Col[A]
+                          SimpleType: Col
+                            CodeReferenceElement: Col
+                              PsiElement(identifier)('Col')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScFunctionDefinition: res
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('res')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Col[A]
+                    SimpleType: Col
+                      CodeReferenceElement: Col
+                        PsiElement(identifier)('Col')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Col[A]
+                            SimpleType: Col
+                              CodeReferenceElement: Col
+                                PsiElement(identifier)('Col')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: a
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: a
+            PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Factory.newB.addOne(1).res
+            MethodCall
+              ReferenceExpression: Factory.newB.addOne
+                ReferenceExpression: Factory.newB
+                  ReferenceExpression: Factory
+                    PsiElement(identifier)('Factory')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('newB')
+                PsiElement(.)('.')
+                PsiElement(identifier)('addOne')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('res')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: b
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: b
+            PsiElement(identifier)('b')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: collection.immutable.ArraySeq.newBuilder.addOne(1).result
+            MethodCall
+              ReferenceExpression: collection.immutable.ArraySeq.newBuilder.addOne
+                ReferenceExpression: collection.immutable.ArraySeq.newBuilder
+                  ReferenceExpression: collection.immutable.ArraySeq
+                    ReferenceExpression: collection.immutable
+                      ReferenceExpression: collection
+                        PsiElement(identifier)('collection')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('immutable')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('ArraySeq')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('newBuilder')
+                PsiElement(.)('.')
+                PsiElement(identifier)('addOne')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('result')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')

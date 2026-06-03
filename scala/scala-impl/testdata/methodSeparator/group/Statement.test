@@ -1,0 +1,7 @@
+def f1 = {
+}
+
+println
+
+def f2 = {} // -
+

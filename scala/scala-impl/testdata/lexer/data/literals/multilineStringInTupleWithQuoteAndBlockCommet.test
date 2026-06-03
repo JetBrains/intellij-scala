@@ -1,0 +1,17 @@
+(""""""", "/*")
+(""""""", """/* """)
+-----
+( {(}
+multiline string {"""""""}
+, {,}
+white space in line { }
+string content {"/*"}
+) {)}
+white space in line {
+}
+( {(}
+multiline string {"""""""}
+, {,}
+white space in line { }
+multiline string {"""/* """}
+) {)}

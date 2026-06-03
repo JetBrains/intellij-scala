@@ -1,0 +1,10 @@
+Document tests/pos/t1896/D0.scala
+(6:11..6:12) p/X# -> 3:7
+(6:18..6:22) scala/Unit#
+(9:17..9:18) p/A# -> 5:7
+(10:10..10:14) scala/Unit#
+(10:25..10:26) p/A#m(). -> 6:7
+
+Document tests/pos/t1896/D1.scala
+(2:17..2:18) p/B# -> 9:7
+

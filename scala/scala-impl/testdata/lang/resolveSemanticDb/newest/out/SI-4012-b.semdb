@@ -1,0 +1,9 @@
+Document tests/pos/SI-4012-b.scala
+(1:14..1:25) scala/specialized#
+(1:26..1:29) scala/Int.
+(5:20..5:25) _empty_/Super# -> 1:7
+(5:26..5:29) scala/Int#
+(13:9..13:15) _empty_/Super#superb(). -> 2:7
+(14:24..14:27) scala/Int#
+(14:36..14:42) _empty_/Super#superb(). -> 2:7
+

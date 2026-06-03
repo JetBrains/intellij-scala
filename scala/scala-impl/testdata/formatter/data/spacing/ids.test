@@ -1,0 +1,7 @@
+class a {
+  var a  , b ,c = 3
+}
+-----
+class a {
+  var a, b, c = 3
+}

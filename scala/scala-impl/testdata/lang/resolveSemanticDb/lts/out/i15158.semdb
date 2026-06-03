@@ -1,0 +1,72 @@
+Document tests/pos/i15158.scala
+(3:20..3:23) scala/Any#
+(3:29..3:32) scala/Int#
+(4:15..4:18) scala/Int#
+(4:27..4:30) scala/Predef.`???`().
+(4:32..4:33) _empty_/Buf#`<init>`(+1).(n) -> 4:12
+(7:22..7:25) scala/Any#
+(7:31..7:34) scala/Int#
+(7:37..7:40) _empty_/Buf# -> 3:7
+(7:41..7:42) _empty_/Buf.apply().[A] -> 7:13
+(7:50..7:53) _empty_/Buf# -> 3:7
+(7:54..7:55) _empty_/Buf.apply().[A] -> 7:13
+(7:57..7:61) _empty_/Buf.apply().(elts) -> 7:16
+(7:63..7:65) _empty_/Buf.apply().(sz) -> 7:27
+(8:19..8:22) scala/Int#
+(8:25..8:28) _empty_/Buf# -> 3:7
+(8:29..8:30) _empty_/Buf.apply(+1).[A] -> 8:13
+(8:34..8:39) _empty_/Buf.apply(). -> 7:7
+(8:40..8:41) _empty_/Buf.apply(+1).[A] -> 8:13
+(8:43..8:46) scala/Predef.`???`().
+(8:48..8:49) _empty_/Buf.apply(+1).(n) -> 8:16
+(10:25..10:28) scala/Any#
+(10:31..10:35) scala/Unit#
+(12:9..12:12) _empty_/i15158$package.foo(). -> 10:12
+(13:17..13:18) local7 -> 13:12
+(14:10..14:16) scala/Predef.String#
+(14:20..14:23) _empty_/Opt# -> 1:7
+(14:24..14:27) local8 -> 13:8
+(14:28..14:34) scala/Predef.String#
+(16:17..16:20) _empty_/Buf# -> 3:7
+(16:21..16:24) local8 -> 13:8
+(16:25..16:31) scala/Predef.String#
+(17:14..17:17) _empty_/Buf. -> 6:8
+(17:18..17:21) local8 -> 13:8
+(17:22..17:28) scala/Predef.String#
+(18:14..18:17) _empty_/Buf. -> 6:8
+(18:18..18:23) _empty_/Buf.apply(+1). -> 8:7
+(18:24..18:27) local8 -> 13:8
+(18:28..18:34) scala/Predef.String#
+(21:8..21:13) scala/
+(21:14..21:24) scala/collection/
+(21:25..21:32) scala/collection/mutable/
+(25:29..25:32) scala/Any#
+(25:35..25:39) scala/Unit#
+(26:13..26:20) _empty_/Spec#in().(testFun) -> 25:17
+(29:3..29:5) _empty_/Spec#in(). -> 25:14
+(30:26..30:32) scala/Predef.String#
+(30:33..30:34) scala/`|`#
+(30:35..30:38) scala/Int#
+(31:26..31:27) local2 -> 31:21
+(32:12..32:25) local0 -> 30:10
+(32:29..32:42) local0 -> 30:10
+(32:43..32:44) scala/`|`#
+(32:45..32:47) local1 -> 31:14
+(32:48..32:51) local3 -> 31:10
+(32:52..32:54) local1 -> 31:14
+(32:56..32:69) local0 -> 30:10
+(33:12..33:13) scala/Any#
+(33:17..33:18) local2 -> 31:21
+(33:19..33:20) scala/`|`#
+(33:21..33:23) local1 -> 31:14
+(33:24..33:27) local3 -> 31:10
+(33:28..33:30) local1 -> 31:14
+(33:32..33:33) local2 -> 31:21
+(36:17..36:20) local3 -> 31:10
+(37:15..37:18) scala/package.Seq#
+(37:19..37:20) local4 -> 37:8
+(38:7..38:20) local0 -> 30:10
+(41:19..41:26) scala/collection/mutable/
+(41:27..41:38) scala/collection/mutable/ArrayBuffer#
+(41:39..41:43) local5 -> 36:10
+

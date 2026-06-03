@@ -1,0 +1,93 @@
+package org.jetbrains.plugins.scala.annotator.createFromUsage
+
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl}
+import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.annotator.TemplateUtils
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+
+import scala.util.chaining.scalaUtilChainingOps
+
+abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
+        extends IntentionAction {
+  private implicit val ctx: ProjectContext = td.projectContext
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!td.isValid) return false
+    td.getContainingFile match {
+      case _: ScalaCodeFragment => false
+      case f: ScalaFile if f.isWritable => true
+      case _ => false
+    }
+  }
+
+  override def startInWriteAction: Boolean = false
+
+  protected def createEntity(block: ScExtendsBlock, text: String): PsiElement = {
+    val templateBody = block.getOrCreateTemplateBody
+    val anchor = templateBody.getFirstChild
+    val holder = anchor.getParent
+    val hasMembers = holder.children.containsInstanceOf[ScMember]
+
+    val entity = holder.addAfter(createElementFromText(text, block), anchor)
+    if (hasMembers) holder.addAfter(createNewLine(), entity)
+
+    entity
+  }
+
+  protected def methodType: Option[String]
+
+  protected def methodText: String
+
+  protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit
+
+  private def createAndAdjustEntity(definition: ScTypeDefinition): ScFunction = {
+    val entity = createEntity(definition.extendsBlock, methodText).asInstanceOf[ScFunction]
+    ScalaPsiUtil.adjustTypes(entity)
+    entity.tap {
+      case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
+      case _ =>
+    }
+  }
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
+
+    IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
+
+    inWriteAction {
+      val entity = createAndAdjustEntity(td)
+
+      val builder = new TemplateBuilderImpl(entity)
+
+      addElementsToTemplate(entity, builder)
+
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
+
+      val template = builder.buildTemplate()
+      TemplateUtils.positionCursorAndStartTemplate(entity, template, editor)
+    }
+  }
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    createAndAdjustEntity(PsiTreeUtil.findSameElementInCopy(td, file))
+    IntentionPreviewInfo.DIFF
+  }
+}

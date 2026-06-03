@@ -1,0 +1,28 @@
+Document tests/pos/functorial-functors.scala
+(5:22..5:23) _empty_/Common#Functor#F# -> 4:10
+(5:24..5:25) _empty_/Common#Functor#map().[A] -> 5:16
+(5:42..5:43) _empty_/Common#Functor#map().[A] -> 5:16
+(5:47..5:48) _empty_/Common#Functor#map().[B] -> 5:36
+(5:51..5:52) _empty_/Common#Functor#F# -> 4:10
+(5:53..5:54) _empty_/Common#Functor#map().[B] -> 5:36
+(7:23..7:30) _empty_/Common#Functor# -> 3:9
+(8:22..8:23) _empty_/Common#Functor#F# -> 4:10
+(8:24..8:25) _empty_/Common#Monad#flatMap().[A] -> 8:16
+(8:24..8:25) _empty_/Common#Monad#map().[A] -> 8:16
+(9:25..9:26) _empty_/Common#Monad#flatMap().[A] -> 8:16
+(9:30..9:31) _empty_/Common#Functor#F# -> 4:10
+(9:32..9:33) _empty_/Common#Monad#flatMap().[B] -> 9:19
+(9:37..9:38) _empty_/Common#Functor#F# -> 4:10
+(9:39..9:40) _empty_/Common#Monad#flatMap().[B] -> 9:19
+(10:21..10:22) _empty_/Common#Monad#map().[A] -> 8:16
+(10:26..10:27) _empty_/Common#Monad#map().[B] -> 10:15
+(10:31..10:32) _empty_/Common#Monad#map().(x) -> 8:19
+(10:33..10:40) _empty_/Common#Monad#flatMap(). -> 9:11
+(10:41..10:42) _empty_/Common#Monad#map().(f) -> 10:18
+(10:43..10:52) scala/Function1#andThen().
+(10:53..10:57) _empty_/Common#Monad#pure(). -> 12:9
+(12:20..12:21) _empty_/Common#Monad#pure().[A] -> 12:14
+(12:24..12:25) _empty_/Common#Functor#F# -> 4:10
+(12:26..12:27) _empty_/Common#Monad#pure().[A] -> 12:14
+(13:5..13:11) _empty_/Common# -> 1:7
+

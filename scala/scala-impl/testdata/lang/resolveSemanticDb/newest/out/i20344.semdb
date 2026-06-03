@@ -1,0 +1,58 @@
+Document tests/pos/i20344.scala
+(1:27..1:36) _empty_/Invariant# -> 3:7
+(1:37..1:38) _empty_/Monad#[F] -> 1:13
+(5:38..5:43) _empty_/Monad# -> 1:7
+(5:44..5:48) scala/package.List#
+(5:52..5:55) scala/Predef.`???`().
+(6:40..6:45) _empty_/Monad# -> 1:7
+(6:46..6:52) scala/package.Vector#
+(6:56..6:59) scala/Predef.`???`().
+(9:23..9:49) _empty_/ShrinkLowPriorityImplicits# -> 12:7
+(11:52..11:53) _empty_/Shrink.shrinkContainer().[C] -> 11:32
+(11:54..11:55) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:60..11:71) scala/package.Traversable#
+(11:72..11:73) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:79..11:85) _empty_/Shrink# -> 8:7
+(11:86..11:87) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:93..11:102) _empty_/Shrink.Buildable# -> 10:9
+(11:103..11:104) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:105..11:106) _empty_/Shrink.shrinkContainer().[C] -> 11:32
+(11:107..11:108) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:113..11:119) _empty_/Shrink# -> 8:7
+(11:120..11:121) _empty_/Shrink.shrinkContainer().[C] -> 11:32
+(11:122..11:123) _empty_/Shrink.shrinkContainer().[T] -> 11:37
+(11:128..11:131) scala/Predef.`???`().
+(13:30..13:36) _empty_/Shrink# -> 8:7
+(13:37..13:38) _empty_/ShrinkLowPriorityImplicits#shrinkAny().[T] -> 13:26
+(13:42..13:45) scala/Predef.`???`().
+(15:42..15:43) _empty_/Distribution#[P] -> 15:27
+(15:47..15:48) _empty_/Distribution#[F] -> 15:20
+(15:49..15:50) _empty_/Distribution#[X] -> 15:30
+(16:36..16:48) _empty_/Distribution# -> 15:7
+(16:49..16:50) _empty_/i20344$package.GenBeta#[F] -> 16:26
+(16:52..16:56) _empty_/i20344$package.Beta. -> 19:8
+(16:57..16:63) _empty_/i20344$package.Beta.Params# -> 20:9
+(16:64..16:65) _empty_/i20344$package.GenBeta#[A] -> 16:14
+(16:67..16:68) _empty_/i20344$package.GenBeta#[B] -> 16:17
+(16:71..16:72) _empty_/i20344$package.GenBeta#[X] -> 16:20
+(17:27..17:34) _empty_/i20344$package.GenBeta# -> 16:6
+(17:35..17:36) _empty_/i20344$package.Beta#[R] -> 17:11
+(17:38..17:39) _empty_/i20344$package.Beta#[R] -> 17:11
+(17:41..17:42) _empty_/i20344$package.Beta#[R] -> 17:11
+(17:44..17:45) _empty_/i20344$package.Beta#[F] -> 17:17
+(22:48..22:53) _empty_/BetaInstances#schrodingerRandomBetaForDouble().[F] -> 22:42
+(22:48..22:53) _empty_/Monad# -> 1:7
+(22:58..22:62) _empty_/i20344$package.Beta# -> 17:6
+(22:63..22:69) scala/Double#
+(22:71..22:72) _empty_/BetaInstances#schrodingerRandomBetaForDouble().[F] -> 22:42
+(22:76..22:79) scala/Predef.`???`().
+(24:20..24:33) _empty_/BetaInstances# -> 21:7
+(26:2..26:6) scala/main#
+(27:10..27:13) _empty_/all. -> 24:8
+(28:3..28:9) scala/Predef.summon().
+(28:10..28:16) _empty_/Shrink# -> 8:7
+(28:17..28:21) _empty_/i20344$package.Beta. -> 19:8
+(28:22..28:28) _empty_/i20344$package.Beta.Params# -> 20:9
+(28:29..28:35) scala/Double#
+(28:37..28:43) scala/Double#
+

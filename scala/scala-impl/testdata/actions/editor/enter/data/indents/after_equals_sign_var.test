@@ -1,0 +1,4 @@
+var a =<caret>
+-----
+var a =
+  <caret>

@@ -1,0 +1,340 @@
+Document tests/pos/named-tuple-combinators.scala
+(4:13..4:23) scala/NamedTuple.
+(4:24..4:30) scala/NamedTuple.Concat#
+(4:36..4:39) scala/Int#
+(4:48..4:54) scala/Predef.String#
+(5:14..5:16) _empty_/Test.NT# -> 4:8
+(6:5..6:6) _empty_/Test.foo().(x) -> 5:11
+(6:5..6:6) scala/NamedTuple.apply(+1).
+(7:17..7:20) scala/Int#
+(7:27..7:33) scala/Predef.String#
+(7:37..7:38) _empty_/Test.foo().(x) -> 5:11
+(8:5..8:6) local0 -> 7:9
+(8:5..8:6) scala/NamedTuple.apply(+1).
+(11:15..11:17) _empty_/Test.NT# -> 4:8
+(12:16..12:17) _empty_/Test.foo1().(x) -> 11:12
+(12:16..12:17) scala/NamedTuple.apply(+1).
+(13:5..13:11) scala/Predef.summon().
+(13:12..13:16) local1 -> 12:9
+(13:22..13:25) scala/`<:<`#
+(13:26..13:29) scala/Int#
+(14:17..14:20) scala/Int#
+(14:27..14:33) scala/Predef.String#
+(14:37..14:38) _empty_/Test.foo1().(x) -> 11:12
+(15:16..15:17) local2 -> 14:9
+(15:16..15:17) scala/NamedTuple.apply(+1).
+(16:5..16:11) scala/Predef.summon().
+(16:12..16:16) local3 -> 15:9
+(16:22..16:25) scala/`<:<`#
+(16:26..16:29) scala/Int#
+(19:15..19:17) _empty_/Test.NT# -> 4:8
+(20:16..20:17) _empty_/Test.foo2().(x) -> 19:12
+(20:18..20:25) scala/NamedTuple.toTuple().
+(21:5..21:11) scala/Predef.summon().
+(21:12..21:16) local4 -> 20:9
+(21:22..21:25) scala/`<:<`#
+(21:27..21:30) scala/Int#
+(21:32..21:38) scala/Predef.String#
+(22:17..22:20) scala/Int#
+(22:27..22:33) scala/Predef.String#
+(22:37..22:38) _empty_/Test.foo2().(x) -> 19:12
+(23:16..23:17) local5 -> 22:9
+(23:18..23:25) scala/NamedTuple.toTuple().
+(24:5..24:11) scala/Predef.summon().
+(24:12..24:16) local6 -> 23:9
+(24:22..24:25) scala/`<:<`#
+(24:27..24:30) scala/Int#
+(24:32..24:38) scala/Predef.String#
+(27:15..27:17) _empty_/Test.NT# -> 4:8
+(28:16..28:17) _empty_/Test.foo3().(x) -> 27:12
+(28:18..28:23) scala/NamedTuple.apply(+1).
+(29:5..29:11) scala/Predef.summon().
+(29:12..29:16) local7 -> 28:9
+(29:22..29:25) scala/`<:<`#
+(29:26..29:32) scala/Predef.String#
+(30:17..30:20) scala/Int#
+(30:27..30:33) scala/Predef.String#
+(30:37..30:38) _empty_/Test.foo3().(x) -> 27:12
+(31:16..31:17) local8 -> 30:9
+(31:18..31:23) scala/NamedTuple.apply(+1).
+(32:5..32:11) scala/Predef.summon().
+(32:12..32:16) local9 -> 31:9
+(32:22..32:25) scala/`<:<`#
+(32:26..32:32) scala/Predef.String#
+(35:15..35:17) _empty_/Test.NT# -> 4:8
+(37:24..37:25) _empty_/Test.foo4().(x) -> 35:12
+(37:26..37:30) scala/NamedTuple.size().
+(38:7..38:13) scala/Predef.summon().
+(38:14..38:18) local10 -> 37:17
+(38:24..38:27) scala/`<:<`#
+(39:19..39:22) scala/Int#
+(39:29..39:35) scala/Predef.String#
+(39:39..39:40) _empty_/Test.foo4().(x) -> 35:12
+(40:24..40:25) local11 -> 39:11
+(40:26..40:30) scala/NamedTuple.size().
+(41:7..41:13) scala/Predef.summon().
+(41:14..41:18) local12 -> 40:17
+(41:24..41:27) scala/`<:<`#
+(44:15..44:17) _empty_/Test.NT# -> 4:8
+(45:16..45:17) _empty_/Test.foo5().(x) -> 44:12
+(45:18..45:22) scala/NamedTuple.head().
+(46:5..46:11) scala/Predef.summon().
+(46:12..46:16) local15 -> 45:9
+(46:22..46:25) scala/`<:<`#
+(46:26..46:29) scala/Int#
+(47:17..47:20) scala/Int#
+(47:27..47:33) scala/Predef.String#
+(47:37..47:38) _empty_/Test.foo5().(x) -> 44:12
+(48:16..48:17) local16 -> 47:9
+(48:18..48:22) scala/NamedTuple.head().
+(49:5..49:11) scala/Predef.summon().
+(49:12..49:16) local17 -> 48:9
+(49:22..49:25) scala/`<:<`#
+(49:26..49:29) scala/Int#
+(52:15..52:17) _empty_/Test.NT# -> 4:8
+(53:16..53:17) _empty_/Test.foo6().(x) -> 52:12
+(53:18..53:22) scala/NamedTuple.last().
+(54:5..54:11) scala/Predef.summon().
+(54:12..54:16) local18 -> 53:9
+(54:22..54:25) scala/`<:<`#
+(54:26..54:32) scala/Predef.String#
+(55:17..55:20) scala/Int#
+(55:27..55:33) scala/Predef.String#
+(55:37..55:38) _empty_/Test.foo6().(x) -> 52:12
+(56:16..56:17) local19 -> 55:9
+(56:18..56:22) scala/NamedTuple.last().
+(57:5..57:11) scala/Predef.summon().
+(57:12..57:16) local20 -> 56:9
+(57:22..57:25) scala/`<:<`#
+(57:26..57:32) scala/Predef.String#
+(60:15..60:17) _empty_/Test.NT# -> 4:8
+(61:16..61:17) _empty_/Test.foo7().(x) -> 60:12
+(61:18..61:22) scala/NamedTuple.init().
+(62:5..62:11) scala/Predef.summon().
+(62:12..62:16) local21 -> 61:9
+(62:22..62:25) scala/`<:<`#
+(62:31..62:34) scala/Int#
+(63:17..63:20) scala/Int#
+(63:27..63:33) scala/Predef.String#
+(63:37..63:38) _empty_/Test.foo7().(x) -> 60:12
+(64:16..64:17) local22 -> 63:9
+(64:18..64:22) scala/NamedTuple.init().
+(65:5..65:11) scala/Predef.summon().
+(65:12..65:16) local23 -> 64:9
+(65:22..65:25) scala/`<:<`#
+(65:31..65:34) scala/Int#
+(68:15..68:17) _empty_/Test.NT# -> 4:8
+(69:16..69:17) _empty_/Test.foo8().(x) -> 68:12
+(69:18..69:22) scala/NamedTuple.tail().
+(70:5..70:11) scala/Predef.summon().
+(70:12..70:16) local24 -> 69:9
+(70:22..70:25) scala/`<:<`#
+(70:32..70:38) scala/Predef.String#
+(71:17..71:20) scala/Int#
+(71:27..71:33) scala/Predef.String#
+(71:37..71:38) _empty_/Test.foo8().(x) -> 68:12
+(72:16..72:17) local25 -> 71:9
+(72:18..72:22) scala/NamedTuple.tail().
+(73:5..73:11) scala/Predef.summon().
+(73:12..73:16) local26 -> 72:9
+(73:22..73:25) scala/`<:<`#
+(73:32..73:38) scala/Predef.String#
+(76:15..76:17) _empty_/Test.NT# -> 4:8
+(77:16..77:17) _empty_/Test.foo9().(x) -> 76:12
+(77:18..77:22) scala/NamedTuple.take().
+(78:5..78:11) scala/Predef.summon().
+(78:12..78:16) local27 -> 77:9
+(78:22..78:25) scala/`<:<`#
+(78:31..78:34) scala/Int#
+(79:17..79:20) scala/Int#
+(79:27..79:33) scala/Predef.String#
+(79:37..79:38) _empty_/Test.foo9().(x) -> 76:12
+(80:16..80:17) local28 -> 79:9
+(80:18..80:22) scala/NamedTuple.take().
+(81:5..81:11) scala/Predef.summon().
+(81:12..81:16) local29 -> 80:9
+(81:22..81:25) scala/`<:<`#
+(81:31..81:34) scala/Int#
+(84:16..84:18) _empty_/Test.NT# -> 4:8
+(85:16..85:17) _empty_/Test.foo10().(x) -> 84:13
+(85:18..85:22) scala/NamedTuple.drop().
+(86:5..86:11) scala/Predef.summon().
+(86:12..86:16) local30 -> 85:9
+(86:22..86:25) scala/`<:<`#
+(86:32..86:38) scala/Predef.String#
+(87:17..87:20) scala/Int#
+(87:27..87:33) scala/Predef.String#
+(87:37..87:38) _empty_/Test.foo10().(x) -> 84:13
+(88:16..88:17) local31 -> 87:9
+(88:18..88:22) scala/NamedTuple.drop().
+(89:5..89:11) scala/Predef.summon().
+(89:12..89:16) local32 -> 88:9
+(89:22..89:25) scala/`<:<`#
+(89:32..89:38) scala/Predef.String#
+(92:16..92:18) _empty_/Test.NT# -> 4:8
+(93:16..93:17) _empty_/Test.foo11().(x) -> 92:13
+(93:18..93:25) scala/NamedTuple.splitAt().
+(94:5..94:11) scala/Predef.summon().
+(94:12..94:16) local33 -> 93:9
+(94:22..94:25) scala/`<:<`#
+(94:32..94:35) scala/Int#
+(94:44..94:50) scala/Predef.String#
+(95:17..95:20) scala/Int#
+(95:27..95:33) scala/Predef.String#
+(95:37..95:38) _empty_/Test.foo11().(x) -> 92:13
+(96:16..96:17) local34 -> 95:9
+(96:18..96:25) scala/NamedTuple.splitAt().
+(97:5..97:11) scala/Predef.summon().
+(97:12..97:16) local35 -> 96:9
+(97:22..97:25) scala/`<:<`#
+(97:32..97:35) scala/Int#
+(97:44..97:50) scala/Predef.String#
+(100:16..100:18) _empty_/Test.NT# -> 4:8
+(101:16..101:17) _empty_/Test.foo12().(x) -> 100:13
+(101:18..101:20) scala/NamedTuple.`++`().
+(102:5..102:11) scala/Predef.summon().
+(102:12..102:16) local36 -> 101:9
+(102:22..102:25) scala/`<:<`#
+(102:31..102:34) scala/Int#
+(102:41..102:47) scala/Predef.String#
+(102:54..102:57) scala/Int#
+(103:17..103:20) scala/Int#
+(103:27..103:33) scala/Predef.String#
+(103:37..103:38) _empty_/Test.foo12().(x) -> 100:13
+(104:16..104:17) local37 -> 103:9
+(104:18..104:20) scala/NamedTuple.`++`().
+(105:5..105:11) scala/Predef.summon().
+(105:12..105:16) local38 -> 104:9
+(105:22..105:25) scala/`<:<`#
+(105:31..105:34) scala/Int#
+(105:41..105:47) scala/Predef.String#
+(105:54..105:57) scala/Int#
+(108:16..108:18) _empty_/Test.NT# -> 4:8
+(109:16..109:17) _empty_/Test.foo13().(x) -> 108:13
+(109:18..109:21) scala/NamedTuple.map().
+(109:33..109:34) local39 -> 109:23
+(109:39..109:45) scala/Option.
+(109:46..109:47) local40 -> 109:30
+(110:5..110:11) scala/Predef.summon().
+(110:12..110:16) local41 -> 109:9
+(110:22..110:25) scala/`<:<`#
+(110:31..110:37) scala/Option#
+(110:38..110:41) scala/Int#
+(110:49..110:55) scala/Option#
+(110:56..110:62) scala/Predef.String#
+(111:17..111:20) scala/Int#
+(111:27..111:33) scala/Predef.String#
+(111:37..111:38) _empty_/Test.foo13().(x) -> 108:13
+(112:16..112:17) local42 -> 111:9
+(112:18..112:21) scala/NamedTuple.map().
+(112:33..112:34) local43 -> 112:23
+(112:39..112:45) scala/Option.
+(112:46..112:47) local44 -> 112:30
+(113:5..113:11) scala/Predef.summon().
+(113:12..113:16) local45 -> 112:9
+(113:22..113:25) scala/`<:<`#
+(113:31..113:37) scala/Option#
+(113:38..113:41) scala/Int#
+(113:49..113:55) scala/Option#
+(113:56..113:62) scala/Predef.String#
+(116:16..116:18) _empty_/Test.NT# -> 4:8
+(117:16..117:17) _empty_/Test.foo14().(x) -> 116:13
+(117:18..117:25) scala/NamedTuple.reverse().
+(118:5..118:11) scala/Predef.summon().
+(118:12..118:16) local46 -> 117:9
+(118:22..118:25) scala/`<:<`#
+(118:32..118:38) scala/Predef.String#
+(118:44..118:47) scala/Int#
+(119:17..119:20) scala/Int#
+(119:27..119:33) scala/Predef.String#
+(119:37..119:38) _empty_/Test.foo14().(x) -> 116:13
+(120:16..120:17) local47 -> 119:9
+(120:18..120:25) scala/NamedTuple.reverse().
+(121:5..121:11) scala/Predef.summon().
+(121:12..121:16) local48 -> 120:9
+(121:22..121:25) scala/`<:<`#
+(121:32..121:38) scala/Predef.String#
+(121:44..121:47) scala/Int#
+(124:16..124:18) _empty_/Test.NT# -> 4:8
+(125:16..125:17) _empty_/Test.foo15().(x) -> 124:13
+(125:18..125:21) scala/NamedTuple.zip().
+(126:5..126:11) scala/Predef.summon().
+(126:12..126:16) local49 -> 125:9
+(126:22..126:25) scala/`<:<`#
+(126:32..126:35) scala/Int#
+(126:37..126:43) scala/Predef.String#
+(126:52..126:58) scala/Predef.String#
+(126:60..126:67) scala/Boolean#
+(127:17..127:20) scala/Int#
+(127:27..127:33) scala/Predef.String#
+(127:37..127:38) _empty_/Test.foo15().(x) -> 124:13
+(128:16..128:17) local50 -> 127:9
+(128:18..128:21) scala/NamedTuple.zip().
+(129:5..129:11) scala/Predef.summon().
+(129:12..129:16) local51 -> 128:9
+(129:22..129:25) scala/`<:<`#
+(129:32..129:35) scala/Int#
+(129:37..129:43) scala/Predef.String#
+(129:52..129:58) scala/Predef.String#
+(129:60..129:67) scala/Boolean#
+(132:16..132:18) _empty_/Test.NT# -> 4:8
+(133:16..133:17) _empty_/Test.foo16().(x) -> 132:13
+(133:18..133:24) scala/NamedTuple.toList().
+(134:5..134:11) scala/Predef.summon().
+(134:12..134:16) local52 -> 133:9
+(134:22..134:25) scala/`<:<`#
+(134:26..134:30) scala/package.List#
+(134:31..134:36) scala/Tuple.
+(134:37..134:42) scala/Tuple.Union#
+(134:44..134:47) scala/Int#
+(134:49..134:55) scala/Predef.String#
+(135:17..135:20) scala/Int#
+(135:27..135:33) scala/Predef.String#
+(135:37..135:38) _empty_/Test.foo16().(x) -> 132:13
+(136:16..136:17) local53 -> 135:9
+(136:18..136:24) scala/NamedTuple.toList().
+(137:5..137:11) scala/Predef.summon().
+(137:12..137:16) local54 -> 136:9
+(137:22..137:25) scala/`<:<`#
+(137:26..137:30) scala/package.List#
+(137:31..137:36) scala/Tuple.
+(137:37..137:42) scala/Tuple.Union#
+(137:44..137:47) scala/Int#
+(137:49..137:55) scala/Predef.String#
+(140:16..140:18) _empty_/Test.NT# -> 4:8
+(141:16..141:17) _empty_/Test.foo17().(x) -> 140:13
+(141:18..141:25) scala/NamedTuple.toArray().
+(142:5..142:11) scala/Predef.summon().
+(142:12..142:16) local55 -> 141:9
+(142:22..142:25) scala/`<:<`#
+(142:26..142:31) scala/Array#
+(142:32..142:38) java/lang/Object#
+(143:17..143:20) scala/Int#
+(143:27..143:33) scala/Predef.String#
+(143:37..143:38) _empty_/Test.foo17().(x) -> 140:13
+(144:16..144:17) local56 -> 143:9
+(144:18..144:25) scala/NamedTuple.toArray().
+(145:5..145:11) scala/Predef.summon().
+(145:12..145:16) local57 -> 144:9
+(145:22..145:25) scala/`<:<`#
+(145:26..145:31) scala/Array#
+(145:32..145:38) java/lang/Object#
+(148:16..148:18) _empty_/Test.NT# -> 4:8
+(149:16..149:17) _empty_/Test.foo18().(x) -> 148:13
+(149:18..149:26) scala/NamedTuple.toIArray().
+(150:5..150:11) scala/Predef.summon().
+(150:12..150:16) local58 -> 149:9
+(150:22..150:25) scala/`<:<`#
+(150:26..150:32) scala/IArray$package.IArray#
+(150:33..150:39) java/lang/Object#
+(151:17..151:20) scala/Int#
+(151:27..151:33) scala/Predef.String#
+(151:37..151:38) _empty_/Test.foo18().(x) -> 148:13
+(152:16..152:17) local59 -> 151:9
+(152:18..152:26) scala/NamedTuple.toIArray().
+(153:5..153:11) scala/Predef.summon().
+(153:12..153:16) local60 -> 152:9
+(153:22..153:25) scala/`<:<`#
+(153:26..153:32) scala/IArray$package.IArray#
+(153:33..153:39) java/lang/Object#
+

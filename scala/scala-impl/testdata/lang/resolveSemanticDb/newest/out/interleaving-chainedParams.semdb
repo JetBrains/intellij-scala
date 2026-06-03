@@ -1,0 +1,32 @@
+Document tests/pos/interleaving-chainedParams.scala
+(5:20..5:25) _empty_/chainedParams.Chain# -> 4:9
+(8:15..8:20) _empty_/chainedParams.Chain# -> 4:9
+(8:26..8:28) _empty_/chainedParams.f().[C1] -> 8:9
+(8:36..8:38) _empty_/chainedParams.f().(c1) -> 8:22
+(8:39..8:43) _empty_/chainedParams.Chain#Tail# -> 5:12
+(8:49..8:51) _empty_/chainedParams.f().[C2] -> 8:30
+(8:59..8:61) _empty_/chainedParams.f().(c2) -> 8:45
+(8:62..8:66) _empty_/chainedParams.Chain#Tail# -> 5:12
+(8:72..8:74) _empty_/chainedParams.f().[C3] -> 8:53
+(8:77..8:79) _empty_/chainedParams.f().(c3) -> 8:68
+(8:80..8:84) _empty_/chainedParams.Chain#Tail# -> 5:12
+(8:87..8:90) scala/Predef.`???`().
+(10:18..10:23) _empty_/chainedParams.Chain# -> 4:9
+(11:12..11:16) _empty_/chainedParams.self. -> 10:7
+(11:24..11:25) _empty_/chainedParams.f(). -> 8:7
+(11:26..11:30) _empty_/chainedParams.self. -> 10:7
+(11:32..11:36) _empty_/chainedParams.self. -> 10:7
+(11:38..11:42) _empty_/chainedParams.self. -> 10:7
+(13:13..13:18) _empty_/chainedParams.Chain# -> 4:9
+(15:16..15:21) _empty_/chainedParams.Chain# -> 4:9
+(15:35..15:36) _empty_/chainedParams.C# -> 13:8
+(16:16..16:21) _empty_/chainedParams.Chain# -> 4:9
+(16:35..16:37) _empty_/chainedParams.c3. -> 15:7
+(17:16..17:21) _empty_/chainedParams.Chain# -> 4:9
+(17:35..17:37) _empty_/chainedParams.c2. -> 16:7
+(18:10..18:11) _empty_/chainedParams.C# -> 13:8
+(18:14..18:15) _empty_/chainedParams.f(). -> 8:7
+(18:16..18:18) _empty_/chainedParams.c1. -> 17:7
+(18:20..18:22) _empty_/chainedParams.c2. -> 16:7
+(18:24..18:26) _empty_/chainedParams.c3. -> 15:7
+

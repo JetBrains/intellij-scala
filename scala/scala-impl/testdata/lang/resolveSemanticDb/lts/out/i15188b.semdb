@@ -1,0 +1,9 @@
+Document tests/pos/i15188b.scala
+(3:17..3:18) _empty_/C# -> 1:7
+(3:46..3:52) scala/Predef.String#
+(3:55..3:61) scala/Option#
+(3:62..3:68) scala/Predef.String#
+(3:72..3:76) scala/Some.
+(5:2..5:6) scala/main#
+(6:15..6:16) _empty_/C# -> 1:7
+

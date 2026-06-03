@@ -1,0 +1,80 @@
+class a{
+  try {
+    0/0
+  } catch{
+    case IOException => "do nothing"
+    case DivisionByZeroException => "you have a problem"
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('0')
+              ReferenceExpression: /
+                PsiElement(identifier)('/')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression: IOException
+                      PsiElement(identifier)('IOException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    StringLiteral
+                      PsiElement(string content)('"do nothing"')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression: DivisionByZeroException
+                      PsiElement(identifier)('DivisionByZeroException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    StringLiteral
+                      PsiElement(string content)('"you have a problem"')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,10 @@
+Document tests/pos/i11291.scala
+(2:25..2:28) scala/Any#
+(3:13..3:19) scala/Predef.String#
+(4:26..4:29) scala/Any#
+(5:13..5:19) scala/Predef.String#
+(6:10..6:11) _empty_/i11291$package.s(). -> 9:12
+(7:13..7:19) scala/Predef.String#
+(9:21..9:24) scala/Any#
+(11:12..11:16) _empty_/i11291$package.meth(). -> 1:12
+

@@ -1,0 +1,13 @@
+object Test {
+
+}
+-----
+object {object}
+white space in line { }
+identifier {Test}
+white space in line { }
+{ {{}
+white space in line {
+
+}
+} {}}

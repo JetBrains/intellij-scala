@@ -1,0 +1,4 @@
+type X =<caret>
+-----
+type X =
+  <caret>

@@ -1,0 +1,11 @@
+//### replaceAll=true
+val x: Int => Int = { i =>
+  val c = 2 + <selection>2</selection>
+  i + c + 2
+}
+------
+val x: Int => Int = { i =>
+  val value: Int = 2
+  val c = value + value
+  i + c + value
+}

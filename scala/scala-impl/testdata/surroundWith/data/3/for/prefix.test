@@ -1,0 +1,9 @@
+class a:
+  if (!<start>true<yield>) return
+end a
+-----
+class a:
+  if (!(for  yield
+    true
+    )) return
+end a

@@ -1,0 +1,11 @@
+# b doc
+a.<caret>b = 42
+# a doc
+a {
+}
+-----
+# a doc
+a {
+  # b doc
+  <caret>b = 42
+}

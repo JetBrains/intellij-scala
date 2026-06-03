@@ -1,0 +1,14 @@
+Document tests/pos/erased-deep-context.scala
+(4:17..4:20) scala/Int#
+(5:25..5:28) scala/Int#
+(5:31..5:34) scala/Int#
+(6:5..6:10) local1 -> 5:9
+(9:17..9:20) scala/Int#
+(10:25..10:28) scala/Int#
+(10:31..10:34) scala/Int#
+(11:28..11:31) scala/Int#
+(11:34..11:37) scala/Int#
+(12:7..12:13) local4 -> 11:11
+(12:14..12:15) local2 -> 10:22
+(14:5..14:10) local5 -> 10:9
+

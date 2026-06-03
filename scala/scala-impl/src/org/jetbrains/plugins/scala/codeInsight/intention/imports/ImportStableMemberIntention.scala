@@ -1,0 +1,57 @@
+package org.jetbrains.plugins.scala.codeInsight.intention.imports
+
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
+import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention.{checkReference, invokeOn}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+
+class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
+  override def getFamilyName: String = ScalaBundle.message("family.name.import.member.with.stable.path")
+
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = element.getParent match {
+    case refAtCaret: ScReference =>
+      setText(ScalaBundle.message("import.stable.member", refAtCaret.refName))
+      checkReference(refAtCaret)
+    case _ =>
+      false
+  }
+
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    val refAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
+    invokeOn(refAtCaret)(project)
+  }
+}
+
+object ImportStableMemberIntention {
+  def invokeOn(ref: ScReference)(implicit project: Project): Unit = {
+    if (ref == null || !checkReference(ref)) return
+    val element = ref.resolve() match {
+      case constructor: PsiMethod if constructor.isConstructor => constructor.containingClass
+      case e => e
+    }
+
+    element match {
+      case named: PsiNamedElement =>
+        val importHolder = ScImportsHolder(ref)
+        val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
+        sorted(usages, isQualifier = false).foreach {
+          case usage: ScReference if checkReference(usage) => replaceAndBind(usage, named.name, named)
+          case _ =>
+        }
+      case _ =>
+    }
+  }
+
+  private def checkReference(ref: ScReference): Boolean = {
+    !isPackagingName(ref) && !isInImport(ref) && resolvesToStablePath(ref) && hasQualifier(ref)
+  }
+}

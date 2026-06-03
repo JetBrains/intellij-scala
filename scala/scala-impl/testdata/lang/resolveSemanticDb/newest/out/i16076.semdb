@@ -1,0 +1,16 @@
+Document tests/pos/i16076.scala
+(4:29..4:35) _empty_/Column# -> 1:7
+(4:36..4:37) _empty_/ColumnFactory#[V] -> 4:21
+(5:25..5:35) _empty_/ColumnPath# -> 2:7
+(5:38..5:39) _empty_/ColumnFactory#[C] -> 4:24
+(8:29..8:35) _empty_/Column# -> 1:7
+(8:36..8:37) _empty_/ColumnFactory.apply().[V] -> 8:21
+(8:43..8:49) scala/Predef.String#
+(8:53..8:54) _empty_/ColumnFactory.apply().[C] -> 8:24
+(8:57..8:70) _empty_/ColumnFactory# -> 4:7
+(8:71..8:72) _empty_/ColumnFactory.apply().[V] -> 8:21
+(8:74..8:75) _empty_/ColumnFactory.apply().[C] -> 8:24
+(9:19..9:20) _empty_/ColumnFactory.apply().(f) -> 8:40
+(9:21..9:31) local0 -> 9:5
+(9:32..9:40) scala/Any#toString().
+

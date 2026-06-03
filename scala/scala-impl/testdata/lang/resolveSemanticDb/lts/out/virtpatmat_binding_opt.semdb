@@ -1,0 +1,10 @@
+Document tests/pos/virtpatmat_binding_opt.scala
+(3:18..3:22) local0 -> 3:10
+(3:23..3:25) java/lang/Object#eq().
+(4:16..4:21) _empty_/Test2# -> 11:7
+(5:7..5:14) scala/Predef.println(+1).
+(5:15..5:19) local1 -> 4:10
+(7:15..7:18) scala/sys/
+(7:19..7:24) scala/sys/package.error().
+(11:21..11:25) _empty_/Test# -> 1:7
+

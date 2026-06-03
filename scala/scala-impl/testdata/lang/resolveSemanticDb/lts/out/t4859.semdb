@@ -1,0 +1,7 @@
+Document tests/pos/t4859.scala
+(3:3..3:4) _empty_/C.
+(3:7..3:9) _empty_/C#CC.
+(5:3..5:4) _empty_/D.
+(5:7..5:9) _empty_/D#DD. -> 14:10
+(15:23..15:25) _empty_/D#DD# -> 13:9
+

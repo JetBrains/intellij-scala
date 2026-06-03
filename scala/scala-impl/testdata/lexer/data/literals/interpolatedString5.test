@@ -1,0 +1,21 @@
+val s = s"string with interpolation: ${s"itself containing string interpolation ${"whatever"}"}"
+-----
+val {val}
+white space in line { }
+identifier {s}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"string with interpolation: }
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"itself containing string interpolation }
+interpolated string injection {$}
+{ {{}
+string content {"whatever"}
+} {}}
+interpolated string end {"}
+} {}}
+interpolated string end {"}

@@ -1,0 +1,6 @@
+Document tests/pos/t604.scala
+(3:18..3:21) _empty_/Test.Foo. -> 4:16
+(6:25..6:30) scala/Array#
+(6:31..6:37) scala/Predef.String#
+(6:42..6:46) scala/Unit#
+

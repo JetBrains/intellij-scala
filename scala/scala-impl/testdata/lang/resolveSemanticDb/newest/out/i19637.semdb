@@ -1,0 +1,23 @@
+Document tests/pos/i19637.scala
+(1:8..1:12) java/
+(1:13..1:17) java/util/
+(1:18..1:24) java/util/stream/
+(2:8..2:12) java/
+(2:13..2:17) java/util/
+(2:18..2:26) java/util/function/
+(4:10..4:14) java/
+(4:15..4:19) java/util/
+(4:20..4:23) java/util/Map#
+(4:24..4:30) scala/Predef.String#
+(4:32..4:38) scala/Predef.String#
+(4:42..4:48) java/util/stream/Stream#
+(4:49..4:51) java/util/stream/Stream#of(+1).
+(4:67..4:74) java/util/stream/Stream#collect(+1).
+(4:75..4:85) java/util/stream/Collectors#
+(4:86..4:91) java/util/stream/Collectors#toMap(+1).
+(5:7..5:13) scala/Predef.String#
+(5:18..5:19) local0 -> 5:4
+(6:3..6:11) java/util/function/Function#
+(6:12..6:20) java/util/function/Function#identity().
+(9:20..9:21) local3 -> 9:14
+

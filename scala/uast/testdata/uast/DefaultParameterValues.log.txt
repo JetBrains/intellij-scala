@@ -1,0 +1,10 @@
+UFile (package = )
+    UClass (name = Test$)
+        UMethod (name = foo)
+            UParameter (name = a)
+                UAnnotation (fqName = scala.Any)
+                ULiteralExpression (value = 1)
+            UParameter (name = foo)
+                UAnnotation (fqName = scala.Any)
+                ULiteralExpression (value = null)
+            UBlockExpression

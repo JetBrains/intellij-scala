@@ -1,0 +1,14 @@
+object A {
+  implicit val int: Int = 0
+  def test(a: Int): Boolean = ???
+
+  Seq(1).forall(<selection>test</selection>)
+}
+-------
+object A {
+  implicit val int: Int = 0
+  def test(a: Int): Boolean = ???
+
+  private val value: Int => Boolean = test _
+  Seq(1).forall(value)
+}

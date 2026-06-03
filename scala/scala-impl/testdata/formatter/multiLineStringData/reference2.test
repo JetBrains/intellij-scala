@@ -1,0 +1,10 @@
+val a = """ blah blah
+  |  blah blah blah
+|       blah blah blah
+""".stripMargin.replace("\r", "")
+-----
+val a =
+  """ blah blah
+     |  blah blah blah
+     |       blah blah blah
+""".stripMargin.replace("\r", "")

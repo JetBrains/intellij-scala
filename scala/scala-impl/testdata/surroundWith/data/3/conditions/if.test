@@ -1,0 +1,7 @@
+class a:
+  <start>true<if_cond>
+end a
+-------
+class a:
+  if true then {}
+end a

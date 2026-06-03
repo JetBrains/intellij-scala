@@ -1,0 +1,41 @@
+{
+  try
+    print()
+    print()
+  finally
+    print()
+}
+-----
+ScalaFile
+  BlockExpression
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    TryStatement
+      PsiElement(try)('try')
+      PsiWhiteSpace('\n    ')
+      MethodCall
+        ReferenceExpression: print
+          PsiElement(identifier)('print')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace('\n    ')
+    MethodCall
+      ReferenceExpression: print
+        PsiElement(identifier)('print')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiErrorElement:'}' expected
+      <empty list>
+    PsiWhiteSpace('\n  ')
+    PsiElement(finally)('finally')
+    PsiWhiteSpace('\n    ')
+    MethodCall
+      ReferenceExpression: print
+        PsiElement(identifier)('print')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

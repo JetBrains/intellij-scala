@@ -1,0 +1,6 @@
+Document tests/pos/i21635.scala
+(1:19..1:26) scala/Boolean#
+(2:13..2:16) scala/Any#
+(3:5..3:9) _empty_/A#into. -> 1:13
+(5:13..5:16) scala/Int#
+

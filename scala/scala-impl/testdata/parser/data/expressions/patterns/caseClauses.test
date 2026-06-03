@@ -1,0 +1,60 @@
+class a {
+try {
+        abc
+    } catch {
+    case a=>b
+    }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n        ')
+            ReferenceExpression: abc
+              PsiElement(identifier)('abc')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement(=>)('=>')
+                  BlockOfExpressions
+                    ReferenceExpression: b
+                      PsiElement(identifier)('b')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

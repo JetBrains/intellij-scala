@@ -1,0 +1,67 @@
+class a {
+  var a : Type
+  var f,t,y : Type
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Type
+            CodeReferenceElement: Type
+              PsiElement(identifier)('Type')
+        PsiWhiteSpace('\n  ')
+        ScVariableDeclaration: f, t, y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: f
+              PsiElement(identifier)('f')
+            PsiElement(,)(',')
+            Field identifier: t
+              PsiElement(identifier)('t')
+            PsiElement(,)(',')
+            Field identifier: y
+              PsiElement(identifier)('y')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Type
+            CodeReferenceElement: Type
+              PsiElement(identifier)('Type')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

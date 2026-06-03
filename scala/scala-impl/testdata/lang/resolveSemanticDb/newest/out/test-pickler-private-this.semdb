@@ -1,0 +1,10 @@
+Document tests/pos/test-pickler-private-this.scala
+(2:22..2:26) _empty_/Test# -> 1:7
+(2:30..2:34) _empty_/Test#callMeth().(test) -> 2:16
+(2:35..2:39) _empty_/Test#meth(). -> 3:15
+(3:25..3:28) scala/Int#
+(3:35..3:38) scala/Int#
+(3:46..3:49) _empty_/Test#meth().(foo) -> 3:20
+(3:50..3:51) scala/Int#`+`(+4).
+(3:52..3:55) _empty_/Test#meth().(bar) -> 3:30
+

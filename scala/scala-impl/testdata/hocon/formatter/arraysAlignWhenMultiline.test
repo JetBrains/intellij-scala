@@ -1,0 +1,12 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="LISTS_WRAP" value="2" />
+    <option name="LISTS_ALIGN_WHEN_MULTILINE" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a = [111, 222, 333]
+-----
+a = [111,
+     222,
+     333]

@@ -1,0 +1,65 @@
+class A(a: T with S with U {val i:T})
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              CompoundType: T with S with U {val i:T}
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+                PsiWhiteSpace(' ')
+                PsiElement(with)('with')
+                PsiWhiteSpace(' ')
+                SimpleType: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  ScValueDeclaration: i
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfIdentifiers
+                      Field identifier: i
+                        PsiElement(identifier)('i')
+                    PsiElement(:)(':')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(})('}')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

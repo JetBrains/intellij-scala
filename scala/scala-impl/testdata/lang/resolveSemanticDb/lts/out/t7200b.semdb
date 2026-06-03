@@ -1,0 +1,15 @@
+Document tests/pos/t7200b.scala
+(1:8..1:16) scala/language.
+(1:17..1:28) scala/language.higherKinds.
+(7:22..7:23) _empty_/T# -> 3:7
+(7:28..7:29) _empty_/Foo#coflatMap().[A] -> 7:17
+(7:32..7:33) _empty_/Foo#coflatMap().[A] -> 7:17
+(10:18..10:21) _empty_/Foo# -> 6:7
+(11:22..11:23) _empty_/T# -> 3:7
+(11:28..11:29) _empty_/O.coflatMap().[A] -> 11:17
+(12:14..12:23) _empty_/O.coflatMap(). -> 11:7
+(12:24..12:25) _empty_/O.coflatMap().(f) -> 11:25
+(13:5..13:7) local0 -> 12:9
+(13:8..13:9) _empty_/T#t(). -> 4:7
+(14:5..14:7) local0 -> 12:9
+

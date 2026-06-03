@@ -1,0 +1,7 @@
+[1,37]: PackageDef
+[9,16]: Ident
+[18,37]: ValDef
+[23,23]: TypeTree
+[26,37]: Apply
+[26,35]: Select
+[26,31]: Literal

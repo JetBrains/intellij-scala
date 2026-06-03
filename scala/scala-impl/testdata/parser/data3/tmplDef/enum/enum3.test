@@ -1,0 +1,267 @@
+enum Planet(mass: Double) {
+    case Mercury extends Planet(3.3011e+23)
+    case Venus   extends Planet(4.8675e+24)
+    case Earth   extends Planet(5.972e+24)
+    case Mars    extends Planet(6.4171e+23)
+    case Jupiter extends Planet(1.8982e+27)
+    case Saturn  extends Planet(5.6834e+26)
+    case Uranus  extends Planet(8.6810e+25)
+    case Neptune extends Planet(1.024e+26)
+
+    private case Pluto extends Planet(1.303e+22)
+}
+-----
+ScalaFile
+  ScEnum: Planet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Planet')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: mass
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('mass')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Mercury
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Mercury
+            PsiElement(identifier)('Mercury')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('3.3011e+23')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Venus
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Venus
+            PsiElement(identifier)('Venus')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('4.8675e+24')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Earth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Earth
+            PsiElement(identifier)('Earth')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('5.972e+24')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Mars
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Mars
+            PsiElement(identifier)('Mars')
+            PsiWhiteSpace('    ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('6.4171e+23')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Jupiter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Jupiter
+            PsiElement(identifier)('Jupiter')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.8982e+27')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Saturn
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Saturn
+            PsiElement(identifier)('Saturn')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('5.6834e+26')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Uranus
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Uranus
+            PsiElement(identifier)('Uranus')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('8.6810e+25')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        ScEnumCases: Neptune
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Neptune
+            PsiElement(identifier)('Neptune')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.024e+26')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n    ')
+        ScEnumCases: Pluto
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Pluto
+            PsiElement(identifier)('Pluto')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.303e+22')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,8 @@
+Document tests/pos/t2234.scala
+(1:21..1:24) scala/App#
+(2:20..2:26) scala/package.Stream.
+(2:27..2:32) scala/collection/immutable/Stream.empty().
+(3:3..3:7) _empty_/Test.res0. -> 2:7
+(3:23..3:26) scala/package.`#::`.
+(3:33..3:35) local0 -> 3:27
+

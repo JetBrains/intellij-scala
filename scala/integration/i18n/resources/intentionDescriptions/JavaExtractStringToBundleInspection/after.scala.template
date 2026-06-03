@@ -1,0 +1,2 @@
+@Nls
+def text = ScalaBundle.message("some.string.that.should.be.translated")

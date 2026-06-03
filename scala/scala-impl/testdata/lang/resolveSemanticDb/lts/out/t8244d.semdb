@@ -1,0 +1,8 @@
+Document tests/pos/t8244d/Test_2.scala
+(1:28..1:39) _empty_/INodeBase_1#
+(1:40..1:41) _empty_/INodeX#[K] -> 1:14
+(1:43..1:44) _empty_/INodeX#[V] -> 1:17
+(2:3..2:14) _empty_/INodeBase_1#
+(2:15..2:22) _empty_/INodeBase_1#updater.
+(2:23..2:26) java/util/concurrent/atomic/AtomicReferenceFieldUpdater#set().
+

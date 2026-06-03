@@ -1,0 +1,7 @@
+Document tests/pos/i19386/FromScala.scala
+(1:13..1:15) _empty_/R1#
+(1:18..1:22) scala/Unit#
+(2:10..2:13) scala/Int#
+(2:16..2:17) _empty_/FromScala$package.test().(r) -> 1:10
+(2:18..2:19) _empty_/R1#i().
+

@@ -1,0 +1,4 @@
+def foo(arg: Type) =<caret>
+-----
+def foo(arg: Type) =
+  <caret>

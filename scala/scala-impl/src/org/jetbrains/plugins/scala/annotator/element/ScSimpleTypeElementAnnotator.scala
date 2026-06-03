@@ -1,0 +1,105 @@
+package org.jetbrains.plugins.scala
+package annotator
+package element
+
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeLambdaTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.TypeIsNotStable
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
+
+object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement] {
+
+  // TODO Shouldn't the ScExpressionAnnotator be enough?
+  override def annotate(element: ScSimpleTypeElement, typeAware: Boolean)
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    //todo: check bounds conformance for parameterized type
+    if (typeAware) {
+      checkAbsentTypeArgs(element)
+    }
+  }
+
+  private def checkAbsentTypeArgs(typeElement: ScSimpleTypeElement)
+                                 (implicit holder: ScalaAnnotationHolder): Unit = {
+    val typeElementResolveResult = typeElement.reference.flatMap(_.bind()) match {
+      case Some(rr) => rr
+      case _ =>
+        return
+    }
+    val typeElementResolved = typeElementResolveResult.element
+
+    //this branch is tested via
+    //org.jetbrains.plugins.scala.annotator.element.ReferenceToStableAndNonStableTypeTest_Scala3
+    if (typeElement.isSingleton) {
+      val showStableIdentifierRequiredError = typeElementResolveResult.problems.contains(TypeIsNotStable)
+      if (showStableIdentifierRequiredError) {
+        holder.createErrorAnnotation(
+          typeElement,
+          ScalaBundle.message("stable.identifier.required", typeElement.getText),
+          ProblemHighlightType.GENERIC_ERROR
+        )
+        return
+      }
+    }
+
+    // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
+    def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
+      (ah.findAnnotationNoAliases("freestyle.free") != null) ||
+        ah.findAnnotationNoAliases("freestyle.module") != null
+    }
+
+    def needTypeArgs: Boolean = {
+      def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
+
+      val canHaveTypeArgs = typeElementResolved match {
+        case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
+        case c: PsiClass                                         => c.hasTypeParameters
+        case owner: ScTypeParametersOwner                        => owner.typeParameters.nonEmpty
+        case _                                                   => false
+      }
+
+      if (!canHaveTypeArgs)
+        return false
+
+      typeElement.parents.find(!_.is[ScParenthesisedTypeElement, ScTypeArgument]).orNull match {
+        case ScParameterizedTypeElement(_, _)  => false
+        case _: ScContextBound                 => false
+        case _: ScTypeArgs                     => false
+        case infix: ScInfixTypeElement if infix.left == typeElement || infix.rightOption.contains(typeElement) =>
+          infix.operation.resolve() match {
+            case owner: ScTypeParametersOwner => noHigherKinds(owner)
+            case _                            => false
+          }
+        //Allow unapplied type constructors as a rhs of type alias in Scala 3
+        case ta: ScTypeAlias if ta.isInScala3File => false
+        //Example: type E = [X] =>> Either // ~ type E = [X] =>> [L, R] =>> Either[L, R]
+        case tl: ScTypeLambdaTypeElement if tl.isInScala3File => false
+        //Example: type MyAlias[F[_] <: Option] = String
+        case tp: ScTypeParam if tp.isInScala3File => false
+        case _ =>
+          //SCL-19477, this code is OK, no need in type argument
+          //def f[T]: "42" = ???
+          //val refOk: f.type = ???
+          typeElementResolved match {
+            case f: ScFunction => !f.isStable
+            case _             => true
+          }
+      }
+    }
+
+    val needTypeArgsRes = needTypeArgs
+    if (needTypeArgsRes) {
+      holder.createErrorAnnotation(
+        typeElement,
+        ScalaBundle.message("type.takes.type.parameters", typeElement.getText),
+        ProblemHighlightType.GENERIC_ERROR
+      )
+    }
+  }
+}

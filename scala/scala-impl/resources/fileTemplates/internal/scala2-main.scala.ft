@@ -1,0 +1,9 @@
+#if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != ""))package ${PACKAGE_NAME}
+
+#end
+
+object Main {
+  def main(args: Array[String]): Unit = {
+    println("Hello world!")
+  }
+}

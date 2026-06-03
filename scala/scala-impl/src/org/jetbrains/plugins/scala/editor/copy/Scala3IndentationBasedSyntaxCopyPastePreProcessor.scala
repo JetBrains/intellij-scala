@@ -1,0 +1,262 @@
+package org.jetbrains.plugins.scala.editor.copy
+
+import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
+import com.intellij.openapi.editor.{Caret, Editor, RawText}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{Key, TextRange, UserDataHolder}
+import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
+import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.calcIndentationString
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
+import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor._
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.IndentUtil
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
+
+import scala.collection.immutable.SortedMap
+
+class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
+  override def requiresAllDocumentsToBeCommitted(editor: Editor, project: Project): Boolean = false
+
+  override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String =
+    null
+
+  // the formatter is always run on pasted snippets, so we just need to adjust indentation so that the formatter recognizes it
+  // this only called on single caret, paste for multiple carets is handled as raw text
+  override def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
+    val isScala3File = file.is[ScalaFile] && file.getLanguage.isKindOf(Scala3Language.INSTANCE)//detect scala3 and scala3 worksheets
+    if (!isScala3File)
+      return text
+
+    if (!ScalaApplicationSettings.getInstance.INDENT_PASTED_LINES_AT_CARET)
+      return text
+
+    val caret = editor.getCaretModel.getCurrentCaret
+    val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, editor.getSelectionModel.getSelectionStart)
+    if (elementAtCaret == null)
+      return text
+    val elementAtCaretOrCommonParent = getElementAtCaretOrCommonParentForSelection(elementAtCaret, file, caret)
+    if (elementAtCaretOrCommonParent == null)
+      return text
+    if (isInsideStringLiteralOrComment(caret, elementAtCaretOrCommonParent))
+      return text
+
+    val caretIndentWhitespace: String =
+      calcIndentationString(elementAtCaret, caret.getSelectionStart) match {
+        case Some(value) => value
+        case None =>
+          //the element doesn't start from the new lines, stop processing
+          return text
+      }
+
+    val caretPosition = getCaretPosition(elementAtCaretOrCommonParent)
+    if (caretPosition == CaretPosition.NotInTheBeginningOfNewLine)
+      return text
+
+    val codeStyleSettings = CodeStyle.getSettings(file)
+    val tabSize = codeStyleSettings.getTabSize(ScalaFileType.INSTANCE)
+    val useTabCharacter = codeStyleSettings.useTabCharacter(ScalaFileType.INSTANCE)
+
+    val targetCaretIndentSize: Int =
+      getTargetCaretIndentSize(caretPosition, caretIndentWhitespace, tabSize, codeStyleSettings)
+
+    val firstNonBlankLineIndentWhitespace = text
+      .linesWithSeparators
+      .dropWhile(StringUtils.isBlank)
+      .nextOption()
+      .getOrElse("")
+      .takeWhile(c => c == ' ' || c == '\t')
+    val firstNonBlankLineIndentSize = IndentUtil.calcIndent(firstNonBlankLineIndentWhitespace, tabSize)
+
+    val targetIndentShouldBeNotSmallerThenCaretIndent =
+      caretPosition.is[CaretPosition.InTheMiddleBodyIndentationBased]
+
+    val adjustmentBuilder = SortedMap.newBuilder[Int, Int]
+    var currentOriginalOffset = 0
+    var currentAdjustment = 0
+
+    def fixIndent(line: String): String = {
+      val lineIndentWhitespace = line.takeWhile(c => c == ' ' || c == '\t')
+      val lineIndentSize = IndentUtil.calcIndent(lineIndentWhitespace, tabSize)
+      val indentDiff = lineIndentSize - firstNonBlankLineIndentSize
+      val indentDiffFixed = if (targetIndentShouldBeNotSmallerThenCaretIndent) indentDiff.max(0) else indentDiff
+      val newIndentSize = targetCaretIndentSize + indentDiffFixed
+      val lineWithoutOriginalIndent = line.stripPrefix(lineIndentWhitespace)
+      val indentPrefix = if (useTabCharacter) "\t" * (newIndentSize / tabSize) else " " * newIndentSize
+      val result = indentPrefix + lineWithoutOriginalIndent
+      if (currentOriginalOffset > 0) {
+        // don't adjust the first line as it will not be indented
+        currentAdjustment += result.length - line.length
+        adjustmentBuilder += -currentOriginalOffset -> currentAdjustment
+      }
+      currentOriginalOffset += line.length
+      result
+    }
+
+    // align all lines with caret indentation
+    val textWithFixedIndent = text
+      .linesWithSeparators
+      .map(fixIndent)
+      .mkString("")
+
+    val adjuster = new AfterIndentOffsetAdjuster(adjustmentBuilder.result())
+    file.putUserData(AfterIndentOffsetAdjusterKey, adjuster)
+
+    // don't add redundant indentation for the first line, as caret is already located at this position
+    textWithFixedIndent.stripPrefix(caretIndentWhitespace)
+  }
+
+  private def getElementAtCaretOrCommonParentForSelection(startElement: PsiElement, file: PsiFile, caret: Caret): PsiElement = {
+    val start = caret.getSelectionStart
+    val end = caret.getSelectionEnd - 1
+    if (end > start) {
+      val endElement = file.findElementAt(end)
+      if (startElement != null && endElement != null)
+        PsiTreeUtil.findCommonParent(startElement, endElement)
+      else
+        startElement
+    }
+    else startElement
+  }
+}
+
+object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
+
+  private sealed trait CaretPosition
+  private object CaretPosition {
+    case class InTheMiddleBodyIndentationBased(block: ScOptionalBracesOwner) extends CaretPosition
+    case class InTheMiddleBodyWithBraces(block: ScOptionalBracesOwner) extends CaretPosition
+    /**
+     * Caret is after an empty template body or function body: {{{
+     *   class A:\n<caret>
+     *   def foo =\n<caret>
+     * }}}
+     */
+    case class AfterIncompleteDefinitionBody(e: PsiErrorElement) extends CaretPosition
+    object TopLevelScalaFile extends CaretPosition
+    object NotInTheBeginningOfNewLine extends CaretPosition
+  }
+
+  private def getCaretPosition(elementAtCaretOrCommonParent: PsiElement): CaretPosition = {
+    //Handle the case when caret is unindented after an empty template body or function body:
+    //class A:\n<caret>
+    //def foo =\n<caret>
+    val prevElement = elementAtCaretOrCommonParent.prevLeafNotWhitespaceComment
+    prevElement match {
+      case Some(e: PsiErrorElement) if ScalaEditorUtils.isIncompleteDefinitionError(e) =>
+        return CaretPosition.AfterIncompleteDefinitionBody(e)
+      case _ =>
+    }
+
+    val parent = if (elementAtCaretOrCommonParent.is[LeafPsiElement])
+      elementAtCaretOrCommonParent.getParent
+    else
+      elementAtCaretOrCommonParent //if it's not a leaf element we already know that it's a common parent of selection
+    parent match {
+      case _: ScalaFile =>
+        CaretPosition.TopLevelScalaFile
+      case p: ScPackaging if !p.isExplicit =>
+        CaretPosition.TopLevelScalaFile
+      case b: ScOptionalBracesOwner  =>
+        if (b.isEnclosedByBraces)
+          CaretPosition.InTheMiddleBodyWithBraces(b)
+        else
+          CaretPosition.InTheMiddleBodyIndentationBased(b)
+      case _ =>
+        CaretPosition.NotInTheBeginningOfNewLine
+    }
+  }
+
+  private def getTargetCaretIndentSize(
+    elementAtCaretPosition: CaretPosition,
+    caretIndentWhitespace: String,
+    tabSize: Int,
+    codeStyleSettings: CodeStyleSettings
+  ): Int =
+    elementAtCaretPosition match {
+      case CaretPosition.InTheMiddleBodyIndentationBased(block) =>
+        val firstElementIndent = getIndentOfFirstElementInBody(tabSize, block)
+        firstElementIndent.getOrElse(getIndentRelativeToParentDefinition(codeStyleSettings, block))
+      case CaretPosition.InTheMiddleBodyWithBraces(block) =>
+        val firstElementIndent = getIndentOfFirstElementInBody(tabSize, block)
+        firstElementIndent.getOrElse(getIndentRelativeToParentDefinition(codeStyleSettings, block))
+      case CaretPosition.AfterIncompleteDefinitionBody(e) =>
+        getIndentRelativeToParentDefinition(codeStyleSettings, e)
+      case _ =>
+        IndentUtil.calcIndent(caretIndentWhitespace, tabSize)
+    }
+
+  private def getIndentRelativeToParentDefinition(codeStyleSettings: CodeStyleSettings, element: PsiElement): Int = {
+    val parentDefinitionIndentSize = IndentUtil.calcRegionIndent(element, 1)
+    val indentSize = codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE)
+    parentDefinitionIndentSize + indentSize
+  }
+
+  private def getIndentOfFirstElementInBody(tabSize: Int, block: ScOptionalBracesOwner): Option[Int] = {
+    val element = getFirstElementInBody(block)
+    val indentStr = element.flatMap(el => calcIndentationString(el, el.getTextRange.getStartOffset))
+    indentStr.map(IndentUtil.calcIndent(_, tabSize))
+  }
+
+  private def getFirstElementInBody(block: ScOptionalBracesOwner): Option[PsiElement] = {
+    val braceOrColon = block.getEnclosingStartElement
+    //get some element between `{` and `}`, or first element after `=` (in case of def/val/var)
+    val preFirstElement = braceOrColon.getOrElse(block.getFirstChild)
+    val firstElement = Option(preFirstElement.getNextSiblingNotWhitespaceComment)
+    firstElement.filterNot(el => TokenSets.RBRACE_OR_END_STMT.contains(el.elementType))
+  }
+
+  private def isInsideStringLiteralOrComment(caret: Caret, elementAtCaret: PsiElement): Boolean = {
+    val elementType = elementAtCaret.getNode.getElementType
+    val elementTypeMatches = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(elementType) ||
+      ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(elementType) ||
+      ScalaDocElementTypes.AllElementAndTokenTypes.contains(elementType)
+    elementTypeMatches && elementAtCaret.getTextRange.containsOffset(caret.getSelectionStart)
+  }
+
+  private val AfterIndentOffsetAdjusterKey: Key[AfterIndentOffsetAdjuster] = Key.create("Scala3IndentationBasedSyntaxCopyPastePreProcessor.AfterIndentOffsetAdjuster")
+
+  /**
+   * After the pre-processor ran, the offset in [[org.jetbrains.plugins.scala.lang.refactoring.Associations]]
+   * are no longer valid, because the indentations moved the marked references around.
+   * This Adjuster stores the margins added by the indentations and can be used to adjust the offsets.
+   * The preprocesser stores the adjuster in the psiFile as userdata. Use [[AfterIndentOffsetAdjuster.getAndClearFromUserdata]] to retrieve it.
+   *
+   * @note Irg don't stone me for this... but I couldn't think of a different way to do this...
+   *       maybe we could merge the Preprocessor into the postprocessor, but that would have required way more work...
+   */
+  final class AfterIndentOffsetAdjuster private[Scala3IndentationBasedSyntaxCopyPastePreProcessor](reverseLineStartOffsetToIndentOffset: SortedMap[Int, Int]) {
+    /**
+     * @param offset the offset to be adjusted
+     * @param base the offset-difference between the original from which the adjuster was created and the offset in the first parameter
+     * @return the adjusted offset
+     */
+    def adjust(offset: Int, base: Int): Int =
+      reverseLineStartOffsetToIndentOffset.minAfter(-(offset - base)) match {
+        case Some((_, adjustment)) => offset + adjustment
+        case None => offset
+      }
+
+    def adjust(range: TextRange, base: Int): TextRange =
+      TextRange.create(adjust(range.getStartOffset, base), adjust(range.getEndOffset, base))
+  }
+
+  object AfterIndentOffsetAdjuster {
+    val empty = new AfterIndentOffsetAdjuster(SortedMap.empty)
+    def getAndClearFromUserdata(holder: UserDataHolder): AfterIndentOffsetAdjuster =
+      try Option(holder.getUserData(AfterIndentOffsetAdjusterKey)).getOrElse(empty)
+      finally holder.putUserData(AfterIndentOffsetAdjusterKey, null)
+  }
+}

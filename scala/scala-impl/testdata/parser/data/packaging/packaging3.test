@@ -1,0 +1,39 @@
+package org {
+
+import com.ert._
+import com.ert
+
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: org
+      PsiElement(identifier)('org')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: com.ert
+          CodeReferenceElement: com
+            PsiElement(identifier)('com')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ert')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: com.ert
+          CodeReferenceElement: com
+            PsiElement(identifier)('com')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ert')
+    PsiWhiteSpace('\n\n')
+    PsiElement(})('}')

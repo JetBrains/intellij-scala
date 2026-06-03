@@ -1,0 +1,18 @@
+Document tests/pos/inline-separate/A_1.scala
+(3:13..3:14) _empty_/A.summon().[T] -> 2:33
+(3:18..3:19) local0 -> 3:10
+
+Document tests/pos/inline-separate/Test_2.scala
+(1:8..1:9) _empty_/A. -> 1:8
+(2:21..2:24) scala/App#
+(3:19..3:22) _empty_/Test.Foo# -> 3:9
+(4:54..4:57) _empty_/Test.Foo# -> 3:9
+(4:60..4:63) _empty_/Test.Foo# -> 3:9
+(4:70..4:73) _empty_/Test.Foo# -> 3:9
+(4:74..4:80) _empty_/A.summon(). -> 2:26
+(4:81..4:84) _empty_/Test.Foo# -> 3:9
+(5:30..5:33) _empty_/Test.Foo# -> 3:9
+(5:36..5:39) _empty_/Test.Foo# -> 3:9
+(5:42..5:44) _empty_/Test.summonFoo().(ev) -> 5:26
+(6:3..6:12) _empty_/Test.summonFoo(). -> 5:7
+

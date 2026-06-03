@@ -1,0 +1,21 @@
+Document tests/pos/i15177.FakeEnum.scala
+(2:20..2:31) scala/specialized#
+(2:32..2:36) scala/Byte.
+(2:38..2:43) scala/Short.
+(2:45..2:48) scala/Int.
+(2:50..2:54) scala/Long.
+(5:11..5:12) _empty_/FakeEnum#[A] -> 2:16
+(6:17..6:23) scala/Predef.String#
+(7:15..7:16) _empty_/FakeEnum#[B] -> 2:56
+(12:11..12:19) _empty_/FakeEnum# -> 2:7
+(12:20..12:32) _empty_/FakeEnumType# -> 19:7
+(12:34..12:39) scala/Short#
+(14:21..14:33) _empty_/FakeEnumType# -> 19:7
+(14:38..14:43) scala/Short#
+(15:21..15:33) _empty_/FakeEnumType# -> 19:7
+(15:38..15:43) scala/Short#
+(19:28..19:33) scala/Short#
+(19:45..19:51) scala/Predef.String#
+(20:11..20:23) _empty_/FakeEnumType. -> 11:8
+(20:24..20:29) _empty_/FakeEnum#Value# -> 4:9
+

@@ -1,0 +1,374 @@
+Document tests/pos/typeclass-encoding3b.scala
+(45:18..45:33) _empty_/runtime.TypeClassCommon# -> 49:9
+(46:17..46:24) _empty_/runtime.TypeClass#commons. -> 45:9
+(46:25..46:29) _empty_/runtime.TypeClassCommon#This# -> 50:10
+(51:22..51:31) _empty_/runtime.TypeClass# -> 44:9
+(52:19..52:23) _empty_/runtime.TypeClassCommon#This# -> 50:10
+(52:26..52:34) _empty_/runtime.TypeClassCommon#Instance# -> 51:10
+(52:50..52:54) _empty_/runtime.TypeClassCommon# -> 49:9
+(56:21..56:36) _empty_/runtime.TypeClassCommon# -> 49:9
+(56:51..56:52) _empty_/runtime.TypeClassCompanion#Impl#[T] -> 56:15
+(57:30..57:34) _empty_/runtime.TypeClassCompanion#Impl# -> 56:10
+(57:35..57:36) _empty_/runtime.TypeClassCompanion#impl().[T] -> 57:14
+(57:40..57:44) _empty_/runtime.TypeClassCompanion#Impl# -> 56:10
+(57:45..57:46) _empty_/runtime.TypeClassCompanion#impl().[T] -> 57:14
+(57:50..57:52) _empty_/runtime.TypeClassCompanion#impl().(ev) -> 57:26
+(60:32..60:36) _empty_/runtime.inject().[From] -> 60:23
+(61:21..61:36) _empty_/runtime.TypeClassCommon# -> 49:9
+(61:51..61:55) _empty_/runtime.inject().[From] -> 60:23
+(61:60..61:62) _empty_/runtime.inject().(ev) -> 61:17
+(61:63..61:71) _empty_/runtime.TypeClassCommon#Instance# -> 51:10
+(61:86..61:90) _empty_/runtime.inject().[From] -> 60:23
+(62:5..62:7) _empty_/runtime.inject().(ev) -> 61:17
+(62:8..62:14) _empty_/runtime.TypeClassCommon#inject(). -> 52:9
+(62:15..62:16) _empty_/runtime.inject().(x) -> 60:29
+(64:8..64:15) _empty_/runtime. -> 42:8
+(68:27..68:36) _empty_/runtime.TypeClass# -> 44:9
+(69:18..69:33) _empty_/semiGroups.SemiGroupCommon# -> 73:9
+(70:12..70:19) _empty_/semiGroups.SemiGroup#commons. -> 69:9
+(71:19..71:23) _empty_/runtime.TypeClass#This# -> 46:10
+(71:26..71:30) _empty_/runtime.TypeClass#This# -> 46:10
+(73:33..73:48) _empty_/runtime.TypeClassCommon# -> 49:9
+(74:22..74:31) _empty_/semiGroups.SemiGroup# -> 68:9
+(76:28..76:46) _empty_/runtime.TypeClassCompanion# -> 55:9
+(77:20..77:35) _empty_/semiGroups.SemiGroupCommon# -> 73:9
+(77:50..77:51) _empty_/semiGroups.SemiGroup.Impl#[T] -> 77:15
+(80:24..80:33) _empty_/semiGroups.SemiGroup# -> 68:9
+(81:18..81:30) _empty_/semiGroups.MonoidCommon# -> 84:9
+(82:12..82:19) _empty_/semiGroups.Monoid#commons. -> 81:9
+(84:30..84:45) _empty_/semiGroups.SemiGroupCommon# -> 73:9
+(85:22..85:28) _empty_/semiGroups.Monoid# -> 80:9
+(86:15..86:19) _empty_/runtime.TypeClassCommon#This# -> 50:10
+(88:25..88:43) _empty_/runtime.TypeClassCompanion# -> 55:9
+(89:20..89:32) _empty_/semiGroups.MonoidCommon# -> 84:9
+(89:47..89:48) _empty_/semiGroups.Monoid.Impl#[T] -> 89:15
+(92:34..92:46) _empty_/semiGroups.MonoidCommon# -> 84:9
+(93:17..93:20) scala/Int#
+(94:21..94:27) _empty_/semiGroups.Monoid# -> 80:9
+(95:15..95:18) scala/Int#
+(96:23..96:26) scala/Int#
+(96:34..96:40) _empty_/semiGroups.Monoid# -> 80:9
+(98:26..98:30) _empty_/runtime.TypeClass#This# -> 46:10
+(98:38..98:42) _empty_/runtime.TypeClass#This# -> 46:10
+(98:45..98:50) _empty_/semiGroups.IntOps.inject().($this) -> 96:16
+(98:51..98:52) scala/Int#`+`(+4).
+(98:53..98:57) local8 -> 98:15
+(102:37..102:49) _empty_/semiGroups.MonoidCommon# -> 84:9
+(103:17..103:23) scala/Predef.String#
+(104:21..104:27) _empty_/semiGroups.Monoid# -> 80:9
+(106:23..106:29) scala/Predef.String#
+(106:37..106:43) _empty_/semiGroups.Monoid# -> 80:9
+(108:26..108:30) _empty_/runtime.TypeClass#This# -> 46:10
+(108:38..108:42) _empty_/runtime.TypeClass#This# -> 46:10
+(108:45..108:50) _empty_/semiGroups.StringOps.inject().($this) -> 106:16
+(108:51..108:57) java/lang/String#concat().
+(108:58..108:62) local14 -> 108:15
+(112:20..112:26) _empty_/semiGroups.Monoid# -> 80:9
+(114:15..114:18) _empty_/semiGroups.Nat# -> 112:8
+(116:19..116:22) _empty_/semiGroups.Nat# -> 112:8
+(116:25..116:28) _empty_/semiGroups.Nat# -> 112:8
+(117:12..117:13) _empty_/semiGroups.Nat.Z. -> 113:10
+(117:17..117:21) _empty_/semiGroups.Nat#add().(that) -> 116:13
+(118:12..118:13) _empty_/semiGroups.Nat.S.
+(118:20..118:21) _empty_/semiGroups.Nat.S.
+(118:22..118:23) local19 -> 118:14
+(118:24..118:27) _empty_/semiGroups.Nat#add(). -> 116:9
+(118:28..118:32) _empty_/semiGroups.Nat#add().(that) -> 116:13
+(121:18..121:21) _empty_/semiGroups.Nat. -> 123:10
+(121:29..121:32) _empty_/semiGroups.Nat. -> 123:10
+(123:22..123:34) _empty_/semiGroups.MonoidCommon# -> 84:9
+(124:17..124:20) _empty_/semiGroups.Nat# -> 112:8
+(125:21..125:24) _empty_/semiGroups.Nat# -> 112:8
+(126:16..126:19) _empty_/semiGroups.Nat. -> 123:10
+(126:20..126:21) _empty_/semiGroups.Nat.Z. -> 113:10
+(127:23..127:26) _empty_/semiGroups.Nat# -> 112:8
+(127:30..127:35) _empty_/semiGroups.Nat.inject().($this) -> 127:16
+(129:10..129:13) _empty_/semiGroups.Nat. -> 123:10
+(129:15..129:16) _empty_/semiGroups.Nat.Z. -> 113:10
+(129:18..129:19) _empty_/semiGroups.Nat.S# -> 114:10
+(129:18..129:19) _empty_/semiGroups.Nat.S.
+(131:24..131:27) _empty_/semiGroups.Nat. -> 123:10
+(131:35..131:38) _empty_/semiGroups.Nat. -> 123:10
+(133:18..133:22) scala/package.List#
+(133:23..133:24) _empty_/semiGroups.sum().[T] -> 133:11
+(133:40..133:46) _empty_/semiGroups.Monoid. -> 88:10
+(133:47..133:51) _empty_/semiGroups.Monoid.Impl# -> 89:10
+(133:52..133:53) _empty_/semiGroups.sum().[T] -> 133:11
+(134:5..134:7) _empty_/semiGroups.sum().(xs) -> 133:14
+(134:8..134:16) scala/collection/LinearSeqOps#foldLeft().
+(134:17..134:23) _empty_/semiGroups.Monoid. -> 88:10
+(134:24..134:28) _empty_/runtime.TypeClassCompanion#impl(). -> 57:9
+(134:29..134:30) _empty_/semiGroups.sum().[T] -> 133:11
+(134:32..134:36) _empty_/semiGroups.MonoidCommon#unit(). -> 86:9
+(134:48..134:49) local21 -> 134:39
+(134:50..134:55) _empty_/semiGroups.SemiGroup#add(). -> 71:9
+(134:56..134:57) local22 -> 134:42
+(136:3..136:6) _empty_/semiGroups.sum(). -> 133:7
+(136:7..136:11) scala/package.List.
+(137:3..137:6) _empty_/semiGroups.sum(). -> 133:7
+(137:7..137:11) scala/package.List.
+(138:3..138:6) _empty_/semiGroups.sum(). -> 133:7
+(138:7..138:11) scala/package.List.
+(138:12..138:13) _empty_/semiGroups.Nat.Z. -> 113:10
+(138:15..138:16) _empty_/semiGroups.Nat.S.
+(138:17..138:18) _empty_/semiGroups.Nat.Z. -> 113:10
+(138:21..138:22) _empty_/semiGroups.Nat.S.
+(138:23..138:24) _empty_/semiGroups.Nat.S.
+(138:25..138:26) _empty_/semiGroups.Nat.Z. -> 113:10
+(180:21..180:30) _empty_/runtime.TypeClass# -> 44:9
+(181:18..181:27) _empty_/ord.OrdCommon# -> 187:9
+(182:12..182:19) _empty_/ord.Ord#commons. -> 181:9
+(183:25..183:29) _empty_/runtime.TypeClass#This# -> 46:10
+(183:32..183:35) scala/Int#
+(184:18..184:22) _empty_/runtime.TypeClass#This# -> 46:10
+(184:26..184:35) _empty_/ord.Ord#compareTo(). -> 183:9
+(184:36..184:40) _empty_/ord.Ord#`<`().(that) -> 184:12
+(184:42..184:43) scala/Int#`<`(+3).
+(185:18..185:22) _empty_/runtime.TypeClass#This# -> 46:10
+(185:26..185:35) _empty_/ord.Ord#compareTo(). -> 183:9
+(185:36..185:40) _empty_/ord.Ord#`>`().(that) -> 185:12
+(185:42..185:43) scala/Int#`>`(+3).
+(187:27..187:42) _empty_/runtime.TypeClassCommon# -> 49:9
+(188:22..188:25) _empty_/ord.Ord# -> 180:9
+(189:18..189:22) _empty_/runtime.TypeClassCommon#This# -> 50:10
+(191:22..191:40) _empty_/runtime.TypeClassCompanion# -> 55:9
+(192:20..192:29) _empty_/ord.OrdCommon# -> 187:9
+(192:44..192:45) _empty_/ord.Ord.Impl#[T] -> 192:15
+(195:34..195:43) _empty_/ord.OrdCommon# -> 187:9
+(196:17..196:20) scala/Int#
+(197:21..197:24) _empty_/ord.Ord# -> 180:9
+(198:18..198:21) scala/Int#
+(198:24..198:27) scala/Int.
+(198:28..198:36) scala/Int.MinValue.
+(199:23..199:26) scala/Int#
+(199:34..199:37) _empty_/ord.Ord# -> 180:9
+(201:14..201:21) local24 -> 200:11
+(202:32..202:36) _empty_/runtime.TypeClass#This# -> 46:10
+(202:39..202:42) scala/Int#
+(203:18..203:19) _empty_/ord.Ord#`<`(). -> 184:9
+(203:20..203:24) local25 -> 202:21
+(203:43..203:44) _empty_/ord.Ord#`>`(). -> 185:9
+(203:45..203:49) local25 -> 202:21
+(207:33..207:36) _empty_/ord.Ord. -> 191:10
+(207:37..207:41) _empty_/ord.Ord.Impl# -> 192:10
+(207:42..207:43) _empty_/ord.ListOrd#[T] -> 207:17
+(207:54..207:63) _empty_/ord.OrdCommon# -> 187:9
+(208:17..208:21) scala/package.List#
+(208:22..208:23) _empty_/ord.ListOrd#[T] -> 207:17
+(209:21..209:24) _empty_/ord.Ord# -> 180:9
+(210:18..210:22) scala/package.List#
+(210:23..210:24) _empty_/ord.ListOrd#[T] -> 207:17
+(210:28..210:31) scala/package.Nil.
+(211:23..211:27) scala/package.List#
+(211:28..211:29) _empty_/ord.ListOrd#[T] -> 207:17
+(211:38..211:41) _empty_/ord.Ord# -> 180:9
+(212:20..212:24) _empty_/ord.ListOrd# -> 207:9
+(212:32..212:36) _empty_/ord.ListOrd# -> 207:9
+(213:14..213:21) local31 -> 212:11
+(214:27..214:31) scala/package.List#
+(214:32..214:33) _empty_/ord.ListOrd#[T] -> 207:17
+(214:37..214:40) scala/Int#
+(214:44..214:49) _empty_/ord.ListOrd#inject().($this) -> 211:16
+(214:51..214:55) local32 -> 214:21
+(215:15..215:18) scala/package.Nil.
+(215:20..215:23) scala/package.Nil.
+(216:15..216:18) scala/package.Nil.
+(217:18..217:21) scala/package.Nil.
+(218:17..218:19) scala/package.`::`.
+(218:26..218:28) scala/package.`::`.
+(219:21..219:22) local33 -> 218:15
+(219:23..219:32) _empty_/ord.Ord#compareTo(). -> 183:9
+(219:33..219:34) local35 -> 218:24
+(220:15..220:18) local37 -> 219:15
+(220:19..220:21) scala/Int#`!=`(+3).
+(220:25..220:28) local37 -> 219:15
+(220:34..220:36) local34 -> 218:20
+(220:37..220:46) _empty_/ord.Ord#compareTo(). -> 183:9
+(220:47..220:49) local36 -> 218:29
+(225:40..225:43) _empty_/ord.Ord. -> 191:10
+(225:44..225:48) _empty_/ord.Ord.Impl# -> 192:10
+(225:49..225:50) _empty_/ord.listOrd().[T] -> 225:24
+(225:54..225:61) _empty_/ord.ListOrd# -> 207:9
+(225:62..225:63) _empty_/ord.listOrd().[T] -> 225:24
+(226:9..226:16) _empty_/ord.ListOrd# -> 207:9
+(226:17..226:18) _empty_/ord.listOrd().[T] -> 225:24
+(228:17..228:18) _empty_/ord.min().[T] -> 228:11
+(228:23..228:24) _empty_/ord.min().[T] -> 228:11
+(228:39..228:42) _empty_/ord.Ord. -> 191:10
+(228:43..228:47) _empty_/ord.Ord.Impl# -> 192:10
+(228:48..228:49) _empty_/ord.min().[T] -> 228:11
+(228:53..228:54) _empty_/ord.min().[T] -> 228:11
+(229:9..229:10) _empty_/ord.min().(x) -> 228:14
+(229:11..229:12) _empty_/ord.Ord#`<`(). -> 184:9
+(229:13..229:14) _empty_/ord.min().(y) -> 228:20
+(229:16..229:17) _empty_/ord.min().(x) -> 228:14
+(229:23..229:24) _empty_/ord.min().(y) -> 228:20
+(231:18..231:22) scala/package.List#
+(231:23..231:24) _empty_/ord.inf().[T] -> 231:11
+(231:40..231:43) _empty_/ord.Ord. -> 191:10
+(231:44..231:48) _empty_/ord.Ord.Impl# -> 192:10
+(231:49..231:50) _empty_/ord.inf().[T] -> 231:11
+(231:54..231:55) _empty_/ord.inf().[T] -> 231:11
+(232:20..232:23) _empty_/ord.Ord. -> 191:10
+(232:24..232:28) _empty_/runtime.TypeClassCompanion#impl(). -> 57:9
+(232:29..232:30) _empty_/ord.inf().[T] -> 231:11
+(232:32..232:39) _empty_/ord.OrdCommon#minimum(). -> 189:9
+(233:5..233:7) _empty_/ord.inf().(xs) -> 231:14
+(233:8..233:16) scala/collection/LinearSeqOps#foldLeft().
+(233:17..233:25) local42 -> 232:9
+(233:27..233:30) _empty_/ord.min(). -> 228:7
+(236:3..236:6) _empty_/ord.inf(). -> 231:7
+(236:7..236:11) scala/package.List.
+(236:12..236:15) scala/Int#
+(237:3..237:6) _empty_/ord.inf(). -> 231:7
+(237:7..237:11) scala/package.List.
+(237:12..237:16) scala/package.List.
+(237:24..237:28) scala/package.List.
+(238:3..238:6) _empty_/ord.inf(). -> 231:7
+(238:7..238:11) scala/package.List.
+(238:12..238:16) scala/package.List.
+(238:17..238:21) scala/package.List.
+(238:26..238:30) scala/package.List.
+(238:36..238:40) scala/package.List.
+(238:41..238:45) scala/package.List.
+(238:50..238:54) scala/package.List.
+(238:59..238:63) scala/package.List.
+(276:18..276:34) _empty_/runtime1.TypeClassCommon1# -> 280:9
+(277:25..277:32) _empty_/runtime1.TypeClass1#commons. -> 276:9
+(277:33..277:37) _empty_/runtime1.TypeClassCommon1#This# -> 281:10
+(277:38..277:39) _empty_/runtime1.TypeClass1#This#[X] -> 277:18
+(282:25..282:35) _empty_/runtime1.TypeClass1# -> 275:9
+(283:22..283:26) _empty_/runtime1.TypeClassCommon1#This# -> 281:10
+(283:27..283:28) _empty_/runtime1.TypeClassCommon1#inject().[A] -> 283:16
+(283:32..283:40) _empty_/runtime1.TypeClassCommon1#Instance# -> 282:10
+(283:41..283:42) _empty_/runtime1.TypeClassCommon1#inject().[A] -> 283:16
+(283:59..283:63) _empty_/runtime1.TypeClassCommon1# -> 280:9
+(287:24..287:40) _empty_/runtime1.TypeClassCommon1# -> 280:9
+(287:63..287:64) _empty_/runtime1.TypeClassCompanion1#Impl#[T] -> 287:15
+(287:65..287:66) local47 -> 287:56
+(288:33..288:37) _empty_/runtime1.TypeClassCompanion1#Impl# -> 287:10
+(288:38..288:39) _empty_/runtime1.TypeClassCompanion1#impl().[T] -> 288:14
+(288:43..288:47) _empty_/runtime1.TypeClassCompanion1#Impl# -> 287:10
+(288:48..288:49) _empty_/runtime1.TypeClassCompanion1#impl().[T] -> 288:14
+(288:53..288:55) _empty_/runtime1.TypeClassCompanion1#impl().(ev) -> 288:29
+(291:39..291:43) _empty_/runtime1.inject1().[From] -> 291:27
+(291:44..291:45) _empty_/runtime1.inject1().[A] -> 291:24
+(292:21..292:37) _empty_/runtime1.TypeClassCommon1# -> 280:9
+(293:29..293:33) _empty_/runtime1.inject1().[From] -> 291:27
+(293:34..293:35) local49 -> 293:22
+(294:11..294:13) _empty_/runtime1.inject1().(ev) -> 292:17
+(294:14..294:22) _empty_/runtime1.TypeClassCommon1#Instance# -> 282:10
+(294:23..294:24) _empty_/runtime1.inject1().[A] -> 291:24
+(294:48..294:52) _empty_/runtime1.inject1().[From] -> 291:27
+(294:53..294:54) local51 -> 294:41
+(295:5..295:7) _empty_/runtime1.inject1().(ev) -> 292:17
+(295:8..295:14) _empty_/runtime1.TypeClassCommon1#inject(). -> 283:9
+(295:15..295:16) _empty_/runtime1.inject1().(x) -> 291:36
+(297:8..297:16) _empty_/runtime1. -> 273:8
+(301:28..301:38) _empty_/runtime1.TypeClass1# -> 275:9
+(302:18..302:31) _empty_/functors.FunctorCommon# -> 306:9
+(303:12..303:19) _empty_/functors.Functor#commons. -> 302:9
+(304:19..304:20) _empty_/functors.Functor#[A] -> 301:17
+(304:24..304:25) _empty_/functors.Functor#map().[B] -> 304:13
+(304:28..304:32) _empty_/runtime1.TypeClass1#This# -> 277:10
+(304:33..304:34) _empty_/functors.Functor#map().[B] -> 304:13
+(306:31..306:47) _empty_/runtime1.TypeClassCommon1# -> 280:9
+(307:25..307:32) _empty_/functors.Functor# -> 301:9
+(307:33..307:34) _empty_/functors.FunctorCommon#Instance#[X] -> 307:19
+(308:20..308:21) _empty_/functors.FunctorCommon#pure().[A] -> 308:14
+(308:24..308:28) _empty_/runtime1.TypeClassCommon1#This# -> 281:10
+(308:29..308:30) _empty_/functors.FunctorCommon#pure().[A] -> 308:14
+(310:26..310:45) _empty_/runtime1.TypeClassCompanion1# -> 286:9
+(311:23..311:36) _empty_/functors.FunctorCommon# -> 306:9
+(311:59..311:60) _empty_/functors.Functor.Impl#[T] -> 311:15
+(311:61..311:62) local53 -> 311:52
+(314:26..314:33) _empty_/functors.Functor# -> 301:9
+(314:34..314:35) _empty_/functors.Monad#[A] -> 314:15
+(315:18..315:29) _empty_/functors.MonadCommon# -> 320:9
+(316:12..316:19) _empty_/functors.Monad#commons. -> 315:9
+(317:23..317:24) _empty_/functors.Monad#[A] -> 314:15
+(317:28..317:32) _empty_/runtime1.TypeClass1#This# -> 277:10
+(317:33..317:34) _empty_/functors.Monad#flatMap().[B] -> 317:17
+(317:38..317:42) _empty_/runtime1.TypeClass1#This# -> 277:10
+(317:43..317:44) _empty_/functors.Monad#flatMap().[B] -> 317:17
+(318:19..318:20) _empty_/functors.Monad#[A] -> 314:15
+(318:24..318:25) _empty_/functors.Monad#map().[B] -> 318:13
+(318:34..318:41) _empty_/functors.Monad#flatMap(). -> 317:9
+(318:42..318:43) _empty_/functors.Monad#map().(f) -> 318:16
+(318:44..318:51) scala/Function1#andThen().
+(318:52..318:59) _empty_/functors.Monad#commons. -> 315:9
+(318:60..318:64) _empty_/functors.FunctorCommon#pure(). -> 308:9
+(320:29..320:42) _empty_/functors.FunctorCommon# -> 306:9
+(321:25..321:30) _empty_/functors.Monad# -> 314:9
+(321:31..321:32) _empty_/functors.MonadCommon#Instance#[X] -> 321:19
+(323:24..323:43) _empty_/runtime1.TypeClassCompanion1# -> 286:9
+(324:23..324:34) _empty_/functors.MonadCommon# -> 320:9
+(324:57..324:58) _empty_/functors.Monad.Impl#[T] -> 324:15
+(324:59..324:60) local56 -> 324:50
+(327:27..327:30) scala/Int#
+(327:35..327:36) _empty_/functors.develop().[A] -> 327:15
+(327:41..327:42) _empty_/functors.develop().[A] -> 327:15
+(327:46..327:47) _empty_/functors.develop().[A] -> 327:15
+(327:62..327:69) _empty_/functors.Functor. -> 310:10
+(327:70..327:74) _empty_/functors.Functor.Impl# -> 311:10
+(327:75..327:76) _empty_/functors.develop().[F] -> 327:18
+(327:80..327:81) _empty_/functors.develop().[F] -> 327:18
+(327:82..327:83) _empty_/functors.develop().[A] -> 327:15
+(328:9..328:10) _empty_/functors.develop().(n) -> 327:24
+(328:11..328:13) scala/Int#`==`(+3).
+(328:17..328:24) _empty_/functors.Functor. -> 310:10
+(328:25..328:29) _empty_/runtime1.TypeClassCompanion1#impl(). -> 288:9
+(328:30..328:31) _empty_/functors.develop().[F] -> 327:18
+(328:33..328:37) _empty_/functors.FunctorCommon#pure(). -> 308:9
+(328:38..328:39) _empty_/functors.develop().(x) -> 327:32
+(329:10..329:17) _empty_/functors.develop(). -> 327:7
+(329:18..329:19) _empty_/functors.develop().(n) -> 327:24
+(329:20..329:21) scala/Int#`-`(+3).
+(329:25..329:26) _empty_/functors.develop().(x) -> 327:32
+(329:28..329:29) _empty_/functors.develop().(f) -> 327:38
+(329:31..329:34) _empty_/functors.Functor#map(). -> 304:9
+(329:35..329:36) _empty_/functors.develop().(f) -> 327:38
+(329:38..329:50) scala/Any#asInstanceOf().
+(331:37..331:48) _empty_/functors.MonadCommon# -> 320:9
+(332:21..332:25) scala/package.List#
+(332:26..332:27) _empty_/functors.ListMonad.This#[X] -> 332:16
+(333:24..333:29) _empty_/functors.Monad# -> 314:9
+(333:30..333:31) _empty_/functors.ListMonad.Instance#[X] -> 333:19
+(334:20..334:21) _empty_/functors.ListMonad.pure().[A] -> 334:14
+(334:25..334:26) _empty_/functors.ListMonad.pure().(x) -> 334:17
+(334:30..334:33) scala/package.Nil.
+(335:26..335:30) scala/package.List#
+(335:31..335:32) _empty_/functors.ListMonad.inject().[A] -> 335:16
+(335:41..335:46) _empty_/functors.Monad# -> 314:9
+(335:47..335:48) _empty_/functors.ListMonad.inject().[A] -> 335:16
+(336:42..336:51) _empty_/functors.ListMonad. -> 331:19
+(337:14..337:21) local58 -> 336:11
+(338:25..338:26) _empty_/functors.ListMonad.inject().[A] -> 335:16
+(338:30..338:34) scala/package.List#
+(338:35..338:36) local59 -> 338:19
+(338:40..338:44) scala/package.List#
+(338:45..338:46) local59 -> 338:19
+(338:50..338:55) _empty_/functors.ListMonad.inject().($this) -> 335:19
+(338:56..338:63) scala/collection/immutable/List#flatMap().
+(338:64..338:65) local60 -> 338:22
+(343:35..343:36) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
+(343:37..343:38) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
+(343:39..343:40) _empty_/functors.MonadFlatten.flattened().[A] -> 343:25
+(343:57..343:62) _empty_/functors.Monad. -> 323:10
+(343:63..343:67) _empty_/functors.Monad.Impl# -> 324:10
+(343:68..343:69) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
+(343:73..343:74) _empty_/functors.MonadFlatten.flattened().[T] -> 343:19
+(343:75..343:76) _empty_/functors.MonadFlatten.flattened().[A] -> 343:25
+(344:7..344:10) scala/Predef.`???`().
+(347:3..347:15) _empty_/functors.MonadFlatten. -> 342:10
+(347:16..347:25) _empty_/functors.MonadFlatten.flattened(). -> 343:9
+(347:26..347:30) scala/package.List.
+(347:31..347:35) scala/package.List.
+(347:46..347:50) scala/package.List.
+(348:3..348:15) _empty_/functors.MonadFlatten. -> 342:10
+(348:16..348:25) _empty_/functors.MonadFlatten.flattened(). -> 343:9
+(348:26..348:30) scala/package.List.
+(348:31..348:35) scala/package.List.
+(348:46..348:50) scala/package.List.
+(348:65..348:74) _empty_/functors.ListMonad. -> 331:19
+

@@ -1,0 +1,43 @@
+Document tests/pos/i21757.scala
+(3:22..3:25) scala/Int#
+(5:18..5:19) _empty_/ConversionChain.X# -> 3:9
+(7:18..7:19) _empty_/ConversionChain.Y# -> 5:9
+(9:28..9:38) scala/Conversion#
+(9:39..9:40) _empty_/ConversionChain.Conv#[A] -> 9:14
+(9:42..9:43) _empty_/ConversionChain.Conv#[B] -> 9:17
+(11:13..11:17) _empty_/ConversionChain.Conv# -> 9:9
+(11:18..11:19) _empty_/ConversionChain.X# -> 3:9
+(11:21..11:22) _empty_/ConversionChain.Y# -> 5:9
+(11:32..11:33) _empty_/ConversionChain.X# -> 3:9
+(11:42..11:43) _empty_/ConversionChain.Y# -> 5:9
+(11:44..11:45) local0 -> 11:29
+(13:13..13:17) _empty_/ConversionChain.Conv# -> 9:9
+(13:18..13:19) _empty_/ConversionChain.Y# -> 5:9
+(13:21..13:22) _empty_/ConversionChain.Z# -> 7:9
+(13:32..13:33) _empty_/ConversionChain.Y# -> 5:9
+(13:42..13:43) _empty_/ConversionChain.Z# -> 7:9
+(13:44..13:45) local1 -> 13:29
+(18:13..18:17) _empty_/ConversionChain.Conv# -> 9:9
+(18:18..18:19) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[A] -> 16:40
+(18:21..18:22) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[B] -> 16:43
+(19:13..19:17) _empty_/ConversionChain.Conv# -> 9:9
+(19:18..19:19) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[B] -> 16:43
+(19:21..19:22) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[C] -> 16:46
+(20:8..20:12) _empty_/ConversionChain.Conv# -> 9:9
+(20:13..20:14) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[A] -> 16:40
+(20:16..20:17) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[C] -> 16:46
+(22:11..22:15) _empty_/ConversionChain.Conv# -> 9:9
+(22:16..22:17) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[A] -> 16:40
+(22:19..22:20) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[C] -> 16:46
+(23:22..23:23) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[A] -> 16:40
+(23:26..23:27) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().[C] -> 16:46
+(23:30..23:32) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().(bc) -> 19:9
+(23:33..23:35) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism().(ab) -> 18:9
+(23:36..23:37) local2 -> 23:19
+(27:10..27:19) _empty_/ConversionChain.ConvUtils. -> 15:10
+(27:20..27:41) _empty_/ConversionChain.ConvUtils.hypotheticalSyllogism(). -> 16:18
+(29:15..29:19) scala/Unit#
+(30:17..30:18) _empty_/ConversionChain.X# -> 3:9
+(31:12..31:13) _empty_/ConversionChain.Z# -> 7:9
+(31:16..31:17) local6 -> 30:9
+

@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <generation.toStringClassFilter
+                implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
+
+        <highlightVisitor
+                implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRefCountVisitor"/>
+        <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
+
+        <daemon.changeLocalityDetector implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaChangeLocalityDetector"/>
+
+        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory"/>
+
+        <highlightErrorFilter
+                implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaDocHighlightErrorFilter"/>
+
+        <lang.quoteHandler language="Scala"
+                           implementationClass="org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandler"/>
+
+        <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
+                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"
+                                 order="first"/>
+        <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
+                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
+                                 order="first"/>
+
+        <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayHintsSettingsProvider" />
+
+        <editorFactoryListener implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener"/>
+
+        <defaultLiveTemplates file="liveTemplates/scala"/>
+        <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
+        <liveTemplateContext contextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType"/>
+        <liveTemplateContext contextId="SCALA3"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.Scala3FileTemplateContextType"/>
+        <liveTemplateContext contextId="SCALA_XML"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
+        <liveTemplateContext contextId="SCALA_COMMENT"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
+        <liveTemplateContext contextId="SCALA_STRING"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
+        <liveTemplateContext contextId="SCALA_CODE"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
+        <liveTemplateContext contextId="SCALA_IMPLICIT_CLASS"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitClassContextType"/>
+        <liveTemplateContext contextId="SCALA_BLANK_LINE"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaBlankLineContextType"/>
+
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaAnnotatedMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$RegularVariable"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$ArrayVariable"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$IterableVariable"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaClassNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSuggestVariableNameByTypeMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitClassNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaImplicitClassExtendsAnyValOptionalTextMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaComponentTypeOfMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaCurrentPackageMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaExpressionTypeMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaIterableComponentTypeMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaMethodNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaMethodParametersMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaMethodReturnTypeMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaQualifiedClassNameMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSubtypesMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$Params"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamNames"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamTypes"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeParametersMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeParametersWithoutBoundsMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaCompanionClassMacro"/>
+
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
+                bundle="messages.ScalaCodeInsightBundle"
+                key="no.tailrec.annotation.title"
+                groupPath="Scala" groupKey="group.general"
+                shortName="NoTailRecursionAnnotation"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+
+        <intentionAction>
+            <language>Scala</language>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention</className>
+            <categoryKey>intention.category.scala</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.argument.conversion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.argument.conversion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.ArgumentToBlockExpressionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.argument.conversion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.BlockExpressionToArgumentIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.argument.conversion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.PermuteArgumentsIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.DeMorganLawIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.NegateComparisonIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInInfixExprIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInMethodCallExprIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.boolean</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.SimplifyBooleanExprWithLiteralIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.InvertIfConditionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeElseIfIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeIfToAndIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeIfToOrIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.RemoveRedundantElseIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.ReplaceDoWhileWithWhileIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.ReplaceWhileWithDoWhileIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.SplitElseIfIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.control.flow</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.SplitIfIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings.formatted.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToStringConcatenation</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings.formatted.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToInterpolated</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings.interpolated.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToStringConcatenation</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings.interpolated.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToFormatted</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.string.string.concatenations</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToFormatted</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.string.string.concatenations</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToInterpolated</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddReplaceSlashRToMLStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddStripMarginToMLStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.InsertGapIntoStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.strings</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.StringToMultilineStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.recursion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
+        </intentionAction>
+
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ConfigureShortcutsProjectActivity"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeTip"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler" />
+
+        <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
+
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.codeInsight.completion.command.ScalaToggleXRayModeCompletionCommandProvider"/>
+
+        <registryKey key="scala.round.hint.corners" defaultValue="true" restartRequired="false" description="Round hint corners"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.codeInsight">
+        <delegateMethods language="Scala"
+                         implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
+    </extensions>
+
+    <actions>
+        <action id="Scala.ShowImplicits" class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction">
+            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+        </action>
+
+        <action id="Scala.ExpandImplicits" class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction">
+            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
+        </action>
+
+        <action id="Scala.XRayModeTip" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$XRayModeTipAction"/>
+        <action id="Scala.XRayMode" class="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeAction">
+            <keyboard-shortcut first-keystroke="ctrl alt shift X" keymap="$default"/>
+        </action>
+
+        <action id="Scala.ToggleTypeMismatchHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleTypeHintsAction" />
+        <action id="Scala.ToggleMethodChainInlayHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodChainInlayHintsAction" />
+        <action id="Scala.ToggleRangeHintsForToAndUntilAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeHintsForToAndUntilAction" />
+        <action id="Scala.ToggleRangeExclusiveHintAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleRangeExclusiveHintAction" />
+
+        <action id="Scala.ToggleParametersHints" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleParameterHintsAction" />
+        <action id="Scala.ToggleMethodResultTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMethodResultTypeAction" />
+        <action id="Scala.ToggleMemberVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleMemberVariableTypeAction" />
+        <action id="Scala.ToggleLocalVariableTypeAction" class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToggleLocalVariableTypeAction" />
+
+
+        <group id="ScalaGenerateGroup">
+            <separator/>
+            <action id="Scala.GenerateEquals" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction" />
+            <action id="Scala.GenerateToString" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateToStringAction" />
+            <action id="Scala.GenerateCompanionObject" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateCompanionObjectAction"/>
+            <action id="Scala.GenerateProperty" class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGeneratePropertyAction" />
+            <add-to-group group-id="GenerateGroup"/>
+        </group>
+
+        <group id="ImplicitConversionMenu">
+            <action id="MakeExplicit" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"/>
+            <separator/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
+        </group>
+
+        <group id="ImplicitArgumentsMenu">
+            <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"/>
+            <separator/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
+        </group>
+
+        <group id="ExplicitArgumentsMenu">
+            <action id="RemoveExplicitArguments" class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments" />
+            <separator/>
+            <reference ref="Scala.ShowImplicits" />
+            <reference ref="Scala.ExpandImplicits" />
+            <separator />
+            <reference ref="Scala.XRayModeTip" />
+        </group>
+    </actions>
+</idea-plugin>

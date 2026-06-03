@@ -1,0 +1,290 @@
+package org.jetbrains.jps.incremental.scala.data
+
+import com.intellij.openapi.util.Key
+import com.intellij.util.lang.JavaVersion
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.impl.java.JavacCompilerTool
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaCompilingTool}
+import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.java.JavaBuilder
+import org.jetbrains.jps.incremental.scala.model.{CompilerSettings, LibrarySettings}
+import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager, compilerVersionIn}
+import org.jetbrains.jps.model.JpsModel
+import org.jetbrains.jps.model.java.compiler.ProcessorConfigProfile
+import org.jetbrains.jps.model.java.{JpsJavaExtensionService, JpsJavaSdkType}
+import org.jetbrains.jps.model.library.JpsLibrary
+import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
+import org.jetbrains.plugins.scala.compiler.data
+import org.jetbrains.plugins.scala.compiler.data.CompilerJarsFactory.CompilerJarsResolveError
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, CompilerJarsFactory}
+import org.jetbrains.plugins.scala.util.JarUtil
+import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
+
+import java.nio.file.{Files, Path, Paths}
+import java.util
+import scala.jdk.CollectionConverters._
+
+trait CompilerDataFactory {
+
+  def from(context: CompileContext,
+           chunk: ModuleChunk): Either[String, CompilerData]
+}
+
+object CompilerDataFactory
+  extends CompilerDataFactory {
+
+  override def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
+    val module = chunk.representativeTarget.getModule
+
+    val scalaSdkOpt = SettingsManager.getScalaSdk(module)
+
+    val compilerJars: Either[String, Option[CompilerJars]] =
+      scalaSdkOpt
+        .map(extractCompilerJars(_, module).map(Some(_)))
+        .getOrElse(Right(None))
+
+    val descriptor = context.getProjectDescriptor
+    for {
+      jars <- compilerJars
+      home <- javaHome(descriptor.getModel, module, ScalaBuilder.isCompileServerEnabled(context))
+    } yield {
+      val incrementality = SettingsManager.getProjectSettings(descriptor.getProject).getIncrementalityType
+      data.CompilerData(jars, home, incrementality)
+    }
+  }
+
+  private def extractCompilerJars(scalaSdk: JpsLibrary, module: JpsModule): Either[String, CompilerJars] =
+    compilerJarsInSdk(scalaSdk)
+      .flatMap(validateAllFilesExist)
+      .left.map(toErrorMessage(_, scalaSdk, module))
+
+  private def validateAllFilesExist(jars: CompilerJars): Either[CompilerJarsResolveError.FilesDoNotExist, CompilerJars] = {
+    val absentJars = jars.allJars.filterNot(Files.exists(_))
+    Either.cond(
+      absentJars.isEmpty,
+      jars,
+      CompilerJarsResolveError.FilesDoNotExist(absentJars)
+    )
+  }
+
+  private def javaHome(model: JpsModel,
+                       module: JpsModule,
+                       isCompileServerEnabled: Boolean): Either[String, Option[Path]] = {
+    val jdkOpt = Option(module.getSdk(JpsJavaSdkType.INSTANCE))
+    jdkOpt
+      .toRight("No JDK in module " + module.getName)
+      .flatMap { moduleJdk =>
+
+        val jvmSdk = if (isCompileServerEnabled) {
+          val global = model.getGlobal
+          Option(SettingsManager.getGlobalSettings(global).getCompileServerSdk).flatMap { sdkName =>
+            global.getLibraryCollection
+              .getLibraries(JpsJavaSdkType.INSTANCE)
+              .asScala
+              .find(_.getName == sdkName)
+          }
+        } else {
+          Option(model.getProject.getSdkReferencesTable.getSdkReference(JpsJavaSdkType.INSTANCE))
+            .flatMap(references => Option(references.resolve))
+        }
+
+        if (jvmSdk.map(_.getProperties).contains(moduleJdk)) {
+          Right(None)
+        } else {
+          val directory = Paths.get(moduleJdk.getHomePath)
+          Either.cond(Files.exists(directory), Some(directory), "JDK home directory does not exists: " + directory)
+        }
+      }
+  }
+
+  def hasScala3(modules: Set[JpsModule]): Boolean =
+    modules.exists {
+      compilerJarsIn(_).exists(_.hasScala3)
+    }
+
+  private def hasOldScala(modules: Set[JpsModule]) =
+    hasVersions(modules, "2.8", "2.9")
+
+  //noinspection SameParameterValue
+  private def hasVersions(modules: Set[JpsModule], versions: String*) =
+    modules.exists {
+      compilerJarsIn(_).forall { cj =>
+        compilerVersionIn(cj.compilerJar, versions: _*)
+      }
+    }
+
+  def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
+    val modules = chunk.getModules.asScala.toSet
+    val hasScala3 = CompilerDataFactory.hasScala3(modules)
+    val configuredOptions = compilerSettings.getCompilerOptionsAsStrings(hasScala3).asScala.toSeq
+
+    val bootOptions = bootClasspathOptions(hasOldScala(modules))
+    val semanticDBOptions = semanticDbOptionsFor(configuredOptions, chunk)
+
+    val options = bootOptions ++ semanticDBOptions ++ configuredOptions
+
+    // The compiler plugin is currently only compatible with Scala 3.3+ (see CompilerPlugin)
+    // For those versions, we run DocumentCompiler in addition to JPS compilation (see AbstractRemoteServerConnector.scalaParameters)
+    // In principle, we may enable the compiler plugin in JPS, but we need to do that conditionally (and possibly supply a set of files as a filter)
+
+//    if (compilerHighlightingScala3 && hasScala3 && compilerTypesEnabled) {
+//      val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
+//
+//      options :++= Seq(
+//        "-Xplugin:" + new File(pluginJpsRoot, "compiler-plugin.jar").getAbsolutePath,
+//        "-Xplugin-require:compiler-plugin"
+//      )
+//    }
+
+    options
+  }
+
+  private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =
+    if (hasOldScala) {
+      Seq("-nobootcp", "-javabootclasspath", java.io.File.pathSeparator)
+    } else {
+      Seq.empty
+    }
+
+  private val SourceRootOptionScala2 = "-P:semanticdb:sourceroot"
+  private val SourceRootOptionScala3 = "-sourceroot"
+  private val SemanticDbOptionScala3 = "-Xsemanticdb"
+
+  /**
+   * When semantic db is enabled (via compiler plugin in Scala 2 or via compiler option in Scala3)
+   * See SCL-17519 and SCL-20779
+   */
+  private def semanticDbOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk): Seq[String] = {
+    val isSemanticDbEnabledScala2 = configuredOptions.exists(isSemanticDbPluginOption)
+    val hasSemanticDbPluginSourceRootOptionScala2 = configuredOptions.exists(_.startsWith(SourceRootOptionScala2))
+
+    val isSemanticDbEnabledScala3= configuredOptions.contains(SemanticDbOptionScala3)
+    val hasSemanticDbPluginSourceRootOptionScala3 = configuredOptions.contains(SourceRootOptionScala3)
+
+    lazy val project = chunk.representativeTarget.getModule.getProject
+    lazy val baseDirectory = JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath
+
+    if (isSemanticDbEnabledScala2 && !hasSemanticDbPluginSourceRootOptionScala2)
+      Seq(s"$SourceRootOptionScala2:$baseDirectory")
+    else if (isSemanticDbEnabledScala3 && !hasSemanticDbPluginSourceRootOptionScala3)
+      Seq(s"$SourceRootOptionScala3:$baseDirectory")
+    else
+      Seq.empty
+  }
+
+  private def isSemanticDbPluginOption(compilerOption: String): Boolean = {
+    val xPluginPrefix = "-Xplugin:"
+    compilerOption.startsWith(xPluginPrefix) &&
+      compilerOption.contains("semanticdb-scalac") &&
+      Files.exists(Paths.get(compilerOption.substring(xPluginPrefix.length)))
+  }
+
+  def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
+    val compilerConfig = {
+      val project = context.getProjectDescriptor.getProject
+      JpsJavaExtensionService.getInstance.getCompilerConfiguration(project)
+    }
+
+    val options = new util.ArrayList[String]()
+
+    val compilerOptions = {
+      val compilerId = ReplacedJavaCompilerId.get(context)
+      if (compilerId eq null)
+        compilerConfig.getCurrentCompilerOptions
+      else
+        compilerConfig.getCompilerOptions(compilerId)
+    }
+
+    JavacOptionsProvider.addCommonJavacOptions(options, compilerOptions, context, chunk)
+
+    val annotationProcessingProfile = {
+      val module = chunk.representativeTarget.getModule
+      compilerConfig.getAnnotationProcessingProfile(module)
+    }
+
+    addCompilationOptions(options, context, chunk, annotationProcessingProfile)
+
+    options.asScala.toSeq
+  }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def addCompilationOptions(
+    options: java.util.List[String],
+    context: CompileContext,
+    chunk: ModuleChunk,
+    @Nullable profile: ProcessorConfigProfile
+  ): Unit = {
+    try {
+      val compilerSdkVersion = {
+        val global = context.getProjectDescriptor.getModel.getGlobal
+        val compileServerSdk = SettingsManager.getGlobalSettings(global).getCompileServerSdk
+        Option(JavaVersion.tryParse(compileServerSdk)).map(_.feature).getOrElse(1)
+      }
+      val compilingTool = JavaBuilderUtil.findCompilingTool(JavacCompilerTool.ID)
+      val method = classOf[JavaBuilder].getDeclaredMethod(
+        "addCompilationOptions",
+        classOf[Int],
+        classOf[JavaCompilingTool],
+        classOf[java.util.List[String]],
+        classOf[CompileContext],
+        classOf[ModuleChunk],
+        classOf[ProcessorConfigProfile],
+        classOf[Boolean]
+      )
+      method.setAccessible(true)
+      method.invoke(null, compilerSdkVersion, compilingTool, options, context, chunk, profile, false)
+    } catch {
+      case _: Exception =>
+    }
+  }
+
+  private def compilerJarsIn(module: JpsModule): Option[CompilerJars] = {
+    val sdk = SettingsManager.getScalaSdk(module)
+    sdk.flatMap(compilerJarsInSdk(_).toOption)
+  }
+
+  private def compilerJarsInSdk(sdk: JpsLibrary): Either[CompilerJarsResolveError, CompilerJars] = {
+    val (compilerClasspathJars, compilerBridgeJar, replClasspath)  = compilerData(sdk)
+    CompilerJarsFactory.fromFiles(compilerClasspathJars, compilerBridgeJar, replClasspath)
+  }
+
+  private def compilerData(sdk: JpsLibrary): (Seq[Path], Option[Path], Seq[Path]) =
+    sdk.getProperties match {
+      case settings: LibrarySettings =>
+        val classpath = settings.getCompilerClasspath.toSeq
+        val bridge = Option(settings.getCompilerBridgeJar)
+        val replClasspath = settings.getReplClasspath.toSeq
+        (classpath, bridge, replClasspath)
+      case _ =>
+        (Seq.empty, None, Seq.empty)
+    }
+
+  private def toErrorMessage(error: CompilerJarsResolveError, scalaSdk: JpsLibrary, module: JpsModule): String = {
+    import CompilerJarsResolveError._
+
+    def inScalaCompiler = s"in Scala compiler classpath in Scala SDK ${scalaSdk.getName}"
+    def filesNames(files: Iterable[JarFileWithName]) = files.map(_.name).mkString(", ")
+    def filePaths(absentJars: Iterable[Path]) = absentJars.map(_.toAbsolutePath.normalize().toString).mkString(", ")
+
+    import JarUtil.JarExtension
+
+    error match {
+      case NotFound(kind)               => s"No '$kind*$JarExtension' $inScalaCompiler"
+      case DuplicatesFound(kind, files) => s"Multiple '$kind*$JarExtension' files (${filesNames(files)}) $inScalaCompiler"
+      case FilesDoNotExist(absentJars)  => s"Scala compiler JARs not found (module '${module.getName}'): ${filePaths(absentJars)}"
+    }
+  }
+
+  /**
+   * In [[org.jetbrains.jps.incremental.scala.InitialScalaBuilder.buildStarted]], we manually replace the platform Java
+   * compiler id when running the Zinc incremental compiler. Please refer to the comments in that method for more
+   * details about why this is necessary.
+   *
+   * This key is used to record the value of the platform Java compiler id that was replaced by the Zinc compiler id.
+   * Using the replaced value of the platform Java compiler id, we can get the values of the compiler options
+   * specified in the Java Compiler settings page.
+   */
+  private[scala] final val ReplacedJavaCompilerId: Key[String] = Key.create("_scala_replaced_java_compiler_id_")
+}

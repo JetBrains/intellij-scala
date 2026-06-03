@@ -1,0 +1,8 @@
+Document tests/pos/i6213.scala
+(3:34..3:37) scala/Any#
+(3:41..3:44) scala/Predef.`???`().
+(3:47..3:48) _empty_/Test.C# -> 2:9
+(3:60..3:61) _empty_/Test.foo().[U] -> 3:30
+(5:3..5:6) _empty_/Test.foo(). -> 3:26
+(5:7..5:10) scala/Int#
+

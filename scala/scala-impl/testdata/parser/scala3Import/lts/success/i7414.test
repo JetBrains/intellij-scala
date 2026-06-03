@@ -1,0 +1,195 @@
+// https://github.com/lampepfl/dotty/issues/7414
+
+object DepTest {
+  trait Trait {
+    case class Dependent()
+  }
+  object obj extends Trait
+  case class Dep[T <: Trait](t: T) {
+    def fun(q: t.Dependent): Unit = ???
+  }
+  Dep(obj).fun(obj.Dependent())
+}
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/lampepfl/dotty/issues/7414')
+  PsiWhiteSpace('\n\n')
+  ScObject: DepTest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DepTest')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Trait
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Trait')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScClass: Dependent
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Dependent')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScObject: obj
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('obj')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Trait
+                  CodeReferenceElement: Trait
+                    PsiElement(identifier)('Trait')
+        PsiWhiteSpace('\n  ')
+        ScClass: Dep
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Dep')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Trait
+                CodeReferenceElement: Trait
+                  PsiElement(identifier)('Trait')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: t
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('t')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: fun
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('fun')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: q
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('q')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: t.Dependent
+                          CodeReferenceElement: t.Dependent
+                            CodeReferenceElement: t
+                              PsiElement(identifier)('t')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Dependent')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: Dep(obj).fun
+            MethodCall
+              ReferenceExpression: Dep
+                PsiElement(identifier)('Dep')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: obj
+                  PsiElement(identifier)('obj')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('fun')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: obj.Dependent
+                ReferenceExpression: obj
+                  PsiElement(identifier)('obj')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Dependent')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

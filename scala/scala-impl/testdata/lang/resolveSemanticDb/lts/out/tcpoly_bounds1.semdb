@@ -1,0 +1,14 @@
+Document tests/pos/tcpoly_bounds1.scala
+(1:20..1:25) _empty_/Monad#[Bound] -> 1:31
+(1:26..1:27) _empty_/Monad#`<init>`().[m][x] -> 1:15
+(2:28..2:33) _empty_/Monad# -> 1:7
+(2:34..2:38) scala/package.List#
+(2:48..2:51) scala/Any#
+(2:53..2:54) _empty_/ListMonad#[a] -> 2:17
+(5:18..5:27) _empty_/MyOrdered# -> 4:7
+(5:28..5:29) _empty_/MySet#[x] -> 5:13
+(6:21..6:30) _empty_/MyOrdered# -> 4:7
+(6:31..6:32) _empty_/SetMonad#[a] -> 6:16
+(6:43..6:48) _empty_/Monad# -> 1:7
+(6:67..6:68) _empty_/SetMonad#[a] -> 6:16
+

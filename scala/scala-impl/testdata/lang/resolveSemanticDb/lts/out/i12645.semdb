@@ -1,0 +1,28 @@
+Document tests/pos/i12645.scala
+(1:22..1:27) scala/Tuple#
+(1:32..1:33) _empty_/TBox#[A] -> 1:17
+(2:22..2:25) scala/Int#
+(2:30..2:31) _empty_/IBox#[A] -> 2:17
+(4:2..4:6) scala/main#
+(5:12..5:16) _empty_/TBox# -> 1:12
+(5:17..5:27) scala/Tuple$package.EmptyTuple#
+(5:31..5:35) _empty_/TBox.
+(5:36..5:46) scala/Tuple$package.EmptyTuple.
+(6:13..6:18) scala/Tuple.
+(6:19..6:22) scala/Tuple.Map#
+(6:24..6:34) scala/Tuple$package.EmptyTuple#
+(6:36..6:46) scala/Tuple$package.EmptyTuple#
+(6:58..6:62) _empty_/TBox.
+(6:63..6:73) scala/Tuple$package.EmptyTuple.
+(6:76..6:80) _empty_/TBox.
+(6:81..6:91) scala/Tuple$package.EmptyTuple.
+(8:14..8:19) scala/Tuple.
+(8:20..8:23) scala/Tuple.Map#
+(8:41..8:45) _empty_/IBox.
+(8:50..8:54) _empty_/IBox.
+(10:18..10:19) local3 -> 10:12
+(10:21..10:22) local3 -> 10:12
+(11:14..11:19) scala/Tuple.
+(11:20..11:27) scala/Tuple.FlatMap#
+(11:36..11:37) local4 -> 10:10
+

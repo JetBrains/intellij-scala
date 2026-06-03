@@ -1,0 +1,16 @@
+Document tests/pos/spec-t5545/S_1.scala
+(1:10..1:21) scala/specialized#
+(1:22..1:25) scala/Int.
+(2:13..2:15) _empty_/F#[T1] -> 1:27
+(2:18..2:19) _empty_/F#[R] -> 1:31
+(3:17..3:18) _empty_/F#f(). -> 2:7
+(3:19..3:21) local0 -> 3:11
+
+Document tests/pos/spec-t5545/S_2.scala
+(1:10..1:21) scala/specialized#
+(1:22..1:25) scala/Int.
+(2:13..2:15) _empty_/F#[T1] -> 1:27
+(2:18..2:19) _empty_/F#[R] -> 1:31
+(3:17..3:18) _empty_/F#f(). -> 2:7
+(3:19..3:21) local0 -> 3:11
+

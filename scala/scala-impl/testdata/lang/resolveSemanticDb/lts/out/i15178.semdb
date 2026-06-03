@@ -1,0 +1,22 @@
+Document tests/pos/i15178.scala
+(5:14..5:15) _empty_/E#[F] -> 3:9
+(5:16..5:17) _empty_/E#T# -> 4:8
+(9:31..9:32) _empty_/E.apply().[F] -> 9:13
+(9:33..9:35) _empty_/E.apply().[T1] -> 9:19
+(9:44..9:45) _empty_/E# -> 3:7
+(9:46..9:47) _empty_/E.apply().[F] -> 9:13
+(10:14..10:16) _empty_/E.apply().[T1] -> 9:19
+(11:17..11:23) _empty_/E.apply().(value1) -> 9:23
+(15:8..15:14) scala/Option#
+(15:15..15:16) _empty_/E# -> 3:7
+(15:17..15:25) scala/package.Ordering#
+(15:30..15:36) scala/Option.
+(15:37..15:38) _empty_/E. -> 8:8
+(15:39..15:47) scala/package.Ordering.
+(15:48..15:51) scala/Int#
+(16:9..16:10) _empty_/i15178$package.a. -> 15:5
+(16:11..16:14) scala/Option#map().
+(16:21..16:22) _empty_/E. -> 8:8
+(16:23..16:25) local7 -> 16:15
+(16:26..16:31) _empty_/E#value. -> 5:7
+

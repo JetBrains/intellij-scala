@@ -1,0 +1,108 @@
+object Example {
+  def example(pf: PartialFunction[String, Boolean]): Int = 42
+
+  example {
+    case "foo" =>
+    case "bar" => true
+  }
+}
+-----
+ScalaFile
+  ScObject: Example
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Example')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: example
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('example')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: pf
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('pf')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: PartialFunction[String, Boolean]
+                    SimpleType: PartialFunction
+                      CodeReferenceElement: PartialFunction
+                        PsiElement(identifier)('PartialFunction')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('42')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: example
+            PsiElement(identifier)('example')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    StringLiteral
+                      PsiElement(string content)('"foo"')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  BlockOfExpressions
+                    <empty list>
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    StringLiteral
+                      PsiElement(string content)('"bar"')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    BooleanLiteral
+                      PsiElement(true)('true')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

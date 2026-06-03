@@ -1,0 +1,8 @@
+try {
+  expr<caret>
+}
+-----
+try {
+  expr
+  <caret>
+}

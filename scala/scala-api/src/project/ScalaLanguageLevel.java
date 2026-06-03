@@ -1,0 +1,108 @@
+package org.jetbrains.plugins.scala.project;
+
+import com.intellij.lang.Language;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.Scala3Language;
+import org.jetbrains.plugins.scala.ScalaLanguage;
+import scala.Option;
+import scala.math.Ordered;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+/**
+ * Represents the "major" of the scala version (the first two numbers).
+ * <p/>
+ * Note, our terminology of "major" is slightly different from the official Scala 3 terminology.
+ * Scala 3 and Scala 2 use different naming for the versioning scheme:<br>
+ * In Scala 2 the major versions use the first two numbers: 2.10, 2.11, 2.12, 2.13. <br>
+ * In Scala 3 a semantic versioning scheme is used instead: major.minor.patch
+ * (see <a href="https://scala-lang.org/development/">details</a>).
+ * We still use the first two numbers for the convenience of our code base.
+ *
+ * @see org.jetbrains.plugins.scala.ScalaVersion
+ * @see org.jetbrains.plugins.scala.project.ScalaFeatures
+ */
+public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
+
+    Scala_2_9("2.9"),
+    Scala_2_10("2.10"),
+    Scala_2_11("2.11"),
+    Scala_2_12("2.12"),
+    Scala_2_13("2.13"),
+    Scala_3_0("3.0"),
+    Scala_3_1("3.1"),
+    Scala_3_2("3.2"),
+    Scala_3_3("3.3"),
+    Scala_3_4("3.4"),
+    Scala_3_5("3.5"),
+    Scala_3_6("3.6"),
+    Scala_3_7("3.7"),
+    // not yet released scala versions
+    // (added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
+    Scala_3_8("3.8"),
+    Scala_3_9("3.9"),
+    Scala_3_10("3.10"),
+    Scala_3_11("3.11")
+    ;
+
+    public boolean isScala3() {
+        return this.compare(Scala_3_0) >= 0;
+    }
+    public boolean isScala2() {
+        return this.compare(Scala_3_0) < 0;
+    }
+
+    public Language getLanguage() {
+        return isScala3() ? Scala3Language.INSTANCE : ScalaLanguage.INSTANCE;
+    }
+
+    //TODO: Consider unifying hardcoded Scala 3 versions used throughout the project
+    // https://youtrack.jetbrains.com/issue/SCL-22545
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_7;
+    public static final ScalaLanguageLevel[] publishedVersions;
+
+    static {
+        publishedVersions = Arrays.stream(values()).takeWhile(x -> x.ordinal() <= latestPublishedVersion.ordinal()).toArray(ScalaLanguageLevel[]::new);
+    }
+
+    @NotNull
+    private final String myVersion;
+    @NotNull
+    private final String myPattern;
+
+    ScalaLanguageLevel(@NotNull String version) {
+        this(version, Pattern.quote(version) + ".*");
+    }
+
+    ScalaLanguageLevel(@NotNull String version, @NotNull String pattern) {
+        myVersion = version;
+        myPattern = pattern;
+    }
+
+    @NotNull
+    public String getVersion() {
+        return myVersion;
+    }
+
+    @Override
+    public int compare(@NotNull ScalaLanguageLevel that) {
+        return super.compareTo(that);
+    }
+
+    @NotNull
+    public static ScalaLanguageLevel getDefault() {
+        return Scala_2_13;
+    }
+
+    @NotNull
+    public static Option<ScalaLanguageLevel> findByVersion(@NotNull String version) {
+        for (ScalaLanguageLevel languageLevel : values()) {
+            if (version.matches(languageLevel.myPattern)) {
+                return Option.apply(languageLevel);
+            }
+        }
+
+        return Option.empty();
+    }
+}

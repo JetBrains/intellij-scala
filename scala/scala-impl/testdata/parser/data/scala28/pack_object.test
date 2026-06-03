@@ -1,0 +1,42 @@
+package object scala {
+  type List = collection.immutable.List
+}
+-----
+ScalaFile
+  ScObject: scala
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('scala')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: List
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('List')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: collection.immutable.List
+            CodeReferenceElement: collection.immutable.List
+              CodeReferenceElement: collection.immutable
+                CodeReferenceElement: collection
+                  PsiElement(identifier)('collection')
+                PsiElement(.)('.')
+                PsiElement(identifier)('immutable')
+              PsiElement(.)('.')
+              PsiElement(identifier)('List')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

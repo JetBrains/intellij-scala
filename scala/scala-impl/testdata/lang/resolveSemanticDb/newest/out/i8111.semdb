@@ -1,0 +1,15 @@
+Document tests/pos/i8111.scala
+(1:24..1:27) scala/App#
+(3:28..3:29) _empty_/Example.assertLazy().[A] -> 3:18
+(3:34..3:35) _empty_/Example.assertLazy().[B] -> 3:21
+(3:38..3:45) scala/Boolean#
+(3:48..3:51) scala/Predef.`???`().
+(5:29..5:35) scala/package.Either#
+(5:36..5:37) _empty_/Example.fromEither().[E] -> 5:18
+(5:39..5:40) _empty_/Example.fromEither().[F] -> 5:21
+(5:44..5:48) scala/Unit#
+(5:51..5:54) scala/Predef.`???`().
+(7:21..7:31) _empty_/Example.assertLazy(). -> 3:7
+(7:32..7:42) _empty_/Example.fromEither(). -> 5:7
+(9:3..9:10) scala/Predef.println(+1).
+

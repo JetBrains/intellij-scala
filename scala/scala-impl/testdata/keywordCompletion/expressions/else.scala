@@ -1,0 +1,39 @@
+class A {
+  if (true) {
+
+  }
+  <caret>
+}
+/*
+abstract
+case
+class
+def
+do
+else
+false
+final
+for
+if
+implicit
+import
+lazy
+new
+null
+object
+override
+private
+protected
+return
+sealed
+super
+this
+throw
+trait
+true
+try
+type
+val
+var
+while
+*/

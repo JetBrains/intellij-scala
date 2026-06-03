@@ -1,0 +1,11 @@
+class a {
+  <start>i+2
+  i+3<for>
+}
+-----
+class a {
+  for () {
+    i + 2
+    i + 3
+  }
+}

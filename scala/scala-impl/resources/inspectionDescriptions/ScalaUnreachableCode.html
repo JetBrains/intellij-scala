@@ -1,0 +1,19 @@
+<html>
+<body>
+<p>Reports unreachable code.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): Unit = {
+    throw new Exception()
+    println("this will never be reached")
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Unit = {
+    throw new Exception()
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

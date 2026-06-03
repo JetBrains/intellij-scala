@@ -1,0 +1,40 @@
+Document tests/pos/9675.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(4:27..4:32) _empty_/TList# -> 3:14
+(5:29..5:34) _empty_/TList# -> 3:14
+(5:44..5:49) _empty_/TList# -> 3:14
+(7:25..7:30) _empty_/TList# -> 3:14
+(7:35..7:38) scala/Int#
+(7:41..7:42) _empty_/`9675$package`.IndexOf#[T] -> 7:20
+(8:8..8:9) _empty_/`9675$package`.IndexOf#[H] -> 7:14
+(8:10..8:13) _empty_/`++:`# -> 5:14
+(9:10..9:13) _empty_/`++:`# -> 5:14
+(9:19..9:20) scala/compiletime/ops/int.S#
+(9:21..9:28) _empty_/`9675$package`.IndexOf# -> 7:6
+(9:29..9:30) _empty_/`9675$package`.IndexOf#[H] -> 7:14
+(9:32..9:33) local0 -> 9:14
+(12:9..12:15) scala/Predef.summon().
+(12:16..12:23) scala/ValueOf#
+(12:24..12:31) _empty_/`9675$package`.IndexOf# -> 7:6
+(12:32..12:36) scala/package.List#
+(12:38..12:42) scala/package.List#
+(12:43..12:46) _empty_/`++:`# -> 5:14
+(12:54..12:57) _empty_/`++:`# -> 5:14
+(12:58..12:62) _empty_/TNil# -> 4:14
+(12:66..12:71) scala/ValueOf#value.
+(15:9..15:15) scala/Predef.summon().
+(15:16..15:23) scala/ValueOf#
+(15:24..15:31) _empty_/`9675$package`.IndexOf# -> 7:6
+(15:32..15:36) scala/package.List#
+(15:45..15:48) _empty_/`++:`# -> 5:14
+(15:49..15:53) scala/package.List#
+(15:54..15:57) _empty_/`++:`# -> 5:14
+(15:58..15:62) _empty_/TNil# -> 4:14
+(15:66..15:71) scala/ValueOf#value.
+(17:18..17:21) scala/App#
+(18:3..18:10) scala/Predef.println(+1).
+(18:11..18:12) _empty_/`9675$package`.a. -> 12:5
+

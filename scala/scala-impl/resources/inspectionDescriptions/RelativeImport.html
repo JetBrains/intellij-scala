@@ -1,0 +1,18 @@
+<html>
+<body>
+<p>Reports import statements that do not use a fully qualified reference.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  package org.something
+
+  import someInnerPackage
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  package org.something
+
+  import org.something.someInnerPackage
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

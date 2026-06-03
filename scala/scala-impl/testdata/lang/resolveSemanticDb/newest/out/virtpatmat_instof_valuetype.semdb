@@ -1,0 +1,12 @@
+Document tests/pos/virtpatmat_instof_valuetype.scala
+(1:32..1:38) scala/Option#
+(1:39..1:45) scala/Predef.String#
+(1:49..1:53) scala/None.
+(1:61..1:68) scala/Boolean#
+(2:18..2:22) _empty_/Data# -> 1:12
+(3:5..3:10) _empty_/Data#add().(other) -> 2:11
+(4:12..4:16) _empty_/Data.
+(4:17..4:21) scala/None.
+(5:12..5:16) _empty_/Data.
+(5:17..5:21) scala/Some.
+

@@ -1,0 +1,13 @@
+Document tests/pos/i1269.scala
+(4:29..4:33) _empty_/Module#Tree# -> 2:25
+(7:31..7:35) _empty_/Module#Tree# -> 2:25
+(11:26..11:32) _empty_/Module# -> 1:7
+(12:20..12:26) _empty_/Patmat#module. -> 11:18
+(12:27..12:31) _empty_/Module#Tree# -> 2:25
+(12:35..12:39) _empty_/Patmat#patmat().(tree) -> 12:14
+(13:10..13:16) _empty_/Patmat#module. -> 11:18
+(13:17..13:21) _empty_/Module#LetL.
+(14:10..14:16) _empty_/Patmat#module. -> 11:18
+(14:17..14:18) _empty_/Module#O. -> 6:10
+(14:19..14:23) _empty_/Module#O.LetR.
+

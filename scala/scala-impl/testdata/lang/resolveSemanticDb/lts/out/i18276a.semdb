@@ -1,0 +1,33 @@
+Document tests/pos/i18276a.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(3:25..3:31) scala/Predef.String#
+(3:40..3:46) scala/Predef.String#
+(4:30..4:41) _empty_/ParsersBase# -> 9:7
+(5:10..5:16) _empty_/ParsersBase#Parser# -> 11:18
+(5:17..5:23) scala/Predef.String#
+(5:24..5:25) _empty_/ParsersBase#`~`# -> 10:9
+(5:26..5:32) scala/Predef.String#
+(5:36..5:39) scala/Predef.`???`().
+(6:10..6:16) _empty_/ParsersBase#Parser# -> 11:18
+(6:17..6:23) _empty_/Assign# -> 3:12
+(6:27..6:28) _empty_/SyntaxAnalyser#x. -> 5:7
+(6:29..6:32) _empty_/ParsersBase#Parser#map(). -> 12:9
+(6:33..6:39) _empty_/Assign.
+(6:40..6:45) _empty_/Assign.apply().
+(12:19..12:20) _empty_/ParsersBase#Parser#[T] -> 11:26
+(12:24..12:25) _empty_/ParsersBase#Parser#map().[U] -> 12:13
+(12:28..12:34) _empty_/ParsersBase#Parser# -> 11:18
+(12:35..12:36) _empty_/ParsersBase#Parser#map().[U] -> 12:13
+(12:40..12:43) scala/Predef.`???`().
+(14:20..14:30) scala/Conversion#
+(14:32..14:33) _empty_/ParsersBase#given_Conversion_Function_Function().[A] -> 14:10
+(14:35..14:36) _empty_/ParsersBase#given_Conversion_Function_Function().[B] -> 14:13
+(14:41..14:42) _empty_/ParsersBase#given_Conversion_Function_Function().[X] -> 14:16
+(14:45..14:46) _empty_/ParsersBase#given_Conversion_Function_Function().[A] -> 14:10
+(14:47..14:48) _empty_/ParsersBase#`~`# -> 10:9
+(14:49..14:50) _empty_/ParsersBase#given_Conversion_Function_Function().[B] -> 14:13
+(14:55..14:56) _empty_/ParsersBase#given_Conversion_Function_Function().[X] -> 14:16
+(14:60..14:63) scala/Predef.`???`().
+

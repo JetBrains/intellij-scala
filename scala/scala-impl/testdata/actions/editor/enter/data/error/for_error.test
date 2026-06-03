@@ -1,0 +1,8 @@
+class C {
+  for <caret>
+}
+-----
+class C {
+  for 
+    <caret>
+}

@@ -1,0 +1,6 @@
+if (true) <selection>false</selection>
+------
+if (true) {
+  val value: Boolean = false
+  value
+}

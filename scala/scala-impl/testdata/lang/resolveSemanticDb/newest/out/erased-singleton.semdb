@@ -1,0 +1,4 @@
+Document tests/pos/erased-singleton.scala
+(6:17..6:20) _empty_/Sys# -> 3:7
+(8:12..8:13) _empty_/Obj#s. -> 6:14
+

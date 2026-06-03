@@ -1,0 +1,25 @@
+Document tests/pos/i16562.scala
+(2:10..2:15) scala/Array#
+(2:16..2:19) scala/Any#
+(2:23..2:28) scala/Array.
+(2:29..2:32) scala/Any#
+(3:10..3:15) scala/Array#
+(3:16..3:19) scala/Any#
+(3:23..3:28) scala/Array.
+(3:29..3:32) scala/Any#
+(5:13..5:20) scala/Boolean#
+(5:23..5:27) scala/Unit#
+(5:30..5:33) _empty_/Test#foo(). -> 8:7
+(5:38..5:39) _empty_/Test#ko().(p) -> 5:10
+(5:45..5:46) _empty_/Test#a. -> 2:7
+(5:52..5:53) _empty_/Test#b. -> 3:7
+(6:13..6:20) scala/Boolean#
+(6:23..6:27) scala/Unit#
+(6:30..6:33) _empty_/Test#foo(). -> 8:7
+(6:47..6:48) _empty_/Test#ok().(p) -> 6:10
+(6:54..6:55) _empty_/Test#a. -> 2:7
+(6:61..6:62) _empty_/Test#b. -> 3:7
+(6:64..6:65) local0 -> 6:40
+(8:15..8:18) scala/Any#
+(8:22..8:26) scala/Unit#
+

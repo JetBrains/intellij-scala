@@ -1,0 +1,7 @@
+class a {
+  for(x <- y) return
+}
+------
+class a {
+  for (x <- y) return
+}

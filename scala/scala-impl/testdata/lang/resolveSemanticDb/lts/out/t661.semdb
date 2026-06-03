@@ -1,0 +1,11 @@
+Document tests/pos/t661.scala
+(7:19..7:20) test/test.A#C#M# -> 6:12
+(7:24..7:28) scala/Unit#
+(10:19..10:20) test/test.A# -> 4:18
+(12:28..12:29) test/test.A#C# -> 5:20
+(13:16..13:17) test/test.B#N# -> 11:10
+(14:28..14:29) test/test.B#CC#M# -> 13:12
+(14:33..14:37) scala/Unit#
+(14:46..14:49) test/test.A#C#foo(). -> 7:11
+(14:50..14:51) test/test.B#CC#foo().(n) -> 14:24
+

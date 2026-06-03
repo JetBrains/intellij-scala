@@ -1,0 +1,17 @@
+Document tests/pos/i15531.scala
+(1:23..1:26) scala/Int#
+(4:26..4:28) _empty_/EQ# -> 3:6
+(4:29..4:30) _empty_/EQ.Refl#[C] -> 4:13
+(4:32..4:33) _empty_/EQ.Refl#[C] -> 4:13
+(6:17..6:20) _empty_/Tag# -> 1:7
+(6:26..6:28) _empty_/EQ# -> 3:6
+(6:29..6:30) _empty_/i15531$package.foo().[T] -> 6:9
+(6:32..6:33) _empty_/i15531$package.foo().[B] -> 6:12
+(6:39..6:40) _empty_/i15531$package.foo().[T] -> 6:9
+(6:44..6:46) _empty_/i15531$package.foo().(ev) -> 6:22
+(7:8..7:10) _empty_/EQ.
+(7:11..7:15) _empty_/EQ.Refl.
+(8:12..8:15) scala/Int#
+(8:18..8:19) _empty_/i15531$package.foo().(x) -> 6:36
+(8:20..8:24) _empty_/Tag#data. -> 1:17
+

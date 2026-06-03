@@ -1,0 +1,35 @@
+<settings>
+  <option name="RIGHT_MARGIN" value="20" />
+  <HoconCodeStyleSettings>
+    <option name="OBJECT_FIELDS_WITH_COLON_WRAP" value="1" />
+    <option name="OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP" value="1" />
+    <option name="INCLUDED_RESOURCE_WRAP" value="1" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a: b
+seriously long key: seriously long value
+a = b
+seriously long key = seriously long value
+a += b
+seriously long key += seriously long value
+include "stuff"
+include "somethingLongIncluded"
+include file("f")
+include file("fileWithLongName")
+-----
+a: b
+seriously long key:
+  seriously long value
+a = b
+seriously long key =
+  seriously long value
+a += b
+seriously long key +=
+  seriously long value
+include "stuff"
+include
+  "somethingLongIncluded"
+include file("f")
+include
+  file("fileWithLongName")

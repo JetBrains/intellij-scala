@@ -1,0 +1,63 @@
+Document tests/pos/i10242.scala
+(2:18..2:19) _empty_/i10242$package.Foo#[A] -> 2:10
+(2:23..2:24) _empty_/i10242$package.Foo#[A] -> 2:10
+(4:15..4:16) _empty_/i10242$package.Bar#[A] -> 4:10
+(5:8..5:11) _empty_/i10242$package.Foo# -> 2:6
+(5:12..5:18) scala/Predef.String#
+(5:26..5:30) scala/Unit#
+(8:8..8:13) scala/
+(8:14..8:25) scala/compiletime/
+(8:26..8:29) scala/compiletime/ops/
+(8:30..8:33) scala/compiletime/ops/int.
+(11:29..11:32) scala/Int#
+(11:33..11:34) scala/`&`#
+(11:35..11:44) scala/Singleton#
+(11:51..11:56) _empty_/HList# -> 10:14
+(11:64..11:65) _empty_/HCons#[H] -> 11:24
+(11:73..11:74) _empty_/HCons#[T] -> 11:46
+(12:13..12:18) _empty_/HList# -> 10:14
+(13:27..13:32) _empty_/HList# -> 10:14
+(14:26..14:30) _empty_/HNil# -> 13:14
+(16:29..16:34) _empty_/HList# -> 10:14
+(19:18..19:23) _empty_/HList# -> 10:14
+(19:32..19:33) _empty_/tf.zeros().[S] -> 19:13
+(19:36..19:42) _empty_/Tensor# -> 16:14
+(19:43..19:48) scala/Float#
+(19:50..19:51) _empty_/tf.zeros().[S] -> 19:13
+(19:55..19:58) scala/Predef.`???`().
+(21:25..21:30) _empty_/HList# -> 10:14
+(21:35..21:38) scala/Int#
+(21:41..21:42) _empty_/tf.NumElements#[X] -> 21:20
+(22:10..22:14) _empty_/HNil# -> 13:14
+(23:10..23:15) _empty_/HCons# -> 11:18
+(23:31..23:35) local0 -> 23:16
+(23:36..23:37) scala/compiletime/ops/int.`*`#
+(23:38..23:49) _empty_/tf.NumElements# -> 21:8
+(23:50..23:54) local1 -> 23:22
+(25:26..25:31) _empty_/HList# -> 10:14
+(25:39..25:44) _empty_/HList# -> 10:14
+(26:15..26:21) _empty_/Tensor# -> 16:14
+(26:22..26:23) _empty_/tf.reshape().[T] -> 25:15
+(26:25..26:29) _empty_/tf.reshape().[From] -> 25:18
+(27:14..27:16) _empty_/tf.reshape().[To] -> 25:33
+(28:11..28:22) _empty_/tf.NumElements# -> 21:8
+(28:23..28:27) _empty_/tf.reshape().[From] -> 25:18
+(28:29..28:32) scala/`=:=`#
+(28:33..28:44) _empty_/tf.NumElements# -> 21:8
+(28:45..28:47) _empty_/tf.reshape().[To] -> 25:33
+(28:51..28:57) _empty_/Tensor# -> 16:14
+(28:58..28:59) _empty_/tf.reshape().[T] -> 25:15
+(28:61..28:63) _empty_/tf.reshape().[To] -> 25:33
+(28:67..28:70) scala/Predef.`???`().
+(31:11..31:16) _empty_/HCons.
+(31:20..31:25) _empty_/HCons.
+(31:29..31:33) _empty_/HNil. -> 14:13
+(32:11..32:13) _empty_/tf. -> 18:8
+(32:14..32:21) _empty_/tf.reshape(). -> 25:7
+(32:22..32:24) _empty_/tf. -> 18:8
+(32:25..32:30) _empty_/tf.zeros(). -> 19:7
+(32:31..32:32) _empty_/test.x. -> 31:7
+(32:35..32:40) _empty_/HCons.
+(32:44..32:49) _empty_/HCons.
+(32:53..32:57) _empty_/HNil. -> 14:13
+

@@ -1,0 +1,6 @@
+Document tests/pos/t5029.scala
+(2:6..2:12) scala/package.Vector.
+(2:16..2:19) scala/package.Seq#
+(2:37..2:41) scala/package.List.
+(2:58..2:61) scala/package.Nil.
+

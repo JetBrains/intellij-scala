@@ -1,0 +1,25 @@
+Document tests/pos/i18744.scala
+(1:9..1:14) dotty/
+(1:15..1:20) dotty/tools/
+(1:21..1:25) dotty/tools/dotc/
+(4:16..4:19) scala/Int#
+(4:22..4:25) scala/Predef.`???`().
+(6:15..6:19) scala/Unit#
+(7:17..7:23) scala/Predef.String#
+(7:28..7:31) scala/Int#
+(7:35..7:38) scala/Int#
+(7:41..7:44) scala/Int#
+(7:47..7:50) scala/Predef.`???`().
+(8:17..8:21) scala/Long#
+(8:26..8:29) scala/Int#
+(8:33..8:36) scala/Int#
+(8:39..8:42) scala/Int#
+(8:45..8:48) scala/Predef.`???`().
+(11:11..11:16) dotty/tools/dotc/typer/Color. -> 3:8
+(12:6..12:9) dotty/tools/dotc/typer/i18744$package.foo(). -> 7:7
+(12:18..12:21) scala/Int#
+(12:26..12:27) local0 -> 11:7
+(13:6..13:9) dotty/tools/dotc/typer/i18744$package.foo(). -> 7:7
+(13:18..13:21) scala/Int#
+(13:26..13:31) dotty/tools/dotc/typer/Color. -> 3:8
+

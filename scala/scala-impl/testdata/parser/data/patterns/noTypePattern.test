@@ -1,0 +1,127 @@
+Map(1, 2, 3) match {
+  case s: Seq[scala.Int] =>
+  case m: Map[a, scala.Int] =>
+  case g: Tuple3[a, scala.Int, c] =>
+}
+------
+ScalaFile
+  MatchStatement
+    MethodCall
+      ReferenceExpression: Map
+        PsiElement(identifier)('Map')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('3')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: s
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedType: Seq[scala.Int]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: m
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedType: Map[a, scala.Int]
+              SimpleType: Map
+                CodeReferenceElement: Map
+                  PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: g
+          PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedType: Tuple3[a, scala.Int, c]
+              SimpleType: Tuple3
+                CodeReferenceElement: Tuple3
+                  PsiElement(identifier)('Tuple3')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  TypeVariable: a
+                    PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: scala.Int
+                    CodeReferenceElement: scala.Int
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  TypeVariable: c
+                    PsiElement(identifier)('c')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

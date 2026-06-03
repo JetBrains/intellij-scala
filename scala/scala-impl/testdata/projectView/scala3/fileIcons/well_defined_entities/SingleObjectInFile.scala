@@ -1,0 +1,3 @@
+package well_defined_entities
+
+object SingleObjectInFile

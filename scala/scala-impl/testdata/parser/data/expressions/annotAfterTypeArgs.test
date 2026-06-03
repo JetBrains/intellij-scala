@@ -1,0 +1,84 @@
+class A[T]  @Inject() (val a: Int, val s: String, val t: T)
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace('  ')
+    PrimaryConstructor
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: Inject
+                CodeReferenceElement: Inject
+                  PsiElement(identifier)('Inject')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: s
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: t
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('t')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

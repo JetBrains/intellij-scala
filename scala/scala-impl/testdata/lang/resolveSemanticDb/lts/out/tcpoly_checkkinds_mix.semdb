@@ -1,0 +1,35 @@
+Document tests/pos/tcpoly_checkkinds_mix.scala
+(1:21..1:26) _empty_/Iterable#[Bound] -> 1:31
+(1:27..1:28) _empty_/Iterable#[A] -> 1:16
+(2:20..2:25) _empty_/Iterable#[Bound] -> 1:31
+(2:26..2:27) _empty_/Iterable#MyType#[x] -> 2:15
+(2:33..2:41) _empty_/Iterable# -> 1:7
+(2:42..2:43) _empty_/Iterable#MyType#[x] -> 2:15
+(2:45..2:50) _empty_/Iterable#[Bound] -> 1:31
+(3:16..3:21) _empty_/Iterable#[Bound] -> 1:31
+(3:22..3:23) _empty_/Iterable#map().[B] -> 3:11
+(3:29..3:30) _empty_/Iterable#[A] -> 1:16
+(3:34..3:35) _empty_/Iterable#map().[B] -> 3:11
+(3:38..3:44) _empty_/Iterable#MyType# -> 2:8
+(3:45..3:46) _empty_/Iterable#map().[B] -> 3:11
+(4:20..4:25) _empty_/Iterable#[Bound] -> 1:31
+(4:26..4:27) _empty_/Iterable#flatMap().[B] -> 4:15
+(4:33..4:34) _empty_/Iterable#[A] -> 1:16
+(4:38..4:44) _empty_/Iterable#MyType# -> 2:8
+(4:45..4:46) _empty_/Iterable#flatMap().[B] -> 4:15
+(4:50..4:56) _empty_/Iterable#MyType# -> 2:8
+(4:57..4:58) _empty_/Iterable#flatMap().[B] -> 4:15
+(5:17..5:18) _empty_/Iterable#[A] -> 1:16
+(5:22..5:29) scala/Boolean#
+(5:32..5:38) _empty_/Iterable#MyType# -> 2:8
+(5:39..5:40) _empty_/Iterable#[A] -> 1:16
+(8:23..8:30) scala/package.Ordered#
+(8:31..8:32) _empty_/OrderedSet#[T] -> 8:18
+(8:43..8:51) _empty_/Iterable# -> 1:7
+(8:52..8:53) _empty_/OrderedSet#[T] -> 8:18
+(8:55..8:62) scala/package.Ordered#
+(9:20..9:27) scala/package.Ordered#
+(9:28..9:29) _empty_/OrderedSet#MyType#[x] -> 9:15
+(9:34..9:44) _empty_/OrderedSet# -> 8:7
+(9:45..9:46) _empty_/OrderedSet#MyType#[x] -> 9:15
+

@@ -1,0 +1,16 @@
+Document tests/pos/i7807.scala
+(3:19..3:20) scala/`|`#
+(3:27..3:28) local0 -> 3:14
+(3:70..3:73) scala/Predef.`???`().
+(5:3..5:7) _empty_/Test.flip(). -> 3:7
+(6:3..6:7) _empty_/Test.flip(). -> 3:7
+(8:3..8:7) _empty_/Test.flip(). -> 3:7
+(8:11..8:14) scala/Predef.`???`().
+(9:12..9:13) scala/`|`#
+(9:21..9:24) scala/Predef.`???`().
+(10:3..10:7) _empty_/Test.flip(). -> 3:7
+(10:8..10:9) _empty_/Test.n. -> 9:7
+(12:10..12:11) _empty_/Test.n. -> 9:7
+(12:53..12:57) _empty_/Test.flip(). -> 3:7
+(12:58..12:59) _empty_/Test.n. -> 9:7
+

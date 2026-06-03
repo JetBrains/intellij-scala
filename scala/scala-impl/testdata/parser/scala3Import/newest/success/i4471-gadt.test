@@ -1,0 +1,1156 @@
+object i4471 {
+  sealed trait Shuffle[A1, A2] {
+    def andThen[A3](that: Shuffle[A2, A3]): Shuffle[A1, A3] = AndThen(this, that)
+  }
+
+  case class Id[A]() extends Shuffle[A, A]
+  case class Swap[A, B]() extends Shuffle[(A, B), (B, A)]
+  case class AssocLR[A, B, C]() extends Shuffle[((A, B), C), (A, (B, C))]
+  case class AssocRL[A, B, C]() extends Shuffle[(A, (B, C)), ((A, B), C)]
+  case class Par[A1, B1, A2, B2](_1: Shuffle[A1, B1], _2: Shuffle[A2, B2]) extends Shuffle[(A1, A2), (B1, B2)]
+  case class AndThen[A1, A2, A3](_1: Shuffle[A1, A2], _2: Shuffle[A2, A3]) extends Shuffle[A1, A3]
+  
+  def rewrite3[A1, A2, A3, A4](
+    op1: Shuffle[A1, A2],
+    op2: Shuffle[A2, A3],
+    op3: Shuffle[A3, A4]
+  ): Option[Shuffle[A1, A4]] = (op1, op2, op3) match {
+    case (
+      _: Swap[x, y],
+      _: AssocRL[u, v, w],
+      op3_ : Par[p1, q1, p2, q2]
+    ) => op3_ match {
+      case Par(_: Swap[r, s], _: Id[p2_]) =>
+        Some(
+          AssocLR[v, w, u]() andThen Par(Id[v](), Swap[w, u]()) andThen AssocRL[v, u, w]()
+        )
+      case _ => None
+    }
+    case _ => None
+  }
+}
+-----
+ScalaFile
+  ScObject: i4471
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i4471')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Shuffle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shuffle')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: andThen
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('andThen')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A3
+                    PsiElement(identifier)('A3')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: that
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('that')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Shuffle[A2, A3]
+                          SimpleType: Shuffle
+                            CodeReferenceElement: Shuffle
+                              PsiElement(identifier)('Shuffle')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A2
+                                CodeReferenceElement: A2
+                                  PsiElement(identifier)('A2')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: A3
+                                CodeReferenceElement: A3
+                                  PsiElement(identifier)('A3')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shuffle[A1, A3]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A1
+                        CodeReferenceElement: A1
+                          PsiElement(identifier)('A1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: A3
+                        CodeReferenceElement: A3
+                          PsiElement(identifier)('A3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: AndThen
+                    PsiElement(identifier)('AndThen')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: that
+                      PsiElement(identifier)('that')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Id')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[A, A]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: Swap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Swap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[(A, B), (B, A)]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: (A, B)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TupleType: (B, A)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: AssocLR
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AssocLR')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[((A, B), C), (A, (B, C))]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: ((A, B), C)
+                        PsiElement(()('(')
+                        TypesList
+                          TupleType: (A, B)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement())(')')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TupleType: (A, (B, C))
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TupleType: (B, C)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: AssocRL
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AssocRL')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[(A, (B, C)), ((A, B), C)]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: (A, (B, C))
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TupleType: (B, C)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TupleType: ((A, B), C)
+                        PsiElement(()('(')
+                        TypesList
+                          TupleType: (A, B)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement())(')')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: Par
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Par')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B1
+              PsiElement(identifier)('B1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B2
+              PsiElement(identifier)('B2')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: _1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('_1')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shuffle[A1, B1]
+                      SimpleType: Shuffle
+                        CodeReferenceElement: Shuffle
+                          PsiElement(identifier)('Shuffle')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A1
+                            CodeReferenceElement: A1
+                              PsiElement(identifier)('A1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: B1
+                            CodeReferenceElement: B1
+                              PsiElement(identifier)('B1')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: _2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('_2')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shuffle[A2, B2]
+                      SimpleType: Shuffle
+                        CodeReferenceElement: Shuffle
+                          PsiElement(identifier)('Shuffle')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A2
+                            CodeReferenceElement: A2
+                              PsiElement(identifier)('A2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: B2
+                            CodeReferenceElement: B2
+                              PsiElement(identifier)('B2')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[(A1, A2), (B1, B2)]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TupleType: (A1, A2)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: A1
+                            CodeReferenceElement: A1
+                              PsiElement(identifier)('A1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: A2
+                            CodeReferenceElement: A2
+                              PsiElement(identifier)('A2')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TupleType: (B1, B2)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: B1
+                            CodeReferenceElement: B1
+                              PsiElement(identifier)('B1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: B2
+                            CodeReferenceElement: B2
+                              PsiElement(identifier)('B2')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScClass: AndThen
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AndThen')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A3
+              PsiElement(identifier)('A3')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: _1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('_1')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shuffle[A1, A2]
+                      SimpleType: Shuffle
+                        CodeReferenceElement: Shuffle
+                          PsiElement(identifier)('Shuffle')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A1
+                            CodeReferenceElement: A1
+                              PsiElement(identifier)('A1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: A2
+                            CodeReferenceElement: A2
+                              PsiElement(identifier)('A2')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: _2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('_2')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Shuffle[A2, A3]
+                      SimpleType: Shuffle
+                        CodeReferenceElement: Shuffle
+                          PsiElement(identifier)('Shuffle')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A2
+                            CodeReferenceElement: A2
+                              PsiElement(identifier)('A2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: A3
+                            CodeReferenceElement: A3
+                              PsiElement(identifier)('A3')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Shuffle[A1, A3]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A1
+                        CodeReferenceElement: A1
+                          PsiElement(identifier)('A1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: A3
+                        CodeReferenceElement: A3
+                          PsiElement(identifier)('A3')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  \n  ')
+        ScFunctionDefinition: rewrite3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rewrite3')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A2
+              PsiElement(identifier)('A2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A3
+              PsiElement(identifier)('A3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A4
+              PsiElement(identifier)('A4')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              Parameter: op1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Shuffle[A1, A2]
+                    SimpleType: Shuffle
+                      CodeReferenceElement: Shuffle
+                        PsiElement(identifier)('Shuffle')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A1
+                          CodeReferenceElement: A1
+                            PsiElement(identifier)('A1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: A2
+                          CodeReferenceElement: A2
+                            PsiElement(identifier)('A2')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              Parameter: op2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Shuffle[A2, A3]
+                    SimpleType: Shuffle
+                      CodeReferenceElement: Shuffle
+                        PsiElement(identifier)('Shuffle')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A2
+                          CodeReferenceElement: A2
+                            PsiElement(identifier)('A2')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              Parameter: op3
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('op3')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Shuffle[A3, A4]
+                    SimpleType: Shuffle
+                      CodeReferenceElement: Shuffle
+                        PsiElement(identifier)('Shuffle')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: A4
+                          CodeReferenceElement: A4
+                            PsiElement(identifier)('A4')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Shuffle[A1, A4]]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Shuffle[A1, A4]
+                  SimpleType: Shuffle
+                    CodeReferenceElement: Shuffle
+                      PsiElement(identifier)('Shuffle')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A1
+                        CodeReferenceElement: A1
+                          PsiElement(identifier)('A1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: A4
+                        CodeReferenceElement: A4
+                          PsiElement(identifier)('A4')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: op1
+                PsiElement(identifier)('op1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: op2
+                PsiElement(identifier)('op2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: op3
+                PsiElement(identifier)('op3')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n      ')
+                  ArgumentPatterns
+                    Scala3 TypedPattern
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: Swap[x, y]
+                          SimpleType: Swap
+                            CodeReferenceElement: Swap
+                              PsiElement(identifier)('Swap')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeVariable: x
+                                PsiElement(identifier)('x')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: y
+                                PsiElement(identifier)('y')
+                            PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n      ')
+                    Scala3 TypedPattern
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: AssocRL[u, v, w]
+                          SimpleType: AssocRL
+                            CodeReferenceElement: AssocRL
+                              PsiElement(identifier)('AssocRL')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeVariable: u
+                                PsiElement(identifier)('u')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: v
+                                PsiElement(identifier)('v')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: w
+                                PsiElement(identifier)('w')
+                            PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n      ')
+                    Scala3 TypedPattern
+                      ReferencePattern: op3_
+                        PsiElement(identifier)('op3_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: Par[p1, q1, p2, q2]
+                          SimpleType: Par
+                            CodeReferenceElement: Par
+                              PsiElement(identifier)('Par')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeVariable: p1
+                                PsiElement(identifier)('p1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: q1
+                                PsiElement(identifier)('q1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: p2
+                                PsiElement(identifier)('p2')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              TypeVariable: q2
+                                PsiElement(identifier)('q2')
+                            PsiElement(])(']')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MatchStatement
+                    ReferenceExpression: op3_
+                      PsiElement(identifier)('op3_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: Par
+                            PsiElement(identifier)('Par')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            Scala3 TypedPattern
+                              WildcardPattern
+                                PsiElement(_)('_')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: Swap[r, s]
+                                  SimpleType: Swap
+                                    CodeReferenceElement: Swap
+                                      PsiElement(identifier)('Swap')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      TypeVariable: r
+                                        PsiElement(identifier)('r')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      TypeVariable: s
+                                        PsiElement(identifier)('s')
+                                    PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              WildcardPattern
+                                PsiElement(_)('_')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                ParametrizedType: Id[p2_]
+                                  SimpleType: Id
+                                    CodeReferenceElement: Id
+                                      PsiElement(identifier)('Id')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      TypeVariable: p2_
+                                        PsiElement(identifier)('p2_')
+                                    PsiElement(])(']')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace('\n        ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Some
+                              PsiElement(identifier)('Some')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiWhiteSpace('\n          ')
+                              InfixExpression
+                                InfixExpression
+                                  MethodCall
+                                    GenericCall
+                                      ReferenceExpression: AssocLR
+                                        PsiElement(identifier)('AssocLR')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: v
+                                            CodeReferenceElement: v
+                                              PsiElement(identifier)('v')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          SimpleType: w
+                                            CodeReferenceElement: w
+                                              PsiElement(identifier)('w')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          SimpleType: u
+                                            CodeReferenceElement: u
+                                              PsiElement(identifier)('u')
+                                        PsiElement(])(']')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: andThen
+                                    PsiElement(identifier)('andThen')
+                                  PsiWhiteSpace(' ')
+                                  MethodCall
+                                    ReferenceExpression: Par
+                                      PsiElement(identifier)('Par')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      MethodCall
+                                        GenericCall
+                                          ReferenceExpression: Id
+                                            PsiElement(identifier)('Id')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: v
+                                                CodeReferenceElement: v
+                                                  PsiElement(identifier)('v')
+                                            PsiElement(])(']')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      MethodCall
+                                        GenericCall
+                                          ReferenceExpression: Swap
+                                            PsiElement(identifier)('Swap')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: w
+                                                CodeReferenceElement: w
+                                                  PsiElement(identifier)('w')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: u
+                                                CodeReferenceElement: u
+                                                  PsiElement(identifier)('u')
+                                            PsiElement(])(']')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                                      PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: andThen
+                                  PsiElement(identifier)('andThen')
+                                PsiWhiteSpace(' ')
+                                MethodCall
+                                  GenericCall
+                                    ReferenceExpression: AssocRL
+                                      PsiElement(identifier)('AssocRL')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: v
+                                          CodeReferenceElement: v
+                                            PsiElement(identifier)('v')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: u
+                                          CodeReferenceElement: u
+                                            PsiElement(identifier)('u')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: w
+                                          CodeReferenceElement: w
+                                            PsiElement(identifier)('w')
+                                      PsiElement(])(']')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                              PsiWhiteSpace('\n        ')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n      ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          ReferenceExpression: None
+                            PsiElement(identifier)('None')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

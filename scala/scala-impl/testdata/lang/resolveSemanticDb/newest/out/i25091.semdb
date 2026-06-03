@@ -1,0 +1,32 @@
+Document tests/pos/i25091.scala
+(2:33..2:36) scala/Int#
+(3:25..3:26) _empty_/VersionComponent#[T] -> 1:36
+(3:29..3:33) _empty_/VersionComponent#wrap(). -> 5:16
+(3:34..3:46) _empty_/VersionComponent#VersionComponent$$inline$minimumValue().
+(4:23..4:24) _empty_/VersionComponent#[T] -> 1:36
+(4:27..4:34) _empty_/VersionComponent#minimum(). -> 3:16
+(5:28..5:31) scala/Int#
+(5:34..5:35) _empty_/VersionComponent#[T] -> 1:36
+(6:30..6:31) _empty_/VersionComponent#[T] -> 1:36
+(6:34..6:37) scala/Int#
+(8:28..8:31) scala/Int#
+(9:30..9:46) _empty_/VersionComponent# -> 1:19
+(9:47..9:59) _empty_/i25091$package.MajorVersion# -> 8:13
+(10:40..10:43) scala/Int#
+(11:28..11:31) scala/Int#
+(11:34..11:46) _empty_/i25091$package.MajorVersion# -> 8:13
+(11:49..11:54) _empty_/i25091$package.MajorVersion.wrap().(value) -> 11:21
+(12:27..12:39) _empty_/i25091$package.MajorVersion# -> 8:13
+(12:42..12:45) scala/Int#
+(12:48..12:50) _empty_/i25091$package.MajorVersion.unwrap().(mv) -> 12:23
+(14:27..14:39) _empty_/i25091$package.MajorVersion# -> 8:13
+(17:19..17:26) _empty_/Version# -> 14:12
+(17:43..17:50) _empty_/Version# -> 14:12
+(20:11..20:20) _empty_/Version.Increment# -> 16:9
+(20:21..20:33) _empty_/i25091$package.MajorVersion# -> 8:13
+(21:21..21:28) _empty_/Version# -> 14:12
+(22:31..22:38) _empty_/Version# -> 14:12
+(22:41..22:48) _empty_/Version. -> 15:8
+(22:49..22:61) _empty_/i25091$package.MajorVersion. -> 9:8
+(22:62..22:67) _empty_/VersionComponent#reset(). -> 4:16
+

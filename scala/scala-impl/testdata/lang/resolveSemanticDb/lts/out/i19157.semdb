@@ -1,0 +1,14 @@
+Document tests/pos/i19157.scala
+(4:30..4:37) scala/Boolean#
+(4:41..4:42) _empty_/Test#count().(x) -> 4:27
+(8:3..8:9) scala/Predef.assert(+1).
+(8:10..8:15) _empty_/Test#count(). -> 4:14
+(8:22..8:24) scala/Int#`==`(+3).
+(9:3..9:9) scala/Predef.assert(+1).
+(9:10..9:15) _empty_/Test#count(). -> 4:14
+(9:23..9:25) scala/Int#`==`(+3).
+(11:3..11:9) scala/Predef.assert(+1).
+(11:10..11:15) _empty_/Test#count(). -> 4:14
+(11:16..11:17) _empty_/Test#x(). -> 10:7
+(11:19..11:21) scala/Int#`==`(+3).
+

@@ -1,0 +1,663 @@
+abstract class ZPartialServerEndpoint[R, A, B, I, E, O, -C]
+    extends EndpointOps[A, I, E, O, C]{
+  override type ThisType[-_R] = ZPartialServerEndpoint[R, A, B, I, E, O, _R]
+  override type EndpointType[_A, _I, _E, _O, -_R] =ZPartialServerEndpoint[R, _A, B, _I, _E, _O, _R]
+}
+
+trait EndpointOps[A, I, E, O, -R] {
+  type EndpointType[_A, _I, _E, _O, -_R]
+  type ThisType[-_R]
+  def out[T]: EndpointType[A, I, E, T, R]
+  def description(d: String): ThisType[R]
+}
+
+object Test {
+  def basicEndpoint[R](): ZPartialServerEndpoint[R, Any, Any, Unit, Any, Unit, Any] = ???
+
+  // commonts next to `.out[Any]` contain information about compilation time when chaining up to N `out` functions
+  val case1 =
+     basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out[Any] // 1.7s
+        .out[Any] // 2s
+        .out[Any] // 4s
+        .out[Any] // 33s
+        .out[Any] // aborted after 5 min
+}
+-----
+ScalaFile
+  ScClass: ZPartialServerEndpoint
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZPartialServerEndpoint')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('C')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace('\n    ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: EndpointOps[A, I, E, O, C]
+            SimpleType: EndpointOps
+              CodeReferenceElement: EndpointOps
+                PsiElement(identifier)('EndpointOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: ThisType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ThisType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _R
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('_R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZPartialServerEndpoint[R, A, B, I, E, O, _R]
+            SimpleType: ZPartialServerEndpoint
+              CodeReferenceElement: ZPartialServerEndpoint
+                PsiElement(identifier)('ZPartialServerEndpoint')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _R
+                  CodeReferenceElement: _R
+                    PsiElement(identifier)('_R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: EndpointType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('EndpointType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _A
+              PsiElement(identifier)('_A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _I
+              PsiElement(identifier)('_I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _E
+              PsiElement(identifier)('_E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _O
+              PsiElement(identifier)('_O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _R
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('_R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          ParametrizedType: ZPartialServerEndpoint[R, _A, B, _I, _E, _O, _R]
+            SimpleType: ZPartialServerEndpoint
+              CodeReferenceElement: ZPartialServerEndpoint
+                PsiElement(identifier)('ZPartialServerEndpoint')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _A
+                  CodeReferenceElement: _A
+                    PsiElement(identifier)('_A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _I
+                  CodeReferenceElement: _I
+                    PsiElement(identifier)('_I')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _E
+                  CodeReferenceElement: _E
+                    PsiElement(identifier)('_E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _O
+                  CodeReferenceElement: _O
+                    PsiElement(identifier)('_O')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: _R
+                  CodeReferenceElement: _R
+                    PsiElement(identifier)('_R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: EndpointOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EndpointOps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: EndpointType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('EndpointType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _A
+              PsiElement(identifier)('_A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _I
+              PsiElement(identifier)('_I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _E
+              PsiElement(identifier)('_E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _O
+              PsiElement(identifier)('_O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _R
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('_R')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: ThisType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ThisType')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _R
+              PsiElement(identifier)('-')
+              PsiElement(identifier)('_R')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: out
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('out')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: EndpointType[A, I, E, T, R]
+            SimpleType: EndpointType
+              CodeReferenceElement: EndpointType
+                PsiElement(identifier)('EndpointType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: description
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('description')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: d
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('d')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ThisType[R]
+            SimpleType: ThisType
+              CodeReferenceElement: ThisType
+                PsiElement(identifier)('ThisType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: basicEndpoint
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('basicEndpoint')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZPartialServerEndpoint[R, Any, Any, Unit, Any, Unit, Any]
+            SimpleType: ZPartialServerEndpoint
+              CodeReferenceElement: ZPartialServerEndpoint
+                PsiElement(identifier)('ZPartialServerEndpoint')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: case1
+          PsiComment(comment)('// commonts next to `.out[Any]` contain information about compilation time when chaining up to N `out` functions')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: case1
+              PsiElement(identifier)('case1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n     ')
+          GenericCall
+            ReferenceExpression: basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out[Any] // 1.7s
+        .out[Any] // 2s
+        .out[Any] // 4s
+        .out[Any] // 33s
+        .out
+              GenericCall
+                ReferenceExpression: basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out[Any] // 1.7s
+        .out[Any] // 2s
+        .out[Any] // 4s
+        .out
+                  GenericCall
+                    ReferenceExpression: basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out[Any] // 1.7s
+        .out[Any] // 2s
+        .out
+                      GenericCall
+                        ReferenceExpression: basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out[Any] // 1.7s
+        .out
+                          GenericCall
+                            ReferenceExpression: basicEndpoint() // 1.5s
+        .out[Any] // 1.6s
+        .out
+                              GenericCall
+                                ReferenceExpression: basicEndpoint() // 1.5s
+        .out
+                                  MethodCall
+                                    ReferenceExpression: basicEndpoint
+                                      PsiElement(identifier)('basicEndpoint')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      PsiElement())(')')
+                                  PsiWhiteSpace(' ')
+                                  PsiComment(comment)('// 1.5s')
+                                  PsiWhiteSpace('\n        ')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('out')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Any
+                                      CodeReferenceElement: Any
+                                        PsiElement(identifier)('Any')
+                                  PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiComment(comment)('// 1.6s')
+                              PsiWhiteSpace('\n        ')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('out')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiComment(comment)('// 1.7s')
+                          PsiWhiteSpace('\n        ')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('out')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Any
+                              CodeReferenceElement: Any
+                                PsiElement(identifier)('Any')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// 2s')
+                      PsiWhiteSpace('\n        ')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('out')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// 4s')
+                  PsiWhiteSpace('\n        ')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('out')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// 33s')
+              PsiWhiteSpace('\n        ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('out')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// aborted after 5 min')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

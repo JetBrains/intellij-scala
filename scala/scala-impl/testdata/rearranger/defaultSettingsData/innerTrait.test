@@ -1,0 +1,33 @@
+class outer {
+  val v = 3
+  trait inner {}
+  abstract trait innerAbstract {
+    val t1: Int
+    val v2: Int
+  }
+  trait innerImpl extends innerAbstract {
+    override val t1 = 3
+    trait innerInner {}
+    var vr = 11
+    override val v2 = 1
+  }
+}
+-------
+class outer {
+  val v = 3
+
+  abstract trait innerAbstract {
+    val t1: Int
+    val v2: Int
+  }
+
+  trait inner {}
+
+  trait innerImpl extends innerAbstract {
+    override val t1 = 3
+    override val v2 = 1
+    var vr = 11
+
+    trait innerInner {}
+  }
+}

@@ -1,0 +1,6 @@
+Document tests/pos/i14442.scala
+(1:19..1:22) scala/Int#
+(2:25..2:28) _empty_/Foo# -> 1:7
+(2:31..2:38) scala/Boolean#
+(4:28..4:31) _empty_/Foo# -> 1:7
+

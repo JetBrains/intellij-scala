@@ -1,0 +1,55 @@
+@Annotation(2) {val name = value}
+def foo() = ???
+-----
+ScalaFile
+  Annotation
+    PsiElement(@)('@')
+    AnnotationExpression
+      ConstructorInvocation
+        SimpleType: Annotation
+          CodeReferenceElement: Annotation
+            PsiElement(identifier)('Annotation')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('2')
+          PsiElement())(')')
+  PsiErrorElement:Missing statement for annotation
+    <empty list>
+  PsiWhiteSpace(' ')
+  BlockExpression
+    PsiElement({)('{')
+    ScPatternDefinition: name
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: name
+          PsiElement(identifier)('name')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: value
+        PsiElement(identifier)('value')
+    PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

@@ -1,0 +1,6 @@
+Document tests/pos/private-this.scala
+(2:26..2:29) scala/Int#
+(2:32..2:35) scala/Predef.`???`().
+(3:28..3:31) scala/Int#
+(3:34..3:37) scala/Predef.`???`().
+

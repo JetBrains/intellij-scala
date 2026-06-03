@@ -1,0 +1,22 @@
+<html>
+<body>
+Reports fully qualified imports that can be relative to base package (<b>Settings | Languages & Frameworks | Scala | Base Packages</b>).
+<p>Only applicable when the <b>Except for base package</b> option is enabled in <b>Settings | Editor | Code Style |
+  Scala | Imports</b>.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  package org.example.application
+  package ui
+
+  import org.example.application.model.Data
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  package org.example.application
+  package ui
+
+  import model.Data
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

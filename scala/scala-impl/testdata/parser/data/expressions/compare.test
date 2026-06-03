@@ -1,0 +1,38 @@
+class a {
+  41.compare(43)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: 41.compare
+            IntegerLiteral
+              PsiElement(integer)('41')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compare')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('43')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

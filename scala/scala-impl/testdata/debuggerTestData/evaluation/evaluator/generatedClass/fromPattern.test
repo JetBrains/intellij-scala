@@ -1,0 +1,30 @@
+object FromPattern {
+  def main(args: Array[String]): Unit = {
+    Some("ab").map(x => (x, x + x)) match {
+      case Some((a, b)) =>
+        println(a)
+        <breakpoint>println()
+      case _ =>
+    }
+  }
+}
+------------
+b
+------------
+------------
+object FromPattern {
+  def main(args: Array[String]): Unit = {
+    Some("ab").map(x => (x, x + x)) match {
+      case Some((a, b)) =>
+        println(a)
+        class <generated_class> {
+          def invoke() = {
+            b
+          }
+        }
+        new <generated_class>()
+        println()
+      case _ =>
+    }
+  }
+}

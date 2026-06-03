@@ -1,0 +1,15 @@
+[37,180]: PackageDef
+[37,37]: Ident
+[37,73]: Import
+[44,60]: Select
+[44,49]: Ident
+[75,180]: ModuleDef
+[92,178]: Template
+[92,92]: DefDef
+[92,92]: TypeTree
+[92,134]: DefDef
+[124,124]: TypeTree
+[127,134]: Ident
+[138,178]: DefDef
+[173,173]: TypeTree
+[176,178]: Tuple

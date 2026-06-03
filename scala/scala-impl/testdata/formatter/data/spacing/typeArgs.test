@@ -1,0 +1,9 @@
+class a {
+  val z: y [ g,u,
+  f]
+}
+-----
+class a {
+  val z: y[g, u,
+    f]
+}

@@ -1,0 +1,9 @@
+class a:
+  val b: Boolean = false
+  if <start>b<unary> then true
+end a
+------
+class a:
+  val b: Boolean = false
+  if !(b) then true
+end a

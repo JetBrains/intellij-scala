@@ -1,0 +1,10 @@
+val a =
+  """  blah blah<caret>blah
+         blah blah blah
+  """
+-----
+val a =
+  """  blah blah
+       <caret>blah
+         blah blah blah
+  """

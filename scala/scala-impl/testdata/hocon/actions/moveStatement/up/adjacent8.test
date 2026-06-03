@@ -1,0 +1,9 @@
+# b doc
+b = c
+# a doc
+<caret>include "a"
+-----
+# a doc
+<caret>include "a"
+# b doc
+b = c

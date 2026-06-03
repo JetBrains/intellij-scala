@@ -1,0 +1,98 @@
+package foo.bar
+
+object ParserBug extends Application {
+  {
+    val fileAndSize = 1
+    for (fAS: (File, Long) <- fileAndSize) {
+    }
+  }
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: foo.bar
+      CodeReferenceElement: foo
+        PsiElement(identifier)('foo')
+      PsiElement(.)('.')
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace('\n\n')
+    ScObject: ParserBug
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ParserBug')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Application
+              CodeReferenceElement: Application
+                PsiElement(identifier)('Application')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: fileAndSize
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: fileAndSize
+                  PsiElement(identifier)('fileAndSize')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace('\n    ')
+            ForStatement
+              PsiElement(for)('for')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              Enumerators
+                Generator
+                  TypedPattern: fAS
+                    PsiElement(identifier)('fAS')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      TupleType: (File, Long)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: File
+                            CodeReferenceElement: File
+                              PsiElement(identifier)('File')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: fileAndSize
+                    PsiElement(identifier)('fileAndSize')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

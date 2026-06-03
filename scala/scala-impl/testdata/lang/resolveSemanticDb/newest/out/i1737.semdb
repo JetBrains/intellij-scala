@@ -1,0 +1,13 @@
+Document tests/pos/i1737.scala
+(3:28..3:31) _empty_/Test.Foo# -> 2:16
+(3:32..3:35) scala/Int#
+(4:22..4:29) scala/Boolean#
+(4:39..4:42) _empty_/Test.Foo# -> 2:16
+(4:43..4:49) scala/Predef.String#
+(6:22..6:25) _empty_/Test.Foo# -> 2:16
+(6:26..6:27) _empty_/Test.algFoo().[A] -> 6:14
+(6:31..6:32) _empty_/Test.algFoo().[A] -> 6:14
+(7:5..7:8) _empty_/Test.algFoo().(foo) -> 6:17
+(8:12..8:16) _empty_/Test.FooI. -> 3:15
+(9:12..9:16) _empty_/Test.FooS.
+

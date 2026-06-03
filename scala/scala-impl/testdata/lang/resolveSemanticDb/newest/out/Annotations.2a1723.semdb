@@ -1,0 +1,9 @@
+Document tests/pos/Annotations.scala
+(1:9..1:12) foo/
+(3:23..3:33) scala/annotation/
+(3:34..3:44) scala/annotation/Annotation#
+(5:2..5:9) foo/bar/Enabled# -> 3:7
+(6:2..6:12) java/lang/Deprecated#
+(6:12..7:5) java/lang/Deprecated#`<init>`().(since)
+(6:12..7:10) java/lang/Deprecated#`<init>`().(forRemoval)
+

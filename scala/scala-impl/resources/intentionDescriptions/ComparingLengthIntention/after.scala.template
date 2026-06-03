@@ -1,0 +1,3 @@
+seq.lengthCompare(n) == 0
+
+seq.lengthCompare(n) > 0

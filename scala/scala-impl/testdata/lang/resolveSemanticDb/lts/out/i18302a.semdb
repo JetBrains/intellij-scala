@@ -1,0 +1,11 @@
+Document tests/pos/i18302a.scala
+(1:12..1:19) _empty_/i18302a$package.polyFun(). -> 3:5
+(3:14..3:26) scala/PolyFunction#
+(3:42..3:45) scala/Int#
+(3:48..3:51) scala/Int#
+(4:7..4:19) scala/PolyFunction#
+(4:35..4:38) scala/Int#
+(4:41..4:44) scala/Int#
+(4:47..4:48) local2 -> 4:32
+(4:49..4:50) scala/Int#`+`(+4).
+

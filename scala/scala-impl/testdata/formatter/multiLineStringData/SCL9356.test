@@ -1,0 +1,13 @@
+val expected: String =
+  """||Name(String)
+    ||Aba
+    ||Bab
+    ||Cab
+  """
+------
+val expected: String =
+  """||Name(String)
+     ||Aba
+     ||Bab
+     ||Cab
+  """

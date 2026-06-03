@@ -1,0 +1,54 @@
+class a(b: Int, @good lazy val c)
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: c
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: good
+                      CodeReferenceElement: good
+                        PsiElement(identifier)('good')
+            PsiWhiteSpace(' ')
+            Modifiers
+              PsiElement(lazy)('lazy')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('c')
+            PsiErrorElement:':' expected
+              <empty list>
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

@@ -1,0 +1,16 @@
+Document tests/pos/11982-a/119_1.scala
+(4:18..4:19) _empty_/Unpair.Head#[X] -> 4:13
+(5:10..5:16) scala/Tuple2#
+(5:26..5:27) local0 -> 5:17
+(8:19..8:25) scala/Tuple2#
+(8:26..8:29) scala/Any#
+(8:31..8:34) scala/Any#
+(8:38..8:42) _empty_/Unpair.Head# -> 4:8
+(8:43..8:44) _empty_/Unpair.unpair().[X] -> 8:14
+(8:48..8:51) scala/Predef.`???`().
+
+Document tests/pos/11982-a/119_2.scala
+(2:10..2:16) _empty_/Unpair. -> 1:8
+(4:10..4:16) scala/Predef.String#
+(4:19..4:25) _empty_/Unpair.unpair(). -> 8:7
+

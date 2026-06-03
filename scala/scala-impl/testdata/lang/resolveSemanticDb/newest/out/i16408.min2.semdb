@@ -1,0 +1,26 @@
+Document tests/pos/i16408.min2.scala
+(2:21..2:30) scala/Matchable#
+(4:20..4:21) _empty_/Helpers.URIFun#[R] -> 4:15
+(5:10..5:13) _empty_/RDF# -> 8:7
+(5:20..5:21) local0 -> 5:14
+(5:22..5:23) scala/`&`#
+(5:24..5:31) _empty_/Helpers.NodeFun# -> 2:8
+(5:32..5:33) _empty_/Helpers.URIFun#[R] -> 4:15
+(6:5..6:12) _empty_/Helpers. -> 1:8
+(10:17..10:20) _empty_/RDF# -> 8:7
+(11:17..11:24) _empty_/Helpers. -> 1:8
+(11:25..11:31) _empty_/Helpers.URIFun# -> 4:8
+(11:32..11:33) _empty_/ROps#[R] -> 10:12
+(11:37..11:43) scala/Predef.String#
+(13:25..13:28) _empty_/RDF# -> 8:7
+(13:29..13:39) _empty_/TraitTypes. -> 20:8
+(13:40..13:47) _empty_/TraitTypes.UriImpl# -> 21:9
+(15:18..15:22) _empty_/ROps# -> 10:7
+(15:23..15:31) _empty_/TraitRDF. -> 13:8
+(16:28..16:35) _empty_/Helpers. -> 1:8
+(16:36..16:42) _empty_/Helpers.URIFun# -> 4:8
+(16:43..16:51) _empty_/TraitRDF. -> 13:8
+(16:60..16:66) scala/Predef.String#
+(16:69..16:72) scala/Predef.`???`().
+(18:5..18:13) _empty_/TraitRDF. -> 13:8
+

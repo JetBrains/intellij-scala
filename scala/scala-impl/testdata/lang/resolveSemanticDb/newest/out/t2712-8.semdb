@@ -1,0 +1,14 @@
+Document tests/pos/t2712-8.scala
+(2:22..2:25) _empty_/Two# -> 1:7
+(2:26..2:27) _empty_/One#[A] -> 2:11
+(2:29..2:30) _empty_/One#[A] -> 2:11
+(5:23..5:24) _empty_/Test.foo().[F] -> 5:11
+(5:25..5:28) scala/Int#
+(5:30..5:33) scala/Int#
+(5:38..5:39) _empty_/Test.foo().(x) -> 5:20
+(7:10..7:13) _empty_/One# -> 2:7
+(7:14..7:17) scala/Int#
+(7:21..7:24) scala/Predef.`???`().
+(8:3..8:6) _empty_/Test.foo(). -> 5:7
+(8:7..8:8) _empty_/Test.t. -> 7:7
+

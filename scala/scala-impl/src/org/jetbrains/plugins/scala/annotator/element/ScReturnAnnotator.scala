@@ -1,0 +1,43 @@
+package org.jetbrains.plugins.scala.annotator.element
+
+import com.intellij.codeInspection.ProblemHighlightType
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeMismatchError}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext, api}
+import org.jetbrains.plugins.scala.project.ProjectContext
+
+object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
+
+  override def annotate(element: ScReturn, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
+    implicit val ctx: ProjectContext = element
+
+    val function = element.method.getOrElse {
+      val error      = ScalaBundle.message("return.outside.method.definition")
+      holder.createErrorAnnotation(element.keyword, error, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      return
+    }
+
+    function.returnType match {
+      case Right(tp) if function.hasAssign && !tp.isUnit =>
+        if (element.expr.isEmpty) {
+          TypeMismatchError.register(element, tp, api.Unit) { (expected, actual) =>
+            ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
+          }
+        }
+      case Right(u) if u.isUnit && element.expr.nonEmpty => element.expr.foreach(redundantReturnExpression)
+      case _                                        =>
+    }
+  }
+
+  private def redundantReturnExpression(e: ScExpression)(implicit holder: ScalaAnnotationHolder): Unit = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext(e)
+    implicit val context: Context = Context(e)
+
+    val tpe = e.getTypeAfterImplicitConversion().tr
+    tpe.foreach { t =>
+      val message = ScalaBundle.message("return.expression.is.redundant", t.presentableText)
+      holder.createWarningAnnotation(e, message)
+    }
+  }
+}

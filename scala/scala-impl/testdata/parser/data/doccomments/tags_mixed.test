@@ -1,0 +1,118 @@
+/**
+ * @see
+ * @author
+ * @note
+ * @return
+ * @since
+ * @define
+ * @version
+ * @todo
+ * @usecase
+ * @example
+ * @deprecated
+ * @migration
+ * @inheritdoc
+ * @group
+ * @groupname
+ * @groupdesc
+ * @groupprio
+ * @constructor
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@see')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@note')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@return')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@since')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@define')
+      PsiErrorElement:Missing tag param
+        <empty list>
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@version')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@todo')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@usecase')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@example')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@deprecated')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@migration')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@inheritdoc')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@group')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@groupname')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@groupdesc')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@groupprio')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@constructor')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

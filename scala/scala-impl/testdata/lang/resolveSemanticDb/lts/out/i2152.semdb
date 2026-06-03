@@ -1,0 +1,15 @@
+Document tests/pos/i2152.scala
+(1:24..1:30) scala/AnyRef#
+(3:20..3:26) scala/AnyRef#
+(3:29..3:35) _empty_/Contra# -> 1:7
+(3:36..3:40) _empty_/Test.narrow().(task) -> 3:14
+(3:60..3:64) _empty_/Test.narrow().(task) -> 3:14
+(4:28..4:34) _empty_/Contra# -> 1:7
+(4:35..4:41) _empty_/Test.ident().[Before] -> 4:13
+(4:45..4:51) _empty_/Contra# -> 1:7
+(4:52..4:58) _empty_/Test.ident().[Before] -> 4:13
+(4:62..4:67) _empty_/Test.ident().(elems) -> 4:21
+(6:3..6:8) _empty_/Test.ident(). -> 4:7
+(6:9..6:15) _empty_/Test.narrow(). -> 3:7
+(6:16..6:19) _empty_/Test.foo. -> 5:7
+

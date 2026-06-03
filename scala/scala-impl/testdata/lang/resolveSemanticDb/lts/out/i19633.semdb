@@ -1,0 +1,45 @@
+Document tests/pos/i19633.scala
+(7:19..7:29) _empty_/Repro.Responsive# -> 2:9
+(7:47..7:48) _empty_/Repro.Responsive.Aux#[R] -> 7:14
+(8:24..8:25) _empty_/Repro.Responsive.Response#[R] -> 8:19
+(8:38..8:41) _empty_/Repro.Responsive.Aux# -> 7:10
+(8:48..8:49) local1 -> 8:42
+(11:34..11:40) scala/Predef.String#
+(11:50..11:60) _empty_/Repro.Responsive# -> 2:9
+(12:21..12:27) scala/Predef.String#
+(15:25..15:35) _empty_/Repro.Responsive# -> 2:9
+(15:46..15:47) _empty_/Repro.withImplicit().[R] -> 15:20
+(15:62..15:67) scala/
+(15:68..15:75) scala/reflect/
+(15:76..15:84) scala/reflect/ClassTag#
+(15:85..15:95) _empty_/Repro.Responsive. -> 6:10
+(15:96..15:104) _empty_/Repro.Responsive.Response# -> 8:10
+(15:105..15:106) _empty_/Repro.withImplicit().[R] -> 15:20
+(15:111..15:121) _empty_/Repro.Responsive. -> 6:10
+(15:122..15:130) _empty_/Repro.Responsive.Response# -> 8:10
+(15:131..15:132) _empty_/Repro.withImplicit().[R] -> 15:20
+(15:136..15:139) scala/Predef.`???`().
+(17:25..17:35) _empty_/Repro.Responsive# -> 2:9
+(17:46..17:47) _empty_/Repro.withFunction().[R] -> 17:20
+(17:55..17:56) _empty_/Repro.withFunction().[R] -> 17:20
+(17:60..17:70) _empty_/Repro.Responsive. -> 6:10
+(17:71..17:79) _empty_/Repro.Responsive.Response# -> 8:10
+(17:80..17:81) _empty_/Repro.withFunction().[R] -> 17:20
+(17:85..17:95) _empty_/Repro.Responsive. -> 6:10
+(17:96..17:104) _empty_/Repro.Responsive.Response# -> 8:10
+(17:105..17:106) _empty_/Repro.withFunction().[R] -> 17:20
+(17:110..17:113) scala/Predef.`???`().
+(19:31..19:44) _empty_/Repro.StringRequest# -> 11:14
+(19:47..19:53) scala/Predef.String#
+(19:56..19:68) _empty_/Repro.withFunction(). -> 17:7
+(19:69..19:72) _empty_/Repro.stringWithFunction().(req) -> 19:26
+(19:76..19:84) scala/Any#getClass().
+(19:85..19:98) java/lang/Class#getSimpleName().
+(21:31..21:44) _empty_/Repro.StringRequest# -> 11:14
+(21:47..21:53) scala/Predef.String#
+(21:56..21:68) _empty_/Repro.withImplicit(). -> 15:7
+(21:69..21:72) _empty_/Repro.stringWithImplicit().(req) -> 21:26
+(23:18..23:23) scala/Array#
+(23:24..23:30) scala/Predef.String#
+(23:34..23:38) scala/Unit#
+

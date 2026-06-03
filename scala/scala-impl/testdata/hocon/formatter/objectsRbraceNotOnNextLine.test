@@ -1,0 +1,13 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="OBJECTS_WRAP" value="2" />
+    <option name="OBJECTS_RBRACE_ON_NEXT_LINE" value="false" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+obj {key = value, key = value, key = value}
+-----
+obj {
+  key = value,
+  key = value,
+  key = value}

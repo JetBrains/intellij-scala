@@ -1,0 +1,217 @@
+a x b | d
+a | b ^ d
+a ^ b & d
+a & b ! d
+a & b == d
+a ! b > d
+a == b > d
+a > b :: d
+a :: b + d
+a + b * d
+a - b % d
+a - b / d
+-----
+ScalaFile
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: x
+      PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: |
+      PsiElement(identifier)('|')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ^
+        PsiElement(identifier)('^')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ^
+      PsiElement(identifier)('^')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: &
+      PsiElement(identifier)('&')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: !
+        PsiElement(identifier)('!')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: &
+      PsiElement(identifier)('&')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ==
+        PsiElement(identifier)('==')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: !
+      PsiElement(identifier)('!')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: >
+        PsiElement(identifier)('>')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ==
+      PsiElement(identifier)('==')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: >
+        PsiElement(identifier)('>')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: >
+      PsiElement(identifier)('>')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ::
+        PsiElement(identifier)('::')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ::
+      PsiElement(identifier)('::')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: +
+        PsiElement(identifier)('+')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: +
+      PsiElement(identifier)('+')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: *
+        PsiElement(identifier)('*')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: -
+      PsiElement(identifier)('-')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: %
+        PsiElement(identifier)('%')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: -
+      PsiElement(identifier)('-')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: /
+        PsiElement(identifier)('/')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')

@@ -1,0 +1,8 @@
+[0,29]: PackageDef
+[0,0]: Ident
+[0,10]: Import
+[7,8]: Ident
+[12,29]: TypeDef
+[25,29]: AppliedTypeTree
+[25,26]: Ident
+[27,28]: TypeBoundsTree

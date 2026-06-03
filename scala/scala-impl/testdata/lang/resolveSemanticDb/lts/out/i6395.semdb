@@ -1,0 +1,10 @@
+Document tests/pos/i6395.scala
+(2:20..2:23) scala/Int#
+(2:46..2:49) scala/Int#
+(2:52..2:55) scala/Int#
+(3:20..3:23) scala/Int#
+(3:34..3:37) scala/Int#
+(3:40..3:44) _empty_/Foo.bar().(self) -> 3:14
+(4:5..4:8) _empty_/Foo.foo(). -> 2:36
+(4:12..4:15) _empty_/Foo.bar(). -> 3:29
+

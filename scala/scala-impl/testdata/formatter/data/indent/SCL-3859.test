@@ -1,0 +1,15 @@
+Seq(0, 1)
+  .map(
+  _ + 2
+)
+  .foreach(
+  println
+)
+-----
+Seq(0, 1)
+  .map(
+    _ + 2
+  )
+  .foreach(
+    println
+  )

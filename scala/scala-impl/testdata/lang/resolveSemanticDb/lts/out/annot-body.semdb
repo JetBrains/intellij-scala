@@ -1,0 +1,10 @@
+Document tests/pos/annot-body.scala
+(7:16..7:19) scala/Any#
+(7:22..7:23) json/Reads#[A] -> 6:13
+(11:24..11:29) json/Reads# -> 6:7
+(11:30..11:31) json/JsMacroImpl.reads().[A] -> 11:20
+(12:9..12:14) json/Reads# -> 6:7
+(12:15..12:16) json/JsMacroImpl.reads().[A] -> 11:20
+(13:20..13:23) scala/Any#
+(13:27..13:30) scala/Predef.`???`().
+

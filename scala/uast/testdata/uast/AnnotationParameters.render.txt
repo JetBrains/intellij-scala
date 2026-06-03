@@ -1,0 +1,48 @@
+public class IntRange : scala.annotation.StaticAnnotation {
+    public final var from: long
+    public final var to: long
+    public fun IntRange() : void = UastEmptyExpression
+}
+
+public class RequiresPermission : scala.annotation.StaticAnnotation {
+    public final var anyOf: int[]
+    public fun RequiresPermission() : void = UastEmptyExpression
+}
+
+public class RequiresStrPermission : scala.annotation.StaticAnnotation {
+    public final var strs: java.lang.String[]
+    public fun RequiresStrPermission() : void = UastEmptyExpression
+}
+
+public class WithDefaultValue : scala.annotation.StaticAnnotation {
+    public final var value: int = 42
+    public fun WithDefaultValue() : void = UastEmptyExpression
+}
+
+public class SuppressLint : scala.annotation.StaticAnnotation {
+    public final var value: java.lang.String
+    public fun SuppressLint() : void = UastEmptyExpression
+}
+
+public final class Annotations$ {
+    @RequiresPermission(anyOf = Array(1, 2, 3))
+    @IntRange(from = 10, to = 0)
+    @WithDefaultValue
+    @SuppressLint(null = "Lorem")
+    public static fun foo() : int {
+        return 5
+    }
+    @IntRange(null = 0, null = 100)
+    @SuppressLint(null = "Lorem", null = "Ipsum", null = "Dolor")
+    public static fun bar() : void {
+        UastEmptyExpression
+    }
+    @RequiresPermission(anyOf = Array(1, 2, 3))
+    public static fun fooWithArrLiteral() : int {
+        return 5
+    }
+    @RequiresStrPermission(strs = Array("a", "b", "c"))
+    public static fun fooWithStrArrLiteral() : int {
+        return 3
+    }
+}

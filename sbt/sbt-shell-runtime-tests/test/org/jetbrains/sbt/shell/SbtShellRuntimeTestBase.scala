@@ -1,0 +1,3 @@
+package org.jetbrains.sbt.shell
+
+abstract class SbtShellRuntimeTestBase extends SbtShellTestBase

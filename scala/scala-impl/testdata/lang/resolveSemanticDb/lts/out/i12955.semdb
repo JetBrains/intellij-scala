@@ -1,0 +1,8 @@
+Document tests/pos/i12955.scala
+(1:25..1:26) _empty_/i12955$package.test().[A] -> 1:10
+(1:27..1:30) scala/`<:<`#
+(1:31..1:32) _empty_/i12955$package.test().[B] -> 1:13
+(2:10..2:11) _empty_/i12955$package.test().[B] -> 1:13
+(2:14..2:17) scala/Predef.`???`().
+(2:20..2:21) _empty_/i12955$package.test().[A] -> 1:10
+

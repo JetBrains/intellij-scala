@@ -1,0 +1,11 @@
+class A {
+  def fii() {
+    <selection>{}</selection>
+  }
+}
+-------
+class A {
+  def fii() {
+    val value: Unit = {}
+  }
+}

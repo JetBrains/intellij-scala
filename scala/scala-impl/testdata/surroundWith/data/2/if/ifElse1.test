@@ -1,0 +1,13 @@
+class a {
+  <start>if (true) {
+    again
+  }<else>
+}
+-----
+class a {
+  if () {
+    if (true) {
+      again
+    }
+  } else {}
+}

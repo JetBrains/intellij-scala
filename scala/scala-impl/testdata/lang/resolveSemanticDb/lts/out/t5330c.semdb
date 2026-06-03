@@ -1,0 +1,13 @@
+Document tests/pos/t5330c.scala
+(2:10..2:13) scala/Predef.Set#
+(2:19..2:23) scala/Char#
+(2:27..2:30) scala/Predef.Set.
+(3:3..3:4) _empty_/t5330c.s. -> 2:7
+(3:5..3:11) scala/collection/IterableOnceOps#forall().
+(3:19..3:27) scala/collection/SeqOps#contains().
+(4:3..4:4) _empty_/t5330c.s. -> 2:7
+(4:5..4:11) scala/collection/IterableOnceOps#forall().
+(4:24..4:29) scala/collection/immutable/Seq#toSeq().
+(4:30..4:38) scala/collection/SeqOps#contains().
+(4:40..4:41) local0 -> 4:13
+

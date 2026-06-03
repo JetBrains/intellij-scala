@@ -1,0 +1,17 @@
+Document tests/pos/i7421.scala
+(3:18..3:23) scala/Array#
+(3:24..3:30) scala/Predef.String#
+(3:34..3:38) scala/Unit#
+(4:9..4:13) _empty_/Main.main().(args) -> 3:12
+(4:14..4:20) scala/Array#length().
+(4:21..4:22) scala/Int#`>`(+3).
+(6:9..6:16) scala/Predef.println(+1).
+(6:17..6:21) _empty_/Main.main().(args) -> 3:12
+(8:7..8:14) scala/Predef.println(+1).
+(10:9..10:13) _empty_/Main.main().(args) -> 3:12
+(10:14..10:20) scala/Array#length().
+(10:21..10:22) scala/Int#`>`(+3).
+(12:9..12:16) scala/Predef.println(+1).
+(12:17..12:21) _empty_/Main.main().(args) -> 3:12
+(14:7..14:14) scala/Predef.println(+1).
+

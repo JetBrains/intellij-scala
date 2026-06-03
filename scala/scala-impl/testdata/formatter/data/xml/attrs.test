@@ -1,0 +1,13 @@
+val x = <a     attr1="1"     attr2="2"><b     attr="1"     attr2="1"><c></c></b>
+
+
+
+</a>
+-----
+val x = <a attr1="1" attr2="2">
+  <b attr="1" attr2="1">
+    <c></c>
+  </b>
+
+
+</a>

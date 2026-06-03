@@ -1,0 +1,10 @@
+Document tests/pos/i13346.scala
+(3:27..3:30) scala/Int#
+(4:28..4:29) _empty_/Outer_Typed.Inner.ClassTyped#[T] -> 4:22
+(7:17..7:29) _empty_/Outer_Typed.Inner.ClassUntyped# -> 3:11
+(9:13..9:25) _empty_/Outer_Typed.Inner.ClassUntyped# -> 3:11
+(13:10..13:15) _empty_/Outer_Typed.Inner. -> 2:10
+(15:15..15:27) _empty_/Outer_Typed.ClassUntyped#
+(16:15..16:25) _empty_/Outer_Typed.ClassTyped#
+(17:11..17:23) _empty_/Outer_Typed.Inner.ClassUntyped# -> 3:11
+

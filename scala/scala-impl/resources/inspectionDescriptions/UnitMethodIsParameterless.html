@@ -1,0 +1,19 @@
+<html>
+<body>
+<p>Reports methods with result type <code>Unit</code> that do not have parameter clauses.</p>
+<p>Methods with a result type of <code>Unit</code> are only executed for their
+    <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>
+    and, by the convention, methods with side effects have at least one (empty) parameter clause.
+    </p>
+<p>The quick-fix adds an empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def test: Unit = ()
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Unit = ()
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

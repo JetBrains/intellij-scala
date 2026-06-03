@@ -1,0 +1,7 @@
+3*/*/*/**/*/*/*4
+-----
+integer {3}
+identifier {*}
+BlockComment {/*/*/**/*/*/}
+identifier {*}
+integer {4}

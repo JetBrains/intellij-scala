@@ -1,0 +1,12 @@
+class A {
+  def foo() = <selection>{
+    2 + 2
+  }</selection>
+}
+------
+class A {
+  def foo() = {
+    val value: Int = 2 + 2
+    value
+  }
+}

@@ -1,0 +1,6 @@
+Document tests/pos/t6231b.scala
+(2:13..2:19) scala/Predef.String#
+(4:16..4:19) scala/package.Nil.
+(4:20..4:23) scala/collection/immutable/List#map().
+(4:30..4:31) _empty_/Test#f1().(t) -> 2:10
+

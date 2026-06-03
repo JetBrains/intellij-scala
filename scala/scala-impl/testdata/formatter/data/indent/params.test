@@ -1,0 +1,5 @@
+class a (builder: PsiBuilder,
+x:Boolean) {}
+------
+class a(builder: PsiBuilder,
+        x: Boolean) {}

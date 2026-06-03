@@ -1,0 +1,52 @@
+class a {
+  new {var a = 3}.a
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: new {var a = 3}.a
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                ScVariableDefinition: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: a
+                      PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiElement(})('}')
+          PsiElement(.)('.')
+          PsiElement(identifier)('a')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,40 @@
+Document tests/pos/looping-jsig.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(3:25..3:32) scala/collection/mutable/
+(7:17..7:24) scala/collection/mutable/HashMap#
+(7:25..7:26) _empty_/BugTrack#A# -> 12:20
+(7:31..7:32) _empty_/BugTrack#B# -> 6:11
+(7:39..7:46) scala/collection/mutable/HashMap.
+(7:47..7:52) scala/collection/mutable/HashMap.empty().
+(9:17..9:20) scala/Int#
+(9:24..9:25) _empty_/BugTrack#B# -> 6:11
+(9:26..9:27) _empty_/BugTrack#A().[T] -> 9:11
+(9:31..9:32) _empty_/BugTrack#A# -> 12:20
+(9:33..9:34) _empty_/BugTrack#A().[T] -> 9:11
+(10:15..10:16) _empty_/BugTrack#A# -> 12:20
+(10:17..10:18) _empty_/BugTrack#A().[T] -> 9:11
+(10:34..10:37) scala/Int#
+(10:41..10:42) _empty_/BugTrack#A().(f) -> 9:14
+(10:43..10:45) local0 -> 10:30
+(12:35..12:38) scala/Int#
+(12:42..12:43) _empty_/BugTrack#B# -> 6:11
+(12:44..12:45) _empty_/BugTrack#A#[T] -> 12:23
+(16:25..16:26) _empty_/BugTrack#A# -> 12:20
+(16:27..16:28) _empty_/BugTrack#amethod().[T] -> 16:17
+(16:32..16:33) _empty_/BugTrack#A# -> 12:20
+(16:34..16:35) _empty_/BugTrack#amethod().[T] -> 16:17
+(16:39..16:40) _empty_/BugTrack#A(). -> 9:9
+(16:47..16:52) _empty_/BugTrack#cache. -> 7:9
+(16:53..16:56) scala/collection/mutable/HashMap#get().
+(16:57..16:58) _empty_/BugTrack#amethod().(p) -> 16:20
+(17:17..17:21) scala/Some.
+(17:30..17:33) local5 -> 17:22
+(18:17..18:21) scala/None.
+(18:25..18:26) _empty_/BugTrack#amethod().(p) -> 16:20
+(18:27..18:29) local4 -> 16:41
+(19:9..19:19) _empty_/BugTrack#A#giveMeSame(). -> 13:11
+(19:20..19:32) scala/Any#asInstanceOf().
+(19:33..19:34) _empty_/BugTrack#A# -> 12:20
+(19:35..19:36) _empty_/BugTrack#amethod().[T] -> 16:17
+

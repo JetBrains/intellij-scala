@@ -1,0 +1,7 @@
+some.thing.more
+-----
+UNQUOTED_CHARS {some}
+PERIOD {.}
+UNQUOTED_CHARS {thing}
+PERIOD {.}
+UNQUOTED_CHARS {more}

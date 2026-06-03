@@ -1,0 +1,18 @@
+Document tests/pos/i19999.scala
+(3:21..3:35) _empty_/InIntersection# -> 1:7
+(3:36..3:37) _empty_/i19999$package.derived().[A] -> 3:13
+(3:38..3:39) scala/`&`#
+(3:40..3:42) _empty_/i19999$package.derived().[R0] -> 3:16
+(3:44..3:45) _empty_/i19999$package.derived().[A] -> 3:13
+(3:53..3:67) _empty_/InIntersection# -> 1:7
+(3:68..3:69) _empty_/i19999$package.derived().[A] -> 3:13
+(3:70..3:71) scala/`&`#
+(3:72..3:74) _empty_/i19999$package.derived().[R0] -> 3:16
+(3:76..3:77) _empty_/i19999$package.derived().[A] -> 3:13
+(5:8..5:22) _empty_/InIntersection# -> 1:7
+(5:23..5:26) scala/Int#
+(5:27..5:28) scala/`&`#
+(5:29..5:35) scala/Predef.String#
+(5:37..5:40) scala/Int#
+(5:44..5:51) _empty_/i19999$package.derived(). -> 3:5
+

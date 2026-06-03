@@ -1,0 +1,7 @@
+class a {
+  if (! a ) ~ b + (+ c)
+}
+-----
+class a {
+  if (!a) ~b + (+c)
+}

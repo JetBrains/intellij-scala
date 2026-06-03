@@ -1,0 +1,113 @@
+package org.jetbrains.plugins.scala.lang
+
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
+
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.{Dispatchers, MainCoroutineDispatcher}
+import scala.annotation.nowarn
+
+object TokenSets {
+
+  val TYPE_DEFINITIONS: TokenSet = TokenSet.create(
+    ClassDefinition,
+    TraitDefinition,
+    EnumDefinition,
+    EnumClassCase,
+    EnumSingletonCase,
+    ObjectDefinition,
+    GivenDefinition
+  )
+
+  val ENUM_CASES: TokenSet = TokenSet.create(
+    EnumClassCase,
+    EnumSingletonCase,
+  )
+
+  val BINDING_PATTERNS: TokenSet = TokenSet.create(
+    REFERENCE_PATTERN,
+    NAMING_PATTERN,
+    TYPED_PATTERN
+  )
+
+  val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)
+
+  val SELF_TYPE_ID: TokenSet = TokenSet.create(kTHIS, tIDENTIFIER, tUNDER)
+
+  val ALIASES_SET: TokenSet = TokenSet.create(TYPE_DECLARATION, TYPE_DEFINITION)
+
+  val TYPE_DEFINITION_LIKES: TokenSet = TYPE_DEFINITIONS ++ ALIASES_SET
+
+  val FUNCTIONS: TokenSet = TokenSet.create(
+    FUNCTION_DECLARATION,
+    FUNCTION_DEFINITION,
+    MACRO_DEFINITION,
+    GIVEN_ALIAS_DECLARATION,
+    GIVEN_ALIAS_DEFINITION
+  )
+
+  val PROPERTIES: TokenSet = TokenSet.create(
+    VALUE_DECLARATION,
+    PATTERN_DEFINITION,
+    VARIABLE_DECLARATION,
+    VARIABLE_DEFINITION
+  )
+
+  private val _MEMBERS: AtomicReference[TokenSet] = new AtomicReference[TokenSet](null)
+
+  def MEMBERS: TokenSet = {
+    val members = _MEMBERS.get()
+    if (members != null) members
+    else computeMemberTypes()
+  }
+
+  private def computeMemberTypes(): TokenSet = {
+    val members = FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++ EXTENSION ++
+      MemberElementTypesExtension.getExtraMemberTypes
+    assert(members != null)
+    val old = _MEMBERS.getAndSet(members)
+    if (old == null) {
+      // register a listener that will recompute the member types if the extension point is changed
+      MemberElementTypesExtension.EP_NAME.addChangeListener(
+        kotlinx.coroutines.CoroutineScopeKt.MainScope(),
+        () => computeMemberTypes(): Unit
+      )
+    }
+    members
+  }
+
+  val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, PROPERTIES)
+
+  val PARAMETERS: TokenSet = TokenSet.create(PARAM, CLASS_PARAM)
+
+  val TYPE_ELEMENTS_TOKEN_SET: TokenSet = TokenSet.create(
+    SIMPLE_TYPE, TYPE, TYPE_IN_PARENTHESIS, TYPE_GENERIC_CALL, INFIX_TYPE, TUPLE_TYPE,
+    EXISTENTIAL_TYPE, COMPOUND_TYPE, ANNOT_TYPE, WILDCARD_TYPE, TYPE_PROJECTION, TYPE_VARIABLE, LITERAL_TYPE,
+    TYPE_LAMBDA, MATCH_TYPE, NAMED_TUPLE_TYPE
+  )
+
+  val INTERPOLATED_PREFIX_TOKEN_SET: TokenSet = TokenSet.create(
+    INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+    INTERPOLATED_PREFIX_PATTERN_REFERENCE,
+    tINTERPOLATED_STRING_ID
+  )
+
+  val IMPORT_WILDCARDS: TokenSet = TokenSet.create(tUNDER, WildcardStar)
+
+  val IMPORT_ALIAS_INDICATORS: TokenSet = TokenSet.create(tFUNTYPE, AsKeyword)
+
+  val RBRACE_OR_END_STMT: TokenSet = TokenSet.create(tRBRACE, END_STMT)
+
+  implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
+    def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
+    def ++ (other: IElementType*): TokenSet = TokenSet.orSet(set, TokenSet.create(other: _*))
+    def + (other: IElementType): TokenSet = TokenSet.orSet(set, TokenSet.create(other))
+    def -- (other: TokenSet): TokenSet = TokenSet.andNot(set, other)
+    def -- (other: IElementType*): TokenSet = TokenSet.andNot(set, TokenSet.create(other: _*))
+    def - (other: IElementType): TokenSet = set -- TokenSet.create(other)
+  }
+}

@@ -1,0 +1,3 @@
+ <spot>do</spot> {
+    // body
+  } <spot>while</spot> (cond)

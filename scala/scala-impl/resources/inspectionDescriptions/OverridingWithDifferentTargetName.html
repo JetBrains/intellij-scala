@@ -1,0 +1,31 @@
+<html>
+<body>
+<p>Reports the definitions with a <code>@targetName</code> annotation that override definitions with <code>@targetName</code> annotation but have different external names.</p>
+
+<p>See <a href="https://docs.scala-lang.org/scala3/reference/other-new-features/targetName.html">The @targetName annotation</a>.</p>
+
+<p>The quick-fix replaces the <code>@targetName</code> annotation's external name with external name of the overridden definition.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  trait A:
+    @targetName("multiply")
+    def *(i: Int): A
+
+  class B extends A:
+    @targetName("times")
+    override def *(i: Int): A = ???
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  trait A:
+    @targetName("multiply")
+    def *(i: Int): A
+
+  class B extends A:
+    @targetName("multiply")
+    override def *(i: Int): A = ???
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

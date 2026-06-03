@@ -1,0 +1,14 @@
+//I
+object My{
+  class A{
+    val j:<selection>Int</selection> = 23
+  }
+
+  class I{
+    def q(){
+      12
+    }
+  }
+}
+-------
+Introduced type alias conflicts with class name: I

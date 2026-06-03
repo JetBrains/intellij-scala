@@ -1,0 +1,20 @@
+Document tests/pos/i9479.scala
+(3:20..3:31) _empty_/Applicative# -> 1:7
+(3:43..3:47) scala/package.List#
+(3:48..3:49) _empty_/i9479$package.traverse().[A] -> 3:33
+(3:55..3:56) _empty_/i9479$package.traverse().[A] -> 3:33
+(3:60..3:61) _empty_/i9479$package.traverse().[F] -> 3:14
+(3:62..3:63) _empty_/i9479$package.traverse().[B] -> 3:36
+(3:68..3:71) scala/Predef.`???`().
+(6:38..6:49) _empty_/Applicative# -> 1:7
+(6:58..6:64) scala/package.Either#
+(6:65..6:66) _empty_/Test.eitherApplicative().[A] -> 6:34
+(6:68..6:69) _empty_/Test.eitherApplicative().[X] -> 6:51
+(6:74..6:77) scala/Predef.`???`().
+(9:3..9:11) _empty_/i9479$package.traverse(). -> 3:5
+(9:12..9:16) scala/package.List.
+(9:39..9:44) scala/package.Right.
+(9:45..9:46) local0 -> 9:24
+(9:53..9:57) scala/package.Left.
+(9:58..9:59) local0 -> 9:24
+

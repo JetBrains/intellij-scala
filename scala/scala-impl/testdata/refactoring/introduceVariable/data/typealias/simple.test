@@ -1,0 +1,9 @@
+//### name=I
+object My {
+  val t: <selection>Int</selection> = 23
+}
+-----------
+object My {
+  type I = Int
+  val t: I = 23
+}

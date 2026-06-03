@@ -1,0 +1,11 @@
+s"$this"
+-----
+ScalaFile
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"')
+    PsiElement(interpolated string injection)('$')
+    ThisReference
+      PsiElement(this)('this')
+    PsiElement(interpolated string end)('"')

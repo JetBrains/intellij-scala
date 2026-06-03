@@ -1,0 +1,21 @@
+// comment
+def f = 1
+-----
+ScalaFile
+  ScFunctionDefinition: f
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('1')

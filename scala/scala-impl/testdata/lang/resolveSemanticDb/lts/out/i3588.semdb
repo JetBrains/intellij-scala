@@ -1,0 +1,19 @@
+Document tests/pos/i3588.scala
+(2:10..2:13) scala/Any#
+(3:3..3:4) _empty_/Foo#a. -> 2:7
+(12:10..12:11) _empty_/Bar#[T] -> 11:11
+(12:14..12:17) scala/Predef.`???`().
+(13:3..13:4) _empty_/Bar#a. -> 12:7
+(22:10..22:16) scala/Double#
+(23:3..23:4) _empty_/Baz#a. -> 22:7
+(32:10..32:16) scala/AnyVal#
+(33:3..33:4) _empty_/Foo2#a. -> 32:7
+(42:17..42:20) scala/Int#
+(42:30..42:36) scala/AnyVal#
+(44:10..44:11) _empty_/A# -> 42:12
+(44:18..44:19) _empty_/A# -> 42:12
+(45:3..45:4) _empty_/Foo3#a. -> 44:7
+(46:10..46:11) _empty_/A.
+(47:10..47:11) _empty_/A.
+(48:10..48:11) _empty_/A.
+

@@ -1,0 +1,33 @@
+Document tests/pos/i18768.scala
+(5:24..5:28) scala/Long#
+(7:20..7:22) minimized/Module.Exportee.Id# -> 5:19
+(7:25..7:28) scala/Predef.`???`().
+(9:21..9:23) minimized/Module.Exportee.Id# -> 5:19
+(10:22..10:24) minimized/Module.Exportee.Id# -> 5:19
+(10:27..10:30) scala/Predef.`???`().
+(14:12..14:18) minimized/Module. -> 2:10
+(15:13..15:21) minimized/Client.Exportee().
+(15:24..15:31) minimized/Module.Exportee.updated(). -> 10:13
+(22:22..22:24) original/Module.EntityDef#Id# -> 20:12
+(22:26..22:32) original/Module.EntityDef#Record# -> 21:12
+(24:21..24:27) original/Module.EntityDef#Entity# -> 22:12
+(25:22..25:28) original/Module.EntityDef#Entity# -> 22:12
+(25:31..25:32) original/Module.EntityDef#updated().(e) -> 24:18
+(28:29..28:38) original/Module.EntityDef# -> 19:11
+(29:24..29:28) scala/Long#
+(30:21..30:29) original/Module.Exportee# -> 27:16
+(32:21..32:25) scala/Long#
+(32:28..32:34) original/Module.EntityDef#Entity# -> 22:12
+(32:38..32:40) original/Module.Exportee.apply().(id) -> 32:17
+(32:42..32:50) original/Module.Exportee. -> 28:12
+(35:12..35:18) original/Module. -> 18:10
+(36:13..36:21) original/Client.Exportee().
+(36:26..36:33) original/Module.EntityDef#updated(). -> 25:13
+(40:12..40:18) original/Module. -> 18:10
+(41:21..41:27) original/Module. -> 18:10
+(41:28..41:36) original/Module.Exportee# -> 27:16
+(42:20..42:26) original/Module. -> 18:10
+(42:27..42:35) original/Module.Exportee. -> 28:12
+(44:13..44:21) original/ClientWorkingWithManualExport.Exportee. -> 42:9
+(44:26..44:33) original/Module.EntityDef#updated(). -> 25:13
+

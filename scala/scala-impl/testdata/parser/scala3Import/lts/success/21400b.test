@@ -1,0 +1,144 @@
+//> using options -Ykind-projector:underscores
+
+import scala.quoted.Type
+import scala.quoted.Quotes
+
+def x[A](t: Type[A])(using Quotes): Boolean = t match
+  case '[_ *: _] =>
+    true
+  case _ =>
+    false
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ykind-projector:underscores')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted.Type
+        CodeReferenceElement: scala.quoted
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('quoted')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Type')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted.Quotes
+        CodeReferenceElement: scala.quoted
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('quoted')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Quotes')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('x')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Type[A]
+              SimpleType: Type
+                CodeReferenceElement: Type
+                  PsiElement(identifier)('Type')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Quotes
+              CodeReferenceElement: Quotes
+                PsiElement(identifier)('Quotes')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: t
+        PsiElement(identifier)('t')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          QuotedPattern
+            QuotedType
+              PsiElement(')(''')
+              PsiElement([)('[')
+              InfixType: _ *: _
+                WildcardType: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                WildcardType: _
+                  PsiElement(_)('_')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            BooleanLiteral
+              PsiElement(true)('true')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            BooleanLiteral
+              PsiElement(false)('false')

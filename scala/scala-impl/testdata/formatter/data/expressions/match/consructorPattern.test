@@ -1,0 +1,11 @@
+class a {
+  {
+    case Some  (  _,_,k) => { }
+  }
+}
+-----
+class a {
+  {
+    case Some(_, _, k) => {}
+  }
+}

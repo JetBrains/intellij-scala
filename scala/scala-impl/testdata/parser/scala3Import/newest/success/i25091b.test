@@ -1,0 +1,313 @@
+object Test:
+  trait VersionComponent[T]:
+      inline def minimum: T = wrap(42)
+      inline def wrap(value: Int): T
+
+  opaque type MajorVersionType = Int
+  object MajorVersion extends VersionComponent[MajorVersionType]:
+      inline def wrap(value: Int): MajorVersionType = value
+      inline def reset: MajorVersionType = minimum
+
+  trait Increment[F]:
+    def increment: MajorVersionType
+
+  class MyIncrement extends Increment[MajorVersionType]:
+    inline def increment: MajorVersionType = MajorVersion.reset
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: VersionComponent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('VersionComponent')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: minimum
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('minimum')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: wrap
+                    PsiElement(identifier)('wrap')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('42')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDeclaration: wrap
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('wrap')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('value')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: MajorVersionType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MajorVersionType')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScObject: MajorVersion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MajorVersion')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: VersionComponent[MajorVersionType]
+                  SimpleType: VersionComponent
+                    CodeReferenceElement: VersionComponent
+                      PsiElement(identifier)('VersionComponent')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: MajorVersionType
+                        CodeReferenceElement: MajorVersionType
+                          PsiElement(identifier)('MajorVersionType')
+                    PsiElement(])(']')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: wrap
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('wrap')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('value')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: MajorVersionType
+                  CodeReferenceElement: MajorVersionType
+                    PsiElement(identifier)('MajorVersionType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: value
+                  PsiElement(identifier)('value')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: reset
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('reset')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: MajorVersionType
+                  CodeReferenceElement: MajorVersionType
+                    PsiElement(identifier)('MajorVersionType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: minimum
+                  PsiElement(identifier)('minimum')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Increment
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Increment')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: increment
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('increment')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: MajorVersionType
+                  CodeReferenceElement: MajorVersionType
+                    PsiElement(identifier)('MajorVersionType')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: MyIncrement
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MyIncrement')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Increment[MajorVersionType]
+                  SimpleType: Increment
+                    CodeReferenceElement: Increment
+                      PsiElement(identifier)('Increment')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: MajorVersionType
+                        CodeReferenceElement: MajorVersionType
+                          PsiElement(identifier)('MajorVersionType')
+                    PsiElement(])(']')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: increment
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('increment')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: MajorVersionType
+                  CodeReferenceElement: MajorVersionType
+                    PsiElement(identifier)('MajorVersionType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: MajorVersion.reset
+                  ReferenceExpression: MajorVersion
+                    PsiElement(identifier)('MajorVersion')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reset')

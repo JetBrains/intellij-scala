@@ -1,0 +1,30 @@
+Document tests/pos/i12949.scala
+(4:12..4:17) _empty_/Hodor. -> 6:8
+(4:18..4:20) _empty_/Hodor.TC. -> 7:10
+(8:12..8:19) _empty_/Catch22. -> 1:8
+(8:20..8:22) _empty_/Catch22.TC# -> 2:9
+(8:20..8:22) _empty_/Catch22.TC. -> 3:10
+(9:27..9:33) scala/Predef.String#
+(9:36..9:38) _empty_/Catch22.TC# -> 2:9
+(9:39..9:40) _empty_/Hodor.TC.fromString().[V] -> 9:22
+(9:44..9:47) scala/Predef.`???`().
+(10:46..10:52) scala/Double#
+(10:55..10:57) _empty_/Catch22.TC# -> 2:9
+(10:58..10:59) _empty_/Hodor.TC.fromDouble().[V] -> 10:41
+(11:11..11:13) _empty_/Catch22.TC# -> 2:9
+(11:14..11:15) _empty_/Hodor.TC.fromDouble().[V] -> 10:41
+(12:20..12:26) scala/Double#
+(13:24..13:27) scala/Int#
+(13:30..13:32) _empty_/Catch22.TC# -> 2:9
+(13:33..13:34) _empty_/Hodor.TC.fromInt#[V] -> 13:19
+(14:18..14:21) scala/Int#
+(17:3..17:9) scala/Predef.summon().
+(17:10..17:17) _empty_/Catch22. -> 1:8
+(17:18..17:20) _empty_/Catch22.TC# -> 2:9
+(18:3..18:9) scala/Predef.summon().
+(18:10..18:17) _empty_/Catch22. -> 1:8
+(18:18..18:20) _empty_/Catch22.TC# -> 2:9
+(19:3..19:9) scala/Predef.summon().
+(19:10..19:17) _empty_/Catch22. -> 1:8
+(19:18..19:20) _empty_/Catch22.TC# -> 2:9
+

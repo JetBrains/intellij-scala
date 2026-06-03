@@ -1,0 +1,9 @@
+Document tests/pos/i16435.avoid.scala
+(3:13..3:19) scala/Option#
+(3:20..3:25) _empty_/Foo#Value# -> 2:8
+(6:7..6:11) scala/None.
+(6:13..6:19) scala/Option#
+(6:20..6:24) local0 -> 5:11
+(6:25..6:30) _empty_/Foo#Value# -> 2:8
+(8:5..8:8) local1 -> 4:9
+

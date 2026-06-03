@@ -1,0 +1,11 @@
+class a {
+  abstract def foo () ()
+  () =
+  true
+}
+-----
+class a {
+  abstract def foo()()
+                  () =
+    true
+}

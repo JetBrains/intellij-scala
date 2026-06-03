@@ -1,0 +1,107 @@
+// prelude.scala
+
+import prelude.newtypes.Natural
+
+package object prelude extends ZSetSyntax {
+  type MultiSet[+A] = ZSet[A, Natural]
+  val MultiSet: ZSet.type = ZSet
+}
+-----
+ScalaFile
+  PsiComment(comment)('// prelude.scala')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: prelude.newtypes.Natural
+        CodeReferenceElement: prelude.newtypes
+          CodeReferenceElement: prelude
+            PsiElement(identifier)('prelude')
+          PsiElement(.)('.')
+          PsiElement(identifier)('newtypes')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Natural')
+  PsiWhiteSpace('\n\n')
+  ScObject: prelude
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('prelude')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: ZSetSyntax
+            CodeReferenceElement: ZSetSyntax
+              PsiElement(identifier)('ZSetSyntax')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: MultiSet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MultiSet')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZSet[A, Natural]
+            SimpleType: ZSet
+              CodeReferenceElement: ZSet
+                PsiElement(identifier)('ZSet')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Natural
+                  CodeReferenceElement: Natural
+                    PsiElement(identifier)('Natural')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: MultiSet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: MultiSet
+              PsiElement(identifier)('MultiSet')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ZSet.type
+            CodeReferenceElement: ZSet
+              PsiElement(identifier)('ZSet')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ZSet
+            PsiElement(identifier)('ZSet')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

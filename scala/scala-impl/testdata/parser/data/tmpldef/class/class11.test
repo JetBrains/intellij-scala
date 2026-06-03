@@ -1,0 +1,26 @@
+implicit implicit private class A
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+      PsiWhiteSpace(' ')
+      PsiElement(implicit)('implicit')
+      PsiWhiteSpace(' ')
+      AccessModifier
+        PsiElement(private)('private')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

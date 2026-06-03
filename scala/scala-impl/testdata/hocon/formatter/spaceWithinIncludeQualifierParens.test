@@ -1,0 +1,19 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <option name="SPACE_WITHIN_METHOD_CALL_PARENTHESES" value="true" />
+  </codeStyleSettings>
+</settings>
+-----
+include file("file")
+include file( "file")
+include file("file" )
+include file( "file" )
+include file( "file"  )
+include file(  "file"  )
+-----
+include file( "file" )
+include file( "file" )
+include file( "file" )
+include file( "file" )
+include file( "file" )
+include file( "file" )

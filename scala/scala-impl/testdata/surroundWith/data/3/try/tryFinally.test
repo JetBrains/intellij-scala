@@ -1,0 +1,9 @@
+class a:
+  <start>tt<finally>
+end a
+-----
+class a:
+  try
+    tt
+  finally <preserve-trailing-spaces>
+end a

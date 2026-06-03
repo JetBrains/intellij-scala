@@ -1,0 +1,3 @@
+object CommentDecompilation {
+  val `*/*`: scala.Int = ???
+}

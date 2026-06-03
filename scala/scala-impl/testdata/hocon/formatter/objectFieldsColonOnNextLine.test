@@ -1,0 +1,11 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="OBJECT_FIELDS_WITH_COLON_WRAP" value="2" />
+    <option name="OBJECT_FIELDS_COLON_ON_NEXT_LINE" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a: b
+-----
+a
+  : b

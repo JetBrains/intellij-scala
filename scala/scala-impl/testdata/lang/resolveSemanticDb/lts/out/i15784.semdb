@@ -1,0 +1,12 @@
+Document tests/pos/i15784.scala
+(1:14..1:18) scala/package.List.
+(2:8..2:12) scala/package.List.
+(2:30..2:34) local0 -> 2:16
+(3:8..3:12) scala/package.List.
+(3:30..3:34) local1 -> 3:16
+(4:8..4:12) scala/package.List.
+(4:32..4:36) local2
+(5:13..5:16) scala/Predef.`???`().
+(8:17..8:20) scala/Int#
+(8:24..8:30) local3
+

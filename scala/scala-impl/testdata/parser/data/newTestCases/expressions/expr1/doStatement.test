@@ -1,0 +1,40 @@
+class a {
+  do work
+  while (alive)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        DoStatement
+          PsiElement(do)('do')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: work
+            PsiElement(identifier)('work')
+          PsiWhiteSpace('\n  ')
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          ReferenceExpression: alive
+            PsiElement(identifier)('alive')
+          PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

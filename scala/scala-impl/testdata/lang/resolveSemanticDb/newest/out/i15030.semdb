@@ -1,0 +1,15 @@
+Document tests/pos/i15030.scala
+(3:23..3:38) _empty_/RecordInstances# -> 6:14
+(7:9..7:15) _empty_/Schema. -> 3:8
+(9:31..9:36) _empty_/Schema.Field# -> 4:14
+(9:37..9:38) _empty_/RecordInstances#Record#[A] -> 9:21
+(9:49..9:55) _empty_/Schema# -> 1:14
+(9:56..9:57) _empty_/RecordInstances#Record#[A] -> 9:21
+(11:8..11:14) _empty_/Schema. -> 3:8
+(13:12..13:17) _empty_/Schema.Field# -> 4:14
+(13:18..13:21) scala/Int#
+(13:25..13:30) _empty_/Schema.Field.
+(16:14..16:20) _empty_/RecordInstances#Record.
+(16:21..16:24) scala/Int#
+(16:26..16:31) _empty_/i15030$package.field. -> 13:5
+

@@ -1,0 +1,19 @@
+Document tests/pos/i15029.scala
+(5:33..5:39) _empty_/Schema# -> 2:14
+(5:40..5:41) _empty_/RecordInstances#Field#[B] -> 5:20
+(6:29..6:35) _empty_/Schema# -> 2:14
+(6:36..6:39) scala/Int#
+(8:18..8:33) _empty_/RecordInstances# -> 4:14
+(9:18..9:33) _empty_/RecordInstances# -> 4:14
+(13:25..13:31) _empty_/Schema# -> 2:14
+(13:32..13:33) _empty_/Test#handle().[T] -> 13:14
+(14:5..14:11) _empty_/Test#handle().(schema) -> 13:17
+(15:12..15:13) _empty_/X. -> 8:8
+(15:14..15:19) _empty_/RecordInstances#Field.
+(16:12..16:13) _empty_/X. -> 8:8
+(16:14..16:19) _empty_/RecordInstances#Thing. -> 6:15
+(17:12..17:13) _empty_/Y. -> 9:8
+(17:14..17:19) _empty_/RecordInstances#Field.
+(18:12..18:13) _empty_/Y. -> 9:8
+(18:14..18:19) _empty_/RecordInstances#Thing. -> 6:15
+

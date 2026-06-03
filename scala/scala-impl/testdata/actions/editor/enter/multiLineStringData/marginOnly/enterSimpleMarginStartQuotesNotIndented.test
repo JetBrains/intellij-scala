@@ -1,0 +1,8 @@
+"""<caret>
+   |
+""".stripMargin
+-----
+"""
+   |<caret>
+   |
+""".stripMargin

@@ -1,0 +1,7 @@
+class a {
+  def foo = {
+    for (value <- 1 to 10; if <selection>true</selection>) yield true
+  }
+}
+-----
+Introduced variable conflicts with (or may be hidden by) local variable: value

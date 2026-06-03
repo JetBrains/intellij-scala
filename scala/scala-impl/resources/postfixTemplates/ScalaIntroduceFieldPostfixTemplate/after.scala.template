@@ -1,0 +1,7 @@
+object Example {
+  val bar = "base" + o.toString
+
+  def foo(o: AnyRef) {
+    println(bar)
+  }
+}

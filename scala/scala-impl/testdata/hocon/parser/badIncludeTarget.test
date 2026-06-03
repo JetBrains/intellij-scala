@@ -1,0 +1,10 @@
+include stuff
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HInclude(INCLUDE)
+      PsiElement(UNQUOTED_CHARS)('include')
+      PsiWhiteSpace(' ')
+      HIncluded(INCLUDED)
+        PsiErrorElement:expected quoted string, optionally wrapped in 'url(...)', 'file(...)' or 'classpath(...)'
+          PsiElement(UNQUOTED_CHARS)('stuff')

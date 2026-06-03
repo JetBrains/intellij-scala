@@ -1,0 +1,27 @@
+Document tests/pos/i13668.scala
+(3:7..3:16) _empty_/Candidate# -> 2:7
+(3:17..3:23) _empty_/MyType# -> 1:7
+(8:20..8:21) _empty_/i13668$package.`+`().[L] -> 8:12
+(8:20..8:21) _empty_/i13668$package.`+`(+1).[L] -> 8:12
+(8:20..8:21) _empty_/i13668$package.`-`().[L] -> 8:12
+(8:20..8:21) _empty_/i13668$package.`-`(+1).[L] -> 8:12
+(8:29..8:38) _empty_/Candidate# -> 2:7
+(8:39..8:40) _empty_/i13668$package.`+`().[L] -> 8:12
+(8:39..8:40) _empty_/i13668$package.`+`(+1).[L] -> 8:12
+(8:39..8:40) _empty_/i13668$package.`-`().[L] -> 8:12
+(8:39..8:40) _empty_/i13668$package.`-`(+1).[L] -> 8:12
+(9:18..9:23) _empty_/Fuzzy# -> 4:7
+(9:24..9:26) _empty_/i13668$package.`+`().[RW] -> 9:9
+(9:30..9:34) scala/Unit#
+(10:14..10:18) _empty_/Bear# -> 6:7
+(10:21..10:25) scala/Unit#
+(11:14..11:20) _empty_/Fuzzy1# -> 5:7
+(11:23..11:27) scala/Unit#
+(12:14..12:18) _empty_/Bear# -> 6:7
+(12:21..12:25) scala/Unit#
+(14:13..14:19) _empty_/MyType# -> 1:7
+(14:22..14:23) _empty_/i13668$package.`-`(). -> 11:7
+(14:24..14:30) _empty_/Fuzzy1# -> 5:7
+(15:13..15:19) _empty_/MyType# -> 1:7
+(15:22..15:23) _empty_/i13668$package.`+`(). -> 9:7
+

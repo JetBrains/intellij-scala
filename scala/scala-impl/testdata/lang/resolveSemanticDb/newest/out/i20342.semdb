@@ -1,0 +1,30 @@
+Document tests/pos/i20342.scala
+(1:35..1:47) _empty_/RepoDefaults# -> 2:7
+(1:48..1:50) _empty_/Repo#[EC] -> 1:12
+(1:52..1:53) _empty_/Repo#[E] -> 1:16
+(4:36..4:43) _empty_/DbCodec# -> 7:7
+(4:36..4:43) _empty_/RepoDefaults.genImmutableRepo().[E] -> 4:33
+(4:46..4:58) _empty_/RepoDefaults# -> 2:7
+(4:59..4:60) _empty_/RepoDefaults.genImmutableRepo().[E] -> 4:33
+(4:62..4:63) _empty_/RepoDefaults.genImmutableRepo().[E] -> 4:33
+(4:67..4:70) scala/Predef.`???`().
+(5:28..5:35) _empty_/DbCodec# -> 7:7
+(5:28..5:35) _empty_/RepoDefaults.genRepo().[EC] -> 5:24
+(5:40..5:47) _empty_/DbCodec# -> 7:7
+(5:40..5:47) _empty_/RepoDefaults.genRepo().[E] -> 5:37
+(5:50..5:62) _empty_/RepoDefaults# -> 2:7
+(5:63..5:65) _empty_/RepoDefaults.genRepo().[EC] -> 5:24
+(5:67..5:68) _empty_/RepoDefaults.genRepo().[E] -> 5:37
+(5:72..5:75) scala/Predef.`???`().
+(9:32..9:38) scala/Predef.String#
+(10:23..10:27) scala/Long#
+(11:7..11:14) _empty_/DbCodec# -> 7:7
+(11:15..11:21) _empty_/Person# -> 10:12
+(11:25..11:28) scala/Predef.`???`().
+(12:7..12:14) _empty_/DbCodec# -> 7:7
+(12:15..12:28) _empty_/PersonCreator# -> 9:12
+(12:32..12:35) scala/Predef.`???`().
+(14:2..14:6) scala/main#
+(15:25..15:38) _empty_/PersonCreator# -> 9:12
+(15:40..15:46) _empty_/Person# -> 10:12
+

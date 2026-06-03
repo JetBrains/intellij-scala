@@ -1,0 +1,260 @@
+import deriving.Mirror
+import compiletime.summonInline
+
+inline def check1[Tps <: NonEmptyTuple]: Unit =
+  summonInline[Mirror.Of[Tuple.Head[Tps]]]
+
+inline def check2[Tps <: NonEmptyTuple]: Unit =
+  type FromType = Tuple.Head[Tps]
+  summonInline[Mirror.Of[FromType]]
+
+@main def Test: Unit =
+  check1[Option[Int] *: EmptyTuple] // Ok
+  check2[Option[Int] *: EmptyTuple] // Error: FromType is widened to Any in Syntheziser
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: deriving.Mirror
+        CodeReferenceElement: deriving
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: compiletime.summonInline
+        CodeReferenceElement: compiletime
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonInline')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: check1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('check1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tps
+        PsiElement(identifier)('Tps')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NonEmptyTuple
+          CodeReferenceElement: NonEmptyTuple
+            PsiElement(identifier)('NonEmptyTuple')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    GenericCall
+      ReferenceExpression: summonInline
+        PsiElement(identifier)('summonInline')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Mirror.Of[Tuple.Head[Tps]]
+            SimpleType: Mirror.Of
+              CodeReferenceElement: Mirror.Of
+                CodeReferenceElement: Mirror
+                  PsiElement(identifier)('Mirror')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Of')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Tuple.Head[Tps]
+                  SimpleType: Tuple.Head
+                    CodeReferenceElement: Tuple.Head
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Head')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Tps
+                        CodeReferenceElement: Tps
+                          PsiElement(identifier)('Tps')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: check2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('check2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tps
+        PsiElement(identifier)('Tps')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NonEmptyTuple
+          CodeReferenceElement: NonEmptyTuple
+            PsiElement(identifier)('NonEmptyTuple')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScTypeAliasDefinition: FromType
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('FromType')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Tuple.Head[Tps]
+          SimpleType: Tuple.Head
+            CodeReferenceElement: Tuple.Head
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Head')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Tps
+                CodeReferenceElement: Tps
+                  PsiElement(identifier)('Tps')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summonInline
+          PsiElement(identifier)('summonInline')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: Mirror.Of[FromType]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: FromType
+                    CodeReferenceElement: FromType
+                      PsiElement(identifier)('FromType')
+                PsiElement(])(']')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: check1
+          PsiElement(identifier)('check1')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Option[Int] *: EmptyTuple
+              ParametrizedType: Option[Int]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// Ok')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: check2
+          PsiElement(identifier)('check2')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Option[Int] *: EmptyTuple
+              ParametrizedType: Option[Int]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+          PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// Error: FromType is widened to Any in Syntheziser')

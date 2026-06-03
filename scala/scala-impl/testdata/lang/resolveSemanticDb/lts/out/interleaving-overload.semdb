@@ -1,0 +1,27 @@
+Document tests/pos/interleaving-overload.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:54) scala/language.experimental.clauseInterleaving.
+(5:18..5:21) scala/Any#
+(5:28..5:31) scala/Predef.`???`().
+(6:18..6:21) scala/Int#
+(6:28..6:31) scala/Predef.`???`().
+(8:5..8:7) _empty_/A#f1(+1). -> 6:9
+(9:5..9:7) _empty_/A#f1(). -> 5:9
+(11:24..11:27) scala/Int#
+(12:17..12:20) scala/Int#
+(12:24..12:25) _empty_/A#B.
+(12:26..12:27) _empty_/A#b().[U] -> 12:11
+(12:29..12:30) _empty_/A#b().(x) -> 12:14
+(14:48..14:51) scala/Int#
+(14:56..14:57) _empty_/A#b(). -> 12:9
+(14:58..14:59) local3 -> 14:38
+(14:61..14:62) local4 -> 14:45
+(16:5..16:7) _empty_/A#f2(). -> 14:9
+(17:5..17:7) _empty_/A#f2(). -> 14:9
+(17:8..17:11) scala/Any#
+(18:5..18:7) _empty_/A#f2(). -> 14:9
+(18:8..18:11) scala/Any#
+(18:13..18:16) scala/Any#
+

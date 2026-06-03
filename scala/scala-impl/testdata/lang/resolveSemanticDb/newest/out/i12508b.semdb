@@ -1,0 +1,22 @@
+Document tests/pos/i12508b.scala
+(1:12..1:15) scala/Any#
+(1:20..1:23) scala/Any#
+(1:30..1:33) scala/Any#
+(1:36..1:39) scala/Predef.`???`().
+(3:3..3:6) _empty_/i12508b$package.fun(). -> 1:5
+(4:5..4:6) _empty_/i12508b$package.fun().(b) -> 1:17
+(4:9..4:16) scala/Predef.println(+1).
+(5:5..5:6) _empty_/i12508b$package.fun().(a) -> 1:9
+(7:16..7:17) local0 -> 6:24
+(7:20..7:23) scala/Predef.`???`().
+(8:18..8:22) scala/Unit#
+(8:30..8:31) local1 -> 7:13
+(8:32..8:40) scala/Any#toString().
+(9:25..9:28) local3 -> 6:20
+(9:29..9:35) scala/Predef.String#
+(10:28..10:31) local3 -> 6:20
+(10:32..10:33) local7 -> 10:17
+(11:10..11:13) scala/Predef.`???`().
+(11:19..11:22) local5 -> 9:13
+(11:34..11:37) scala/Int#
+

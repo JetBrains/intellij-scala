@@ -1,0 +1,21 @@
+package a {}
+
+package b {
+}
+
+package d
+
+{
+  //this is a block
+}
+----------
+package a {}
+
+package b {
+}
+
+package d
+
+{
+  //this is a block
+}

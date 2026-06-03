@@ -1,0 +1,154 @@
+object Test:
+  val result: ("a", 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23) =
+    Macro.tupleXxl
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: result
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: result
+              PsiElement(identifier)('result')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: ("a", 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "a"
+                StringLiteral
+                  PsiElement(string content)('"a"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 2
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 3
+                IntegerLiteral
+                  PsiElement(integer)('3')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 4
+                IntegerLiteral
+                  PsiElement(integer)('4')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 5
+                IntegerLiteral
+                  PsiElement(integer)('5')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 6
+                IntegerLiteral
+                  PsiElement(integer)('6')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 7
+                IntegerLiteral
+                  PsiElement(integer)('7')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 8
+                IntegerLiteral
+                  PsiElement(integer)('8')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 9
+                IntegerLiteral
+                  PsiElement(integer)('9')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 10
+                IntegerLiteral
+                  PsiElement(integer)('10')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 11
+                IntegerLiteral
+                  PsiElement(integer)('11')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 12
+                IntegerLiteral
+                  PsiElement(integer)('12')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 13
+                IntegerLiteral
+                  PsiElement(integer)('13')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 14
+                IntegerLiteral
+                  PsiElement(integer)('14')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 15
+                IntegerLiteral
+                  PsiElement(integer)('15')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 16
+                IntegerLiteral
+                  PsiElement(integer)('16')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 17
+                IntegerLiteral
+                  PsiElement(integer)('17')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 18
+                IntegerLiteral
+                  PsiElement(integer)('18')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 19
+                IntegerLiteral
+                  PsiElement(integer)('19')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 20
+                IntegerLiteral
+                  PsiElement(integer)('20')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 21
+                IntegerLiteral
+                  PsiElement(integer)('21')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 22
+                IntegerLiteral
+                  PsiElement(integer)('22')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 23
+                IntegerLiteral
+                  PsiElement(integer)('23')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: Macro.tupleXxl
+            ReferenceExpression: Macro
+              PsiElement(identifier)('Macro')
+            PsiElement(.)('.')
+            PsiElement(identifier)('tupleXxl')

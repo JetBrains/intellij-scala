@@ -1,0 +1,22 @@
+import item1.item1
+import item2._
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: item1.item1
+        CodeReferenceElement: item1
+          PsiElement(identifier)('item1')
+        PsiElement(.)('.')
+        PsiElement(identifier)('item1')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: item2
+        PsiElement(identifier)('item2')
+      PsiElement(.)('.')
+      PsiElement(_)('_')

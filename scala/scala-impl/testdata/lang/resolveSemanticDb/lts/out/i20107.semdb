@@ -1,0 +1,12 @@
+Document tests/pos/i20107.scala
+(2:39..2:40) _empty_/foo.unapply().[F] -> 2:33
+(2:43..2:49) scala/Option#
+(2:50..2:51) _empty_/foo.unapply().[F] -> 2:33
+(2:55..2:59) scala/Some.
+(2:60..2:61) _empty_/foo.unapply().(e) -> 2:36
+(2:62..2:74) scala/Any#asInstanceOf().
+(2:75..2:76) _empty_/foo.unapply().[F] -> 2:33
+(5:15..5:18) scala/Int#
+(5:22..5:23) _empty_/A#test().(x) -> 5:12
+(6:20..6:21) local4 -> 6:14
+

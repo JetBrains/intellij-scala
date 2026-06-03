@@ -1,0 +1,108 @@
+package org.jetbrains.plugins.scala.lang.typeInference
+
+import org.jetbrains.plugins.scala.ScalaVersion
+
+class Scala3NewTuplesTest extends TypeInferenceTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
+
+  // SCL-21578
+  def testAllTupleOperations(): Unit = checkTextHasNoErrors(
+    """
+      |val tup: (1, 2, 3, 4) = ???
+      |val x1: 4 = tup.size
+      |val x2: 1 = tup.head
+      |val x3: (2, 3, 4) = tup.tail
+      |val x4: (Int, Boolean, Int, Int) = 3 *: true *: 5 *: 6 *: EmptyTuple
+      |val x5: (Int, String, Int, Boolean, Int) = (1, "") ++ (4, true, 6)
+      |val x7: (1, 2) = tup.take(2)
+      |val x8: 3 = tup(2)
+      |val x9: ((1, 2), (3, 4)) = tup.splitAt(2)
+      |val xA: ((1, Char), (2, Char)) = tup.zip(('a', 'b'))
+      |val xB: List[Int | Char] = (1, 'a', 2).toList
+      |val xC: Array[AnyRef] = (1, 'a', 2).toArray
+      |val xD: IArray[AnyRef] = (1, 'a', 2).toIArray
+      |val xE: (Option[Int], Option[Char]) = (1, 'a').map[[X] =>> Option[X]]([T] => (t: T) => Some(t))
+      |""".stripMargin
+  )
+
+  def testUnapply(): Unit = checkTextHasNoErrors(
+    """
+      |val (a, b) = (1, 2)
+      |val (c, d) = 3 *: 4 *: EmptyTuple
+      |
+      |// Interoperability with Tuple2
+      |val (e, f) = Tuple2(5, 6)
+      |val Tuple2(g, h) = (7, 8)
+      |""".stripMargin
+  )
+
+  // SCL-23462
+  def testCons(): Unit = checkTextHasNoErrors(
+    """
+      |def combine[X <: Boolean, Xs <: (Int,Int)](p: X, ps: Xs) : (Boolean,Int, Int) =
+      |   p *: ps
+      |""".stripMargin
+  )
+
+  // SCL-23471
+  def testNonEmptyConformance(): Unit = checkTextHasNoErrors(
+    """
+      |type T = (Int, Int, Int)
+      |
+      |val myTuple: T = (1, 2, 3)
+      |val myNonEmptyTuple: NonEmptyTuple = myTuple
+      |""".stripMargin
+  )
+
+  def testOpOnAbstract(): Unit = checkTextHasNoErrors(
+    """
+      |import Tuple.++
+      |
+      |def testHead[T](that: T *: ?): T = that.head // Head[that.type] -> Head[T *: ?] -> T
+      |def testSize[T](that: T *: EmptyTuple): 1 = that.size
+      |def testTail[T, Tail](that: T *: Tail): Tail = that.tail
+      |def testConcat[X, Y, Tail](x: Tuple1[X], y: Y *: Tail): (X, Y) ++ Tail = x ++ y
+      |
+      |""".stripMargin
+  )
+
+  def testInferredTuple1Type(): Unit = doTest(
+    s"""
+       |val t = Tuple1(1)
+       |${START}t$END
+       |//Tuple1[Int]
+       |""".stripMargin
+  )
+
+  def testInferredTuple1HListType(): Unit = doTest(
+    s"""
+       |val t = 1 *: EmptyTuple
+       |${START}t$END
+       |//Int *: EmptyTuple
+       |""".stripMargin
+  )
+
+  def testMixedTupleNAndHList(): Unit = doTest(
+    s"""
+       |val t = 1 *: (true, "")
+       |${START}t$END
+       |// (Int, Boolean, String)
+       |""".stripMargin
+  )
+
+  def test_underscore_accessor_1(): Unit = doTest(
+    s"""
+       |val t = 1 *: true *: 2 *: EmptyTuple
+       |${START}t._1$END
+       |// Int
+       |""".stripMargin
+  )
+
+  def test_underscore_accessor_2(): Unit = doTest(
+    s"""
+       |val t = 1 *: true *: 2 *: EmptyTuple
+       |${START}t._2$END
+       |// Boolean
+       |""".stripMargin
+  )
+}

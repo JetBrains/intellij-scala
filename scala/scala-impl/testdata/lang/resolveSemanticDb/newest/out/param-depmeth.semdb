@@ -1,0 +1,19 @@
+Document tests/pos/param-depmeth.scala
+(5:12..5:13) _empty_/Test.C# -> 3:9
+(5:18..5:19) _empty_/Test.f().(x) -> 5:9
+(5:20..5:21) _empty_/Test.C#T# -> 3:18
+(5:24..5:25) _empty_/Test.f().(x) -> 5:9
+(5:26..5:27) _empty_/Test.C#T# -> 3:18
+(5:30..5:31) _empty_/Test.f().(y) -> 5:15
+(7:15..7:16) _empty_/Test.C# -> 3:9
+(7:28..7:34) scala/Predef.String#
+(8:12..8:13) _empty_/Test.c. -> 7:7
+(10:3..10:4) _empty_/Test.f(). -> 5:7
+(10:5..10:6) _empty_/Test.c. -> 7:7
+(11:3..11:4) _empty_/Test.f(). -> 5:7
+(11:9..11:10) _empty_/Test.C# -> 3:9
+(11:21..11:27) scala/Predef.String#
+(13:11..13:12) _empty_/Test.C# -> 3:9
+(13:23..13:29) scala/Predef.String#
+(13:34..13:35) scala/Predef.String#
+

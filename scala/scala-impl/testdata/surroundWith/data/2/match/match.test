@@ -1,0 +1,9 @@
+class a {
+  <start>true<match>
+}
+-----
+class a {
+  true match {
+    case  =>
+  }
+}

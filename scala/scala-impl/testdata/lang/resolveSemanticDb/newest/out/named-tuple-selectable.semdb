@@ -1,0 +1,49 @@
+Document tests/pos/named-tuple-selectable.scala
+(2:26..2:36) scala/Selectable#
+(3:22..3:26) scala/package.List#
+(3:27..3:30) scala/Int#
+(4:26..4:32) scala/Predef.String#
+(5:5..5:9) scala/package.List.
+(7:24..7:34) scala/Selectable#
+(8:26..8:32) scala/Predef.String#
+(9:5..9:9) scala/package.List.
+(12:15..12:25) _empty_/FromFields# -> 2:7
+(13:15..13:23) _empty_/FromRefs# -> 7:7
+(13:34..13:38) scala/package.List#
+(13:39..13:42) scala/Int#
+(14:4..14:8) scala/Unit#
+(15:3..15:11) _empty_/`named-tuple-selectable$package`.test().(fromFlds) -> 12:5
+(15:12..15:14) _empty_/FromFields#selectDynamic(). -> 4:7
+(16:3..16:11) _empty_/`named-tuple-selectable$package`.test().(fromRefs) -> 13:5
+(16:12..16:14) _empty_/FromRefs#selectDynamic(). -> 8:7
+(18:3..18:11) _empty_/`named-tuple-selectable$package`.test().(fromFlds) -> 12:5
+(18:12..18:14) _empty_/FromFields#selectDynamic(). -> 4:7
+(18:15..18:20) scala/collection/LinearSeqOps#apply().
+(19:3..19:11) _empty_/`named-tuple-selectable$package`.test().(fromRefs) -> 13:5
+(19:12..19:14) _empty_/FromRefs#selectDynamic(). -> 8:7
+(19:15..19:20) scala/collection/LinearSeqOps#apply().
+(21:3..21:11) _empty_/`named-tuple-selectable$package`.test().(fromFlds) -> 12:5
+(21:12..21:16) _empty_/FromFields#selectDynamic(). -> 4:7
+(21:17..21:20) scala/Int#
+(21:22..21:26) scala/package.List.
+(21:32..21:38) scala/Option#
+(21:39..21:42) scala/Int#
+(22:3..22:11) _empty_/`named-tuple-selectable$package`.test().(fromRefs) -> 13:5
+(22:12..22:16) _empty_/FromRefs#selectDynamic(). -> 8:7
+(22:17..22:20) scala/Int#
+(22:22..22:26) scala/package.List.
+(22:32..22:38) scala/Option#
+(22:39..22:42) scala/Int#
+(24:3..24:11) _empty_/`named-tuple-selectable$package`.test().(fromFlds) -> 12:5
+(24:12..24:16) _empty_/FromFields#selectDynamic(). -> 4:7
+(24:17..24:21) scala/package.List.
+(25:3..25:11) _empty_/`named-tuple-selectable$package`.test().(fromRefs) -> 13:5
+(25:12..25:16) _empty_/FromRefs#selectDynamic(). -> 8:7
+(25:17..25:21) scala/package.List.
+(27:3..27:11) _empty_/`named-tuple-selectable$package`.test().(fromFlds) -> 12:5
+(27:12..27:16) _empty_/FromFields#selectDynamic(). -> 4:7
+(27:23..27:27) scala/package.List.
+(28:3..28:11) _empty_/`named-tuple-selectable$package`.test().(fromRefs) -> 13:5
+(28:12..28:16) _empty_/FromRefs#selectDynamic(). -> 8:7
+(28:23..28:27) scala/package.List.
+

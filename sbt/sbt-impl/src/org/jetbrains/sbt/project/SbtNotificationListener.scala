@@ -1,0 +1,54 @@
+package org.jetbrains.sbt
+package project
+
+import com.intellij.execution.process.ProcessOutputType
+import com.intellij.notification._
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
+import org.jetbrains.plugins.scala.project.ScalaProjectConfigurationUtil
+
+// TODO Rely on the immediate UI interaction API when IDEA-123007 will be implemented
+class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
+  override def onTaskOutput(id: ExternalSystemTaskId, text: String, outputType: ProcessOutputType): Unit = {
+    // TODO this check must be performed in the External System itself (see SCL-7405)
+    if (isSbtProject(id)) {
+      processOutput(text)
+    }
+  }
+
+  override def onStart(projectPath: String, id: ExternalSystemTaskId): Unit = {
+    if (id.getType != ExternalSystemTaskType.RESOLVE_PROJECT) return
+    val project = id.findProject()
+    if (project == null) return
+
+    ScalaProjectConfigurationUtil.refreshEditorNotifications(project)
+  }
+
+  override def onEnd(projectPath: String, id: ExternalSystemTaskId): Unit = {
+    if (id.getType != ExternalSystemTaskType.RESOLVE_PROJECT) return
+    val project = id.findProject()
+    if (project == null) return
+
+    ScalaProjectConfigurationUtil.refreshEditorNotifications(project)
+    SbtProjectImportStateService.instance(project).reset()
+  }
+
+  private def processOutput(text: String): Unit = {
+    text match {
+      case WarningMessage(message) =>
+        val title = SbtBundle.message("sbt.project.import")
+        //noinspection ReferencePassedToNls
+        Notifications.Bus.notify(new Notification(title, title, message, NotificationType.WARNING))
+      case _ => // do nothing
+    }
+  }
+
+  private def isSbtProject(id: ExternalSystemTaskId): Boolean = id.getProjectSystemId == SbtProjectSystem.Id
+}
+
+object WarningMessage {
+  private val Prefix = "#warning: "
+
+  def apply(text: String): String = Prefix + text
+
+  def unapply(text: String): Option[String] = text.startsWith(Prefix).option(text.substring(Prefix.length))
+}

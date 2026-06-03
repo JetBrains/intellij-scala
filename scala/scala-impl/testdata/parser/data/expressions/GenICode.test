@@ -1,0 +1,63 @@
+class a {
+  ctx1 = ctx1.Try(List((NoSymbol => {})));
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        AssignStatement
+          ReferenceExpression: ctx1
+            PsiElement(identifier)('ctx1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: ctx1.Try
+              ReferenceExpression: ctx1
+                PsiElement(identifier)('ctx1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Try')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  ExpressionInParenthesis
+                    PsiElement(()('(')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          Parameter: NoSymbol
+                            PsiElement(identifier)('NoSymbol')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

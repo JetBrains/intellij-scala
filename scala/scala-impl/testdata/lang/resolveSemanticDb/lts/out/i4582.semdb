@@ -1,0 +1,14 @@
+Document tests/pos/i4582.scala
+(1:12..1:19) scala/package.Numeric#
+(2:13..2:20) scala/package.Numeric#
+(2:30..2:31) _empty_/T# -> 1:7
+(2:32..2:33) _empty_/TX#[A] -> 2:10
+(3:13..3:20) scala/package.Numeric#
+(3:30..3:31) _empty_/T# -> 1:7
+(3:32..3:33) _empty_/TY#[A] -> 3:10
+(5:12..5:19) scala/package.Numeric#
+(5:24..5:27) scala/Int#
+(6:13..6:20) scala/package.Numeric#
+(6:30..6:31) _empty_/S# -> 5:7
+(6:32..6:33) _empty_/SX#[A] -> 6:10
+

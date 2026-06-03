@@ -1,0 +1,29 @@
+package org.jetbrains.plugins.scala.extensions.implementation.iterator
+
+import com.intellij.psi.PsiElement
+
+import scala.collection.mutable
+
+final class BreadthFirstIterator(element: PsiElement, shouldProcessChildren: PsiElement => Boolean) extends Iterator[PsiElement] {
+  private val queue: mutable.Queue[PsiElement] =
+    if (element != null) mutable.Queue(element)
+    else mutable.Queue.empty
+
+  override def hasNext: Boolean = queue.nonEmpty
+
+  override def next(): PsiElement = {
+    val element = queue.dequeue()
+    if (shouldProcessChildren(element)) {
+      pushChildren(element)
+    }
+    element
+  }
+
+  private def pushChildren(element: PsiElement): Unit = {
+    var child = element.getFirstChild
+    while (child != null) {
+      queue.enqueue(child)
+      child = child.getNextSibling
+    }
+  }
+}

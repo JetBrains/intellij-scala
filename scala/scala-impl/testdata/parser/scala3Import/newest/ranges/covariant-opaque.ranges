@@ -1,0 +1,17 @@
+[0,94]: PackageDef
+[0,0]: Ident
+[0,45]: Import
+[7,27]: Select
+[7,17]: Ident
+[47,94]: TypeDef
+[61,94]: LambdaTypeTree
+[61,63]: TypeDef
+[61,61]: TypeBoundsTree
+[67,94]: AppliedTypeTree
+[67,72]: Ident
+[73,93]: Annotated
+[73,74]: Ident
+[75,93]: Apply
+[75,93]: Select
+[75,93]: New
+[76,93]: Ident

@@ -1,0 +1,45 @@
+class StringBox(inner: String):
+  export inner.*
+-----
+ScalaFile
+  ScClass: StringBox
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StringBox')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: inner
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('inner')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: inner
+              PsiElement(identifier)('inner')
+            PsiElement(.)('.')
+            PsiElement(*)('*')

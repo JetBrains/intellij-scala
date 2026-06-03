@@ -1,0 +1,33 @@
+Document tests/pos/i17762.scala
+(5:17..5:25) _empty_/SomeType# -> 3:7
+(5:32..5:40) _empty_/SomeType# -> 3:7
+(5:43..5:50) scala/Boolean#
+(6:9..6:17) scala/CanEqual#
+(6:18..6:26) _empty_/SomeType# -> 3:7
+(6:28..6:36) _empty_/SomeType# -> 3:7
+(6:40..6:48) scala/CanEqual.
+(6:49..6:56) scala/CanEqual.derived.
+(7:3..7:6) _empty_/i17762$package.testIt().(st1) -> 5:12
+(7:7..7:9) scala/Any#`==`().
+(7:10..7:13) _empty_/i17762$package.testIt().(st2) -> 5:27
+(10:12..10:20) scala/CanEqual#
+(10:21..10:29) _empty_/SomeType# -> 3:7
+(10:31..10:39) _empty_/SomeType# -> 3:7
+(10:43..10:51) scala/CanEqual.
+(10:52..10:59) scala/CanEqual.derived.
+(13:10..13:21) _empty_/HasCanEqual. -> 9:8
+(14:19..14:27) _empty_/SomeType# -> 3:7
+(14:34..14:42) _empty_/SomeType# -> 3:7
+(14:45..14:52) scala/Boolean#
+(15:5..15:8) _empty_/UsesCanEqual.testIt().(st1) -> 14:14
+(15:9..15:11) scala/Any#`==`().
+(15:12..15:15) _empty_/UsesCanEqual.testIt().(st2) -> 14:29
+(18:10..18:21) _empty_/HasCanEqual. -> 9:8
+(18:22..18:23) _empty_/HasCanEqual.f. -> 10:9
+(20:19..20:27) _empty_/SomeType# -> 3:7
+(20:34..20:42) _empty_/SomeType# -> 3:7
+(20:45..20:52) scala/Boolean#
+(21:5..21:8) _empty_/UsesCanEqual2.testIt().(st1) -> 20:14
+(21:9..21:11) scala/Any#`==`().
+(21:12..21:15) _empty_/UsesCanEqual2.testIt().(st2) -> 20:29
+

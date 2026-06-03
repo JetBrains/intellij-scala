@@ -1,0 +1,9 @@
+Document tests/pos/SI-7100.scala
+(2:10..2:21) scala/specialized#
+(2:22..2:25) scala/Int.
+(2:33..2:34) _empty_/Buffer#f().[T] -> 2:27
+(3:17..3:29) scala/Any#asInstanceOf().
+(3:30..3:31) _empty_/Buffer#f().[T] -> 2:27
+(4:17..4:29) scala/Any#asInstanceOf().
+(4:30..4:31) _empty_/Buffer#f().[T] -> 2:27
+

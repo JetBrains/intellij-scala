@@ -1,0 +1,4 @@
+Document tests/pos/i3564.scala
+(5:17..5:27) scala/deprecated#
+(7:18..7:19) _empty_/Test.x. -> 5:7
+

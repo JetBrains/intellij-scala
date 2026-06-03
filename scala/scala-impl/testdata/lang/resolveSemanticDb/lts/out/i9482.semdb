@@ -1,0 +1,16 @@
+Document tests/pos/i9482.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:33) scala/reflect/OptManifest.
+(4:15..4:26) scala/reflect/OptManifest#
+(4:29..4:32) _empty_/Ref# -> 6:7
+(4:33..4:34) _empty_/Ref.make().[A] -> 4:12
+(4:38..4:41) scala/Predef.`???`().
+(9:13..9:16) _empty_/Ref. -> 3:8
+(9:17..9:21) _empty_/Ref.make(). -> 4:7
+(9:22..9:25) scala/Int#
+(10:12..10:15) _empty_/Ref# -> 6:7
+(10:16..10:17) _empty_/Foo#[A] -> 8:11
+(10:21..10:24) _empty_/Ref. -> 3:8
+(10:25..10:29) _empty_/Ref.make(). -> 4:7
+

@@ -1,0 +1,10 @@
+${some.path.here}
+-----
+DOLLAR {$}
+SUB_LBRACE {{}
+UNQUOTED_CHARS {some}
+PERIOD {.}
+UNQUOTED_CHARS {path}
+PERIOD {.}
+UNQUOTED_CHARS {here}
+SUB_RBRACE {}}

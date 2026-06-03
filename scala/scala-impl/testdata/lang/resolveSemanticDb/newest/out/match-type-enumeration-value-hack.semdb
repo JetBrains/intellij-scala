@@ -1,0 +1,16 @@
+Document tests/pos/match-type-enumeration-value-hack.scala
+(1:56..1:57) _empty_/`match-type-enumeration-value-hack$package`.EnumValueAux#[A] -> 1:19
+(3:21..3:32) scala/Enumeration#
+(3:36..3:37) _empty_/`match-type-enumeration-value-hack$package`.EnumValue#[E] -> 3:16
+(4:8..4:20) _empty_/`match-type-enumeration-value-hack$package`.EnumValueAux# -> 1:6
+(4:27..4:28) local2 -> 4:21
+(6:21..6:32) scala/Enumeration#
+(7:41..7:44) scala/Enumeration#Val#
+(10:3..10:9) scala/Predef.summon().
+(10:10..10:14) _empty_/Suit. -> 6:8
+(10:15..10:20) scala/Enumeration#Value#
+(10:21..10:24) scala/`=:=`#
+(10:25..10:34) _empty_/`match-type-enumeration-value-hack$package`.EnumValue# -> 3:6
+(10:35..10:39) _empty_/Suit. -> 6:8
+(11:5..11:9) _empty_/Test. -> 9:8
+

@@ -1,0 +1,9 @@
+val a = method1().method2
+  [String](
+  "1", "2"
+)
+------
+val a = method1().method2
+  [String](
+    "1", "2"
+  )

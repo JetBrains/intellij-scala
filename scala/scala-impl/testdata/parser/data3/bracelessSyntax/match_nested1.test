@@ -1,0 +1,62 @@
+2 match
+  case 1 => 11
+  case 2 =>
+    "b" match
+      case "a" => "aa"
+         case
+-----
+ScalaFile
+  MatchStatement
+    IntegerLiteral
+      PsiElement(integer)('2')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        BlockOfExpressions
+          IntegerLiteral
+            PsiElement(integer)('11')
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace('\n    ')
+        BlockOfExpressions
+          MatchStatement
+            StringLiteral
+              PsiElement(string content)('"b"')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"aa"')
+              PsiWhiteSpace('\n         ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiErrorElement:Pattern expected
+                  <empty list>

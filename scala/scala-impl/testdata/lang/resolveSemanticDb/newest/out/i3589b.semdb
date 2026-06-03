@@ -1,0 +1,5 @@
+Document tests/pos/i3589b.scala
+(4:17..4:18) scala/`|`#
+(4:21..4:22) scala/`|`#
+(4:29..4:30) _empty_/Test#test().(x) -> 4:12
+

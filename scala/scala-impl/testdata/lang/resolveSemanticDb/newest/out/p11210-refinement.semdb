@@ -1,0 +1,13 @@
+Document tests/pos/p11210-refinement.scala
+(2:13..2:19) scala/Predef.String#
+(5:8..5:12) _empty_/Poly# -> 1:7
+(5:37..5:40) scala/Predef.`???`().
+(6:18..6:19) _empty_/`p11210-refinement$package`.p. -> 5:5
+(6:20..6:21) _empty_/Poly#f(). -> 2:7
+(6:22..6:25) scala/Int#
+(9:10..9:16) scala/Predef.String#
+(12:8..12:11) _empty_/Box# -> 8:7
+(12:35..12:38) scala/Predef.`???`().
+(13:20..13:21) _empty_/`p11210-refinement$package`.b. -> 12:5
+(13:22..13:23) _empty_/Box#x. -> 9:7
+

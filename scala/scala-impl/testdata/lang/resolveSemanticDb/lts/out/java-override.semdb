@@ -1,0 +1,5 @@
+Document tests/pos/java-override/B.scala
+(3:17..3:18) _empty_/A#
+(4:21..4:24) scala/Any#
+(4:27..4:31) scala/Unit#
+

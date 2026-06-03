@@ -1,0 +1,21 @@
+Document tests/pos/i4837.scala
+(1:12..1:19) scala/package.Numeric#
+(4:15..4:16) _empty_/T# -> 1:7
+(4:17..4:18) _empty_/C#S#[X] -> 4:10
+(5:20..5:21) _empty_/T# -> 1:7
+(5:22..5:23) _empty_/C#Foo#[X] -> 5:12
+(6:20..6:23) _empty_/C#Foo# -> 5:8
+(6:24..6:25) _empty_/C#Bar#[X] -> 6:12
+(6:27..6:28) _empty_/C#Bar#[Y] -> 6:15
+(8:14..8:21) scala/package.Numeric#
+(8:31..8:32) _empty_/C#S# -> 4:8
+(8:33..8:34) _empty_/C#D#[X] -> 8:11
+(9:14..9:21) scala/package.Numeric#
+(9:31..9:34) _empty_/C#Foo# -> 5:8
+(9:35..9:36) _empty_/C#E#[X] -> 9:11
+(9:38..9:42) scala/Unit#
+(10:14..10:21) scala/package.Numeric#
+(10:31..10:34) _empty_/C#Bar# -> 6:8
+(10:35..10:36) _empty_/C#F#[X] -> 10:11
+(10:38..10:42) scala/Unit#
+

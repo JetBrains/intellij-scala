@@ -1,0 +1,579 @@
+/**
+ * @param a
+ * @param a_
+ * @param a_a
+ * @param a_a_
+ * @param a_*
+ * @param a_*=
+ * @param a_∀
+ * @param a_⨀
+ * @param a_∀⨀
+ * @param a_𝓅
+ * @param a_𐐀
+ * @param a_⚕
+ * @param a_⚔
+ * @param a_⌀
+ * @param a_☀
+ * @param a_⟀
+ * @param a_⦀
+ * @param a_⬀
+ * @param a_⚕⚔⌀☀⟀⦀⬀
+ * @param a_⦀⬀🌀
+ * @param a_🌀
+ * @param a_∀⨀⚕⚔☀
+ */
+class A(
+  a: Int,
+  a_ : Int,
+  a_a: Int,
+  a_a_ : Int,
+  a_* : Int,
+  a_*= : Int,
+  a_∀ : Int,
+  a_⨀ : Int,
+  a_∀⨀ : Int,
+  a_𝓅 : Int,
+  a_𐐀 : Int,
+  a_⚕ : Int,
+  a_⚔ : Int,
+  a_⌀ : Int,
+  a_☀ : Int,
+  a_⟀ : Int,
+  a_⦀ : Int,
+  a_⬀ : Int,
+  a_⚕⚔⌀☀⟀⦀⬀ : Int,
+  a_⦀⬀🌀 : Int,
+  a_🌀 : Int,
+  a_∀⨀⚕⚔☀ : Int,
+)
+-----
+ScalaFile
+  ScClass: A
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_a
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_a')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_a_
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_a_')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_*
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_*=
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_*=')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_∀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_∀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⨀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⨀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_∀⨀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_∀⨀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_𝓅
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_𝓅')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_𐐀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_𐐀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⚕
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⚕')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⚔
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⚔')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⌀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⌀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_☀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_☀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⟀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⟀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⦀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⦀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⬀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⬀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⚕⚔⌀☀⟀⦀⬀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⚕⚔⌀☀⟀⦀⬀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_⦀⬀🌀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_⦀⬀🌀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_🌀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_🌀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@param')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: a_∀⨀⚕⚔☀
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('a_∀⨀⚕⚔☀')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_a_
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_a_')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_*
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_*')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_*=
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_*=')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_∀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_∀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⨀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⨀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_∀⨀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_∀⨀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_𝓅
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_𝓅')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_𐐀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_𐐀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⚕
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⚕')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⚔
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⚔')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⌀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⌀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_☀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_☀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⟀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⟀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⦀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⦀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⬀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⬀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⚕⚔⌀☀⟀⦀⬀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⚕⚔⌀☀⟀⦀⬀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_⦀⬀🌀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_⦀⬀🌀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_🌀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_🌀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: a_∀⨀⚕⚔☀
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a_∀⨀⚕⚔☀')
+            PsiWhiteSpace(' ')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

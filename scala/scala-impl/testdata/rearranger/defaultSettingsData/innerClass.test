@@ -1,0 +1,35 @@
+class outer {
+  class innerB {
+    val vl_1 = 1
+    var vr_1 = 2
+    val vl_2 = 1
+  }
+
+  val vl_0 = 1
+  var vr_0 = 2
+  val vl_5 = 5
+
+  class innerA {
+    var vr_2 = 2
+    val vl_4 = 1
+    val vl_3 = 1
+  }
+}
+------
+class outer {
+  val vl_0 = 1
+  val vl_5 = 5
+  var vr_0 = 2
+
+  class innerB {
+    val vl_1 = 1
+    val vl_2 = 1
+    var vr_1 = 2
+  }
+
+  class innerA {
+    val vl_4 = 1
+    val vl_3 = 1
+    var vr_2 = 2
+  }
+}

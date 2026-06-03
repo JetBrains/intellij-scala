@@ -1,0 +1,10 @@
+Document tests/pos/i15715.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:21..3:27) scala/quoted/Quotes#
+(4:14..4:18) scala/quoted/Expr.
+(5:3..5:7) scala/Some.
+(5:16..5:19) scala/Option#map().
+(6:10..6:14) local0 -> 4:7
+(6:16..6:17) scala/Int#`+`(+4).
+

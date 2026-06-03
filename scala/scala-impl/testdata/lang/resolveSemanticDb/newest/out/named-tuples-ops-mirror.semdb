@@ -1,0 +1,223 @@
+Document tests/pos/named-tuples-ops-mirror.scala
+(1:8..1:18) scala/NamedTuple.
+(3:2..3:11) _empty_/FailsWith# -> 81:13
+(3:12..3:21) _empty_/HttpError# -> 86:14
+(5:4..5:12) _empty_/HttpInfo# -> 82:13
+(6:14..6:22) _empty_/HttpPath# -> 84:13
+(6:29..6:35) scala/Predef.String#
+(6:38..6:44) scala/Predef.String#
+(7:4..7:12) _empty_/HttpInfo# -> 82:13
+(8:20..8:28) _empty_/HttpPath# -> 84:13
+(8:35..8:41) scala/Predef.String#
+(8:44..8:52) _empty_/HttpBody# -> 83:13
+(8:63..8:69) scala/Predef.String#
+(8:72..8:76) scala/Unit#
+(10:2..10:6) scala/main#
+(12:11..12:22) _empty_/HttpService. -> 88:8
+(12:23..12:32) _empty_/HttpService.endpoints(). -> 110:7
+(12:33..12:45) _empty_/GreetService# -> 4:7
+(14:3..14:10) scala/Predef.println(+1).
+(14:11..14:12) local13 -> 12:7
+(14:13..14:18) _empty_/HttpService.Endpoints#selectDynamic(). -> 104:9
+(14:19..14:27) _empty_/HttpService.describe(). -> 92:9
+(15:3..15:10) scala/Predef.println(+1).
+(15:11..15:12) local13 -> 12:7
+(15:13..15:24) _empty_/HttpService.Endpoints#selectDynamic(). -> 104:9
+(15:25..15:33) _empty_/HttpService.describe(). -> 92:9
+(20:15..20:16) local13 -> 12:7
+(20:17..20:28) _empty_/HttpService.Endpoints#serverLogic(). -> 106:9
+(22:25..22:30) scala/package.Right.
+(22:41..22:42) java/lang/String#`+`().
+(22:43..22:47) local15 -> 22:16
+(23:41..23:46) scala/package.Right.
+(26:16..26:29) _empty_/ServerBuilder# -> 115:7
+(27:6..27:15) _empty_/ServerBuilder#handleAll(). -> 116:7
+(27:16..27:21) local18 -> 20:7
+(28:6..28:12) _empty_/ServerBuilder#create(). -> 117:7
+(28:13..28:17) _empty_/ServerBuilder#create().(port) -> 117:14
+(30:3..30:6) scala/sys/
+(30:7..30:22) scala/sys/package.addShutdownHook().
+(30:23..30:29) local19 -> 26:7
+(30:30..30:35) _empty_/Server#close(). -> 120:7
+(32:5..32:9) _empty_/`named-tuples-ops-mirror$package`.Test(). -> 10:11
+(37:8..37:17) _empty_/OpsMirror. -> 52:8
+(37:18..37:20) _empty_/OpsMirror.Of# -> 53:8
+(37:21..37:33) _empty_/GreetService# -> 4:7
+(38:23..38:35) _empty_/GreetService# -> 4:7
+(41:5..41:14) _empty_/OpsMirror. -> 52:8
+(41:15..41:24) _empty_/OpsMirror.Operation# -> 59:9
+(41:46..41:52) scala/Predef.String#
+(41:53..41:55) scala/`*:`#
+(41:56..41:66) scala/Tuple$package.EmptyTuple#
+(41:87..41:93) scala/Predef.String#
+(41:112..41:121) _empty_/HttpError# -> 86:14
+(42:5..42:14) _empty_/OpsMirror. -> 52:8
+(42:15..42:24) _empty_/OpsMirror.Operation# -> 59:9
+(42:46..42:52) scala/Predef.String#
+(42:53..42:55) scala/`*:`#
+(42:56..42:62) scala/Predef.String#
+(42:63..42:65) scala/`*:`#
+(42:66..42:76) scala/Tuple$package.EmptyTuple#
+(42:97..42:101) scala/Unit#
+(42:120..42:129) _empty_/HttpError# -> 86:14
+(44:10..44:19) _empty_/OpsMirror# -> 64:7
+(45:23..45:35) _empty_/GreetService# -> 4:7
+(48:5..48:14) _empty_/OpsMirror. -> 52:8
+(48:15..48:24) _empty_/OpsMirror.Operation# -> 59:9
+(48:46..48:52) scala/Predef.String#
+(48:53..48:55) scala/`*:`#
+(48:56..48:66) scala/Tuple$package.EmptyTuple#
+(48:87..48:93) scala/Predef.String#
+(48:112..48:121) _empty_/HttpError# -> 86:14
+(49:5..49:14) _empty_/OpsMirror. -> 52:8
+(49:15..49:24) _empty_/OpsMirror.Operation# -> 59:9
+(49:46..49:52) scala/Predef.String#
+(49:53..49:55) scala/`*:`#
+(49:56..49:62) scala/Predef.String#
+(49:63..49:65) scala/`*:`#
+(49:66..49:76) scala/Tuple$package.EmptyTuple#
+(49:97..49:101) scala/Unit#
+(49:120..49:129) _empty_/HttpError# -> 86:14
+(53:16..53:25) _empty_/OpsMirror# -> 64:7
+(53:48..53:49) _empty_/OpsMirror.Of#[T] -> 53:11
+(55:25..55:30) scala/Tuple#
+(55:34..55:43) _empty_/OpsMirror.Operation# -> 59:9
+(55:64..55:65) _empty_/OpsMirror.Operation_I#[I] -> 55:20
+(56:25..56:34) _empty_/OpsMirror.Operation# -> 59:9
+(56:55..56:56) _empty_/OpsMirror.Operation_O#[O] -> 56:20
+(57:25..57:34) _empty_/OpsMirror.Operation# -> 59:9
+(57:54..57:55) _empty_/OpsMirror.Operation_E#[E] -> 57:20
+(60:24..60:29) scala/Tuple#
+(66:27..66:32) scala/Tuple#
+(67:22..67:27) scala/Tuple#
+(70:18..70:24) scala/Predef.String#
+(70:27..70:32) _empty_/Route# -> 71:7
+(73:16..73:21) scala/Tuple#
+(73:31..73:32) _empty_/`named-tuples-ops-mirror$package`.Func#[I] -> 73:11
+(74:8..74:18) scala/Tuple$package.EmptyTuple#
+(74:22..74:28) scala/package.Either#
+(74:29..74:30) _empty_/`named-tuples-ops-mirror$package`.Func#[E] -> 73:26
+(74:32..74:33) _empty_/`named-tuples-ops-mirror$package`.Func#[O] -> 73:23
+(75:10..75:12) scala/`*:`#
+(75:13..75:23) scala/Tuple$package.EmptyTuple#
+(75:27..75:28) local76 -> 75:8
+(75:32..75:38) scala/package.Either#
+(75:39..75:40) _empty_/`named-tuples-ops-mirror$package`.Func#[E] -> 73:26
+(75:42..75:43) _empty_/`named-tuples-ops-mirror$package`.Func#[O] -> 73:23
+(76:10..76:12) scala/`*:`#
+(76:15..76:17) scala/`*:`#
+(76:18..76:28) scala/Tuple$package.EmptyTuple#
+(76:33..76:34) local77 -> 76:8
+(76:36..76:37) local78 -> 76:13
+(76:42..76:48) scala/package.Either#
+(76:49..76:50) _empty_/`named-tuples-ops-mirror$package`.Func#[E] -> 73:26
+(76:52..76:53) _empty_/`named-tuples-ops-mirror$package`.Func#[O] -> 73:23
+(78:18..78:19) _empty_/`named-tuples-ops-mirror$package`.ToFunc#[T] -> 78:13
+(79:8..79:19) _empty_/HttpService. -> 88:8
+(79:20..79:28) _empty_/HttpService.Endpoint# -> 89:15
+(79:41..79:45) _empty_/`named-tuples-ops-mirror$package`.Func# -> 73:6
+(79:46..79:47) local79 -> 79:29
+(79:49..79:50) local80 -> 79:32
+(79:52..79:53) local81 -> 79:35
+(81:34..81:39) scala/
+(81:40..81:50) scala/annotation/
+(81:51..81:61) scala/annotation/Annotation#
+(82:30..82:36) scala/Predef.String#
+(82:45..82:51) scala/Predef.String#
+(82:61..82:66) scala/
+(82:67..82:77) scala/annotation/
+(82:78..82:88) scala/annotation/Annotation#
+(83:32..83:37) scala/
+(83:38..83:48) scala/annotation/
+(83:49..83:59) scala/annotation/Annotation#
+(84:32..84:37) scala/
+(84:38..84:48) scala/annotation/
+(84:49..84:59) scala/annotation/Annotation#
+(89:29..89:34) scala/Tuple#
+(89:44..89:49) _empty_/Route# -> 71:7
+(91:19..91:24) scala/Tuple#
+(91:35..91:43) _empty_/HttpService.Endpoint# -> 89:15
+(91:44..91:45) _empty_/HttpService.describe().[I] -> 91:14
+(91:47..91:48) _empty_/HttpService.describe().[O] -> 91:26
+(91:50..91:51) _empty_/HttpService.describe().[E] -> 91:29
+(92:19..92:25) scala/Predef.String#
+(92:28..92:31) scala/Predef.`???`().
+(94:27..94:32) scala/Tuple#
+(94:37..94:42) scala/Tuple#
+(94:45..94:48) _empty_/HttpService.ToEndpoints#[Ops] -> 94:20
+(95:10..95:20) scala/Tuple$package.EmptyTuple#
+(95:24..95:34) scala/Tuple$package.EmptyTuple#
+(96:13..96:15) scala/`*:`#
+(96:24..96:26) local4 -> 96:10
+(96:28..96:30) local4 -> 96:10
+(96:32..96:34) local4 -> 96:10
+(97:13..97:22) _empty_/OpsMirror. -> 52:8
+(97:23..97:34) _empty_/OpsMirror.Operation_I# -> 55:8
+(97:39..97:41) scala/`*:`#
+(97:43..97:52) _empty_/OpsMirror. -> 52:8
+(97:53..97:64) _empty_/OpsMirror.Operation_O# -> 56:8
+(97:69..97:71) scala/`*:`#
+(97:73..97:82) _empty_/OpsMirror. -> 52:8
+(97:83..97:94) _empty_/OpsMirror.Operation_E# -> 57:8
+(97:99..97:101) scala/`*:`#
+(98:9..98:17) _empty_/HttpService.Endpoint# -> 89:15
+(98:18..98:19) local6 -> 97:35
+(98:21..98:22) local7 -> 97:65
+(98:24..98:25) local8 -> 97:95
+(98:27..98:29) scala/`*:`#
+(98:30..98:41) _empty_/HttpService.ToEndpoints# -> 94:8
+(98:42..98:45) local5 -> 96:16
+(102:33..102:44) _empty_/HttpService# -> 69:7
+(102:45..102:46) _empty_/HttpService.Endpoints#[T] -> 102:19
+(102:57..102:67) scala/Selectable#
+(103:20..103:33) scala/NamedTuple.AnyNamedTuple#
+(104:29..104:35) scala/Predef.String#
+(104:38..104:43) _empty_/Route# -> 71:7
+(104:46..104:51) _empty_/HttpService.Endpoints#model. -> 102:26
+(104:52..104:57) _empty_/HttpService#route(). -> 70:7
+(104:58..104:62) _empty_/HttpService.Endpoints#selectDynamic().(name) -> 104:23
+(106:28..106:38) scala/NamedTuple.NamedTuple#
+(106:39..106:44) scala/NamedTuple.Names#
+(106:45..106:51) _empty_/HttpService.Endpoints#Fields# -> 103:10
+(106:54..106:59) scala/Tuple.
+(106:60..106:63) scala/Tuple.Map#
+(106:64..106:73) scala/NamedTuple.DropNames#
+(106:74..106:80) _empty_/HttpService.Endpoints#Fields# -> 103:10
+(106:83..106:89) _empty_/`named-tuples-ops-mirror$package`.ToFunc# -> 78:6
+(106:94..106:98) scala/package.List#
+(106:99..106:106) _empty_/HttpService.Handler# -> 100:9
+(106:110..106:113) scala/Predef.`???`().
+(108:24..108:33) _empty_/OpsMirror. -> 52:8
+(108:34..108:36) _empty_/OpsMirror.Of# -> 53:8
+(108:37..108:38) _empty_/HttpService.derived().[T] -> 108:15
+(108:42..108:53) _empty_/HttpService# -> 69:7
+(108:54..108:55) _empty_/HttpService.derived().[T] -> 108:15
+(108:59..108:62) scala/Predef.`???`().
+(110:33..110:44) _empty_/HttpService# -> 69:7
+(110:45..110:46) _empty_/HttpService.endpoints().[T] -> 110:17
+(110:52..110:61) _empty_/OpsMirror. -> 52:8
+(110:62..110:64) _empty_/OpsMirror.Of# -> 53:8
+(110:65..110:66) _empty_/HttpService.endpoints().[T] -> 110:17
+(110:70..110:79) _empty_/HttpService.Endpoints# -> 102:9
+(110:80..110:81) _empty_/HttpService.endpoints().[T] -> 110:17
+(111:21..111:31) scala/NamedTuple.NamedTuple#
+(111:32..111:33) _empty_/HttpService.endpoints().(m) -> 110:49
+(111:34..111:49) _empty_/OpsMirror#OperationLabels# -> 66:8
+(111:51..111:62) _empty_/HttpService.ToEndpoints# -> 94:8
+(111:63..111:64) _empty_/HttpService.endpoints().(m) -> 110:49
+(111:65..111:75) _empty_/OpsMirror#Operations# -> 67:8
+(113:19..113:24) _empty_/HttpService.endpoints().(model) -> 110:26
+(113:42..113:52) scala/NamedTuple.NamedTuple#
+(113:53..113:54) _empty_/HttpService.endpoints().(m) -> 110:49
+(113:55..113:70) _empty_/OpsMirror#OperationLabels# -> 66:8
+(113:72..113:83) _empty_/HttpService.ToEndpoints# -> 94:8
+(113:84..113:85) _empty_/HttpService.endpoints().(m) -> 110:49
+(113:86..113:96) _empty_/OpsMirror#Operations# -> 67:8
+(116:21..116:25) scala/package.List#
+(116:26..116:37) _empty_/HttpService. -> 88:8
+(116:38..116:45) _empty_/HttpService.Handler# -> 100:9
+(117:20..117:23) scala/Int#
+(117:26..117:32) _empty_/Server# -> 119:7
+(117:35..117:41) _empty_/Server# -> 119:7
+(120:16..120:20) scala/Unit#
+

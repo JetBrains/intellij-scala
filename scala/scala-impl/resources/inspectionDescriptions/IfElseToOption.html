@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>Reports emulating a call to <code>Option.apply(x)</code>.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  if (x == null) None else Some(x)
+  if (x != null) Some(x) else None
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  Option(x)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

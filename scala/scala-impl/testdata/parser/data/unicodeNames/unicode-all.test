@@ -1,0 +1,699 @@
+//noinspection TypeAnnotation,NotImplementedCode
+class Wrapper {
+  //math category
+  val ∀ = 0
+  val ⨀ = 0
+  val ∀⨀ = 0
+
+  //meth category supplementary
+  val 𝓅 = 0
+
+  //other category
+  val ⚕ = 0
+  val ⚔ = 0
+  val ⌀ = 0
+  val ☀ = 0
+  val ⟀ = 0
+  val ⦀ = 0
+  val ⬀ = 0
+  val ⚕⚔⌀☀⟀⦀⬀ = 0
+
+  //other category supplementary
+  val ⦀⬀🌀 = 0
+  val 🌀 = 0
+
+  //math + other categories
+  val ∀⨀⚕⚔☀ = 0
+
+  //supplementary
+  val 𐐀 = 0
+
+  //inject in interpolated string
+  s"$∀"
+  s"$⨀"
+  s"$𝓅"
+  s"$∀⨀"
+  s"$⚕"
+  s"$⚔"
+  s"$⌀"
+  s"$☀"
+  s"$⟀"
+  s"$⦀"
+  s"$⬀"
+  s"$⚕⚔⌀☀⟀⦀⬀"
+  s"$⦀⬀🌀"
+  s"$🌀"
+  s"$∀⨀⚕⚔☀"
+  s"$𐐀"
+
+  //inject in interpolated string (block)
+  s"${∀}"
+  s"${⨀}"
+  s"${𝓅}"
+  s"${∀⨀}"
+  s"${⚕}"
+  s"${⚔}"
+  s"${⌀}"
+  s"${☀}"
+  s"${⟀}"
+  s"${⦀}"
+  s"${⬀}"
+  s"${⚕⚔⌀☀⟀⦀⬀}"
+  s"${⦀⬀🌀}"
+  s"${🌀}"
+  s"${∀⨀⚕⚔☀}"
+  s"${𐐀}"
+}
+-----
+ScalaFile
+  ScClass: Wrapper
+    PsiComment(comment)('//noinspection TypeAnnotation,NotImplementedCode')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ∀
+          PsiComment(comment)('//math category')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ∀
+              PsiElement(identifier)('∀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⨀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⨀
+              PsiElement(identifier)('⨀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ∀⨀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ∀⨀
+              PsiElement(identifier)('∀⨀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: 𝓅
+          PsiComment(comment)('//meth category supplementary')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: 𝓅
+              PsiElement(identifier)('𝓅')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: ⚕
+          PsiComment(comment)('//other category')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⚕
+              PsiElement(identifier)('⚕')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⚔
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⚔
+              PsiElement(identifier)('⚔')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⌀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⌀
+              PsiElement(identifier)('⌀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ☀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ☀
+              PsiElement(identifier)('☀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⟀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⟀
+              PsiElement(identifier)('⟀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⦀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⦀
+              PsiElement(identifier)('⦀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⬀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⬀
+              PsiElement(identifier)('⬀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ⚕⚔⌀☀⟀⦀⬀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⚕⚔⌀☀⟀⦀⬀
+              PsiElement(identifier)('⚕⚔⌀☀⟀⦀⬀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: ⦀⬀🌀
+          PsiComment(comment)('//other category supplementary')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ⦀⬀🌀
+              PsiElement(identifier)('⦀⬀🌀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: 🌀
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: 🌀
+              PsiElement(identifier)('🌀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: ∀⨀⚕⚔☀
+          PsiComment(comment)('//math + other categories')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ∀⨀⚕⚔☀
+              PsiElement(identifier)('∀⨀⚕⚔☀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: 𐐀
+          PsiComment(comment)('//supplementary')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: 𐐀
+              PsiElement(identifier)('𐐀')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('//inject in interpolated string')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ∀
+            PsiElement(identifier)('∀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⨀
+            PsiElement(identifier)('⨀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: 𝓅
+            PsiElement(identifier)('𝓅')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ∀⨀
+            PsiElement(identifier)('∀⨀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⚕
+            PsiElement(identifier)('⚕')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⚔
+            PsiElement(identifier)('⚔')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⌀
+            PsiElement(identifier)('⌀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ☀
+            PsiElement(identifier)('☀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⟀
+            PsiElement(identifier)('⟀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⦀
+            PsiElement(identifier)('⦀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⬀
+            PsiElement(identifier)('⬀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⚕⚔⌀☀⟀⦀⬀
+            PsiElement(identifier)('⚕⚔⌀☀⟀⦀⬀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ⦀⬀🌀
+            PsiElement(identifier)('⦀⬀🌀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: 🌀
+            PsiElement(identifier)('🌀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: ∀⨀⚕⚔☀
+            PsiElement(identifier)('∀⨀⚕⚔☀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          ReferenceExpression: 𐐀
+            PsiElement(identifier)('𐐀')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('//inject in interpolated string (block)')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ∀
+              PsiElement(identifier)('∀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⨀
+              PsiElement(identifier)('⨀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: 𝓅
+              PsiElement(identifier)('𝓅')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ∀⨀
+              PsiElement(identifier)('∀⨀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⚕
+              PsiElement(identifier)('⚕')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⚔
+              PsiElement(identifier)('⚔')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⌀
+              PsiElement(identifier)('⌀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ☀
+              PsiElement(identifier)('☀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⟀
+              PsiElement(identifier)('⟀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⦀
+              PsiElement(identifier)('⦀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⬀
+              PsiElement(identifier)('⬀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⚕⚔⌀☀⟀⦀⬀
+              PsiElement(identifier)('⚕⚔⌀☀⟀⦀⬀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ⦀⬀🌀
+              PsiElement(identifier)('⦀⬀🌀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: 🌀
+              PsiElement(identifier)('🌀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: ∀⨀⚕⚔☀
+              PsiElement(identifier)('∀⨀⚕⚔☀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"')
+          PsiElement(interpolated string injection)('$')
+          BlockExpression
+            PsiElement({)('{')
+            ReferenceExpression: 𐐀
+              PsiElement(identifier)('𐐀')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

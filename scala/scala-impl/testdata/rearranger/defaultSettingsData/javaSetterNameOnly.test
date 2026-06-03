@@ -1,0 +1,15 @@
+class test {
+  def getVal = ???
+
+  def junk0 = 0
+
+  def setVal = ???
+}
+-------
+class test {
+  def getVal = ???
+
+  def junk0 = 0
+
+  def setVal = ???
+}

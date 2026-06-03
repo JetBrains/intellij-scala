@@ -1,0 +1,89 @@
+class a {
+  import a.b
+
+  val x: Int
+  @a
+  sealed var t = 3
+  x+t
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: a.b
+              CodeReferenceElement: a
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
+              PsiElement(identifier)('b')
+        PsiWhiteSpace('\n\n  ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: t
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: a
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+          PsiWhiteSpace('\n  ')
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('3')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          ReferenceExpression: t
+            PsiElement(identifier)('t')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

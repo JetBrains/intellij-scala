@@ -1,0 +1,10 @@
+1 match {
+  case 1 =><caret>
+  case 2 =>
+}
+-----
+1 match {
+  case 1 =>
+    <caret>
+  case 2 =>
+}

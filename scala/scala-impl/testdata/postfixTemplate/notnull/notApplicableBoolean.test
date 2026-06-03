@@ -1,0 +1,6 @@
+class Test {
+  def foo(flag: Boolean) = {
+    <start>flag<notnull>
+  }
+}
+-----

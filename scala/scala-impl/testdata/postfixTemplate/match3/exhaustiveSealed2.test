@@ -1,0 +1,34 @@
+sealed trait MyMarker
+
+case class Node(left: Int, right: Node) extends MyMarker
+infix case class NodeInfix(left: Int, right: Node) extends MyMarker
+case class :=[K, V](key: K, value: V) extends MyMarker
+case class -->(from: Int, to: Int) extends MyMarker
+case class @@[A, T](value: A, tag: T) extends MyMarker
+case class +:[A](head: A, tail: List[A]) extends MyMarker
+case class @:@[A, T]() extends MyMarker
+
+object Foo:
+  def foo(x: MyMarker) = <start>x<exhaustive>
+end Foo
+-----
+sealed trait MyMarker
+
+case class Node(left: Int, right: Node) extends MyMarker
+infix case class NodeInfix(left: Int, right: Node) extends MyMarker
+case class :=[K, V](key: K, value: V) extends MyMarker
+case class -->(from: Int, to: Int) extends MyMarker
+case class @@[A, T](value: A, tag: T) extends MyMarker
+case class +:[A](head: A, tail: List[A]) extends MyMarker
+case class @:@[A, T]() extends MyMarker
+
+object Foo:
+  def foo(x: MyMarker) = x match
+    case Node(left, right) =>
+    case left NodeInfix right =>
+    case key := value =>
+    case from --> to =>
+    case value @@ tag =>
+    case head +: tail =>
+    case @:@() =>
+end Foo

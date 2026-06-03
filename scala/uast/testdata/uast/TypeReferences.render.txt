@@ -1,0 +1,18 @@
+public final class Test$ {
+    public static fun foo(parameter: int) : java.lang.String {
+        final var varWithType: java.lang.String = "Not Null"
+        final var varWithoutType: java.lang.String = "lorem ipsum"
+        var result: java.lang.String = varWithType + varWithoutType
+        return result
+    }
+    public static fun parameterizedFoo(arg: T) : void {
+        final var a: T = arg
+        final var at: T = arg
+        final var tl: scala.collection.immutable.List<T> = List(at)
+        final var tsl: scala.collection.immutable.List<java.lang.String> = null
+        final var lls: scala.collection.immutable.List<scala.collection.immutable.List<java.lang.String>> = null
+        final var llt: scala.collection.immutable.List<scala.collection.immutable.List<T>> = null
+        parameterizedFoo(List.empty())
+        UastEmptyExpression
+    }
+}

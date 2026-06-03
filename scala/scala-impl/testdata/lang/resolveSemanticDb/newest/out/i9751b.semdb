@@ -1,0 +1,14 @@
+Document tests/pos/i9751b.scala
+(4:26..4:33) scala/Boolean#
+(4:36..4:40) scala/Unit#
+(5:15..5:16) _empty_/Test.f().(x) -> 4:23
+(5:22..5:29) scala/Predef.println().
+(7:3..7:4) _empty_/Test.f(). -> 4:14
+(8:3..8:4) _empty_/Test.f(). -> 4:14
+(10:29..10:36) scala/Boolean#
+(10:39..10:43) scala/Unit#
+(11:15..11:16) _empty_/Test.g().(x) -> 10:23
+(11:22..11:29) scala/Predef.println().
+(13:3..13:4) _empty_/Test.g(). -> 10:14
+(14:3..14:4) _empty_/Test.g(). -> 10:14
+

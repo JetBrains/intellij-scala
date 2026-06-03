@@ -1,0 +1,33 @@
+Document tests/pos/i19221.orig.scala
+(2:24..2:29) scala/
+(2:30..2:38) scala/Product1#
+(2:39..2:45) scala/Predef.String#
+(3:17..3:20) scala/Int#
+(3:23..3:26) scala/Predef.`???`().
+(4:18..4:21) scala/Int#
+(4:24..4:31) scala/Boolean#
+(4:34..4:37) scala/Predef.`???`().
+(5:17..5:20) scala/Int#
+(5:23..5:28) scala/
+(5:29..5:32) scala/package.Seq#
+(5:33..5:40) scala/Boolean#
+(5:44..5:47) scala/Predef.`???`().
+(6:16..6:21) scala/
+(6:22..6:25) scala/package.Seq#
+(6:26..6:33) scala/Boolean#
+(6:37..6:40) scala/Predef.`???`().
+(8:24..8:27) scala/Any#
+(8:30..8:37) scala/Boolean#
+(8:40..8:43) scala/Predef.`???`().
+(10:13..10:19) scala/Predef.String#
+(10:22..10:25) scala/Predef.`???`().
+(11:13..11:19) scala/Predef.String#
+(11:22..11:25) scala/Predef.`???`().
+(12:13..12:16) scala/package.Seq#
+(12:17..12:23) scala/Predef.String#
+(12:27..12:30) scala/Predef.`???`().
+(15:23..15:26) scala/Int#
+(15:29..15:35) _empty_/Test.Custom# -> 2:9
+(15:38..15:41) scala/Predef.`???`().
+(17:7..17:8) _empty_/Test.A. -> 14:10
+

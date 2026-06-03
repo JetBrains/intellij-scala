@@ -1,0 +1,276 @@
+//> using options -Werror
+
+class Test:
+  val x = 42
+  val tup23 = (x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x)
+
+  tup23 match {
+    case (_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) => "Tuple Pattern"
+  }
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('42')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: tup23
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: tup23
+              PsiElement(identifier)('tup23')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MatchStatement
+          ReferenceExpression: tup23
+            PsiElement(identifier)('tup23')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                StringLiteral
+                  PsiElement(string content)('"Tuple Pattern"')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')

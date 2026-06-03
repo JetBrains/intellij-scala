@@ -1,0 +1,25 @@
+try {
+  val results = try {
+    val x = 0
+  } catch {
+    case e: Exception =>
+      throw new Exception("")
+  }
+} finally {
+    println("Hi")
+}
+-----
+0(1) element: None
+1(2,10) element: TryStatement
+2(3,5) element: TryStatement
+3(4) Lit: 0
+4(9) VAL x
+5(6) element: CatchBlock
+6(7) VAL e
+7(8) Lit: ""
+8() element: ThrowStatement
+9(10,13) VAL results
+10(11) element: FinallyBlock
+11(12) READ println
+12() Lit: "Hi"
+13() element: None

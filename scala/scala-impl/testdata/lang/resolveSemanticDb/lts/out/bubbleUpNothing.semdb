@@ -1,0 +1,76 @@
+Document tests/pos/bubbleUpNothing.scala
+(2:17..2:23) scala/Predef.String#
+(2:29..2:35) scala/Predef.String#
+(2:41..2:47) scala/Predef.String#
+(2:50..2:56) scala/Predef.String#
+(2:59..2:61) _empty_/T#apply().(a3) -> 2:37
+(7:5..7:8) scala/Predef.`???`().
+(8:8..8:16) scala/Any#toString().
+(8:17..8:28) java/lang/String#subSequence().
+(8:35..8:43) java/lang/CharSequence#toString().
+(8:44..8:55) java/lang/String#subSequence().
+(8:62..8:70) java/lang/CharSequence#toString().
+(11:10..11:11) _empty_/T# -> 1:7
+(12:8..12:13) _empty_/T#apply(). -> 2:7
+(12:14..12:17) scala/Predef.`???`().
+(13:8..13:19) java/lang/String#subSequence().
+(13:26..13:34) java/lang/CharSequence#toString().
+(13:35..13:46) java/lang/String#subSequence().
+(13:53..13:61) java/lang/CharSequence#toString().
+(16:10..16:11) _empty_/T# -> 1:7
+(17:8..17:13) _empty_/T#apply(). -> 2:7
+(17:19..17:22) scala/Predef.`???`().
+(18:8..18:19) java/lang/String#subSequence().
+(18:26..18:34) java/lang/CharSequence#toString().
+(18:35..18:46) java/lang/String#subSequence().
+(18:53..18:61) java/lang/CharSequence#toString().
+(21:10..21:11) _empty_/T# -> 1:7
+(22:8..22:13) _empty_/T#apply(). -> 2:7
+(22:24..22:27) scala/Predef.`???`().
+(23:8..23:19) java/lang/String#subSequence().
+(23:26..23:34) java/lang/CharSequence#toString().
+(23:35..23:46) java/lang/String#subSequence().
+(23:53..23:61) java/lang/CharSequence#toString().
+(26:10..26:11) _empty_/T# -> 1:7
+(27:8..27:13) _empty_/T#apply(). -> 2:7
+(27:24..27:27) scala/Predef.`???`().
+(28:8..28:19) java/lang/String#subSequence().
+(28:26..28:34) java/lang/CharSequence#toString().
+(28:35..28:46) java/lang/String#subSequence().
+(28:53..28:61) java/lang/CharSequence#toString().
+(31:10..31:13) scala/Predef.`???`().
+(32:8..32:19) java/lang/String#subSequence().
+(32:26..32:34) java/lang/CharSequence#toString().
+(32:35..32:46) java/lang/String#subSequence().
+(32:53..32:61) java/lang/CharSequence#toString().
+(35:7..35:10) scala/Predef.`???`().
+(36:8..36:19) java/lang/String#subSequence().
+(36:26..36:34) java/lang/CharSequence#toString().
+(36:35..36:46) java/lang/String#subSequence().
+(36:53..36:61) java/lang/CharSequence#toString().
+(39:12..39:15) scala/Predef.`???`().
+(40:8..40:19) java/lang/String#subSequence().
+(40:26..40:34) java/lang/CharSequence#toString().
+(40:35..40:46) java/lang/String#subSequence().
+(40:53..40:61) java/lang/CharSequence#toString().
+(43:17..43:20) scala/Predef.`???`().
+(44:8..44:16) scala/Any#toString().
+(44:17..44:28) java/lang/String#subSequence().
+(44:35..44:43) java/lang/CharSequence#toString().
+(44:44..44:55) java/lang/String#subSequence().
+(44:62..44:70) java/lang/CharSequence#toString().
+(46:15..46:19) scala/Unit#
+(47:26..47:50) scala/package.IllegalArgumentException#
+(50:15..50:19) scala/Unit#
+(54:25..54:29) local11 -> 52:11
+(54:45..54:52) local9 -> 51:11
+(54:55..54:59) local15 -> 53:11
+(57:34..57:41) local9 -> 51:11
+(57:44..57:47) scala/Any#
+(58:12..58:16) local15 -> 53:11
+(58:21..58:29) local16 -> 54:11
+(58:30..58:33) scala/Predef.`???`().
+(58:35..58:38) local18 -> 57:29
+(58:40..58:48) local16 -> 54:11
+(58:49..58:52) scala/Predef.`???`().
+

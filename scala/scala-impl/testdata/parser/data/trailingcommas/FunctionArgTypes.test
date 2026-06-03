@@ -1,0 +1,63 @@
+trait FunctionArgTypes {
+  def f: (
+    Int,
+      String,
+    ) => Boolean
+}
+-----
+ScalaFile
+  ScTrait: FunctionArgTypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FunctionArgTypes')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: (
+    Int,
+      String,
+    ) => Boolean
+            TupleType: (
+    Int,
+      String,
+    )
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              TypesList
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

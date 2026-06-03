@@ -1,0 +1,109 @@
+package org.jetbrains.plugins.scala.compiler
+
+import com.intellij.execution.process._
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.Key
+import com.intellij.util.io.BaseOutputReader
+import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
+import org.jetbrains.plugins.scala.compiler.ProcessWatcher.Log
+import org.jetbrains.plugins.scala.extensions.invokeLater
+
+/**
+ * @param process an instance of the running Scala Compile Server process
+ * @param commandLine the command line used for starting the Scala Compile Server process
+ * @param local true if the process is running on the same machine where IntelliJ IDEA is running
+ */
+private final class ProcessWatcher(process: Process, commandLine: String, local: Boolean) {
+  private val processHandler: OSProcessHandler = new OSProcessHandler(process, commandLine) {
+    override def readerOptions(): BaseOutputReader.Options = BaseOutputReader.Options.BLOCKING
+  }
+
+  @volatile
+  private var errorInStdOut = false
+
+  addProcessListener(MyProcessListener)
+
+  def addProcessListener(listener: ProcessListener): Unit =
+    processHandler.addProcessListener(listener)
+
+  def startNotify(): Unit = {
+    processHandler.startNotify()
+  }
+
+  def running: Boolean = !processHandler.isProcessTerminated
+
+  /**
+   * @return the PID of the running Scala Compile Serve process only if the process is running on the same machine
+   *         where IntelliJ IDEA is running
+   */
+  def pid: Option[Long] =
+    Option.when(local)(process.pid())
+
+  def destroyAndWait(): Boolean = {
+    processHandler.destroyProcess()
+    processHandler.waitFor()
+  }
+
+  //true if process exited before timeout
+  def destroyAndWaitFor(ms: Long): Boolean = {
+    processHandler.destroyProcess()
+    processHandler.waitFor(ms)
+  }
+
+  private var _terminatedByIdleTimeout = false
+  def isTerminatedByIdleTimeout: Boolean = _terminatedByIdleTimeout
+
+  private object MyProcessListener extends ProcessListener {
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      val text = event.getText
+
+      //print(s"[$outputType] $text")
+      outputType match {
+        case ProcessOutputTypes.STDOUT =>
+          if (errorInStdOut || ProcessWatcher.ExceptionPattern.matcher(text).find) {
+            errorInStdOut = true
+            processErrorText(text, outputType)
+          }
+
+          if (text.startsWith(CompileServerSharedMessages.CompileServerShutdownPrefix)) {
+            Log.info(s"[$outputType] ${text.stripTrailing()}")
+            if (text.contains(CompileServerSharedMessages.ProcessWasIdleFor)) {
+              _terminatedByIdleTimeout = true
+              invokeLater {
+                ProjectManager.getInstance().getOpenProjects.foreach { project =>
+                  if (!project.isDisposed) {
+                    CompileServerNotifications.showStoppedByIdleTimeoutNotification(project)
+                  }
+                }
+              }
+            }
+          }
+
+        case ProcessOutputTypes.STDERR =>
+          processErrorText(text, outputType)
+
+        case _ => // do nothing
+      }
+    }
+
+    private def processErrorText(text: String, outputType: Key[_]): Unit = {
+      Log.warn(s"[$outputType] ${text.trim}")
+      val filtered = text.linesIterator.mkString(System.lineSeparator())
+      if (filtered.nonEmpty) {
+        ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerErrorListener.Topic).onError(filtered)
+      }
+    }
+
+    override def processTerminated(event: ProcessEvent): Unit = {
+      val pidStr = pid.map(p => s"(PID: $p)").getOrElse("(PID not available for remote processes)")
+      Log.info(s"compile server process terminated with exit code: ${event.getExitCode} $pidStr")
+    }
+  }
+}
+
+object ProcessWatcher {
+  private val Log = Logger.getInstance(classOf[ProcessWatcher])
+  private val ExceptionPattern = "[eE]rror|[eE]xception".r.pattern
+}

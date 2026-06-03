@@ -1,0 +1,9 @@
+class Test {
+  "testString" + <start>Set(1, 2, 3).filter(_ == 2).isEmpty<match>
+}
+-----
+class Test {
+  "testString" + (Set(1, 2, 3).filter(_ == 2).isEmpty match {
+    case  =>
+  })
+}

@@ -1,0 +1,13 @@
+foo("""one two three""")
+foo("""one two three""".stripMargin)
+foo( """one two three""" )
+foo( """one two three""".stripMargin )
+foo( s"""one two three""" )
+foo( s"""one two three""".stripMargin )
+-----
+foo("""one two three""")
+foo("""one two three""".stripMargin)
+foo("""one two three""")
+foo("""one two three""".stripMargin)
+foo(s"""one two three""")
+foo(s"""one two three""".stripMargin)

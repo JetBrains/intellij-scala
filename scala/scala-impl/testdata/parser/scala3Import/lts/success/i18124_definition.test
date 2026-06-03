@@ -1,0 +1,162 @@
+// definition.scala
+package oolong.bson:
+
+  trait BsonValue
+  protected def merge(
+      base: BsonValue,
+      patch: BsonValue,
+      arraySubvalues: Boolean = false
+  ): BsonValue = ???
+
+  private def foo: Int = 1
+
+  package inner:
+    protected[bson] def bar = 2
+
+-----
+ScalaFile
+  PsiComment(comment)('// definition.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: oolong.bson
+      CodeReferenceElement: oolong
+        PsiElement(identifier)('oolong')
+      PsiElement(.)('.')
+      PsiElement(identifier)('bson')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScTrait: BsonValue
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BsonValue')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: merge
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(protected)('protected')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('merge')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiWhiteSpace('\n      ')
+          Parameter: base
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('base')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: BsonValue
+                CodeReferenceElement: BsonValue
+                  PsiElement(identifier)('BsonValue')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n      ')
+          Parameter: patch
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('patch')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: BsonValue
+                CodeReferenceElement: BsonValue
+                  PsiElement(identifier)('BsonValue')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n      ')
+          Parameter: arraySubvalues
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('arraySubvalues')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BooleanLiteral
+              PsiElement(false)('false')
+          PsiWhiteSpace('\n  ')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: BsonValue
+        CodeReferenceElement: BsonValue
+          PsiElement(identifier)('BsonValue')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n  ')
+    ScFunctionDefinition: foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('foo')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('1')
+    PsiWhiteSpace('\n\n  ')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: inner
+        PsiElement(identifier)('inner')
+      PsiElement(:)(':')
+      PsiWhiteSpace('\n    ')
+      ScFunctionDefinition: bar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(protected)('protected')
+            PsiElement([)('[')
+            PsiElement(identifier)('bson')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('bar')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('2')

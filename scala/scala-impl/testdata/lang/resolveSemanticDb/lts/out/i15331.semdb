@@ -1,0 +1,40 @@
+Document tests/pos/i15331.scala
+(3:20..3:21) _empty_/Test.Composable#[A] -> 2:20
+(3:26..3:27) _empty_/Test.Composable#[B] -> 2:22
+(3:30..3:33) scala/Any#
+(7:34..7:39) _empty_/Test.Arrow# -> 5:9
+(7:49..7:54) _empty_/Test.Arrow# -> 5:9
+(7:57..7:67) _empty_/Test.Composable# -> 2:9
+(7:68..7:72) _empty_/Test.composeArrows#[Arr1] -> 7:26
+(7:85..7:86) _empty_/Test.composeArrows#[A] -> 7:23
+(7:89..7:93) _empty_/Test.composeArrows#[Arr2] -> 7:41
+(7:108..7:109) _empty_/Test.composeArrows#[A] -> 7:23
+(8:20..8:24) _empty_/Test.composeArrows#[Arr1] -> 7:26
+(8:37..8:38) _empty_/Test.composeArrows#[A] -> 7:23
+(8:44..8:48) _empty_/Test.composeArrows#[Arr2] -> 7:41
+(8:63..8:64) _empty_/Test.composeArrows#[A] -> 7:23
+(8:68..8:73) _empty_/Test.Arrow# -> 5:9
+(8:86..8:87) _empty_/Test.composeArrows#compose().(b) -> 8:41
+(8:88..8:91) _empty_/Test.Arrow#Dom# -> 5:21
+(8:106..8:107) _empty_/Test.composeArrows#compose().(a) -> 8:17
+(8:108..8:113) _empty_/Test.Arrow#Codom# -> 5:31
+(8:117..8:120) scala/Predef.`???`().
+(10:23..10:28) _empty_/Test.Arrow# -> 5:9
+(10:42..10:45) scala/Int#
+(10:60..10:63) scala/Int#
+(11:23..11:28) _empty_/Test.Arrow# -> 5:9
+(11:41..11:44) scala/Int#
+(11:59..11:64) scala/Float#
+(14:43..14:44) _empty_/Test.compose().[A] -> 14:34
+(14:49..14:50) _empty_/Test.compose().[B] -> 14:37
+(14:61..14:71) _empty_/Test.Composable# -> 2:9
+(14:72..14:73) _empty_/Test.compose().[A] -> 14:34
+(14:74..14:75) _empty_/Test.compose().[B] -> 14:37
+(14:80..14:81) _empty_/Test.compose().(c) -> 14:58
+(14:82..14:89) _empty_/Test.Composable#compose(). -> 3:9
+(14:90..14:91) _empty_/Test.compose().(a) -> 14:40
+(14:92..14:93) _empty_/Test.compose().(b) -> 14:46
+(15:11..15:18) _empty_/Test.compose(). -> 14:26
+(15:19..15:23) _empty_/Test.arr2. -> 11:10
+(15:24..15:28) _empty_/Test.arr1. -> 10:10
+

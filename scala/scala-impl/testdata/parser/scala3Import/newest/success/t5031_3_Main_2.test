@@ -1,0 +1,57 @@
+package org.example
+
+object Main extends App {
+   println(foo.bar.Foo.bar)
+}
+
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: org.example
+      CodeReferenceElement: org
+        PsiElement(identifier)('org')
+      PsiElement(.)('.')
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScObject: Main
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Main')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: App
+              CodeReferenceElement: App
+                PsiElement(identifier)('App')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n   ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: foo.bar.Foo.bar
+                ReferenceExpression: foo.bar.Foo
+                  ReferenceExpression: foo.bar
+                    ReferenceExpression: foo
+                      PsiElement(identifier)('foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('bar')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('bar')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

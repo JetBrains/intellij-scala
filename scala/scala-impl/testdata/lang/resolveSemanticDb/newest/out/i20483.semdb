@@ -1,0 +1,13 @@
+Document tests/pos/i20483.scala
+(3:7..3:13) scala/Option#
+(3:14..3:20) scala/Predef.String#
+(4:10..4:17) scala/Boolean#
+(5:10..5:13) scala/Int#
+(6:10..6:16) scala/Double#
+(9:9..9:15) scala/Predef.String#
+(10:12..10:19) scala/Boolean#
+(11:12..11:15) scala/Int#
+(12:12..12:18) scala/Double#
+(13:10..13:14) scala/Some.
+(13:15..13:16) _empty_/Foo#`<init>`(+1).(x) -> 9:6
+

@@ -1,0 +1,13 @@
+class Test {
+  var a = false
+  var b = false
+  var c = false
+  <start>(a || b)<not> || c
+}
+-----
+class Test {
+  var a = false
+  var b = false
+  var c = false
+  !(a || b) || c
+}

@@ -1,0 +1,66 @@
+object I0 { val i1: PartialFunction[_, Any] = { case i2 => i2 } }
+-----
+ScalaFile
+  ScObject: I0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('I0')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScPatternDefinition: i1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: i1
+              PsiElement(identifier)('i1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: PartialFunction[_, Any]
+            SimpleType: PartialFunction
+              CodeReferenceElement: PartialFunction
+                PsiElement(identifier)('PartialFunction')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ReferencePattern: i2
+                  PsiElement(identifier)('i2')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: i2
+                    PsiElement(identifier)('i2')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

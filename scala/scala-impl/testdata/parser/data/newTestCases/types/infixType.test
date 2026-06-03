@@ -1,0 +1,58 @@
+class a {
+  val x: T op T op T
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: T op T op T
+            InfixType: T op T
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: op
+                PsiElement(identifier)('op')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: op
+              PsiElement(identifier)('op')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

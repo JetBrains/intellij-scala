@@ -1,0 +1,6 @@
+Document tests/pos/i10107c.scala
+(1:20..1:27) scala/Boolean#
+(3:21..3:27) scala/Predef.String#
+(4:13..4:19) _empty_/i10107c$package.isTrue(). -> 1:12
+(10:13..10:18) _empty_/i10107c$package.oneOf(). -> 3:12
+

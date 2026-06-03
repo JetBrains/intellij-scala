@@ -1,0 +1,7 @@
+Document tests/pos/multiple-additional-imports.scala
+(3:26..3:36) scala/annotation/Annotation#
+(4:8..4:14) scala/Predef.String#
+(5:12..5:17) scala/util/matching/Regex#
+(5:20..5:21) _empty_/`multiple-additional-imports$package`.s. -> 4:5
+(5:22..5:23) scala/collection/StringOps#r().
+

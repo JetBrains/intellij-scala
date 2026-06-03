@@ -1,0 +1,11 @@
+Document tests/pos/i17002.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:29) scala/annotation/meta/
+(1:30..1:45) scala/annotation/meta/companionMethod#
+(3:2..3:17) scala/annotation/meta/companionMethod#
+(4:24..4:34) scala/annotation/
+(4:35..4:45) scala/annotation/Annotation#
+(9:4..9:12) _empty_/methOnly# -> 4:7
+(10:19..10:23) _empty_/Test# -> 6:7
+

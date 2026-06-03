@@ -1,0 +1,4 @@
+for {
+  x <- List(1, 2, 3)
+  y <- List(x, x)
+} yield x

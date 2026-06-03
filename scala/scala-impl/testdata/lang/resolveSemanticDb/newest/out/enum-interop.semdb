@@ -1,0 +1,21 @@
+Document tests/pos/enum-interop.scala
+(5:12..5:16) java/
+(5:17..5:21) java/lang/
+(5:22..5:27) java/lang/Class#
+(5:33..5:36) scala/Predef.`???`().
+(7:27..7:32) scala/Predef.Class#
+(7:33..7:34) _empty_/Test.myAsInstanceOf().[T] -> 7:22
+(7:42..7:46) java/
+(7:47..7:51) java/lang/
+(7:52..7:57) java/lang/Class#
+(7:63..7:68) scala/Predef.Class#
+(7:69..7:70) _empty_/Test.myAsInstanceOf().[T] -> 7:22
+(7:74..7:77) _empty_/Test.myAsInstanceOf().(cls) -> 7:37
+(7:78..7:90) scala/Any#asInstanceOf().
+(7:91..7:96) scala/Predef.Class#
+(7:97..7:98) _empty_/Test.myAsInstanceOf().[T] -> 7:22
+(8:3..8:7) java/lang/Enum#
+(8:8..8:15) java/lang/Enum#valueOf().
+(8:16..8:30) _empty_/Test.myAsInstanceOf(). -> 7:7
+(8:31..8:34) _empty_/Test.cls. -> 5:7
+

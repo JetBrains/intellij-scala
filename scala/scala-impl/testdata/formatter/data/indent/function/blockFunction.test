@@ -1,0 +1,9 @@
+class a {
+  def foo { val la=5}
+}
+-----
+class a {
+  def foo {
+    val la = 5
+  }
+}

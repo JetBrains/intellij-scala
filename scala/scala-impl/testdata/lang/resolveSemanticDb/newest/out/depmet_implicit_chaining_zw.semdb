@@ -1,0 +1,62 @@
+Document tests/pos/depmet_implicit_chaining_zw.scala
+(6:10..6:11) _empty_/ZipWith#T# -> 5:8
+(6:14..6:17) scala/sys/
+(6:18..6:23) scala/sys/package.error().
+(10:32..10:39) _empty_/ZipWith# -> 4:7
+(10:40..10:44) _empty_/Zero# -> 1:7
+(10:45..10:46) _empty_/ZipWith.ZeroZipWith().[S] -> 10:28
+(10:57..10:63) scala/package.Stream#
+(10:64..10:65) _empty_/ZipWith.ZeroZipWith().[S] -> 10:28
+(10:74..10:81) _empty_/ZipWith# -> 4:7
+(10:82..10:86) _empty_/Zero# -> 1:7
+(10:88..10:89) _empty_/ZipWith.ZeroZipWith().[S] -> 10:28
+(11:14..11:20) scala/package.Stream#
+(11:21..11:22) _empty_/ZipWith.ZeroZipWith().[S] -> 10:28
+(14:54..14:61) _empty_/ZipWith# -> 4:7
+(14:62..14:63) _empty_/ZipWith.SuccZipWith().[N] -> 14:28
+(14:65..14:66) _empty_/ZipWith.SuccZipWith().[R] -> 14:34
+(14:70..14:77) _empty_/ZipWith# -> 4:7
+(14:78..14:82) _empty_/Succ# -> 2:7
+(14:83..14:84) _empty_/ZipWith.SuccZipWith().[N] -> 14:28
+(14:86..14:87) _empty_/ZipWith.SuccZipWith().[S] -> 14:31
+(14:91..14:92) _empty_/ZipWith.SuccZipWith().[R] -> 14:34
+(14:103..14:109) scala/package.Stream#
+(14:110..14:111) _empty_/ZipWith.SuccZipWith().[S] -> 14:31
+(14:116..14:121) _empty_/ZipWith.SuccZipWith().(zWith) -> 14:46
+(14:122..14:123) _empty_/ZipWith#T# -> 5:8
+(14:131..14:138) _empty_/ZipWith# -> 4:7
+(14:139..14:143) _empty_/Succ# -> 2:7
+(14:144..14:145) _empty_/ZipWith.SuccZipWith().[N] -> 14:28
+(14:148..14:149) _empty_/ZipWith.SuccZipWith().[S] -> 14:31
+(14:153..14:154) _empty_/ZipWith.SuccZipWith().[R] -> 14:34
+(15:14..15:20) scala/package.Stream#
+(15:21..15:22) _empty_/ZipWith.SuccZipWith().[S] -> 14:31
+(15:27..15:32) _empty_/ZipWith.SuccZipWith().(zWith) -> 14:46
+(15:33..15:34) _empty_/ZipWith#T# -> 5:8
+(23:14..23:20) scala/AnyRef#
+(23:34..23:35) _empty_/ZipWith.`?`().[T] -> 23:9
+(23:38..23:39) _empty_/ZipWith.`?`().(w) -> 23:31
+(23:47..23:48) _empty_/ZipWith.`?`().(w) -> 23:31
+(25:13..25:17) _empty_/Zero# -> 1:7
+(26:13..26:17) _empty_/Succ# -> 2:7
+(26:18..26:22) _empty_/Zero# -> 1:7
+(27:13..27:17) _empty_/Succ# -> 2:7
+(27:18..27:22) _empty_/Succ# -> 2:7
+(27:23..27:27) _empty_/Zero# -> 1:7
+(28:12..28:13) _empty_/ZipWith.`?`(). -> 23:7
+(28:14..28:21) _empty_/ZipWith# -> 4:7
+(28:22..28:24) _empty_/ZipWith._2# -> 27:8
+(28:26..28:29) scala/Int#
+(28:33..28:39) scala/Predef.String#
+(28:43..28:50) scala/Boolean#
+(29:5..29:16) _empty_/ZipWith.SuccZipWith(). -> 14:16
+(29:17..29:19) _empty_/ZipWith._1# -> 26:8
+(29:21..29:24) scala/Int#
+(29:26..29:32) scala/Predef.String#
+(29:36..29:43) scala/Boolean#
+(30:7..30:18) _empty_/ZipWith.SuccZipWith(). -> 14:16
+(30:19..30:21) _empty_/ZipWith._0# -> 25:8
+(30:23..30:29) scala/Predef.String#
+(30:31..30:38) scala/Boolean#
+(30:42..30:43) _empty_/ZipWith#x. -> 6:7
+

@@ -1,0 +1,40 @@
+Document tests/pos/i17631.scala
+(7:8..7:11) _empty_/foo. -> 3:8
+(11:29..11:35) scala/Predef.String#
+(13:13..13:19) local10 -> 11:8
+(13:22..13:25) scala/Predef.`???`().
+(14:25..14:31) scala/Predef.String#
+(14:36..14:39) scala/Predef.`???`().
+(15:15..15:19) local11 -> 13:7
+(15:33..15:39) scala/Predef.String#
+(16:26..16:29) _empty_/foo.Bar# -> 4:8
+(16:34..16:37) scala/Predef.`???`().
+(17:4..17:8) local13 -> 14:7
+(17:10..17:14) local15 -> 15:7
+(17:16..17:22) local17 -> 16:7
+(20:22..20:28) scala/Predef.String#
+(20:30..20:33) scala/Any#
+(20:45..20:55) scala/Selectable#
+(21:24..21:29) _empty_/Record#elems. -> 20:14
+(21:30..21:35) scala/collection/IterableOnceOps#toMap().
+(22:27..22:33) scala/Predef.String#
+(22:36..22:39) scala/Any#
+(22:42..22:48) _empty_/Record#fields. -> 21:15
+(22:49..22:53) _empty_/Record#selectDynamic().(name) -> 22:21
+(26:17..26:23) _empty_/Record# -> 20:7
+(26:36..26:42) scala/Predef.String#
+(26:53..26:56) scala/Int#
+(28:3..28:10) scala/Predef.locally().
+(29:15..29:21) _empty_/Main.Person# -> 26:8
+(29:24..29:27) scala/Predef.`???`().
+(30:15..30:21) _empty_/Record# -> 20:7
+(30:34..30:40) scala/Predef.String#
+(30:51..30:54) scala/Int#
+(30:59..30:62) scala/Predef.`???`().
+(31:17..31:21) local2 -> 29:9
+(31:23..31:29) _empty_/Record# -> 20:7
+(31:42..31:48) scala/Predef.String#
+(31:59..31:62) scala/Int#
+(32:6..32:10) local5 -> 30:9
+(32:12..32:16) local8 -> 31:9
+

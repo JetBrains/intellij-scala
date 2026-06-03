@@ -1,0 +1,29 @@
+for {a <- List(1)
+      _ <- List(2)} yield 1
+------
+for {for}
+white space in line { }
+{ {{}
+identifier {a}
+white space in line { }
+<- {<-}
+white space in line { }
+identifier {List}
+( {(}
+integer {1}
+) {)}
+white space in line {
+      }
+_ {_}
+white space in line { }
+<- {<-}
+white space in line { }
+identifier {List}
+( {(}
+integer {2}
+) {)}
+} {}}
+white space in line { }
+yield {yield}
+white space in line { }
+integer {1}

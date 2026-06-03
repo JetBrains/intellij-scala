@@ -1,0 +1,15 @@
+Document tests/pos/t6551.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
+(4:18..4:23) scala/Array#
+(4:24..4:30) scala/Predef.String#
+(4:34..4:38) scala/Unit#
+(5:29..5:36) scala/Dynamic#
+(6:35..6:41) scala/Predef.String#
+(6:45..6:48) scala/Predef.`???`().
+(9:23..9:29) local3 -> 5:11
+(9:30..9:31) local5 -> 9:14
+(11:14..11:18) local6 -> 9:9
+(11:19..11:25) scala/Predef.String#
+

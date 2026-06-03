@@ -1,0 +1,16 @@
+Document tests/pos/t1614/bar.scala
+(3:15..3:22) _empty_/FooImpl# -> 5:7
+(3:28..3:47) _empty_/AbstractOverrideFoo# -> 8:7
+
+Document tests/pos/t1614/foo.scala
+(3:16..3:20) scala/package.List#
+(3:26..3:30) scala/Unit#
+(5:23..5:26) _empty_/Foo# -> 2:7
+(6:18..6:22) scala/package.List#
+(6:28..6:32) scala/Unit#
+(8:35..8:38) _empty_/Foo# -> 2:7
+(9:36..9:40) scala/package.List#
+(9:46..9:50) scala/Unit#
+(10:15..10:18) _empty_/Foo#foo(). -> 3:7
+(10:19..10:22) _empty_/AbstractOverrideFoo#foo().(arg) -> 9:31
+

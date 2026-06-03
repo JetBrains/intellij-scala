@@ -1,0 +1,6 @@
+Document tests/pos/michel5.scala
+(3:19..3:25) scala/AnyRef#
+(3:31..3:32) _empty_/A# -> 1:7
+(3:33..3:36) scala/Int#
+(4:11..4:14) scala/Int#
+

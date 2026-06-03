@@ -1,0 +1,20 @@
+Document tests/pos/i18713.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:53) scala/language.experimental.relaxedExtensionImports.
+(5:17..5:18) _empty_/A# -> 3:7
+(6:13..6:16) scala/Predef.`???`().
+(7:16..7:22) scala/Predef.String#
+(7:26..7:29) scala/Predef.`???`().
+(10:17..10:21) scala/Long#
+(11:13..11:16) scala/Predef.`???`().
+(12:16..12:22) scala/Predef.String#
+(12:26..12:29) scala/Predef.`???`().
+(14:13..14:14) _empty_/A# -> 3:7
+(15:10..15:12) _empty_/AA. -> 4:8
+(16:10..16:12) _empty_/BB. -> 9:8
+(17:3..17:4) _empty_/i18713$package.test().(a) -> 14:10
+(17:5..17:6) _empty_/AA.f(). -> 6:9
+(18:3..18:4) _empty_/i18713$package.test().(a) -> 14:10
+(18:5..18:6) _empty_/AA.`f_=`(). -> 7:9
+

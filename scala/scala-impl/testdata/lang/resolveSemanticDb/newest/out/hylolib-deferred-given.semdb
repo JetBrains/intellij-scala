@@ -1,0 +1,1566 @@
+Document tests/pos/hylolib-deferred-given/AnyCollection.scala
+(8:23..8:31) hylo/AnyValue# -> 15:13
+(9:21..9:29) hylo/AnyValue# -> 15:13
+(10:18..10:26) hylo/AnyValue# -> 15:13
+(10:31..10:39) hylo/AnyValue# -> 15:13
+(11:15..11:23) hylo/AnyValue# -> 15:13
+(11:28..11:35) hylo/AnyCollection#[Element] -> 7:27
+(17:28..17:38) hylo/Collection# -> 5:7
+(17:39..17:43) hylo/AnyCollection.apply().[Base] -> 17:13
+(17:52..17:56) hylo/AnyCollection.apply().[Base] -> 17:13
+(17:59..17:72) hylo/AnyCollection# -> 7:13
+(17:73..17:74) hylo/AnyCollection.apply().(b) -> 17:25
+(17:75..17:82) hylo/Collection#Element# -> 8:8
+(22:11..22:16) hylo/Value# -> 8:7
+(22:17..22:18) hylo/AnyCollection.apply().(b) -> 17:25
+(22:19..22:27) hylo/Collection#Position# -> 12:8
+(22:31..22:32) hylo/AnyCollection.apply().(b) -> 17:25
+(22:33..22:48) hylo/Collection#positionIsValue. -> 13:9
+(24:18..24:26) hylo/AnyValue# -> 15:13
+(25:7..25:15) hylo/AnyValue. -> 44:8
+(25:16..25:20) hylo/AnyCollection.apply().(base) -> 17:46
+(25:21..25:34) hylo/Collection#startPosition(). -> 37:9
+(27:16..27:24) hylo/AnyValue# -> 15:13
+(28:7..28:15) hylo/AnyValue. -> 44:8
+(28:16..28:20) hylo/AnyCollection.apply().(base) -> 17:46
+(28:21..28:32) hylo/Collection#endPosition(). -> 45:9
+(30:18..30:26) hylo/AnyValue# -> 15:13
+(30:29..30:37) hylo/AnyValue# -> 15:13
+(31:7..31:15) hylo/AnyValue. -> 44:8
+(31:16..31:20) hylo/AnyCollection.apply().(base) -> 17:46
+(31:21..31:34) hylo/Collection#positionAfter(). -> 54:9
+(31:35..31:36) local3 -> 39:11
+(31:37..31:56) hylo/AnyValue#unsafelyUnwrappedAs(). -> 35:7
+(31:57..31:58) hylo/AnyCollection.apply().(b) -> 17:25
+(31:59..31:67) hylo/Collection#Position# -> 12:8
+(33:15..33:23) hylo/AnyValue# -> 15:13
+(33:26..33:27) hylo/AnyCollection.apply().(b) -> 17:25
+(33:28..33:35) hylo/Collection#Element# -> 8:8
+(34:7..34:11) hylo/AnyCollection.apply().(base) -> 17:46
+(34:12..34:14) hylo/Collection#at(). -> 63:9
+(34:15..34:16) local5 -> 76:11
+(34:17..34:36) hylo/AnyValue#unsafelyUnwrappedAs(). -> 35:7
+(34:37..34:38) hylo/AnyCollection.apply().(b) -> 17:25
+(34:39..34:47) hylo/Collection#Position# -> 12:8
+(36:9..36:22) hylo/AnyCollection# -> 7:13
+(36:23..36:24) hylo/AnyCollection.apply().(b) -> 17:25
+(36:25..36:32) hylo/Collection#Element# -> 8:8
+(37:7..37:13) hylo/AnyCollection#`<init>`().(_start)
+(37:16..37:21) local1 -> 37:11
+(38:7..38:11) hylo/AnyCollection#`<init>`().(_end)
+(38:14..38:17) local2 -> 38:11
+(39:7..39:13) hylo/AnyCollection#`<init>`().(_after)
+(39:16..39:21) local4 -> 55:9
+(40:7..40:10) hylo/AnyCollection#`<init>`().(_at)
+(40:13..40:15) local6 -> 89:11
+(45:52..45:57) hylo/Value# -> 8:7
+(45:58..45:59) hylo/AnyCollection$package.anyCollectionIsCollection#[T] -> 45:35
+(45:58..45:59) hylo/AnyCollection$package.anyCollectionIsCollection().[T] -> 45:35
+(45:65..45:75) hylo/Collection# -> 5:7
+(45:76..45:89) hylo/AnyCollection# -> 7:13
+(45:90..45:91) hylo/AnyCollection$package.anyCollectionIsCollection#[T] -> 45:35
+(47:18..47:19) hylo/AnyCollection$package.anyCollectionIsCollection#[T] -> 45:35
+(50:19..50:27) hylo/AnyValue# -> 15:13
+(51:35..51:40) hylo/Value# -> 8:7
+(51:41..51:49) hylo/AnyCollection$package.anyCollectionIsCollection#Position# -> 50:8
+(51:53..51:68) hylo/AnyValue$package.anyValueIsValue. -> 61:7
+(53:20..53:33) hylo/AnyCollection# -> 7:13
+(53:34..53:35) hylo/AnyCollection$package.anyCollectionIsCollection#[T] -> 45:35
+(56:7..56:11) hylo/AnyCollection$package.anyCollectionIsCollection#startPosition().(self) -> 53:14
+(56:12..56:18) hylo/AnyCollection#_start. -> 8:9
+(59:7..59:11) hylo/AnyCollection$package.anyCollectionIsCollection#endPosition().(self) -> 53:14
+(59:12..59:16) hylo/AnyCollection#_end. -> 9:9
+(61:26..61:34) hylo/AnyCollection$package.anyCollectionIsCollection#Position# -> 50:8
+(62:7..62:11) hylo/AnyCollection$package.anyCollectionIsCollection#positionAfter().(self) -> 53:14
+(62:12..62:18) hylo/AnyCollection#_after. -> 10:9
+(62:19..62:20) hylo/AnyCollection$package.anyCollectionIsCollection#positionAfter().(p) -> 61:23
+(64:15..64:23) hylo/AnyCollection$package.anyCollectionIsCollection#Position# -> 50:8
+(65:7..65:11) hylo/AnyCollection$package.anyCollectionIsCollection#at().(self) -> 53:14
+(65:12..65:15) hylo/AnyCollection#_at. -> 11:9
+(65:16..65:17) hylo/AnyCollection$package.anyCollectionIsCollection#at().(p) -> 64:12
+
+Document tests/pos/hylolib-deferred-given/AnyValue.scala
+(4:1..4:5) hylo/ -> 1:9
+(4:39..4:40) hylo/Ref#[T] -> 4:25
+(6:26..6:32) scala/Predef.String#
+(7:5..7:6) scala/StringContext#s().
+(7:12..7:17) hylo/Ref#value. -> 4:32
+(16:26..16:32) scala/AnyRef#
+(17:25..17:31) scala/AnyRef#
+(17:36..17:44) hylo/AnyValue# -> 15:13
+(18:23..18:29) scala/AnyRef#
+(18:31..18:37) scala/AnyRef#
+(18:42..18:49) scala/Boolean#
+(19:29..19:35) scala/AnyRef#
+(19:37..19:43) hylo/Hasher# -> 7:13
+(19:48..19:54) hylo/Hasher# -> 7:13
+(23:15..23:23) hylo/AnyValue# -> 15:13
+(24:5..24:10) hylo/AnyValue#_copy. -> 17:17
+(24:16..24:23) hylo/AnyValue#wrapped. -> 16:17
+(27:17..27:25) hylo/AnyValue# -> 15:13
+(27:28..27:35) scala/Boolean#
+(28:5..28:8) hylo/AnyValue#_eq. -> 18:17
+(28:14..28:21) hylo/AnyValue#wrapped. -> 16:17
+(28:23..28:28) hylo/AnyValue#eq().(other) -> 27:10
+(28:29..28:36) hylo/AnyValue#wrapped. -> 16:17
+(31:24..31:30) hylo/Hasher# -> 7:13
+(31:33..31:39) hylo/Hasher# -> 7:13
+(32:5..32:14) hylo/AnyValue#_hashInto. -> 19:17
+(32:20..32:27) hylo/AnyValue#wrapped. -> 16:17
+(32:29..32:35) hylo/AnyValue#hashInto().(hasher) -> 31:16
+(35:31..35:32) hylo/AnyValue#unsafelyUnwrappedAs().[T] -> 35:27
+(36:5..36:12) hylo/AnyValue#wrapped. -> 16:17
+(36:13..36:25) scala/Any#asInstanceOf().
+(36:26..36:29) hylo/Ref# -> 4:21
+(36:30..36:31) hylo/AnyValue#unsafelyUnwrappedAs().[T] -> 35:27
+(36:34..36:39) hylo/Ref#value. -> 4:32
+(39:26..39:32) scala/Predef.String#
+(40:5..40:12) hylo/AnyValue#wrapped. -> 16:17
+(40:13..40:21) scala/Any#toString().
+(47:16..47:21) hylo/AnyValue.apply().[T] -> 47:13
+(47:16..47:21) hylo/Value# -> 8:7
+(47:32..47:33) hylo/AnyValue.apply().[T] -> 47:13
+(47:36..47:44) hylo/AnyValue# -> 15:13
+(48:17..48:23) scala/AnyRef#
+(48:26..48:34) hylo/AnyValue# -> 15:13
+(49:7..49:15) hylo/AnyValue. -> 44:8
+(49:16..49:17) local0 -> 34:11
+(49:18..49:30) scala/Any#asInstanceOf().
+(49:31..49:34) hylo/Ref# -> 4:21
+(49:35..49:36) hylo/AnyValue.apply().[T] -> 47:13
+(49:39..49:44) hylo/Ref#value. -> 4:32
+(49:45..49:49) hylo/Value#copy(). -> 13:9
+(51:15..51:21) scala/AnyRef#
+(51:26..51:32) scala/AnyRef#
+(51:35..51:42) scala/Boolean#
+(52:7..52:8) local2 -> 38:11
+(52:9..52:21) scala/Any#asInstanceOf().
+(52:22..52:25) hylo/Ref# -> 4:21
+(52:26..52:27) hylo/AnyValue.apply().[T] -> 47:13
+(52:30..52:35) hylo/Ref#value. -> 4:32
+(52:36..52:40) hylo/Value#eq(). -> 16:9
+(52:41..52:42) local3 -> 39:11
+(52:43..52:55) scala/Any#asInstanceOf().
+(52:56..52:59) hylo/Ref# -> 4:21
+(52:60..52:61) hylo/AnyValue.apply().[T] -> 47:13
+(52:64..52:69) hylo/Ref#value. -> 4:32
+(54:21..54:27) scala/AnyRef#
+(54:37..54:43) hylo/Hasher# -> 7:13
+(54:46..54:52) hylo/Hasher# -> 7:13
+(55:7..55:8) local5 -> 76:11
+(55:9..55:21) scala/Any#asInstanceOf().
+(55:22..55:25) hylo/Ref# -> 4:21
+(55:26..55:27) hylo/AnyValue.apply().[T] -> 47:13
+(55:30..55:35) hylo/Ref#value. -> 4:32
+(55:36..55:44) hylo/Value#hashInto(). -> 19:9
+(55:45..55:51) local6 -> 89:11
+(57:9..57:17) hylo/AnyValue# -> 15:13
+(57:22..57:29) hylo/AnyValue.apply().(wrapped) -> 47:23
+(57:32..57:36) local1 -> 37:11
+(57:38..57:40) local4 -> 55:9
+(57:42..57:50) local7 -> 119:9
+(61:24..61:29) hylo/Value# -> 8:7
+(61:30..61:38) hylo/AnyValue# -> 15:13
+(63:20..63:28) hylo/AnyValue# -> 15:13
+(65:17..65:25) hylo/AnyValue# -> 15:13
+(66:7..66:11) hylo/AnyValue$package.anyValueIsValue.copy().(self) -> 63:14
+(66:12..66:16) hylo/AnyValue#copy(). -> 23:7
+(68:19..68:27) hylo/AnyValue# -> 15:13
+(68:30..68:37) scala/Boolean#
+(69:7..69:11) hylo/AnyValue$package.anyValueIsValue.eq().(self) -> 63:14
+(69:12..69:16) hylo/AnyValue#eq(). -> 27:7
+(69:17..69:22) hylo/AnyValue$package.anyValueIsValue.eq().(other) -> 68:12
+(71:26..71:32) hylo/Hasher# -> 7:13
+(71:35..71:41) hylo/Hasher# -> 7:13
+(72:7..72:11) hylo/AnyValue$package.anyValueIsValue.hashInto().(self) -> 63:14
+(72:12..72:20) hylo/AnyValue#hashInto(). -> 31:7
+(72:21..72:27) hylo/AnyValue$package.anyValueIsValue.hashInto().(hasher) -> 71:18
+
+Document tests/pos/hylolib-deferred-given/BitArray.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(3:25..3:32) scala/collection/mutable/
+(7:24..7:31) hylo/HyArray# -> 7:13
+(7:32..7:35) scala/Int#
+(8:25..8:28) scala/Int#
+(12:16..12:23) scala/Boolean#
+(13:5..13:11) hylo/BitArray#_count(). -> 8:17
+(13:12..13:14) scala/Int#`==`(+3).
+(16:14..16:17) scala/Int#
+(17:5..17:11) hylo/BitArray#_count(). -> 8:17
+(20:17..20:20) scala/Int#
+(21:5..21:10) hylo/BitArray#_bits(). -> 7:17
+(21:11..21:19) hylo/HyArray#capacity(). -> 26:7
+(21:20..21:22) scala/Int#`<<`().
+(24:26..24:29) scala/Int#
+(24:49..24:56) scala/Boolean#
+(24:67..24:75) hylo/BitArray# -> 6:13
+(25:8..25:9) hylo/BitArray#reserveCapacity().(n) -> 24:23
+(25:10..25:12) scala/Int#`==`(+3).
+(28:17..28:18) scala/Int#`+`(+4).
+(28:21..28:22) hylo/BitArray#reserveCapacity().(n) -> 24:23
+(28:23..28:24) scala/Int#`-`(+3).
+(28:28..28:30) scala/Int#`>>`().
+(29:10..29:26) hylo/BitArray#reserveCapacity().(assumeUniqueness) -> 24:31
+(30:9..30:14) hylo/BitArray#_bits(). -> 7:17
+(30:17..30:22) hylo/BitArray#_bits(). -> 7:17
+(30:23..30:38) hylo/HyArray#reserveCapacity(). -> 30:7
+(30:39..30:40) local0 -> 34:11
+(30:42..30:58) hylo/BitArray#reserveCapacity().(assumeUniqueness) -> 24:31
+(33:13..33:21) hylo/BitArray# -> 6:13
+(33:22..33:27) hylo/BitArray#_bits(). -> 7:17
+(33:44..33:45) local0 -> 34:11
+(33:48..33:54) hylo/BitArray#_count(). -> 8:17
+(38:19..38:26) scala/Boolean#
+(38:46..38:53) scala/Boolean#
+(38:64..38:72) hylo/BitArray# -> 6:13
+(39:21..39:37) hylo/BitArray#append().(assumeUniqueness) -> 38:28
+(39:38..39:40) scala/Boolean#`&&`().
+(39:42..39:47) hylo/BitArray#count(). -> 16:7
+(39:48..39:49) scala/Int#`<`(+3).
+(39:50..39:58) hylo/BitArray#capacity(). -> 20:7
+(39:75..39:79) hylo/BitArray#copy(). -> 246:7
+(39:80..39:85) hylo/BitArray#count(). -> 16:7
+(39:86..39:87) scala/Int#`+`(+4).
+(40:13..40:21) hylo/BitArray. -> 276:8
+(40:22..40:30) hylo/BitArray.Position# -> 285:15
+(40:31..40:36) hylo/BitArray#count(). -> 16:7
+(41:8..41:9) local2 -> 38:11
+(41:10..41:16) hylo/BitArray.Position#bucket. -> 286:29
+(41:17..41:19) scala/Int#`>=`(+3).
+(41:20..41:25) hylo/BitArray#_bits(). -> 7:17
+(41:26..41:31) hylo/HyArray#count(). -> 22:7
+(42:7..42:13) local1 -> 37:11
+(42:14..42:19) hylo/BitArray#_bits(). -> 7:17
+(42:22..42:27) hylo/BitArray#_bits(). -> 7:17
+(42:38..42:41) hylo/BitArray#append().(bit) -> 38:14
+(44:7..44:13) local1 -> 37:11
+(44:14..44:22) hylo/BitArray#setValue(). -> 266:15
+(44:23..44:26) hylo/BitArray#append().(bit) -> 38:14
+(44:28..44:29) local2 -> 38:11
+(46:5..46:11) local1 -> 37:11
+(46:12..46:18) hylo/BitArray#_count(). -> 8:17
+(47:5..47:11) local1 -> 37:11
+(50:33..50:40) scala/Boolean#
+(50:52..50:60) hylo/BitArray# -> 6:13
+(50:62..50:68) scala/Option#
+(50:69..50:76) scala/Boolean#
+(51:8..51:15) hylo/BitArray#isEmpty(). -> 12:7
+(52:14..52:18) scala/None.
+(54:23..54:39) hylo/BitArray#popLast().(assumeUniqueness) -> 50:15
+(54:55..54:59) hylo/BitArray#copy(). -> 246:7
+(55:17..55:23) local3 -> 39:11
+(55:24..55:26) hylo/BitArray#at(). -> 200:7
+(55:27..55:35) hylo/BitArray. -> 276:8
+(55:36..55:44) hylo/BitArray.Position# -> 285:15
+(55:45..55:50) hylo/BitArray#count(). -> 16:7
+(56:7..56:13) local3 -> 39:11
+(56:14..56:20) hylo/BitArray#_count(). -> 8:17
+(57:8..57:14) local3 -> 39:11
+(57:16..57:20) scala/Some.
+(57:21..57:24) local4 -> 55:9
+(62:20..62:27) scala/Boolean#
+(63:25..63:32) scala/Boolean#
+(64:6..64:14) hylo/BitArray# -> 6:13
+(65:8..65:15) hylo/BitArray#isEmpty(). -> 12:7
+(67:15..67:26) hylo/BitArray#removeAll().(keepStorage) -> 62:7
+(68:23..68:39) hylo/BitArray#removeAll().(assumeUniqueness) -> 63:7
+(68:55..68:59) hylo/BitArray#copy(). -> 246:7
+(69:7..69:13) local5 -> 76:11
+(69:14..69:19) hylo/BitArray#_bits(). -> 7:17
+(69:20..69:29) hylo/HyArray#removeAll(). -> 82:7
+(69:30..69:41) hylo/BitArray#removeAll().(keepStorage) -> 62:7
+(69:43..69:59) hylo/HyArray#removeAll().(assumeUniqueness) -> 84:7
+(70:7..70:13) local5 -> 76:11
+(70:14..70:20) hylo/BitArray#_count(). -> 8:17
+(71:7..71:13) local5 -> 76:11
+(73:7..73:15) hylo/BitArray. -> 276:8
+(77:17..77:24) scala/Boolean#
+(78:8..78:15) hylo/BitArray#isEmpty(). -> 12:7
+(81:16..81:21) hylo/BitArray#count(). -> 16:7
+(81:22..81:23) scala/Int#`-`(+3).
+(81:27..81:29) scala/Int#`>>`().
+(82:19..82:22) scala/Int#
+(82:25..82:32) scala/Boolean#
+(83:12..83:13) local7 -> 119:9
+(83:14..83:16) scala/Int#`==`(+3).
+(83:17..83:18) local6 -> 89:11
+(84:22..84:24) scala/Int#`<<`().
+(84:26..84:31) hylo/BitArray#count(). -> 16:7
+(84:32..84:33) scala/Int#`&`(+3).
+(84:39..84:40) scala/Int#`-`(+3).
+(85:12..85:17) hylo/BitArray#_bits(). -> 7:17
+(85:18..85:20) hylo/HyArray#at(). -> 104:7
+(85:21..85:22) local6 -> 89:11
+(85:24..85:25) scala/Int#`&`(+3).
+(85:26..85:27) local8 -> 125:9
+(85:29..85:31) scala/Int#`==`(+3).
+(86:19..86:24) hylo/BitArray#_bits(). -> 7:17
+(86:25..86:27) hylo/HyArray#at(). -> 104:7
+(86:28..86:29) local7 -> 119:9
+(86:31..86:33) scala/Int#`!=`(+3).
+(89:11..89:15) local9 -> 126:9
+(89:16..89:17) local7 -> 119:9
+(89:18..89:19) scala/Int#`+`(+4).
+(91:7..91:11) local9 -> 126:9
+(95:16..95:23) scala/Boolean#
+(96:8..96:15) hylo/BitArray#isEmpty(). -> 12:7
+(99:16..99:21) hylo/BitArray#count(). -> 16:7
+(99:22..99:23) scala/Int#`-`(+3).
+(99:27..99:29) scala/Int#`>>`().
+(100:19..100:22) scala/Int#
+(100:25..100:32) scala/Boolean#
+(101:12..101:13) local11 -> 144:11
+(101:14..101:16) scala/Int#`==`(+3).
+(101:17..101:18) local10 -> 143:11
+(102:22..102:24) scala/Int#`<<`().
+(102:26..102:31) hylo/BitArray#count(). -> 16:7
+(102:32..102:33) scala/Int#`&`(+3).
+(102:39..102:40) scala/Int#`-`(+3).
+(103:12..103:17) hylo/BitArray#_bits(). -> 7:17
+(103:18..103:20) hylo/HyArray#at(). -> 104:7
+(103:21..103:22) local10 -> 143:11
+(103:24..103:25) scala/Int#`&`(+3).
+(103:26..103:27) local12 -> 159:9
+(103:29..103:31) scala/Int#`==`(+3).
+(103:32..103:33) local12 -> 159:9
+(104:19..104:24) hylo/BitArray#_bits(). -> 7:17
+(104:25..104:27) hylo/HyArray#at(). -> 104:7
+(104:28..104:29) local11 -> 144:11
+(104:31..104:33) scala/Int#`!=`(+3).
+(107:11..107:15) local13 -> 160:9
+(107:16..107:17) local11 -> 144:11
+(107:18..107:19) scala/Int#`+`(+4).
+(109:7..109:11) local13 -> 160:9
+(113:17..113:25) hylo/BitArray# -> 6:13
+(113:28..113:36) hylo/BitArray# -> 6:13
+(114:18..114:22) hylo/BitArray#copy(). -> 246:7
+(115:5..115:11) local14 -> 176:28
+(115:12..115:24) hylo/BitArray#applyBitwise(). -> 133:15
+(115:25..115:30) hylo/BitArray#`|`().(other) -> 113:10
+(115:34..115:35) scala/Int#`|`(+3).
+(115:39..115:55) hylo/BitArray#applyBitwise().(assumeUniqueness) -> 136:7
+(118:17..118:25) hylo/BitArray# -> 6:13
+(118:28..118:36) hylo/BitArray# -> 6:13
+(119:18..119:22) hylo/BitArray#copy(). -> 246:7
+(120:5..120:11) local15 -> 176:31
+(120:12..120:24) hylo/BitArray#applyBitwise(). -> 133:15
+(120:25..120:30) hylo/BitArray#`&`().(other) -> 118:10
+(120:34..120:35) scala/Int#`&`(+3).
+(120:39..120:55) hylo/BitArray#applyBitwise().(assumeUniqueness) -> 136:7
+(123:17..123:25) hylo/BitArray# -> 6:13
+(123:28..123:36) hylo/BitArray# -> 6:13
+(124:18..124:22) hylo/BitArray#copy(). -> 246:7
+(125:5..125:11) local16 -> 118:9
+(125:12..125:24) hylo/BitArray#applyBitwise(). -> 133:15
+(125:25..125:30) hylo/BitArray#`^`().(other) -> 123:10
+(125:34..125:35) scala/Int#`^`(+3).
+(125:39..125:55) hylo/BitArray#applyBitwise().(assumeUniqueness) -> 136:7
+(134:14..134:22) hylo/BitArray# -> 6:13
+(135:19..135:22) scala/Int#
+(135:24..135:27) scala/Int#
+(135:32..135:35) scala/Int#
+(136:25..136:32) scala/Boolean#
+(137:6..137:14) hylo/BitArray# -> 6:13
+(138:5..138:12) scala/Predef.require().
+(138:18..138:23) hylo/BitArray#count(). -> 16:7
+(138:24..138:26) scala/Int#`==`(+3).
+(138:27..138:32) hylo/BitArray#applyBitwise().(other) -> 134:7
+(138:33..138:38) hylo/BitArray#count(). -> 16:7
+(139:8..139:15) hylo/BitArray#isEmpty(). -> 12:7
+(142:23..142:39) hylo/BitArray#applyBitwise().(assumeUniqueness) -> 136:7
+(142:55..142:59) hylo/BitArray#copy(). -> 246:7
+(143:15..143:31) hylo/BitArray#applyBitwise().(assumeUniqueness) -> 136:7
+(144:16..144:21) hylo/BitArray#count(). -> 16:7
+(144:22..144:23) scala/Int#`-`(+3).
+(144:27..144:29) scala/Int#`>>`().
+(146:18..146:23) scala/runtime/RichInt#until().
+(146:24..146:25) local19 -> 119:9
+(147:9..147:15) local17 -> 119:14
+(147:16..147:21) hylo/BitArray#_bits(). -> 7:17
+(147:24..147:30) local17 -> 119:14
+(147:31..147:36) hylo/BitArray#_bits(). -> 7:17
+(147:37..147:45) hylo/HyArray#modifyAt(). -> 114:7
+(148:11..148:12) local20 -> 137:9
+(148:21..148:30) hylo/BitArray#applyBitwise().(operation) -> 135:7
+(148:31..148:32) local21 -> 138:14
+(148:34..148:39) hylo/BitArray#applyBitwise().(other) -> 134:7
+(148:40..148:45) hylo/BitArray#_bits(). -> 7:17
+(148:46..148:48) hylo/HyArray#at(). -> 104:7
+(148:49..148:50) local21 -> 138:14
+(149:11..149:27) hylo/HyArray#modifyAt().(assumeUniqueness) -> 117:7
+(149:30..149:31) local18 -> 119:29
+(151:9..151:10) local18 -> 119:29
+(153:18..153:20) scala/Int#`<<`().
+(153:22..153:27) hylo/BitArray#count(). -> 16:7
+(153:28..153:29) scala/Int#`&`(+3).
+(153:35..153:36) scala/Int#`-`(+3).
+(154:7..154:13) local17 -> 119:14
+(154:14..154:19) hylo/BitArray#_bits(). -> 7:17
+(154:22..154:28) local17 -> 119:14
+(154:29..154:34) hylo/BitArray#_bits(). -> 7:17
+(154:35..154:43) hylo/HyArray#modifyAt(). -> 114:7
+(155:9..155:10) local19 -> 119:9
+(155:19..155:28) hylo/BitArray#applyBitwise().(operation) -> 135:7
+(155:29..155:30) local23 -> 156:8
+(155:31..155:32) scala/Int#`&`(+3).
+(155:33..155:34) local22 -> 138:9
+(155:36..155:41) hylo/BitArray#applyBitwise().(other) -> 134:7
+(155:42..155:47) hylo/BitArray#_bits(). -> 7:17
+(155:48..155:50) hylo/HyArray#at(). -> 104:7
+(155:51..155:52) local19 -> 119:9
+(155:54..155:55) scala/Int#`&`(+3).
+(155:56..155:57) local22 -> 138:9
+(156:9..156:25) hylo/HyArray#modifyAt().(assumeUniqueness) -> 117:7
+(156:28..156:29) local18 -> 119:29
+(159:7..159:13) local17 -> 119:14
+(167:22..167:30) hylo/BitArray. -> 276:8
+(167:31..167:39) hylo/BitArray.Position# -> 285:15
+(168:5..168:13) hylo/BitArray. -> 276:8
+(168:14..168:22) hylo/BitArray.Position# -> 285:15
+(176:20..176:28) hylo/BitArray. -> 276:8
+(176:29..176:37) hylo/BitArray.Position# -> 285:15
+(177:5..177:13) hylo/BitArray. -> 276:8
+(177:14..177:22) hylo/BitArray.Position# -> 285:15
+(177:23..177:28) hylo/BitArray#count(). -> 16:7
+(186:24..186:32) hylo/BitArray. -> 276:8
+(186:33..186:41) hylo/BitArray.Position# -> 285:15
+(186:44..186:52) hylo/BitArray. -> 276:8
+(186:53..186:61) hylo/BitArray.Position# -> 285:15
+(187:8..187:9) hylo/BitArray#positionAfter().(p) -> 186:21
+(187:10..187:24) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(187:25..187:27) scala/Int#`==`(+3).
+(188:7..188:15) hylo/BitArray. -> 276:8
+(188:16..188:24) hylo/BitArray.Position# -> 285:15
+(188:25..188:26) hylo/BitArray#positionAfter().(p) -> 186:21
+(188:27..188:33) hylo/BitArray.Position#bucket. -> 286:29
+(188:34..188:35) scala/Int#`+`(+4).
+(190:7..190:15) hylo/BitArray. -> 276:8
+(190:16..190:24) hylo/BitArray.Position# -> 285:15
+(190:25..190:26) hylo/BitArray#positionAfter().(p) -> 186:21
+(190:27..190:33) hylo/BitArray.Position#bucket. -> 286:29
+(190:35..190:36) hylo/BitArray#positionAfter().(p) -> 186:21
+(190:37..190:51) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(190:52..190:53) scala/Int#`+`(+4).
+(200:13..200:21) hylo/BitArray. -> 276:8
+(200:22..200:30) hylo/BitArray.Position# -> 285:15
+(200:33..200:40) scala/Boolean#
+(201:15..201:17) scala/Int#`<<`().
+(201:18..201:19) hylo/BitArray#at().(p) -> 200:10
+(201:20..201:34) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(202:12..202:15) scala/Int#
+(202:18..202:23) hylo/BitArray#_bits(). -> 7:17
+(202:24..202:26) hylo/HyArray#at(). -> 104:7
+(202:27..202:28) hylo/BitArray#at().(p) -> 200:10
+(202:29..202:35) hylo/BitArray.Position#bucket. -> 286:29
+(203:6..203:7) local25 -> 167:8
+(203:8..203:9) scala/Int#`&`(+3).
+(203:10..203:11) local24 -> 156:11
+(203:13..203:15) scala/Int#`==`(+3).
+(203:16..203:17) local24 -> 156:11
+(212:18..212:21) scala/Int#
+(212:24..212:31) scala/Boolean#
+(213:5..213:7) hylo/BitArray#at(). -> 200:7
+(213:8..213:16) hylo/BitArray. -> 276:8
+(213:17..213:25) hylo/BitArray.Position# -> 285:15
+(213:26..213:27) hylo/BitArray#atIndex().(i) -> 212:15
+(223:10..223:18) hylo/BitArray. -> 276:8
+(223:19..223:27) hylo/BitArray.Position# -> 285:15
+(224:19..224:26) scala/Boolean#
+(224:31..224:38) scala/Boolean#
+(225:25..225:32) scala/Boolean#
+(226:6..226:14) hylo/BitArray# -> 6:13
+(227:21..227:37) hylo/BitArray#modifyAt().(assumeUniqueness) -> 225:7
+(227:53..227:57) hylo/BitArray#copy(). -> 246:7
+(228:5..228:11) local26 -> 167:11
+(228:12..228:20) hylo/BitArray#setValue(). -> 266:15
+(228:21..228:30) hylo/BitArray#modifyAt().(transform) -> 224:7
+(228:31..228:37) local26 -> 167:11
+(228:38..228:40) hylo/BitArray#at(). -> 200:7
+(228:41..228:42) hylo/BitArray#modifyAt().(p) -> 223:7
+(228:46..228:47) hylo/BitArray#modifyAt().(p) -> 223:7
+(229:5..229:11) local26 -> 167:11
+(239:10..239:13) scala/Int#
+(240:19..240:26) scala/Boolean#
+(240:31..240:38) scala/Boolean#
+(241:25..241:32) scala/Boolean#
+(242:6..242:14) hylo/BitArray# -> 6:13
+(243:5..243:13) hylo/BitArray#modifyAt(). -> 222:7
+(243:14..243:22) hylo/BitArray. -> 276:8
+(243:23..243:31) hylo/BitArray.Position# -> 285:15
+(243:32..243:33) hylo/BitArray#modifyAtIndex().(i) -> 239:7
+(243:36..243:45) hylo/BitArray#modifyAtIndex().(transform) -> 240:7
+(243:47..243:63) hylo/BitArray#modifyAtIndex().(assumeUniqueness) -> 241:7
+(246:29..246:32) scala/Int#
+(246:39..246:47) hylo/BitArray# -> 6:13
+(247:8..247:23) hylo/BitArray#copy().(minimumCapacity) -> 246:12
+(247:24..247:25) scala/Int#`>`(+3).
+(247:26..247:34) hylo/BitArray#capacity(). -> 20:7
+(250:7..250:22) hylo/BitArray#reserveCapacity(). -> 24:7
+(250:23..250:38) hylo/BitArray#copy().(minimumCapacity) -> 246:12
+(252:17..252:18) scala/Int#`+`(+4).
+(252:21..252:36) hylo/BitArray#copy().(minimumCapacity) -> 246:12
+(252:37..252:38) scala/Int#`-`(+3).
+(252:42..252:44) scala/Int#`>>`().
+(253:21..253:26) hylo/BitArray#_bits(). -> 7:17
+(253:27..253:31) hylo/HyArray#copy(). -> 137:7
+(253:32..253:33) local27 -> 193:9
+(254:11..254:19) hylo/BitArray# -> 6:13
+(254:20..254:27) local28 -> 194:14
+(254:29..254:35) hylo/BitArray#_count(). -> 8:17
+(258:26..258:32) scala/Predef.String#
+(259:5..259:10) hylo/BitArray#_bits(). -> 7:17
+(259:11..259:19) hylo/HyArray#toString(). -> 124:16
+(266:27..266:34) scala/Boolean#
+(266:39..266:47) hylo/BitArray. -> 276:8
+(266:48..266:56) hylo/BitArray.Position# -> 285:15
+(266:59..266:63) scala/Unit#
+(267:15..267:17) scala/Int#`<<`().
+(267:18..267:19) hylo/BitArray#setValue().(p) -> 266:36
+(267:20..267:34) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(268:5..268:10) hylo/BitArray#_bits(). -> 7:17
+(268:13..268:18) hylo/BitArray#_bits(). -> 7:17
+(268:19..268:27) hylo/HyArray#modifyAt(). -> 114:7
+(269:7..269:8) hylo/BitArray#setValue().(p) -> 266:36
+(269:9..269:15) hylo/BitArray.Position#bucket. -> 286:29
+(270:17..270:18) hylo/BitArray#setValue().(b) -> 266:24
+(270:24..270:25) local30 -> 246:11
+(270:26..270:27) scala/Int#`|`(+3).
+(270:28..270:29) local29 -> 194:9
+(270:35..270:36) local30 -> 246:11
+(270:37..270:38) scala/Int#`&`(+3).
+(270:40..270:41) local29 -> 194:9
+(271:7..271:23) hylo/HyArray#modifyAt().(assumeUniqueness) -> 117:7
+(286:15..286:23) hylo/BitArray. -> 276:8
+(286:37..286:40) scala/Int#
+(287:15..287:23) hylo/BitArray. -> 276:8
+(287:45..287:48) scala/Int#
+(291:13..291:21) hylo/BitArray. -> 276:8
+(291:39..291:42) scala/Int#
+(292:12..292:17) hylo/BitArray.Position#`<init>`(+1).(index) -> 291:32
+(292:18..292:20) scala/Int#`>>`().
+(292:24..292:29) hylo/BitArray.Position#`<init>`(+1).(index) -> 291:32
+(292:30..292:31) scala/Int#`&`(+3).
+(295:24..295:27) scala/Int#
+(296:8..296:14) hylo/BitArray.Position#bucket. -> 286:29
+(296:15..296:17) scala/Int#`>>`().
+(296:21..296:22) scala/Int#`+`(+4).
+(296:23..296:37) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(299:17..299:25) hylo/BitArray.Position# -> 285:15
+(300:11..300:19) hylo/BitArray.Position# -> 285:15
+(300:20..300:26) hylo/BitArray.Position#bucket. -> 286:29
+(300:28..300:42) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(303:19..303:27) hylo/BitArray.Position# -> 285:15
+(303:30..303:37) scala/Boolean#
+(304:13..304:19) hylo/BitArray.Position#bucket. -> 286:29
+(304:20..304:22) scala/Int#`==`(+3).
+(304:23..304:28) hylo/BitArray.Position#eq().(other) -> 303:12
+(304:29..304:35) hylo/BitArray.Position#bucket. -> 286:29
+(304:37..304:39) scala/Boolean#`&&`().
+(304:46..304:60) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(304:61..304:63) scala/Int#`==`(+3).
+(304:64..304:69) hylo/BitArray.Position#eq().(other) -> 303:12
+(304:70..304:84) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(307:26..307:32) hylo/Hasher# -> 7:13
+(307:35..307:41) hylo/Hasher# -> 7:13
+(308:7..308:13) hylo/BitArray.Position#hashInto().(hasher) -> 307:18
+(308:14..308:21) hylo/Hasher#combine(). -> 14:7
+(308:22..308:28) hylo/BitArray.Position#bucket. -> 286:29
+(309:7..309:13) hylo/BitArray.Position#hashInto().(hasher) -> 307:18
+(309:14..309:21) hylo/Hasher#combine(). -> 14:7
+(309:22..309:36) hylo/BitArray.Position#offsetInBucket. -> 287:29
+(314:22..314:29) scala/Boolean#
+(314:33..314:41) hylo/BitArray# -> 6:13
+(315:22..315:30) hylo/BitArray# -> 6:13
+(315:31..315:38) hylo/HyArray. -> 155:8
+(315:39..315:42) scala/Int#
+(316:14..316:18) hylo/BitArray.apply().(bits) -> 314:16
+(316:22..316:28) local31 -> 247:18
+(316:31..316:37) local31 -> 247:18
+(316:38..316:44) hylo/BitArray#append(). -> 38:7
+(316:45..316:46) local32 -> 247:33
+(316:48..316:64) hylo/BitArray#append().(assumeUniqueness) -> 38:28
+(317:5..317:11) local31 -> 247:18
+(321:32..321:37) hylo/Value# -> 8:7
+(321:38..321:46) hylo/BitArray. -> 276:8
+(321:47..321:55) hylo/BitArray.Position# -> 285:15
+(323:20..323:28) hylo/BitArray. -> 276:8
+(323:29..323:37) hylo/BitArray.Position# -> 285:15
+(325:17..325:25) hylo/BitArray. -> 276:8
+(325:26..325:34) hylo/BitArray.Position# -> 285:15
+(326:7..326:11) hylo/BitArray$package.bitArrayPositionIsValue.copy().(self) -> 323:14
+(326:12..326:16) hylo/BitArray.Position#copy(). -> 299:9
+(328:19..328:27) hylo/BitArray. -> 276:8
+(328:28..328:36) hylo/BitArray.Position# -> 285:15
+(328:39..328:46) scala/Boolean#
+(329:7..329:11) hylo/BitArray$package.bitArrayPositionIsValue.eq().(self) -> 323:14
+(329:12..329:14) hylo/BitArray.Position#eq(). -> 303:9
+(329:15..329:20) hylo/BitArray$package.bitArrayPositionIsValue.eq().(other) -> 328:12
+(331:26..331:32) hylo/Hasher# -> 7:13
+(331:35..331:41) hylo/Hasher# -> 7:13
+(332:7..332:11) hylo/BitArray$package.bitArrayPositionIsValue.hashInto().(self) -> 323:14
+(332:12..332:20) hylo/BitArray.Position#hashInto(). -> 307:9
+(332:21..332:27) hylo/BitArray$package.bitArrayPositionIsValue.hashInto().(hasher) -> 331:18
+(338:29..338:39) hylo/Collection# -> 5:7
+(338:40..338:48) hylo/BitArray# -> 6:13
+(340:18..340:25) scala/Boolean#
+(343:19..343:27) hylo/BitArray. -> 276:8
+(343:28..343:36) hylo/BitArray.Position# -> 285:15
+(344:35..344:40) hylo/Value# -> 8:7
+(344:41..344:49) hylo/BitArray. -> 276:8
+(344:50..344:58) hylo/BitArray.Position# -> 285:15
+(344:62..344:85) hylo/BitArray$package.bitArrayPositionIsValue. -> 321:7
+(346:20..346:28) hylo/BitArray# -> 6:13
+(348:25..348:28) scala/Int#
+(349:7..349:11) hylo/BitArray$package.bitArrayIsCollection.count().(self) -> 346:14
+(349:12..349:17) hylo/BitArray#count(). -> 16:7
+(351:24..351:32) hylo/BitArray. -> 276:8
+(351:33..351:41) hylo/BitArray.Position# -> 285:15
+(352:7..352:11) hylo/BitArray$package.bitArrayIsCollection.startPosition().(self) -> 346:14
+(352:12..352:25) hylo/BitArray#startPosition(). -> 167:7
+(354:22..354:30) hylo/BitArray. -> 276:8
+(354:31..354:39) hylo/BitArray.Position# -> 285:15
+(355:7..355:11) hylo/BitArray$package.bitArrayIsCollection.endPosition().(self) -> 346:14
+(355:12..355:23) hylo/BitArray#endPosition(). -> 176:7
+(357:26..357:34) hylo/BitArray. -> 276:8
+(357:35..357:43) hylo/BitArray.Position# -> 285:15
+(357:46..357:54) hylo/BitArray. -> 276:8
+(357:55..357:63) hylo/BitArray.Position# -> 285:15
+(358:7..358:11) hylo/BitArray$package.bitArrayIsCollection.positionAfter().(self) -> 346:14
+(358:12..358:25) hylo/BitArray#positionAfter(). -> 186:7
+(358:26..358:27) hylo/BitArray$package.bitArrayIsCollection.positionAfter().(p) -> 357:23
+(360:15..360:23) hylo/BitArray. -> 276:8
+(360:24..360:32) hylo/BitArray.Position# -> 285:15
+(360:35..360:42) scala/Boolean#
+(361:7..361:11) hylo/BitArray$package.bitArrayIsCollection.at().(self) -> 346:14
+(361:12..361:14) hylo/BitArray#at(). -> 200:7
+(361:15..361:16) hylo/BitArray$package.bitArrayIsCollection.at().(p) -> 360:12
+(367:36..367:53) hylo/StringConvertible# -> 4:7
+(367:54..367:62) hylo/BitArray# -> 6:13
+(369:20..369:28) hylo/BitArray# -> 6:13
+(370:31..370:37) scala/Predef.String#
+(371:22..371:29) scala/collection/mutable/
+(371:30..371:43) scala/collection/mutable/StringBuilder#
+(372:7..372:11) hylo/BitArray$package.bitArrayIsStringConvertible.description().(self) -> 369:14
+(372:12..372:19) hylo/Collection$package.forEach(). -> 136:7
+(372:29..372:37) local33 -> 251:15
+(372:38..372:40) scala/collection/mutable/Growable#`+=`().
+(372:45..372:46) local34 -> 252:15
+(373:7..373:15) local33 -> 251:15
+(373:16..373:24) scala/collection/IterableOnceOps#mkString(+2).
+
+Document tests/pos/hylolib-deferred-given/Collection.scala
+(9:25..9:30) hylo/Value# -> 8:7
+(9:31..9:38) hylo/Collection#Element# -> 8:8
+(13:26..13:31) hylo/Value# -> 8:7
+(13:32..13:40) hylo/Collection#Position# -> 12:8
+(15:20..15:24) hylo/Collection#[Self] -> 5:18
+(18:18..18:25) scala/Boolean#
+(19:7..19:20) hylo/Collection#startPosition(). -> 37:9
+(19:21..19:25) hylo/Value#eq(). -> 16:9
+(19:26..19:37) hylo/Collection#endPosition(). -> 45:9
+(26:16..26:19) scala/Int#
+(27:15..27:26) hylo/Collection#endPosition(). -> 45:9
+(28:21..28:29) hylo/Collection#Position# -> 12:8
+(28:34..28:37) scala/Int#
+(28:40..28:43) scala/Int#
+(29:12..29:13) local1 -> 37:11
+(29:14..29:18) hylo/Value#eq(). -> 16:9
+(29:19..29:20) local0 -> 34:11
+(29:26..29:27) local2 -> 38:11
+(29:33..29:39) local3 -> 39:11
+(29:40..29:44) hylo/Collection#count().(self) -> 15:14
+(29:45..29:58) hylo/Collection#positionAfter(). -> 54:9
+(29:59..29:60) local1 -> 37:11
+(29:63..29:64) local2 -> 38:11
+(29:65..29:66) scala/Int#`+`(+4).
+(30:7..30:13) local3 -> 39:11
+(30:14..30:27) hylo/Collection#startPosition(). -> 37:9
+(37:24..37:32) hylo/Collection#Position# -> 12:8
+(45:22..45:30) hylo/Collection#Position# -> 12:8
+(54:26..54:34) hylo/Collection#Position# -> 12:8
+(54:37..54:45) hylo/Collection#Position# -> 12:8
+(63:15..63:23) hylo/Collection#Position# -> 12:8
+(63:26..63:33) hylo/Collection#Element# -> 8:8
+(72:21..72:29) hylo/Collection#Position# -> 12:8
+(72:34..72:42) hylo/Collection#Position# -> 12:8
+(72:45..72:52) scala/Boolean#
+(73:15..73:19) hylo/Collection#isBefore().(self) -> 15:14
+(73:20..73:31) hylo/Collection#endPosition(). -> 45:9
+(74:10..74:11) hylo/Collection#isBefore().(i) -> 72:18
+(74:12..74:14) hylo/Value#eq(). -> 16:9
+(74:15..74:16) local4 -> 55:9
+(76:17..76:18) hylo/Collection#isBefore().(j) -> 72:31
+(76:19..76:21) hylo/Value#eq(). -> 16:9
+(76:22..76:23) local4 -> 55:9
+(79:26..79:34) hylo/Collection#Position# -> 12:8
+(79:37..79:44) scala/Boolean#
+(80:14..80:15) local5 -> 76:11
+(80:16..80:18) hylo/Value#eq(). -> 16:9
+(80:19..80:20) hylo/Collection#isBefore().(j) -> 72:31
+(82:21..82:22) local5 -> 76:11
+(82:23..82:25) hylo/Value#eq(). -> 16:9
+(82:26..82:27) local4 -> 55:9
+(85:13..85:22) local6 -> 89:11
+(85:23..85:27) hylo/Collection#isBefore().(self) -> 15:14
+(85:28..85:41) hylo/Collection#positionAfter(). -> 54:9
+(85:42..85:43) local5 -> 76:11
+(87:9..87:18) local6 -> 89:11
+(87:19..87:23) hylo/Collection#isBefore().(self) -> 15:14
+(87:24..87:37) hylo/Collection#positionAfter(). -> 54:9
+(87:38..87:39) hylo/Collection#isBefore().(i) -> 72:18
+(94:24..94:28) hylo/Collection$package.allSatisfy().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.containsWhere().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.filter().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.firstPositionWhere().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.forEach().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.headAndTail().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.leastElement().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.map().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.maxElement().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.maxElement(+1).[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.minElement().[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.minElement(+1).[Self] -> 94:12
+(94:24..94:28) hylo/Collection$package.reduce().[Self] -> 94:12
+(94:39..94:49) hylo/Collection# -> 5:7
+(94:50..94:54) hylo/Collection$package.allSatisfy().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.containsWhere().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.filter().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.firstPositionWhere().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.forEach().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.headAndTail().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.leastElement().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.map().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.maxElement().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.maxElement(+1).[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.minElement().[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.minElement(+1).[Self] -> 94:12
+(94:50..94:54) hylo/Collection$package.reduce().[Self] -> 94:12
+(102:20..102:26) scala/Option#
+(102:28..102:29) hylo/Collection$package.headAndTail().(s) -> 94:36
+(102:30..102:37) hylo/Collection#Element# -> 8:8
+(102:39..102:44) hylo/Slice# -> 4:13
+(102:45..102:49) hylo/Collection$package.headAndTail().[Self] -> 94:12
+(103:8..103:12) hylo/Collection$package.headAndTail().(self) -> 94:18
+(103:13..103:20) hylo/Collection#isEmpty(). -> 18:9
+(104:7..104:11) scala/None.
+(106:15..106:19) hylo/Collection$package.headAndTail().(self) -> 94:18
+(106:20..106:33) hylo/Collection#startPosition(). -> 37:9
+(107:15..107:19) hylo/Collection$package.headAndTail().(self) -> 94:18
+(107:20..107:33) hylo/Collection#positionAfter(). -> 54:9
+(107:34..107:35) local7 -> 119:9
+(108:21..108:25) hylo/Collection$package.headAndTail().(self) -> 94:18
+(108:27..108:32) hylo/Range. -> 12:8
+(108:33..108:34) local8 -> 125:9
+(108:36..108:40) hylo/Collection$package.headAndTail().(self) -> 94:18
+(108:41..108:52) hylo/Collection#endPosition(). -> 45:9
+(108:65..108:66) local9 -> 126:9
+(108:67..108:71) hylo/Value#eq(). -> 16:9
+(108:72..108:73) local10 -> 143:11
+(108:75..108:77) scala/Boolean#`||`().
+(108:78..108:82) hylo/Collection$package.headAndTail().(self) -> 94:18
+(108:83..108:91) hylo/Collection#isBefore(). -> 72:9
+(108:92..108:93) local9 -> 126:9
+(108:95..108:96) local10 -> 143:11
+(109:7..109:11) scala/Some.
+(109:13..109:17) hylo/Collection$package.headAndTail().(self) -> 94:18
+(109:18..109:20) hylo/Collection#at(). -> 63:9
+(109:21..109:22) local7 -> 119:9
+(109:25..109:26) local11 -> 144:11
+(117:32..117:33) hylo/Collection$package.reduce().[T] -> 117:14
+(117:45..117:46) hylo/Collection$package.reduce().[T] -> 117:14
+(117:48..117:49) hylo/Collection$package.reduce().(s) -> 94:36
+(117:50..117:57) hylo/Collection#Element# -> 8:8
+(117:62..117:63) hylo/Collection$package.reduce().[T] -> 117:14
+(117:66..117:67) hylo/Collection$package.reduce().[T] -> 117:14
+(118:13..118:17) hylo/Collection$package.reduce().(self) -> 94:18
+(118:18..118:29) hylo/Collection#endPosition(). -> 45:9
+(119:17..119:18) hylo/Collection$package.reduce().(s) -> 94:36
+(119:19..119:27) hylo/Collection#Position# -> 12:8
+(119:32..119:33) hylo/Collection$package.reduce().[T] -> 117:14
+(119:36..119:37) hylo/Collection$package.reduce().[T] -> 117:14
+(120:10..120:11) local17 -> 119:14
+(120:12..120:14) hylo/Value#eq(). -> 16:9
+(120:15..120:16) local16 -> 118:9
+(121:9..121:10) local18 -> 119:29
+(123:9..123:13) local19 -> 119:9
+(123:14..123:18) hylo/Collection$package.reduce().(self) -> 94:18
+(123:19..123:32) hylo/Collection#positionAfter(). -> 54:9
+(123:33..123:34) local17 -> 119:14
+(123:37..123:44) hylo/Collection$package.reduce().(combine) -> 117:35
+(123:45..123:46) local18 -> 119:29
+(123:48..123:52) hylo/Collection$package.reduce().(self) -> 94:18
+(123:53..123:55) hylo/Collection#at(). -> 63:9
+(123:56..123:57) local17 -> 119:14
+(125:5..125:9) local19 -> 119:9
+(125:10..125:14) hylo/Collection$package.reduce().(self) -> 94:18
+(125:15..125:28) hylo/Collection#startPosition(). -> 37:9
+(125:30..125:43) hylo/Collection$package.reduce().(partialResult) -> 117:17
+(136:24..136:25) hylo/Collection$package.forEach().(s) -> 94:36
+(136:26..136:33) hylo/Collection#Element# -> 8:8
+(136:38..136:45) scala/Boolean#
+(136:48..136:55) scala/Boolean#
+(137:13..137:17) hylo/Collection$package.forEach().(self) -> 94:18
+(137:18..137:29) hylo/Collection#endPosition(). -> 45:9
+(138:17..138:18) hylo/Collection$package.forEach().(s) -> 94:36
+(138:19..138:27) hylo/Collection#Position# -> 12:8
+(138:30..138:37) scala/Boolean#
+(139:10..139:11) local21 -> 138:14
+(139:12..139:14) hylo/Value#eq(). -> 16:9
+(139:15..139:16) local20 -> 137:9
+(141:18..141:24) hylo/Collection$package.forEach().(action) -> 136:15
+(141:25..141:29) hylo/Collection$package.forEach().(self) -> 94:18
+(141:30..141:32) hylo/Collection#at(). -> 63:9
+(141:33..141:34) local21 -> 138:14
+(144:9..144:13) local22 -> 138:9
+(144:14..144:18) hylo/Collection$package.forEach().(self) -> 94:18
+(144:19..144:32) hylo/Collection#positionAfter(). -> 54:9
+(144:33..144:34) local21 -> 138:14
+(146:5..146:9) local22 -> 138:9
+(146:10..146:14) hylo/Collection$package.forEach().(self) -> 94:18
+(146:15..146:28) hylo/Collection#startPosition(). -> 37:9
+(153:20..153:25) hylo/Value# -> 8:7
+(153:26..153:27) hylo/Collection$package.map().[T] -> 153:11
+(153:42..153:43) hylo/Collection$package.map().(s) -> 94:36
+(153:44..153:51) hylo/Collection#Element# -> 8:8
+(153:56..153:57) hylo/Collection$package.map().[T] -> 153:11
+(153:60..153:67) hylo/HyArray# -> 7:13
+(153:68..153:69) hylo/Collection$package.map().[T] -> 153:11
+(154:5..154:9) hylo/Collection$package.map().(self) -> 94:18
+(154:10..154:16) hylo/Collection$package.reduce(). -> 117:7
+(155:7..155:14) hylo/HyArray. -> 155:8
+(155:15..155:16) hylo/Collection$package.map().[T] -> 153:11
+(156:17..156:18) local23 -> 156:8
+(156:19..156:25) hylo/HyArray#append(). -> 54:7
+(156:26..156:35) hylo/Collection$package.map().(transform) -> 153:30
+(156:36..156:37) local24 -> 156:11
+(156:40..156:56) hylo/HyArray#append().(assumeUniqueness) -> 54:31
+(164:27..164:28) hylo/Collection$package.filter().(s) -> 94:36
+(164:29..164:36) hylo/Collection#Element# -> 8:8
+(164:41..164:48) scala/Boolean#
+(164:51..164:58) hylo/HyArray# -> 7:13
+(164:59..164:60) hylo/Collection$package.filter().(s) -> 94:36
+(164:61..164:68) hylo/Collection#Element# -> 8:8
+(165:5..165:9) hylo/Collection$package.filter().(self) -> 94:18
+(165:10..165:16) hylo/Collection$package.reduce(). -> 117:7
+(166:7..166:14) hylo/HyArray. -> 155:8
+(166:15..166:16) hylo/Collection$package.filter().(s) -> 94:36
+(166:17..166:24) hylo/Collection#Element# -> 8:8
+(167:21..167:31) hylo/Collection$package.filter().(isIncluded) -> 164:14
+(167:32..167:33) local26 -> 167:11
+(167:41..167:42) local25 -> 167:8
+(167:43..167:49) hylo/HyArray#append(). -> 54:7
+(167:50..167:51) local26 -> 167:11
+(167:53..167:69) hylo/HyArray#append().(assumeUniqueness) -> 54:31
+(167:83..167:84) local25 -> 167:8
+(175:33..175:34) hylo/Collection$package.containsWhere().(s) -> 94:36
+(175:35..175:42) hylo/Collection#Element# -> 8:8
+(175:47..175:54) scala/Boolean#
+(175:57..175:64) scala/Boolean#
+(176:5..176:9) hylo/Collection$package.containsWhere().(self) -> 94:18
+(176:10..176:28) hylo/Collection$package.firstPositionWhere(). -> 192:7
+(176:29..176:38) hylo/Collection$package.containsWhere().(predicate) -> 175:21
+(176:40..176:42) scala/Any#`!=`().
+(176:43..176:47) scala/None.
+(183:30..183:31) hylo/Collection$package.allSatisfy().(s) -> 94:36
+(183:32..183:39) hylo/Collection#Element# -> 8:8
+(183:44..183:51) scala/Boolean#
+(183:54..183:61) scala/Boolean#
+(184:5..184:9) hylo/Collection$package.allSatisfy().(self) -> 94:18
+(184:10..184:28) hylo/Collection$package.firstPositionWhere(). -> 192:7
+(184:29..184:38) hylo/Collection$package.allSatisfy().(predicate) -> 183:18
+(184:40..184:42) scala/Any#`==`().
+(184:43..184:47) scala/None.
+(192:38..192:39) hylo/Collection$package.firstPositionWhere().(s) -> 94:36
+(192:40..192:47) hylo/Collection#Element# -> 8:8
+(192:52..192:59) scala/Boolean#
+(192:62..192:68) scala/Option#
+(192:69..192:70) hylo/Collection$package.firstPositionWhere().(s) -> 94:36
+(192:71..192:79) hylo/Collection#Position# -> 12:8
+(193:13..193:17) hylo/Collection$package.firstPositionWhere().(self) -> 94:18
+(193:18..193:29) hylo/Collection#endPosition(). -> 45:9
+(194:17..194:18) hylo/Collection$package.firstPositionWhere().(s) -> 94:36
+(194:19..194:27) hylo/Collection#Position# -> 12:8
+(194:30..194:36) scala/Option#
+(194:37..194:38) hylo/Collection$package.firstPositionWhere().(s) -> 94:36
+(194:39..194:47) hylo/Collection#Position# -> 12:8
+(195:10..195:11) local28 -> 194:14
+(195:12..195:14) hylo/Value#eq(). -> 16:9
+(195:15..195:16) local27 -> 193:9
+(196:9..196:13) scala/None.
+(197:17..197:26) hylo/Collection$package.firstPositionWhere().(predicate) -> 192:26
+(197:27..197:31) hylo/Collection$package.firstPositionWhere().(self) -> 94:18
+(197:32..197:34) hylo/Collection#at(). -> 63:9
+(197:35..197:36) local28 -> 194:14
+(198:9..198:13) scala/Some.
+(198:14..198:15) local28 -> 194:14
+(200:9..200:13) local29 -> 194:9
+(200:14..200:18) hylo/Collection$package.firstPositionWhere().(self) -> 94:18
+(200:19..200:32) hylo/Collection#positionAfter(). -> 54:9
+(200:33..200:34) local28 -> 194:14
+(202:5..202:9) local29 -> 194:9
+(202:10..202:14) hylo/Collection$package.firstPositionWhere().(self) -> 94:18
+(202:15..202:28) hylo/Collection#startPosition(). -> 37:9
+(209:31..209:32) hylo/Collection$package.minElement().(s) -> 94:36
+(209:33..209:40) hylo/Collection#Element# -> 8:8
+(209:42..209:43) hylo/Collection$package.minElement().(s) -> 94:36
+(209:44..209:51) hylo/Collection#Element# -> 8:8
+(209:56..209:63) scala/Boolean#
+(209:66..209:72) scala/Option#
+(209:73..209:74) hylo/Collection$package.minElement().(s) -> 94:36
+(209:75..209:82) hylo/Collection#Element# -> 8:8
+(210:5..210:9) hylo/Collection$package.minElement().(self) -> 94:18
+(210:10..210:22) hylo/Collection$package.leastElement(). -> 242:7
+(210:23..210:33) hylo/Collection$package.minElement().(isLessThan) -> 209:18
+(218:26..218:36) hylo/Comparable# -> 31:7
+(218:37..218:38) hylo/Collection$package.minElement(+1).(s) -> 94:36
+(218:39..218:46) hylo/Collection#Element# -> 8:8
+(218:50..218:56) scala/Option#
+(218:57..218:58) hylo/Collection$package.minElement(+1).(s) -> 94:36
+(218:59..218:66) hylo/Collection#Element# -> 8:8
+(219:5..219:9) hylo/Collection$package.minElement(+1).(self) -> 94:18
+(219:10..219:20) hylo/Collection$package.minElement(). -> 209:7
+(219:21..219:31) hylo/Collection$package.minElement().(isLessThan) -> 209:18
+(219:36..219:40) hylo/Comparable#lt(). -> 36:9
+(226:34..226:35) hylo/Collection$package.maxElement().(s) -> 94:36
+(226:36..226:43) hylo/Collection#Element# -> 8:8
+(226:45..226:46) hylo/Collection$package.maxElement().(s) -> 94:36
+(226:47..226:54) hylo/Collection#Element# -> 8:8
+(226:59..226:66) scala/Boolean#
+(226:69..226:75) scala/Option#
+(226:76..226:77) hylo/Collection$package.maxElement().(s) -> 94:36
+(226:78..226:85) hylo/Collection#Element# -> 8:8
+(227:5..227:9) hylo/Collection$package.maxElement().(self) -> 94:18
+(227:10..227:22) hylo/Collection$package.leastElement(). -> 242:7
+(227:23..227:36) hylo/Collection$package.maxElement().(isGreaterThan) -> 226:18
+(234:26..234:36) hylo/Comparable# -> 31:7
+(234:37..234:38) hylo/Collection$package.maxElement(+1).(s) -> 94:36
+(234:39..234:46) hylo/Collection#Element# -> 8:8
+(234:50..234:56) scala/Option#
+(234:57..234:58) hylo/Collection$package.maxElement(+1).(s) -> 94:36
+(234:59..234:66) hylo/Collection#Element# -> 8:8
+(235:5..235:9) hylo/Collection$package.maxElement(+1).(self) -> 94:18
+(235:10..235:20) hylo/Collection$package.maxElement(). -> 226:7
+(235:21..235:34) hylo/Collection$package.maxElement().(isGreaterThan) -> 226:18
+(235:39..235:43) hylo/Comparable#gt(). -> 39:9
+(242:38..242:39) hylo/Collection$package.leastElement().(s) -> 94:36
+(242:40..242:47) hylo/Collection#Element# -> 8:8
+(242:49..242:50) hylo/Collection$package.leastElement().(s) -> 94:36
+(242:51..242:58) hylo/Collection#Element# -> 8:8
+(242:63..242:70) scala/Boolean#
+(242:73..242:79) scala/Option#
+(242:80..242:81) hylo/Collection$package.leastElement().(s) -> 94:36
+(242:82..242:89) hylo/Collection#Element# -> 8:8
+(243:8..243:12) hylo/Collection$package.leastElement().(self) -> 94:18
+(243:13..243:20) hylo/Collection#isEmpty(). -> 18:9
+(244:7..244:11) scala/None.
+(246:15..246:19) hylo/Collection$package.leastElement().(self) -> 94:18
+(246:20..246:31) hylo/Collection#endPosition(). -> 45:9
+(247:21..247:22) hylo/Collection$package.leastElement().(s) -> 94:36
+(247:23..247:31) hylo/Collection#Position# -> 12:8
+(247:40..247:41) hylo/Collection$package.leastElement().(s) -> 94:36
+(247:42..247:49) hylo/Collection#Element# -> 8:8
+(247:52..247:53) hylo/Collection$package.leastElement().(s) -> 94:36
+(247:54..247:61) hylo/Collection#Element# -> 8:8
+(248:12..248:13) local31 -> 247:18
+(248:14..248:16) hylo/Value#eq(). -> 16:9
+(248:17..248:18) local30 -> 246:11
+(249:11..249:16) local32 -> 247:33
+(251:19..251:23) hylo/Collection$package.leastElement().(self) -> 94:18
+(251:24..251:26) hylo/Collection#at(). -> 63:9
+(251:27..251:28) local31 -> 247:18
+(252:22..252:37) hylo/Collection$package.leastElement().(isOrderedBefore) -> 242:20
+(252:38..252:39) local33 -> 251:15
+(252:41..252:46) local32 -> 247:33
+(252:53..252:54) local33 -> 251:15
+(252:60..252:65) local32 -> 247:33
+(253:11..253:17) local35 -> 247:11
+(253:18..253:22) hylo/Collection$package.leastElement().(self) -> 94:18
+(253:23..253:36) hylo/Collection#positionAfter(). -> 54:9
+(253:37..253:38) local31 -> 247:18
+(253:41..253:42) local34 -> 252:15
+(256:15..256:19) hylo/Collection$package.leastElement().(self) -> 94:18
+(256:20..256:33) hylo/Collection#startPosition(). -> 37:9
+(257:7..257:11) scala/Some.
+(257:12..257:18) local35 -> 247:11
+(257:19..257:23) hylo/Collection$package.leastElement().(self) -> 94:18
+(257:24..257:37) hylo/Collection#positionAfter(). -> 54:9
+(257:38..257:39) local36 -> 256:11
+(257:42..257:46) hylo/Collection$package.leastElement().(self) -> 94:18
+(257:47..257:49) hylo/Collection#at(). -> 63:9
+(257:50..257:51) local36 -> 256:11
+(262:24..262:28) hylo/Collection$package.elementsEqual().[Self] -> 262:12
+(263:8..263:18) hylo/Collection# -> 5:7
+(263:19..263:23) hylo/Collection$package.elementsEqual().[Self] -> 262:12
+(264:8..264:13) hylo/Value# -> 8:7
+(264:14..264:15) hylo/Collection$package.elementsEqual().(s) -> 263:5
+(264:16..264:23) hylo/Collection#Element# -> 8:8
+(268:33..268:43) hylo/Collection# -> 5:7
+(268:44..268:45) hylo/Collection$package.elementsEqual().[T] -> 268:21
+(268:64..268:65) hylo/Collection$package.elementsEqual().(s) -> 263:5
+(268:66..268:73) hylo/Collection#Element# -> 8:8
+(268:84..268:85) hylo/Collection$package.elementsEqual().[T] -> 268:21
+(268:88..268:95) scala/Boolean#
+(269:17..269:18) hylo/Collection$package.elementsEqual().(s) -> 263:5
+(269:19..269:27) hylo/Collection#Position# -> 12:8
+(269:32..269:33) hylo/Collection$package.elementsEqual().(o) -> 268:30
+(269:34..269:42) hylo/Collection#Position# -> 12:8
+(269:45..269:52) scala/Boolean#
+(270:10..270:11) local38 -> 269:14
+(270:12..270:16) hylo/Value#eq(). -> 16:9
+(270:17..270:21) hylo/Collection$package.elementsEqual().(self) -> 262:18
+(270:22..270:33) hylo/Collection#endPosition(). -> 45:9
+(271:9..271:10) local39 -> 269:29
+(271:11..271:15) hylo/Value#eq(). -> 16:9
+(271:16..271:21) hylo/Collection$package.elementsEqual().(other) -> 268:77
+(271:22..271:33) hylo/Collection#endPosition(). -> 45:9
+(272:17..272:18) local39 -> 269:29
+(272:19..272:23) hylo/Value#eq(). -> 16:9
+(272:24..272:29) hylo/Collection$package.elementsEqual().(other) -> 268:77
+(272:30..272:41) hylo/Collection#endPosition(). -> 45:9
+(274:17..274:21) hylo/Collection$package.elementsEqual().(self) -> 262:18
+(274:22..274:24) hylo/Collection#at(). -> 63:9
+(274:25..274:26) local38 -> 269:14
+(274:28..274:33) hylo/CoreTraits$package.neq(). -> 25:41
+(274:34..274:39) hylo/Collection$package.elementsEqual().(other) -> 268:77
+(274:40..274:42) hylo/Collection#at(). -> 63:9
+(274:43..274:44) local39 -> 269:29
+(277:9..277:13) local40 -> 269:9
+(277:14..277:18) hylo/Collection$package.elementsEqual().(self) -> 262:18
+(277:19..277:32) hylo/Collection#positionAfter(). -> 54:9
+(277:33..277:34) local38 -> 269:14
+(277:37..277:42) hylo/Collection$package.elementsEqual().(other) -> 268:77
+(277:43..277:56) hylo/Collection#positionAfter(). -> 54:9
+(277:57..277:58) local39 -> 269:29
+(279:5..279:9) local40 -> 269:9
+(279:10..279:14) hylo/Collection$package.elementsEqual().(self) -> 262:18
+(279:15..279:28) hylo/Collection#startPosition(). -> 37:9
+(279:30..279:35) hylo/Collection$package.elementsEqual().(other) -> 268:77
+(279:36..279:49) hylo/Collection#startPosition(). -> 37:9
+
+Document tests/pos/hylolib-deferred-given/CoreTraits.scala
+(10:20..10:24) hylo/Value#[Self] -> 8:13
+(13:17..13:21) hylo/Value#[Self] -> 8:13
+(16:19..16:23) hylo/Value#[Self] -> 8:13
+(16:26..16:33) scala/Boolean#
+(19:26..19:32) hylo/Hasher# -> 7:13
+(19:35..19:41) hylo/Hasher# -> 7:13
+(25:18..25:23) hylo/CoreTraits$package.neq().[Self] -> 25:12
+(25:18..25:23) hylo/Value# -> 8:7
+(25:31..25:35) hylo/CoreTraits$package.neq().[Self] -> 25:12
+(25:52..25:56) hylo/CoreTraits$package.neq().[Self] -> 25:12
+(25:59..25:66) scala/Boolean#
+(25:70..25:74) hylo/CoreTraits$package.neq().(self) -> 25:25
+(25:75..25:77) hylo/Value#eq(). -> 16:9
+(25:78..25:83) hylo/CoreTraits$package.neq().(other) -> 25:45
+(31:32..31:37) hylo/Value# -> 8:7
+(31:38..31:42) hylo/Comparable#[Self] -> 31:18
+(33:20..33:24) hylo/Comparable#[Self] -> 31:18
+(36:19..36:23) hylo/Comparable#[Self] -> 31:18
+(36:26..36:33) scala/Boolean#
+(39:19..39:23) hylo/Comparable#[Self] -> 31:18
+(39:26..39:33) scala/Boolean#
+(39:36..39:41) hylo/Comparable#gt().(other) -> 39:12
+(39:42..39:44) hylo/Comparable#lt(). -> 36:9
+(39:45..39:49) hylo/Comparable#gt().(self) -> 33:14
+(42:19..42:23) hylo/Comparable#[Self] -> 31:18
+(42:26..42:33) scala/Boolean#
+(42:37..42:42) hylo/Comparable#le().(other) -> 42:12
+(42:43..42:45) hylo/Comparable#lt(). -> 36:9
+(42:46..42:50) hylo/Comparable#le().(self) -> 33:14
+(45:19..45:23) hylo/Comparable#[Self] -> 31:18
+(45:26..45:33) scala/Boolean#
+(45:37..45:41) hylo/Comparable#ge().(self) -> 33:14
+(45:42..45:44) hylo/Comparable#lt(). -> 36:9
+(45:45..45:50) hylo/Comparable#ge().(other) -> 45:12
+(52:12..52:22) hylo/Comparable# -> 31:7
+(52:12..52:22) hylo/CoreTraits$package.min().[T] -> 52:9
+(52:27..52:28) hylo/CoreTraits$package.min().[T] -> 52:9
+(52:33..52:34) hylo/CoreTraits$package.min().[T] -> 52:9
+(52:37..52:38) hylo/CoreTraits$package.min().[T] -> 52:9
+(53:6..53:7) hylo/CoreTraits$package.min().(y) -> 52:30
+(53:8..53:10) hylo/Comparable#lt(). -> 36:9
+(53:11..53:12) hylo/CoreTraits$package.min().(x) -> 52:24
+(53:19..53:20) hylo/CoreTraits$package.min().(y) -> 52:30
+(53:26..53:27) hylo/CoreTraits$package.min().(x) -> 52:24
+(56:12..56:22) hylo/Comparable# -> 31:7
+(56:12..56:22) hylo/CoreTraits$package.max().[T] -> 56:9
+(56:27..56:28) hylo/CoreTraits$package.max().[T] -> 56:9
+(56:33..56:34) hylo/CoreTraits$package.max().[T] -> 56:9
+(56:37..56:38) hylo/CoreTraits$package.max().[T] -> 56:9
+(57:6..57:7) hylo/CoreTraits$package.max().(x) -> 56:24
+(57:8..57:10) hylo/Comparable#lt(). -> 36:9
+(57:11..57:12) hylo/CoreTraits$package.max().(y) -> 56:30
+(57:19..57:20) hylo/CoreTraits$package.max().(y) -> 56:30
+(57:26..57:27) hylo/CoreTraits$package.max().(x) -> 56:24
+
+Document tests/pos/hylolib-deferred-given/Hasher.scala
+(4:8..4:13) scala/
+(4:14..4:18) scala/util/
+(4:19..4:25) scala/util/Random#
+(4:19..4:25) scala/util/Random.
+(7:47..7:50) scala/Int#
+(7:53..7:59) hylo/Hasher. -> 21:8
+(7:60..7:71) hylo/Hasher.offsetBasis. -> 23:15
+(10:23..10:26) scala/Int#
+(11:5..11:9) hylo/Hasher#hash. -> 7:41
+(14:18..14:21) scala/Int#
+(14:24..14:30) hylo/Hasher# -> 7:13
+(15:13..15:17) hylo/Hasher#hash. -> 7:41
+(16:5..16:6) local0 -> 34:11
+(16:9..16:10) local0 -> 34:11
+(16:11..16:12) scala/Int#`^`(+3).
+(16:13..16:14) hylo/Hasher#combine().(n) -> 14:15
+(17:5..17:6) local0 -> 34:11
+(17:9..17:10) local0 -> 34:11
+(17:11..17:12) scala/Int#`*`(+3).
+(17:13..17:19) hylo/Hasher. -> 21:8
+(17:20..17:25) hylo/Hasher.prime. -> 24:15
+(18:9..18:15) hylo/Hasher# -> 7:13
+(18:16..18:17) local0 -> 34:11
+(27:27..27:32) scala/
+(27:33..27:37) scala/util/
+(27:38..27:44) scala/util/Random.
+(27:45..27:52) scala/util/Random#nextInt().
+(30:16..30:22) hylo/Hasher# -> 7:13
+(31:17..31:23) hylo/Hasher# -> 7:13
+(32:5..32:6) local1 -> 37:11
+(32:7..32:14) hylo/Hasher#combine(). -> 14:7
+(32:15..32:19) hylo/Hasher.seed. -> 27:20
+(33:5..33:6) local1 -> 37:11
+(36:15..36:20) hylo/Hasher.hash().[T] -> 36:12
+(36:15..36:20) hylo/Value# -> 8:7
+(36:25..36:26) hylo/Hasher.hash().[T] -> 36:12
+(36:29..36:32) scala/Int#
+(37:5..37:6) hylo/Hasher.hash().(v) -> 36:22
+(37:7..37:15) hylo/Value#hashInto(). -> 19:9
+(37:16..37:22) hylo/Hasher. -> 21:8
+(37:26..37:38) hylo/Hasher#finalizeHash(). -> 10:7
+
+Document tests/pos/hylolib-deferred-given/HyArray.scala
+(3:8..3:12) java/
+(3:13..3:17) java/util/
+(3:18..3:24) java/util/Arrays#
+(4:8..4:13) scala/
+(4:14..4:24) scala/collection/
+(4:25..4:32) scala/collection/mutable/
+(8:21..8:26) hylo/Value# -> 8:7
+(8:27..8:34) hylo/HyArray#[Element] -> 7:21
+(10:27..10:32) scala/
+(10:33..10:38) scala/Array#
+(10:39..10:45) scala/AnyRef#
+(10:46..10:47) scala/`|`#
+(10:48..10:52) scala/Null#
+(10:54..10:55) scala/`|`#
+(10:56..10:60) scala/Null#
+(11:25..11:28) scala/Int#
+(18:16..18:23) scala/Boolean#
+(19:5..19:11) hylo/HyArray#_count(). -> 11:17
+(19:12..19:14) scala/Int#`==`(+3).
+(22:14..22:17) scala/Int#
+(23:5..23:11) hylo/HyArray#_count(). -> 11:17
+(26:17..26:20) scala/Int#
+(27:8..27:16) hylo/HyArray#_storage(). -> 10:17
+(27:17..27:19) scala/Any#`==`().
+(27:37..27:45) hylo/HyArray#_storage(). -> 10:17
+(27:46..27:52) scala/Array#length().
+(30:26..30:29) scala/Int#
+(30:49..30:56) scala/Boolean#
+(30:67..30:74) hylo/HyArray# -> 7:13
+(30:75..30:82) hylo/HyArray#[Element] -> 7:21
+(31:8..31:9) hylo/HyArray#reserveCapacity().(n) -> 30:23
+(31:10..31:12) scala/Int#`<=`(+3).
+(31:13..31:21) hylo/HyArray#capacity(). -> 26:7
+(34:25..34:28) hylo/CoreTraits$package.max(). -> 56:5
+(34:32..34:40) hylo/HyArray#capacity(). -> 26:7
+(35:13..35:24) local0 -> 34:11
+(35:25..35:26) scala/Int#`<`(+3).
+(35:27..35:28) hylo/HyArray#reserveCapacity().(n) -> 30:23
+(35:34..35:45) local0 -> 34:11
+(35:48..35:59) local0 -> 34:11
+(35:60..35:62) scala/Int#`<<`().
+(37:28..37:33) scala/
+(37:34..37:39) scala/Array#
+(37:40..37:46) scala/AnyRef#
+(37:47..37:48) scala/`|`#
+(37:49..37:53) scala/Null#
+(37:55..37:66) local0 -> 34:11
+(38:15..38:23) hylo/HyArray#_storage(). -> 10:17
+(38:24..38:36) scala/Any#asInstanceOf().
+(38:37..38:42) scala/
+(38:43..38:48) scala/Array#
+(38:49..38:55) scala/AnyRef#
+(38:56..38:57) scala/`|`#
+(38:58..38:62) scala/Null#
+(40:13..40:14) local3 -> 39:11
+(40:15..40:16) scala/Int#`<`(+3).
+(40:17..40:22) hylo/HyArray#count(). -> 22:7
+(41:9..41:19) local1 -> 37:11
+(41:20..41:21) local3 -> 39:11
+(41:25..41:33) hylo/HyArray#_storage(). -> 10:17
+(41:34..41:35) local3 -> 39:11
+(41:37..41:49) scala/Any#asInstanceOf().
+(41:50..41:57) hylo/HyArray#[Element] -> 7:21
+(41:59..41:63) hylo/Value#copy(). -> 13:9
+(41:66..41:78) scala/Any#asInstanceOf().
+(41:79..41:85) scala/AnyRef#
+(42:9..42:10) local3 -> 39:11
+(45:10..45:26) hylo/HyArray#reserveCapacity().(assumeUniqueness) -> 30:31
+(46:9..46:17) hylo/HyArray#_storage(). -> 10:17
+(46:20..46:30) local1 -> 37:11
+(49:21..49:31) local1 -> 37:11
+(49:33..49:38) hylo/HyArray#count(). -> 22:7
+(54:22..54:29) hylo/HyArray#[Element] -> 7:21
+(54:49..54:56) scala/Boolean#
+(54:67..54:74) hylo/HyArray# -> 7:13
+(54:75..54:82) hylo/HyArray#[Element] -> 7:21
+(55:21..55:37) hylo/HyArray#append().(assumeUniqueness) -> 54:31
+(55:38..55:40) scala/Boolean#`&&`().
+(55:42..55:47) hylo/HyArray#count(). -> 22:7
+(55:48..55:49) scala/Int#`<`(+3).
+(55:50..55:58) hylo/HyArray#capacity(). -> 26:7
+(55:75..55:79) hylo/HyArray#copy(). -> 137:7
+(55:80..55:85) hylo/HyArray#count(). -> 22:7
+(55:86..55:87) scala/Int#`+`(+4).
+(56:5..56:11) local4 -> 55:9
+(56:12..56:20) hylo/HyArray#_storage(). -> 10:17
+(56:21..56:26) hylo/HyArray#count(). -> 22:7
+(56:30..56:36) hylo/HyArray#append().(source) -> 54:14
+(56:37..56:49) scala/Any#asInstanceOf().
+(56:50..56:56) scala/AnyRef#
+(57:5..57:11) local4 -> 55:9
+(57:12..57:18) hylo/HyArray#_count(). -> 11:17
+(58:5..58:11) local4 -> 55:9
+(72:33..72:40) scala/Boolean#
+(72:52..72:59) hylo/HyArray# -> 7:13
+(72:60..72:67) hylo/HyArray#[Element] -> 7:21
+(72:70..72:76) scala/Option#
+(72:77..72:84) hylo/HyArray#[Element] -> 7:21
+(73:8..73:15) hylo/HyArray#isEmpty(). -> 18:7
+(74:14..74:18) scala/None.
+(76:23..76:39) hylo/HyArray#popLast().(assumeUniqueness) -> 72:15
+(76:55..76:59) hylo/HyArray#copy(). -> 137:7
+(77:7..77:13) local5 -> 76:11
+(77:14..77:20) hylo/HyArray#_count(). -> 11:17
+(78:8..78:14) local5 -> 76:11
+(78:16..78:20) scala/Some.
+(78:21..78:27) local5 -> 76:11
+(78:28..78:36) hylo/HyArray#_storage(). -> 10:17
+(78:37..78:43) local5 -> 76:11
+(78:44..78:50) hylo/HyArray#_count(). -> 11:17
+(78:52..78:64) scala/Any#asInstanceOf().
+(78:65..78:72) hylo/HyArray#[Element] -> 7:21
+(83:20..83:27) scala/Boolean#
+(84:25..84:32) scala/Boolean#
+(85:6..85:13) hylo/HyArray# -> 7:13
+(85:14..85:21) hylo/HyArray#[Element] -> 7:21
+(86:8..86:15) hylo/HyArray#isEmpty(). -> 18:7
+(88:15..88:26) hylo/HyArray#removeAll().(keepStorage) -> 83:7
+(89:23..89:39) hylo/HyArray#removeAll().(assumeUniqueness) -> 84:7
+(89:55..89:59) hylo/HyArray#copy(). -> 137:7
+(90:7..90:13) java/util/Arrays#
+(90:14..90:18) java/util/Arrays#fill(+16).
+(90:19..90:25) local6 -> 89:11
+(90:26..90:34) hylo/HyArray#_storage(). -> 10:17
+(91:7..91:13) local6 -> 89:11
+(91:14..91:20) hylo/HyArray#_count(). -> 11:17
+(92:7..92:13) local6 -> 89:11
+(94:7..94:14) hylo/HyArray. -> 155:8
+(104:13..104:16) scala/Int#
+(104:19..104:26) hylo/HyArray#[Element] -> 7:21
+(105:5..105:13) hylo/HyArray#_storage(). -> 10:17
+(105:14..105:15) hylo/HyArray#at().(p) -> 104:10
+(105:17..105:29) scala/Any#asInstanceOf().
+(105:30..105:37) hylo/HyArray#[Element] -> 7:21
+(115:10..115:13) scala/Int#
+(116:19..116:26) hylo/HyArray#[Element] -> 7:21
+(116:31..116:38) hylo/HyArray#[Element] -> 7:21
+(117:25..117:32) scala/Boolean#
+(118:6..118:13) hylo/HyArray# -> 7:13
+(118:14..118:21) hylo/HyArray#[Element] -> 7:21
+(119:21..119:37) hylo/HyArray#modifyAt().(assumeUniqueness) -> 117:7
+(119:53..119:57) hylo/HyArray#copy(). -> 137:7
+(120:5..120:11) local7 -> 119:9
+(120:12..120:20) hylo/HyArray#_storage(). -> 10:17
+(120:21..120:22) hylo/HyArray#modifyAt().(p) -> 115:7
+(120:26..120:35) hylo/HyArray#modifyAt().(transform) -> 116:7
+(120:36..120:38) hylo/HyArray#at(). -> 104:7
+(120:39..120:40) hylo/HyArray#modifyAt().(p) -> 115:7
+(120:43..120:55) scala/Any#asInstanceOf().
+(120:56..120:62) scala/AnyRef#
+(121:5..121:11) local7 -> 119:9
+(124:26..124:32) scala/Predef.String#
+(127:11..127:12) local9 -> 126:9
+(127:13..127:14) scala/Int#`<`(+3).
+(127:15..127:20) hylo/HyArray#count(). -> 22:7
+(128:10..128:11) local9 -> 126:9
+(128:12..128:13) scala/Int#`>`(+3).
+(128:23..128:24) local8 -> 125:9
+(129:7..129:8) local8 -> 125:9
+(129:12..129:13) scala/StringContext#s().
+(129:16..129:18) hylo/HyArray#at(). -> 104:7
+(129:19..129:20) local9 -> 126:9
+(130:7..130:8) local9 -> 126:9
+(132:5..132:6) local8 -> 125:9
+(132:7..132:8) java/lang/String#`+`().
+(137:29..137:32) scala/Int#
+(137:39..137:46) hylo/HyArray# -> 7:13
+(137:47..137:54) hylo/HyArray#[Element] -> 7:21
+(138:8..138:23) hylo/HyArray#copy().(minimumCapacity) -> 137:12
+(138:24..138:25) scala/Int#`>`(+3).
+(138:26..138:34) hylo/HyArray#capacity(). -> 26:7
+(141:7..141:22) hylo/HyArray#reserveCapacity(). -> 30:7
+(141:23..141:38) hylo/HyArray#copy().(minimumCapacity) -> 137:12
+(143:19..143:26) hylo/HyArray. -> 155:8
+(143:27..143:34) hylo/HyArray#[Element] -> 7:21
+(143:54..143:57) hylo/CoreTraits$package.max(). -> 56:5
+(143:58..143:73) hylo/HyArray#copy().(minimumCapacity) -> 137:12
+(143:75..143:80) hylo/HyArray#count(). -> 22:7
+(145:13..145:14) local11 -> 144:11
+(145:15..145:16) scala/Int#`<`(+3).
+(145:17..145:22) hylo/HyArray#count(). -> 22:7
+(146:9..146:14) local10 -> 143:11
+(146:15..146:23) hylo/HyArray#_storage(). -> 10:17
+(146:24..146:25) local11 -> 144:11
+(146:29..146:37) hylo/HyArray#_storage(). -> 10:17
+(146:38..146:39) local11 -> 144:11
+(146:41..146:53) scala/Any#asInstanceOf().
+(146:54..146:61) hylo/HyArray#[Element] -> 7:21
+(146:63..146:67) hylo/Value#copy(). -> 13:9
+(146:70..146:82) scala/Any#asInstanceOf().
+(146:83..146:89) scala/AnyRef#
+(147:9..147:10) local11 -> 144:11
+(149:7..149:12) local10 -> 143:11
+(149:13..149:19) hylo/HyArray#_count(). -> 11:17
+(149:22..149:27) hylo/HyArray#count(). -> 22:7
+(150:7..150:12) local10 -> 143:11
+(158:25..158:30) hylo/Value# -> 8:7
+(158:31..158:32) hylo/HyArray.apply().[T] -> 158:13
+(158:45..158:46) hylo/HyArray.apply().[T] -> 158:13
+(158:50..158:57) hylo/HyArray# -> 7:13
+(158:58..158:59) hylo/HyArray.apply().[T] -> 158:13
+(159:17..159:24) hylo/HyArray# -> 7:13
+(159:25..159:26) hylo/HyArray.apply().[T] -> 158:13
+(160:14..160:22) hylo/HyArray.apply().(elements) -> 158:35
+(160:26..160:27) local12 -> 159:9
+(160:30..160:31) local12 -> 159:9
+(160:32..160:38) hylo/HyArray#append(). -> 54:7
+(160:39..160:40) local13 -> 160:9
+(160:42..160:58) hylo/HyArray#append().(assumeUniqueness) -> 54:31
+(161:5..161:6) local12 -> 159:9
+(165:41..165:46) hylo/Value# -> 8:7
+(165:47..165:48) hylo/HyArray$package.hyArrayIsValue#[T] -> 165:24
+(165:47..165:48) hylo/HyArray$package.hyArrayIsValue().[T] -> 165:24
+(165:54..165:59) hylo/Value# -> 8:7
+(165:60..165:67) hylo/HyArray# -> 7:13
+(165:68..165:69) hylo/HyArray$package.hyArrayIsValue#[T] -> 165:24
+(167:20..167:27) hylo/HyArray# -> 7:13
+(167:28..167:29) hylo/HyArray$package.hyArrayIsValue#[T] -> 165:24
+(169:17..169:24) hylo/HyArray# -> 7:13
+(169:25..169:26) hylo/HyArray$package.hyArrayIsValue#[T] -> 165:24
+(170:7..170:11) hylo/HyArray$package.hyArrayIsValue#copy().(self) -> 167:14
+(170:12..170:16) hylo/HyArray#copy(). -> 137:7
+(172:19..172:26) hylo/HyArray# -> 7:13
+(172:27..172:28) hylo/HyArray$package.hyArrayIsValue#[T] -> 165:24
+(172:32..172:39) scala/Boolean#
+(173:7..173:11) hylo/HyArray$package.hyArrayIsValue#eq().(self) -> 167:14
+(173:12..173:25) hylo/Collection$package.elementsEqual(). -> 268:7
+(173:26..173:31) hylo/HyArray$package.hyArrayIsValue#eq().(other) -> 172:12
+(175:26..175:32) hylo/Hasher# -> 7:13
+(175:35..175:41) hylo/Hasher# -> 7:13
+(176:7..176:11) hylo/HyArray$package.hyArrayIsValue#hashInto().(self) -> 167:14
+(176:12..176:18) hylo/Collection$package.reduce(). -> 117:7
+(176:19..176:25) hylo/HyArray$package.hyArrayIsValue#hashInto().(hasher) -> 175:18
+(176:37..176:38) local15 -> 176:31
+(176:39..176:47) hylo/Value#hashInto(). -> 19:9
+(176:48..176:49) local14 -> 176:28
+(182:46..182:51) hylo/Value# -> 8:7
+(182:52..182:53) hylo/HyArray$package.hyArrayIsCollection#[T] -> 182:29
+(182:52..182:53) hylo/HyArray$package.hyArrayIsCollection().[T] -> 182:29
+(182:59..182:69) hylo/Collection# -> 5:7
+(182:70..182:77) hylo/HyArray# -> 7:13
+(182:78..182:79) hylo/HyArray$package.hyArrayIsCollection#[T] -> 182:29
+(184:18..184:19) hylo/HyArray$package.hyArrayIsCollection#[T] -> 182:29
+(187:19..187:22) scala/Int#
+(188:35..188:40) hylo/Value# -> 8:7
+(188:41..188:44) scala/Int#
+(188:48..188:58) hylo/Integers$package.intIsValue. -> 21:7
+(190:20..190:27) hylo/HyArray# -> 7:13
+(190:28..190:29) hylo/HyArray$package.hyArrayIsCollection#[T] -> 182:29
+(194:27..194:34) scala/Boolean#
+(194:37..194:41) hylo/HyArray$package.hyArrayIsCollection#isEmpty().(self) -> 190:14
+(194:42..194:49) hylo/HyArray#isEmpty(). -> 18:7
+(196:25..196:28) scala/Int#
+(196:31..196:35) hylo/HyArray$package.hyArrayIsCollection#count().(self) -> 190:14
+(196:36..196:41) hylo/HyArray#count(). -> 22:7
+(200:23..200:27) hylo/HyArray$package.hyArrayIsCollection#endPosition().(self) -> 190:14
+(200:28..200:33) hylo/HyArray#count(). -> 22:7
+(202:26..202:29) scala/Int#
+(202:33..202:34) hylo/HyArray$package.hyArrayIsCollection#positionAfter().(p) -> 202:23
+(202:35..202:36) scala/Int#`+`(+4).
+(204:15..204:18) scala/Int#
+(204:22..204:26) hylo/HyArray$package.hyArrayIsCollection#at().(self) -> 190:14
+(204:27..204:29) hylo/HyArray#at(). -> 104:7
+(204:30..204:31) hylo/HyArray$package.hyArrayIsCollection#at().(p) -> 204:12
+
+Document tests/pos/hylolib-deferred-given/Integers.scala
+(3:23..3:28) hylo/Value# -> 8:7
+(3:29..3:36) scala/Boolean#
+(5:20..5:27) scala/Boolean#
+(7:17..7:24) scala/Boolean#
+(9:7..9:11) hylo/Integers$package.booleanIsValue.copy().(self) -> 5:14
+(11:19..11:26) scala/Boolean#
+(11:29..11:36) scala/Boolean#
+(12:7..12:11) hylo/Integers$package.booleanIsValue.eq().(self) -> 5:14
+(12:12..12:14) scala/Boolean#`==`().
+(12:15..12:20) hylo/Integers$package.booleanIsValue.eq().(other) -> 11:12
+(14:26..14:32) hylo/Hasher# -> 7:13
+(14:35..14:41) hylo/Hasher# -> 7:13
+(15:7..15:13) hylo/Integers$package.booleanIsValue.hashInto().(hasher) -> 14:18
+(15:14..15:21) hylo/Hasher#combine(). -> 14:7
+(15:25..15:29) hylo/Integers$package.booleanIsValue.hashInto().(self) -> 5:14
+(21:19..21:24) hylo/Value# -> 8:7
+(21:25..21:28) scala/Int#
+(23:20..23:23) scala/Int#
+(25:17..25:20) scala/Int#
+(27:7..27:11) hylo/Integers$package.intIsValue.copy().(self) -> 23:14
+(29:19..29:22) scala/Int#
+(29:25..29:32) scala/Boolean#
+(30:7..30:11) hylo/Integers$package.intIsValue.eq().(self) -> 23:14
+(30:12..30:14) scala/Int#`==`(+3).
+(30:15..30:20) hylo/Integers$package.intIsValue.eq().(other) -> 29:12
+(32:26..32:32) hylo/Hasher# -> 7:13
+(32:35..32:41) hylo/Hasher# -> 7:13
+(33:7..33:13) hylo/Integers$package.intIsValue.hashInto().(hasher) -> 32:18
+(33:14..33:21) hylo/Hasher#combine(). -> 14:7
+(33:22..33:26) hylo/Integers$package.intIsValue.hashInto().(self) -> 23:14
+(39:24..39:34) hylo/Comparable# -> 31:7
+(39:35..39:38) scala/Int#
+(41:20..41:23) scala/Int#
+(43:17..43:20) scala/Int#
+(44:7..44:11) hylo/Integers$package.intIsComparable.copy().(self) -> 41:14
+(46:19..46:22) scala/Int#
+(46:25..46:32) scala/Boolean#
+(47:7..47:11) hylo/Integers$package.intIsComparable.eq().(self) -> 41:14
+(47:12..47:14) scala/Int#`==`(+3).
+(47:15..47:20) hylo/Integers$package.intIsComparable.eq().(other) -> 46:12
+(49:26..49:32) hylo/Hasher# -> 7:13
+(49:35..49:41) hylo/Hasher# -> 7:13
+(50:7..50:13) hylo/Integers$package.intIsComparable.hashInto().(hasher) -> 49:18
+(50:14..50:21) hylo/Hasher#combine(). -> 14:7
+(50:22..50:26) hylo/Integers$package.intIsComparable.hashInto().(self) -> 41:14
+(52:19..52:22) scala/Int#
+(52:25..52:32) scala/Boolean#
+(52:35..52:39) hylo/Integers$package.intIsComparable.lt().(self) -> 41:14
+(52:40..52:41) scala/Int#`<`(+3).
+(52:42..52:47) hylo/Integers$package.intIsComparable.lt().(other) -> 52:12
+(58:31..58:48) hylo/StringConvertible# -> 4:7
+(58:49..58:52) scala/Int#
+
+Document tests/pos/hylolib-deferred-given/Range.scala
+(4:51..4:56) hylo/Range#[Bound] -> 4:19
+(4:74..4:79) hylo/Range#[Bound] -> 4:19
+(7:26..7:32) scala/Predef.String#
+(8:5..8:6) scala/StringContext#s().
+(8:10..8:20) hylo/Range#lowerBound. -> 4:39
+(8:25..8:35) hylo/Range#upperBound. -> 4:62
+(21:19..21:24) hylo/Range.apply().[Bound] -> 20:13
+(22:19..22:24) hylo/Range.apply().[Bound] -> 20:13
+(23:27..23:32) hylo/Range.apply().[Bound] -> 20:13
+(23:34..23:39) hylo/Range.apply().[Bound] -> 20:13
+(23:44..23:51) scala/Boolean#
+(25:5..25:12) scala/Predef.require().
+(25:13..25:30) hylo/Range.apply().(isLessThanOrEqual) -> 23:7
+(25:31..25:41) hylo/Range.apply().(lowerBound) -> 21:7
+(25:43..25:53) hylo/Range.apply().(upperBound) -> 22:7
+(26:15..26:25) hylo/Range.apply().(lowerBound) -> 21:7
+(26:27..26:37) hylo/Range.apply().(upperBound) -> 22:7
+(33:20..33:30) hylo/Comparable# -> 31:7
+(33:20..33:30) hylo/Range.apply(+1).[Bound] -> 33:13
+(33:44..33:49) hylo/Range.apply(+1).[Bound] -> 33:13
+(33:63..33:68) hylo/Range.apply(+1).[Bound] -> 33:13
+(34:5..34:12) scala/Predef.require().
+(34:13..34:23) hylo/Range.apply(+1).(lowerBound) -> 33:32
+(34:24..34:28) hylo/Comparable#le(). -> 42:9
+(34:29..34:39) hylo/Range.apply(+1).(upperBound) -> 33:51
+(35:15..35:25) hylo/Range.apply(+1).(lowerBound) -> 33:32
+(35:27..35:37) hylo/Range.apply(+1).(upperBound) -> 33:51
+
+Document tests/pos/hylolib-deferred-given/Slice.scala
+(5:12..5:22) hylo/Collection# -> 5:7
+(5:23..5:27) hylo/Slice#[Base] -> 4:19
+(7:15..7:19) hylo/Slice#[Base] -> 4:19
+(8:17..8:22) hylo/Range# -> 4:13
+(8:23..8:24) hylo/Slice#`<init>`().(b)
+(8:25..8:33) hylo/Collection#Position# -> 12:8
+(12:16..12:23) scala/Boolean#
+(13:5..13:11) hylo/Slice#bounds. -> 8:9
+(13:12..13:22) hylo/Range#lowerBound. -> 4:39
+(13:23..13:25) hylo/Value#eq(). -> 16:9
+(13:26..13:32) hylo/Slice#bounds. -> 8:9
+(13:33..13:43) hylo/Range#upperBound. -> 4:62
+(15:22..15:23) hylo/Slice#b. -> 5:9
+(15:24..15:32) hylo/Collection#Position# -> 12:8
+(16:5..16:11) hylo/Slice#bounds. -> 8:9
+(16:12..16:22) hylo/Range#lowerBound. -> 4:39
+(18:20..18:21) hylo/Slice#b. -> 5:9
+(18:22..18:30) hylo/Collection#Position# -> 12:8
+(19:5..19:11) hylo/Slice#bounds. -> 8:9
+(19:12..19:22) hylo/Range#upperBound. -> 4:62
+(21:24..21:25) hylo/Slice#b. -> 5:9
+(21:26..21:34) hylo/Collection#Position# -> 12:8
+(21:37..21:38) hylo/Slice#b. -> 5:9
+(21:39..21:47) hylo/Collection#Position# -> 12:8
+(22:5..22:9) hylo/Slice#base. -> 7:9
+(22:10..22:23) hylo/Collection#positionAfter(). -> 54:9
+(22:24..22:25) hylo/Slice#positionAfter().(p) -> 21:21
+(24:13..24:14) hylo/Slice#b. -> 5:9
+(24:15..24:23) hylo/Collection#Position# -> 12:8
+(24:26..24:27) hylo/Slice#b. -> 5:9
+(24:28..24:35) hylo/Collection#Element# -> 8:8
+(25:5..25:9) hylo/Slice#base. -> 7:9
+(25:10..25:12) hylo/Collection#at(). -> 63:9
+(25:13..25:14) hylo/Slice#at().(p) -> 24:10
+(29:37..29:47) hylo/Collection# -> 5:7
+(29:48..29:49) hylo/Slice$package.sliceIsCollection#[T] -> 29:27
+(29:48..29:49) hylo/Slice$package.sliceIsCollection().[T] -> 29:27
+(29:55..29:65) hylo/Collection# -> 5:7
+(29:66..29:71) hylo/Slice# -> 4:13
+(29:72..29:73) hylo/Slice$package.sliceIsCollection#[T] -> 29:27
+(31:18..31:19) hylo/Slice$package.sliceIsCollection#c. -> 29:34
+(31:20..31:27) hylo/Collection#Element# -> 8:8
+(34:19..34:20) hylo/Slice$package.sliceIsCollection#c. -> 29:34
+(34:21..34:29) hylo/Collection#Position# -> 12:8
+(35:35..35:40) hylo/Value# -> 8:7
+(35:41..35:49) hylo/Slice$package.sliceIsCollection#Position# -> 34:8
+(35:53..35:54) hylo/Slice$package.sliceIsCollection#c. -> 29:34
+(35:55..35:70) hylo/Collection#positionIsValue. -> 13:9
+(37:20..37:25) hylo/Slice# -> 4:13
+(37:26..37:27) hylo/Slice$package.sliceIsCollection#[T] -> 29:27
+(39:25..39:29) hylo/Slice$package.sliceIsCollection#startPosition().(self) -> 37:14
+(39:30..39:36) hylo/Slice#bounds. -> 8:9
+(39:37..39:47) hylo/Range#lowerBound. -> 4:39
+(39:48..39:60) scala/Any#asInstanceOf().
+(39:61..39:69) hylo/Slice$package.sliceIsCollection#Position# -> 34:8
+(41:23..41:27) hylo/Slice$package.sliceIsCollection#endPosition().(self) -> 37:14
+(41:28..41:34) hylo/Slice#bounds. -> 8:9
+(41:35..41:45) hylo/Range#upperBound. -> 4:62
+(41:46..41:58) scala/Any#asInstanceOf().
+(41:59..41:67) hylo/Slice$package.sliceIsCollection#Position# -> 34:8
+(43:26..43:34) hylo/Slice$package.sliceIsCollection#Position# -> 34:8
+(43:38..43:42) hylo/Slice$package.sliceIsCollection#positionAfter().(self) -> 37:14
+(43:43..43:47) hylo/Slice#base. -> 7:9
+(43:48..43:61) hylo/Collection#positionAfter(). -> 54:9
+(43:62..43:63) hylo/Slice$package.sliceIsCollection#positionAfter().(p) -> 43:23
+(45:15..45:23) hylo/Slice$package.sliceIsCollection#Position# -> 34:8
+(45:27..45:31) hylo/Slice$package.sliceIsCollection#at().(self) -> 37:14
+(45:32..45:36) hylo/Slice#base. -> 7:9
+(45:37..45:39) hylo/Collection#at(). -> 63:9
+(45:40..45:41) hylo/Slice$package.sliceIsCollection#at().(p) -> 45:12
+
+Document tests/pos/hylolib-deferred-given/StringConvertible.scala
+(6:20..6:24) hylo/StringConvertible#[Self] -> 4:25
+(9:22..9:28) scala/Predef.String#
+(10:7..10:11) hylo/StringConvertible#description().(self) -> 6:14
+(10:12..10:20) scala/Any#toString().
+

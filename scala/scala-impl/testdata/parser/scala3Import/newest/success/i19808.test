@@ -1,0 +1,109 @@
+import scala.reflect.Selectable.reflectiveSelectable
+
+def saveRedir(what: {def validate: List[String]}) =
+  what.validate match
+    case Nil => ???
+    case xs  => ???
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.Selectable.reflectiveSelectable
+        CodeReferenceElement: scala.reflect.Selectable
+          CodeReferenceElement: scala.reflect
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('reflect')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Selectable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflectiveSelectable')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: saveRedir
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('saveRedir')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: what
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('what')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            CompoundType: {def validate: List[String]}
+              Refinement
+                PsiElement({)('{')
+                ScFunctionDeclaration: validate
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('validate')
+                  Parameters
+                    <empty list>
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: List[String]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement(})('}')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      ReferenceExpression: what.validate
+        ReferenceExpression: what
+          PsiElement(identifier)('what')
+        PsiElement(.)('.')
+        PsiElement(identifier)('validate')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ReferencePattern: xs
+            PsiElement(identifier)('xs')
+          PsiWhiteSpace('  ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')

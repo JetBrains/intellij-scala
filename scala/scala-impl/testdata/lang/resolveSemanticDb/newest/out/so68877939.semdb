@@ -1,0 +1,29 @@
+Document tests/pos/so68877939.scala
+(1:30..1:38) _empty_/Quantity# -> 1:16
+(1:39..1:40) _empty_/Quantity#[A] -> 1:25
+(2:33..2:41) _empty_/Quantity# -> 1:16
+(2:42..2:43) _empty_/UnitOfMeasure#[A] -> 2:28
+(4:20..4:28) _empty_/Quantity# -> 1:16
+(4:29..4:33) _empty_/Time# -> 4:7
+(5:24..5:37) _empty_/UnitOfMeasure# -> 2:14
+(5:38..5:42) _empty_/Time# -> 4:7
+(7:25..7:33) _empty_/Quantity# -> 1:16
+(7:34..7:43) _empty_/PowerRamp# -> 7:7
+(8:33..8:46) _empty_/UnitOfMeasure# -> 2:14
+(8:47..8:56) _empty_/PowerRamp# -> 7:7
+(10:16..10:29) _empty_/UnitOfMeasure# -> 2:14
+(10:36..10:37) _empty_/so68877939$package.Test#[X] -> 10:11
+(11:8..11:21) _empty_/UnitOfMeasure# -> 2:14
+(11:28..11:29) local0 -> 11:22
+(13:2..13:6) scala/main#
+(14:3..14:9) scala/Predef.summon().
+(14:10..14:14) _empty_/so68877939$package.Test# -> 10:6
+(14:15..14:22) _empty_/Minutes. -> 5:8
+(14:29..14:32) scala/`=:=`#
+(14:33..14:37) _empty_/Time# -> 4:7
+(15:3..15:9) scala/Predef.summon().
+(15:10..15:14) _empty_/so68877939$package.Test# -> 10:6
+(15:15..15:31) _empty_/KilowattsPerHour. -> 8:8
+(15:38..15:41) scala/`=:=`#
+(15:42..15:51) _empty_/PowerRamp# -> 7:7
+

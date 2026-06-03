@@ -1,0 +1,6 @@
+Document tests/pos/i15177.constr-dep.scala
+(5:18..5:22) scala/Long#
+(6:19..6:23) scala/Long#
+(6:33..6:36) _empty_/Bar# -> 5:7
+(6:37..6:38) _empty_/Bar1#z. -> 6:16
+

@@ -1,0 +1,40 @@
+Document tests/pos/i12730.scala
+(4:20..4:23) scala/Any#
+(4:26..4:29) scala/Any#
+(4:32..4:35) scala/Predef.`???`().
+(8:14..8:29) _empty_/ComponentSimple# -> 1:7
+(8:32..8:35) scala/Predef.`???`().
+(12:17..12:18) _empty_/Bar#[E] -> 11:11
+(12:22..12:25) scala/Any#
+(12:28..12:32) scala/Unit#
+(16:16..16:17) _empty_/Conv#[A] -> 15:12
+(16:20..16:21) _empty_/Conv#[B] -> 15:15
+(20:29..20:44) _empty_/ComponentSimple# -> 1:7
+(20:47..20:52) _empty_/Props# -> 3:7
+(20:55..20:58) scala/Predef.`???`().
+(22:36..22:37) _empty_/Test.defaultToNoBackend().[G] -> 22:26
+(22:41..22:44) _empty_/Foo# -> 7:7
+(22:45..22:46) _empty_/Test.defaultToNoBackend().[H] -> 22:29
+(22:50..22:54) _empty_/Conv# -> 15:7
+(22:55..22:58) _empty_/Foo# -> 7:7
+(22:59..22:60) _empty_/Test.defaultToNoBackend().[H] -> 22:29
+(22:63..22:66) _empty_/Bar# -> 11:7
+(22:67..22:68) _empty_/Test.defaultToNoBackend().[H] -> 22:29
+(22:73..22:76) scala/Predef.`???`().
+(24:20..24:21) _empty_/Test.conforms().[A] -> 24:16
+(24:25..24:26) _empty_/Test.conforms().[A] -> 24:16
+(24:29..24:32) scala/Predef.`???`().
+(26:17..26:21) _empty_/Test.Main. -> 34:7
+(28:15..28:18) _empty_/Foo# -> 7:7
+(28:19..28:20) _empty_/Test.foo().[H] -> 28:11
+(28:24..28:27) scala/Predef.`???`().
+(31:5..31:8) _empty_/Test.foo(). -> 28:7
+(32:8..32:13) _empty_/Foo#build(). -> 8:7
+(35:5..35:23) _empty_/Test.defaultToNoBackend(). -> 22:7
+(35:24..35:32) _empty_/Test.conforms(). -> 24:7
+(35:34..35:39) _empty_/Conv#apply(). -> 16:7
+(35:40..35:43) _empty_/Test.foo(). -> 28:7
+(36:8..36:14) _empty_/Bar#render(). -> 12:7
+(36:20..36:35) _empty_/Test.toComponentCtor(). -> 20:7
+(36:36..36:47) _empty_/Test.NameChanger. -> 30:7
+

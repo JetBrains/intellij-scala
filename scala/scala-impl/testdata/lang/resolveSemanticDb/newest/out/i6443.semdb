@@ -1,0 +1,13 @@
+Document tests/pos/i6443.scala
+(3:23..3:27) _empty_/Test.Expr# -> 2:9
+(3:39..3:40) _empty_/Test.ExprExact#[A] -> 3:18
+(4:31..4:35) _empty_/Test.Expr# -> 2:9
+(4:47..4:48) _empty_/Test.IndirectExprExact#[A] -> 4:26
+(4:59..4:60) local1 -> 4:43
+(6:17..6:26) _empty_/Test.ExprExact# -> 3:8
+(6:27..6:28) _empty_/Test.foo().[A] -> 6:11
+(6:32..6:36) scala/Unit#
+(6:39..6:40) _empty_/Test.foo().(e) -> 6:14
+(7:13..7:30) _empty_/Test.IndirectExprExact# -> 4:8
+(7:31..7:34) scala/Int#
+

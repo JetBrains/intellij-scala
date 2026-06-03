@@ -1,0 +1,11 @@
+package akka.actor
+
+trait LoggingFSM[S, D] extends akka.actor.FSM[S, D] { this: akka.actor.Actor =>
+  def logDepth: scala.Int = ???
+
+  override private[akka] val debugEvent: scala.Boolean = ???
+
+  abstract override private[akka] def processEvent(event: LoggingFSM.super[FSM/*akka.actor.FSM*/].Event, source: scala.AnyRef): scala.Unit = ???
+
+  protected def getLog: scala.IndexedSeq[akka.actor.FSM.LogEntry[S, D]] = ???
+}

@@ -1,0 +1,17 @@
+<html>
+<body>
+<p>Reports <code>collection.collect(f).headOption</code> and suggests replacing it with
+  <code>collection.collectFirst(f)</code> if possible.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  val x: Set[Int]
+  x.collect(f).headOption
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  val x: Set[Int]
+  x.collectFirst(f)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

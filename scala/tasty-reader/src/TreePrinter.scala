@@ -1,0 +1,1269 @@
+package org.jetbrains.plugins.scala.tasty.reader
+
+import Node.{Node1, Node2, Node3}
+import TreePrinter.Keywords
+
+import dotty.tools.tasty.TastyBuffer.Addr
+import dotty.tools.tasty.TastyFormat.*
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, ScalaBytecodeConstants}
+
+import java.lang.Double.longBitsToDouble
+import java.lang.Float.intBitsToFloat
+import scala.annotation.{switch, tailrec}
+import scala.collection.mutable
+
+/**
+ * The class contains logic to print Tasty internal presentation ([[Node]]) as a human-readable Scala source file with outlines.<br>
+ * The entry point is [[fileAndTextOf]] method.
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-19042/Indexing-read-.tasty-files-directly
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * Unit tests:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]<br>
+ * Benchmarks:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerMain3]]<br>
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]<br>
+ *
+ * @see [[TreeReader]] ~ reading Tasty contnet to internal Node represenataion
+ */
+class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, legacySyntax: Boolean = false) {
+  private final val Indent = "  "
+  private final val CompiledCode = "???"
+
+  // Use parameters?
+  private val sharedTypes = mutable.Map[Addr, String]()
+  private val sourceFiles = mutable.Buffer[String]()
+  private var compilerOptions = CompilerOptions.Default
+  private var currentExtension = Option.empty[String]
+
+  // The use of SYNTHETIC, GIVEN, and IMPLICIT modifiers in `given` and `implicit class` differs in 3.0.0+
+
+  private def isGivenObject0(typeDef: Node): Boolean = {
+    def isGivenModule(node: Node) = node.is(VALDEF) && node.contains(OBJECT) && node.contains(GIVEN) && node.name + "$" == typeDef.name
+    typeDef.contains(OBJECT) && typeDef.prevSibling.exists(isGivenModule)
+  }
+
+  private def isGivenClass0(typeDef: Node): Boolean = {
+    def isGivenConversion(node: Node) = node.is(DEFDEF) && node.contains(GIVEN) && node.name == typeDef.name
+    typeDef.contains(SYNTHETIC) && typeDef.nextSibling.exists(it => isGivenConversion(it) || it.nextSibling.exists(_.nextSibling.exists(isGivenConversion)))
+  }
+
+  private def isGivenConversion(defDef: Node) = {
+    def isGivenClass(node: Node) = node.is(TYPEDEF) && node.contains(SYNTHETIC) && node.name == defDef.name
+    defDef.contains(GIVEN) && defDef.prevSibling.exists(it => isGivenClass(it) || it.prevSibling.exists(_.prevSibling.exists(isGivenClass)))
+  }
+
+  private def isImplicitClass0(typeDef: Node): Boolean = {
+    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.contains(IMPLICIT) && node.name == typeDef.name // Sometimes there's no SYNTHETIC
+    typeDef.nextSibling.exists(isImplicitConversion) || typeDef.nextSiblings.slice(2, 3).exists(isImplicitConversion) // Sometimes there's no IMPLICIT
+  }
+
+  private def isImplicitConversion(defDef: Node): Boolean = {
+    def isImplicitClass(node: Node) = node.is(TYPEDEF) && node.contains(IMPLICIT) && node.name == defDef.name
+    defDef.contains(IMPLICIT) && (defDef.prevSibling.exists(isImplicitClass) || defDef.prevSiblings.slice(2, 3).exists(isImplicitClass)) // Sometimes there's no SYNTHETIC
+  }
+
+  private def isValueClass0(template: Node): Boolean = template.children.dropWhile(_.is(TYPEPARAM, PARAM)).headOption.exists {
+    case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(t @ Node3(IDENTtpt, Seq("AnyVal"), _))), _*)))) if textOfType(t) == "_root_.scala.AnyVal" => true
+    case _ => false
+  }
+
+  private def isPseudoPrivateTypeAlias(typeDef: Node): Boolean = !typeDef.firstChild.is(TEMPLATE) && {
+    val repr = if (typeDef.firstChild.is(LAMBDAtpt)) typeDef.firstChild else typeDef
+    !repr.children.exists(_.is(TYPEBOUNDStpt)) && {
+      repr.children.find(_.isTypeTree) match {
+        case Some(n) =>
+          if (n.is(IDENTtpt)) !n.firstChild.is(TYPEREFsymbol) || !n.firstChild.refPrivate
+          else if (n.is(APPLIEDtpt) && n.firstChild.is(IDENTtpt)) !n.firstChild.firstChild.is(TYPEREFsymbol) || !n.firstChild.firstChild.refPrivate
+          else true
+        case _ =>
+          true
+      }
+    }
+  }
+
+  private def isPseudoPrivateObject(typeDef: Node): Boolean = typeDef.contains(OBJECT) &&
+    (typeDef.prevSibling.exists(_.prevSibling.exists(n => n.is(TYPEDEF) && !n.contains(PRIVATE) && n.name == typeDef.name.stripSuffix("$"))) || typeDef.firstChild.children.exists {
+      case n @ Node3(TYPEDEF, _, Seq(head, _*)) if !head.is(TEMPLATE) && !n.contains(SYNTHETIC) => !n.contains(PRIVATE) || isPseudoPrivateTypeAlias(n)
+      case _ => false
+    })
+
+  def fileAndTextOf(node: Node): (String, String, CompilerOptions) = {
+    assert(sharedTypes.isEmpty)
+    assert(sourceFiles.isEmpty)
+    val sb = new StringBuilder(1024 * 8)
+    textOfPackage(sb, "", node)
+    val sourceFileName = sourceFiles.headOption.getOrElse {
+      //SourceFile annotation is used to specify the original source file of a tasty file.
+      //However, it can't be used for SourceFile annotation itself as it would lead to cyclic dependencies.
+      //So we simply hardcode it.
+      if (isSourceFileAnnotationTasty(node))
+        "SourceFile.scala"
+      else
+        "Unknown.scala"
+    }
+    (sourceFileName, sb.toString, compilerOptions)
+  }
+
+  /** @return true for scala/annotation/internal/SourceFile.tasty */
+  private def isSourceFileAnnotationTasty(node: Node): Boolean =
+    node match {
+      case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc), children*)) =>
+        children.filterNot(_.tag == IMPORT).exists {
+          case Node3(TYPEDEF, Seq("SourceFile"), _) => true
+          case _ => false
+        }
+      case _ =>
+        false
+    }
+
+  // Partial function, no prefix (or before & after functions)?
+  @tailrec private def textOfPackage(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
+    case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq(name), _), children*)) =>
+      children.filterNot(_.tag == IMPORT) match {
+        case Seq(node @ Node1(PACKAGE), _*) =>
+          textOfPackage(sb, indent, node)
+
+        case children =>
+
+          val containsPackageObject = children match {
+            case Seq(
+              Node2(VALDEF, Seq(ScalaBytecodeConstants.PackageObjectClassName)),
+              Node2(TYPEDEF, Seq(ScalaBytecodeConstants.PackageObjectSingletonClassName)), _*
+            ) => true // Use name type, not contents?
+            case _ => false
+          }
+          if (name != "<empty>" && (!containsPackageObject || name.contains('.'))) {
+            sb ++= "package "
+            val parts = name.split('.').map(id(_))
+            if (containsPackageObject) {
+              sb ++= parts.init.mkString(".")
+            } else {
+              sb ++= parts.mkString(".")
+            }
+            sb ++= "\n\n"
+          }
+          // Extract method, de-duplicate?
+          var delimiterRequired = false
+          children match {
+            case Seq(
+              Node2(VALDEF, Seq(name1)),
+              tpe @ Node3(TYPEDEF, Seq(name2), Seq(template, _*)), _*
+            // Revert `if false`?
+            ) if name1.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix) &&
+              name2.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsSingletonClassNameSuffix) => // Use name type, not contents?
+              readSourceFileAnnotationIn(tpe)
+              template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
+                val previousLength = sb.length
+                textOfMember(sb, indent, definition, Some(node), if (delimiterRequired) "\n\n" else "")
+                delimiterRequired = delimiterRequired || sb.length > previousLength
+              }
+            case _ =>
+              children match {
+                case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _), ctpe @ Node3(TYPEDEF, Seq(name3), _)) if name2 == name1 + "$" && name3 == name1 =>
+                  textOfMember(sb, indent, ctpe, Some(node), "")
+                  textOfMember(sb, indent, cobj, Some(node), "\n\n")
+                case _ =>
+                  children.foreach { child =>
+                    val previousLength = sb.length
+                    textOfMember(sb, indent, child, Some(node), if (delimiterRequired) "\n\n" else "")
+                    delimiterRequired = delimiterRequired || sb.length > previousLength
+                  }
+              }
+          }
+      }
+
+    case _ =>
+      textOfMember(sb, indent, node, definition, prefix)
+  }
+
+  private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
+    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE) || isPseudoPrivateTypeAlias(node) || isPseudoPrivateObject(node)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // Why both are synthetic?
+      sb ++= prefix
+      textOfTypeDef(sb, indent, node, definition)
+
+    case node @ Node2(DEFDEF, Seq(name)) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(FIELDaccessor) && !node.contains(ARTIFACT) && !name.contains("$default$") && !isGivenConversion(node) && !isImplicitConversion(node) =>
+      sb ++= prefix
+      textOfDefDef(sb, indent: String, node, definition)
+
+    case node @ Node1(VALDEF) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) && !node.name.startsWith("derived$") =>
+      sb ++= prefix
+      textOfValDef(sb, indent, node, definition)
+
+    case _ => // Exhaustive match?
+  }
+
+  private def textOfTypeDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
+    val name = node.name
+    val template = node.children.head
+    val isEnum = node.contains(ENUM)
+    val isObject = node.contains(OBJECT)
+    val isGivenObject = isGivenObject0(node)
+    val isGivenClass = isGivenClass0(node)
+    val isImplicitClass = isImplicitClass0(node)
+    val isTypeMember = !template.is(TEMPLATE)
+    val isValueClass = !isTypeMember && isValueClass0(template)
+    val isAnonymousGiven = (isGivenObject || isGivenClass) && name.startsWith("given_") // Common method?
+    val isPackageObject = isObject && name == ScalaBytecodeConstants.PackageObjectSingletonClassName
+    readSourceFileAnnotationIn(node)
+    textOfAnnotationIn(sb, indent, node, "\n")
+    sb ++= indent
+    modifiersIn(sb, if (isObject) node.prevSibling.getOrElse(node) else node,
+      if (isGivenClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isImplicitClass) Set(IMPLICIT, FINAL) else (if (isValueClass) Set(FINAL) else Set.empty))), isParameter = false, definition)
+    val modifiersEnd = sb.length
+    if (isImplicitClass) {
+      sb ++= "implicit "
+    }
+    if (isEnum) {
+      if (node.contains(CASE)) {
+        sb ++= "case "
+      } else {
+        sb ++= "enum "
+      }
+    } else if (isObject) {
+      if (!isGivenObject) {
+        if (isPackageObject) {
+          sb ++= "package object "
+        } else {
+          sb ++= "object "
+        }
+      }
+    } else if (node.contains(TRAIT)) {
+      sb ++= "trait "
+    } else if (isTypeMember) {
+      sb ++= "type "
+    } else if (isGivenClass) {
+      sb ++= "given "
+    } else {
+      sb ++= "class "
+    }
+    if (!isAnonymousGiven) {
+      if (isPackageObject) {
+        sb ++= id(definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("")) // Check?
+      } else {
+        if (isObject) {
+          sb ++= id(node.prevSibling.fold(name)(_.name)) // Check type?
+        } else {
+          sb ++= id(name)
+        }
+      }
+    }
+    if (!isTypeMember) {
+      textOfTemplate(sb, indent, template, Some(node))
+    } else {
+      val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // Handle LAMBDAtpt in parametersIn?
+      val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
+      parametersIn(sb, repr, Some(repr))
+      repr.children.foreach {
+        case Node3(MATCHtpt, _, Seq(upperBound, tpe, _*)) if !tpe.is(CASEDEF) =>
+          sb ++= " <: "
+          sb ++= simple(textOfType(upperBound))
+        case _ =>
+      }
+      if (bounds.isDefined && !node.contains(OPAQUE)) {
+        boundsIn(sb, bounds.get)
+      } else {
+        val tpe = {
+          val node = repr.children.collectFirst {
+            case Node3(TYPEBOUNDStpt, _, Seq(_, _, n)) => n
+            case Node3(TYPEBOUNDS, _, Seq(n)) => n
+            case n if n.isTypeTree || n.isSharedType => n
+          }
+          node.map(textOfType(_)).getOrElse(simple("")) // Implement?
+        }
+        if (!node.contains(OPAQUE)) {
+          sb ++= " = "
+          sb ++= tpe
+        } else {
+          bounds.foreach { n =>
+            boundsIn(sb, n)
+          }
+          sb.insert(modifiersEnd, "opaque ")
+        }
+      }
+    }
+  }
+
+  // Why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
+  // Why $default$ methods are not synthetic?
+  private def textOfTemplate(sb: StringBuilder, indent: String, node: Node, definition: Option[Node]): Unit = {
+    val children = node.children
+    val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
+    val isInEnum = definition.exists(_.contains(ENUM))
+    val isInCaseClass = !isInEnum && definition.exists(_.contains(CASE))
+    def textOf(tpe: Node): String = textOfType(tpe, parens = 1)
+    val blockChildren = children match {
+      case Seq(Node3(BLOCK, _, children), _*) => children
+      case _ => children
+    }
+    // Recursive textOf method, common syntactic sugar for FunctionN and TupleN?
+    val parents = blockChildren.collect { // Rely on name kind?
+      case node if node.isTypeTree => textOf(node)
+      case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(base @ Node1(IDENTtpt), _*)), _*)), arguments*)), _*)) =>
+        simple(textOfType(base)) + arguments.map(t => simple(textOfType(t))).mkString("[", ", ", "]")
+      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)), _*)) => textOf(tpe)
+    }.filter(s => s.nonEmpty && s != "_root_.java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
+      !(isInCaseClass && CommonQualifiedNames.isProductOrScalaSerializableCanonical(s)))
+      .map(simple)
+    val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenClass0(it))
+    val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // Common method?
+
+    val previousLength = sb.length
+    primaryConstructor.foreach { constructor =>
+      val sb1 = new StringBuilder() // Reuse?
+      val hasParameters = node.children.exists(_.is(PARAM))
+      val hasModifiers = constructor.contains(PRIVATE) || constructor.contains(PROTECTED) || constructor.contains(PRIVATEqualified) || constructor.contains(PROTECTEDqualified)
+      textOfAnnotationIn(sb1, "", constructor, " ", parens = hasParameters && !hasModifiers)
+      modifiersIn(sb1, constructor)
+      val modifiers = if (sb1.nonEmpty) " " + sb1.toString else ""
+      parametersIn(sb, constructor, Some(node), definition, modifiers = _ ++= modifiers)
+    }
+    val hasParameters = sb.length > previousLength
+    if (isInGiven && (!isInAnonymousGiven || hasParameters)) {
+      sb ++= ": "
+    }
+    if (isInGiven) {
+      sb ++= (if (parents.nonEmpty) parents.mkString(" with ") else "{}")
+      sb ++= " with"
+    } else {
+      // Enum Enum[+A] { case Case extends Enum[Nothing] } ?
+      // Enum Enum[-A] { case Case extends Enum[Any] } ?
+      if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
+        sb ++= " extends " + parents.mkString(if (legacySyntax) " with " else ", ")
+      }
+      val derived = definition match {
+        case Some(node) => node.nextSiblings.take(2).toSeq match {
+          case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _)) if name2 == name1 + "$" && node.name == name1 => cobj.firstChild.children.collect {
+            case Node3(VALDEF, Seq(name), Seq(Node3(APPLIEDtpt | APPLIEDtype, _, Seq(tc, _*)), _*)) if name.startsWith("derived$") => textOfType(tc)
+          }
+          case _ => Seq.empty
+        }
+        case _ => Seq.empty
+      }
+      if (derived.nonEmpty) {
+        sb ++= " derives " + derived.mkString(", ")
+      }
+    }
+    val selfType = children.find(_.is(SELFDEF)) match {
+      // Is there a more reliable way to determine whether self type refers to the same type definition?
+      case Some(Node3(SELFDEF, Seq(name), Seq(tail))) if !definition.exists(_.contains(OBJECT)) &&
+        definition.forall(it => !tail.refName.contains(it.name) && !tail.children.headOption.exists(_.refName.contains(it.name))) =>
+        val isWith = (tail.is(APPLIEDtpt) || tail.is(APPLIEDtype)) && !tail.firstChild.is(IDENTtpt) && textOfType(tail.firstChild) == "_root_.scala.&"
+        " " + (if (name == "_") "this" else name) + ": " + simple(textOfType(tail, parens = if (isWith) 0 else 1)) + " =>"
+      case _ => ""
+    }
+    val members = {
+      val cases =
+        if (isInEnum) {
+          def casesIn(pair: (Node, Node), name: String): Option[Seq[Node]] = Some(pair).collect {
+            case (Node2(VALDEF, Seq(name1)), Node3(TYPEDEF, Seq(name2), Seq(Node3(TEMPLATE, _, children), _*))) if name1 == name && name2 == name + "$" =>
+              children.filter(_.is(VALDEF, TYPEDEF))
+          }
+          val name = definition.get.name
+          def nextPair = definition.get.nextSibling.flatMap(n => n.nextSibling.map((n, _)))
+          def previousPair = definition.get.prevSibling.flatMap(n => n.prevSibling.map((_, n)))
+          nextPair.flatMap(casesIn(_, name)).orElse(previousPair.flatMap(casesIn(_, name))).getOrElse(Seq.empty)
+        } else {
+          Seq.empty
+        }
+
+      children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases // Type member?
+    }
+    if (selfType.nonEmpty || members.nonEmpty) {
+      sb ++= " {"
+      sb ++= selfType
+      sb ++= "\n"
+      val previousLength = sb.length
+      var delimiterRequired = false
+      currentExtension = None
+      members.foreach { member =>
+        val previousLength = sb.length
+        textOfMember(sb, indent + Indent, member, definition, if (delimiterRequired) "\n\n" else "")
+        delimiterRequired = delimiterRequired || sb.length > previousLength
+      }
+      if (selfType.nonEmpty || sb.length > previousLength) {
+        if (sb.length > previousLength) {
+          sb ++= "\n"
+        }
+        sb ++= indent
+        sb ++= "}"
+      } else {
+        sb.delete(previousLength - 3, previousLength)
+      }
+    } else {
+      if (isInGiven) {
+        sb ++= " {}"
+      }
+    }
+  }
+
+  private def textOfDefDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
+    if (!node.contains(EXTENSION)) {
+      textOfAnnotationIn(sb, indent, node, "\n")
+      sb ++= indent
+    }
+    val name = node.name
+    if (name == "<init>") {
+      modifiersIn(sb, node, definition = definition)
+      sb ++= "def this"
+      parametersIn(sb, node, target = Target.This)
+      sb ++= " = "
+      sb ++= CompiledCode
+    } else {
+      if (node.contains(EXTENSION)) {
+        val sb1 = new StringBuilder()
+        parametersIn(sb1, node, target = Target.Extension)
+        val params = sb1.toString
+        val withHeader = !currentExtension.contains(params)
+        if (withHeader) {
+          sb ++= indent
+          sb ++= "extension "
+          sb ++= params
+          sb ++= "\n"
+        }
+        textOfAnnotationIn(sb, indent + Indent, node, "\n")
+        sb ++= indent
+        sb ++= Indent
+        currentExtension = Some(params)
+      } else {
+        currentExtension = None
+      }
+      val isAbstractGiven = node.contains(GIVEN)
+      modifiersIn(sb, node, (if (isAbstractGiven) Set(GIVEN, FINAL) else Set.empty), isParameter = false, definition)
+      if (isAbstractGiven) {
+        sb ++= "given "
+      } else {
+        sb ++= (if (node.contains(STABLE)) "val " else "def ")
+      }
+      val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
+      var nameId = ""
+      if (!isAnonymousGiven) {
+        nameId = id(name)
+        sb ++= nameId
+      }
+      val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
+      val resultType = simple(remainder.headOption.map(textOfType(_)).getOrElse("")) // Implement?
+      val previousLength = sb.length
+      parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition, resultType = Some(resultType))
+      if (sb.length == previousLength && needsSpace(nameId)) {
+        sb ++= " "
+      }
+      sb ++= ": "
+      sb ++= resultType
+      val isDeclaration = remainder.drop(1).forall(_.isModifier)
+      if (!isDeclaration) {
+        sb ++= " = "
+        sb ++= CompiledCode
+      }
+    }
+  }
+
+  private def textOfValDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
+    textOfAnnotationIn(sb, indent, node, "\n")
+    sb ++= indent
+    val name = node.name
+    val children = node.children
+    val isGivenAlias = node.contains(GIVEN)
+    modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false, definition)
+    val isCase = node.contains(CASE)
+    if (isCase) {
+      sb ++= id(name)
+      if (isCase) {
+        // Check element types?
+        children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
+          textOfTemplate(sb, indent, template, None)
+        }
+      }
+    } else {
+      if (!isGivenAlias) {
+        if (node.contains(MUTABLE)) {
+          sb ++= "var "
+        } else {
+          sb ++= "val "
+        }
+      }
+      val tpe = children.headOption
+      tpe match {
+        case Some(const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst)) =>
+          val nameId = id(name)
+          sb ++= nameId
+          sb ++= " = "
+          sb ++= textOfConstant(const)
+        case _ =>
+          val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // How to detect anonymous givens reliably?
+          if (!isAnonymousGiven) {
+            val nameId = id(name)
+            sb ++= nameId
+            if (needsSpace(nameId)) {
+              sb ++= " "
+            }
+            sb ++= ": "
+          }
+          tpe match {
+            case Some(t) =>
+              sb ++= simple(textOfType(t))
+            case None =>
+              sb ++= simple("") // Implement?
+          }
+          if (node.contains(HASDEFAULT)) {
+            sb ++= " = "
+            sb ++= "_root_.scala.compiletime.deferred"
+          } else {
+            val isDeclaration = children.drop(1).forall(_.isModifier)
+            if (!isDeclaration) {
+              sb ++= " = "
+              sb ++= CompiledCode
+            }
+          }
+      }
+    }
+  }
+
+  private def simple(tpe: String): String =
+    if (tpe.nonEmpty) tpe else "Unknown" // Remove when all types are supported?
+
+  // Include in textOfType?
+  // Keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
+  private def simple0(tpe: String): String = {
+    val s4 = {
+      if (tpe.contains("this.")) tpe.substring(tpe.indexOf("this.") + (if (tpe.endsWith("this.type")) 0 else 5)) else {
+        val s1 = tpe.stripPrefix("_root_.")
+        val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
+        val s3 = if (!s2.stripPrefix("java.lang.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
+        if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+      }
+    }
+    if (s4.nonEmpty) s4 else "Unknown" // Remove when all types are supported?
+  }
+
+  private def withNonEmptyPrefixWith(delimiter: String, prefixText: String, name: String): String = {
+    val nameId = id(name)
+    // The prefix be empty if it's an empty package.
+    // For example if the type is located in the root package.
+    // tail ~ `THIS\n  TYPEREFpkg <empty>`
+    if (prefixText.isEmpty)
+      nameId
+    else
+      s"$prefixText$delimiter$nameId"
+  }
+
+  private def delimiterAfter(prefix: Node): String =
+    if (prefix.isTypeTree || prefix.is(APPLIEDtype, TYPEREF, TYPEREFsymbol, TYPEREFdirect)) "#" else "."
+
+  private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
+    val withDotTypeSuffix =
+      parent.forall(_.is(SINGLETONtpt, APPLIEDtype, ANDtype, ORtype)) && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT) ||
+        parent.isEmpty && node.is(THIS)
+
+    if (node.isSharedType) {
+      val fromCache = sharedTypes.get(node.addr)
+      fromCache match {
+        case Some(cached) =>
+          val res =
+            if (withDotTypeSuffix) cached + ".type"
+            else                   cached
+
+          return res
+        case None =>
+      }
+    }
+
+    // Extract method?
+    given Option[Node] = Some(node)
+    val text = node match { // Proper settings?
+      case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
+      case Node3(SINGLETONtpt, _, Seq(tail)) =>
+        val literal = textOfConstant(tail)
+        if (literal.nonEmpty) literal
+        else {
+          val tailText = textOfType(tail)
+          tailText + (if (tail.is(THIS, QUALTHIS)) ".type" else "")
+        }
+      case Node3(TYPEREF, Seq(name), Seq(prefix)) =>
+        val prefixText = textOfType(prefix)
+        val delimiter = if (prefixText.endsWith("$")) "." else delimiterAfter(prefix) // Foo[ModuleClass] name
+        val s = withNonEmptyPrefixWith(delimiter, prefixText.stripSuffix("$"), name)
+        if (s == "_root_.`<special-ops>`.`<FromJavaObject>`") "_root_.scala.AnyRef" else s
+      case Node3(TERMREF, Seq(name), Seq(prefix)) =>
+        // Why there's "package" in some cases?
+        val prefixText = textOfType(prefix)
+        if (name == ScalaBytecodeConstants.PackageObjectClassName ||
+          name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
+          prefixText
+        else {
+          val prefixWithName = withNonEmptyPrefixWith(".", prefixText, name)
+
+          // Why there is sometimes no SINGLETONtpt? (add RHS?)
+          val typeSuffix = if (withDotTypeSuffix) ".type" else ""
+          prefixWithName + typeSuffix
+        }
+      case Node3(THIS, _, Seq(tail)) =>
+        val qualifier = textOfType(tail)
+        if (qualifier.endsWith(ScalaBytecodeConstants.PackageObjectSingletonClassName)) {
+          val i = qualifier.lastIndexOf('.')
+          qualifier.substring(0, if (i == -1) qualifier.length - 8 else i)
+        }
+        else if (qualifier.endsWith("$"))
+          qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
+        else if (qualifier == "_root_.`<empty>`")
+          ""
+        else
+          val typeSuffix = if (withDotTypeSuffix) ".type" else ""
+          qualifier.split('.').last + ".this" + typeSuffix
+      case Node3(QUALTHIS, _, Seq(tail)) =>
+        val qualifier = textOfType(tail)
+        qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
+      case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
+        val prefix = if (node.refTag.contains(TYPEPARAM)) "" else tail.headOption.map(textOfType(_)).getOrElse("")
+        val name = {
+          val s = node.refName.getOrElse("")
+          val isSynthetic = node.refTag.contains(TYPEPARAM) && s.startsWith("_$")
+          if (isSynthetic) {
+            compilerOptions = compilerOptions.copy(kindProjector = true)
+          }
+          if (isSynthetic) "*" else s
+        }
+        if (name == ScalaBytecodeConstants.PackageObjectClassName || name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
+          prefix
+        else {
+          // Rely on name kind?
+          val part1 = withNonEmptyPrefixWith(tail.headOption.map(delimiterAfter).getOrElse(""), prefix, name)
+          val part2 = if (withDotTypeSuffix) ".type" else ""
+          part1 + part2
+        }
+      case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
+        val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
+        val qualifier = textOfType(tail)
+        val qualifierInParens = if (selector == "#" && tail.is(REFINEDtpt)) "(" + qualifier + ")" else qualifier
+
+        val res =
+          if (qualifier.nonEmpty) qualifierInParens + selector + id(name)
+          else                    id(name)
+
+        if (withDotTypeSuffix) res + ".type"
+        else                   res
+      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id(_)).mkString(".")
+      case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments*)) =>
+        val base = textOfType(constructor)
+        val simpleBase = if (infixTypes) simple0(base) else base
+        val isInfix = infixTypes && simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
+        val isWith = legacySyntax && base == "_root_.scala.&"
+        if (isInfix || isWith) {
+          val components = {
+            val cs = arguments.map(it => simple(textOfType(it, parens = if (isWith) 0 else 1)))
+            if (base == "_root_.scala.&" || base == "_root_.scala.|") cs.distinct else cs
+          }
+          val s = components.mkString(" " + (if (isWith) "with" else simpleBase) + " ")
+          if (parens > 0) "(" + s + ")" else s
+        } else if (base == "_root_.scala.`<repeated>`") {
+          textOfType(arguments.head, parens = 1) + "*" // Why repeated parameters in aliases are encoded differently?
+        } else if (base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) { // Use regex?
+          val s = arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
+          if (parens > 1) "(" + s + ")" else s
+        } else if (base.startsWith("_root_.scala.Function") || base.startsWith("_root_.scala.ImpureFunction") || base.startsWith("_root_.scala.ContextFunction") || base.startsWith("_root_.scala.ImpureContextFunction")) {
+          val arrow = if (base.startsWith("_root_.scala.Function") || base.startsWith("_root_.scala.ImpureFunction")) " => " else " ?=> "
+          val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parens = 2)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
+          if (parens > 0) "(" + s + ")" else s
+        } else {
+          simpleBase + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
+        }
+      case Node3(ANDtype | ORtype, _, Seq(left, right)) =>
+        val l = simple(textOfType(left))
+        val r = simple(textOfType(right))
+        if (l != r) {
+          if (infixTypes) {
+            val s = l + (if (node.is(ANDtype)) " & " else " | ") + r
+            if (parens > 0) "(" + s + ")" else s
+          } else {
+            "_root_.scala." + (if (node.is(ANDtype)) "&" else "|") + "[" + l + ", " + r + "]"
+          }
+        } else {
+          l
+        }
+      case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
+        annotation match {
+          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _*)), _*)), _*)) =>
+            val s = textOfType(tpe0)
+            if (s == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
+            else if (s != "_root_.scala.annotation.internal.InlineParam") textOfType(tpe) // SCL-21207
+            else textOfType(tpe) + " " + "@" + simple(s) + {
+              val args = annotation.children.map(textOfConstantOrArray).filter(_.nonEmpty).mkString(", ")
+              if (args.nonEmpty) "(" + args + ")" else ""
+            }
+          case _ => textOfType(tpe)
+        }
+      case Node3(BYNAMEtpt, _, Seq(tpe)) =>
+        val s = "=> " + simple(textOfType(tpe))
+        if (parens > 1) "(" + s + ")" else s
+
+      case Node3(MATCHtpt, _, children) =>
+        val (tpe, cases) = children match {
+          case tpe :: (cases @ Seq(Node1(CASEDEF), _*)) => (tpe, cases)
+          case _ :: tpe :: (cases @ Seq(Node1(CASEDEF), _*)) => (tpe, cases)
+        }
+        val cs = cases.map {
+          case Node3(CASEDEF, _, Seq(t1, t2)) => "case " + simple(textOfType(t1)) + " => " + simple(textOfType(t2))
+        }
+        simple(textOfType(tpe)) + " match { " + cs.mkString(" ") + " }"
+
+      case Node1(BIND) => if (node.name.startsWith("_$")) "_" else id(node.name)
+
+      case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
+        val sb1 = new StringBuilder() // Reuse?
+        boundsIn(sb1, node)
+        (if (legacySyntax) "_" else "?") + sb1.toString
+
+      case Node3(LAMBDAtpt, _, children) =>
+        val sb1 = new StringBuilder() // Reuse?
+        parametersIn(sb1, node, withSynthetic = false)
+        if (sb1.nonEmpty) {
+          sb1 ++= " =>> "
+        }
+        sb1 ++= children.lastOption.map(textOfType(_)).getOrElse("") // Check tree?
+        sb1.toString
+
+      case Node3(TYPELAMBDAtype, _, Seq(Node3(APPLIEDtype, _, Seq(tail, _*)), _*)) => textOfType(tail)
+
+      case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _*)) if textOfType(tr) == "_root_.scala.PolyFunction" && name == "apply" => // Check tree?
+        val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
+        val (valueParams, tails2) = tail1.span(_.is(PARAM))
+        val s = typeParams.map(tp => id(tp.name)).mkString("[", ", ", "]") + " => " + {
+          val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
+          if (valueParams.length == 1) params else "(" + params + ")"
+        } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
+        if (parens > 0) "(" + s + ")" else s
+      case Node3(REFINEDtpt, _, Seq(tpe, members*)) =>
+        val prefix = textOfType(tpe)
+        (if (prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // Use sb directly?
+
+      case _ => // Exhaustive match?
+        textOfConstant(node)
+    }
+
+    sharedTypes.put(node.addr, text.stripSuffix(".type"))
+    text
+  }
+
+  private def textOfConstant(node: Node): String = node match {
+    case Node3(APPLY, _, Seq(Node3(SELECTin, Seq("+[...]"), Seq(left, _)), right)) =>
+      val l = textOfConstant(left)
+      val r = textOfConstant(right)
+      if (l.nonEmpty && r.nonEmpty) l + " + " + r else ""
+    case n => n.tag match {
+      case UNITconst => "()"
+      case TRUEconst => "true"
+      case FALSEconst => "false"
+      case BYTEconst | SHORTconst | INTconst => node.value.toString
+      case LONGconst => s"${node.value}L"
+      case FLOATconst => intBitsToFloat(node.value.toInt) match {
+        case f if f.isPosInfinity => "_root_.java.lang.Float.POSITIVE_INFINITY"
+        case f if f.isNegInfinity => "_root_.java.lang.Float.NEGATIVE_INFINITY"
+        case f if f.isNaN  => "_root_.java.lang.Float.NaN"
+        case f => s"${f}F"
+      }
+      case DOUBLEconst => longBitsToDouble(node.value)  match {
+        case d if d.isPosInfinity => "_root_.java.lang.Double.POSITIVE_INFINITY"
+        case d if d.isNegInfinity => "_root_.java.lang.Double.NEGATIVE_INFINITY"
+        case d if d.isNaN  => "_root_.java.lang.Double.NaN"
+        case d => s"${d}D"
+      }
+      case CHARconst =>
+        node.value.toChar match {
+          case Char.MinValue => "_root_.java.lang.Character.MIN_VALUE"
+          case Char.MaxValue => "_root_.java.lang.Character.MAX_VALUE"
+          case c => "'" + escape(c.toString) + "'"
+        }
+      case STRINGconst => "\"" + escape(node.name) + "\""
+      case NULLconst => "null"
+      case _ => ""
+    }
+  }
+
+  // Complete?
+  private def escape(s: String): String = s
+    .replace("\r", "\\r")
+    .replace("\n", "\\n")
+    .replace("\"", "\\\"")
+
+  private def textOfArray(node: Node): String = node match {
+    case Node3(APPLY, _, Seq(
+           Node3(APPLY, _, Seq(
+             Node3(TYPEAPPLY, _, Seq(
+               Node3(SELECTin, Seq("apply[...]"), Seq(
+                 Node2(TERMREF, Seq("Array")),
+                 _)),
+               _)),
+             Node3(TYPED, _, Seq(
+               Node3(REPEATED, _, args),
+               _)))),
+           _)) => "_root_.scala.Array(" + args.map(textOfConstantOrArray).filter(_.nonEmpty).mkString(", ") + ")"
+    case _ => ""
+  }
+
+  private def textOfConstantOrArray(node: Node): String = textOfConstant(node) match {
+    case "" => textOfArray(node)
+    case s => s
+  }
+
+  private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String, parens: Boolean = false): Unit = {
+    node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // sb.insert?
+      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _*)))) =>
+        val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).getOrElse("") // Optimize?
+        if (name.nonEmpty) {
+          sb ++= indent
+          sb ++= "@" + simple(name.split('.').map(id(_)).mkString("."))
+          tail match {
+            case Node3(TYPEAPPLY, _, Seq(_, args*)) =>
+              sb ++= "["
+              sb ++= args.map(arg => simple(textOfType(arg))).mkString(", ")
+              sb ++= "]"
+            case _ =>
+          }
+          val args = apply.children.map(textOfConstantOrArray).filter(_.nonEmpty) // Optimize?
+          val namedArgs = apply.children.collect {
+            case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstantOrArray(tail)
+          }
+          if (parens || args.nonEmpty || namedArgs.nonEmpty) {
+            sb ++= "("
+            sb ++= (args ++ namedArgs).mkString(", ")
+            sb ++= ")"
+          }
+          sb ++= suffix
+        }
+      case _ =>
+    }
+  }
+
+  private def readSourceFileAnnotationIn(node: Node): Unit = {
+    node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {
+      case Node3(ANNOTATION, _, Seq(tpe, apply@Node1(APPLY))) if (textOfType(tpe) == "_root_.scala.annotation.internal.SourceFile") =>
+        apply.children.lastOption.map(_.name).foreach { path =>
+          val i = path.replace('\\', '/').lastIndexOf("/")
+          sourceFiles += (if (i > 0) path.substring(i + 1) else path)
+        }
+      case _ =>
+    }
+  }
+
+  private enum Target {
+    case This
+    case Definition
+    case Extension
+    case ExtensionMethod
+  }
+
+  private def popExtensionParams(stack: mutable.Stack[Node]): Seq[Node] = {
+    val buffer = mutable.Buffer[Node]()
+    buffer ++= stack.popWhile(!_.is(PARAM))
+    buffer += stack.pop()
+    while (stack(0).is(SPLITCLAUSE) && stack(1).contains(GIVEN)) {
+      buffer += stack.pop()
+      buffer ++= stack.popWhile(_.is(PARAM))
+    }
+    buffer.toSeq
+  }
+
+  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), withSynthetic: Boolean = true, resultType: Option[String] = None): Unit = {
+    val tps = target match {
+      case Target.This => Seq.empty
+      case Target.Definition => node.children
+      case Target.Extension => node.children.takeWhile(!_.is(PARAM))
+      case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
+    }
+
+    val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
+
+    val isPrivateConstructor = node.is(DEFDEF) && node.names == Seq("<init>") && node.contains(PRIVATE)
+
+    lazy val contextBounds = if (!privateMembers && isPrivateConstructor) Seq.empty else node.children.collect {
+      case param @ Node3(PARAM, Seq(name), Seq(tail, _*)) if (param.contains(IMPLICIT) || param.contains(GIVEN)) && hasSingleArgument(tail) && (name.startsWith("evidence$") || !name.contains("$") && param.position().zip(tail.firstChild.position()).exists(_ == _)) =>
+        val Seq(designator, argument) = tail.children
+        (simple(textOfType(argument)), simple(textOfType(designator)), if (name.startsWith("evidence$")) None else Some(name))
+    }
+
+    var open = false
+    var next = false
+
+    tps.foreach {
+      case node @ Node2(TYPEPARAM, Seq(name)) if withSynthetic || !name.startsWith("_$") =>
+        if (!open) {
+          sb ++= "["
+          open = true
+          next = false
+        }
+        if (next) {
+          sb ++= ", "
+        }
+        textOfAnnotationIn(sb, "", node, " ")
+        if (template.isEmpty) { // Deduplicate?
+          if (node.contains(COVARIANT)) {
+            sb ++= "+"
+          }
+          if (node.contains(CONTRAVARIANT)) {
+            sb ++= "-"
+          }
+        }
+        templateTypeParams.map(_.next()).foreach { typeParam =>
+          textOfAnnotationIn(sb, "", typeParam, " ")
+          if (typeParam.contains(COVARIANT)) {
+            sb ++= "+"
+          }
+          if (typeParam.contains(CONTRAVARIANT)) {
+            sb ++= "-"
+          }
+        }
+        val nameId = if (name.startsWith("_$")) "_" else id(name)
+        sb ++= nameId // Detect Unique name?
+        node.children match {
+          case Seq(lambda @ Node1(LAMBDAtpt), _*) =>
+            parametersIn(sb, lambda)
+            lambda.children.lastOption match { // Deduplicate somehow?
+              case Some(bounds @ Node1(TYPEBOUNDStpt)) =>
+                boundsIn(sb, bounds)
+              case _ =>
+            }
+          case Seq(bounds @ Node1(TYPEBOUNDStpt), _*) =>
+            boundsIn(sb, bounds)
+          case _ =>
+        }
+        contextBounds.foreach { case (id, tpe, symbol) =>
+          if (id == name) {
+            if (needsSpace(nameId)) {
+              sb ++= " "
+            }
+            sb ++= ": "
+            sb ++= tpe
+            symbol.foreach { s =>
+              sb ++= " as "
+              sb ++= s
+            }
+          }
+        }
+        next = true
+      case _ =>
+    }
+    if (open) {
+      sb ++= "]"
+    }
+
+    val previousLength = sb.length
+    modifiers(sb)
+    val hasModifiers = sb.length > previousLength
+
+    val ps = target match {
+      case Target.This | Target.Definition => node.children
+      case Target.Extension =>
+        popExtensionParams(mutable.Stack[Node](node.children*))
+      case Target.ExtensionMethod =>
+        val stack = mutable.Stack[Node](node.children*)
+        popExtensionParams(stack)
+        stack.toSeq.dropWhile(_.is(SPLITCLAUSE))
+    }
+
+    val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
+
+    open = false
+    next = false
+
+    var isFirstClause = true
+    var isImplicitClause = false
+    var isGivenClause = false
+
+    val valueParameterStart = sb.length
+    var syntheticParameterNames = List.empty[(String, Int)]
+
+    ps.foreach {
+      case Node1(EMPTYCLAUSE) =>
+        if (open) {
+          sb ++= ")"
+          open = false
+          isFirstClause = false
+        }
+        sb ++= "()"
+      case Node1(SPLITCLAUSE) =>
+        sb ++= ")"
+        open = false
+        isFirstClause = false
+      case node @ Node3(PARAM, Seq(name), Seq(tail, _*)) if !((node.contains(IMPLICIT) || node.contains(GIVEN)) && hasSingleArgument(tail) && (name.startsWith("evidence$") || !name.contains("$") && node.position().zip(tail.firstChild.position()).exists(_ == _))) =>
+        if (!open) {
+          sb ++= "("
+          open = true
+          next = false
+          if (node.contains(GIVEN)) {
+            sb ++= "using "
+            isGivenClause = true
+          } else {
+            if (node.contains(IMPLICIT)) {
+              sb ++= "implicit "
+              isImplicitClause = true
+            }
+          }
+        }
+        val templateValueParam = templateValueParams.map(_.next())
+        if (privateMembers || !isPrivateConstructor || templateValueParam.exists(!_.contains(PRIVATE))) { // private (), variables in { ... } ?
+          if (next) {
+            sb ++= ", "
+          }
+          textOfAnnotationIn(sb, "", node, " ")
+          val tpe = textOfType(tail)
+          if (node.contains(INLINE) || tpe.endsWith(" @_root_.scala.annotation.internal.InlineParam")) {
+            sb ++= "inline "
+          }
+          if (!definition.exists(isGivenClass0)) {
+            templateValueParam.foreach { valueParam =>
+              if (!valueParam.contains(LOCAL) || valueParam.contains(PROTECTED)) {
+                textOfAnnotationIn(sb, "", valueParam, " ")
+                val sb1 = new StringBuilder() // Reuse?
+                val isPrivate = valueParam.contains(PRIVATE)
+                modifiersIn(sb1, valueParam, (if (isImplicitClause) Set(IMPLICIT) else if (isGivenClause) Set(GIVEN) else Set.empty) ++ (if (privateMembers || !isPrivate) Set.empty else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)))
+                sb ++= sb1
+                if (privateMembers || !isPrivate) {
+                  if (valueParam.contains(MUTABLE)) {
+                    sb ++= "var "
+                  } else {
+                    if (!(isFirstClause && definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
+                      sb ++= "val "
+                    }
+                  }
+                }
+              }
+            }
+          }
+          val isSyntheticParam = node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC))
+          if (!isSyntheticParam) {
+            val nameId = id(name, parameter = true)
+            sb ++= nameId
+            if (needsSpace(nameId)) {
+              sb ++= " "
+            }
+            sb ++= ": "
+          } else {
+            syntheticParameterNames ::= (name, sb.length)
+          }
+          sb ++= simple(tpe).stripSuffix(" @_root_.scala.annotation.internal.InlineParam")
+          if (node.contains(HASDEFAULT)) {
+            sb ++= " = "
+            sb ++= CompiledCode
+          }
+          next = true
+        }
+      case node @ Node1(PARAM) =>
+        templateValueParams.map(_.next())
+      case _ =>
+    }
+    if (open) {
+      if (!next) {
+        if (isImplicitClause) {
+          sb.setLength(sb.length - 9)
+        } else if (isGivenClause) {
+          sb.setLength(sb.length - 6)
+        }
+      }
+      sb ++= ")"
+    }
+    val valueParameterText = sb.substring(valueParameterStart) // Check nodes rather than text?
+    syntheticParameterNames.foreach { (name, index) =>
+      //example from `scala.annotation.MacroAnnotation#transform`
+      //original code : def transform(using Quotes)(tree: quotes.reflect.Definition): List[quotes.reflect.Definition]
+      //printed code  : def transform(using _root_.scala.quoted.Quotes)(tree: x$1.reflect.Definition): List[x$1.reflect.Definition]
+      val syntheticParameterIsLikelyUsedInSignature =
+        valueParameterText.contains(name) || resultType.exists(_.contains(name))
+      val insertSyntheticParameterName = syntheticParameterIsLikelyUsedInSignature
+      if (insertSyntheticParameterName) {
+        val nameId = id(name)
+        val paramNamePrefix = name + (if (needsSpace(nameId)) " " else "") + ": "
+        sb.insert(index, paramNamePrefix)
+      }
+    }
+    if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
+      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
+        sb.delete(sb.length - 2, sb.length())
+      }
+    }
+  }
+
+  private def hasSingleArgument(tpe: Node): Boolean = tpe match {
+    case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(_, _)) => true
+    case _ => false
+  }
+
+  private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true, definition: Option[Node] = None): Unit = { // Optimize?
+    if (node.contains(ABSTRACT) && !excluding(ABSTRACT) && node.contains(OVERRIDE)) {
+      sb ++= "abstract override "
+    } else {
+      if (node.contains(OVERRIDE) && !excluding(OVERRIDE)) {
+        sb ++= "override "
+      }
+    }
+    if (node.contains(PRIVATE) && !excluding(PRIVATE)) {
+      if (node.contains(LOCAL)) {
+//        sb += "private[this] " Enable? (in Scala 3 it's almost always inferred)
+        sb ++= "private "
+      } else {
+        sb ++= "private "
+      }
+    } else if (node.contains(PROTECTED)) {
+      if (node.contains(LOCAL)) {
+        sb ++= "protected[this] "
+      } else {
+        sb ++= "protected "
+      }
+    } else {
+      node.children.foreach {
+        case Node3(tag @ (PRIVATEqualified | PROTECTEDqualified), _, Seq(qualifier)) =>
+          val keyword = if (tag == PRIVATEqualified) "private" else "protected"
+          val qualifierName = asQualifier(textOfType(qualifier))
+          val scopeName = definition.map(it => asQualifier(nameOf(it))).mkString
+          if (qualifierName == scopeName) {
+            sb ++= keyword + " "
+          } else {
+            sb ++= keyword + "[" + qualifierName + "] "
+          }
+        case _ =>
+      }
+    }
+    if (node.contains(SEALED) && !excluding(SEALED)) {
+      sb ++= "sealed "
+    }
+    if (node.contains(OPEN)) {
+      sb ++= "open "
+    }
+    if (node.contains(GIVEN) && !excluding(GIVEN)) {
+      sb ++= (if (isParameter) "using " else "given ")
+    }
+    if (node.contains(IMPLICIT) && !excluding(IMPLICIT)) {
+      sb ++= "implicit "
+    }
+    if (node.contains(FINAL) && !excluding(FINAL)) {
+      sb ++= "final "
+    }
+    if (node.contains(LAZY) && !excluding(LAZY)) {
+      sb ++= "lazy "
+    }
+    if (node.contains(ABSTRACT) && !excluding(ABSTRACT) && !node.contains(OVERRIDE)) {
+      sb ++= "abstract "
+    }
+    if (node.contains(TRANSPARENT)) {
+      sb ++= "transparent "
+    }
+    if (node.contains(INLINE)) {
+      sb ++= "inline "
+    }
+    if (node.contains(CASE) && !excluding(CASE)) {
+      sb ++= "case "
+    }
+  }
+
+  private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
+    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper, _*)) =>
+      val l = textOfType(lower)
+      if (l.nonEmpty && l != "_root_.scala.Nothing") {
+        sb ++= " >: " + simple(l)
+      }
+      val u = textOfType(upper)
+      if (u.nonEmpty && u != "_root_.scala.Any" && u != "_root_.`<special-ops>`.`<FromJavaObject>`") {
+        sb ++= " <: " + simple(u)
+      }
+    case _ => // Exhaustive match?
+  }
+
+  private def nameOf(scope: Node): String = scope match {
+    case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq(name), _), children*)) => name
+    case n => n.name
+  }
+
+  private def asQualifier(tpe: String): String = {
+    val i = tpe.lastIndexOf(".")
+    (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
+  }
+
+  private def id(s: String, parameter: Boolean = false): String =
+    if (Keywords(s) || !isIdentifier(s) || parameter && s == "using") "`" + s + "`" else s
+
+  private def isIdentifier(s: String): Boolean = !(s.isEmpty || s.contains("//") || s.contains("/*")) && {
+    if (s(0) == '_' || s(0) == '$' || Character.isUnicodeIdentifierStart(s(0))) {
+      val lastIdCharIdx = s.takeWhile(c => c == '$' || Character.isUnicodeIdentifierPart(c)).length - 1
+      if (lastIdCharIdx < 0 || lastIdCharIdx == s.length - 1) true
+      else if (s.charAt(lastIdCharIdx) != '_') false
+      else s.drop(lastIdCharIdx + 1).forall(isOperatorPart)
+    } else if (isOperatorPart(s(0))) {
+      s.forall(isOperatorPart)
+    } else {
+      false
+    }
+  }
+
+  // This duplicates org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isOpCharacter
+  // extract it to some common utility in a module accessible to both modules (e.g. scala-utils-language)?
+  private def isOperatorPart(c: Char): Boolean = (c: @switch) match {
+    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
+    case c => val ct = Character.getType(c); ct == Character.MATH_SYMBOL.toInt || ct == Character.OTHER_SYMBOL.toInt
+  }
+
+  // For example `???` requires extra space after it: `??? : String`
+  private def needsSpace(id: String) = id.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
+}
+
+private object TreePrinter {
+  private val Keywords = Set(
+    ":",
+    "=",
+    "=>",
+    "=>>",
+    "?=>",
+    "<-",
+    "<:",
+    "<%",
+    ">:",
+    "#",
+    "@",
+    "abstract",
+    "case",
+    "catch",
+    "class",
+    "def",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "extension",
+    "false",
+    "final",
+    "finally",
+    "for",
+    "forSome",
+    "given",
+    "if",
+    "implicit",
+    "import",
+    "lazy",
+    "macro",
+    "match",
+    "new",
+    "null",
+    "object",
+    "override",
+    "package",
+    "private",
+    "protected",
+    "return",
+    "sealed",
+    "super",
+    "then",
+    "this",
+    "throw",
+    "trait",
+    "true",
+    "try",
+    "type",
+    "val",
+    "var",
+    "while",
+    "with",
+    "yield",
+  )
+}

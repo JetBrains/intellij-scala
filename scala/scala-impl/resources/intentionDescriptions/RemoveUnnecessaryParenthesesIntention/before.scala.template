@@ -1,0 +1,4 @@
+  def f(n: Int): Int = n match {
+    case even if <spot>(even % 2 == 0)</spot> => <spot>(even + 1)</spot>
+    case odd =>  1 + <spot>(odd * 3)</spot>
+  }

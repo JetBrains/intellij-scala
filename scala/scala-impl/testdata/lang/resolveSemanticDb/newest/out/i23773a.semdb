@@ -1,0 +1,31 @@
+Document tests/pos/i23773a.scala
+(5:28..5:29) _empty_/StandardHeaderWrite#[H] -> 4:27
+(5:42..5:51) _empty_/Algorithm# -> 13:14
+(5:54..5:55) _empty_/StandardHeaderWrite#[H] -> 4:27
+(8:26..8:45) _empty_/StandardHeaderWrite# -> 4:7
+(8:46..8:47) _empty_/StandardHeaderWrite.apply().[H] -> 8:13
+(8:51..8:70) _empty_/StandardHeaderWrite# -> 4:7
+(8:71..8:72) _empty_/StandardHeaderWrite.apply().[H] -> 8:13
+(8:76..8:79) scala/Predef.`???`().
+(10:25..10:26) _empty_/StandardHeaderWrite.apply(+1).[H] -> 10:13
+(10:28..10:37) _empty_/Algorithm# -> 13:14
+(10:42..10:43) _empty_/StandardHeaderWrite.apply(+1).[H] -> 10:13
+(10:46..10:65) _empty_/StandardHeaderWrite# -> 4:7
+(10:66..10:67) _empty_/StandardHeaderWrite.apply(+1).[H] -> 10:13
+(10:71..10:74) scala/Predef.`???`().
+(12:33..12:39) scala/Option#
+(12:40..12:49) _empty_/Algorithm# -> 13:14
+(15:24..15:27) _empty_/JWK# -> 12:18
+(15:37..15:38) _empty_/i23773a$package.Test().[H] -> 15:16
+(15:46..15:65) _empty_/StandardHeaderWrite# -> 4:7
+(15:66..15:67) _empty_/i23773a$package.Test().[H] -> 15:16
+(16:3..16:6) _empty_/i23773a$package.Test().(key) -> 15:19
+(16:7..16:16) _empty_/JWK#algorithm. -> 12:22
+(17:6..17:9) scala/Option#map().
+(17:10..17:29) _empty_/StandardHeaderWrite. -> 7:8
+(17:30..17:31) _empty_/i23773a$package.Test().[H] -> 15:16
+(17:33..17:45) _empty_/StandardHeaderWrite#setAlgorithm(). -> 5:7
+(17:46..17:52) _empty_/i23773a$package.Test().(header) -> 15:29
+(18:6..18:15) scala/Option#getOrElse().
+(18:16..18:22) _empty_/i23773a$package.Test().(header) -> 15:29
+

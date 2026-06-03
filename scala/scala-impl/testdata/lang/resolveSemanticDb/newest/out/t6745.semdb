@@ -1,0 +1,5 @@
+Document tests/pos/t6745.scala
+(1:18..1:21) scala/Int#
+(2:9..2:12) scala/Any#
+(2:18..2:24) scala/AnyRef#
+

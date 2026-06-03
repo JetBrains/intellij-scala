@@ -1,0 +1,4 @@
+Document tests/pos/i21749.scala
+(6:29..6:35) scala/Predef.String#
+(7:7..7:10) scala/package.Nil.
+

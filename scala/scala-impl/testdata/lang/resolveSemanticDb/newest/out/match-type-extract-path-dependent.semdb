@@ -1,0 +1,27 @@
+Document tests/pos/match-type-extract-path-dependent.scala
+(6:19..6:24) _empty_/Base#Value# -> 4:8
+(7:19..7:24) _empty_/Base#Value# -> 4:8
+(7:27..7:31) scala/Unit#
+(8:5..8:9) _empty_/Base# -> 3:7
+(11:20..11:24) _empty_/Base# -> 3:7
+(11:40..11:41) _empty_/Extractor.Helper#[X] -> 11:15
+(13:21..13:25) _empty_/Base# -> 3:7
+(13:29..13:30) _empty_/Extractor.Extract#[B] -> 13:16
+(14:10..14:16) _empty_/Extractor.Helper# -> 11:8
+(14:23..14:24) local1 -> 14:17
+(15:5..15:14) _empty_/Extractor. -> 10:8
+(18:10..18:19) _empty_/Extractor. -> 10:8
+(25:14..25:18) _empty_/Base# -> 3:7
+(25:21..25:28) _empty_/Extractor.Extract# -> 13:8
+(25:29..25:30) _empty_/Test.foo().(b) -> 25:11
+(25:39..25:40) _empty_/Test.foo().(b) -> 25:11
+(25:41..25:49) _empty_/Base#getValue(). -> 6:7
+(26:14..26:18) _empty_/Base# -> 3:7
+(26:23..26:30) _empty_/Extractor.Extract# -> 13:8
+(26:31..26:32) _empty_/Test.bar().(b) -> 26:11
+(26:41..26:45) scala/Unit#
+(26:48..26:49) _empty_/Test.bar().(b) -> 26:11
+(26:50..26:58) _empty_/Base#setValue(). -> 7:7
+(26:59..26:60) _empty_/Test.bar().(v) -> 26:20
+(27:5..27:9) _empty_/Test. -> 17:8
+

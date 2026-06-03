@@ -1,0 +1,676 @@
+package org.jetbrains.plugins.scala.settings;
+
+import com.intellij.lang.java.JavaLanguage;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.*;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.SourceFolder;
+import com.intellij.util.xmlb.Converter;
+import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.MapAnnotation;
+import com.intellij.util.xmlb.annotations.OptionTag;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaLanguage;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+@State(
+    name = "ScalaProjectSettings",
+    storages = {
+        @Storage(StoragePathMacros.WORKSPACE_FILE),
+        @Storage("scala_settings.xml")
+    },
+    reportStatistic = true
+)
+public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> { // TODO ScalaProjectSettings.State
+  private transient final Project myProject;
+
+  @ReportValue
+  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
+
+  public boolean INHERIT_BASE_PACKAGES = true;
+
+  @MapAnnotation(surroundWithTag = false, entryTagName = "module", keyAttributeName = "name", valueAttributeName = "basePackage")
+  public Map<String, String> CUSTOM_BASE_PACKAGES = new HashMap<>();
+
+  private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.funsuite.AnyFunSuiteLike";
+
+  private boolean SEARCH_ALL_SYMBOLS = false;
+
+  private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
+  private boolean ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = true;
+  private boolean DONT_SHOW_CONVERSION_DIALOG = false;
+  private boolean SHOW_IMPLICIT_CONVERSIONS = false;
+  private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = true;
+  private boolean SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = true;
+
+  private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
+  private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
+  private boolean INCLUDE_LITERALS = false;
+
+  private boolean CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = false;
+
+  private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
+  private boolean DISABLE_LANGUAGE_INJECTION = false;
+  private boolean DONT_CACHE_COMPOUND_TYPES = false;
+  private boolean AOT_COMPLETION = true;
+  private boolean PROJECT_VIEW_HIGHLIGHTING = false;
+  private boolean GROUP_PACKAGE_OBJECT_WITH_PACKAGE = false;
+  private boolean SCALA_CLASSES_PRIORITY = true;
+  private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
+
+  public enum TrailingCommasMode {Enabled, Disabled, Auto}
+  private TrailingCommasMode TRAILING_COMMAS_ENABLED = TrailingCommasMode.Auto;
+
+  //SCALA.META
+  public enum ScalaMetaMode {Enabled, Disabled, Manual}
+  private ScalaMetaMode scalaMetaMode = ScalaMetaMode.Enabled;
+  private boolean metaTrimMethodBodies = true;
+
+  //WORKSHEET
+  private int OUTPUT_LIMIT = 35;
+  private boolean IN_PROCESS_MODE = true;
+  private boolean USE_ECLIPSE_COMPATIBILITY = false;
+  private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
+  private boolean IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = true;
+  private int AUTORUN_DELAY = 1400;
+  public enum ScFileMode {Worksheet, Ammonite, Auto}
+  private ScFileMode SC_FILE_MODE = ScFileMode.Worksheet;
+
+  //BREADCRUMBS
+  private boolean BREADCRUMBS_CLASS_ENABLED = true;
+  private boolean BREADCRUMBS_FUNCTION_ENABLED = true;
+  private boolean BREADCRUMBS_LAMBDA_ENABLED = true;
+  private boolean BREADCRUMBS_MATCH_ENABLED = false;
+  private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
+  private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
+
+  // LIBRARY EXTENSIONS
+  private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+
+  // Don't reset the setting for old versions when using new versions. TODO Delete later
+  private boolean SCALA_3_DISCLAIMER_SHOWN = false;
+
+  private boolean MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = false;
+
+  //INDEXING
+  public enum Ivy2IndexingMode {Disabled, Metadata, Classes}
+  private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
+
+  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<>();
+
+  {
+    //NOTE: second value of the pair should have the correct case (it should be equal to the language ID)
+    INTERPOLATED_INJECTION_MAPPING.put("html", "HTML");
+    INTERPOLATED_INJECTION_MAPPING.put("xhtml", "XHTML");
+    INTERPOLATED_INJECTION_MAPPING.put("css", "CSS");
+    INTERPOLATED_INJECTION_MAPPING.put("less", "LESS");
+    INTERPOLATED_INJECTION_MAPPING.put("js", "JavaScript");
+    INTERPOLATED_INJECTION_MAPPING.put("json", "JSON");
+    INTERPOLATED_INJECTION_MAPPING.put("json5", "JSON5");
+    INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("fr", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("fr0", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
+    INTERPOLATED_INJECTION_MAPPING.put("scala", ScalaLanguage.INSTANCE.getID());
+    INTERPOLATED_INJECTION_MAPPING.put("java", JavaLanguage.INSTANCE.getID());
+    INTERPOLATED_INJECTION_MAPPING.put("kotlin", "Kotlin");
+    INTERPOLATED_INJECTION_MAPPING.put("svg", "SVG");
+    INTERPOLATED_INJECTION_MAPPING.put("xpath", "XPath");
+    INTERPOLATED_INJECTION_MAPPING.put("yaml", "yaml");
+    INTERPOLATED_INJECTION_MAPPING.put("protobuf", "protobuf");
+    INTERPOLATED_INJECTION_MAPPING.put("md", "Markdown");
+  }
+
+  // For state
+  ScalaProjectSettings() {
+    myProject = null;
+  }
+
+  // For service
+  public ScalaProjectSettings(Project project) {
+    myProject = project;
+  }
+
+  public enum TypeChecker {BuiltIn, Compiler}
+
+  @TestOnly
+  // https://youtrack.jetbrains.com/issue/SCL-19928
+  public enum AliasExportSemantics {
+    Definition, // Seq is scala.Seq
+    Export // Seq is scala.collection.immutable.Seq
+  }
+
+  public enum ScalaCollectionHighlightingLevel {None, OnlyNonQualified, All}
+
+  private AliasExportSemantics ALIAS_EXPORT_SEMANTICS = AliasExportSemantics.Export;
+
+  //collection type highlighting settings
+  private ScalaCollectionHighlightingLevel COLLECTION_TYPE_HIGHLIGHTING_LEVEL = ScalaCollectionHighlightingLevel.None;
+
+  // This is only needed cause previously collection type setting was integer value
+  // now it is a enum, but we want to migrate old integers to enums
+  public static class ScalaCollectionHighlightingLevelConverter extends Converter<ScalaCollectionHighlightingLevel> {
+    @Nullable
+    @Override
+    public ScalaCollectionHighlightingLevel fromString(@NotNull String value) {
+      try {
+        int index = Integer.parseInt(value);
+        return ScalaCollectionHighlightingLevel.values()[index];
+      } catch (NumberFormatException ex) {
+        return ScalaCollectionHighlightingLevel.valueOf(value);
+      }
+    }
+
+    @Nullable
+    @Override
+    public String toString(@NotNull ScalaCollectionHighlightingLevel value) {
+      return value.toString();
+    }
+  }
+
+  private boolean TYPE_MISMATCH_HINTS = true;
+
+  private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
+  private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
+  private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
+  private boolean INCREMENTAL_HIGHLIGHTING = false;
+  private boolean DISABLE_INSPECTIONS = false;
+  private boolean USE_COMPILER_TYPES = true;
+  public static final int DEFAULT_COMPILER_HIGHLIGHTING_DELAY = 750; // ms.
+  private int COMPILER_HIGHLIGHTING_DELAY = DEFAULT_COMPILER_HIGHLIGHTING_DELAY; // ms
+
+  public static ScalaProjectSettings in(@NotNull Project project) {
+    return getInstance(project);
+  }
+
+  public static ScalaProjectSettings getInstance(@NotNull Project project) {
+    return project.getService(ScalaProjectSettings.class);
+  }
+
+  @Override
+  public ScalaProjectSettings getState() {
+    return this;
+  }
+
+  @Override
+  public void loadState(@NotNull ScalaProjectSettings scalaProjectSettings) {
+    XmlSerializerUtil.copyBean(scalaProjectSettings, this);
+  }
+
+  @NotNull
+  public String getPresentableName() {
+    return ScalaBundle.message("scala.project.settings");
+  }
+
+  public int getImplicitParametersSearchDepth() {
+    return IMPLICIT_PARAMETERS_SEARCH_DEPTH;
+  }
+
+  public void setImplicitParametersSearchDepth(int value) {
+    IMPLICIT_PARAMETERS_SEARCH_DEPTH = value;
+  }
+
+  @ReportValue
+  public int getOutputLimit() {
+    return  OUTPUT_LIMIT;
+  }
+
+  public void setOutputLimit(int value) {
+    OUTPUT_LIMIT = value;
+  }
+
+  public boolean isSearchAllSymbols() {
+    return SEARCH_ALL_SYMBOLS;
+  }
+
+  public void setSearchAllSymbols(boolean value) {
+    SEARCH_ALL_SYMBOLS = value;
+  }
+
+  public boolean isEnableJavaToScalaConversion() {
+    return ENABLE_JAVA_TO_SCALA_CONVERSION;
+  }
+
+  public void setEnableJavaToScalaConversion(boolean value) {
+    ENABLE_JAVA_TO_SCALA_CONVERSION = value;
+  }
+
+  public boolean isAddOverrideToImplementInConverter() {
+    return ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER;
+  }
+
+  public void setAddOverrideToImplementInConverter(boolean value) {
+    ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = value;
+  }
+
+  public boolean isDontShowConversionDialog() {
+    return DONT_SHOW_CONVERSION_DIALOG;
+  }
+
+  public void setDontShowConversionDialog(boolean value) {
+    DONT_SHOW_CONVERSION_DIALOG = value;
+  }
+
+  public boolean isShowImplicitConversions() {
+    return SHOW_IMPLICIT_CONVERSIONS;
+  }
+
+  // TODO Refresh editors
+  public void setShowNotFoundImplicitArguments(boolean value) {
+    SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = value;
+  }
+
+  public boolean isShowNotFoundImplicitArguments() {
+    return SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
+  }
+
+  // TODO Refresh editors
+  public void setShowAmbiguousImplicitArguments(boolean value) {
+    SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = value;
+  }
+
+  public boolean isShowAmbiguousImplicitArguments() {
+    return SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS;
+  }
+
+  public void setShowImplicitConversions(boolean value) {
+    SHOW_IMPLICIT_CONVERSIONS = value;
+  }
+
+  public boolean isShowArgumentsToByNameParams() {
+    return SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS;
+  }
+
+  public void setShowArgumentsToByNameParams(boolean value) {
+    SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = value;
+  }
+
+  public boolean isCustomScalatestSyntaxHighlighting() {
+    return CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING;
+  }
+
+  public void setCustomScalatestSyntaxHighlighting(boolean value) {
+    CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = value;
+  }
+
+  public boolean isIncludeBlockExpressions() {
+    return INCLUDE_BLOCK_EXPRESSIONS;
+  }
+
+  public void setIncludeBlockExpressions(boolean value) {
+    INCLUDE_BLOCK_EXPRESSIONS = value;
+  }
+
+  public boolean isIncludeLiterals() {
+    return INCLUDE_LITERALS;
+  }
+
+  public void setIncludeLiterals(boolean value) {
+    INCLUDE_LITERALS = value;
+  }
+
+  public boolean isTreatDocCommentAsBlockComment() {
+    return TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+  }
+
+  public void setTreatDocCommentAsBlockComment(boolean value) {
+    TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = value;
+  }
+
+  public boolean isDontCacheCompoundTypes() {
+      return DONT_CACHE_COMPOUND_TYPES;
+  }
+
+  public void setDontCacheCompoundTypes(boolean value) {
+      DONT_CACHE_COMPOUND_TYPES = value;
+  }
+
+  public boolean isDisableLangInjection() {
+    return DISABLE_LANGUAGE_INJECTION;
+  }
+
+  public void setDisableLangInjection(boolean value) {
+    DISABLE_LANGUAGE_INJECTION = value;
+  }
+
+  public boolean isAotCompletion() {
+    return AOT_COMPLETION;
+  }
+
+  public void setAotCOmpletion(boolean value) {
+    AOT_COMPLETION = value;
+  }
+
+  public boolean isProjectViewHighlighting() {
+    return PROJECT_VIEW_HIGHLIGHTING;
+  }
+
+  public void setProjectViewHighlighting(boolean value) {
+    PROJECT_VIEW_HIGHLIGHTING = value;
+  }
+
+  public boolean isGroupPackageObjectWithPackage() {
+    return GROUP_PACKAGE_OBJECT_WITH_PACKAGE;
+  }
+
+  public void setGroupPackageObjectWithPackage(boolean value) {
+    GROUP_PACKAGE_OBJECT_WITH_PACKAGE = value;
+  }
+
+  public boolean isScalaPriority() {
+    return SCALA_CLASSES_PRIORITY;
+  }
+
+  public void setScalaPriority(boolean value) {
+    SCALA_CLASSES_PRIORITY = value;
+  }
+
+  public boolean isTypeMismatchHints() {
+    return TYPE_MISMATCH_HINTS;
+  }
+
+  public void setTypeMismatchHints(boolean value) {
+    TYPE_MISMATCH_HINTS = value;
+  }
+
+  public boolean isCompilerHighlightingScala2() {
+    return COMPILER_HIGHLIGHTING_SCALA2;
+  }
+  public boolean isCompilerHighlightingScala3() {
+    return COMPILER_HIGHLIGHTING_SCALA3;
+  }
+
+  public boolean isIncrementalHighlighting() {
+    return INCREMENTAL_HIGHLIGHTING;
+  }
+
+  public void setIncrementalHighlighting(boolean value) {
+    INCREMENTAL_HIGHLIGHTING = value;
+  }
+
+  public boolean isDisableInspections() {
+    return DISABLE_INSPECTIONS;
+  }
+
+  public void setDisableInspections(boolean value) {
+    DISABLE_INSPECTIONS = value;
+  }
+
+  public void setCompilerHighlightingScala2(boolean value) {
+    COMPILER_HIGHLIGHTING_SCALA2 = value;
+    var listener = ApplicationManager.getApplication().getMessageBus()
+            .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
+    listener.compilerHighlightingScala2Changed(value);
+  }
+  public void setCompilerHighlightingScala3(boolean value) {
+    COMPILER_HIGHLIGHTING_SCALA3 = value;
+    var listener = ApplicationManager.getApplication().getMessageBus()
+            .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
+    listener.compilerHighlightingScala3Changed(value);
+  }
+
+  public boolean isUseCompilerTypes() {
+    return USE_COMPILER_TYPES;
+  }
+
+  public void setUseCompilerTypes(boolean value) {
+    USE_COMPILER_TYPES = value;
+  }
+
+  public int getCompilerHighlightingDelay() {
+    return COMPILER_HIGHLIGHTING_DELAY;
+  }
+
+  public void setCompilerHighlightingDelay(int value) {
+    COMPILER_HIGHLIGHTING_DELAY = value;
+  }
+
+  public boolean isTypeAwareHighlightingEnabled() {
+    return TYPE_AWARE_HIGHLIGHTING_ENABLED;
+  }
+
+  public void setTypeAwareHighlightingEnabled(boolean enabled) {
+    TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled;
+  }
+
+  @TestOnly
+  public AliasExportSemantics getAliasSemantics() {
+    return ALIAS_EXPORT_SEMANTICS;
+  }
+
+  @TestOnly
+  public void setAliasSemantics(AliasExportSemantics semantics) {
+    ALIAS_EXPORT_SEMANTICS = semantics;
+  }
+
+  public boolean aliasExportsEnabled() {
+    return ALIAS_EXPORT_SEMANTICS == AliasExportSemantics.Export;
+  }
+
+  @OptionTag(converter = ScalaCollectionHighlightingLevelConverter.class)
+  public ScalaCollectionHighlightingLevel getCollectionTypeHighlightingLevel() {
+    return COLLECTION_TYPE_HIGHLIGHTING_LEVEL;
+  }
+
+  public void setCollectionTypeHighlightingLevel(ScalaCollectionHighlightingLevel level) {
+    this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
+  }
+
+  public Map<String, String> getIntInjectionMapping() {
+    return INTERPOLATED_INJECTION_MAPPING;
+  }
+
+  public String getScalaTestDefaultSuperClass() {
+    return SCALATEST_DEFAULT_SUPERCLASS;
+  }
+
+  public void setScalaTestDefaultSuperClass(String superClassName) {
+    SCALATEST_DEFAULT_SUPERCLASS = superClassName;
+  }
+
+  @NotNull
+  public String getBasePackageFor(@NotNull Module module) {
+    if (INHERIT_BASE_PACKAGES) {
+      return Arrays.stream(ModuleRootManager.getInstance(module).getContentEntries())
+              .flatMap(it -> Arrays.stream(it.getSourceFolders()))
+              .map(SourceFolder::getPackagePrefix)
+              .filter(it -> !it.isEmpty())
+              .findFirst()
+              .orElse("");
+    } else {
+      return CUSTOM_BASE_PACKAGES.getOrDefault(module.getName(), "");
+    }
+  }
+
+  public boolean isInheritBasePackages() {
+    return INHERIT_BASE_PACKAGES;
+  }
+
+  public void setInheritBasePackages(boolean b) {
+    INHERIT_BASE_PACKAGES = b;
+  }
+
+  @NotNull
+  public Map<String, String> getCustomBasePackages() {
+    return CUSTOM_BASE_PACKAGES;
+  }
+
+  public void setCustomBasePackages(@NotNull Map<String, String> basePackages) {
+    CUSTOM_BASE_PACKAGES = basePackages;
+  }
+
+  public void setCustomBasePackage(@NotNull String module, @Nullable String basePackages) {
+    if (basePackages == null) {
+      CUSTOM_BASE_PACKAGES.remove(module);
+    } else {
+      CUSTOM_BASE_PACKAGES.put(module, basePackages);
+    }
+    INHERIT_BASE_PACKAGES = CUSTOM_BASE_PACKAGES.isEmpty();
+  }
+
+  public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
+    INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
+  }
+
+  public boolean isWorksheetFoldCollapsedByDefault() {
+    return IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT;
+  }
+  
+  public void setWorksheetFoldCollapsedByDefault(boolean isCollapsed) {
+    IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = isCollapsed;
+  }
+  
+  public boolean isInProcessMode() {
+    return IN_PROCESS_MODE;
+  }
+
+  public void setInProcessMode(boolean inProcess) {
+    this.IN_PROCESS_MODE = inProcess;
+  }
+
+  public boolean isUseEclipseCompatibility() {
+    return USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public void setUseEclipseCompatibility(boolean USE_ECLIPSE_COMPATIBILITY) {
+    this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  @ReportValue
+  public int getAutoRunDelay() {
+    return AUTORUN_DELAY;
+  }
+
+  public void setAutoRunDelay(int delay) {
+    AUTORUN_DELAY = delay;
+  }
+
+  public boolean isTreatScratchFilesAsWorksheet() {
+    return TREAT_SCRATCH_AS_WORKSHEET;
+  }
+
+  public void setTreatScratchFilesAsWorksheet(boolean b) {
+    TREAT_SCRATCH_AS_WORKSHEET = b;
+  }
+
+  public ScFileMode getScFileMode() {
+    return SC_FILE_MODE;
+  }
+  
+  public void setScFileMode(ScFileMode mode) {
+    SC_FILE_MODE = mode;
+  }
+
+  public void setBreadcrumbsClassEnabled(boolean enabled) {
+    BREADCRUMBS_CLASS_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsFunctionEnabled(boolean enabled) {
+    BREADCRUMBS_FUNCTION_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsLambdaEnabled(boolean enabled) {
+    BREADCRUMBS_LAMBDA_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsMatchEnabled(boolean enabled) {
+    BREADCRUMBS_MATCH_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsValDefEnabled(boolean enabled) {
+    BREADCRUMBS_VAL_DEF_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsIfDoWhileEnabled(boolean enabled) {
+    BREADCRUMBS_IF_DO_WHILE_ENABLED = enabled;
+  }
+
+  public boolean isBreadcrumbsClassEnabled() {
+    return BREADCRUMBS_CLASS_ENABLED;
+  }
+
+  public boolean isBreadcrumbsFunctionEnabled() {
+    return BREADCRUMBS_FUNCTION_ENABLED;
+  }
+
+  public boolean isBreadcrumbsLambdaEnabled() {
+    return BREADCRUMBS_LAMBDA_ENABLED;
+  }
+
+  public boolean isBreadcrumbsMatchEnabled() {
+    return BREADCRUMBS_MATCH_ENABLED;
+  }
+
+  public boolean isBreadcrumbsValDefEnabled() {
+    return BREADCRUMBS_VAL_DEF_ENABLED;
+  }
+
+  public boolean isBreadcrumbsIfDoWhileEnabled() {
+    return BREADCRUMBS_IF_DO_WHILE_ENABLED;
+  }
+
+  public boolean isGenerateToStringWithPropertiesNames() {
+    return GENERATE_TOSTRING_WITH_FIELD_NAMES;
+  }
+
+  public void setGenerateToStringWithPropertiesNames(boolean value) {
+    GENERATE_TOSTRING_WITH_FIELD_NAMES = value;
+  }
+  
+  public TrailingCommasMode getTrailingCommasMode() {
+    return TRAILING_COMMAS_ENABLED;
+  }
+
+  public void setTrailingCommasMode(TrailingCommasMode mode) {
+    TRAILING_COMMAS_ENABLED = mode;
+  }
+
+  public boolean isEnableLibraryExtensions() {
+    return ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
+    this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public boolean isMigrateConfigurationsNotificationShown() {
+    return MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN;
+  }
+
+  public void setMigrateConfigurationsNotificationShown(boolean b) {
+    MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = b;
+  }
+
+  public ScalaMetaMode getScalaMetaMode() {
+    return scalaMetaMode;
+  }
+
+  public void setScalaMetaMode(ScalaMetaMode scalaMetaMode) {
+    this.scalaMetaMode = scalaMetaMode;
+  }
+
+  public boolean isMetaTrimMethodBodies() {
+    return metaTrimMethodBodies;
+  }
+
+  public void setMetaTrimMethodBodies(boolean metaTrimMethodBodies) {
+    this.metaTrimMethodBodies = metaTrimMethodBodies;
+  }
+
+  public Ivy2IndexingMode getIvy2IndexingMode() {
+    return IVY2_INDEXING_MODE;
+  }
+
+  public void setIvy2IndexingMode(Ivy2IndexingMode IVY2_INDEXING_MODE) {
+    this.IVY2_INDEXING_MODE = IVY2_INDEXING_MODE;
+  }
+}

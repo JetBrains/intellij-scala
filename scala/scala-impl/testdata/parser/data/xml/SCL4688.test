@@ -1,0 +1,49 @@
+val a = <?xml version="1.0" encoding="utf-8" ?><Xml att="1" />  
+-----
+ScalaFile
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    XmlExpression
+      XmlProcessingInstructions
+        PsiElement(XML_PI_START)('<?')
+        PsiElement(XML_NAME)('xml')
+        PsiWhiteSpace(' ')
+        XmlAttribute
+          PsiElement(XML_NAME)('version')
+          PsiElement(XML_EQ)('=')
+          PsiElement(XML_ATTRIBUTE_VALUE_START_DELIMITER)('"')
+          PsiElement(XML_ATTRIBUTE_VALUE_TOKEN)('1.0')
+          PsiElement(XML_ATTRIBUTE_VALUE_END_DELIMITER)('"')
+        PsiWhiteSpace(' ')
+        XmlAttribute
+          PsiElement(XML_NAME)('encoding')
+          PsiElement(XML_EQ)('=')
+          PsiElement(XML_ATTRIBUTE_VALUE_START_DELIMITER)('"')
+          PsiElement(XML_ATTRIBUTE_VALUE_TOKEN)('utf-8')
+          PsiElement(XML_ATTRIBUTE_VALUE_END_DELIMITER)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(XML_PI_END)('?>')
+      XmlEmptyTag
+        PsiElement(XML_START_TAG_START)('<')
+        PsiElement(XML_NAME)('Xml')
+        PsiWhiteSpace(' ')
+        XmlAttribute
+          PsiElement(XML_NAME)('att')
+          PsiElement(XML_EQ)('=')
+          PsiElement(XML_ATTRIBUTE_VALUE_START_DELIMITER)('"')
+          PsiElement(XML_ATTRIBUTE_VALUE_TOKEN)('1')
+          PsiElement(XML_ATTRIBUTE_VALUE_END_DELIMITER)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(XML_EMPTY_ELEMENT_END)('/>')
+  PsiWhiteSpace('  ')

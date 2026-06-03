@@ -1,0 +1,85 @@
+package org.jetbrains.plugins.scala.codeInsight.intention.types
+
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+final class ToggleTypeAnnotationIntentionTest_Scala3 extends ToggleTypeAnnotationIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testAddTypeToMatchPattern(): Unit = doTest(
+    s"""
+       |object Test {
+       |  0 match {
+       |    case x$caretTag =>
+       |  }
+       |}
+       |""".stripMargin,
+    s"""
+       |object Test {
+       |  0 match {
+       |    case x$caretTag: 0 =>
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  override def testAddTypeAnnotationWithTypeWildCard(): Unit = doTest(
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[?]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag() = new Foo[?]
+       |}
+       |""".stripMargin,
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[?]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag(): Foo[?] = new Foo[?]
+       |}
+       |""".stripMargin
+  )
+
+  def testAddTypeToFewerBracesParameter(): Unit = doTest(
+    s"""
+       |class Example:
+       |  Seq(1, 2, 3).foreach: x$caretTag =>
+       |    println(x)
+       |""".stripMargin,
+    s"""
+       |class Example:
+       |  Seq(1, 2, 3).foreach: (x: Int)$caretTag =>
+       |    println(x)
+       |""".stripMargin,
+  )
+
+  def testInfixDifferentAssociativity(): Unit = doTest(
+    s"""
+       |trait +[A, B]
+       |
+       |trait ::[A, B]
+       |
+       |trait A
+       |
+       |def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
+       |val ba${caretTag}r = foo()
+     """.stripMargin,
+    s"""
+       |trait +[A, B]
+       |
+       |trait ::[A, B]
+       |
+       |trait A
+       |
+       |def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
+       |val ba${caretTag}r: A + ((A :: A) + A) :: A + (A :: A) = foo()
+     """.stripMargin
+  )
+}

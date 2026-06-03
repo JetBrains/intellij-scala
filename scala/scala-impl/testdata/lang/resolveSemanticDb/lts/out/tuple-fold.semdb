@@ -1,0 +1,35 @@
+Document tests/pos/tuple-fold.scala
+(2:17..2:27) scala/Tuple$package.EmptyTuple#
+(3:18..3:19) _empty_/`tuple-fold$package`.Twice#[X] -> 3:12
+(3:21..3:22) _empty_/`tuple-fold$package`.Twice#[X] -> 3:12
+(6:11..6:21) scala/Tuple$package.EmptyTuple#
+(6:24..6:27) scala/Predef.`???`().
+(6:30..6:35) scala/Tuple.
+(6:36..6:40) scala/Tuple.Fold#
+(6:41..6:51) scala/Tuple$package.EmptyTuple#
+(6:53..6:60) scala/Nothing#
+(7:12..7:15) scala/Int#
+(7:18..7:24) scala/Predef.String#
+(7:26..7:33) scala/Nothing#
+(7:38..7:41) scala/Predef.`???`().
+(7:44..7:49) scala/Tuple.
+(7:50..7:54) scala/Tuple.Fold#
+(7:56..7:59) scala/Int#
+(7:61..7:67) scala/Predef.String#
+(7:70..7:77) scala/Nothing#
+(8:11..8:14) scala/Int#
+(8:15..8:16) scala/`|`#
+(8:17..8:23) scala/Predef.String#
+(8:24..8:25) scala/`|`#
+(8:26..8:30) scala/Char#
+(8:33..8:36) scala/Predef.`???`().
+(8:39..8:44) scala/Tuple.
+(8:45..8:49) scala/Tuple.Fold#
+(8:51..8:54) scala/Int#
+(8:56..8:62) scala/Predef.String#
+(8:64..8:68) scala/Char#
+(8:71..8:78) scala/Nothing#
+(8:91..8:92) local2 -> 8:81
+(8:93..8:94) scala/`|`#
+(8:95..8:96) local3 -> 8:84
+

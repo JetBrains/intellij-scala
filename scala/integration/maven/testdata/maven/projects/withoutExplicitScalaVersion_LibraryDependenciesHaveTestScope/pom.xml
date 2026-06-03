@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>dummy-artifact-id</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!--DEPENDS ON SCALA 2.13.6 TRANSITIVELY -->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest-core_2.13</artifactId>
+            <version>3.2.11</version>
+
+            <!-- NOTE: IT HAS TEST SCOPE -->
+            <scope>test</scope>
+        </dependency>
+
+        <!--DEPENDS ON SCALA 2.13.4 TRANSITIVELY -->
+        <dependency>
+            <groupId>org.scalameta</groupId>
+            <artifactId>munit_2.13</artifactId>
+            <version>0.7.25</version>
+
+            <!-- NOTE: IT HAS TEST SCOPE -->
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+            </plugin>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.6.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,13 @@
+Document tests/pos/singletontrait.scala
+(2:16..2:25) scala/Singleton#
+(2:30..2:31) _empty_/Test.foo().[T] -> 2:11
+(2:34..2:35) _empty_/Test.foo().[T] -> 2:11
+(2:38..2:39) _empty_/Test.foo().(x) -> 2:27
+(3:16..3:19) scala/Int#
+(3:25..3:34) scala/Singleton#
+(3:39..3:40) _empty_/Test.bar().[T] -> 3:11
+(3:43..3:44) _empty_/Test.bar().[T] -> 3:11
+(3:47..3:48) _empty_/Test.bar().(x) -> 3:36
+(5:14..5:17) _empty_/Test.foo(). -> 2:7
+(6:14..6:17) _empty_/Test.bar(). -> 3:7
+

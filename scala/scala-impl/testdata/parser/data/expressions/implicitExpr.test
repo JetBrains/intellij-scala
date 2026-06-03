@@ -1,0 +1,41 @@
+foo {x =>}
+foo {implicit x =>}
+-----
+ScalaFile
+  MethodCall
+    ReferenceExpression: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ArgumentList
+      BlockExpression
+        PsiElement({)('{')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              Parameter: x
+                PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  MethodCall
+    ReferenceExpression: foo
+      PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ArgumentList
+      BlockExpression
+        PsiElement({)('{')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: x
+                PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
+        PsiElement(})('}')

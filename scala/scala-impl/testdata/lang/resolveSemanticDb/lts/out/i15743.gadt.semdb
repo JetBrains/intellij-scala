@@ -1,0 +1,28 @@
+Document tests/pos/i15743.gadt.scala
+(1:33..1:34) _empty_/C#[Z] -> 1:18
+(2:31..2:32) _empty_/C# -> 1:16
+(2:33..2:38) scala/Tuple#
+(2:57..2:63) scala/Tuple1#
+(2:64..2:70) scala/Predef.String#
+(8:18..8:19) _empty_/C# -> 1:16
+(8:20..8:21) _empty_/Alt#test().[T] -> 8:12
+(8:26..8:27) _empty_/Alt#test().(e) -> 8:15
+(9:15..9:17) _empty_/C1.
+(10:15..10:16) _empty_/Alt#test().[T] -> 8:12
+(10:26..10:28) local0 -> 9:10
+(10:29..10:33) _empty_/C1#getZ(). -> 2:46
+(11:15..11:18) scala/Int#
+(11:19..11:21) scala/`*:`#
+(11:22..11:23) _empty_/Alt#test().[T] -> 8:12
+(11:30..11:33) scala/Int#
+(11:38..11:40) local1 -> 10:11
+(12:15..12:18) scala/Int#
+(12:27..12:29) local2 -> 11:11
+(12:31..12:34) scala/Int#
+(12:35..12:37) scala/`*:`#
+(12:38..12:39) _empty_/Alt#test().[T] -> 8:12
+(12:41..12:45) scala/NonEmptyTuple#head().
+(12:46..12:49) scala/Int#
+(12:50..12:52) scala/`*:`#
+(12:53..12:54) _empty_/Alt#test().[T] -> 8:12
+

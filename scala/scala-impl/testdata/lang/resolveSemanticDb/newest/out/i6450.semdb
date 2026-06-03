@@ -1,0 +1,79 @@
+Document tests/pos/i6450.scala
+(2:12..2:18) scala/Double#
+(2:22..2:23) _empty_/Foo#A().(i) -> 2:9
+(4:18..4:21) scala/Int#
+(4:24..4:27) scala/Int#
+(4:30..4:31) _empty_/Foo#A.apply().(i) -> 4:15
+(4:31..4:32) scala/Int#`+`(+4).
+(6:12..6:15) scala/Any#
+(6:19..6:20) _empty_/Foo#B().(i) -> 6:9
+(8:18..8:21) scala/Int#
+(8:25..8:26) _empty_/Foo#B.apply().(i) -> 8:15
+(8:26..8:27) scala/Int#`+`(+4).
+(9:18..9:23) scala/Float#
+(11:12..11:15) scala/Int#
+(11:19..11:20) _empty_/Foo#C().(i) -> 11:9
+(11:21..11:22) scala/Int#`+`(+4).
+(13:18..13:24) scala/Double#
+(13:27..13:33) scala/Double#
+(13:36..13:37) _empty_/Foo#C.apply().(i) -> 13:15
+(15:13..15:14) _empty_/Foo#A. -> 3:10
+(16:13..16:14) _empty_/Foo#B. -> 7:10
+(17:13..17:14) _empty_/Foo#C(). -> 11:7
+(21:15..21:18) _empty_/Foo# -> 1:7
+(21:21..21:24) _empty_/Foo#foo(). -> 15:7
+(22:15..22:18) _empty_/Foo# -> 1:7
+(22:21..22:24) _empty_/Foo#bar(). -> 16:7
+(23:15..23:18) _empty_/Foo# -> 1:7
+(23:21..23:24) _empty_/Foo#baz(). -> 17:7
+(24:11..24:14) scala/Int#
+(24:17..24:18) _empty_/Test.x. -> 21:7
+(25:11..25:14) scala/Int#
+(25:17..25:18) _empty_/Test.y. -> 22:7
+(26:11..26:14) scala/Int#
+(26:17..26:18) _empty_/Test.z. -> 23:7
+(32:18..32:21) scala/Any#
+(32:24..32:27) scala/Int#
+(36:14..36:17) scala/Any#
+(36:20..36:21) _empty_/Test1.A# -> 31:9
+(36:28..36:29) _empty_/Test1.A# -> 31:9
+(37:17..37:18) _empty_/Test1.A# -> 31:9
+(37:21..37:22) _empty_/Test1.B.f(). -> 36:9
+(43:18..43:24) scala/AnyRef#
+(43:27..43:30) scala/Int#
+(46:14..46:17) scala/Any#
+(46:20..46:21) _empty_/Test2.A# -> 42:9
+(46:24..46:27) scala/Predef.`???`().
+(47:12..47:13) _empty_/Test2.A# -> 42:9
+(47:16..47:19) scala/Predef.`???`().
+(48:12..48:13) _empty_/Test2.A# -> 42:9
+(48:16..48:17) _empty_/Test2.B.f(). -> 46:9
+(54:18..54:24) scala/Predef.String#
+(54:27..54:30) scala/Int#
+(57:14..57:26) java/lang/CharSequence#
+(57:29..57:30) _empty_/Test3.A# -> 53:9
+(57:33..57:36) scala/Predef.`???`().
+(58:12..58:13) _empty_/Test3.A# -> 53:9
+(58:16..58:17) _empty_/Test3.B.f(). -> 57:9
+(65:18..65:21) scala/Any#
+(65:24..65:27) scala/Int#
+(68:14..68:17) scala/Any#
+(68:20..68:21) _empty_/Test4.A# -> 64:9
+(68:24..68:27) scala/Predef.`???`().
+(69:12..69:13) _empty_/Test4.A# -> 64:9
+(69:16..69:17) _empty_/Test4.B.f(). -> 68:9
+(75:18..75:21) scala/Any#
+(75:24..75:27) scala/Int#
+(78:14..78:20) scala/AnyRef#
+(78:23..78:24) _empty_/Test5.A# -> 74:9
+(78:27..78:30) scala/Predef.`???`().
+(79:12..79:13) _empty_/Test5.A# -> 74:9
+(79:16..79:17) _empty_/Test5.B.f(). -> 78:9
+(85:18..85:30) java/lang/CharSequence#
+(85:33..85:36) scala/Int#
+(88:14..88:20) scala/Predef.String#
+(88:23..88:24) _empty_/Test6.A# -> 84:9
+(88:27..88:30) scala/Predef.`???`().
+(89:12..89:13) _empty_/Test6.A# -> 84:9
+(89:16..89:17) _empty_/Test6.B.f(). -> 88:9
+

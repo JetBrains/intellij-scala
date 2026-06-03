@@ -1,0 +1,180 @@
+
+object Test:
+  val z = Seq(0 -> 1, 2 -> 3).lazyZip(Seq("A", "B"))
+  for case ((beg, end), c) <- z yield c // Ok: a withFilter is inserted before map
+  for (range, c) <- z yield c           // Ok: exact shape
+  for ((beg, end), c) <- z yield c      // Error before changes: Wrong number of parameters, expected 2
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: z
+              PsiElement(identifier)('z')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Seq(0 -> 1, 2 -> 3).lazyZip
+              MethodCall
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ->
+                      PsiElement(identifier)('->')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ->
+                      PsiElement(identifier)('->')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('lazyZip')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"A"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"B"')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: beg
+                        PsiElement(identifier)('beg')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: end
+                        PsiElement(identifier)('end')
+                    PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: z
+                PsiElement(identifier)('z')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// Ok: a withFilter is inserted before map')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: range
+                    PsiElement(identifier)('range')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: z
+                PsiElement(identifier)('z')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+        PsiWhiteSpace('           ')
+        PsiComment(comment)('// Ok: exact shape')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      ReferencePattern: beg
+                        PsiElement(identifier)('beg')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: end
+                        PsiElement(identifier)('end')
+                    PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: z
+                PsiElement(identifier)('z')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+  PsiWhiteSpace('      ')
+  PsiComment(comment)('// Error before changes: Wrong number of parameters, expected 2')

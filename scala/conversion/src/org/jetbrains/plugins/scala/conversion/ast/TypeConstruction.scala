@@ -1,0 +1,101 @@
+package org.jetbrains.plugins.scala.conversion.ast
+
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiType
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, PsiTypeBridge}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.ProjectContext.fromProject
+
+import scala.collection.mutable
+
+case class TypeConstruction(inType: String) extends TypeNode {
+  def getDefaultTypeValue: String = {
+    inType match {
+      case "Int" | "Byte" | "Short" | "Char" => "0"
+      case "Double" | "Float" => ".0"
+      case "Boolean" => "false"
+      case "Long" => "0L"
+      case "Unit" => "{}"
+      case _ => "null"
+    }
+  }
+
+  override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
+}
+
+object TypeConstruction {
+  def createIntermediateTypePresentation(
+    javaType: PsiType,
+    inProject: Project,
+    textMode: Boolean,
+  ): TypeNode = {
+    implicit val ctx: ProjectContext = inProject
+
+    val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
+
+    val conversionOptions = PsiTypeBridge.ConversionOptions(
+      paramTopLevel = true,
+      //java Object should be treated as AnyRef, not Any
+      treatJavaObjectAsAny = false,
+      // we don't want `new Nothing` for unresolved java references
+      handleUnresolved = true,
+    )
+    val scalaType = javaType.toScType(conversionOptions)
+
+    val typeNode: TypeNode = getParts(scalaType, buffer, textMode)
+    typeNode match {
+      case parametrized: ParametrizedConstruction =>
+        parametrized.associationMap = buffer.toSeq
+      case array: ArrayConstruction =>
+        array.associationMap = buffer.toSeq
+      case _ =>
+    }
+    typeNode
+  }
+
+  // get simple parts of type if type is array or parametrized
+  private def getParts(
+    scType: ScType,
+    buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])],
+    textMode: Boolean
+  )(
+    implicit ctx: ProjectContext
+  ): TypeNode = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
+    scType match {
+      case p@ParameterizedType(des, args) =>
+        val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(des, withPrefix = textMode))
+        buffer += ((typeConstruction, p.extractClass.flatMap(el => Option(el.getQualifiedName))))
+        val argsOnLevel = args.map(getParts(_, buffer, textMode))
+        ParametrizedConstruction(typeConstruction, argsOnLevel)
+      case JavaArrayType(argument) =>
+        ArrayConstruction(getParts(argument, buffer, textMode))
+      case otherType =>
+        val typeConstruction: TypeNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))
+        buffer += ((typeConstruction, otherType.extractClass.flatMap(el => Option(el.getQualifiedName))))
+        typeConstruction
+    }
+  }
+}
+
+case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends TypeNode {
+  var associationMap = Seq.empty[(IntermediateNode, Option[String])]
+
+  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+}
+
+case class ArrayConstruction(iNode: IntermediateNode) extends TypeNode {
+  var associationMap = Seq.empty[(IntermediateNode, Option[String])]
+
+  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+}
+
+case class DisjunctionTypeConstructions(parts: Seq[IntermediateNode]) extends TypeNode {
+  override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
+}
+
+case class TypeParameterConstruction(name: NameIdentifier, typez: Seq[IntermediateNode]) extends IntermediateNode
+
+case class TypeParameters(data: Seq[IntermediateNode]) extends IntermediateNode

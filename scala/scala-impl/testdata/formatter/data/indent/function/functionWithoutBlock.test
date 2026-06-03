@@ -1,0 +1,11 @@
+class a {
+  def foo() =
+  if (true) false
+ else   true
+}
+-----
+class a {
+  def foo() =
+    if (true) false
+    else true
+}

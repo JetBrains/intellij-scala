@@ -1,0 +1,10 @@
+package a
+
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: a
+      PsiElement(identifier)('a')
+  PsiWhiteSpace('\n')

@@ -1,0 +1,23 @@
+body = <a target={classesFrame} >{"All objects and classes"}</a>;
+-----
+identifier {body}
+white space in line { }
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {a}
+WHITE_SPACE { }
+XML_NAME {target}
+XML_EQ {=}
+ScalaXmlInjectionStart {{}
+identifier {classesFrame}
+ScalaXmlInjection End {}}
+WHITE_SPACE { }
+XML_TAG_END {>}
+ScalaXmlInjectionStart {{}
+string content {"All objects and classes"}
+ScalaXmlInjection End {}}
+XML_END_TAG_START {</}
+XML_NAME {a}
+XML_TAG_END {>}
+; {;}

@@ -1,0 +1,7 @@
+trait X {
+  def f: Int
+}
+
+class Y extends X {
+  <spot>override def f: Int = ???</spot>
+}

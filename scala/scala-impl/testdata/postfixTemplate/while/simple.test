@@ -1,0 +1,13 @@
+class Test {
+  if (true) {
+    <start>true<while>
+  }
+}
+------
+class Test {
+  if (true) {
+    while (true) {
+      
+    }
+  }
+}

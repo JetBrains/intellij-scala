@@ -1,0 +1,9 @@
+package p1 {
+  package p2 {
+    class A {
+    }
+  
+    class B { // -
+    }
+  }
+}

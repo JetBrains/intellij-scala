@@ -1,0 +1,7 @@
+"string\u0023 \n"
+"""string\u0023 \r"""
+s"string\u0023 \n"
+s"""string\u0023 \n"""
+raw"""string\u0023 \n"""
+raw"string\u0023 \n"
+---------

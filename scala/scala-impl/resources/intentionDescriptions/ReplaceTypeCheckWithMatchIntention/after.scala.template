@@ -1,0 +1,8 @@
+  val value = 0
+  value match {
+    case x: Int =>
+      val y = x + 2
+    case l: Long if value != 0 =>
+      val x = l + 1
+    case _ =>
+  }

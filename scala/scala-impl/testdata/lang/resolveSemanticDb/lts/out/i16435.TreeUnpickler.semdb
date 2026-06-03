@@ -1,0 +1,13 @@
+Document tests/pos/i16435.TreeUnpickler.scala
+(3:19..3:22) _empty_/Foo# -> 2:7
+(4:29..4:32) _empty_/Bar# -> 3:7
+(5:21..5:25) _empty_/Bar#Self# -> 4:8
+(8:18..8:25) scala/Boolean#
+(8:32..8:35) _empty_/Bar# -> 3:7
+(8:38..8:41) _empty_/Foo# -> 2:7
+(9:15..9:18) _empty_/Test#test().(bar) -> 8:27
+(10:8..10:12) _empty_/Test#test().(cond) -> 8:12
+(11:7..11:10) local0 -> 9:9
+(11:11..11:15) _empty_/Bar#meth(). -> 5:13
+(13:7..13:10) local0 -> 9:9
+

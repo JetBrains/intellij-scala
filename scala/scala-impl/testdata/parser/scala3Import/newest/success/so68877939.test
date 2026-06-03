@@ -1,0 +1,347 @@
+abstract class Quantity[A <: Quantity[A]]
+sealed trait UnitOfMeasure[A <: Quantity[A]]
+
+class Time extends Quantity[Time]
+object Minutes extends UnitOfMeasure[Time]
+
+class PowerRamp extends Quantity[PowerRamp]
+object KilowattsPerHour extends UnitOfMeasure[PowerRamp]
+
+type Test[X <: UnitOfMeasure[?]] = X match
+  case UnitOfMeasure[t] => t
+
+@main def main =
+  summon[Test[Minutes.type] =:= Time]
+  summon[Test[KilowattsPerHour.type] =:= PowerRamp]
+-----
+ScalaFile
+  ScClass: Quantity
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Quantity')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Quantity[A]
+          SimpleType: Quantity
+            CodeReferenceElement: Quantity
+              PsiElement(identifier)('Quantity')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: UnitOfMeasure
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UnitOfMeasure')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Quantity[A]
+          SimpleType: Quantity
+            CodeReferenceElement: Quantity
+              PsiElement(identifier)('Quantity')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Time
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Time')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Quantity[Time]
+            SimpleType: Quantity
+              CodeReferenceElement: Quantity
+                PsiElement(identifier)('Quantity')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: Minutes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Minutes')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: UnitOfMeasure[Time]
+            SimpleType: UnitOfMeasure
+              CodeReferenceElement: UnitOfMeasure
+                PsiElement(identifier)('UnitOfMeasure')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: PowerRamp
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PowerRamp')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Quantity[PowerRamp]
+            SimpleType: Quantity
+              CodeReferenceElement: Quantity
+                PsiElement(identifier)('Quantity')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: PowerRamp
+                  CodeReferenceElement: PowerRamp
+                    PsiElement(identifier)('PowerRamp')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: KilowattsPerHour
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('KilowattsPerHour')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: UnitOfMeasure[PowerRamp]
+            SimpleType: UnitOfMeasure
+              CodeReferenceElement: UnitOfMeasure
+                PsiElement(identifier)('UnitOfMeasure')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: PowerRamp
+                  CodeReferenceElement: PowerRamp
+                    PsiElement(identifier)('PowerRamp')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: UnitOfMeasure[?]
+          SimpleType: UnitOfMeasure
+            CodeReferenceElement: UnitOfMeasure
+              PsiElement(identifier)('UnitOfMeasure')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: X match
+  case UnitOfMeasure[t] => t
+      SimpleType: X
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: UnitOfMeasure[t]
+            SimpleType: UnitOfMeasure
+              CodeReferenceElement: UnitOfMeasure
+                PsiElement(identifier)('UnitOfMeasure')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: t
+            CodeReferenceElement: t
+              PsiElement(identifier)('t')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Test[Minutes.type] =:= Time
+              ParametrizedType: Test[Minutes.type]
+                SimpleType: Test
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Minutes.type
+                      CodeReferenceElement: Minutes
+                        PsiElement(identifier)('Minutes')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: Time
+                CodeReferenceElement: Time
+                  PsiElement(identifier)('Time')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Test[KilowattsPerHour.type] =:= PowerRamp
+              ParametrizedType: Test[KilowattsPerHour.type]
+                SimpleType: Test
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: KilowattsPerHour.type
+                      CodeReferenceElement: KilowattsPerHour
+                        PsiElement(identifier)('KilowattsPerHour')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: PowerRamp
+                CodeReferenceElement: PowerRamp
+                  PsiElement(identifier)('PowerRamp')
+          PsiElement(])(']')
