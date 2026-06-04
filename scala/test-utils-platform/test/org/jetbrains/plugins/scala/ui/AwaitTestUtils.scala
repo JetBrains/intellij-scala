@@ -11,6 +11,9 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
+/**
+ * Also see [[com.intellij.testFramework.PlatformTestUtil#waitForPromise]]
+ */
 object AwaitTestUtils {
 
   private val DefaultAttempts = 100
