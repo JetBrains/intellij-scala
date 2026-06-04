@@ -1852,7 +1852,7 @@ import java.nio.file.Files
       (s"src/test/scala-2.$binaryVersion", JavaSourceRootType.TEST_SOURCE),
       ("src/main/resources", JavaResourceRootType.RESOURCE),
       ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+    ).map(ExpectedDirectoryCompletionVariant.apply.tupled)
 
   protected def customSbtContentRootsForMain(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
     Seq(
@@ -1860,7 +1860,7 @@ import java.nio.file.Files
       ("scala", JavaSourceRootType.SOURCE),
       (s"scala-2.$binaryVersion", JavaSourceRootType.SOURCE),
       ("resources", JavaResourceRootType.RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+    ).map(ExpectedDirectoryCompletionVariant.apply.tupled)
 
   protected def customSbtContentRootsForTest(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
     Seq(
@@ -1868,7 +1868,7 @@ import java.nio.file.Files
       ("scala", JavaSourceRootType.TEST_SOURCE),
       (s"scala-2.$binaryVersion", JavaSourceRootType.TEST_SOURCE),
       ("resources", JavaResourceRootType.TEST_RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+    ).map(ExpectedDirectoryCompletionVariant.apply.tupled)
 
   private def simpleSbtIvyBasedTest(mutedNotificationTitles: Seq[String] = Seq.empty): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)("2.12.10")

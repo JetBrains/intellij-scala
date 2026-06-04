@@ -50,7 +50,7 @@ final class BuildOverSbtShellTester(
   def buildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult = {
     runBuildAndCaptureOutput(s"Building artifacts (${artifacts.size})") {
       ProjectTaskManager.getInstance(project)
-        .build(artifacts: _*)
+        .build(artifacts*)
         .blockingGet(1, TimeUnit.MINUTES)
     }
   }
@@ -58,7 +58,7 @@ final class BuildOverSbtShellTester(
   def rebuildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult = {
     runBuildAndCaptureOutput(s"Rebuilding artifacts (${artifacts.size})") {
       ProjectTaskManager.getInstance(project)
-        .rebuild(artifacts: _*)
+        .rebuild(artifacts*)
         .blockingGet(1, TimeUnit.MINUTES)
     }
   }
