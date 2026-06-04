@@ -68,33 +68,36 @@ ScalaFile
                       PsiElement(identifier)('Some')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Tuple.Map[(Int, Int), Option]
-                      SimpleType: Tuple.Map
-                        CodeReferenceElement: Tuple.Map
-                          CodeReferenceElement: Tuple
-                            PsiElement(identifier)('Tuple')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Map')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        TupleType: (Int, Int)
-                          PsiElement(()('(')
-                          TypesList
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
-                          PsiElement())(')')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Option
-                          CodeReferenceElement: Option
-                            PsiElement(identifier)('Option')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Tuple.Map[(Int, Int), Option]
+                        SimpleType: Tuple.Map
+                          CodeReferenceElement: Tuple.Map
+                            CodeReferenceElement: Tuple
+                              PsiElement(identifier)('Tuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Map')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            TupleType: (Int, Int)
+                              PsiElement(()('(')
+                              TypesList
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement())(')')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

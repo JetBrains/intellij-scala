@@ -100,15 +100,8 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: Int *: Int *: EmptyTuple
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                InfixType: Int *: EmptyTuple
+              TypeArgument
+                InfixType: Int *: Int *: EmptyTuple
                   SimpleType: Int
                     CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
@@ -116,9 +109,17 @@ ScalaFile
                   CodeReferenceElement: *:
                     PsiElement(identifier)('*:')
                   PsiWhiteSpace(' ')
-                  SimpleType: EmptyTuple
-                    CodeReferenceElement: EmptyTuple
-                      PsiElement(identifier)('EmptyTuple')
+                  InfixType: Int *: EmptyTuple
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -106,9 +106,10 @@ ScalaFile
                       PsiElement(identifier)('MyCodec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -193,9 +194,10 @@ ScalaFile
                 PsiElement(identifier)('CompanionEssentials')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Person
-                CodeReferenceElement: Person
-                  PsiElement(identifier)('Person')
+              TypeArgument
+                SimpleType: Person
+                  CodeReferenceElement: Person
+                    PsiElement(identifier)('Person')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -220,9 +222,10 @@ ScalaFile
                 PsiElement(identifier)('MyCodec')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Person
-                CodeReferenceElement: Person
-                  PsiElement(identifier)('Person')
+              TypeArgument
+                SimpleType: Person
+                  CodeReferenceElement: Person
+                    PsiElement(identifier)('Person')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -239,9 +242,10 @@ ScalaFile
                         PsiElement(identifier)('MyCodec')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Person
-                        CodeReferenceElement: Person
-                          PsiElement(identifier)('Person')
+                      TypeArgument
+                        SimpleType: Person
+                          CodeReferenceElement: Person
+                            PsiElement(identifier)('Person')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody

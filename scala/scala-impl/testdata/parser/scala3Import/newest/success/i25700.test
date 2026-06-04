@@ -135,9 +135,10 @@ ScalaFile
                   PsiElement(identifier)('IArray')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
+                TypeArgument
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: partitionCollect2
@@ -180,9 +181,10 @@ ScalaFile
                   PsiElement(identifier)('IArray')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -201,14 +203,16 @@ ScalaFile
                   PsiElement(identifier)('PartialFunction')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A1
-                  CodeReferenceElement: A1
-                    PsiElement(identifier)('A1')
+                TypeArgument
+                  SimpleType: A1
+                    CodeReferenceElement: A1
+                      PsiElement(identifier)('A1')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -227,14 +231,16 @@ ScalaFile
                   PsiElement(identifier)('PartialFunction')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A2
-                  CodeReferenceElement: A2
-                    PsiElement(identifier)('A2')
+                TypeArgument
+                  SimpleType: A2
+                    CodeReferenceElement: A2
+                      PsiElement(identifier)('A2')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n')
@@ -250,9 +256,10 @@ ScalaFile
               PsiElement(identifier)('IArray')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A1
-              CodeReferenceElement: A1
-                PsiElement(identifier)('A1')
+            TypeArgument
+              SimpleType: A1
+                CodeReferenceElement: A1
+                  PsiElement(identifier)('A1')
             PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -262,9 +269,10 @@ ScalaFile
               PsiElement(identifier)('IArray')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A2
-              CodeReferenceElement: A2
-                PsiElement(identifier)('A2')
+            TypeArgument
+              SimpleType: A2
+                CodeReferenceElement: A2
+                  PsiElement(identifier)('A2')
             PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -274,9 +282,10 @@ ScalaFile
               PsiElement(identifier)('IArray')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -311,9 +320,10 @@ ScalaFile
                   PsiElement(identifier)('IArray')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Updater
-                  CodeReferenceElement: Updater
-                    PsiElement(identifier)('Updater')
+                TypeArgument
+                  SimpleType: Updater
+                    CodeReferenceElement: Updater
+                      PsiElement(identifier)('Updater')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -343,9 +353,10 @@ ScalaFile
                         PsiElement(identifier)('IArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Mutator
-                        CodeReferenceElement: Mutator
-                          PsiElement(identifier)('Mutator')
+                      TypeArgument
+                        SimpleType: Mutator
+                          CodeReferenceElement: Mutator
+                            PsiElement(identifier)('Mutator')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -361,9 +372,10 @@ ScalaFile
                         PsiElement(identifier)('IArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Initializer
-                        CodeReferenceElement: Initializer
-                          PsiElement(identifier)('Initializer')
+                      TypeArgument
+                        SimpleType: Initializer
+                          CodeReferenceElement: Initializer
+                            PsiElement(identifier)('Initializer')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
