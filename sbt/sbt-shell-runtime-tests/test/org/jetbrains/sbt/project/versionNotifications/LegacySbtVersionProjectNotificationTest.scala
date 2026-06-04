@@ -6,13 +6,10 @@ import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUiKind, AnActionEv
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.fixtures.{IdeaProjectTestFixture, IdeaTestFixtureFactory}
 import com.intellij.testFramework.{PlatformTestUtil, ServiceContainerUtil, StartupActivityTestUtil, TestApplicationManager, UsefulTestCase}
 import com.intellij.util.ui.UIUtil
-
-import kotlinx.coroutines.future.FutureKt
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.fixture.TestProjectRootFixture
