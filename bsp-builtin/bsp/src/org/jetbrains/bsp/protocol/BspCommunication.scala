@@ -10,7 +10,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
 import org.jetbrains.bsp.*
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
@@ -177,7 +177,13 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
     def configureBloopLauncherIfJdkExists() =
       BspJdkUtil.findOrCreateBestJdkForProject(project, eelDescriptor) match {
-        case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
+        case Some(jdk) => Right(
+          if eelDescriptor == LocalEelDescriptor.INSTANCE then
+            new BloopLocalLauncherConnector(base, compilerOutputDir, capabilities, jdk)
+          else
+            new BloopRemoteLauncherConnector(base, compilerOutputDir, capabilities, jdk, eelDescriptor)
+        )
+
         case None => Left(BspNoJdkConfiguredError)
       }
 

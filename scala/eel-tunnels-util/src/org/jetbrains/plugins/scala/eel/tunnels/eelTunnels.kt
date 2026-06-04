@@ -9,6 +9,7 @@ import com.intellij.platform.eel.eelProxy
 import com.intellij.platform.eel.provider.localEel
 import com.intellij.platform.eel.provider.utils.acceptOnTcpPort
 import com.intellij.platform.eel.provider.utils.connectToTcpPort
+import com.intellij.platform.eel.provider.utils.findAvailablePort
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.jetbrains.annotations.ApiStatus
@@ -39,4 +40,15 @@ private fun CoroutineScope.forwardLocalPortImpl(tunnels: EelTunnelsApi, remotePo
 @ApiStatus.Internal
 internal fun forwardLocalPort(scope: CoroutineScope, tunnels: EelTunnelsApi, remotePort: Int): Int {
   return scope.forwardLocalPortImpl(tunnels, remotePort).asCompletableFuture().get()
+}
+
+private fun CoroutineScope.findAvailablePort(tunnels: EelTunnelsApi): Deferred<Int> {
+  return async {
+    tunnels.findAvailablePort()
+  }
+}
+
+@ApiStatus.Internal
+internal fun findAvailablePort(scope: CoroutineScope, tunnels: EelTunnelsApi): Int {
+  return scope.findAvailablePort(tunnels).asCompletableFuture().get()
 }
