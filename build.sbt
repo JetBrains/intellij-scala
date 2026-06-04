@@ -169,7 +169,7 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
-    Compile / unmanagedSourceDirectories ++= Seq(sourceDirectory.value / "gen"),
+    Compile / managedSourceDirectories += sourceDirectory.value / "gen",
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions
   )
