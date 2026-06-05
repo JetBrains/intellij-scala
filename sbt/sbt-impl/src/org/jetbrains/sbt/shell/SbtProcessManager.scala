@@ -104,8 +104,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val shellSbtProcessOptions: SbtProcessOptions =
       SbtProcessOptionsResolver.resolveSbtOptionsForShell(
         workingDir,
-        sbtSettings.sbtOptions,
-        EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment)
+        sbtSettings.sbtOptions.options,
+        EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment),
+        malformedSbtOptionsFromSettings = sbtSettings.sbtOptions.malformedOptions
       )
 
     val vmOptionsData: SbtShellVmOptionsData =

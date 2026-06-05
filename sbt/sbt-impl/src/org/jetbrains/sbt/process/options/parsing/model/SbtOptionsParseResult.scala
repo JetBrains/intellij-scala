@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.process.options.parsing.model
 
 /**
- * Parser-local outcome of mapping raw sbt option strings to recognised options and unrecognised inputs.
+ * Parser-local outcome of mapping raw sbt option strings to recognised options and diagnostics.
  *
  * Coverage:
  * - Directly asserted in [[org.jetbrains.sbt.process.options.parsing.SbtOptionsParserTest]].
@@ -9,5 +9,5 @@ package org.jetbrains.sbt.process.options.parsing.model
  */
 private[options] final case class SbtOptionsParseResult(
   parsed: Seq[ParsedSbtOption],
-  unrecognised: Seq[UnrecognizedSbtOptions]
+  diagnostics: Seq[SbtOptionsDiagnostic]
 )

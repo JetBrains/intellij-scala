@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.process.options.parsing
 
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.sbt.process.options.parsing.SbtOptionsTextNormalizer.NormalizationResult
+import org.jetbrains.sbt.process.options.parsing.model.MalformedSbtOption
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
@@ -16,135 +18,145 @@ import org.junit.Test
  */
 class SbtOptionsTextNormalizerTest {
 
-  private def assertNormalizedOptions(providedOpts: String, expected: Seq[String]): Unit = {
+  private def assertNormalized(providedOpts: String, expected: NormalizationResult): Unit = {
     val actual = SbtOptionsTextNormalizer.normalize(providedOpts)
-    assertCollectionEquals(expected, actual)
+    assertEquals(expected, actual)
   }
+
+  private def result(options: Seq[String], malformedOptions: Seq[MalformedSbtOption] = Seq.empty): NormalizationResult =
+    NormalizationResult(options, malformedOptions)
 
   @Test
   def combinesOptionWithQuotedArgument(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ -sbt-dir "temp dir" -color=always -d dummy """,
-      Seq("-sbt-dir temp dir", "-color=always", "-d", "dummy")
+      result(Seq("-sbt-dir temp dir", "-color=always", "-d", "dummy"))
     )
 
   @Test
   def normalizesLongOptionsAndPreservesShortDoubleDashOption(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ --sbt-dir "temp di'r" -color=always  --d dummy """,
-      Seq("-sbt-dir temp di'r", "-color=always", "--d", "dummy")
+      result(Seq("-sbt-dir temp di'r", "-color=always", "--d", "dummy"))
     )
 
   @Test
   def returnsEmptyForUnbalancedQuotes(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ --sbt-dir "temp dir -color=always  --d dummy """,
-      Seq.empty
+      result(Seq.empty, Seq(MalformedSbtOption(lineNumber = 1, unclosedQuote = '"', lineContent = """ --sbt-dir "temp dir -color=always  --d dummy """)))
+    )
+
+  @Test
+  def reportsUnbalancedQuotes(): Unit =
+    assertNormalized(
+      """ --sbt-dir "temp dir -color=always  --d dummy """,
+      result(Seq.empty, Seq(MalformedSbtOption(lineNumber = 1, unclosedQuote = '"', lineContent = """ --sbt-dir "temp dir -color=always  --d dummy """)))
     )
 
   @Test
   def keepsOptionWithoutFollowingArgumentUnchanged(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-d -sbt-dir""",
-      Seq("-d", "-sbt-dir")
+      result(Seq("-d", "-sbt-dir"))
     )
 
   @Test
   def doesNotCombineOptionWithEmptyQuotedArgument(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ -d -sbt-dir "" """,
-      Seq("-d", "-sbt-dir", "")
+      result(Seq("-d", "-sbt-dir", ""))
     )
 
   @Test
   def doesNotCombineOptionWithBlankQuotedArgument(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ -d -sbt-dir "   " """,
       //Q: is it a correct thing to expect indeed?
-      Seq("-d", "-sbt-dir    ")
+      result(Seq("-d", "-sbt-dir    "))
     )
 
   @Test
   def combinesOptionWithQuotedArgumentContainingSpaces(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ -d -sbt-dir "/tmp/sbt dir" """,
-      Seq("-d", "-sbt-dir /tmp/sbt dir")
+      result(Seq("-d", "-sbt-dir /tmp/sbt dir"))
     )
 
   @Test
   def combinesOptionWithQuotedArgumentContainingSpaces_LeadingAndTrailing(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """ -d -sbt-dir "  /tmp/sbt dir  " """,
       //Q: is it a correct thing to expect indeed?
-      Seq("-d", "-sbt-dir   /tmp/sbt dir  ")
+      result(Seq("-d", "-sbt-dir   /tmp/sbt dir  "))
     )
 
 
   @Test
   def doesNotCombineOptionWithNextOptionAsArgument(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-d -sbt-dir -dummy""",
-      Seq("-d", "-sbt-dir", "-dummy")
+      result(Seq("-d", "-sbt-dir", "-dummy"))
     )
 
   @Test
   def combinesMultipleOptionArgumentPairs(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-sbt-dir /tmp/sbt -ivy /tmp/ivy -jvm-debug 5005""",
-      Seq("-sbt-dir /tmp/sbt", "-ivy /tmp/ivy", "-jvm-debug 5005")
+      result(Seq("-sbt-dir /tmp/sbt", "-ivy /tmp/ivy", "-jvm-debug 5005"))
     )
 
   @Test
   def keepsFlagOnlyJvmOptionsUnchanged(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-no-global -no-share -debug-inc -traces -timings -no-colors""",
-      Seq("-no-global", "-no-share", "-debug-inc", "-traces", "-timings", "-no-colors")
+      result(Seq("-no-global", "-no-share", "-debug-inc", "-traces", "-timings", "-no-colors"))
     )
 
   @Test
   def doesNotCombineOptionThatAlreadyContainsItsValue(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-color=always dummy""",
-      Seq("-color=always", "dummy")
+      result(Seq("-color=always", "dummy"))
     )
 
   @Test
   def doesNotCombineOptionThatEndsWithEquals(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """-color= always""",
-      Seq("-color=", "always")
+      result(Seq("-color=", "always"))
     )
 
   @Test
   def normalizesStandaloneLongLauncherOptions(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """--debug --warn --info --error""",
-      Seq("-debug", "-warn", "-info", "-error")
+      result(Seq("-debug", "-warn", "-info", "-error"))
     )
 
   @Test
   def normalizesUnknownLongOptionWithoutCombiningIt(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """--unknown value""",
-      Seq("-unknown", "value")
+      result(Seq("-unknown", "value"))
     )
 
   @Test
   def returnsEmptyForEmptyInput(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "",
-      Seq.empty
+      result(Seq.empty)
     )
 
   @Test
   def returnsEmptyForCommentOnlyInput(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       """# comment only""",
-      Seq.empty
+      result(Seq.empty)
     )
 
   private def assertIsolatedOption(providedOpt: String, expectedOpt: String = null): Unit =
-    assertNormalizedOptions(providedOpt, Seq(Option(expectedOpt).getOrElse(providedOpt)))
+    assertNormalized(providedOpt, result(Seq(Option(expectedOpt).getOrElse(providedOpt))))
 
   @Test
   def keepsIsolatedKnownShortLauncherOptionUnchanged(): Unit =
@@ -178,43 +190,43 @@ class SbtOptionsTextNormalizerTest {
 
   @Test
   def parsesOptionsOnSeparateLinesWithUnixLineEndings(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "-sbt-dir /tmp\n-debug\n-color=always",
-      Seq("-sbt-dir /tmp", "-debug", "-color=always")
+      result(Seq("-sbt-dir /tmp", "-debug", "-color=always"))
     )
 
   @Test
   def parsesOptionsOnSeparateLinesWithWindowsLineEndings(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "-sbt-dir /tmp\r\n-debug\r\n-color=always",
-      Seq("-sbt-dir /tmp", "-debug", "-color=always")
+      result(Seq("-sbt-dir /tmp", "-debug", "-color=always"))
     )
 
   @Test
   def parsesOptionsOnSeparateLinesWithCarriageReturnOnly(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "-sbt-dir /tmp\r-debug\r-color=always",
-      Seq("-sbt-dir /tmp", "-debug", "-color=always")
+      result(Seq("-sbt-dir /tmp", "-debug", "-color=always"))
     )
 
   @Test
   def parsesMultiLineInputWithBlankLines(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "\n-debug\n\n-color=always\n",
-      Seq("-debug", "-color=always")
+      result(Seq("-debug", "-color=always"))
     )
 
   @Test
   def commentOnFirstLineKeepsFollowingLines(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "-debug # comment\n-color=always\n-sbt-dir /tmp",
-      Seq("-debug", "-color=always", "-sbt-dir /tmp")
+      result(Seq("-debug", "-color=always", "-sbt-dir /tmp"))
     )
 
   @Test
   def commentLineAtStartKeepsFollowingLines(): Unit =
-    assertNormalizedOptions(
+    assertNormalized(
       "# comment only\n-debug\n-color=always",
-      Seq("-debug", "-color=always")
+      result(Seq("-debug", "-color=always"))
     )
 }

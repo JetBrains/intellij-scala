@@ -60,7 +60,7 @@ private[options] object JvmOptionsCollector {
    * @param lines can be content of the `.jvmopts` file or `JAVA_OPTS` environment variable
    */
   private def parseJvmOptionLines(lines: Seq[String]): CollectionResult = {
-    val cleaned = lines.flatMap(CommentsAndQuotesPreprocessor.preprocess)
+    val cleaned = lines.flatMap(CommentsAndQuotesPreprocessor.preprocess(_).preprocessedText)
     val parsed = cleaned.flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq).map(_.trim)
     val onlyWithDash = parsed.filter(_.startsWith("-"))
     CollectionResult(onlyWithDash)

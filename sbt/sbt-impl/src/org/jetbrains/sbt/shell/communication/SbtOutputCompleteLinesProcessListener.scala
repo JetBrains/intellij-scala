@@ -30,6 +30,7 @@ private[shell] abstract class SbtOutputCompleteLinesProcessListener(
   protected final def isNewSbtShell: Boolean =
     shellModeProvider.isNewShell
 
+   //TODO: split it per STDOUT / STDERR
   def onLine(line: String): Unit
 
   final override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =

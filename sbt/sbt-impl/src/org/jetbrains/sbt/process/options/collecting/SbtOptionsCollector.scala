@@ -1,7 +1,9 @@
 package org.jetbrains.sbt.process.options.collecting
 
 import com.intellij.execution.configuration.EnvironmentVariablesData
-import org.jetbrains.sbt.process.options.parsing.model.{ParsedSbtOption, SbtOptionsParseResult, SbtOptionsSource, UnrecognizedSbtOptions}
+import org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic
+import org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic.Malformed
+import org.jetbrains.sbt.process.options.parsing.model.{MalformedSbtOption, ParsedSbtOption, SbtOptionsParseResult, SbtOptionsSource}
 import org.jetbrains.sbt.process.options.parsing.{SbtOptionsParser, SbtOptionsTextNormalizer}
 
 import java.nio.file.Path
@@ -11,7 +13,7 @@ import java.nio.file.Path
  *
  * @see [[SbtProcessOptionsResolver]] for the source order and pipeline
  *
- * Coverage:
+ *      Coverage:
  * - Indirectly covered by [[org.jetbrains.sbt.process.options.SbtProcessOptionsResolverTest]] sbt-option source
  *   collection cases.
  */
@@ -20,17 +22,17 @@ private[options] object SbtOptionsCollector {
   /**
    * Collected sbt options partitioned into parsed entries and source-grouped diagnostics.
    *
-   * @param parsed       inputs successfully mapped to [[ParsedSbtOption]]
-   * @param unrecognised inputs that could not be recognised, grouped by their source
+   * @param parsed      inputs successfully mapped to [[ParsedSbtOption]]
+   * @param diagnostics inputs that could not be recognized or tokenized, grouped by their source
    */
   final case class CollectionResult(
     parsed: Seq[ParsedSbtOption],
-    unrecognised: Seq[UnrecognizedSbtOptions]
+    diagnostics: Seq[SbtOptionsDiagnostic]
   ) {
     def ++(other: CollectionResult): CollectionResult =
       CollectionResult(
         parsed ++ other.parsed,
-        unrecognised ++ other.unrecognised
+        diagnostics ++ other.diagnostics
       )
   }
 
@@ -38,7 +40,7 @@ private[options] object SbtOptionsCollector {
     val empty: CollectionResult = CollectionResult(Seq.empty, Seq.empty)
 
     def fromParseResult(result: SbtOptionsParseResult): CollectionResult =
-      CollectionResult(result.parsed, result.unrecognised)
+      CollectionResult(result.parsed, result.diagnostics)
   }
 
   private val SbtOptsEnvVarName = "SBT_OPTS"
@@ -47,11 +49,14 @@ private[options] object SbtOptionsCollector {
   def collect(
     sbtOptionsFromSettings: Seq[String],
     workingDir: Path,
-    env: EnvironmentVariablesData
+    env: EnvironmentVariablesData,
+    malformedOptionsFromSettings: Seq[MalformedSbtOption] = Seq.empty
   ): CollectionResult = {
     val fromEnvVar = readFromEnvVar(env)
     val fromFile = readFromFileInDir(workingDir)
-    val fromSettings = parse(sbtOptionsFromSettings, SbtOptionsSource.IdeSettings)
+    val fromSettings =
+      parse(sbtOptionsFromSettings, SbtOptionsSource.IdeSettings) ++
+        collectMalformed(malformedOptionsFromSettings, SbtOptionsSource.IdeSettings)
 
     fromEnvVar ++ fromFile ++ fromSettings
   }
@@ -63,20 +68,41 @@ private[options] object SbtOptionsCollector {
   }
 
   private def parseFromEnvVar(options: String): CollectionResult = {
-    val normalizedOptions = SbtOptionsTextNormalizer.normalize(options)
-    parse(normalizedOptions, SbtOptionsSource.EnvironmentVariable)
+    val normalized = SbtOptionsTextNormalizer.normalize(options)
+    parse(normalized.options, SbtOptionsSource.EnvironmentVariable) ++
+      collectMalformed(normalized.malformedOptions, SbtOptionsSource.EnvironmentVariable)
   }
 
   private def readFromFileInDir(directory: Path): CollectionResult = {
-    val fileLines = readLinesIfReadable(directory, SbtOptsFileName)
-    parseFromFileLines(fileLines)
+    val file = directory.resolve(SbtOptsFileName)
+    val fileLines = readLinesIfReadable(file)
+    parseFromFileLines(fileLines, file)
   }
 
-  private def parseFromFileLines(fileLines: Seq[String]): CollectionResult = {
-    val normalizedOptions = fileLines.flatMap(SbtOptionsTextNormalizer.normalize).map(_.trim).filter(_.nonEmpty)
+  private def parseFromFileLines(fileLines: Seq[String], file: Path): CollectionResult = {
+    val normalizedLines = fileLines.zipWithIndex.map { case (line, index) =>
+      val normalized = SbtOptionsTextNormalizer.normalize(line)
+      normalized.copy(
+        malformedOptions = normalized.malformedOptions.map(_.copy(lineNumber = index + 1))
+      )
+    }
+
+    val normalizedOptions = normalizedLines.flatMap(_.options).map(_.trim).filter(_.nonEmpty)
+    val malformedOptions = normalizedLines.flatMap(_.malformedOptions)
     parse(normalizedOptions, SbtOptionsSource.OptionsFile)
+      ++ collectMalformed(malformedOptions, SbtOptionsSource.OptionsFile, optionsFile = Some(file))
   }
 
   private def parse(options: Seq[String], source: SbtOptionsSource): CollectionResult =
     CollectionResult.fromParseResult(SbtOptionsParser.parse(options, source))
+
+  private def collectMalformed(
+    malformedOptions: Seq[MalformedSbtOption],
+    source: SbtOptionsSource,
+    optionsFile: Option[Path] = None,
+  ): CollectionResult =
+    if (malformedOptions.isEmpty)
+      CollectionResult.empty
+    else
+      CollectionResult(Seq.empty, Seq(Malformed(source, malformedOptions, optionsFile)))
 }

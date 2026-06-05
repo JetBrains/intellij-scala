@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.MapHasAsJava
  *
  * Indirect coverage:
  * - [[SbtProcessOptionsRenderer]]
- * - [[UnrecognizedSbtOptionsReporter]]
+ * - [[SbtOptionsReporter]]
  * - [[collecting.SbtOptionsCollector]]
  * - [[collecting.JvmOptionsCollector]]
  * - [[parsing.SbtOptionsTextNormalizer]]
@@ -320,18 +320,163 @@ class SbtProcessOptionsResolverTest {
       Seq(
         WarningData(
           "unrecognized sbt option: -unknown-from-env",
-          s"""Unrecognized sbt option: -unknown-from-env (Source: SBT_OPTS environment variable)
+          s"""Unrecognized sbt option: -unknown-from-env (SBT_OPTS environment variable)
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
           "unrecognized sbt option: -unknown-from-file",
-          s"""Unrecognized sbt option: -unknown-from-file (Source: .sbtopts file)
+          s"""Unrecognized sbt option: -unknown-from-file (.sbtopts file)
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
           "unrecognized sbt option: -unknown-from-settings",
-          s"""Unrecognized sbt option: -unknown-from-settings (Source: IDE settings)
+          s"""Unrecognized sbt option: -unknown-from-settings (IDE settings)
              |$AllAvailableOptionsText""".stripMargin
+        )
+      )
+    )
+  }
+
+  @Test
+  def resolveSbtOptionsReportsMalformedEnvironmentOptions(): Unit = {
+    val reporter = new MessagesCollectingBuildReporter
+    val actual = SbtProcessOptionsResolver.resolveSbtOptionsForSeparateProcess(
+      workingDir = workingDir,
+      sbtOptionsFromSettings = Seq.empty,
+      environmentVariables = envData(userEnvironment = Map("SBT_OPTS" -> """-sbt-dir "/env/sbt"""))
+    )(using reporter)
+
+    assertEquals(SbtProcessOptions(Seq.empty, Seq.empty), actual)
+    assertWarnings(
+      reporter,
+      Seq(
+        WarningData(
+          "malformed sbt option: -sbt-dir (SBT_OPTS environment variable)",
+          "Malformed sbt option input: unbalanced double quote on line 1"
+        )
+      )
+    )
+  }
+
+  @Test
+  def resolveSbtOptionsReportsMalformedFileLineAndKeepsOtherLines(): Unit = {
+    writeSbtOptsToFileInDir(
+      """
+        |-debug
+        |-sbt-dir "/file/sbt
+        |-warn
+        |-ivy '/file/ivy
+        |""".stripMargin
+    )
+
+    val reporter = new MessagesCollectingBuildReporter
+    val actual = SbtProcessOptionsResolver.resolveSbtOptionsForSeparateProcess(
+      workingDir = workingDir,
+      sbtOptionsFromSettings = Seq.empty,
+      environmentVariables = envData()
+    )(using reporter)
+
+    assertEquals(SbtProcessOptions(Seq.empty, Seq("--debug", "--warn")), actual)
+    assertWarnings(
+      reporter,
+      Seq(
+        WarningData(
+          "malformed sbt option: -sbt-dir (.sbtopts file)",
+          s"""Malformed sbt option input: unbalanced double quote at:
+             |${sbtOptsFilePath}:3
+             |-sbt-dir "/file/sbt""".stripMargin
+        ),
+        WarningData(
+          "malformed sbt option: -ivy (.sbtopts file)",
+          s"""Malformed sbt option input: unbalanced single quote at:
+             |${sbtOptsFilePath}:5
+             |-ivy '/file/ivy""".stripMargin
+        )
+      )
+    )
+  }
+
+  @Test
+  def resolveSbtOptionsReportsMalformedIdeSettingsOptions(): Unit = {
+    val parsedSettings = SbtProcessOptionsResolver.parseSbtOptionsFromSettings("""-sbt-dir "/settings/sbt""")
+
+    val reporter = new MessagesCollectingBuildReporter
+    val actual = SbtProcessOptionsResolver.resolveSbtOptionsForSeparateProcess(
+      workingDir = workingDir,
+      sbtOptionsFromSettings = parsedSettings.options,
+      environmentVariables = envData(),
+      malformedSbtOptionsFromSettings = parsedSettings.malformedOptions
+    )(using reporter)
+
+    assertEquals(SbtProcessOptions(Seq.empty, Seq.empty), actual)
+    assertWarnings(
+      reporter,
+      Seq(
+        WarningData(
+          "malformed sbt option: -sbt-dir (IDE settings)",
+          """Malformed sbt option input: unbalanced double quote on line 1
+            |<a href="open_sbt_settings">Open Settings</a>""".stripMargin
+        )
+      )
+    )
+  }
+
+  @Test
+  def resolveSbtOptionsReportsAllMalformedOptionsFromAllSources(): Unit = {
+    writeSbtOptsToFileInDir(
+      """-sbt-dir "/file/sbt
+        |-ivy '/file/ivy""".stripMargin
+    )
+    val parsedSettings = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(
+      """-sbt-dir "/settings/sbt
+        |-ivy '/settings/ivy""".stripMargin
+    )
+
+    val reporter = new MessagesCollectingBuildReporter
+    val actual = SbtProcessOptionsResolver.resolveSbtOptionsForSeparateProcess(
+      workingDir = workingDir,
+      sbtOptionsFromSettings = parsedSettings.options,
+      environmentVariables = envData(userEnvironment = Map(
+        "SBT_OPTS" ->
+          """-sbt-dir "/env/sbt
+            |-ivy '/env/ivy""".stripMargin
+      )),
+      malformedSbtOptionsFromSettings = parsedSettings.malformedOptions
+    )(using reporter)
+
+    assertEquals(SbtProcessOptions(Seq.empty, Seq.empty), actual)
+    assertWarnings(
+      reporter,
+      Seq(
+        WarningData(
+          "malformed sbt option: -sbt-dir (SBT_OPTS environment variable)",
+          "Malformed sbt option input: unbalanced double quote on line 1"
+        ),
+        WarningData(
+          "malformed sbt option: -ivy (SBT_OPTS environment variable)",
+          "Malformed sbt option input: unbalanced single quote on line 2"
+        ),
+        WarningData(
+          "malformed sbt option: -sbt-dir (.sbtopts file)",
+          s"""Malformed sbt option input: unbalanced double quote at:
+             |${sbtOptsFilePath}:1
+             |-sbt-dir "/file/sbt""".stripMargin
+        ),
+        WarningData(
+          "malformed sbt option: -ivy (.sbtopts file)",
+          s"""Malformed sbt option input: unbalanced single quote at:
+             |${sbtOptsFilePath}:2
+             |-ivy '/file/ivy""".stripMargin
+        ),
+        WarningData(
+          "malformed sbt option: -sbt-dir (IDE settings)",
+          """Malformed sbt option input: unbalanced double quote on line 1
+            |<a href="open_sbt_settings">Open Settings</a>""".stripMargin
+        ),
+        WarningData(
+          "malformed sbt option: -ivy (IDE settings)",
+          """Malformed sbt option input: unbalanced single quote on line 2
+            |<a href="open_sbt_settings">Open Settings</a>""".stripMargin
         )
       )
     )
@@ -370,7 +515,7 @@ class SbtProcessOptionsResolverTest {
     ).sbtLauncherArgs
 
     val fromSettings = resolveSeparateProcessSbtOptions(
-      sbtOptionsFromSettings = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(rawOptions)
+      sbtOptionsFromSettings = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(rawOptions).options
     ).sbtLauncherArgs
 
     val expected = Seq("--debug", "--warn")
@@ -439,4 +584,7 @@ class SbtProcessOptionsResolverTest {
 
   private def writeSbtOptsToFileInDir(text: String): Unit =
     Files.writeString(workingDir.resolve(".sbtopts"), text)
+
+  private def sbtOptsFilePath: String =
+    workingDir.resolve(".sbtopts").toAbsolutePath.toUri.toString
 }

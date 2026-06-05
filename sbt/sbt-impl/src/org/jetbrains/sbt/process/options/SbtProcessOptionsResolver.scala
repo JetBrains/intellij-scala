@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.process.options.collecting.{JvmOptionsCollector, SbtOptionsCollector}
 import org.jetbrains.sbt.process.options.parsing.SbtOptionsTextNormalizer
-import org.jetbrains.sbt.process.options.parsing.model.UnrecognizedSbtOptions
+import org.jetbrains.sbt.process.options.parsing.model.{MalformedSbtOption, SbtOptionsDiagnostic}
 
 import java.nio.file.Path
 
@@ -46,13 +46,20 @@ import java.nio.file.Path
  *
  * ## Diagnostics
  *
- * Unrecognized sbt options are grouped by source so warnings can say whether the bad input came from IDE settings,
- * `SBT_OPTS`, or `.sbtopts`. Suggestions are based on the known option registry.
+ * Sbt option diagnostics are grouped by source so warnings can say whether the bad input came from IDE settings,
+ * `SBT_OPTS`, or `.sbtopts`. Suggestions for unrecognized options are based on the known option registry.
  */
 object SbtProcessOptionsResolver {
 
-  def parseSbtOptionsFromSettings(rawOptionsFromSettings: String): Seq[String] =
-    SbtOptionsTextNormalizer.normalize(rawOptionsFromSettings)
+  private[sbt] final case class ParsedSbtOptionsFromSettings(
+    options: Seq[String],
+    malformedOptions: Seq[MalformedSbtOption]
+  )
+
+  private[sbt] def parseSbtOptionsFromSettings(rawOptionsFromSettings: String): ParsedSbtOptionsFromSettings = {
+    val normalized = SbtOptionsTextNormalizer.normalize(rawOptionsFromSettings)
+    ParsedSbtOptionsFromSettings(normalized.options, normalized.malformedOptions)
+  }
 
   def resolveJavaOptions(
     workingDir: Path,
@@ -68,13 +75,14 @@ object SbtProcessOptionsResolver {
     vmOptionsFromSettings: Seq[String],
     sbtOptionsFromSettings: Seq[String],
     environmentVariables: EnvironmentVariablesData,
-    additionalLauncherArgs: Seq[String]
+    additionalLauncherArgs: Seq[String],
+    malformedSbtOptionsFromSettings: Seq[MalformedSbtOption] = Seq.empty
   )(implicit @Nullable reporter: BuildReporter): SbtProcessOptions = {
     val vmOptions: Seq[String] =
       resolveJavaOptions(workingDir, vmOptionsFromSettings, environmentVariables)
 
     val sbtProcessOptions: SbtProcessOptions =
-      resolveSbtOptionsForSeparateProcess(workingDir, sbtOptionsFromSettings, environmentVariables)
+      resolveSbtOptionsForSeparateProcess(workingDir, sbtOptionsFromSettings, environmentVariables, malformedSbtOptionsFromSettings)
 
     val vmOptionsAll = vmOptions ++ sbtProcessOptions.allVmOptions
     val sbtLauncherArgsAll = sbtProcessOptions.sbtLauncherArgs ++ additionalLauncherArgs
@@ -88,10 +96,11 @@ object SbtProcessOptionsResolver {
   private[options] def resolveSbtOptionsForSeparateProcess(
     workingDir: Path,
     sbtOptionsFromSettings: Seq[String],
-    environmentVariables: EnvironmentVariablesData
+    environmentVariables: EnvironmentVariablesData,
+    malformedSbtOptionsFromSettings: Seq[MalformedSbtOption] = Seq.empty
   )(implicit @Nullable reporter: BuildReporter = null): SbtProcessOptions = {
     val sbtOptions: SbtOptionsCollector.CollectionResult =
-      collectSbtOptionsReportingUnresolved(workingDir, sbtOptionsFromSettings, environmentVariables)
+      collectSbtOptionsReportingUnresolved(workingDir, sbtOptionsFromSettings, environmentVariables, malformedSbtOptionsFromSettings)
 
     SbtProcessOptionsRenderer.renderForSeparateProcess(sbtOptions, projectPath(workingDir))
   }
@@ -102,9 +111,10 @@ object SbtProcessOptionsResolver {
   def resolveSbtOptionsForShell(
     workingDir: Path,
     sbtOptionsFromSettings: Seq[String],
-    environmentVariables: EnvironmentVariablesData
+    environmentVariables: EnvironmentVariablesData,
+    malformedSbtOptionsFromSettings: Seq[MalformedSbtOption] = Seq.empty
   )(implicit @Nullable reporter: BuildReporter = null): SbtProcessOptions = {
-    val sbtOptions = collectSbtOptionsReportingUnresolved(workingDir, sbtOptionsFromSettings, environmentVariables)
+    val sbtOptions = collectSbtOptionsReportingUnresolved(workingDir, sbtOptionsFromSettings, environmentVariables, malformedSbtOptionsFromSettings)
     SbtProcessOptionsRenderer.renderForShell(sbtOptions, projectPath(workingDir))
   }
 
@@ -114,19 +124,20 @@ object SbtProcessOptionsResolver {
   private def collectSbtOptionsReportingUnresolved(
     workingDir: Path,
     sbtOptionsFromSettings: Seq[String],
-    environmentVariables: EnvironmentVariablesData
+    environmentVariables: EnvironmentVariablesData,
+    malformedSbtOptionsFromSettings: Seq[MalformedSbtOption]
   )(implicit @Nullable reporter: BuildReporter = null): SbtOptionsCollector.CollectionResult = {
-    val sbtOptions = SbtOptionsCollector.collect(sbtOptionsFromSettings, workingDir, environmentVariables)
-    reportUnrecognizedOptions(sbtOptions.unrecognised)
+    val sbtOptions = SbtOptionsCollector.collect(sbtOptionsFromSettings, workingDir, environmentVariables, malformedSbtOptionsFromSettings)
+    reportDiagnostics(sbtOptions.diagnostics)
     sbtOptions
   }
 
-  private def reportUnrecognizedOptions(
-    unrecognised: Seq[UnrecognizedSbtOptions]
+  private def reportDiagnostics(
+    diagnostics: Seq[SbtOptionsDiagnostic]
   )(implicit @Nullable buildReporter: BuildReporter): Unit = {
     if (buildReporter != null) {
-      val reporter = new UnrecognizedSbtOptionsReporter(buildReporter)
-      reporter.reportUnrecognizedOptions(unrecognised)
+      val reporter = new SbtOptionsReporter(buildReporter)
+      reporter.reportDiagnostics(diagnostics)
     }
   }
 }

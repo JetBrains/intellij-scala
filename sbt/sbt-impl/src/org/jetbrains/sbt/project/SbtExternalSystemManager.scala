@@ -102,13 +102,13 @@ object SbtExternalSystemManager {
     val vmExecutable = getVmExecutable(project, projectJdkName, settingsState, sbtVersion)
     val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
-    val sbtOptions = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(settings.sbtOptions)
+    val parsedSbtOptions = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(settings.sbtOptions)
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,
       vmExecutable = SerializablePath(vmExecutable),
       vmOptions = vmOptions,
-      sbtOptions = sbtOptions,
+      sbtOptions = SbtExecutionSettings.SbtOptions(parsedSbtOptions.options, parsedSbtOptions.malformedOptions),
       hiddenDefaultMaxHeapSize = SbtSettings.hiddenDefaultMaxHeapSize,
       customLauncher = customLauncher.map(SerializablePath(_)),
       customSbtStructureFile = customSbtStructureFile.map(SerializablePath(_)),

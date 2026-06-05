@@ -17,6 +17,7 @@ import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsRe
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
@@ -139,7 +140,7 @@ object SbtStructureDumper:
       optString: String,
       vmExecutable: Path,
       vmOptions: Seq[String],
-      sbtOptions: Seq[String],
+      sbtOptions: SbtExecutionSettings.SbtOptions,
       environment: Map[String, String],
       sbtLauncher: Path,
       sbtStructureJar: Path,
@@ -188,9 +189,10 @@ object SbtStructureDumper:
       val sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
         vmOptions ++ additionalVmOptionsForNewImport ++ sbtTaskTimingOption,
-        sbtOptions,
+        sbtOptions.options,
         EnvironmentVariablesData.create(environment.asJava, passParentEnvironment),
-        additionalLauncherArgs = Nil
+        additionalLauncherArgs = Nil,
+        malformedSbtOptionsFromSettings = sbtOptions.malformedOptions
       )
 
       val dumpProcessArgsMethod =

@@ -345,7 +345,14 @@ private class CommandTask(
     val buildId = BuildMessages.randomEventId
     val report = new CompositeReporter(
       // Set `activateToolWindowWhenFailed` to `false` to prevent jumping to the build tool window and causing distractions when the build fails
-      new BuildToolWindowReporter(project, buildId, SbtBundle.message("sbt.shell.sbt.build"), new CancelBuildAction(resultPromise, indicator = None), activateToolWindowWhenFailed = false),
+      new BuildToolWindowReporter(
+        project,
+        buildId,
+        SbtBundle.message("sbt.shell.sbt.build"),
+        new CancelBuildAction(resultPromise, indicator = None),
+        activateToolWindowWhenFailed = false,
+        activateToolWindowWhenWarned = true
+      ),
       new IndicatorReporter(indicator)
     )
 

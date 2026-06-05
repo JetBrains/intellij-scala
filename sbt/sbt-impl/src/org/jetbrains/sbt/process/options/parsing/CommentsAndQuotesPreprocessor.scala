@@ -1,47 +1,41 @@
 package org.jetbrains.sbt.process.options.parsing
 
+import org.jetbrains.sbt.process.options.parsing.model.MalformedSbtOption
+
 /**
  * Removes comments while preserving quoted content and rejects input with unbalanced quotes.
  */
 private[options] object CommentsAndQuotesPreprocessor {
 
-  /**
-   * Removes comments from text and returns `None` when the remaining input has unbalanced quotes.<br>
-   *
-   * Everything after `#` is discarded, unless that `#` appears inside quotes.
-   *
-   * @param text input text to preprocess
-   * @return `Some(preprocessedText)` when comments are removed and quotes are balanced;<br>
-   *         `None` when the input contains unbalanced single or double quotes
-   * @example {{{
-   *   // Input:
-   *   """ command "value # stays" # comment """
-   *   // Output
-   *   Some(""" command "value # stays" """)
-   * }}}
-   *
-   * @example {{{
-   *   // Input:
-   *   """ command "unterminated quote """
-   *   // Output:
-   *   None
-   * }}}
-   */
-  def preprocess(text: String): Option[String] = {
-    val lines = text.split("\\R", -1)
-    val preprocessedLines = lines.foldLeft(Option(Vector.empty[String])) {
-      case (Some(lines), line) =>
-        preprocessLine(line).map(lines :+ _)
-      case (None, _) =>
-        None
+  final case class PreprocessResult(
+    preprocessedText: Option[String],
+    malformedOptions: Seq[MalformedSbtOption]
+  )
+
+  def preprocess(text: String): PreprocessResult = {
+    val lineResults = text
+      .split("\\R", -1)
+      .toSeq
+      .zipWithIndex
+      .map { case (line, index) => preprocessLine(line, index + 1) }
+
+    val malformedOptions = lineResults.collect { case LinePreprocessResult.Malformed(option) => option }
+    val preprocessedText = Option.when(malformedOptions.isEmpty) {
+      lineResults.collect { case LinePreprocessResult.Preprocessed(line) => line }.mkString("\n")
     }
-    preprocessedLines.map(_.mkString("\n"))
+
+    PreprocessResult(preprocessedText, malformedOptions)
   }
 
   private def isQuote(char: Char): Boolean =
     char == '"' || char == '\''
 
-  private def preprocessLine(line: String): Option[String] = {
+  private enum LinePreprocessResult {
+    case Preprocessed(line: String)
+    case Malformed(option: MalformedSbtOption)
+  }
+
+  private def preprocessLine(line: String, lineNumber: Int): LinePreprocessResult = {
     var activeQuote = Option.empty[Char]
     var index = 0
 
@@ -57,14 +51,16 @@ private[options] object CommentsAndQuotesPreprocessor {
       }
 
       if (char == '#' && activeQuote.isEmpty)
-        return Some(line.substring(0, index))
+        return LinePreprocessResult.Preprocessed(line.substring(0, index))
 
       index += 1
     }
 
-    if (activeQuote.isEmpty)
-      Some(line)
-    else
-      None
+    activeQuote match {
+      case Some(unclosedQuote) =>
+        LinePreprocessResult.Malformed(MalformedSbtOption(lineNumber, unclosedQuote, line))
+      case None =>
+        LinePreprocessResult.Preprocessed(line)
+    }
   }
 }

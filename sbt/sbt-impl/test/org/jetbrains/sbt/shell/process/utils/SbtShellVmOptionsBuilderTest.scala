@@ -579,7 +579,7 @@ class SbtShellVmOptionsBuilderTest extends UsefulTestCase {
     realProjectPath = null,
     vmExecutable = null,
     vmOptions = userJvmOptions,
-    sbtOptions = List.empty,
+    sbtOptions = SbtExecutionSettings.SbtOptions.empty,
     hiddenDefaultMaxHeapSize = HiddenDefaultSize,
     customLauncher = null,
     customSbtStructureFile = null,

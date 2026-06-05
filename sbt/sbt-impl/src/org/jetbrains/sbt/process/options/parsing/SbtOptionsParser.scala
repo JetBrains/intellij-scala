@@ -4,7 +4,8 @@ import com.intellij.util.text.EditDistance
 import org.jetbrains.sbt.process.options.knownOptions.KnownSbtOption.Form.{InlineValue, NoValue, SeparateValue}
 import org.jetbrains.sbt.process.options.knownOptions.KnownSbtOption.Spelling
 import org.jetbrains.sbt.process.options.knownOptions.{KnownSbtOption, KnownSbtOptions}
-import org.jetbrains.sbt.process.options.parsing.model.{ParsedSbtOption, SbtOptionsParseResult, SbtOptionsSource, UnrecognizedSbtOption, UnrecognizedSbtOptions}
+import org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic.Unrecognized
+import org.jetbrains.sbt.process.options.parsing.model.{ParsedSbtOption, SbtOptionsParseResult, SbtOptionsSource, UnrecognizedSbtOption}
 
 import scala.collection.mutable.ListBuffer
 
@@ -44,11 +45,11 @@ private[options] final class SbtOptionsParser(source: SbtOptionsSource) {
       }
     }
 
-    val unrecognised = Option.when(unrecognizedOptions.nonEmpty) {
-      UnrecognizedSbtOptions(source, unrecognizedOptions.toSeq)
+    val diagnostics = Option.when(unrecognizedOptions.nonEmpty) {
+      Unrecognized(source, unrecognizedOptions.toSeq)
     }.toSeq
 
-    SbtOptionsParseResult(mappedOptions.toSeq, unrecognised)
+    SbtOptionsParseResult(mappedOptions.toSeq, diagnostics)
   }
 
   private def mapOptionToSbtOption(opt: String): Option[ParsedSbtOption] = {

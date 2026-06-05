@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
 import org.jetbrains.sbt.{SbtBundle, asLocalPath, eelDescriptor}
 
@@ -47,7 +48,7 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     vmOptions: Seq[String],
     environment0: Map[String, String],
     sbtLauncher: Path,
-    sbtOptions: Seq[String],
+    sbtOptions: SbtExecutionSettings.SbtOptions,
     sbtLauncherArgs: Seq[String],
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
@@ -69,9 +70,10 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
       sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
         vmOptions,
-        sbtOptions,
+        sbtOptions.options,
         EnvironmentVariablesData.create(environment0.asJava, passParentEnvironment),
-        sbtLauncherArgs
+        sbtLauncherArgs,
+        sbtOptions.malformedOptions
       )
     )
 

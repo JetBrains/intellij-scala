@@ -3,6 +3,7 @@ package org.jetbrains.sbt.process.options.parsing
 import com.intellij.util.execution.ParametersListUtil
 import org.jetbrains.sbt.process.options.knownOptions.KnownSbtOption.Form.SeparateValue
 import org.jetbrains.sbt.process.options.knownOptions.KnownSbtOptions
+import org.jetbrains.sbt.process.options.parsing.model.MalformedSbtOption
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
@@ -15,20 +16,25 @@ import scala.util.matching.Regex
  */
 private[options] object SbtOptionsTextNormalizer {
 
+  final case class NormalizationResult(
+    options: Seq[String],
+    malformedOptions: Seq[MalformedSbtOption]
+  )
+
   /**
    * Normalizes sbt option text into entries shaped for [[SbtOptionsParser.parse]].
    *
    * @param optionsText sbt option text
-   * @return normalized logical option entries
+   * @return normalized logical option entries and malformed input diagnostics
    */
-  def normalize(optionsText: String): Seq[String] = {
-    val optionsWithoutComments = CommentsAndQuotesPreprocessor.preprocess(optionsText)
-    val optionsParsed = optionsWithoutComments.map { options =>
+  def normalize(optionsText: String): NormalizationResult = {
+    val preprocessed = CommentsAndQuotesPreprocessor.preprocess(optionsText)
+    val optionsParsed = preprocessed.preprocessedText.map { options =>
       val optsParsed: Seq[String] = parseOptions(options)
       val optsWithoutDoubleDash = optsParsed.map(removeDoubleDashFromLongOptions)
       prependArgsToOpts(optsWithoutDoubleDash, Nil)
     }
-    optionsParsed.getOrElse(Seq.empty)
+    NormalizationResult(optionsParsed.getOrElse(Seq.empty), preprocessed.malformedOptions)
   }
 
   private def parseOptions(options: String): Seq[String] =

@@ -19,6 +19,15 @@ private def readLinesIfReadable(directory: Path, fileName: String): Seq[String] 
     Seq.empty
 }
 
+
+private def readLinesIfReadable(file: Path): Seq[String] = {
+  val canReadFromFile = file.exists && file.isRegularFile && Files.isReadable(file)
+  if (canReadFromFile)
+    readLines(file)
+  else
+    Seq.empty
+}
+
 private def readLines(file: Path): Seq[String] =
   Using.resource(Files.lines(file, Charset.defaultCharset()))(_.toScala(Seq))
 

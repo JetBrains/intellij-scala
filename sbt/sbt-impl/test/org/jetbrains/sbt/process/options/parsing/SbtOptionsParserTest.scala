@@ -1,7 +1,8 @@
 package org.jetbrains.sbt.process.options.parsing
 
 import org.jetbrains.sbt.process.options.parsing.model.ParsedSbtOption.{DefinedSbtOption, RawJvmSbtOption}
-import org.jetbrains.sbt.process.options.parsing.model.{ParsedSbtOption, SbtOptionsSource, UnrecognizedSbtOption, UnrecognizedSbtOptions}
+import org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic.Unrecognized
+import org.jetbrains.sbt.process.options.parsing.model.{ParsedSbtOption, SbtOptionsSource, UnrecognizedSbtOption}
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,8 +16,8 @@ import org.junit.Test
  * Indirect coverage:
  * - [[org.jetbrains.sbt.process.options.knownOptions.KnownSbtOptions]]
  * - [[org.jetbrains.sbt.process.options.parsing.model.ParsedSbtOption]]
+ * - [[org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic]]
  * - [[org.jetbrains.sbt.process.options.parsing.model.UnrecognizedSbtOption]]
- * - [[org.jetbrains.sbt.process.options.parsing.model.UnrecognizedSbtOptions]]
  * - [[org.jetbrains.sbt.process.options.parsing.model.SbtOptionsSource]]
  */
 class SbtOptionsParserTest {
@@ -32,7 +33,7 @@ class SbtOptionsParserTest {
       ),
       actual.parsed
     )
-    assertEquals(Seq.empty, actual.unrecognised)
+    assertEquals(Seq.empty, actual.diagnostics)
   }
 
   @Test
@@ -47,7 +48,7 @@ class SbtOptionsParserTest {
       ),
       extractKnownOptions(actual.parsed)
     )
-    assertEquals(Seq.empty, actual.unrecognised)
+    assertEquals(Seq.empty, actual.diagnostics)
   }
 
   @Test
@@ -58,11 +59,14 @@ class SbtOptionsParserTest {
     assertEquals(Seq.empty, actual.parsed)
     assertEquals(
       Seq(SbtOptionsSource.IdeSettings),
-      actual.unrecognised.map(_.source)
+      actual.diagnostics.map(_.source)
     )
     assertEquals(
       rawOptions,
-      actual.unrecognised.flatMap(_.unrecognizedOptions.map(_.rawOption))
+      actual.diagnostics.flatMap {
+        case Unrecognized(_, unrecognizedOptions) => unrecognizedOptions.map(_.rawOption)
+        case other => throw new AssertionError(s"Expected only unrecognized diagnostics, got: $other")
+      }
     )
   }
 
@@ -76,12 +80,12 @@ class SbtOptionsParserTest {
     )
     assertEquals(
       Seq(
-        UnrecognizedSbtOptions(
+        Unrecognized(
           SbtOptionsSource.IdeSettings,
           Seq(UnrecognizedSbtOption("-color", Some("-color=auto|always|true|false|never")))
         )
       ),
-      actual.unrecognised
+      actual.diagnostics
     )
   }
 
@@ -92,7 +96,7 @@ class SbtOptionsParserTest {
     assertEquals(Seq.empty, actual.parsed)
     assertEquals(
       Seq(
-        UnrecognizedSbtOptions(
+        Unrecognized(
           SbtOptionsSource.IdeSettings,
           Seq(
             UnrecognizedSbtOption("-sbt-dirop", Some("-sbt-dir <path>")),
@@ -100,7 +104,7 @@ class SbtOptionsParserTest {
           )
         )
       ),
-      actual.unrecognised
+      actual.diagnostics
     )
   }
 
