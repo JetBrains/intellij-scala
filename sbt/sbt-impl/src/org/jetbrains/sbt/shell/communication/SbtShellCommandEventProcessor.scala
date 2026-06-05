@@ -90,15 +90,6 @@ object SbtShellCommandEventProcessor {
   }
 
   /**
-   * Runs a line listener for every text output event and ignores all other shell events.
-   */
-  final class OutputLineListener(lineConsumer: String => Unit) extends ShellEventListener({
-    case Output(line) =>
-      lineConsumer(line)
-    case _ =>
-  })
-
-  /**
    * Runs a side-effect-only processor next to the main processor while keeping the main processor result.
    */
   final class Tap[Result](
