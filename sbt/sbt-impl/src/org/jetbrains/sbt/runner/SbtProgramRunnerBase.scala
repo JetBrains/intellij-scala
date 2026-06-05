@@ -86,11 +86,7 @@ trait SbtProgramRunnerBase {
     val sbtCommunication = SbtShellCommandSubmitter.instance(project)
     val commands = state.processedCommands
 
-    val listener = state.getListener.getOrElse((_: String) => ())
-
-    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector().tap(
-      new SbtShellCommandEventProcessor.OutputLineListener(listener)
-    )
+    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector()
 
     val request = SbtShellCommandRequest(commands, eventProcessor)
     sbtCommunication.run(request)

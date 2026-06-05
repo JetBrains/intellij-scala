@@ -1,15 +1,13 @@
 package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configurations.*
-import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.execution.util.JavaParametersUtil
-import com.intellij.execution.{ExecutionResult, Executor, OutputListener}
+import com.intellij.execution.{ExecutionResult, Executor}
 import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.JarManifestUtils
 import org.jetbrains.sbt.SbtUtil
@@ -36,7 +34,7 @@ import java.util
  * In sbt-shell mode the custom SBT program runners ([[SbtProgramRunner]] and [[SbtDebugProgramRunner]])
  * intercept this state and submit [[processedCommands]] to the already-running shell instead.
  * In that mode [[createJavaParameters]] is not part of the process launch path;
- * the state is used as a holder for the commands, configuration, and optional output listener.
+ * the state is used as a holder for the commands and configuration.
  *
  * @note Background IDE sbt tasks such as project import use [[org.jetbrains.sbt.process.SbtRunner]] instead.
  * That runner owns the process lifecycle directly via `GeneralCommandLine`,
@@ -46,10 +44,7 @@ private final class SbtCommandLineState(
   val processedCommands: String,
   val configuration: SbtRunConfiguration,
   environment: ExecutionEnvironment,
-  private var listener: Option[String => Unit] = None
 ) extends JavaCommandLineState(environment) {
-
-  def getListener: Option[String => Unit] = listener
 
   override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val result = super.execute(executor, runner)
@@ -59,15 +54,6 @@ private final class SbtCommandLineState(
         processTitle = s"SBT run configuration process output (${configuration.getName})",
       )
     }
-
-    listener.foreach(_ => {
-      val outputListener = new OutputListener() {
-        override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
-          super.onTextAvailable(event, outputType)
-      }
-      val processHandler = Option(result.getProcessHandler)
-      processHandler.foreach(_.addProcessListener(outputListener))
-    })
 
     result
   }
