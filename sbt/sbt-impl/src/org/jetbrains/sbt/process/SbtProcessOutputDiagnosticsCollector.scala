@@ -4,6 +4,7 @@ import com.intellij.execution.process.{ProcessEvent, ProcessHandler, ProcessList
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector.ProcessOutputCollectingListener
 
 import java.util.concurrent.ConcurrentSkipListMap
@@ -69,8 +70,13 @@ object SbtProcessOutputDiagnosticsCollector {
   private def sharedIfEnabled: Option[SbtProcessOutputDiagnosticsCollector] =
     if (isProcessOutputCollectionEnabled) Some(SharedCollector) else None
 
+  @TestOnly
   private[sbt] def sharedProcessOutput: String =
     SharedCollector.processOutput
+
+  @TestOnly
+  private[sbt] def clearSharedProcessOutput(): Unit =
+    SharedCollector.clear()
 
   private[sbt] def collectProcessOutputFrom(processHandler: ProcessHandler, processTitle: String): Unit =
     sharedIfEnabled.foreach(_.collectProcessOutputFrom(processHandler, processTitle))
