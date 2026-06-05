@@ -107,14 +107,13 @@ class SbtRunConfiguration_ExecutionEventsTest extends SbtRunConfiguration_WithMo
       useSbtShellInRunConfig = options.useSbtShellInRunConfig,
     )
 
-    val executionObserver = new RunConfigurationExecutionObserver(runConfigAndSettings)
     initSbtShellIfNeeded(options)
     waitUntilSbtShellIsReadyIfNeeded(options)
 
+    val executionObserver = RunConfigurationExecutionObserver.subscribe(runConfigAndSettings, getTestRootDisposable)
     val eventsCollector = new ExecutionEventsCollector(runConfigAndSettings)
 
     val connection = getProject.getMessageBus.connect(getTestRootDisposable)
-    connection.subscribe(ExecutionManager.EXECUTION_TOPIC, executionObserver)
     connection.subscribe(ExecutionManager.EXECUTION_TOPIC, eventsCollector)
 
     RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runConfigAndSettings, options.executionMode.executor)
@@ -150,8 +149,7 @@ class SbtRunConfiguration_ExecutionEventsTest extends SbtRunConfiguration_WithMo
       initSbtShellIfNeeded(options)
       waitUntilSbtShellIsReadyIfNeeded(options)
 
-      val executionObserver = new RunConfigurationExecutionObserver(runConfigAndSettings)
-      getProject.getMessageBus.connect(getTestRootDisposable).subscribe(ExecutionManager.EXECUTION_TOPIC, executionObserver)
+      val executionObserver = RunConfigurationExecutionObserver.subscribe(runConfigAndSettings, getTestRootDisposable)
 
       RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runConfigAndSettings, options.executionMode.executor)
 

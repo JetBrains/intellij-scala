@@ -102,7 +102,7 @@ private final class SbtCommandLineState(
     // SbtRunner and sbt shell do that through SbtProcessOptionsResolver.
     // TODO: Share the resolver-backed launch model here before adding VM and program parameters.
     params.getVMParametersList.addParametersString(configuration.vmparams)
-    params.getProgramParametersList.addParametersString(processedCommands)
+    params.getProgramParametersList.add(processedCommands)
 
     params
   }
