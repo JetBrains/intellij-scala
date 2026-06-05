@@ -22,7 +22,27 @@ import org.jetbrains.sbt.settings.SbtSettings
 import java.nio.file.Path
 import java.util
 
-class SbtCommandLineState(
+/**
+ * Execution state for an [[SbtRunConfiguration]].
+ *
+ * A state instance is created for every SBT run configuration, regardless of whether the configuration is executed in
+ * an existing sbt shell or as a separate JVM process (with a warning, see below)
+ *
+ * In separate-process mode this class acts as a regular [[JavaCommandLineState]]: the IntelliJ platform calls
+ * [[createJavaParameters]], and the returned [[JavaParameters]] describe the sbt launcher JVM process to start.
+ * That path configures the working directory, environment, JDK, sbt launcher classpath/main class, VM parameters, and
+ * program parameters containing the sbt commands.
+ *
+ * In sbt-shell mode the custom SBT program runners ([[SbtProgramRunner]] and [[SbtDebugProgramRunner]])
+ * intercept this state and submit [[processedCommands]] to the already-running shell instead.
+ * In that mode [[createJavaParameters]] is not part of the process launch path;
+ * the state is used as a holder for the commands, configuration, and optional output listener.
+ *
+ * @note Background IDE sbt tasks such as project import use [[org.jetbrains.sbt.process.SbtRunner]] instead.
+ * That runner owns the process lifecycle directly via `GeneralCommandLine`,
+ * while this class adapts run configurations to the IntelliJ run/debug execution infrastructure.
+ */
+private final class SbtCommandLineState(
   val processedCommands: String,
   val configuration: SbtRunConfiguration,
   environment: ExecutionEnvironment,
@@ -77,6 +97,10 @@ class SbtCommandLineState(
 
     setClasspathAndMainClass(params, sbtSystemSettings)
 
+    // NOTE: This path passes environment variables to the process, but it does not resolve JAVA_OPTS/.jvmopts
+    // or SBT_OPTS/.sbtopts into JVM or sbt launcher arguments.
+    // SbtRunner and sbt shell do that through SbtProcessOptionsResolver.
+    // TODO: Share the resolver-backed launch model here before adding VM and program parameters.
     params.getVMParametersList.addParametersString(configuration.vmparams)
     params.getProgramParametersList.addParametersString(processedCommands)
 
