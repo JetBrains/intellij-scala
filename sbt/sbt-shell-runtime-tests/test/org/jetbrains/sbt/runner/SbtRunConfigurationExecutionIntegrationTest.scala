@@ -146,6 +146,27 @@ class SbtRunConfigurationExecutionIntegrationTest_SbtShell
   override protected def useSbtShellInRunConfig: Boolean =
     true
 
+  def testFailingRunConfigurationTaskFinishesWithFailureExitCode(): Unit =
+    assertRunConfigurationFinishesWithFailureExitCode("failRunConfigurationCommand")
+
+  def testUnknownRunConfigurationCommandFinishesWithFailureExitCode(): Unit =
+    assertRunConfigurationFinishesWithFailureExitCode("unknownDummyCommand")
+
+  private def assertRunConfigurationFinishesWithFailureExitCode(sbtCommands: String): Unit = {
+    val testName = getTestName(false)
+    val runConfigAndSettings = SbtRunConfigurationTestFactory.createNewSbtTaskRunConfiguration(
+      getMyProject,
+      configurationName = s"sbt: $testName",
+      sbtCommands = sbtCommands,
+      useSbtShellInRunConfig = true,
+      workingDir = Some(getTestProjectPath.toString),
+    )
+    val executionObserver = RunConfigurationExecutionObserver.subscribe(runConfigAndSettings, getTestRootDisposable)
+
+    RunConfigInTestsExecutor.executeTopLevelConfiguration(getMyProject, runConfigAndSettings, ExecutionMode.Run.executor)
+    executionObserver.awaitTermination(expectedExitCode = 1, timeout = 120.seconds)
+  }
+
   override def setUp(): Unit = {
     super.setUp()
 

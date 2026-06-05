@@ -69,11 +69,15 @@ private[runner] final class RunConfigurationExecutionObserver(
   }
 
   def awaitSuccessfulTermination(timeout: FiniteDuration = 60.seconds): Unit = {
+    awaitTermination(expectedExitCode = 0, timeout)
+  }
+
+  def awaitTermination(expectedExitCode: Int, timeout: FiniteDuration = 60.seconds): Unit = {
     try {
       waitForExecutionFinished(timeout)
       failIfProcessNotStarted()
       assertEquals(s"$configurationNameQuoted should publish a processStarted event", 0L, executionStarted.getCount)
-      assertEquals(s"$configurationNameQuoted should finish successfully", 0, exitCode.get())
+      assertEquals(s"$configurationNameQuoted should finish with exit code $expectedExitCode", expectedExitCode, exitCode.get())
     }
     catch {
       case error: AssertionError =>
