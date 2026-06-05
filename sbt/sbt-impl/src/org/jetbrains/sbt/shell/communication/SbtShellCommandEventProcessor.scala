@@ -59,15 +59,19 @@ object SbtShellCommandEventProcessor {
     override def initialResult: StringBuilder = new StringBuilder()
 
     override def process(builder: StringBuilder, event: ShellEvent): StringBuilder =
-      event match {
-        case Output(line) =>
-          builder.append("\n").append(line)
-        // We explicitly list all the cases not to miss any important new events types if we add new ones
-        case TaskStart |
-             TaskComplete |
-             ProcessTerminated |
-             ErrorWaitForInput =>
-          builder
+      builder.synchronized {
+        event match {
+          case Output(line) =>
+            builder.append("\n").append(line)
+          // We explicitly list all the cases not to miss any important new events types if we add new ones
+          case TaskStart |
+               TaskComplete |
+               ProcessTerminated |
+               ErrorWaitForInput =>
+            ()
+        }
+
+        builder
       }
   }
 
