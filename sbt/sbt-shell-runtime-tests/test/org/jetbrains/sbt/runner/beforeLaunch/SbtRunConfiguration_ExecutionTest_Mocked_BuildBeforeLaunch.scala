@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.runner.beforeLaunch
 
-import com.intellij.execution.{ExecutionManager, RunnerAndConfigurationSettings}
+import com.intellij.execution.RunnerAndConfigurationSettings
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
@@ -155,9 +155,6 @@ class SbtRunConfiguration_BuildBeforeLaunchTest extends SbtRunConfiguration_With
     buildTracker
   }
 
-  private def observeExecution(settings: RunnerAndConfigurationSettings): RunConfigurationExecutionObserver = {
-    val observer = new RunConfigurationExecutionObserver(settings)
-    getProject.getMessageBus.connect(getTestRootDisposable).subscribe(ExecutionManager.EXECUTION_TOPIC, observer)
-    observer
-  }
+  private def observeExecution(settings: RunnerAndConfigurationSettings): RunConfigurationExecutionObserver =
+    RunConfigurationExecutionObserver.subscribe(settings, getTestRootDisposable)
 }

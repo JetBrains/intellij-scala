@@ -2,7 +2,8 @@ package org.jetbrains.sbt.runner.utils
 
 import com.intellij.execution.process.{ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.{ExecutionListener, RunnerAndConfigurationSettings}
+import com.intellij.execution.{ExecutionListener, ExecutionManager, RunnerAndConfigurationSettings}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
@@ -13,10 +14,10 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 private[runner] final class RunConfigurationExecutionObserver(
-  settings: RunnerAndConfigurationSettings,
+  runConfigAndSettings: RunnerAndConfigurationSettings,
 ) extends ExecutionListener {
 
-  private val configurationName = settings.getName
+  private val configurationName = runConfigAndSettings.getName
   private val configurationNameQuoted = s"'$configurationName'"
 
   private val executionStarted = new CountDownLatch(1)
@@ -105,6 +106,9 @@ private[runner] final class RunConfigurationExecutionObserver(
     }
   }
 
+  def processOutputSnapshot: String =
+    bufferText(processOutput)
+
   private def waitForExecutionFinished(timeout: FiniteDuration): Unit =
     AwaitTestUtils.waitForLatchDispatchingAllEdtEvents(
       executionFinished,
@@ -158,6 +162,19 @@ private[runner] final class RunConfigurationExecutionObserver(
 
   private def isObservedEnvironment(env: ExecutionEnvironment): Boolean = {
     val environmentSettings = env.getRunnerAndConfigurationSettings
-    environmentSettings != null && environmentSettings.getUniqueID == settings.getUniqueID
+    environmentSettings != null && environmentSettings.getUniqueID == runConfigAndSettings.getUniqueID
+  }
+}
+
+private[runner] object RunConfigurationExecutionObserver {
+
+  def subscribe(
+    runConfigAndSettings: RunnerAndConfigurationSettings,
+    parentDisposable: Disposable,
+  ): RunConfigurationExecutionObserver = {
+    val executionObserver = new RunConfigurationExecutionObserver(runConfigAndSettings)
+    val project = runConfigAndSettings.getConfiguration.getProject
+    project.getMessageBus.connect(parentDisposable).subscribe(ExecutionManager.EXECUTION_TOPIC, executionObserver)
+    executionObserver
   }
 }

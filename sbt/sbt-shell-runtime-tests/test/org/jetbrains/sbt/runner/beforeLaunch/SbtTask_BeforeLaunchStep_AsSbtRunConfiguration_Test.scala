@@ -169,8 +169,8 @@ abstract class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestB
     val sbtTaskEventsCollector = new ExecutionEventsCollector(sbtTaskSettings, eventCounter)
     val dependentConfigurationEventsCollector = new ExecutionEventsCollector(dependentConfigurationSettings, eventCounter)
 
-    val sbtTaskObserver = new RunConfigurationExecutionObserver(sbtTaskSettings)
-    val dependentConfigurationObserver = new RunConfigurationExecutionObserver(dependentConfigurationSettings)
+    val sbtTaskObserver = RunConfigurationExecutionObserver.subscribe(sbtTaskSettings, getTestRootDisposable)
+    val dependentConfigurationObserver = RunConfigurationExecutionObserver.subscribe(dependentConfigurationSettings, getTestRootDisposable)
 
     val compileBeforeLaunchObserver = new CompileBeforeLaunchObserver
     val buildDiagnosticsCollector = BuildDiagnosticsCollector.start(getProject, getTestRootDisposable)
@@ -178,8 +178,6 @@ abstract class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestB
     val connection = getProject.getMessageBus.connect(getTestRootDisposable)
     connection.subscribe(ExecutionManager.EXECUTION_TOPIC, sbtTaskEventsCollector)
     connection.subscribe(ExecutionManager.EXECUTION_TOPIC, dependentConfigurationEventsCollector)
-    connection.subscribe(ExecutionManager.EXECUTION_TOPIC, sbtTaskObserver)
-    connection.subscribe(ExecutionManager.EXECUTION_TOPIC, dependentConfigurationObserver)
     connection.subscribe(ProjectTaskListener.TOPIC, compileBeforeLaunchObserver)
 
     RunConfigInTestsExecutor.executeTopLevelConfiguration(
