@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.ui
 import com.intellij.execution.ExecutionBundle
 import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.ide.`macro`.MacrosDialog
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.RawCommandLineEditor
 import com.intellij.ui.components.fields.ExtendableTextField
@@ -11,12 +12,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfiguratio
 
 import java.awt.BorderLayout
 import java.util
-import scala.annotation.nowarn
 
 /** based on [[com.intellij.execution.ui.CommonJavaParametersPanel]] */
-// TODO: SCL-25150 Needs to be rewritten to accept a (project: Project) constructor parameter.
-@nowarn("cat=deprecation")
-class CommonScalaParametersPanel extends CommonProgramParametersPanel {
+class CommonScalaParametersPanel(project: Project) extends CommonProgramParametersPanel(project) {
 
   private var myVMParametersComponent: LabeledComponent[RawCommandLineEditor] = _
 

@@ -28,7 +28,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 import java.awt._
 import java.util
 import javax.swing._
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
@@ -269,12 +268,12 @@ final class TestRunConfigurationForm(val myProject: Project) {
 
     addSeparatorBetweenTopAndBottomPanel()
 
-    myCommonScalaParameters = append(new CommonScalaParametersPanel)
+    myCommonScalaParameters = append(new CommonScalaParametersPanel(myProject))
     myModule = append(labeledComponent(
       ExecutionBundle.message("application.configuration.use.classpath.and.jdk.of.module.label"),
       new ModuleDescriptionsComboBox
     ))
-    myJrePathEditor = append(new JrePathEditor(): @nowarn("cat=deprecation")) // TODO: SCL-25150
+    myJrePathEditor = append(new JrePathEditor(myProject))
     myShortenClasspathMode = append(labeledComponent(
       ExecutionBundle.message("application.configuration.shorten.command.line.label"),
       new ShortenCommandLineModeCombo(myProject, myJrePathEditor, myModule.getComponent())
