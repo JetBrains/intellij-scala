@@ -172,7 +172,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
-      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty
+      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty && settings.serverConfig != BloopConfig
       if (shouldGenerateBspConfig)
         generateBspConfig(workspace, setupChoices, project, settings)
 
