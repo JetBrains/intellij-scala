@@ -17,9 +17,9 @@ import scala.concurrent.duration.DurationInt
  *  - Coverage for persisted `tasks`/`commands` conversion without running sbt.
  *     - [[SbtRunConfigurationMigrationTest]]
  *     - [[SbtRunConfigurationMigrationReversibilityTest]]
- *  - Test with the mocked sbt process (extend [[SbtRunConfiguration_WithMockSbtProcess_TestBase]])
- *     - [[SbtRunConfiguration_ExecutionEventsTest]],
- *     - [[beforeLaunch.SbtRunConfiguration_BuildBeforeLaunchTest]]
+ *  - Test with the mocked sbt process (extend [[SbtRunConfiguration_MockedProcess_ExecutionTestBase]])
+ *     - [[SbtRunConfiguration_MockedProcess_ExecutionTest_ExecutionEventsPublishingTest]],
+ *     - [[beforeLaunch.SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch]]
  *     - [[beforeLaunch.SbtTask_BeforeLaunchStep_AsDirectTask_TestBase]]
  *     - [[beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase]]
  *

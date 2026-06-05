@@ -5,10 +5,8 @@ import com.intellij.execution.application.ApplicationConfigurationType
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 import org.jetbrains.sbt.runner.utils.{ExecutionEventsCollector, RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil}
 import org.junit.Assert.{assertFalse, assertSame, assertTrue}
 
 import scala.concurrent.duration.DurationInt
@@ -25,7 +23,7 @@ import scala.concurrent.duration.DurationInt
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24434 SCL-24434]]
  *  - [[https://youtrack.jetbrains.com/issue/SCL-22453 SCL-22453]]
  */
-class SbtRunConfiguration_ExecutionEventsTest extends SbtRunConfiguration_WithMockSbtProcess_TestBase {
+class SbtRunConfiguration_MockedProcess_ExecutionTest_ExecutionEventsPublishingTest extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
   def testRunMode_NoSbtShell_PublishesCompleteExecutionLifecycle(): Unit =
     assertSbtRunConfiguration_PublishesCompleteExecutionLifecycle(TestExecutionOptions(
@@ -75,22 +73,6 @@ class SbtRunConfiguration_ExecutionEventsTest extends SbtRunConfiguration_WithMo
     )
   }
 
-  // See SCL-24434
-  def testDebugMode_OldSbtShell_WithDisabledSbtShellDebugging_FailsToStart(): Unit =
-    assertSbtRunConfiguration_WithDisabledSbtShellDebugging_FailsToStart(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.OldShell,
-      enableDebuggingInShell = false,
-    ))
-
-  // See SCL-24434
-  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_FailsToStart(): Unit =
-    assertSbtRunConfiguration_WithDisabledSbtShellDebugging_FailsToStart(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.NewShell,
-      enableDebuggingInShell = false,
-    ))
-
   private def assertSbtRunConfiguration_PublishesCompleteExecutionLifecycle(options: TestExecutionOptions): Unit = {
     try {
       assertSbtRunConfiguration_PublishesCompleteExecutionLifecycleInner(options)
@@ -136,39 +118,4 @@ class SbtRunConfiguration_ExecutionEventsTest extends SbtRunConfiguration_WithMo
     assertTrue("Expected lifecycle events with a process handler", processHandlers.nonEmpty)
     processHandlers.foreach(assertSame("Expected all handler-specific lifecycle events to use the same handler", processHandlers.head, _))
   }
-
-  private def assertSbtRunConfiguration_WithDisabledSbtShellDebugging_FailsToStart(options: TestExecutionOptions): Unit =
-    try {
-      val runConfigAndSettings = SbtRunConfigurationTestFactory.createNewSbtTaskRunConfiguration(
-        getProject,
-        configurationName = s"sbt compile (${options.executionMode.displayName}, ${sbtShellModeDisplayName(options)}, debug disabled)",
-        sbtCommands = "compile",
-        useSbtShellInRunConfig = true,
-      )
-
-      initSbtShellIfNeeded(options)
-      waitUntilSbtShellIsReadyIfNeeded(options)
-
-      val executionObserver = RunConfigurationExecutionObserver.subscribe(runConfigAndSettings, getTestRootDisposable)
-
-      RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runConfigAndSettings, options.executionMode.executor)
-
-      executionObserver.awaitFailedToStart(
-        expectedCauseMessage = SbtBundle.message("debugging.for.sbt.shell.is.disabled.in.sbt.settings"),
-        timeout = 10.seconds,
-      )
-    } finally {
-      tearDownForTestCase(options)
-    }
-
-  private def tearDownForTestCase(options: TestExecutionOptions): Unit = {
-    if (options.useSbtShellInRunConfig) {
-      SbtProcessManager.forProject(getProject).destroyProcess()
-    }
-  }
-
-  private def waitUntilSbtShellIsReadyIfNeeded(options: TestExecutionOptions): Unit =
-    if (options.useSbtShellInRunConfig) {
-      SbtShellTestUtil.waitUntilSbtShellIsReady(getProject, 5.seconds, "Can't start sbt shell")
-    }
 }

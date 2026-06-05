@@ -39,6 +39,13 @@ trait SbtShellCommandSubmitter {
    */
   final def runAndCollectOutput(@NonNls sbtCommandText: => String): Future[String] =
     runAndCollectOutput(SbtShellCommandRequest.collectOutput(sbtCommandText))
+
+  /**
+   * Cancel a command that was previously submitted through this submitter.
+   *
+   * Implementations should remove queued requests when possible and interrupt the running shell command otherwise.
+   */
+  def cancel(requestId: SbtShellCommandRequestId): Unit
 }
 
 @Experimental
