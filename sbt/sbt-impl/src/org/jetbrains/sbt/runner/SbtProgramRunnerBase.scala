@@ -7,6 +7,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, invokeAndWait, invokeLater}
 import org.jetbrains.sbt.runner.SbtProgramRunnerBase.{DummyProcessHandler, HiddenRunContentDescriptor, commandFinishedSuccessfully}
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory
-import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandEventProcessor, SbtShellCommandRequest, SbtShellCommandSubmitter}
+import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandEventProcessor, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter}
 
 import java.io.OutputStream
 import javax.swing.JPanel
@@ -38,7 +39,9 @@ trait SbtProgramRunnerBase {
     // Sbt shell delegation does not start a dedicated OS process, so return a hidden descriptor with a synthetic
     // process handler and let `ExecutionManagerImpl` publish the same start/finish events as for regular runs.
     // Related: SCL-24434, SCL-22453
-    val dummyProcessHandler = new DummyProcessHandler()
+    val sbtCommandSubmitter = SbtShellCommandSubmitter.instance(environment.getProject)
+    val request = shellCommandRequest(sbtState)
+    val dummyProcessHandler = new DummyProcessHandler(sbtCommandSubmitter, request.requestId)
 
     // Ensure all the documents are flushed to disk before running "sbt task" run configuration,
     // otherwise, if you make any changes in some document and do e.g. "sbt assembly", sbt won't see the latest changes.
@@ -54,7 +57,13 @@ trait SbtProgramRunnerBase {
 
       val commandFuture: Future[CharSequence] =
         try {
-          submitCommands(environment, sbtState)
+          if (dummyProcessHandler.isCancellationRequested) {
+            Future.failed(new ProcessCanceledException)
+          } else {
+            val future = submitCommands(environment, request, sbtCommandSubmitter)
+            dummyProcessHandler.commandSubmitted()
+            future
+          }
         } catch {
           case exception: Throwable =>
             Future.failed(exception)
@@ -76,6 +85,23 @@ trait SbtProgramRunnerBase {
     env: ExecutionEnvironment,
     state: SbtCommandLineState,
   ): Future[java.lang.CharSequence] = {
+    val sbtCommandSubmitter = SbtShellCommandSubmitter.instance(env.getProject)
+    val request = shellCommandRequest(state)
+    submitCommands(env, request, sbtCommandSubmitter)
+  }
+
+  private def shellCommandRequest(state: SbtCommandLineState): SbtShellCommandRequest[StringBuilder] = {
+    val commands = state.processedCommands
+    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector()
+    SbtShellCommandRequest(commands, eventProcessor)
+  }
+
+  @RequiresBackgroundThread
+  private def submitCommands(
+    env: ExecutionEnvironment,
+    request: SbtShellCommandRequest[StringBuilder],
+    sbtCommunication: SbtShellCommandSubmitter,
+  ): Future[java.lang.CharSequence] = {
     val project = env.getProject
 
     // When running sbt run configuration show sbt shell if it's hidden
@@ -83,12 +109,6 @@ trait SbtProgramRunnerBase {
       showSbtToolwindow(project)
     }
 
-    val sbtCommunication = SbtShellCommandSubmitter.instance(project)
-    val commands = state.processedCommands
-
-    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector()
-
-    val request = SbtShellCommandRequest(commands, eventProcessor)
     sbtCommunication.run(request)
   }
 
@@ -108,16 +128,61 @@ trait SbtProgramRunnerBase {
 }
 
 object SbtProgramRunnerBase {
-  private class DummyProcessHandler extends ProcessHandler {
-    def terminate(exitCode: Int): Unit = notifyProcessTerminated(exitCode)
+  private class DummyProcessHandler(
+    sbtCommandSubmitter: SbtShellCommandSubmitter,
+    requestId: SbtShellCommandRequestId,
+  ) extends ProcessHandler {
+    private var submitted: Boolean = false
+    private var cancellationRequested: Boolean = false
+    private var cancellationSent: Boolean = false
+    private var finished: Boolean = false
 
-    override def destroyProcessImpl(): Unit = ()
+    def terminate(exitCode: Int): Unit = {
+      synchronized {
+        finished = true
+      }
+      notifyProcessTerminated(exitCode)
+    }
 
-    override def detachProcessImpl(): Unit = ()
+    def commandSubmitted(): Unit = {
+      synchronized {
+        submitted = true
+      }
+      cancelSubmittedCommandIfNeeded()
+    }
+
+    def isCancellationRequested: Boolean =
+      synchronized {
+        cancellationRequested
+      }
+
+    override def destroyProcessImpl(): Unit = {
+      synchronized {
+        cancellationRequested = true
+      }
+      cancelSubmittedCommandIfNeeded()
+    }
+
+    override def detachProcessImpl(): Unit =
+      destroyProcessImpl()
 
     override def detachIsDefault(): Boolean = false
 
     @Nullable override def getProcessInput: OutputStream = null
+
+    private def cancelSubmittedCommandIfNeeded(): Unit = {
+      val shouldCancel = synchronized {
+        val shouldCancel = submitted && cancellationRequested && !cancellationSent && !finished
+        if (shouldCancel) {
+          cancellationSent = true
+        }
+        shouldCancel
+      }
+
+      if (shouldCancel) {
+        sbtCommandSubmitter.cancel(requestId)
+      }
+    }
   }
 
   private def commandFinishedSuccessfully(result: Try[CharSequence]): Boolean = {

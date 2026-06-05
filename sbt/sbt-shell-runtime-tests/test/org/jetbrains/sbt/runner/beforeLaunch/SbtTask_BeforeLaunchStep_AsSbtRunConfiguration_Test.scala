@@ -12,12 +12,12 @@ import com.intellij.task.{ProjectTaskContext, ProjectTaskListener, ProjectTaskMa
 import com.intellij.testFramework.{PlatformTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
-import org.jetbrains.sbt.runner.beforeLaunch.SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase._
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
+import org.jetbrains.sbt.runner.beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase.*
 import org.jetbrains.sbt.runner.beforeLaunch.utils.RunConfigurationBeforeLaunchTaskTestUtil
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
 import org.jetbrains.sbt.runner.utils.{ExecutionEventsCollector, RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
-import org.jetbrains.sbt.runner.{SbtDebugProgramRunner, SbtProgramRunner, SbtRunConfiguration_WithMockSbtProcess_TestBase, TestExecutionOptions}
+import org.jetbrains.sbt.runner.{SbtDebugProgramRunner, SbtProgramRunner, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
 import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertSame, assertTrue, fail}
 
 import java.util.concurrent.CountDownLatch
@@ -35,7 +35,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24434 SCL-24434]]
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24469 SCL-24469]]
  */
-abstract class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase extends SbtRunConfiguration_WithMockSbtProcess_TestBase {
+abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
   protected def sbtProcessMode: SbtProcessMode
 
@@ -354,29 +354,29 @@ abstract class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestB
   private val DependentMainClassName = "SbtBeforeLaunchDependentMain"
 }
 
-private object SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase {
+private object SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
   private val SbtProgramRunnerId: String = new SbtProgramRunner().getRunnerId
   private val SbtDebugProgramRunnerId: String = new SbtDebugProgramRunner().getRunnerId
   private val DefaultRunRunnerId: String = new DefaultJavaProgramRunner().getRunnerId
   private val DefaultDebugRunnerId: String = new GenericDebuggerRunner().getRunnerId
 }
 
-class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfiguration_NoShellTest
-  extends SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase {
+class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_NoShell_Test
+  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
 
   override protected def sbtProcessMode: SbtProcessMode =
     SbtProcessMode.NoShell
 }
 
-class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfiguration_OldShellTest
-  extends SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase {
+class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_OldShell_Test
+  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
 
   override protected def sbtProcessMode: SbtProcessMode =
     SbtProcessMode.OldShell
 }
 
-class SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfiguration_NewShellTest
-  extends SbtRunConfiguration_AsBeforeLaunchStepOfAnotherConfigurationTestBase {
+class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_NewShell_Test
+  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
 
   override protected def sbtProcessMode: SbtProcessMode =
     SbtProcessMode.NewShell

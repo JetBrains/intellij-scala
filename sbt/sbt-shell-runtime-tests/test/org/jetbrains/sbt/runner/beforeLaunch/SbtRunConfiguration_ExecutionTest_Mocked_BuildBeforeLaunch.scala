@@ -4,7 +4,7 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
-import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_WithMockSbtProcess_TestBase, TestExecutionOptions}
+import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
 import org.junit.Assert.assertEquals
 
 import scala.concurrent.duration.DurationInt
@@ -26,7 +26,7 @@ import scala.concurrent.duration.DurationInt
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24434 SCL-24434]]
  *  - [[https://youtrack.jetbrains.com/issue/SCL-25433 SCL-25433]]
  */
-class SbtRunConfiguration_BuildBeforeLaunchTest extends SbtRunConfiguration_WithMockSbtProcess_TestBase {
+class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
   def testRunMode_NoSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
     assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(

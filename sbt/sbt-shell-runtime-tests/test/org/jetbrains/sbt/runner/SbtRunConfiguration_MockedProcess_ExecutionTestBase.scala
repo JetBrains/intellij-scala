@@ -13,11 +13,11 @@ import org.jetbrains.sbt.project.fixture.TestProjectJdkHolder
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.runner.TestExecutionOptions.SbtProcessMode
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.SbtShellTestUtil
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil}
 
 import java.nio.file.Path
 import scala.compiletime.uninitialized
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationInt}
 
 /**
  * Shared light fixture for SBT run-configuration execution tests.
@@ -30,7 +30,7 @@ import scala.concurrent.duration.Duration
  * Instead `setUp` substitutes a lightweight `MockSbtProcess` JVM for the real sbt launcher
  * (see [[org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup.enableMockSbtProcess]])
  */
-abstract class SbtRunConfiguration_WithMockSbtProcess_TestBase extends JavaModuleTestCase with ScalaSdkOwner {
+abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
@@ -131,4 +131,16 @@ abstract class SbtRunConfiguration_WithMockSbtProcess_TestBase extends JavaModul
       sbtSettings.linkProject(settings)
       settings
     }
+
+  protected def tearDownForTestCase(options: TestExecutionOptions): Unit = {
+    if (options.useSbtShellInRunConfig) {
+      SbtProcessManager.forProject(getProject).destroyProcess()
+    }
+  }
+
+  protected def waitUntilSbtShellIsReadyIfNeeded(options: TestExecutionOptions): Unit = {
+    if (options.useSbtShellInRunConfig) {
+      SbtShellTestUtil.waitUntilSbtShellIsReady(getProject, 5.seconds, "Can't start sbt shell")
+    }
+  }
 }

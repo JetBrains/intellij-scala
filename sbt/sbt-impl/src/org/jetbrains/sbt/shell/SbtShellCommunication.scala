@@ -120,6 +120,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     listener.future
   }
 
+  override def cancel(requestId: SbtShellCommandRequestId): Unit =
+    removeCommandFromQueueOrCancel(requestId)
+
   /**
    * Cancels the upcoming soft restart by interrupting the queue-emptying future
    * and terminating all commands accumulated in [[afterRestartCommands]].

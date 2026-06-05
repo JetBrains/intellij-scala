@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 // NOTE: recompile the file using the ../compile.sh script
 public final class MockSbtProcess {
+    private static final String WaitForFileCommandPrefix = "mockWaitForFile ";
+
     // Keep in sync with VmOptions in org.jetbrains.sbt.process.mock.MockSbtProcessForTests.
     private static final class VmOptions {
         private static final String ModeProperty = "org.jetbrains.sbt.mock.process.mode";
@@ -75,8 +77,13 @@ public final class MockSbtProcess {
         }
     }
 
-    private static void processCommand(String command) throws IOException {
+    private static void processCommand(String command) throws IOException, InterruptedException {
         debug("shell mode: accepting command=" + command);
+        if (command.startsWith(WaitForFileCommandPrefix)) {
+            String filePath = command.substring(WaitForFileCommandPrefix.length()).trim();
+            waitForFile(filePath);
+        }
+
         System.out.println("[info] mock sbt accepted: " + command);
 
         Path structureFile = extractStructureFile(command);
@@ -84,6 +91,19 @@ public final class MockSbtProcess {
             writeDummyProjectStructure(structureFile);
             System.out.println("[info] mock sbt wrote structure to: " + structureFile);
         }
+    }
+
+    private static void waitForFile(String filePath) throws InterruptedException {
+        Path file = Paths.get(unquote(filePath));
+        System.out.println("[info] mock sbt waiting for file: " + file);
+        System.out.flush();
+
+        while (!Files.exists(file)) {
+            Thread.sleep(50);
+        }
+
+        System.out.println("[info] mock sbt resumed after file: " + file);
+        System.out.flush();
     }
 
     private static Path extractStructureFile(String command) {

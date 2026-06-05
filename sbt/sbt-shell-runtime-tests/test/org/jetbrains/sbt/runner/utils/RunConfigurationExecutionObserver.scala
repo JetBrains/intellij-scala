@@ -27,6 +27,7 @@ private[runner] final class RunConfigurationExecutionObserver(
   private val processNotStarted = new AtomicReference[ProcessNotStarted]()
 
   private val exitCode = new AtomicInteger(Int.MinValue)
+  private val startedProcessHandler = new AtomicReference[ProcessHandler]()
   private val processOutput = new StringBuffer
 
   override def processStarting(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler): Unit = {
@@ -37,6 +38,7 @@ private[runner] final class RunConfigurationExecutionObserver(
 
   override def processStarted(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler): Unit = {
     if (isObservedEnvironment(env)) {
+      startedProcessHandler.compareAndSet(null, handler)
       executionStarted.countDown()
     }
   }
@@ -70,6 +72,28 @@ private[runner] final class RunConfigurationExecutionObserver(
 
   def awaitSuccessfulTermination(timeout: FiniteDuration = 60.seconds): Unit = {
     awaitTermination(expectedExitCode = 0, timeout)
+  }
+
+  def awaitProcessStarted(timeout: FiniteDuration = 60.seconds): ProcessHandler = {
+    try {
+      AwaitTestUtils.waitForLatchDispatchingAllEdtEvents(
+        executionStarted,
+        timeout,
+        s"Timed out waiting for $configurationNameQuoted execution to start",
+        earlyBreakCondition = () => processNotStarted.get() != null,
+      )
+      failIfProcessNotStarted()
+
+      val handler = startedProcessHandler.get()
+      if (handler == null) {
+        fail(s"$configurationNameQuoted published processStarted without a process handler")
+      }
+      handler
+    } catch {
+      case error: AssertionError =>
+        printProcessOutputToStdErr()
+        throw error
+    }
   }
 
   def awaitTermination(expectedExitCode: Int, timeout: FiniteDuration = 60.seconds): Unit = {
