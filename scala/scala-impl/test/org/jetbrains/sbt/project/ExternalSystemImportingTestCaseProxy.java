@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 
 // TODO: this is a workaround to restore previous importing behaviour (modified in IDEA-388789)
 //       delete this class when a better solution is ready
+@SuppressWarnings({"deprecation", "rawtypes", "unchecked", "UnstableApiUsage"})
 public class ExternalSystemImportingTestCaseProxy {
     // copy-pasted from ExternalSystemImportingTestCase
     // commented-out `waitForProjectActivity` call to avoid hanging tests
@@ -86,7 +87,7 @@ public class ExternalSystemImportingTestCaseProxy {
 
         // allow all the invokeLater to pass through the queue, before waiting for indexes to be ready
         // (specifically, all the invokeLater that schedule indexing after language level change performed by import)
-        runInEdtAndWait(() -> PlatformTestUtil.dispatchAllEventsInIdeEventQueue());
+        runInEdtAndWait(PlatformTestUtil::dispatchAllEventsInIdeEventQueue);
         IndexingTestUtil.waitUntilIndexesAreReady(project);
     }
 
