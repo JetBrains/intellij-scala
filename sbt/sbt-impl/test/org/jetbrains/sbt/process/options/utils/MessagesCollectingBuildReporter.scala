@@ -3,6 +3,7 @@ package org.jetbrains.sbt.process.options.utils
 import com.intellij.build.FilePosition
 import com.intellij.build.issue.BuildIssue
 import com.intellij.pom.Navigatable
+import org.jetbrains.plugins.scala.build.NoOpBuildReporter
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.immutable.ArraySeq

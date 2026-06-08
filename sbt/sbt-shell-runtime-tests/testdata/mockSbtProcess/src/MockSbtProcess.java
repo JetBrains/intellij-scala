@@ -69,11 +69,25 @@ public final class MockSbtProcess {
         debug("shell mode: input stream closed");
     }
 
-    private static void runNonShell(String[] args) {
+    private static void runNonShell(String[] args) throws IOException, InterruptedException {
         String command = String.join(" ", args).trim();
         debug("non-shell mode: command=" + command);
         if (!command.isEmpty()) {
             System.out.println("[info] mock sbt accepted: " + command);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String inputCommand = line.trim();
+                debug("non-shell mode: received line=" + inputCommand);
+                if (inputCommand.equals("exit")) {
+                    return;
+                }
+                if (!inputCommand.isEmpty()) {
+                    processCommand(inputCommand);
+                }
+            }
         }
     }
 
@@ -120,6 +134,13 @@ public final class MockSbtProcess {
             }
 
             return Paths.get(unquote(path));
+        }
+
+        if (command.contains("dumpStructure")) {
+            String structureOutputFile = System.getProperty("sbt.structure.outputFile");
+            if (structureOutputFile != null && !structureOutputFile.trim().isEmpty()) {
+                return Paths.get(structureOutputFile);
+            }
         }
 
         return null;

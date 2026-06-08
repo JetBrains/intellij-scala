@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.impl.*
 import com.intellij.build.events.{BuildEvent, BuildEvents, EventResult, MessageEvent}
 import com.intellij.build.issue.BuildIssue
-import com.intellij.build.{BuildContentManager, BuildViewManager, DefaultBuildDescriptor, FilePosition}
+import com.intellij.build.{AbstractViewManager, BuildContentManager, BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.icons.AllIcons
@@ -30,7 +30,7 @@ class BuildToolWindowReporter(
   project: Project,
   buildId: EventId,
   @Nls title: String,
-  viewManager: BuildViewManager,
+  viewManager: AbstractViewManager,
   cancelAction: AnAction,
   activateToolWindowWhenFailed: Boolean,
   activateToolWindowWhenWarned: Boolean

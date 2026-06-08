@@ -1,9 +1,8 @@
-package org.jetbrains.sbt.process.options
+package org.jetbrains.sbt.process.options.reporting
 
-import com.intellij.build.issue.{BuildIssue, BuildIssueQuickFix}
+import com.intellij.build.issue.BuildIssueQuickFix
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
-import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
@@ -14,84 +13,116 @@ import org.jetbrains.sbt.process.options.parsing.model.{MalformedSbtOption, SbtO
 import org.jetbrains.sbt.settings.SbtExternalSystemConfigurable
 
 import java.nio.file.Path
-import java.util.List as JList
 import java.util.concurrent.CompletableFuture
 
 /**
  * Renders sbt option diagnostics to a [[BuildReporter]].
  */
-private[options] final class SbtOptionsReporter(reporter: BuildReporter) {
+//noinspection ApiStatus,UnstableApiUsage
+private[sbt] final class SbtOptionsDiagnosticsReporter(reporter: BuildReporter) {
 
-  def reportDiagnostics(diagnostics: Seq[SbtOptionsDiagnostic]): Unit = {
+  def reportDiagnostics(diagnostics: Seq[SbtOptionsDiagnostic]): Unit =
+    SbtOptionsDiagnosticsReporter.reportWarnings(
+      reporter,
+      SbtOptionsDiagnosticsReporter.collectWarnings(diagnostics)
+    )
+}
+
+private[sbt] object SbtOptionsDiagnosticsReporter {
+
+  private def collectWarnings(diagnostics: Seq[SbtOptionsDiagnostic]): Seq[SbtOptionsWarningData] = {
     val (unrecognized, malformed) = diagnostics.partition {
       case _: Unrecognized => true
       case _: Malformed => false
     }
 
-    val warningData =
-      unrecognized.collect {
-        case diagnostic: Unrecognized => collectUnrecognizedWarningData(diagnostic)
-      } ++ malformed.collect {
-        case diagnostic: Malformed => collectMalformedWarningData(diagnostic)
-      }.flatten
-
-    warningData.foreach(report)
-  }
-
-  private def report(warningData: WarningData): Unit =
-    warningData.quickFix match {
-      case Some(quickFix) =>
-        reporter.warning(new BuildIssue {
-          override def getTitle: String = warningData.message
-
-          override def getDescription: String = warningData.details
-
-          override def getQuickFixes: JList[BuildIssueQuickFix] = JList.of(quickFix)
-
-          override def getNavigatable(project: Project): Navigatable = null
-        })
-      case None =>
-        reporter.warning(warningData.message, None, warningData.details)
+    val unrecognisedWarnings = unrecognized.collect {
+      case diagnostic: Unrecognized => collectUnrecognizedWarningData(diagnostic)
     }
 
-  private final case class WarningData(
-    @Nls message: String,
-    @Nls details: String,
-    quickFix: Option[BuildIssueQuickFix] = None,
-  )
+    val malformedWarnings = malformed.collect {
+      case diagnostic: Malformed => collectMalformedWarningData(diagnostic)
+    }.flatten
 
-  private def collectUnrecognizedWarningData(unrecognized: Unrecognized): WarningData = {
+    val allWarnings = unrecognisedWarnings ++ malformedWarnings
+    allWarnings
+  }
+
+  def reportWarnings(reporter: BuildReporter, warnings: Seq[SbtOptionsWarningData]): Unit =
+    warnings.foreach { warning =>
+      reporter.warning(warning.title, None, warning.details)
+    }
+
+  private def collectUnrecognizedWarningData(unrecognized: Unrecognized): SbtOptionsWarningData = {
     val unrecognizedOpts = unrecognized.unrecognizedOptions
     val rawOptionsConcat = unrecognizedOpts.map(_.rawOption).mkString(", ")
-    val message = SbtBundle.message("sbt.unrecognized.opts", unrecognizedOpts.size, rawOptionsConcat)
     val sourceName = renderSourceName(unrecognized.source)
-
-    val warningLines = unrecognizedOpts.map {
-      case UnrecognizedSbtOption(rawOption, Some(suggestedHelper)) =>
-        val warningLine = SbtBundle.message("sbt.unrecognized.opt.with.suggestion", rawOption, suggestedHelper)
-        renderLineWithSource(warningLine, sourceName)
-      case UnrecognizedSbtOption(rawOption, None) =>
-        renderLineWithSource(SbtBundle.message("sbt.unrecognised.opt", rawOption), sourceName)
-    }
+    val message = SbtBundle.message("sbt.unrecognized.opts.source", unrecognizedOpts.size, rawOptionsConcat, sourceName)
 
     val allOptionsHelpersText = KnownSbtOptions.AllHelperMessages.mkString("\n", "\n", "")
-    val detailsLines = warningLines :+ SbtBundle.message("sbt.available.opts", allOptionsHelpersText)
-    WarningData(message, detailsLines.mkString("\n"))
+    val detailsLines =
+      renderUnrecognizedSourceDetails(unrecognizedOpts, unrecognized.source, unrecognized.optionsFile) +:
+        Seq(SbtBundle.message("sbt.available.opts", allOptionsHelpersText))
+    SbtOptionsWarningData(message, detailsLines.mkString("\n"))
   }
 
-  private def collectMalformedWarningData(malformed: Malformed): Seq[WarningData] = {
+  private def collectMalformedWarningData(malformed: Malformed): Seq[SbtOptionsWarningData] = {
     val sourceName = renderSourceName(malformed.source)
     malformed.malformedOptions.map { malformedOption =>
       val message = SbtBundle.message("sbt.malformed.opt.source", renderMalformedOptionKey(malformedOption), sourceName)
       val details = renderMalformedOption(malformedOption, malformed)
-      val quickFix = Option.when(malformed.source == SbtOptionsSource.IdeSettings)(OpenSbtSettingsQuickFix.quickFix)
-      WarningData(message, withSourceAction(details, malformed.source), quickFix)
+      SbtOptionsWarningData(message, renderSourceDetails(details, malformed.source, optionsFile = None))
     }
   }
 
   @Nls
-  private def renderLineWithSource(@Nls warningLine: String, @Nls sourceName: String): String =
-    SbtBundle.message("sbt.unrecognized.opt.source", warningLine.stripSuffix("."), sourceName)
+  private def renderUnrecognizedSourceDetails(
+    unrecognizedOptions: Seq[UnrecognizedSbtOption],
+    source: SbtOptionsSource,
+    optionsFile: Option[Path]
+  ): String = {
+    val warningLines = unrecognizedOptions.map(renderUnrecognizedOption)
+    source match {
+      case SbtOptionsSource.OptionsFile =>
+        optionsFile.fold(warningLines.mkString("\n")) { file =>
+          val fileUri = renderUriForIdeLinking(file)
+          val lines = unrecognizedOptions.zip(warningLines).map { case (option, warningLine) =>
+            SbtBundle.message("sbt.options.in.file", warningLine.stripSuffix("."), fileUri, option.lineNumber)
+          }
+          lines.mkString("\n")
+        }
+      case SbtOptionsSource.IdeSettings =>
+        SbtBundle.message("sbt.options.open.sbt.settings", warningLines.mkString("\n"), OpenSbtSettingsQuickFix.ID)
+      case _ =>
+        warningLines.mkString("\n")
+    }
+  }
+
+  @Nls
+  private def renderUnrecognizedOption(unrecognizedOption: UnrecognizedSbtOption): String =
+    unrecognizedOption match {
+      case UnrecognizedSbtOption(rawOption, Some(suggestedHelper), _) =>
+        SbtBundle.message("sbt.unrecognized.opt.with.suggestion", rawOption, suggestedHelper)
+      case UnrecognizedSbtOption(rawOption, None, _) =>
+        SbtBundle.message("sbt.unrecognised.opt", rawOption)
+    }
+
+  @Nls
+  private def renderSourceDetails(
+    @Nls details: String,
+    source: SbtOptionsSource,
+    optionsFile: Option[Path]
+  ): String =
+    source match {
+      case SbtOptionsSource.OptionsFile =>
+        optionsFile.fold(details) { file =>
+          SbtBundle.message("sbt.options.in.file", details.stripSuffix("."), renderUriForIdeLinking(file))
+        }
+      case SbtOptionsSource.IdeSettings =>
+        SbtBundle.message("sbt.options.open.sbt.settings", details, OpenSbtSettingsQuickFix.ID)
+      case _ =>
+        details
+    }
 
   @Nls
   private def renderMalformedOption(malformedOption: MalformedSbtOption, malformed: Malformed): String = {
@@ -171,15 +202,6 @@ private[options] final class SbtOptionsReporter(reporter: BuildReporter) {
       case SbtOptionsSource.IdeSettings => SbtBundle.message("sbt.options.source.ide.settings")
       case SbtOptionsSource.OptionsFile => SbtBundle.message("sbt.options.source.options.file")
       case SbtOptionsSource.EnvironmentVariable => SbtBundle.message("sbt.options.source.environment.variable")
-    }
-
-  @Nls
-  private def withSourceAction(@Nls details: String, source: SbtOptionsSource): String =
-    source match {
-      case SbtOptionsSource.IdeSettings =>
-        SbtBundle.message("sbt.malformed.opt.open.sbt.settings", details, OpenSbtSettingsQuickFix.ID)
-      case _ =>
-        details
     }
 
   private def renderUriForIdeLinking(path: Path): String =

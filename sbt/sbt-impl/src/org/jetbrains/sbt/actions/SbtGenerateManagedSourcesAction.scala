@@ -110,7 +110,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             generateCommand,
             SbtBundle.message("sbt.generate.managed.sources.task.progress.title"),
             settings.passParentEnvironment,
-            timingCollector = None
+            timingCollector = None,
+            project = Some(project),
           )(using reporter)
 
           sbtResult match {

@@ -18,6 +18,7 @@ import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
+import com.intellij.terminal.ui.TerminalWidget
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
 import com.sun.jna.Platform
@@ -29,11 +30,13 @@ import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
 import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
+import org.jetbrains.sbt.process.options.reporting.WarningsCollectingBuildReporter
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
+import org.jetbrains.sbt.shell.optionsWarn.SbtShellOptionsWarningService
 import org.jetbrains.sbt.shell.process.utils.{SbtSettingsInjector, SbtShellJdkSelector, SbtShellRunId, SbtShellVmOptionsBuilder}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 
@@ -101,13 +104,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
     // This provides better completion support and is used for detecting when the shell is ready (see org.jetbrains.sbt.shell.SbtProcessUtil.promptReady).
     val useNewShell = Registry.is("sbt.new.shell") && projectSbtVersion >= SbtVersion.apply("1.4")
 
+    val optionsReporter = new WarningsCollectingBuildReporter
     val shellSbtProcessOptions: SbtProcessOptions =
       SbtProcessOptionsResolver.resolveSbtOptionsForShell(
         workingDir,
         sbtSettings.sbtOptions.options,
         EnvironmentVariablesData.create(sbtSettings.userSetEnvironment.asJava, sbtSettings.passParentEnvironment),
         malformedSbtOptionsFromSettings = sbtSettings.sbtOptions.malformedOptions
-      )
+      )(using optionsReporter)
+    SbtShellOptionsWarningService.instance(project).showWarnings(optionsReporter.collectedWarnings)
 
     val vmOptionsData: SbtShellVmOptionsData =
       new SbtShellVmOptionsBuilder().createVmOptions(
@@ -312,6 +317,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
           initTerminalConsole(pd)
           ConsoleViewsRegistry.set(project, pd.console)
           SbtShellRunner.openShell(focus = false, project)
+          installTerminalWarningsHost(pd)
       }
     }
 
@@ -500,6 +506,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
         log.trace("destroyProcess: emit ProcessTerminated...")
 
         shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
+        uninstallTerminalWarningsHost(pd)
         processData = None
 
         log.debug("destroyProcess finish: processData cleared")
@@ -560,6 +567,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
       SbtShellToolWindowFactory.initUi(project, actionGroup, component = processData.console.getComponent)
     }
 
+  private def installTerminalWarningsHost(processData: TerminalConsoleProcessData): Unit =
+    SbtShellOptionsWarningService.instance(project).installTerminalWidget(processData.terminalWidget)
+
+  private def uninstallTerminalWarningsHost(processData: ProcessData): Unit =
+    processData match {
+      case terminalData: TerminalConsoleProcessData =>
+        SbtShellOptionsWarningService.instance(project).uninstallTerminalWidget(terminalData.terminalWidget)
+      case _ =>
+    }
+
   private[shell] def isRunWithNewShell: Boolean =
     processData.exists(_.isNewShell)
 }
@@ -610,6 +627,9 @@ object SbtProcessManager {
     console: TerminalExecutionConsole,
     isNewShell: Boolean
   ) extends ProcessData {
+    // Keep the bridge object stable so install/uninstall compare the same TerminalWidget instance.
+    lazy val terminalWidget: TerminalWidget = console.getTerminalWidget.asNewWidget()
+
     override def flushText(): Unit = console.flushImmediately()
   }
 }
