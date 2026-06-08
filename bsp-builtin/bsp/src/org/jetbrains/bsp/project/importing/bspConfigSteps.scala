@@ -291,6 +291,9 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 }
 object BspSetupConfigStep {
 
+  // When `BspConfigSetupTask` is changed to run in a non-blocking way, review
+  // `BspOpenProjectProvider.shouldGenerateBspConfig`, because the logic implemented there
+  // relies on the config setup running synchronously during project import via "New Project from Existing Sources".
   class BspConfigSetupTask(setup: BspConfigSetup)
     extends Task.Modal(null, BspBundle.message("bsp.config.steps.setup.config.task.title"), true) {
 

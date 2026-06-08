@@ -25,6 +25,7 @@ import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import org.jetbrains.bsp.*
+import org.jetbrains.bsp.project.importing.BspOpenProjectProvider.shouldGenerateBspConfig
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.hasBspConfiguration
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps.*
@@ -173,8 +174,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
-      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty && settings.serverConfig != BloopConfig
-      if (shouldGenerateBspConfig)
+      if (shouldGenerateBspConfig(setupChoices, workspace, settings.serverConfig))
         generateBspConfig(workspace, setupChoices, project, settings)
 
       ExternalSystemUtil.refreshProject(
@@ -265,9 +265,26 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       }
     }
   }
-
 }
 
+private[importing] object BspOpenProjectProvider {
+  /**
+   * Determines whether the BSP connection file should be generated when a project is opened.
+   *
+   * @note When a project is imported with "New Project from Existing Sources" and multiple BSP import configs are available,
+   * a selector is shown to choose one. Then, a modal blocking window is displayed to generate the connection file.
+   * Later, when the project is opened, it should already have a connection file, so the connection file should not be
+   * generated again.
+   *
+   * The only exception is the Bloop config. For this config type, the connection file is not generated
+   * in a modal window because, with Bloop, we don't explicitly generate the connection file.
+   * That is why a separate condition in this method checking whether the server config is not a [[BloopConfig]] is required.
+   * If this condition is not present, the config selection dialog will be shown twice:
+   * first during import via "New Project from Existing Sources", and then again when the project is opened.
+   */
+  def shouldGenerateBspConfig(setupChoices: List[ConfigSetup], workspace: Path, serverConfig: BspServerConfig): Boolean =
+    setupChoices.nonEmpty && serverConfig != BloopConfig && !hasBspConfiguration(workspace)
+}
 
 class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjectSettings, BspProjectSettingsListener, BspSettings](
   BSP.ProjectSystemId, BspSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
