@@ -223,7 +223,8 @@ object SbtStructureDumper:
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
         passParentEnvironment,
         context.timingCollector,
-        sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs)
+        sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs),
+        project = project,
       )
 
       extraSbtFileToRemove.foreach { path =>

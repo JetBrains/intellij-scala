@@ -8,6 +8,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
+import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
 import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
@@ -53,7 +55,8 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector],
+    project: Option[Project] = None,
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] =
@@ -74,7 +77,8 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
         EnvironmentVariablesData.create(environment0.asJava, passParentEnvironment),
         sbtLauncherArgs,
         sbtOptions.malformedOptions
-      )
+      ),
+      project = project,
     )
 
   /**
@@ -116,7 +120,8 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
     timingCollector: Option[SbtImportTimingCollector.TimingCollector],
-    sbtProcessOptions: SbtProcessOptions
+    sbtProcessOptions: SbtProcessOptions,
+    project: Option[Project],
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] = {
@@ -141,15 +146,21 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
 
     val startTime = System.currentTimeMillis()
 
-    //noinspection ApiStatus,UnstableApiUsage
-    val transferredSbtLauncher =
-      EelPathUtils.transferLocalContentToRemote(sbtLauncher, TransferTarget.Temporary(directory.eelDescriptor))
-
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
-      validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, transferredSbtLauncher)
+      val useMockSbt = project.exists(MockSbtProcessForTests.isEnabled)
+      val sbtLaunchCommand: Seq[String] =
+        if (useMockSbt) {
+          val mockProcessCommandLineTail = project.toSeq.flatMap(MockSbtProcessForTests.mockMainClassCommandLineTailForNonShell)
+          mockProcessCommandLineTail ++ sbtProcessOptions.sbtLauncherArgs
+        } else {
+          //noinspection ApiStatus,UnstableApiUsage
+          val transferredSbtLauncher = EelPathUtils.transferLocalContentToRemote(sbtLauncher, TransferTarget.Temporary(directory.eelDescriptor))
+          validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, transferredSbtLauncher)
+          List("-jar", transferredSbtLauncher.asLocalPath) ++ sbtProcessOptions.sbtLauncherArgs
+        }
 
       val processCommandsRaw =
         List(
@@ -159,8 +170,7 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
           "-Dfile.encoding=UTF-8"
         ) ++
           sbtProcessOptions.allVmOptions ++
-          List("-jar", transferredSbtLauncher.asLocalPath) ++
-          sbtProcessOptions.sbtLauncherArgs // :+ "--debug"
+          sbtLaunchCommand // :+ "--debug"
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
