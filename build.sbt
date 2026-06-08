@@ -178,6 +178,35 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
     autoScalaLibrary := false
   )
 
+lazy val sbtKotlinIjPluginInterop =
+  newProjectWithKotlin("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
+    .dependsOn(sbtApi)
+    .settings(
+      crossPaths := false,
+      autoScalaLibrary := false,
+      intellijPlugins += "org.jetbrains.kotlin".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-kotlin-ij-plugin-interop"),
+
+      // Work around Kotlin compiler plugin auto-discovery during this module compilation.
+      // Adding the Kotlin IDE plugin puts all bundled Kotlin jars on the compiler classpath,
+      // so kotlinc also sees compiler-plugin jars like Parcelize and tries to initialize them.
+      // Those plugins expect a different runtime classpath and can fail with missing IntelliJ SDK classes.
+      // Keep only the jars needed to compile direct Kotlin facet/compiler-settings API usages.
+      intellijPluginJars := intellijPluginJars.value.map {
+        case PluginJars(descriptor, root, classpath) if root.getName == "Kotlin" =>
+          val requiredJars = Set(
+            "kotlin-plugin.jar",
+            "kotlinc.kotlin-jps-common.jar",
+            "kotlinc.kotlin-compiler-common.jar"
+          )
+
+          PluginJars(descriptor, root, classpath.filter(file => requiredJars(file.getName)))
+
+        case pluginJars =>
+          pluginJars
+      }
+    )
+
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
     .dependsOn(
@@ -468,6 +497,7 @@ lazy val sbtImpl =
     .dependsOn(
       sbtApi,
       sbtKotlinUtils,
+      sbtKotlinIjPluginInterop % "test->test",
       scalaImpl % "test->test;compile->compile",
     )
     .settings(

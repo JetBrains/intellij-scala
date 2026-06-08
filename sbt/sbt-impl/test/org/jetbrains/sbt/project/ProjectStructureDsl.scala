@@ -30,6 +30,7 @@ object ProjectStructureDsl {
   object javaTargetBytecodeLevel extends Attribute[String]("javaTargetBytecodeLevel")  with ProjectAttribute with ModuleAttribute
   object javacOptions            extends Attribute[Seq[String]]("javacOptions")        with ProjectAttribute with ModuleAttribute
   object scalacOptions           extends Attribute[Seq[String]]("scalacOptions")       with ProjectAttribute with ModuleAttribute
+  object kotlincOptions          extends Attribute[Seq[String]]("kotlincOptions")      with ModuleAttribute
 
   // TODO looks like it should be a module attribute SCL-22637
   object packagePrefix           extends Attribute[String]("packagePrefix") with ProjectAttribute
@@ -154,4 +155,3 @@ object ProjectStructureDsl {
   def libraries2libraryDependencies(libraries: Seq[library], scope: Option[DependencyScope]): Seq[dependency[library]] =
     libraries.map(library2libraryDependency(_, scope))
 }
-

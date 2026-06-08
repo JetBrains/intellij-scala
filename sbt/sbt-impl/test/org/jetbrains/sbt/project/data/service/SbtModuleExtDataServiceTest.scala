@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.project.data.service
 
+import com.intellij.facet.FacetManager
 import com.intellij.compiler.CompilerConfiguration
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.{LanguageLevelUtil, ModuleManager}
@@ -12,6 +14,7 @@ import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.sbt.project.SbtKotlinCompilerOptionsImporter
 import org.jetbrains.sbt.project.data._
 import org.junit.Assert._
 
@@ -119,6 +122,25 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
       Seq("-g:none", "-nowarn", "-deprecation", "-Werror"),
       compilerConfiguration.getAdditionalOptions(getModule).asScala.toSeq
     )
+  }
+
+  def testKotlincOptions(): Unit = {
+    val moduleOptions = Seq(
+      "-Xjsr305=strict",
+      "-progressive",
+      "-opt-in=kotlin.RequiresOptIn",
+      "-nowarn"
+    )
+
+    importProjectData(generateProject(None, None, Seq.empty, None, Seq.empty, moduleOptions))
+
+    val importer = ApplicationManager.getApplication.getService(classOf[SbtKotlinCompilerOptionsImporter])
+    assertNotNull(importer)
+    assertTrue(
+      "Expected Kotlin facet to be imported",
+      FacetManager.getInstance(getModule).getAllFacets.exists(_.getType.getStringId == "kotlin-language")
+    )
+    assertEquals(moduleOptions, importer.getAdditionalArguments(getModule).asScala.toSeq)
   }
 
   private def generateJavaProject(sdk: Option[SdkReference], moduleJavacOptions: Seq[String]): DataNode[ProjectData] =

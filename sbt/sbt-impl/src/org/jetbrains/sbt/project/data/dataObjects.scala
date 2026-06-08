@@ -222,10 +222,11 @@ object SbtCommandData {
     SbtCommandData(name, toJavaMap(help.toMap))
 }
 
-case class SbtModuleExtData @PropertyMapping(Array("scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage", "compileOrder")) (
+case class SbtModuleExtData @PropertyMapping(Array("scalacOptions", "sdk", "javacOptions", "kotlincOptions", "packagePrefix", "basePackage", "compileOrder")) (
   scalacOptions: JList[String],
   @Nullable sdk: SdkReference,
   javacOptions: JList[String],
+  kotlincOptions: JList[String],
   packagePrefix: String,
   basePackage: String,
   compileOrder: CompileOrder
@@ -238,6 +239,7 @@ object SbtModuleExtData {
     scalacOptions: Seq[String] = Seq.empty,
     sdk: Option[SdkReference] = None,
     javacOptions: Seq[String] = Seq.empty,
+    kotlincOptions: Seq[String] = Seq.empty,
     packagePrefix: Option[String] = None,
     basePackage: Option[String] = None,
     compileOrder: CompileOrder = CompileOrder.Mixed
@@ -246,6 +248,7 @@ object SbtModuleExtData {
       scalacOptions.toJavaList,
       sdk.orNull,
       javacOptions.toJavaList,
+      kotlincOptions.toJavaList,
       packagePrefix.orNull,
       basePackage.orNull,
       compileOrder

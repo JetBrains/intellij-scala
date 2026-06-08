@@ -55,6 +55,7 @@
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.bsp-junit"/>
         <module name="scalaCommunity.bsp-terminal"/>
+        <module name="scalaCommunity.sbt-kotlin-ij-plugin-interop"/>
 
         <module name="scalaCommunity.testing-support"/>
         <module name="scalaCommunity.testing-support.munit"/>
