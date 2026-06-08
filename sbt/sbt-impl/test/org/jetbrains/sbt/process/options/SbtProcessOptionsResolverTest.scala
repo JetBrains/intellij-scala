@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.MapHasAsJava
  *
  * Indirect coverage:
  * - [[SbtProcessOptionsRenderer]]
- * - [[SbtOptionsReporter]]
+ * - [[SbtOptionsDiagnosticsReporter]]
  * - [[collecting.SbtOptionsCollector]]
  * - [[collecting.JvmOptionsCollector]]
  * - [[parsing.SbtOptionsTextNormalizer]]
@@ -305,7 +305,11 @@ class SbtProcessOptionsResolverTest {
 
   @Test
   def resolveSbtOptionsReportsUnrecognisedOptionsFromAllSources(): Unit = {
-    writeSbtOptsToFileInDir("-unknown-from-file")
+    writeSbtOptsToFileInDir(
+      """
+        |-unknown-from-file
+        |""".stripMargin
+    )
 
     val reporter = new MessagesCollectingBuildReporter
     val actual = SbtProcessOptionsResolver.resolveSbtOptionsForSeparateProcess(
@@ -319,18 +323,20 @@ class SbtProcessOptionsResolverTest {
       reporter,
       Seq(
         WarningData(
-          "unrecognized sbt option: -unknown-from-env",
-          s"""Unrecognized sbt option: -unknown-from-env (SBT_OPTS environment variable)
+          "unrecognized sbt option: -unknown-from-env (SBT_OPTS environment variable)",
+          s"""Unrecognized sbt option: -unknown-from-env.
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
-          "unrecognized sbt option: -unknown-from-file",
-          s"""Unrecognized sbt option: -unknown-from-file (.sbtopts file)
+          "unrecognized sbt option: -unknown-from-file (.sbtopts file)",
+          s"""Unrecognized sbt option: -unknown-from-file at:
+             |${sbtOptsFilePath}:2
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
-          "unrecognized sbt option: -unknown-from-settings",
-          s"""Unrecognized sbt option: -unknown-from-settings (IDE settings)
+          "unrecognized sbt option: -unknown-from-settings (IDE settings)",
+          s"""Unrecognized sbt option: -unknown-from-settings.
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         )
       )

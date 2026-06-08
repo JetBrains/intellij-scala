@@ -20,7 +20,13 @@ private[options] object SbtOptionsParser {
     options: Seq[String],
     source: SbtOptionsSource
   ): SbtOptionsParseResult =
-    new SbtOptionsParser(source).parse(options)
+    parseWithLineNumbers(options.map(_ -> 1), source)
+
+  def parseWithLineNumbers(
+    options: Seq[(String, Int)],
+    source: SbtOptionsSource
+  ): SbtOptionsParseResult =
+    new SbtOptionsParser(source).parseWithLineNumbers(options)
 }
 
 /**
@@ -31,17 +37,23 @@ private[options] final class SbtOptionsParser(source: SbtOptionsSource) {
   /**
    * @param rawOptions raw options collected from sources such as `.sbtopts`, `SBT_OPTS`, or IDE settings
    */
-  def parse(rawOptions: Seq[String]): SbtOptionsParseResult = {
+  def parse(rawOptions: Seq[String]): SbtOptionsParseResult =
+    parseWithLineNumbers(rawOptions.map(_ -> 1))
+
+  /**
+   * @param rawOptions raw options with their 1-based source lines
+   */
+  def parseWithLineNumbers(rawOptions: Seq[(String, Int)]): SbtOptionsParseResult = {
     val mappedOptions = ListBuffer[ParsedSbtOption]()
     val unrecognizedOptions = ListBuffer[UnrecognizedSbtOption]()
 
-    rawOptions.foreach { opt =>
+    rawOptions.foreach { case (opt, lineNumber) =>
       val res = mapOptionToSbtOption(opt)
       res match {
         case Some(value) =>
           mappedOptions += value
         case None =>
-          unrecognizedOptions += UnrecognizedSbtOption(opt, findClosestOptionHelper(opt))
+          unrecognizedOptions += UnrecognizedSbtOption(opt, findClosestOptionHelper(opt), lineNumber)
       }
     }
 

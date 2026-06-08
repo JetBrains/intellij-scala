@@ -64,7 +64,7 @@ class SbtOptionsParserTest {
     assertEquals(
       rawOptions,
       actual.diagnostics.flatMap {
-        case Unrecognized(_, unrecognizedOptions) => unrecognizedOptions.map(_.rawOption)
+        case Unrecognized(_, unrecognizedOptions, _) => unrecognizedOptions.map(_.rawOption)
         case other => throw new AssertionError(s"Expected only unrecognized diagnostics, got: $other")
       }
     )

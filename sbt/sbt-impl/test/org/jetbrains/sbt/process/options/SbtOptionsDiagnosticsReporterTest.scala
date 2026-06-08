@@ -2,6 +2,7 @@ package org.jetbrains.sbt.process.options
 
 import org.jetbrains.sbt.process.options.parsing.model.SbtOptionsDiagnostic.{Malformed, Unrecognized}
 import org.jetbrains.sbt.process.options.parsing.model.{MalformedSbtOption, SbtOptionsDiagnostic, SbtOptionsSource, UnrecognizedSbtOption}
+import org.jetbrains.sbt.process.options.reporting.SbtOptionsDiagnosticsReporter
 import org.jetbrains.sbt.process.options.utils.MessagesCollectingBuildReporter
 import org.jetbrains.sbt.process.options.utils.SbtOptionsWarningAssertions.{AllAvailableOptionsText, WarningData, assertWarnings}
 import org.junit.Test
@@ -13,7 +14,7 @@ import java.nio.file.Path
  *
  * ## Test coverage
  * Primary coverage:
- * - [[SbtOptionsReporter]]
+ * - [[SbtOptionsDiagnosticsReporter]]
  *
  * Indirect coverage:
  * - [[knownOptions.KnownSbtOptions]]
@@ -22,7 +23,7 @@ import java.nio.file.Path
  * - [[parsing.model.MalformedSbtOption]]
  * - [[parsing.model.SbtOptionsSource]]
  */
-class SbtOptionsReporterTest {
+class SbtOptionsDiagnosticsReporterTest {
 
   @Test
   def reportsWarningWithSuggestion(): Unit =
@@ -30,8 +31,9 @@ class SbtOptionsReporterTest {
       Seq(UnrecognizedSbtOption("-sbt-dirop", Some("-sbt-dir <path>"))),
       expected = Seq(
         WarningData(
-          "unrecognized sbt option: -sbt-dirop",
-          s"""Unrecognized sbt option: -sbt-dirop. Did you mean -sbt-dir <path> ? (IDE settings)
+          "unrecognized sbt option: -sbt-dirop (IDE settings)",
+          s"""Unrecognized sbt option: -sbt-dirop. Did you mean -sbt-dir <path> ?
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         )
       )
@@ -43,8 +45,9 @@ class SbtOptionsReporterTest {
       Seq(UnrecognizedSbtOption("-totally-unknown", None)),
       expected = Seq(
         WarningData(
-          "unrecognized sbt option: -totally-unknown",
-          s"""Unrecognized sbt option: -totally-unknown (IDE settings)
+          "unrecognized sbt option: -totally-unknown (IDE settings)",
+          s"""Unrecognized sbt option: -totally-unknown.
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         )
       )
@@ -60,10 +63,11 @@ class SbtOptionsReporterTest {
       ),
       expected = Seq(
         WarningData(
-          "unrecognized sbt options: -sbt-dirop, -totally-unknown, -color",
-          s"""Unrecognized sbt option: -sbt-dirop. Did you mean -sbt-dir <path> ? (IDE settings)
-             |Unrecognized sbt option: -totally-unknown (IDE settings)
-             |Unrecognized sbt option: -color. Did you mean -color=auto|always|true|false|never ? (IDE settings)
+          "unrecognized sbt options: -sbt-dirop, -totally-unknown, -color (IDE settings)",
+          s"""Unrecognized sbt option: -sbt-dirop. Did you mean -sbt-dir <path> ?
+             |Unrecognized sbt option: -totally-unknown.
+             |Unrecognized sbt option: -color. Did you mean -color=auto|always|true|false|never ?
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         )
       )
@@ -72,7 +76,8 @@ class SbtOptionsReporterTest {
   @Test
   def reportsWarningSourceFromEverySupportedSource(): Unit = {
     val buildReporter = new MessagesCollectingBuildReporter
-    val reporter = new SbtOptionsReporter(buildReporter)
+    val reporter = new SbtOptionsDiagnosticsReporter(buildReporter)
+    val optionsFile = Path.of("/tmp/project/.sbtopts")
     val diagnostics = Seq(
       Unrecognized(
         SbtOptionsSource.EnvironmentVariable,
@@ -80,7 +85,8 @@ class SbtOptionsReporterTest {
       ),
       Unrecognized(
         SbtOptionsSource.OptionsFile,
-        Seq(UnrecognizedSbtOption("-unknown-from-file", None))
+        Seq(UnrecognizedSbtOption("-unknown-from-file", None, lineNumber = 3)),
+        optionsFile = Some(optionsFile)
       ),
       Unrecognized(
         SbtOptionsSource.IdeSettings,
@@ -94,18 +100,20 @@ class SbtOptionsReporterTest {
       buildReporter,
       Seq(
         WarningData(
-          "unrecognized sbt option: -unknown-from-env",
-          s"""Unrecognized sbt option: -unknown-from-env (SBT_OPTS environment variable)
+          "unrecognized sbt option: -unknown-from-env (SBT_OPTS environment variable)",
+          s"""Unrecognized sbt option: -unknown-from-env.
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
-          "unrecognized sbt option: -unknown-from-file",
-          s"""Unrecognized sbt option: -unknown-from-file (.sbtopts file)
+          "unrecognized sbt option: -unknown-from-file (.sbtopts file)",
+          s"""Unrecognized sbt option: -unknown-from-file at:
+             |${optionsFile.toAbsolutePath.toUri}:3
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
-          "unrecognized sbt option: -unknown-from-settings",
-          s"""Unrecognized sbt option: -unknown-from-settings (IDE settings)
+          "unrecognized sbt option: -unknown-from-settings (IDE settings)",
+          s"""Unrecognized sbt option: -unknown-from-settings.
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         )
       )
@@ -232,8 +240,9 @@ class SbtOptionsReporterTest {
       ),
       expected = Seq(
         WarningData(
-          "unrecognized sbt option: -unknown-from-settings",
-          s"""Unrecognized sbt option: -unknown-from-settings (IDE settings)
+          "unrecognized sbt option: -unknown-from-settings (IDE settings)",
+          s"""Unrecognized sbt option: -unknown-from-settings.
+             |<a href="open_sbt_settings">Open Settings</a>
              |$AllAvailableOptionsText""".stripMargin
         ),
         WarningData(
@@ -257,7 +266,7 @@ class SbtOptionsReporterTest {
     expected: Seq[WarningData]
   ): Unit = {
     val buildReporter = new MessagesCollectingBuildReporter
-    val reporter = new SbtOptionsReporter(buildReporter)
+    val reporter = new SbtOptionsDiagnosticsReporter(buildReporter)
 
     reporter.reportDiagnostics(diagnostics)
 

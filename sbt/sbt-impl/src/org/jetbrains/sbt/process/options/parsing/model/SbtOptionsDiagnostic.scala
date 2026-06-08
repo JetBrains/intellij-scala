@@ -15,10 +15,12 @@ private[options] object SbtOptionsDiagnostic {
    *
    * @param source              where these inputs were collected from
    * @param unrecognizedOptions the individual inputs that could not be recognized
+   * @param optionsFile         concrete file path when the source is an sbt options file
    */
   final case class Unrecognized(
     source: SbtOptionsSource,
-    unrecognizedOptions: Seq[UnrecognizedSbtOption]
+    unrecognizedOptions: Seq[UnrecognizedSbtOption],
+    optionsFile: Option[Path] = None,
   ) extends SbtOptionsDiagnostic
 
   /**
