@@ -9,8 +9,9 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionException, ExecutionResult, Executor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtProcessManager
 
 /**
@@ -155,9 +156,14 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
       case Some(_) =>
         manager.debugConnection.isDefined
       case _ =>
-        val settings = SbtExternalSystemManager.executionSettingsFor(project)
-        settings.shellDebugMode
+        isDebuggingInSbtSettingsEnabled(project)
     }
     isDebuggingEnabled
+  }
+
+  private def isDebuggingInSbtSettingsEnabled(project: Project): Boolean = {
+    val workingDirPath = SbtUtil.getWorkingDirPath(project)
+    val settings = SbtSettings.getInstance(project).getLinkedProjectSettings(workingDirPath)
+    Option(settings).getOrElse(SbtProjectSettings.default).enableDebugSbtShell
   }
 }

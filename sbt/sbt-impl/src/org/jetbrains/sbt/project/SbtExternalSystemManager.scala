@@ -76,6 +76,12 @@ object SbtExternalSystemManager {
     executionSettingsFor(project, workingDirPath)
   }
 
+  /**
+   * NOTE: the method requires BGT mainly due to JDK guessing logic under the hood, which can be time-consuming.<br>
+   * Ideally, the lifecycle of entities/settings should be reviewed in order the JDK guessing is done
+   * not during these settings extractions, but at some point where the BGT is available.
+   * And when the [[executionSettingsFor]] would be called on EDT we would rely on the JDK to be already initialised.
+   */
   @RequiresBackgroundThread
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     import scala.jdk.CollectionConverters.*
