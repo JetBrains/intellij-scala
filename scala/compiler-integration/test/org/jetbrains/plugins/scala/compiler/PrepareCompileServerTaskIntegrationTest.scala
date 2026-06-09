@@ -7,13 +7,13 @@ import com.intellij.util.ExceptionUtil
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
+import org.jetbrains.plugins.scala.compiler.PrepareCompileServerTaskIntegrationTest.ProjectTaskTimeoutMillis
+import org.jetbrains.plugins.scala.compiler.testUtils.CompilerUtils
 import org.jetbrains.plugins.scala.util.CollectingLoggedErrorProcessor
 import org.junit.Assert.{assertFalse, assertTrue, fail}
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-import PrepareCompileServerTaskIntegrationTest.ProjectTaskTimeoutMillis
 
 /**
  * Covers automatic compile-server startup through the high-level IDE build task API available in tests.
@@ -28,6 +28,14 @@ class PrepareCompileServerTaskIntegrationTest extends ScalaCompilerTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_21
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    // Without this call there can be a `scala: No JDK in module ...` exception when invoking
+    // com.intellij.task.ProjectTaskManager.buildAllModules (which is done in some tests)
+    CompilerUtils.prepareExternalCompilerModel(getProject)
+  }
 
   @Test
   def compileServerShouldAutomaticallyStart_WhenCompilingSingleFile(): Unit = {
