@@ -415,7 +415,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   }
 
   def emitShellStateEvent(event: ShellStateEvent): Unit = {
-    val next = SbtShellLifecycle.transition(currentState, event)
+    val next = SbtShellLifecycle.getInstance(project).transition(currentState, event)
     stateRef.set(next)
     testStateListener.foreach(_(next))
   }
