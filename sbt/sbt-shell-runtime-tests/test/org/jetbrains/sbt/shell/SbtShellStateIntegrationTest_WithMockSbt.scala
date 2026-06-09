@@ -15,8 +15,6 @@ class SbtShellStateIntegrationTest_WithMockSbt extends SbtShellStateIntegrationT
 
   override protected def setupBeforeProjectImport(): Unit = {
     super.setupBeforeProjectImport()
-    // The old/new shell flavor is already selected by the base (SbtRuntimeTest_WithSbtShell sets the `sbt.new.shell`
-    // registry from `useNewShell`); here we only need to substitute the mock process.
     MockSbtProcessForTestsSetup.enableMockSbtProcess(getMyProject, getTestRootDisposable)
   }
 }

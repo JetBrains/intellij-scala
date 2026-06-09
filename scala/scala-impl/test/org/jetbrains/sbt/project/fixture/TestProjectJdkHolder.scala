@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.base.TestCaseExt
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.project.RequiresJdk
+import org.jetbrains.sbt.project.fixture.TestProjectJdkHolder.ensureJdkRegisteredInGlobalJdkTable
 
 final class TestProjectJdkHolder(languageLevel: LanguageLevel) {
 
@@ -23,7 +24,7 @@ final class TestProjectJdkHolder(languageLevel: LanguageLevel) {
   def setUp(): Unit = {
     if (jdk == null) {
       jdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
-      ensureJdkRegisteredInGlobalJdkTable()
+      ensureJdkRegisteredInGlobalJdkTable(jdk)
     }
   }
 
@@ -48,13 +49,6 @@ final class TestProjectJdkHolder(languageLevel: LanguageLevel) {
       jdk = null
     }
   }
-
-  private def ensureJdkRegisteredInGlobalJdkTable(): Unit = inWriteAction {
-    val jdkTable = ProjectJdkTable.getInstance()
-    if (!jdkTable.getAllJdks.contains(jdk)) {
-      jdkTable.addJdk(jdk)
-    }
-  }
 }
 
 object TestProjectJdkHolder {
@@ -63,5 +57,13 @@ object TestProjectJdkHolder {
     val requiresJdkAnnotation = testCase.findTestAnnotation[RequiresJdk]
     val requiredJdk = requiresJdkAnnotation.map(_.value())
     requiredJdk.getOrElse(LanguageLevel.JDK_11)
+  }
+
+  private def ensureJdkRegisteredInGlobalJdkTable(jdk: Sdk): Unit = inWriteAction {
+    val jdkTable = ProjectJdkTable.getInstance()
+    val projectAlreadyHasJdk = jdkTable.getAllJdks.contains(jdk)
+    if (!projectAlreadyHasJdk) {
+      jdkTable.addJdk(jdk)
+    }
   }
 }

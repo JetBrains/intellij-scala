@@ -17,13 +17,15 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
   override protected def getTestSbtProjectSettings =
     super.getTestSbtProjectSettings.copy(useSbtShellForImport = true)
 
+  //TODO: leave just one method
   protected def comm: SbtShellCommunication = sbtShellFixture.getSbtShellCommunication
+  protected def shellCommunication: SbtShellCommunication = comm
 
   protected def shellProcessHandler: OSProcessHandler = sbtShellFixture.getSbtShellProcessHandler
 
   protected def processListener: SbtShellTestUtil.TestSbtShellProcessListener = sbtShellFixture.getTestSbtShellProcessListener
 
-  private var sbtShellFixture: SbtShellTestFixture = uninitialized
+  protected var sbtShellFixture: SbtShellTestFixture = uninitialized
 
   protected val DefaultCommandWaitTimeout: FiniteDuration = SbtShellTestFixture.DefaultCommandWaitTimeout
 
@@ -35,7 +37,12 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
   override def setUp(): Unit = {
     super.setUp()
 
-    sbtShellFixture = new SbtShellTestFixture(getMyProject)
+    val project = getMyProject
+
+    testProjectJdk.setUp()
+    testProjectJdk.setAsProjectJdk(project)
+
+    sbtShellFixture = new SbtShellTestFixture(project)
     Disposer.register(getTestRootDisposable, sbtShellFixture)
     sbtShellFixture.setUp()
   }

@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.shell.SbtShellTestFixture.SbtShellInitialisationTimeout
 import org.junit.Assert.assertNotNull
 
 import scala.compiletime.uninitialized
@@ -31,6 +32,13 @@ final class SbtShellTestFixture(project: Project) extends Disposable {
     myProcessHandler.addProcessListener(myProcessListener)
   }
 
+  def waitForShellReady(project: Project): Unit =
+    SbtShellTestUtil.waitUntilSbtShellIsReady(
+      project,
+      SbtShellInitialisationTimeout,
+      "Timed out waiting for sbt shell to initialize before reading quoted path options"
+    )
+
   override def dispose(): Unit =
     if (myProcessHandler != null && myProcessListener != null) {
       myProcessHandler.removeProcessListener(myProcessListener)
@@ -39,4 +47,5 @@ final class SbtShellTestFixture(project: Project) extends Disposable {
 
 object SbtShellTestFixture {
   val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
+  val SbtShellInitialisationTimeout: FiniteDuration = 60.seconds
 }

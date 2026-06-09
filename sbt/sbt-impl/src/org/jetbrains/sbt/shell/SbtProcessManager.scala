@@ -17,8 +17,9 @@ import com.intellij.openapi.vfs.encoding.EncodingProjectManager
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
-import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
 import com.intellij.terminal.ui.TerminalWidget
+import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
 import com.sun.jna.Platform
@@ -29,10 +30,11 @@ import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
-import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.process.options.reporting.WarningsCollectingBuildReporter
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
@@ -202,7 +204,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     programParams
   }
 
-  private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
+  private def getSbtSettings(dir: String): SbtExecutionSettings =
+    SbtExternalSystemManager.executionSettingsFor(project, dir)
 
   /**
    * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
@@ -376,10 +379,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
     f(writer)
   }
 
-  /** Request an sbt shell process instance. It will be started if necessary.
+  /**
+   * Request an sbt she'll process instance. It will be started if necessary.
    * The process handler should only be used to access the running process!
    * SbtProcessManager is solely responsible for handling the running state.
+   *
+   * The background thread is required because other parts of the invoked code also require it
+   * (for example [[SbtExternalSystemManager.executionSettingsFor]]).
    */
+  @RequiresBackgroundThread
   def acquireShellProcessHandler(): OSProcessHandler = processDataMutex.synchronized {
     log.debug("acquireShellProcessHandler start...")
 
@@ -425,7 +433,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
   def terminalConsole: Option[TerminalExecutionConsole] = processData.collect { case x: TerminalConsoleProcessData => x.console }
   def debugConnection: Option[RemoteConnection] = processData.flatMap(_.debugConnection)
 
-  def restartProcess(): Unit = processDataMutex.synchronized {
+  @RequiresBackgroundThread
+  def restartProcess(): Unit = {
+    doRestartProcess()
+  }
+
+  private def doRestartProcess(): Unit = processDataMutex.synchronized {
     log.debug("restartProcess")
     destroyProcess()
     updateProcessData()

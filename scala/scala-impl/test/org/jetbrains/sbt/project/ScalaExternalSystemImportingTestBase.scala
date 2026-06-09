@@ -14,7 +14,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
 
   import ScalaExternalSystemImportingTestBase._
 
-  private lazy val testProjectJdk: TestProjectJdkHolder =
+  protected lazy val testProjectJdk: TestProjectJdkHolder =
     new TestProjectJdkHolder(projectJdkLanguageLevel)
 
   protected def getJdkConfiguredForTestCase: Sdk = testProjectJdk.configuredJdk

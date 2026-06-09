@@ -20,10 +20,15 @@ import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
  */
 abstract class SbtRuntimeTestBase extends SbtExternalSystemImportingTestLike {
 
+  protected def importProjectDuringTestSetUp: Boolean = true
+
   override def setUp(): Unit = {
     super.setUp()
 
-    importProject()
+    // TODO: shouldn't we move it to the base test classes?
+    if (importProjectDuringTestSetUp) {
+      importProject()
+    }
   }
 
   override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
