@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.template.usingTempDirectory
 import org.jetbrains.sbt.{SbtUtil, usingTempFile}
 
 import java.io.FileNotFoundException
@@ -33,11 +33,14 @@ private object SbtUtils {
           postUpdateCommands).asJava
       )
 
-      usingTempDirectory("sbt-project") { dir =>
+      val dir = Files.createTempDirectory("sbt-project")
+      try {
+        // java.lang.Runtime#exec only accepts a java.io.File working directory; there is no nio.Path-based alternative.
+        //noinspection SSBasedInspection
         val process = Runtime.getRuntime.exec(
           DefaultCommands ++ vmOptions ++ launcherOptions(file.toAbsolutePath.toString),
           null,
-          dir
+          dir.toFile
         )
 
         val listener: SBTProcessListener = lineProcessor(_)
@@ -52,6 +55,8 @@ private object SbtUtils {
         if (rc != 0) {
           throw new RuntimeException(s"sbt process exited with error code: $rc, process output:\n$text")
         }
+      } finally {
+        NioFiles.deleteRecursively(dir)
       }
     }
 
