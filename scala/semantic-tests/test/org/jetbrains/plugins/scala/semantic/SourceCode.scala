@@ -205,7 +205,7 @@ object SourceCode {
           case x :: Nil => printParent(x)
           case x :: xs =>
             printParent(x)
-            this += highlightKeyword(" with ")
+            this += highlightKeyword(", ")
             printSeparated(xs)
         }
         printSeparated(parents1)
