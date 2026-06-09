@@ -41,10 +41,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private val createdFiles: mutable.Set[VirtualFile] = mutable.Set.empty
 
-  private val scalaCompileServerTester: ScalaCompileServerTester = new ScalaCompileServerTester(
-    reuseCompileServerProcessBetweenTests = reuseCompileServerProcessBetweenTests,
-    compileServerShutdownTimeout = compileServerShutdownTimeout
-  )
+  private var scalaCompileServerTester: ScalaCompileServerTester = _
 
   /**
    * Called on each project, but before initializing ThreadWatcher.
@@ -53,6 +50,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    */
   override def setUpProject(): Unit = {
     super.setUpProject()
+
+    scalaCompileServerTester = new ScalaCompileServerTester(
+      reuseCompileServerProcessBetweenTests = reuseCompileServerProcessBetweenTests,
+      compileServerShutdownTimeout = compileServerShutdownTimeout
+    )
 
     val modifiedCompileServerSettings = withModifiedCompileServerSettings { settings =>
       applyEnabledCompileServerSettings(settings, useCompileServer)
