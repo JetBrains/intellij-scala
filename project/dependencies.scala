@@ -71,7 +71,7 @@ object Versions {
   /**
    * Potentially automate the updating of this version in the future.
    */
-  val HunspellDictionaryVersion = "0.2.318"
+  val HunspellDictionaryVersion = "0.2.359"
 
   object Sbt {
     val binary_0_13 = "0.13"
