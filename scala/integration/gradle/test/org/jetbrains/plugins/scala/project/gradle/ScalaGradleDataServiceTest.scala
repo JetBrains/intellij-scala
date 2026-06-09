@@ -24,7 +24,6 @@ import org.junit.Assert._
 
 import java.net.URI
 import java.nio.file.Path
-import java.util
 import java.util.Collections
 import scala.jdk.CollectionConverters._
 
@@ -120,13 +119,16 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
           override protected val data: ScalaModelData = new ScalaModelData(SbtProjectSystem.Id)
           override protected def key: Key[ScalaModelData] = ScalaModelData.KEY
 
-          def asSerializableJavaSet[T](scalaSet: Set[T]): util.Set[T] = {
-            val classpath = new util.HashSet[T]()
-            util.Collections.addAll(classpath, scalaSet.toSeq*)
+          def asSerializableJavaSet[T](scalaSet: Set[T]): java.util.Set[T] = {
+            val classpath = new java.util.HashSet[T]()
+            java.util.Collections.addAll(classpath, scalaSet.toSeq*)
             classpath
           }
 
+          // Gradle's ScalaModelData setters only accept java.util.Set[java.io.File]; there is no nio.Path-based alternative.
+          //noinspection SSBasedInspection
           data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath.map(_.toFile)))
+          //noinspection SSBasedInspection
           data.setScalaCompilerPlugins(asSerializableJavaSet(scalaCompilerPlugins.map(_.toFile)))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
         }
@@ -195,7 +197,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   def testCompondModule(): Unit = {
     val options = new ScalaCompileOptionsData()
-    options.setAdditionalParameters(util.Arrays.asList("-custom-option"))
+    options.setAdditionalParameters(java.util.Arrays.asList("-custom-option"))
 
     importProjectData(
       generateProject(
