@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.template.{usingTempDirectory, usingTempFile, writeLinesTo}
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{SbtUtil, usingTempFile}
 
 import java.io.FileNotFoundException
 import java.nio.file.{Files, Path}
 import scala.collection.{immutable, mutable}
+import scala.jdk.CollectionConverters._
 
 // moved from org.jetbrains.plugins.scala.project.template
 private object SbtUtils {
@@ -26,16 +27,20 @@ private object SbtUtils {
     postUpdateCommands: Seq[String] = Seq.empty
   )(lineProcessor: String => Unit): Unit =
     usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file)(
-        (s"""set scalaVersion := "$version"""" +: preUpdateCommands :+ "updateClassifiers") ++
-          postUpdateCommands: _*
+      Files.write(
+        file,
+        ((s"""set scalaVersion := "$version"""" +: preUpdateCommands :+ "updateClassifiers") ++
+          postUpdateCommands).asJava
       )
 
-      usingTempDirectory("sbt-project") { dir =>
+      val dir = Files.createTempDirectory("sbt-project")
+      try {
+        // java.lang.Runtime#exec only accepts a java.io.File working directory; there is no nio.Path-based alternative.
+        //noinspection SSBasedInspection
         val process = Runtime.getRuntime.exec(
-          DefaultCommands ++ vmOptions ++ launcherOptions(file.getAbsolutePath),
+          DefaultCommands ++ vmOptions ++ launcherOptions(file.toAbsolutePath.toString),
           null,
-          dir
+          dir.toFile
         )
 
         val listener: SBTProcessListener = lineProcessor(_)
@@ -50,6 +55,8 @@ private object SbtUtils {
         if (rc != 0) {
           throw new RuntimeException(s"sbt process exited with error code: $rc, process output:\n$text")
         }
+      } finally {
+        NioFiles.deleteRecursively(dir)
       }
     }
 
