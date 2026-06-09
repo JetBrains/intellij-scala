@@ -15,10 +15,10 @@ import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, Reposito
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
-import org.jetbrains.plugins.scala.project.template._
+import org.jetbrains.sbt.usingTempFile
 
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
 import scala.annotation.unused
 import scala.jdk.CollectionConverters._
@@ -170,14 +170,12 @@ abstract class DependencyManagerBase {
       ivy.setSettings(settings)
       ivy.bind()
 
-      // The temp-file helper and Apache Ivy's resolve API operate on java.io.File; there is no nio.Path-based alternative.
-      //noinspection SSBasedInspection
-      val report = usingTempFile("ivy", ".xml") { ivyFile =>
+      val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
         val ivyXml = mkIvyXml(deps)
-        Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
+        Files.write(ivyFile, ivyXml.getBytes)
         val resolveOptions = new ResolveOptions()
           .setConfs(Array("compile"))
-        ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
+        ivy.resolve(ivyFile.toUri.toURL, resolveOptions)
       }
 
       ref.set(report)
