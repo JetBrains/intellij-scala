@@ -58,7 +58,9 @@ object BspEntityData {
  *                                 different format, one which we plan to use in the future
  * @param serverDisplayName Corresponds to `InitializeBuildResult.displayName`, examples: `"sbt"`, `"scala-cli"`
  */
-//noinspection ApiStatus
+// The `java.io.File` fields and the File-based factory/accessor APIs are intentionally retained to preserve
+// External System serialization compatibility (see the note above).
+//noinspection ApiStatus,SSBasedInspection
 class BspProjectData private (
   @Nullable val jdk: SdkReference,
   @NotNull val vcsRootsCandidates: java.util.List[java.io.File],
@@ -104,6 +106,7 @@ class BspProjectData private (
   }
 }
 
+//noinspection SSBasedInspection
 object BspProjectData {
   val Key: Key[BspProjectData] = datakey(classOf[BspProjectData], weight = ProjectKeys.PROJECT.getProcessingWeight +  1)
 
@@ -135,6 +138,9 @@ case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
 /**
  * @see [[BspProjectData]] for an explanation on the serialization compatibility.
  */
+// The `java.io.File` classpath fields and the File-based factory/accessor APIs are intentionally retained to
+// preserve External System serialization compatibility (see the @see reference above).
+//noinspection SSBasedInspection
 class ScalaSdkData private (
   @NotNull val scalaOrganization: String,
   @Nullable val scalaVersion: String,
@@ -191,6 +197,7 @@ class ScalaSdkData private (
   private def scalacOptionsValue: Seq[String] = scalacOptions.asScala.toSeq
 }
 
+//noinspection SSBasedInspection
 object ScalaSdkData {
   val Key: Key[ScalaSdkData] = datakey(classOf[ScalaSdkData], weight = ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 10)
   val LibraryName: String = "scala-sdk"

@@ -86,6 +86,9 @@ object SbtBuildModuleData {
  *                      It can be removed later if Platform ES STORAGE_VERSION is incremented in future releases
  *                      (see IDEA-314999 for the details)
  */
+// The `java.io.File` `baseDirectory` field and the File-based factory/accessor APIs are intentionally retained
+// to preserve External System serialization compatibility (see the @see reference above).
+//noinspection SSBasedInspection
 class SbtModuleData private (
   val id: String,
   val buildURI: MyURI,
@@ -117,6 +120,7 @@ class SbtModuleData private (
 
 end SbtModuleData
 
+//noinspection SSBasedInspection
 object SbtModuleData:
   val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
 
@@ -256,6 +260,9 @@ object SbtModuleExtData {
  *                               Needs to be added to `scalacClasspath`<br>
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
+// The `java.io.File` classpath/jar fields and the File-based factory/accessor APIs are intentionally retained
+// to preserve External System serialization compatibility (see the @see reference above).
+//noinspection SSBasedInspection
 class SbtScalaSdkData private (
   @Nullable val scalaVersion: String,
   @NotNull val scalacClasspath: java.util.List[java.io.File],
@@ -319,6 +326,7 @@ class SbtScalaSdkData private (
 
 end SbtScalaSdkData
 
+//noinspection SSBasedInspection
 object SbtScalaSdkData:
   val Key: Key[SbtScalaSdkData] = datakey(classOf[SbtScalaSdkData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 
