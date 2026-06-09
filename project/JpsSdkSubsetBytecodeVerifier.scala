@@ -23,12 +23,8 @@ object JpsSdkSubsetBytecodeVerifier {
    * Jars (matched by file name) that are known to contain bytecode newer than [[MaxAllowedJavaVersion]]
    * but are tolerated for now. They are still scanned, but their violations are reported as warnings
    * instead of failing the check.
-   *
-   * `java-impl.jar` is entirely Java 25 bytecode in the 262 platform; tracked under SCL-25518.
    */
-  final val KnownNonCompliantJars: Set[String] = Set(
-    "java-impl.jar"
-  )
+  final val KnownNonCompliantJars: Set[String] = Set.empty
 
   /**
    * Class-file major version corresponding to a Java feature version.

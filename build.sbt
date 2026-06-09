@@ -6,6 +6,7 @@ import DynamicDependenciesFetcher.*
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
+import teamcity.TeamCityAPI
 
 import java.nio.file.Path
 
@@ -317,7 +318,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin
+    intellijPlugins += "intellij.structureView.plugin".toPlugin
   )
 
 lazy val repl = newProject("repl", file("scala/repl"))
@@ -776,7 +777,7 @@ lazy val structuralSearch =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
-        "com.intellij.moduleSet.structuralSearch".toPlugin,
+        "intellij.structuralSearch.plugin".toPlugin,
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")
     )
@@ -791,9 +792,9 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin,
+      intellijPlugins += "intellij.structureView.plugin".toPlugin,
       // TODO: ideally it should be added only in Test (IJPL-244879)
-      intellijPlugins += "com.intellij.moduleSet.servicesView".toPlugin,
+      intellijPlugins += "intellij.execution.serviceView.plugin".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
 
@@ -810,7 +811,7 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
   .settings(
     intellijPlugins ++= Seq(
       "JUnit".toPlugin,
-      "com.intellij.moduleSet.structureView".toPlugin,
+      "intellij.structureView.plugin".toPlugin,
     ),
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support.munit")
   )
@@ -1153,7 +1154,13 @@ lazy val mlCompletionIntegration =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
+      intellijPlugins += TeamCityAPI.getDownloadablePluginOrUseCached(
+        pluginBaseDirName = "completionMlRanking",
+        pluginId = "com.intellij.completion.ml.ranking",
+        intellijVersion = Versions.intellijVersion,
+        isUltimatePlugin = false,
+        isAutoUploading = true
+      ),
       resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1",
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion")
@@ -1169,9 +1176,15 @@ lazy val mlCompletionPropertiesIntegration =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
-        "com.intellij.completion.ml.ranking",
-        "com.intellij.properties"
-      ).map(_.toPlugin),
+        TeamCityAPI.getDownloadablePluginOrUseCached(
+          pluginBaseDirName = "completionMlRanking",
+          pluginId = "com.intellij.completion.ml.ranking",
+          intellijVersion = Versions.intellijVersion,
+          isUltimatePlugin = false,
+          isAutoUploading = true
+        ),
+        "com.intellij.properties".toPlugin
+      ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion.properties")
     )
 

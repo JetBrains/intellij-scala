@@ -208,9 +208,12 @@ object Common {
       intellijPlugins ++= Seq(
         "com.intellij.java",
         // required for Java plugin (IJPL-244879)
-        "com.intellij.moduleSet.todoView",
+        "intellij.todo.plugin",
         // required for Java plugin (IJPL-245969), but also for Scala (SCL-25534)
-        "intellij.libraries.misc.plugin"
+        "intellij.libraries.misc.plugin",
+        // TODO: add these plugins only in the modules where they are needed
+        "intellij.java.aetherDependencyResolver.plugin",
+        "intellij.testRunner.plugin"
       ).map(_.toPlugin),
       pathExcludeFilter := excludePathsFromPackage _
     )
@@ -232,7 +235,7 @@ object Common {
       .settings(
         // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
         // NOTE: keep versions in sync with ultimate/.idea/kotlinc.xml and community/.idea/kotlinc.xml
-        kotlinVersion := "2.4.0-RC",
+        kotlinVersion := "2.4.0",
         kotlincJvmTarget := "25",
         kotlinRuntimeProvided := true,
         resolvers += DependencyResolvers.IntelliJDependencies,
