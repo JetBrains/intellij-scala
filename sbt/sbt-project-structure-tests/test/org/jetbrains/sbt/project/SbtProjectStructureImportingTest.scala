@@ -938,32 +938,18 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
+    val projectLanguageLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
-    def doRunTest(): Unit = runTest(
-      new project(projectName) {
-        javacOptions := Nil
-        javaLanguageLevel := projectLangaugeLevel
-        javaTargetBytecodeLevel := null
-
-        val root = new module(s"$projectName") {
-          javaLanguageLevel := projectLangaugeLevel
-          javaTargetBytecodeLevel := null
-          javacOptions := Nil
-        }
-        val module1 = new module(s"$projectName.module1") {
-          javaLanguageLevel := projectLangaugeLevel
-          javaTargetBytecodeLevel := null
-          javacOptions := Nil
-        }
-
-        modules := Seq(root, module1)
-      }
-    )
-
-    doRunTest()
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
 
     // Emulate User changing the settings manually
+    emulateManualJavaLanguageLevelOptionsChange()
+
+    // Manually set settings should be rewritten if no explicit javac options provided
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
+  }
+
+  private def emulateManualJavaLanguageLevelOptionsChange(): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(ApplicationManager.getApplication, () => {
       val ManuallySetTarget = "9"
       val ManuallySetSource = LanguageLevel.JDK_1_9
@@ -974,9 +960,26 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
       projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
     })
 
-    // Manually set settings should be rewritten if no explicit javac options provided
-    doRunTest()
-  }
+  private def importJavaLanguageLevelNoOptionsProject(projectLanguageLevel: LanguageLevel, projectName: String): Unit = runTest(
+    new project(projectName) {
+      javacOptions := Nil
+      javaLanguageLevel := projectLanguageLevel
+      javaTargetBytecodeLevel := null
+
+      val root = new module(s"$projectName") {
+        javaLanguageLevel := projectLanguageLevel
+        javaTargetBytecodeLevel := null
+        javacOptions := Nil
+      }
+      val module1 = new module(s"$projectName.module1") {
+        javaLanguageLevel := projectLanguageLevel
+        javaTargetBytecodeLevel := null
+        javacOptions := Nil
+      }
+
+      modules := Seq(root, module1)
+    }
+  )
 
   //noinspection TypeAnnotation
   def testJavacOptionsPerModule(): Unit = {

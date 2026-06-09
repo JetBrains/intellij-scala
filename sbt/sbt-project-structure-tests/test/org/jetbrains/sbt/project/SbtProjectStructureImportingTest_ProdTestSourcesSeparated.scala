@@ -803,34 +803,18 @@ import java.nio.file.Files
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
+    val projectLanguageLevel = SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
-    def doRunTest(): Unit = runTest(
-      new project(projectName) {
-        javacOptions := Nil
-        javaLanguageLevel := projectLangaugeLevel
-        javaTargetBytecodeLevel := null
-
-        def createModule(name: String): module = new module(name) {
-          javaLanguageLevel := projectLangaugeLevel
-          javaTargetBytecodeLevel := null
-          javacOptions := Nil
-        }
-
-        val root = createModule(s"$projectName")
-        val rootMain = createModule(s"$projectName.main")
-        val rootTest = createModule(s"$projectName.test")
-        val module1 = createModule(s"$projectName.module1")
-        val module1Main = createModule(s"$projectName.module1.main")
-        val module1Test = createModule(s"$projectName.module1.test")
-
-        modules := Seq(root, rootMain, rootTest, module1, module1Main, module1Test)
-      }
-    )
-
-    doRunTest()
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
 
     // Emulate User changing the settings manually
+    emulateManualJavaLanguageLevelOptionsChange()
+
+    // Manually set settings should be rewritten if no explicit javac options provided
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
+  }
+
+  private def emulateManualJavaLanguageLevelOptionsChange(): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(ApplicationManager.getApplication, () => {
       val ManuallySetTarget = "9"
       val ManuallySetSource = LanguageLevel.JDK_1_9
@@ -841,9 +825,28 @@ import java.nio.file.Files
       projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
     })
 
-    // Manually set settings should be rewritten if no explicit javac options provided
-    doRunTest()
-  }
+  private def importJavaLanguageLevelNoOptionsProject(projectLanguageLevel: LanguageLevel, projectName: String): Unit = runTest(
+    new project(projectName) {
+      javacOptions := Nil
+      javaLanguageLevel := projectLanguageLevel
+      javaTargetBytecodeLevel := null
+
+      def createModule(name: String): module = new module(name) {
+        javaLanguageLevel := projectLanguageLevel
+        javaTargetBytecodeLevel := null
+        javacOptions := Nil
+      }
+
+      val root = createModule(s"$projectName")
+      val rootMain = createModule(s"$projectName.main")
+      val rootTest = createModule(s"$projectName.test")
+      val module1 = createModule(s"$projectName.module1")
+      val module1Main = createModule(s"$projectName.module1.main")
+      val module1Test = createModule(s"$projectName.module1.test")
+
+      modules := Seq(root, rootMain, rootTest, module1, module1Main, module1Test)
+    }
+  )
 
   // noinspection TypeAnnotation
   // because with prod/test sources feature it started to be possible to support different options for
