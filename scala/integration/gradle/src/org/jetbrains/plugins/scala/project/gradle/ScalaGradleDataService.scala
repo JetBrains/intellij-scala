@@ -79,6 +79,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     val scalaData = scalaNode.getData
     val compilerOptions = compilerOptionsFrom(scalaData)
+    // Gradle's ScalaModelData#getScalaClasspath only exposes java.io.File; there is no nio.Path-based alternative.
+    //noinspection SSBasedInspection
     val classpath = scalaData.getScalaClasspath.asScala.toSeq.map(_.toPath)
     modules.foreach { module =>
       module.configureScalaCompilerSettingsFrom(GradleExternalSystemReadableName, compilerOptions, project)
@@ -143,6 +145,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         !isEmpty(options.getEncoding) -> options.getEncoding
       )
 
+      // Gradle's ScalaModelData#getScalaCompilerPlugins only exposes java.io.File; there is no nio.Path-based alternative.
+      //noinspection SSBasedInspection
       val scalaCompilerPlugins =
         if (data.getScalaCompilerPlugins ne null)
           data.getScalaCompilerPlugins.asScala.map(f => s"-Xplugin:${f.getPath}").toSeq

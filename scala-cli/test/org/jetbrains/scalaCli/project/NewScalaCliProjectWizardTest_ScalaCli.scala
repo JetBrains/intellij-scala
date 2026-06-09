@@ -124,6 +124,8 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
     })
   }
 
+  // The test framework's getContentRoot and scala.sys.process APIs only provide/accept java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   protected def installScalaCli(): Unit = {
     val projectDirectory = getContentRoot.toPath.resolve(projectName)
     //note: it's necessary to create this directory at this point, because naturally,
@@ -169,6 +171,8 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
    * @see [[createScalaWrapperScript]]
    */
   protected def installScala(scalaVersion: ScalaVersion): Unit = {
+    // The test framework's getContentRoot returns java.io.File; there is no nio.Path-based alternative.
+    //noinspection SSBasedInspection
     val testDirectory = getContentRoot.toPath.resolve(projectName)
     Files.createDirectories(testDirectory)
 

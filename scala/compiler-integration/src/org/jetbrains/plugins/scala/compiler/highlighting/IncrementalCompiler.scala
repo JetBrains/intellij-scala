@@ -31,6 +31,8 @@ private object IncrementalCompiler {
         OptionsDirectoryProcessor.transferOptionsToRemote(PathManager.getOptionsDir, project)
 
     val rootPath = Path.of(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory(project)))
+    // JPS Utils.getDataStorageRoot only accepts/returns java.io.File; there is no nio.Path-based alternative.
+    //noinspection SSBasedInspection
     val dataStorageRootPath = Utils.getDataStorageRoot(rootPath.toFile, projectPath.toString).toPath
 
     /** @see `org.jetbrains.jps.incremental.scala.remote.Main.withModifiedExternalProjectPath` */

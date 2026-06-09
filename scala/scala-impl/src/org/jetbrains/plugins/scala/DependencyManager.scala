@@ -114,6 +114,8 @@ abstract class DependencyManagerBase {
 
     def mkIvySettings(): IvySettings = {
       val ivySettings = new IvySettings
+      // Apache Ivy's IvySettings API only accepts java.io.File; there is no nio.Path-based alternative.
+      //noinspection SSBasedInspection
       ivySettings.setDefaultIvyUserDir(ivyHome.toFile)
 
       val useFileSystemOnly = useFileSystemResolversOnly
@@ -168,6 +170,8 @@ abstract class DependencyManagerBase {
       ivy.setSettings(settings)
       ivy.bind()
 
+      // The temp-file helper and Apache Ivy's resolve API operate on java.io.File; there is no nio.Path-based alternative.
+      //noinspection SSBasedInspection
       val report = usingTempFile("ivy", ".xml") { ivyFile =>
         val ivyXml = mkIvyXml(deps)
         Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
@@ -218,6 +222,8 @@ abstract class DependencyManagerBase {
     processIvyReport(ref.get())
   }
 
+  // Ivy's ArtifactDownloadReport#getLocalFile only returns java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   protected def artifactReportToResolvedDependency(artifactReport: ArtifactDownloadReport): ResolvedDependency = {
     val id = artifactReport.getArtifact.getModuleRevisionId
     val kind = artifactReport.getArtifact.getType match {
@@ -228,6 +234,8 @@ abstract class DependencyManagerBase {
     ResolvedDependency(DependencyDescription.fromId(id, kind), file.toPath)
   }
 
+  // Ivy's ArtifactDownloadReport#getLocalFile only returns java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   @throws[DependencyManagerBase.ResolveException]
   protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] =
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.nonEmpty) {
