@@ -1249,13 +1249,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     useShellImport: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
 
-    extension (file: Path)
-      /**
-       * A copy of [[FileUtil.isAncestor]] but without using `java.io.File`.
-       */
-      def isAncestorOf(other: Path): Boolean =
-        FileUtil.isAncestor(file.toCanonicalPath.toString, other.toCanonicalPath.toString, true)
-
     val buildBaseProject = {
       // Picking the root project from the buildProjectsGroups should be the most appropriate,
       // but, just in case, the old option has also been preserved
@@ -1266,7 +1259,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           .foldLeft(None: Option[ProjectData]) {
             case (None, p) => Some(p)
             case (Some(p), p1) =>
-              val parent = if (p.base.toPath.isAncestorOf(p1.base.toPath)) p else p1
+              val parent = if (p1.base.toPath.isUnder(p.base.toPath)) p else p1
               Some(parent)
           }
       )
