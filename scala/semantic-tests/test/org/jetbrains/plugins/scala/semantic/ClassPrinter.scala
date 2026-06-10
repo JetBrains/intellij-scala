@@ -6,11 +6,10 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
@@ -161,8 +160,38 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val name = if (isAnonymous) "" else normalized(f.name)
     val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
     val tpe = if (f.isConstructor) "" else (if (signature.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && signature.isEmpty) "" else ": ") + textOf(f.returnType)
-    val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
+    val rhs = f match {
+      case ScFunctionDefinition.withBody(body) =>
+        val rhs = textOfStatement(normalized(body), indent + "  ")
+        if (rhs.startsWith("{")) " = " + rhs else if (!f.isLocal) " = " + rhs else " = " + rhs.trim
+      case _ => ""
+    }
     annotations + "\n" + indent + "  " + modifiers + keyword + name + signature + tpe + rhs + "\n"
+  }
+
+  private def textOfStatement(s: ScBlockStatement, indent: String): String = s match {
+    case b: ScBlock => "{" + b.statements.map(s => textOfStatement(s, indent)).mkString("") + "\n" + indent + "}"
+    case t: ScTypeDefinition =>
+      val sb = new StringBuilder()
+      printTo(sb, t)
+      sb.toString.stripSuffix("\n")
+    case f: ScFunction => textOf(f, indent).stripSuffix("\n")
+    case v: ScValueOrVariable => textOf(v, v.declaredElements.head, indent).stripSuffix("\n")
+    case t: ScTypeAlias => textOf(t, indent).stripSuffix("\n")
+    case e: ScExpression => "\n" + indent + "  " + textOfExpression(e, indent)
+    case _ => "<stmt>"
+  }
+
+  private def textOfExpression(e: ScExpression, indent: String): String = e match {
+    case e => "<expr>"
+  }
+
+  private def normalized(e: ScExpression): ScExpression = e match {
+    case b: ScBlock if normalize => b.statements match {
+      case Seq(e: ScExpression) => e
+      case _ => b
+    }
+    case e => e
   }
 
   private def textOf(e: ScExtension, indent: String): String = {
@@ -179,7 +208,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
     val name = normalized(symbol.name)
     val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(symbolType))
-    val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else if (!v.isAbstract) " = ???" else ""
+    val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else v match {
+      case ScValueOrVariableDefinition.withExpr(expr) =>
+        val rhs = textOfStatement(normalized(expr), indent)
+        if (rhs.startsWith("{")) " = " + rhs else if (!v.isLocal) " = " + rhs else " = " + rhs.trim
+      case _ => ""
+    }
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
   }
 
