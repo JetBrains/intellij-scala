@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, referenceTargetDeep}
 
 import java.awt.Color
-import scala.annotation.tailrec
 
 private object ScalaTypeParameterInfoHandler {
   private final case class ScTypeParameterClauseInfo(params: Seq[ScTypeParam], substitutor: ScSubstitutor)
@@ -218,16 +217,17 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   }
 
   private def fromGenericCall(genCall: ScGenericCall): Option[AnyRef] = {
-    val precedingValueClauseCount = precedingValueArgClauseCount(genCall.referencedExpr)
+    val precedingValueArgClauses = collectPrecedingValueArgClauses(genCall.referencedExpr)
 
     val clauseInfo = for {
       ref          <- referenceTargetDeep(genCall)
       resolved     <- fromResolvedElement(ref)
       params       <- MethodResolveProcessor.typeParametersForArgClause(
                         resolved.element,
-                        precedingValueClauseCount,
+                        precedingValueArgClauses.size,
                         resolved.isExtensionCall,
-                        resolved.exportedInExtension
+                        resolved.exportedInExtension,
+                        precedingValueArgClauses
                       )
       scTypeParams = params.flatMap(_.psiTypeParameter.asOptionOf[ScTypeParam])
       if scTypeParams.nonEmpty
@@ -241,20 +241,19 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     }
   }
 
-  private def precedingValueArgClauseCount(expr: ScExpression): Int = {
-    @tailrec
-    def count(expr: ScExpression, acc: Int): Int = expr match {
-      case gen: ScGenericCall           => count(gen.referencedExpr, acc)
-      case invocation: MethodInvocation => count(invocation.getEffectiveInvokedExpr, acc + 1)
+  private def collectPrecedingValueArgClauses(expr: ScExpression): Seq[Seq[ScExpression]] = {
+    def collect(expr: ScExpression, acc: List[Seq[ScExpression]]): List[Seq[ScExpression]] = expr match {
+      case gen: ScGenericCall           => collect(gen.referencedExpr, acc)
+      case invocation: MethodInvocation => collect(invocation.getEffectiveInvokedExpr, invocation.argumentExpressions +: acc)
       case paren: ScParenthesisedExpr =>
         paren.innerElement match {
-          case Some(inner) => count(inner, acc)
+          case Some(inner) => collect(inner, acc)
           case None        => acc
         }
       case _ => acc
     }
 
-    count(expr, 0)
+    collect(expr, Nil)
   }
 
   private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] =

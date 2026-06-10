@@ -46,4 +46,6 @@ class TypeParameterInfoInterleavedClausesTest extends TypeParameterInfoTestBase 
   def testInterleavedTypeParameterClause(): Unit = doTest()
 
   def testInterleavedTypeParameterClauseAfterOmittedTypeArguments(): Unit = doTest()
+
+  def testInterleavedTypeParameterClauseAfterOmittedUsingClause(): Unit = doTest()
 }

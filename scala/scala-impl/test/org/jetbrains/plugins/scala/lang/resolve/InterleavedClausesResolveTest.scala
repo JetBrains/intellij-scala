@@ -73,6 +73,13 @@ class InterleavedClausesResolveTest extends SimpleResolveTestBase {
        |foo(1)[${REFSRC}U = String]("value")""".stripMargin
   )
 
+  def test_named_type_argument_in_interleaved_type_clause_after_omitted_using_clause(): Unit = doResolveToTargetWithoutProblems(
+    s"""import scala.language.experimental.namedTypeArguments
+       |given Int = 1
+       |def ${REFTGT}foo(first: Int)(using Int)[A](second: A): A = second
+       |val x: Int = ${REFSRC}foo(1)[A = Int](2)""".stripMargin
+  )
+
   private def doResolveToTargetWithoutProblems(source: String)(implicit opts: SrcTgtOptions): Unit = {
     val (src, expectedTarget) = setupResolveTest(None, source -> "dummy.scala")
 
