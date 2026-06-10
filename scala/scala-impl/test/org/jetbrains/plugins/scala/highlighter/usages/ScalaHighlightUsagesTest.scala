@@ -125,4 +125,20 @@ class ScalaHighlightUsagesTest extends ScalaHighlightUsagesTestBase {
        |}
        |""".stripMargin
   )
+
+  def testTypeParameterInInterleavedClauses_CaretAtDefinition(): Unit = doTest(
+    s"""
+       |def combine[${CARET}${start}A$end](first: ${start}A$end)[B](second: B)(fallback: ${start}A$end): ${start}A$end = fallback
+       |""".stripMargin
+  )
+
+  def testTypeParameterInInterleavedClauses_CaretAtNamedTypeArgument(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def combine[A](first: A)[${start}B$end](second: ${start}B$end): Unit = ()
+       |
+       |combine[Int](1)[${CARET}${start}B$end = String]("text")
+       |""".stripMargin
+  )
 }
