@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-
 class Scala3InterleavingTypeParameters extends Scala3FormatterBaseTest {
-  override protected def version: ScalaVersion = LatestScalaVersions.Scala_3_7
 
   def test_base_cases(): Unit = doTextTest(
     """
@@ -116,6 +113,24 @@ class Scala3InterleavingTypeParameters extends Scala3FormatterBaseTest {
       |        (b: B)(b2: B)
       |        [C]
       |        (c: C)(c2: C) = null
+      |""".stripMargin
+  )
+
+  def test_method_call_one_line(): Unit = doTextTest(
+    "test [ A ] ( a ) [ B ] ( b )",
+    "test[A](a)[B](b)"
+  )
+
+  def test_method_call_multiline(): Unit = doTextTest(
+    """
+      |test[A](a)
+      | [B]  (b)
+      |                    [C]  (c)
+      |""".stripMargin,
+    """
+      |test[A](a)
+      |  [B](b)
+      |  [C](c)
       |""".stripMargin
   )
 }
