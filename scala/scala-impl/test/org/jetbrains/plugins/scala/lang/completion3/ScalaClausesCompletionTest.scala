@@ -456,6 +456,80 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   @Test
+  @TestFor(issues = Array("SCL-24609", "SCL-25490"))
+  def testCompleteClauseOperatorNameFromAnotherPackage(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""package pack {
+         |  sealed trait Foo
+         |
+         |  final case class @@[A, T](value: A, tag: T) extends Foo
+         |}
+         |
+         |package test {
+         |  import pack.Foo
+         |
+         |  Option.empty[Foo].map {
+         |    c$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""package pack {
+         |  sealed trait Foo
+         |
+         |  final case class @@[A, T](value: A, tag: T) extends Foo
+         |}
+         |
+         |package test {
+         |  import pack.{@@, Foo}
+         |
+         |  Option.empty[Foo].map {
+         |    case value @@ tag => $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    itemText = "value @@ tag"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-25490"))
+  def testCompleteClauseOperatorNameWithQualifiedReference(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""package pack {
+         |  sealed trait Foo
+         |
+         |  // clashes with scala.collection.immutable.::
+         |  final case class ::[A](head: A, tail: Foo) extends Foo
+         |}
+         |
+         |package test {
+         |  import pack.Foo
+         |
+         |  Option.empty[Foo].map {
+         |    c$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""package pack {
+         |  sealed trait Foo
+         |
+         |  // clashes with scala.collection.immutable.::
+         |  final case class ::[A](head: A, tail: Foo) extends Foo
+         |}
+         |
+         |package test {
+         |  import pack.Foo
+         |
+         |  Option.empty[Foo].map {
+         |    case pack.::(head, tail) => $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    itemText = "head :: tail"
+  )
+
+  @Test
   @TestFor(issues = Array("SCL-24607"))
   def testCompleteClauseOperatorNameWithMultipleClauses(): Unit = doClauseCompletionTest(
     fileText =
