@@ -33,7 +33,7 @@ import java.nio.file.Files
  * If you only need sbt importing test utilities, extend [[SbtProjectStructureImportingLike]]
  * or create a version for main/test modules if needed.
  *
- * @see [[SbtProjectStructureImportingTest]]
+ * @see [[SbtProjectStructureImportingTest_LegacyModulesLayout]]
  * @todo ensure there is a test for SCL-19673 for the BSP external system as well
  */
 @Category(Array(classOf[SlowTests]))

@@ -12,7 +12,7 @@ import java.nio.file.{Files, Path}
 
 // TODO: ensure there is test for SCL-19673 for BSO external system as well
 /**
- * @see [[SbtProjectStructureImportingTest]]
+ * @see [[SbtProjectStructureImportingTest_LegacyModulesLayout]]
  */
 @Category(Array(classOf[SlowTests2]))
 final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {

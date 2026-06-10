@@ -25,10 +25,10 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 
 /**
- * @see [[SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled]]
+ * @see [[SbtProjectStructureImportingTest_ProdTestSourcesSeparated]]
  */
 @Category(Array(classOf[SlowTests2]))
-final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase {
+final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl.*
 
@@ -938,7 +938,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLanguageLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
+    val projectLanguageLevel = SbtProjectStructureImportingTest_LegacyModulesLayout.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
     importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
 
@@ -1052,7 +1052,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest_LegacyModulesLayout.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9
