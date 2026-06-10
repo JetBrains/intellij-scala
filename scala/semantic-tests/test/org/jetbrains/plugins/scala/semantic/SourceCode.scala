@@ -505,10 +505,15 @@ object SourceCode {
       case If(cond, thenp, elsep) =>
         this += highlightKeyword("if ")
         inParens(printTree(cond))
-        this += " "
-        printTree(thenp)
-        this+= highlightKeyword(" else ")
-        printTree(elsep)
+        elsep match {
+          case Literal(UnitConstant()) =>
+            this
+          case _ =>
+            this += " "
+            printTree(thenp)
+            this+= highlightKeyword(" else ")
+            printTree(elsep)
+        }
 
       case Match(selector, cases) =>
         printQualTree(selector)
