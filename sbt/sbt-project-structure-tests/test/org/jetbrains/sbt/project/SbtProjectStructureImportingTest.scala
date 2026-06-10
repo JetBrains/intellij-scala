@@ -37,7 +37,7 @@ import java.nio.file.Files
  * @todo ensure there is a test for SCL-19673 for the BSP external system as well
  */
 @Category(Array(classOf[SlowTests]))
-/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
+/*abstract*/ class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 
@@ -803,7 +803,7 @@ import java.nio.file.Files
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLanguageLevel = SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
+    val projectLanguageLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
     importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
 
@@ -940,7 +940,7 @@ import java.nio.file.Files
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project")
         val rootMain: module = new module("javac-special-options-for-root-project.main") {

@@ -25,7 +25,7 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 
 /**
- * @see [[SbtProjectStructureImportingTest_ProdTestSourcesSeparated]]
+ * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests2]))
 final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProjectStructureTestBase {
@@ -1331,7 +1331,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
   )
 
   /**
-   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest_ProdTestSourcesSeparated.testSimpleSbt2Latest]]
+   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest.testSimpleSbt2Latest]]
    */
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {

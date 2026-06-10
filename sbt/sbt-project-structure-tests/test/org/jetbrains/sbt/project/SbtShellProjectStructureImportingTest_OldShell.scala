@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.IdeaProjectFixtureOptions
 import org.junit.Assert
 
-abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStructureImportingTest_ProdTestSourcesSeparated {
+abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStructureImportingTest {
 
   override protected def getTestSbtProjectSettings =
     super.getTestSbtProjectSettings.copy(useSbtShellForImport = true)

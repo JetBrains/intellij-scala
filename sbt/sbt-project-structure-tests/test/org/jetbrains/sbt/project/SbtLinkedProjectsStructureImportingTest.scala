@@ -6,11 +6,11 @@ import org.jetbrains.sbt.project.SbtProjectImportTestUtils
 /**
  * Test suite for scenarios involving multiple linked sbt projects.
  *
- * These tests are intentionally not included in [[SbtProjectStructureImportingTest_ProdTestSourcesSeparated]]
+ * These tests are intentionally not included in [[SbtProjectStructureImportingTest]]
  * because shell import tests extend that base, and the sbt shell currently does not support multiple linked projects well
  * (see [[https://youtrack.jetbrains.com/issue/SCL-24168/Sbt-shell-doesnt-take-into-account-linked-projects]]).
  */
-final class SbtLinkedProjectsStructureImportingTest_ProdTestSourcesSeparated
+final class SbtLinkedProjectsStructureImportingTest
   extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
