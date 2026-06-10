@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
 
+import org.jetbrains.plugins.scala.ScalaVersion
+
 class FunctionParameterInfoTypeParameterTest extends FunctionParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}typeParameters/"
@@ -19,4 +21,14 @@ class FunctionParameterInfoTypeParameterTest extends FunctionParameterInfoTestBa
   def testUpperBound(): Unit = doTest()
 
   def testViewBound(): Unit = doTest()
+}
+
+class FunctionParameterInfoInterleavedClausesTest extends FunctionParameterInfoTestBase {
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}typeParameters/"
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version.isScala3
+
+  def testInterleavedTypeParameterClauses(): Unit = doTest()
 }

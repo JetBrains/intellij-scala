@@ -10,18 +10,36 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScInfixExpr, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, referenceTargetDeep}
 
 import java.awt.Color
+import scala.annotation.tailrec
+
+private object ScalaTypeParameterInfoHandler {
+  private final case class ScTypeParameterClauseInfo(params: Seq[ScTypeParam], substitutor: ScSubstitutor)
+
+  private final case class ResolvedElement(
+    element:             PsiElement,
+    substitutor:         ScSubstitutor,
+    isExtensionCall:     Boolean,
+    exportedInExtension: Option[ScExtension]
+  ) {
+    def toParameterInfo: (PsiElement, ScSubstitutor) = (element, substitutor)
+  }
+}
 
 class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs, Any, ScTypeElement] {
+  import ScalaTypeParameterInfoHandler.{ResolvedElement, ScTypeParameterClauseInfo}
+
   override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
@@ -53,6 +71,8 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
             val index = remapIndexForNamedTypeArgs(typeArgsOwner, ctx.getCurrentParameterIndex, p).getOrElse(-1)
             val buffer: StringBuilder = new StringBuilder("")
             p match {
+              case ScTypeParameterClauseInfo(params, substitutor) =>
+                appendScTypeParams(params, buffer, index, substitutor)
               case (owner: ScTypeParametersOwner, substitutor: ScSubstitutor) =>
                 val params = owner.typeParameters
                 appendScTypeParams(params, buffer, index, substitutor)
@@ -118,6 +138,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   }
 
   private def formalTypeParameterNames(parameterInfo: Any): Option[Seq[String]] = parameterInfo match {
+    case ScTypeParameterClauseInfo(params, _) => Option(params.map(_.name))
     case (owner: ScTypeParametersOwner, _) => Option(owner.typeParameters.map(_.name))
     case (method: PsiMethod, _)            => Option(method.getTypeParameters.toSeq.map(_.getName))
     case (clazz: PsiClass, _) =>
@@ -196,21 +217,64 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     }
   }
 
-  private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
+  private def fromGenericCall(genCall: ScGenericCall): Option[AnyRef] = {
+    val precedingValueClauseCount = precedingValueArgClauseCount(genCall.referencedExpr)
+
+    val clauseInfo = for {
+      ref          <- referenceTargetDeep(genCall)
+      resolved     <- fromResolvedElement(ref)
+      params       <- MethodResolveProcessor.typeParametersForArgClause(
+                        resolved.element,
+                        precedingValueClauseCount,
+                        resolved.isExtensionCall,
+                        resolved.exportedInExtension
+                      )
+      scTypeParams = params.flatMap(_.psiTypeParameter.asOptionOf[ScTypeParam])
+      if scTypeParams.nonEmpty
+    } yield ScTypeParameterClauseInfo(scTypeParams, resolved.substitutor)
+
+    clauseInfo.orElse {
+      genCall.referencedExpr match {
+        case ref: ScReference => fromResolved(ref)
+        case _                => None
+      }
+    }
+  }
+
+  private def precedingValueArgClauseCount(expr: ScExpression): Int = {
+    @tailrec
+    def count(expr: ScExpression, acc: Int): Int = expr match {
+      case gen: ScGenericCall           => count(gen.referencedExpr, acc)
+      case invocation: MethodInvocation => count(invocation.getEffectiveInvokedExpr, acc + 1)
+      case paren: ScParenthesisedExpr =>
+        paren.innerElement match {
+          case Some(inner) => count(inner, acc)
+          case None        => acc
+        }
+      case _ => acc
+    }
+
+    count(expr, 0)
+  }
+
+  private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] =
+    fromResolvedElement(ref, useActualElement).map(_.toParameterInfo)
+
+  private def fromResolvedElement(ref: ScReference, useActualElement: Boolean = false): Option[ResolvedElement] = {
     ref.bind() match {
       case Some(srr @ ScalaResolveResult.ApplyMethodInnerResolve(inner)) =>
-        val (elem, subst) =
-          if (inner.elementHasTypeParameters) (inner.element, inner.substitutor)
-          else                                (srr.element, srr.substitutor)
+        val resolved =
+          if (inner.elementHasTypeParameters) inner
+          else                                srr
 
-        Option((elem, subst))
+        Option(ResolvedElement(resolved.element, resolved.substitutor, resolved.isExtensionCall, resolved.exportedInExtension))
       case Some(r @ ScalaResolveResult(m: PsiMethod, substitutor)) =>
         val element = if (useActualElement) r.getActualElement else m
-        Option((element, substitutor))
-      case Some(ScalaResolveResult(element @ (_: PsiClass | _: ScTypeParametersOwner), substitutor)) =>
-        Option((element, substitutor))
+        Option(ResolvedElement(element, substitutor, r.isExtensionCall, r.exportedInExtension))
+      case Some(r @ ScalaResolveResult(element @ (_: PsiClass | _: ScTypeParametersOwner), substitutor)) =>
+        Option(ResolvedElement(element, substitutor, r.isExtensionCall, r.exportedInExtension))
       case Some(srr) =>
-        srr.innerResolveResult.map(x => (x.getActualElement, x.substitutor))
+        srr.innerResolveResult.map(x => ResolvedElement(x.getActualElement, x.substitutor, x.isExtensionCall, x.exportedInExtension))
       case _ => None
     }
   }
@@ -222,7 +286,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
         context match {
           case context: CreateParameterInfoContext =>
             val res = args.getParent match {
-              case ScGenericCall(expr, _) => fromResolved(expr)
+              case genCall: ScGenericCall => fromGenericCall(genCall)
               case ScInfixExpr(_, ref, _) => fromResolved(ref)
               case ScParameterizedTypeElement(typeElement, _) =>
                 val maybeReferenceElement = typeElement match {

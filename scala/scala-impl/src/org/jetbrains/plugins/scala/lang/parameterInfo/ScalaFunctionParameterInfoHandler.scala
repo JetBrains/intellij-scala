@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -160,11 +160,6 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     val precedingClauses = if (actualIdx == -1) Seq.empty else clauses.take(actualIdx)
                     val remainingClauses = if (actualIdx == -1) Seq.empty else clauses.drop(actualIdx + 1)
 
-                    val typeParameters = method.typeParameters
-
-                    val multipleLists = typeParameters.nonEmpty ||
-                      (precedingClauses.size + remainingClauses.size + targetParamClause.size > 1)
-
                     def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
                       val length      = clause.effectiveParameters.length
                       val parameters0 = if (isEffective) clause.effectiveParameters else clause.parameters
@@ -172,41 +167,63 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       parameters.map(param => (Parameter(param), paramText(param, subst)))
                     }
 
-                    if (typeParameters.nonEmpty) {
+                    def renderTypeParameters(typeParameters: Seq[ScTypeParam]): Unit = if (typeParameters.nonEmpty) {
                       buffer.append("[")
                       buffer.append(typeParameters.map(typeParamText(_, subst)).mkString(", "))
                       buffer.append("]")
                     }
 
-                    precedingClauses.foreach { clause =>
+                    def renderParameterClause(clause: ScParameterClause, currentParameterIndex: Int, multipleLists: Boolean): Boolean = {
                       if (multipleLists) buffer.append("(")
                       val parameters = parametersOf(clause)
-                      if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
-                      }
+                      val grey =
+                        if (parameters.nonEmpty)
+                          applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, currentParameterIndex)
+                        else
+                          false
                       if (multipleLists) buffer.append(")")
+                      grey
                     }
 
-                    targetParamClause.foreach { clause =>
-                      if (multipleLists) buffer.append("(")
-
-                      isGrey = applyToParameters(
-                        parametersOf(clause),
-                        subst,
-                        clause,
-                        canBeNaming = true
-                      )(args, buffer, index)
-
-                      if (multipleLists) buffer.append(")")
+                    val hasInterleavedTypeClauses = {
+                      var seenTermClause = false
+                      method.signatureClauses.exists {
+                        case ScSignatureClause.TermClause(_) =>
+                          seenTermClause = true
+                          false
+                        case ScSignatureClause.TypeClause(_) =>
+                          seenTermClause
+                      }
                     }
 
-                    remainingClauses.foreach { clause =>
-                      buffer.append("(")
-                      val parameters = parametersOf(clause)
-                      if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
+                    if (hasInterleavedTypeClauses) {
+                      val multipleLists = method.signatureClauses.size > 1
+                      method.signatureClauses.foreach {
+                        case ScSignatureClause.TypeClause(clause) =>
+                          renderTypeParameters(clause.typeParameters)
+                        case ScSignatureClause.TermClause(clause) =>
+                          val currentParameterIndex = if (targetParamClause.contains(clause)) index else -1
+                          isGrey |= renderParameterClause(clause, currentParameterIndex, multipleLists)
                       }
-                      buffer.append(")")
+                    } else {
+                      val typeParameters = method.typeParameters
+
+                      val multipleLists = typeParameters.nonEmpty ||
+                        (precedingClauses.size + remainingClauses.size + targetParamClause.size > 1)
+
+                      renderTypeParameters(typeParameters)
+
+                      precedingClauses.foreach { clause =>
+                        renderParameterClause(clause, -1, multipleLists)
+                      }
+
+                      targetParamClause.foreach { clause =>
+                        isGrey = renderParameterClause(clause, index, multipleLists)
+                      }
+
+                      remainingClauses.foreach { clause =>
+                        renderParameterClause(clause, -1, multipleLists = true)
+                      }
                     }
                   }
                 case method: FakePsiMethod =>

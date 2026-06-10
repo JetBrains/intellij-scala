@@ -610,7 +610,7 @@ object MethodResolveProcessor {
     checkedCandidate
   }
 
-  private def typeParametersForArgClause(
+  private[lang] def typeParametersForArgClause(
     element:             PsiElement,
     argClauseIdx:        Int,
     isExtension:         Boolean,
