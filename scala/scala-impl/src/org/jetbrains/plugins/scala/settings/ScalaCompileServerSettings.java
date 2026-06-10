@@ -5,6 +5,8 @@ import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.jps.api.GlobalOptions;
+import org.jetbrains.jps.incremental.IncProjectBuilder;
 
 import java.util.UUID;
 
@@ -27,7 +29,7 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
 
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = Integer.toString(ScalaCompileServerDefaults.DefaultHeapSize());
   public String COMPILE_SERVER_JVM_PARAMETERS = "-Xss2m -XX:ReservedCodeCacheSize=384m -XX:MaxInlineLevel=20";
-  public int COMPILE_SERVER_PARALLELISM = 4;
+  public int COMPILE_SERVER_PARALLELISM = defaultMaxThreads();
   public boolean COMPILE_SERVER_PARALLEL_COMPILATION = true;
 
   //in minutes
@@ -52,5 +54,20 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
 
   public static ScalaCompileServerSettings getInstance() {
     return ApplicationManager.getApplication().getService(ScalaCompileServerSettings.class);
+  }
+
+  /**
+   * Same as {@link IncProjectBuilder#MAX_BUILDER_THREADS}.
+   */
+  @SuppressWarnings("UnstableApiUsage")
+  private static int defaultMaxThreads() {
+    int maxThreads = Math.min(10, (75 * Runtime.getRuntime().availableProcessors()) / 100); // 75% of available logical cores, but not more than 10 threads
+    try {
+      maxThreads = Math.max(1, Integer.parseInt(System.getProperty(GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION, Integer.toString(maxThreads))));
+    }
+    catch (NumberFormatException ignored) {
+      maxThreads = Math.max(1, maxThreads);
+    }
+    return maxThreads;
   }
 }
