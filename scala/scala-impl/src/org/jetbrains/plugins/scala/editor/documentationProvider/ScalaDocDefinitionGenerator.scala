@@ -185,6 +185,8 @@ private class ScalaDocDefinitionGenerator private(
     }
 
     element match {
+      case function: ScFunction =>
+        appendSignatureClauses(function)
       case tpeParamOwner: ScTypeParametersOwner =>
         val renderedTypeParams = typeParamsRenderer.renderParams(tpeParamOwner)
         if (renderedTypeParams.nonEmpty) builder.append(renderedTypeParams)
@@ -192,6 +194,7 @@ private class ScalaDocDefinitionGenerator private(
     }
 
     element match {
+      case _: ScFunction =>
       case params: ScParameterOwner =>
         // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
         //  review SCL-13777, maybe we should improve formatting of large classes
@@ -210,6 +213,14 @@ private class ScalaDocDefinitionGenerator private(
       case _                            =>
     }
   }
+
+  private def appendSignatureClauses(function: ScFunction): Unit =
+    function.signatureClauses.foreach {
+      case ScSignatureClause.TypeClause(clause) =>
+        builder.append(typeParamsRenderer.render(clause))
+      case ScSignatureClause.TermClause(clause) =>
+        builder.append(definitionParamsRenderer.renderClause(clause).replaceAll("\n\\s*", ""))
+    }
 
   private def appendTypeDef(typedef: ScTypeDefinition): Unit = {
     appendContainerInfoSection(typedef)

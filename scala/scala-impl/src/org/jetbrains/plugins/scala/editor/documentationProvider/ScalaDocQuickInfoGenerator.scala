@@ -201,8 +201,12 @@ class ScalaDocQuickInfoGenerator(
     // but it am not unifying those yet just to leave function/class/alias/val quick info generation code structure similar
     buffer.append("def ")
     buffer.append(function.name)
-    typeParamsRenderer.renderParams(buffer, function)
-    functionParametersRenderer.renderClauses(buffer, function.paramClauses.clauses)
+    function.signatureClauses.foreach {
+      case ScSignatureClause.TypeClause(clause) =>
+        buffer.append(typeParamsRenderer.render(clause))
+      case ScSignatureClause.TermClause(clause) =>
+        buffer.append(functionParametersRenderer.renderClause(clause))
+    }
     typeAnnotationRendererSimple.render(buffer, function)
   }
 

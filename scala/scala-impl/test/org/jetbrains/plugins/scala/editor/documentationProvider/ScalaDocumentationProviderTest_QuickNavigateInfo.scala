@@ -445,3 +445,15 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo_Scala3 extends ScalaDocum
     )
   }
 }
+
+class ScalaDocumentationProviderTest_QuickNavigateInfo_InterleavedClauses extends ScalaDocumentationProviderTest_QuickNavigateInfo {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testMethodWithInterleavedTypeParameterClauses(): Unit =
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""object Wrapper:
+         |  def ${|}foo[T](first: T)[U](second: U): U = second
+         |""".stripMargin,
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>def foo[T](first: T)[U](second: U): U"""
+    )
+}
