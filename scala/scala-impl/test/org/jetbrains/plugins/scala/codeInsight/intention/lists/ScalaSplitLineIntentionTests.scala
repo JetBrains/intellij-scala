@@ -96,6 +96,19 @@ final class ScalaSplitTypeParametersIntentionTest
   override protected val intentionText: String = "Put type parameters on separate lines"
 
   @Test
+  def testInterleavedMethodTypeParameters(): Unit =
+    doTest(
+      singleLineText =
+        """def foo[A](a: A)[B, C](b: B, c: C): Unit = {}""",
+      multiLineText =
+        """def foo[A](a: A)[
+          |  B,
+          |  C
+          |](b: B, c: C): Unit = {}""".stripMargin,
+      listStartChar = '['
+    )
+
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     checkIntentionIsNotAvailable(s"def ${CARET}foo[A, B <: CharSequence]: Unit = {}")
 
