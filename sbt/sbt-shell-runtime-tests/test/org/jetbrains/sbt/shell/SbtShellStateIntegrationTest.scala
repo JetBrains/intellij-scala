@@ -3,11 +3,13 @@ package org.jetbrains.sbt.shell
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.project.SbtProjectResolver
 import org.jetbrains.sbt.shell.communication.SbtShellCommandRequest
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
+import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.concurrent.{Await, Promise}
 
@@ -151,6 +153,27 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
 
     checker.awaitSuccessful()
   }
+
+  def testImportWithDumpStructureToTargetPathContainingSpaces(): Unit = {
+    val structureDir = getTestProjectPath / "target" / "sbt structure output"
+    Files.createDirectories(structureDir)
+
+    val structureFile = structureDir / "sbt structure.xml"
+    Files.deleteIfExists(structureFile)
+
+    importProjectWithStructureFileForTests(structureFile)
+
+    assertTrue(s"Expected sbt shell import to write structure file: $structureFile", Files.isRegularFile(structureFile))
+    assertTrue(s"Expected sbt shell import to write non-empty structure file: $structureFile", Files.size(structureFile) > 0)
+  }
+
+  private def importProjectWithStructureFileForTests(structureFile: Path): Unit =
+    SbtProjectResolver.setStructureFileForTests(structureFile)
+    try {
+      importProject()
+    } finally {
+      SbtProjectResolver.clearStructureFileForTests()
+    }
 
   /**
    * Verifies that the sbt shell states throughout the whole test match the declared expected sequence.

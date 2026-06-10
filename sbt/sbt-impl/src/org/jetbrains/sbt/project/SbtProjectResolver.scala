@@ -341,7 +341,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         log.warn(s"reused structure file created: $structureFilePath")
         doDumpStructure(structureFilePath.get)
       } else {
-        usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+        SbtProjectResolver.withStructureFile { structureFile =>
           doDumpStructure(structureFile)
         }
       }
@@ -1521,6 +1521,30 @@ object SbtProjectResolver {
 
   private def setProcessOutputOfLatestStructureDump(processOutput: String): Unit =
     processOutputOfLatestStructureDump = processOutput
+
+  private def withStructureFile[T](action: Path => T): T =
+    structureFileForTests match {
+      case Some(structureFile) =>
+        action(structureFile)
+      case None =>
+        usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+          action(structureFile)
+        }
+    }
+
+  @TestOnly
+  @ApiStatus.Internal
+  private var structureFileForTests: Option[Path] = None
+
+  @TestOnly
+  @ApiStatus.Internal
+  def setStructureFileForTests(structureFile: Path): Unit =
+    structureFileForTests = Some(structureFile)
+
+  @TestOnly
+  @ApiStatus.Internal
+  def clearStructureFileForTests(): Unit =
+    structureFileForTests = None
 
   private case class LibraryIdentifierWithoutRevision(
     organization: String,

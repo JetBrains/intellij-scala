@@ -63,7 +63,7 @@ object SbtStructureDumper:
 
         context.sbtVersion = currentSbtVersion
 
-        val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${structureFile.normalizedLocalPath}"
+        val dumpStructureToCommand = buildDumpStructureToCommand(structureFile, currentSbtVersion)
 
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
         val ideaPortSetting = ""
@@ -152,7 +152,7 @@ object SbtStructureDumper:
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
-      val dumpStructureCommand = SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
+      val dumpStructureToCommand = buildDumpStructureToCommand(structureFile, sbtVersion)
 
       val sbtTaskTimingOption =
         if (context.timingCollector.nonEmpty) Seq("-Dsbt.task.timings=true")
@@ -160,7 +160,7 @@ object SbtStructureDumper:
 
       /*
        The new import logic:
-       - Passes additional system properties to the `sbt-structure` plugin (e.g., `sbt.structure.outputFile`), which are later used to initialize some settings.
+       - Passes additional system properties to the `sbt-structure` plugin (e.g., `sbt.structure.options`), which are later used to initialize some settings.
          This avoids state transformations by replacing `set` commands.
        - Does not set `historyPath := None` — I don't see any advantage in using this setting.
          Since sbt 1.4.0+, commands prepended with a space are not added to the history, which should be sufficient for this kind of import.
@@ -180,7 +180,6 @@ object SbtStructureDumper:
       val additionalVmOptionsForNewImport =
         if (isNewImportEnabled)
           Seq(
-            s"-Dsbt.structure.outputFile=${structureFile.normalizedLocalPath}",
             s"-Dsbt.structure.options=$optString",
             s"-D$IdeaImportId=$importId"
           )
@@ -206,7 +205,7 @@ object SbtStructureDumper:
           optString,
           sbtStructureJar,
           maybePreferScala2Command,
-          dumpStructureCommand,
+          dumpStructureToCommand,
           sbtVersion,
           sbtProcessOptions,
           project,
@@ -268,13 +267,13 @@ object SbtStructureDumper:
       @unused optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
-      dumpStructureCommand: String,
+      dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
       sbtProcessOptions: SbtProcessOptions,
       project: Option[Project],
       importId: String
     )(using context: ImportContext): StructureDumpConfig = {
-      val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
+      val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureToCommand)
 
       val isAddPluginSbtFileEnabled = sbtVersion.isSbt2 || sbtVersion >= SbtVersion("1.12.1")
       if (isAddPluginSbtFileEnabled) {
@@ -327,12 +326,12 @@ object SbtStructureDumper:
       catch case _: IOException => ()
 
     private def getDumpProcessArgsForLegacySbt(
-      structureFilePath: Path,
+      @unused structureFilePath: Path,
       @unused eelDescriptor: EelDescriptor,
       optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
-      dumpStructureCommand: String,
+      dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
       @unused sbtProcessOptions: SbtProcessOptions,
       @unused project: Option[Project],
@@ -342,7 +341,6 @@ object SbtStructureDumper:
       val setCommands = Seq(
         """historyPath := None""",
         s"""shellPrompt := { _ => "" }""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${structureFilePath.normalizedLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
       ).mkString(s"set $SeqFqn(", ",", ")")
 
@@ -352,7 +350,7 @@ object SbtStructureDumper:
         setCommands,
         applyStateTransformersCommand,
         maybePreferScala2Command,
-        dumpStructureCommand
+        dumpStructureToCommand
       )
       StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
     }
@@ -386,9 +384,13 @@ object SbtStructureDumper:
   private def buildSbtCompositeCommand(commands: String*): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")
 
+  private def buildDumpStructureToCommand(structureFile: Path, sbtVersion: SbtVersion): String =
+    s"""${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} "${structureFile.normalizedLocalPath}""""
+
   private def scopedSbtSetting(setting: String, scope: String, sbtVersion: SbtVersion): String =
     val supportsSlashSyntax = SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion)
     if supportsSlashSyntax then
       s"($scope / $setting)"
     else
       s"$setting in $scope"
+end SbtStructureDumper
