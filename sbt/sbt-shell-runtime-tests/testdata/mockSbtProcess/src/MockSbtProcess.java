@@ -16,6 +16,7 @@ public final class MockSbtProcess {
         private static final String ModeProperty = "org.jetbrains.sbt.mock.process.mode";
 
         private static final String NoShellMode = "no-shell";
+        private static final String NoShellStdinMode = "no-shell-stdin";
         private static final String OldShellMode = "old-shell";
         private static final String NewShellMode = "new-shell";
     }
@@ -34,9 +35,13 @@ public final class MockSbtProcess {
             debug("mode=" + mode);
             if (VmOptions.OldShellMode.equals(mode) || VmOptions.NewShellMode.equals(mode)) {
                 runShell(mode);
+            } else if (VmOptions.NoShellStdinMode.equals(mode)) {
+                runNonShellFromStdin(args);
             } else {
                 runNonShell(args);
             }
+        } catch (Exception e) {
+            error("exception: " + e);
         } finally {
             debugFinal("finally");
         }
@@ -73,14 +78,22 @@ public final class MockSbtProcess {
         String command = String.join(" ", args).trim();
         debug("non-shell mode: command=" + command);
         if (!command.isEmpty()) {
-            System.out.println("[info] mock sbt accepted: " + command);
+            processCommand(command);
+        }
+    }
+
+    private static void runNonShellFromStdin(String[] args) throws IOException, InterruptedException {
+        String command = String.join(" ", args).trim();
+        debug("non-shell stdin mode: command=" + command);
+        if (!command.isEmpty()) {
+            System.out.println("[info] mock sbt launcher args: " + command);
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String inputCommand = line.trim();
-                debug("non-shell mode: received line=" + inputCommand);
+                debug("non-shell stdin mode: received line=" + inputCommand);
                 if (inputCommand.equals("exit")) {
                     return;
                 }
@@ -238,6 +251,12 @@ public final class MockSbtProcess {
 
     private static void debug(String message) {
         System.err.println("[debug] MockSbtProcess: " + message);
+        System.err.flush();
+    }
+
+
+    private static void error(String message) {
+        System.err.println("[error] MockSbtProcess: " + message);
         System.err.flush();
     }
 

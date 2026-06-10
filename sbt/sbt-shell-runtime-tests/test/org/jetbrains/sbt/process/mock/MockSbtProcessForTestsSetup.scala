@@ -7,6 +7,9 @@ import com.intellij.openapi.util.Disposer
 
 import java.nio.file.{Files, Path}
 
+/**
+ * @see [[org.jetbrains.sbt.process.mock.MockSbtProcessForTests]]
+ */
 private[sbt] object MockSbtProcessForTestsSetup {
 
   private val DefaultMainClass = "MockSbtProcess"

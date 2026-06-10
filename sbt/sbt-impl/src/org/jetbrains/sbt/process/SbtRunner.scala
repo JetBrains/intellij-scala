@@ -153,7 +153,7 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
       val useMockSbt = project.exists(MockSbtProcessForTests.isEnabled)
       val sbtLaunchCommand: Seq[String] =
         if (useMockSbt) {
-          val mockProcessCommandLineTail = project.toSeq.flatMap(MockSbtProcessForTests.mockMainClassCommandLineTailForNonShell)
+          val mockProcessCommandLineTail = project.toSeq.flatMap(MockSbtProcessForTests.mockMainClassCommandLineTailForNonShellFromStdin)
           mockProcessCommandLineTail ++ sbtProcessOptions.sbtLauncherArgs
         } else {
           //noinspection ApiStatus,UnstableApiUsage

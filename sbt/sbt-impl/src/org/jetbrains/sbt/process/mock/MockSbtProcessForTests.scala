@@ -6,6 +6,9 @@ import com.intellij.openapi.util.Key
 
 import java.nio.file.Path
 
+/**
+ * @see [[org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup]]
+ */
 private[sbt] object MockSbtProcessForTests {
   private[sbt] val MockProcessDataProjectStateKey: Key[MockProcessData] =
     Key.create("org.jetbrains.sbt.mock.process.state")
@@ -18,6 +21,7 @@ private[sbt] object MockSbtProcessForTests {
     val ModeProperty = "org.jetbrains.sbt.mock.process.mode"
 
     val NoShellMode = "no-shell"
+    val NoShellStdinMode = "no-shell-stdin"
     val OldShellMode = "old-shell"
     val NewShellMode = "new-shell"
   }
@@ -45,9 +49,9 @@ private[sbt] object MockSbtProcessForTests {
     params.getVMParametersList.add(mockModeVmOption(VmOptions.NoShellMode))
   }
 
-  def mockMainClassCommandLineTailForNonShell(project: Project): Seq[String] = {
+  def mockMainClassCommandLineTailForNonShellFromStdin(project: Project): Seq[String] = {
     val mockState = state(project).getOrElse(return Seq.empty)
-    mockModeVmOption(VmOptions.NoShellMode) +: mockState.mainClassCommandLineTail
+    mockModeVmOption(VmOptions.NoShellStdinMode) +: mockState.mainClassCommandLineTail
   }
 
   def mockMainClassCommandLineTailForSbtShell(project: Project, useNewShell: Boolean): Seq[String] = {
