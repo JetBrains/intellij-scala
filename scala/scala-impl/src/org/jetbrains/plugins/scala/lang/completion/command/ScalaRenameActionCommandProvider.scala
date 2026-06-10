@@ -75,7 +75,7 @@ final class ScalaRenameActionCommandProvider extends AbstractRenameActionCommand
   }
 
   private def typeParametersClauseEndsAt(e: PsiElement, offset: Int): Boolean = e match {
-    case owner: ScTypeParametersOwner => owner.typeParametersClause.exists(_.endOffset == offset)
+    case owner: ScTypeParametersOwner => owner.typeParameterClauses.exists(_.endOffset == offset)
     case _ => false
   }
 
