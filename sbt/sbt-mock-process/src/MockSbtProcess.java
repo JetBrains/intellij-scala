@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// NOTE: recompile the file using the ../compile.sh script
 public final class MockSbtProcess {
     private static final String WaitForFileCommandPrefix = "mockWaitForFile ";
 

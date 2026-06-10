@@ -16,7 +16,7 @@ private[sbt] object MockSbtProcessForTests {
   private def state(project: Project): Option[MockProcessData] =
     Option(project.getUserData(MockProcessDataProjectStateKey))
 
-  // Keep these in sync with values in sbt-shell-runtime-tests/testdata/mockSbtProcess/src/MockSbtProcess.java.
+  // Keep these in sync with values in sbt-mock-process/src/MockSbtProcess.java.
   private object VmOptions {
     val ModeProperty = "org.jetbrains.sbt.mock.process.mode"
 

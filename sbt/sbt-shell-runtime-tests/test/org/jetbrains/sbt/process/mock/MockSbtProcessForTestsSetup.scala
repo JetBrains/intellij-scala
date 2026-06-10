@@ -13,8 +13,6 @@ import java.nio.file.{Files, Path}
 private[sbt] object MockSbtProcessForTestsSetup {
 
   private val DefaultMainClass = "MockSbtProcess"
-  private val MockProcessClassesRelativePath: Path =
-    Path.of("sbt/sbt-shell-runtime-tests/testdata/mockSbtProcess/classes")
 
   /**
    * Substitutes the lightweight `MockSbtProcess` JVM for the real sbt launcher.
@@ -30,10 +28,10 @@ private[sbt] object MockSbtProcessForTestsSetup {
   ): Unit = {
     assertUnitTestMode()
 
-    val mockProcessClassesPath = defaultMockProcessClassesPath()
+    val classesPath = mockProcessClassesPath()
 
     val mockProcessData = new MockSbtProcessForTests.MockProcessData(
-      mockProcessClassesPath,
+      classesPath,
       DefaultMainClass,
     )
     project.putUserData(MockSbtProcessForTests.MockProcessDataProjectStateKey, mockProcessData)
@@ -48,19 +46,15 @@ private[sbt] object MockSbtProcessForTestsSetup {
     )
   }
 
-  private def defaultMockProcessClassesPath(): Path = {
-    val workingDirectory = Path.of("").toAbsolutePath.normalize()
-    val fromUltimateRoot = workingDirectory.resolve("community").resolve(MockProcessClassesRelativePath)
-    val fromCommunityRoot = workingDirectory.resolve(MockProcessClassesRelativePath)
-
-    val found = Seq(fromUltimateRoot, fromCommunityRoot).find(Files.isDirectory(_))
-    found.getOrElse {
+  private def mockProcessClassesPath(): Path = {
+    val path = Path.of(MockSbtProcessBuildInfo.testClassesDirectory)
+    if (Files.isDirectory(path)) {
+      path
+    } else {
       throw new IllegalStateException(
         s"""Mock SBT process classes directory does not exist.
-           |Expected tests to be started from either the ultimate root or the community root.
-           |Checked:
-           |  - ultimate root layout: $fromUltimateRoot
-           |  - community root layout: $fromCommunityRoot""".stripMargin
+           |Expected the sbt-mock-process Test configuration to be compiled before sbt-shell-runtime-tests.
+           |Checked: $path""".stripMargin
       )
     }
   }

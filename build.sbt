@@ -569,10 +569,42 @@ lazy val sbtProjectHighlightingTests =
       Compile / scalacOptions := globalScala3ScalacOptions
     )
 
+// A tiny JVM program used by sbt shell/runtime tests instead of launching a real sbt process.
+//
+// Keep it in a separate module so the mock process can stay independent of IntelliJ platform classes and from the plugin packaging graph.
+// The sources are compiled in Test configuration because it is only ever launched from tests,
+// while Compile contains only generated BuildInfo with the exact test-classes directory.
+//
+// Related code: MockSbtProcessForTests, MockSbtProcessForTestsSetup
+lazy val sbtMockProcess =
+  newPlainScalaProject("sbt-mock-process", file("sbt/sbt-mock-process"))
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      packageMethod := PackagingMethod.Skip(),
+      Compile / unmanagedSourceDirectories := Nil,
+
+      Test / sourceDirectory := baseDirectory.value / "src",
+      Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
+      Test / javacOptions := outOfIDEAProcessJavacOptions,
+
+      //TODO: uncomment once SCL-25316 is fixed
+//      autoScalaLibrary := false,
+//      managedScalaInstance := false,
+//      libraryDependencies := Nil,
+//      intellijExtraJUnitTemplateLibraryDependencies := Nil,
+
+      // Configure build-info plugin
+      buildInfoPackage := "org.jetbrains.sbt.process.mock",
+      buildInfoObject := "MockSbtProcessBuildInfo",
+      buildInfoKeys := Seq("testClassesDirectory" -> (Test / classDirectory).value.getAbsolutePath),
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+    )
+
 lazy val sbtShellRuntimeTests =
   newProject("sbt-shell-runtime-tests", file("sbt/sbt-shell-runtime-tests"))
     .projectWithTestsOnly
     .dependsOn(
+      sbtMockProcess % "compile->compile;test->test",
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
