@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion.weighter
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{insideTypePattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +20,7 @@ final class ScalaKindCompletionWeigher extends CompletionWeigher {
     import KindWeights._
 
     def handleMember(inMember: PsiMember): Value = inMember match {
-      case _ if inMember.getContainingClass == null => normal
+      case _ if inMember.containingClass == null => normal
       case _: ScValue |
            _: ScVariable |
            _: PsiField => field
@@ -44,8 +45,7 @@ final class ScalaKindCompletionWeigher extends CompletionWeigher {
     }
   }
 
-  object KindWeights extends Enumeration {
+  private object KindWeights extends Enumeration {
     val normal, member, method, field = Value
   }
-
 }

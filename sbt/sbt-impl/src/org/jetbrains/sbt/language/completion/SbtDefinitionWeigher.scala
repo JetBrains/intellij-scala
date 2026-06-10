@@ -1,6 +1,4 @@
-package org.jetbrains.sbt
-package language
-package completion
+package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
