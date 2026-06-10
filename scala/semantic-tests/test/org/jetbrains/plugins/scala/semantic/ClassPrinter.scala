@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScIf, ScTry}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScIf, ScTry, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
@@ -193,6 +193,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       "try " + e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") +
         e.catchBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" catch " + _).getOrElse("") +
         e.finallyBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" finally " + _).getOrElse("")
+    case e: ScWhile =>
+      "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
+        e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
     case e => "<expr>"
   }
 
