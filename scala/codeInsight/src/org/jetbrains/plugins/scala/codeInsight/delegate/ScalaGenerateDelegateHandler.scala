@@ -16,7 +16,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
@@ -85,21 +85,33 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           .isEmpty
       )
     }
-    val typeParamsForCall: String = {
+
+    val includeTypeArgsInCall = {
       val typeParams = prototype.typeParameters
       val parametersAndRetType = prototype.parameters ++ prototype.returnTypeElement
-      if (typeParams.exists(!typeParameterUsedIn(_, parametersAndRetType))) {
-        typeParams.map(_.nameId.getText).commaSeparated(Model.SquareBrackets)
-      }
-      else ""
+      typeParams.exists(!typeParameterUsedIn(_, parametersAndRetType))
     }
+
     val dText: String = delegateText(delegate)
     val methodName = prototype.name
-    def paramClauseApplicationText(paramClause: ScParameterClause) = {
+
+    def typeClauseApplicationText(typeClause: ScTypeParamClause) =
+      if (includeTypeArgsInCall)
+        typeClause
+          .typeParameters
+          .map(_.nameId.getText)
+          .commaSeparated(Model.SquareBrackets)
+      else ""
+
+    def paramClauseApplicationText(paramClause: ScParameterClause) =
       paramClause.parameters.map(_.name).commaSeparated(Model.Parentheses)
-    }
-    val params = prototype.effectiveParameterClauses.map(paramClauseApplicationText).mkString
-    createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params", context)(prototype.getManager)
+
+    val signatureArguments = prototype.signatureClauses.map {
+      case ScSignatureClause.TypeClause(clause) => typeClauseApplicationText(clause)
+      case ScSignatureClause.TermClause(clause) => paramClauseApplicationText(clause)
+    }.mkString
+
+    createExpressionFromText(s"$dText.$methodName$signatureArguments", context)(prototype.getManager)
   }
 
   private def delegateText(delegate: ClassMember): String = {
@@ -215,6 +227,6 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     if (closestClass == null)
       return Seq.empty
 
-    closestClass.withParentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
+    closestClass.withParentsInFile.toSeq.collect { case td: ScTemplateDefinition => td }
   }
 }
