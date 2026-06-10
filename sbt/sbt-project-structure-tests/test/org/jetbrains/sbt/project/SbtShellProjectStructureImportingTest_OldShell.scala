@@ -14,9 +14,9 @@ abstract class SbtShellProjectStructureImportingTestBase extends SbtProjectStruc
     super.getIdeaProjectFixtureOptions.copy(useTestProjectAsIdeaProjectRoot = true)
 }
 
-class SbtShellProjectStructureImportingTest extends SbtShellProjectStructureImportingTestBase
+class SbtShellProjectStructureImportingTest_OldShell extends SbtShellProjectStructureImportingTestBase
 
-class SbtNewShellProjectStructureImportingTest extends SbtShellProjectStructureImportingTest {
+class SbtShellProjectStructureImportingTest_NewShell extends SbtShellProjectStructureImportingTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
