@@ -9,6 +9,7 @@ import org.jetbrains.sbtidea.PluginJars
 import teamcity.TeamCityAPI
 
 import java.nio.file.Path
+import kotlin.Keys.kotlincOptions
 
 // Global build settings
 
@@ -169,9 +170,19 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
-    Compile / managedSourceDirectories += sourceDirectory.value / "gen",
-    scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions
+    autoScalaLibrary := false,
+    managedScalaInstance := false
+  )
+
+// Register separate module for generated sources to be able to mute ton of warnings in the generated Kotlin sources
+lazy val workspaceEntitiesGen = newProjectWithKotlin("workspace-entities-gen", file("sbt/sbt-impl/workspace-entities/src/gen"))
+  .dependsOn(workspaceEntities)
+  .settings(
+    // The root "gen" directory is used as the root for generated sources for this module
+    Compile / managedSourceDirectories := Seq(baseDirectory.value),
+    Compile / kotlincOptions += "-nowarn",
+    autoScalaLibrary := false,
+    managedScalaInstance := false
   )
 
 lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt-kotlin-utils"))
@@ -215,6 +226,7 @@ lazy val sbtApi =
       scalaApi,
       compilerShared,
       workspaceEntities,
+      workspaceEntitiesGen,
       testUtilsCommon % "test->test"
     )
     .enablePlugins(BuildInfoPlugin)
