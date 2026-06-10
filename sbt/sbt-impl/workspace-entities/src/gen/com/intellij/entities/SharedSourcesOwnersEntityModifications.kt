@@ -2,6 +2,7 @@
 
 package com.intellij.entities
 
+import com.intellij.entities.impl.SharedSourcesOwnersEntityImpl
 import com.intellij.platform.workspace.jps.entities.ModuleEntityBuilder
 import com.intellij.platform.workspace.storage.*
 import com.intellij.platform.workspace.storage.impl.containers.toMutableWorkspaceList
@@ -15,6 +16,7 @@ interface SharedSourcesOwnersEntityBuilder : WorkspaceEntityBuilder<SharedSource
 
 internal object SharedSourcesOwnersEntityType : EntityType<SharedSourcesOwnersEntity, SharedSourcesOwnersEntityBuilder>() {
   override val entityClass: Class<SharedSourcesOwnersEntity> get() = SharedSourcesOwnersEntity::class.java
+  override val entityImplBuilderClass: Class<*> get() = SharedSourcesOwnersEntityImpl.Builder::class.java
   operator fun invoke(
     ownerModuleIds: List<String>,
     entitySource: EntitySource,

@@ -2,6 +2,7 @@
 
 package com.intellij.entities
 
+import com.intellij.entities.impl.SbtModuleEntityImpl
 import com.intellij.platform.workspace.jps.entities.ModuleEntityBuilder
 import com.intellij.platform.workspace.storage.*
 import com.intellij.platform.workspace.storage.url.VirtualFileUrl
@@ -17,6 +18,7 @@ interface SbtModuleEntityBuilder : WorkspaceEntityBuilder<SbtModuleEntity>, Modu
 
 internal object SbtModuleEntityType : EntityType<SbtModuleEntity, SbtModuleEntityBuilder>() {
   override val entityClass: Class<SbtModuleEntity> get() = SbtModuleEntity::class.java
+  override val entityImplBuilderClass: Class<*> get() = SbtModuleEntityImpl.Builder::class.java
   operator fun invoke(
     sbtModuleId: String,
     buildURI: String,
