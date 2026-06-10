@@ -124,9 +124,9 @@ abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
     assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
-  private def flush(): Unit =
+  private def flush(): Unit = {
     SbtProcessManager.forProject(getMyProject).flushConsoleOutputForTests()
-
+  }
 }
 
 object SettingQueryHandlerTestBase {

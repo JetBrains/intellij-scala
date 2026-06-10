@@ -3,12 +3,19 @@ package org.jetbrains.sbt.shell
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.sbt.shell.SbtShellTestFixture.SbtShellInitialisationTimeout
 import org.junit.Assert.assertNotNull
 
 import scala.compiletime.uninitialized
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
+/**
+ * ATTENTION: users of this class have to do:
+ * ```scala
+ * override def runInDispatchThread(): Boolean = false
+ * ```
+ */
 final class SbtShellTestFixture(project: Project) extends Disposable {
 
   private var myCommunication: SbtShellCommunication = uninitialized
@@ -22,6 +29,7 @@ final class SbtShellTestFixture(project: Project) extends Disposable {
   // Q: is it indeed needed by default in all tests or is it something optional?
   def getTestSbtShellProcessListener: SbtShellTestUtil.TestSbtShellProcessListener = myProcessListener
 
+  @RequiresBackgroundThread
   def setUp(): Unit = {
     myCommunication = SbtShellCommunication.forProject(project)
     assertNotNull(myCommunication)

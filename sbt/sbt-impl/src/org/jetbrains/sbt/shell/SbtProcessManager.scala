@@ -19,7 +19,7 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.ui.TerminalWidget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
-import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
 import com.sun.jna.Platform
@@ -408,7 +408,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
   def flushConsoleOutputForTests(): Unit =
     processData match {
       case Some(pd) if isAlive(pd) =>
-        pd.flushText()
+        invokeAndWait {
+          pd.flushText()
+        }
       case _ =>
         throw new Exception("Process data is not available")
     }
@@ -620,6 +622,7 @@ object SbtProcessManager {
     def debugConnection: Option[RemoteConnection]
     def isNewShell: Boolean
 
+    @RequiresEdt
     def flushText(): Unit
   }
 
@@ -630,6 +633,8 @@ object SbtProcessManager {
     runner: SbtShellRunner,
     isNewShell: Boolean
   ) extends ProcessData {
+
+    @RequiresEdt
     override def flushText(): Unit = runner.getConsoleView.flushDeferredText()
   }
 
@@ -643,6 +648,7 @@ object SbtProcessManager {
     // Keep the bridge object stable so install/uninstall compare the same TerminalWidget instance.
     lazy val terminalWidget: TerminalWidget = console.getTerminalWidget.asNewWidget()
 
+    @RequiresEdt
     override def flushText(): Unit = console.flushImmediately()
   }
 }

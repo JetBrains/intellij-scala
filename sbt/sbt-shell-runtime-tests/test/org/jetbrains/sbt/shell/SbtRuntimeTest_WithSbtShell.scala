@@ -27,6 +27,9 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
 
   protected var sbtShellFixture: SbtShellTestFixture = uninitialized
 
+  // SbtShellTestFixture setUp requires BGT
+  override def runInDispatchThread(): Boolean = false
+
   protected val DefaultCommandWaitTimeout: FiniteDuration = SbtShellTestFixture.DefaultCommandWaitTimeout
 
   override protected def setupBeforeProjectImport(): Unit = {
