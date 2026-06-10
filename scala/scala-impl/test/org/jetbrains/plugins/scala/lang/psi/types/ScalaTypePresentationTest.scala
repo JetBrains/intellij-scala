@@ -175,6 +175,14 @@ class ScalaTypePresentationTest_Scala3 extends ScalaTypePresentationTestBase {
     "{ def foo[T](x: T)[U](u: U): U }"
   )
 
+  def testMultipleInterleavedMethodClausesInRefinement(): Unit = assertPresentationIs(
+    "{ def foo[A](a: A)[B](b: B)[C](c: C): C }"
+  )
+
+  def testInterleavedMethodClauseAfterUsingClauseInRefinement(): Unit = assertPresentationIs(
+    "{ def foo(first: Int)(using Int)[A](second: A): A }"
+  )
+
   def testOpaqueTypeInt(): Unit = {
     assertPresentationIs(
       "Inside.T", "Inside.T", "object Inside { opaque type T = Int }")
