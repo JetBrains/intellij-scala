@@ -195,4 +195,20 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
        |construct[B = String, ${start}A$end = Int]
        |""".stripMargin
   )
+
+  def testFindTypeParameterUsedInInterleavedClauses(): Unit = doTest(
+    s"""
+       |def combine[${CARET}A](first: ${start}A$end)[B](second: B)(fallback: ${start}A$end): ${start}A$end = fallback
+       |""".stripMargin
+  )
+
+  def testFindTypeParameterUsedAsNamedTypeArgumentNameInInterleavedClause(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def combine[A](first: A)[${CARET}B](second: ${start}B$end): Unit = ()
+       |
+       |combine[Int](1)[${start}B$end = String]("text")
+       |""".stripMargin
+  )
 }
