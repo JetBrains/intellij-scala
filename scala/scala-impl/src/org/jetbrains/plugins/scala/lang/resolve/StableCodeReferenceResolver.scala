@@ -4,10 +4,12 @@ import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgument}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+
+import scala.annotation.tailrec
 
 class StableCodeReferenceResolver(
   ref:                   ScStableCodeReference,
@@ -30,12 +32,29 @@ class StableCodeReferenceResolver(
       case _ => None
     }
 
+  @tailrec
+  private def referenceTargetDeep(e: ScExpression): ScExpression = e match {
+    case gen: ScGenericCall         => referenceTargetDeep(gen.referencedExpr)
+    case inv: MethodInvocation      => referenceTargetDeep(inv.getEffectiveInvokedExpr)
+    case paren: ScParenthesisedExpr =>
+      paren.innerElement match {
+        case Some(inner) => referenceTargetDeep(inner)
+        case None        => paren
+      }
+    case _ => e
+  }
+
   private def processNamedTypeArgument(targ: ScTypeArgument, name: String): Array[ScalaResolveResult] =
     targ.getContext.getContext match {
       case gCall: ScGenericCall =>
+        val targetReference = referenceTargetDeep(gCall) match {
+          case ref: ScReferenceExpression => ref
+          case _                          => return ScalaResolveResult.EMPTY_ARRAY
+        }
+
         val resolveResults =
-          if (shapeResolve) gCall.shapeMultiResolve.getOrElse(Array.empty)
-          else              gCall.multiResolve.getOrElse(Array.empty)
+          if (shapeResolve) targetReference.shapeResolve
+          else              targetReference.multiResolveScala(incomplete = false)
 
         resolveResults match {
           case Array(srr) =>
