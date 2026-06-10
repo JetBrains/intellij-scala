@@ -1,18 +1,22 @@
 package org.jetbrains.sbt.runner
 
-import com.intellij.debugger.engine.RemoteStateState
+import com.intellij.debugger.engine.{DelayedRemoteConnection, DelayedRemoteConnectionImpl, RemoteStateState}
 import com.intellij.debugger.impl.GenericDebuggerRunner
 import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState}
 import com.intellij.execution.runToolbar.RunToolbarProcessData
-import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionUtil, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionException, ExecutionResult, Executor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import com.intellij.openapi.wm.ToolWindowId
+import org.jetbrains.plugins.scala.extensions.{invokeAndWait, invokeLater}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtProcessManager
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+
+import scala.util.control.NonFatal
 
 /**
  * Handles SBT task debug sessions only when they are delegated to the SBT shell.
@@ -35,6 +39,9 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   override def canRun(executorId: String, profile: RunProfile): Boolean =
     isSbtRunConfigurationWithUseSbtShell(profile) && isDebugExecutorId(executorId)
 
+  /**
+   * @note This method is called on EDT (at least in 2026.2), even though there is not annotation contract
+   */
   override def doExecute(state: RunProfileState, env: ExecutionEnvironment): RunContentDescriptor = {
     state match {
       case sbtState: SbtCommandLineState if shouldFallbackToNonDebugRunner(env, sbtState) =>
@@ -59,39 +66,98 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
           super.createContentDescriptor(state, environment)
       case _ =>
         null
-    }
+  }
 
   private def createContentDescriptorForSbtShellDelegation(environment: ExecutionEnvironment, state: SbtCommandLineState): RunContentDescriptor = {
-    val processManager = SbtProcessManager.forProject(environment.getProject)
-    processManager.acquireShellProcessHandler()
-
-    val shellDebugConnection = processManager.debugConnection
-    shellDebugConnection match {
-      case Some(connection) =>
-        createContentDescriptorForDebugConnection(environment, state, connection)
-      case None =>
-        throw new ExecutionException(SbtBundle.message("debugging.for.sbt.shell.is.disabled.in.sbt.settings"))
+    val isShellDebuggingEnabled = isDebuggingInSbtShellInstanceOrSettingsEnabled(environment)
+    if (isShellDebuggingEnabled) {
+      createContentDescriptorForDebugConnection(environment, state)
+    } else {
+      throw new ExecutionException(SbtBundle.message("debugging.for.sbt.shell.is.disabled.in.sbt.settings"))
     }
   }
 
   private def createContentDescriptorForDebugConnection(
     environment: ExecutionEnvironment,
     sbtState: SbtCommandLineState,
-    connection: RemoteConnection
   ): RunContentDescriptor = {
+    // Use a delayed connection because the sbt shell debug port is known only after the shell process is acquired off EDT.
+    //noinspection ApiStatus,UnstableApiUsage
+    val connection: DelayedRemoteConnectionImpl =
+      new DelayedRemoteConnectionImpl(true, "localhost", "", false)
+
     val state = new MyTrojanRemoteState(environment.getProject, connection)
     val attach = attachVirtualMachine(state, environment, connection, true)
 
-    import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
+    if (attach != null) {
+      import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
 
-    ApplicationManager.getApplication.executeOnPooledThread((() => {
-      val commandFuture = submitCommands(environment, sbtState)
-      commandFuture.onComplete { _ =>
-        state.detach()
-      }
-    }): Runnable)
+      ApplicationManager.getApplication.executeOnPooledThread((() => {
+        try {
+          ensureSbtShellStartedAndPrepareDelayedConnection(environment, connection)
+
+          val commandFuture = submitCommands(environment, sbtState)
+          commandFuture.onComplete { _ =>
+            state.detach()
+          }
+        } catch {
+          case NonFatal(exception) =>
+            state.detach()
+            reportAsyncExecutionError(environment, exception)
+        }
+      }): Runnable)
+    }
 
     attach
+  }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def ensureSbtShellStartedAndPrepareDelayedConnection(
+    environment: ExecutionEnvironment,
+    delayedConnection: DelayedRemoteConnection & RemoteConnection
+  ): Unit = {
+    val processManager = SbtProcessManager.forProject(environment.getProject)
+    processManager.acquireShellProcessHandler()
+
+    val shellDebugConnection = processManager.debugConnection.getOrElse {
+      throw new ExecutionException(SbtBundle.message("debugging.for.sbt.shell.is.disabled.in.sbt.settings"))
+    }
+    copyRemoteConnection(shellDebugConnection, delayedConnection)
+    runDelayedAttach(delayedConnection)
+  }
+
+  private def copyRemoteConnection(from: RemoteConnection, to: RemoteConnection): Unit = {
+    to.setUseSockets(from.isUseSockets)
+    to.setServerMode(from.isServerMode)
+    to.setApplicationHostName(from.getApplicationHostName)
+    to.setApplicationAddress(from.getApplicationAddress)
+    to.setDebuggerHostName(from.getDebuggerHostName)
+    to.setDebuggerAddress(from.getDebuggerAddress)
+  }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def runDelayedAttach(connection: DelayedRemoteConnection): Unit = {
+    val attachRunnable = Option(connection.getAttachRunnable).getOrElse {
+      throw new IllegalStateException("Debugger attach was not initialized")
+    }
+    invokeAndWait {
+      attachRunnable.run()
+    }
+  }
+
+  private def reportAsyncExecutionError(environment: ExecutionEnvironment, exception: Throwable): Unit = {
+    val executionException = exception match {
+      case e: ExecutionException => e
+      case other => new ExecutionException(other)
+    }
+    invokeLater {
+      ExecutionUtil.handleExecutionError(
+        environment.getProject,
+        ToolWindowId.DEBUG,
+        environment.getRunProfile.getName,
+        executionException
+      )
+    }
   }
 
   private class MyTrojanRemoteState(project: Project, connection: RemoteConnection) extends RemoteStateState(project, connection) {
@@ -151,13 +217,12 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   private def isDebuggingInSbtShellInstanceOrSettingsEnabled(environment: ExecutionEnvironment): Boolean = {
     val project = environment.getProject
     val manager = SbtProcessManager.forProject(project)
-    val shellRunner = manager.shellRunner
-    val isDebuggingEnabled = shellRunner match {
-      case Some(_) =>
+    val isShellInitialized = manager.shellRunner.isDefined || manager.terminalConsole.isDefined
+    val isDebuggingEnabled =
+      if (isShellInitialized)
         manager.debugConnection.isDefined
-      case _ =>
+      else
         isDebuggingInSbtSettingsEnabled(project)
-    }
     isDebuggingEnabled
   }
 
