@@ -31,10 +31,38 @@ class ScalaMoveLeftRightTest extends ScalaMoveLeftRightTestBase {
     )
   }
 
+  def testInterleavedMethodTypeParams(): Unit = {
+    doTestFromLeftToRight(
+      "def foo[A](a: A)[B<caret>, C](b: B, c: C): Unit = ()",
+      "def foo[A](a: A)[C, B<caret>](b: B, c: C): Unit = ()"
+    )
+  }
+
+  def testInterleavedMethodParams(): Unit = {
+    doTestFromLeftToRight(
+      "def foo[A](a<caret>: A, b: A)[B](c: B): Unit = ()",
+      "def foo[A](b: A, a<caret>: A)[B](c: B): Unit = ()"
+    )
+  }
+
   def testTypeArgs(): Unit = {
     doTestFromLeftToRight(
       "new Pair[Int<caret>, Boolean](0, true)",
       "new Pair[Boolean, Int<caret>](0, true)"
+    )
+  }
+
+  def testInterleavedMethodTypeArgs(): Unit = {
+    doTestFromLeftToRight(
+      "foo[Int](1)[String<caret>, Boolean](\"\", true)",
+      "foo[Int](1)[Boolean, String<caret>](\"\", true)"
+    )
+  }
+
+  def testInterleavedMethodArgs(): Unit = {
+    doTestFromLeftToRight(
+      "foo[Int](1<caret>, 2)[String](\"\")",
+      "foo[Int](2, 1<caret>)[String](\"\")"
     )
   }
 
