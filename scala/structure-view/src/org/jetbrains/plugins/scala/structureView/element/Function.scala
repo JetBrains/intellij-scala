@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.structureView.element
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.structureView.element.AbstractItemPresentation.withSimpleNames
@@ -18,11 +17,10 @@ private class Function(function: ScFunction, inherited: Boolean)
   }
 
   private def renderFunctionFromStubs(function: ScFunction): String = {
-    val typeParameters = function.typeParametersClause.fold("")(_.getTextByStub)
-    val parameters = function.paramClauses.toOption.fold("")(FromStubsParameterRenderer.renderClauses)
+    val clauses = renderSignatureClauses(function)
     val typeAnnotation = function.returnTypeElement.map(_.getText).fold("")(": " + _)
 
-    s"${function.name}$typeParameters$parameters$typeAnnotation"
+    s"${function.name}$clauses$typeAnnotation"
   }
 
   override def children: Seq[PsiElement] = function match {
