@@ -15,7 +15,7 @@ import java.nio.file.{Files, Path}
  * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests2]))
-final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled extends SbtProjectStructureTestBase {
+final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparated extends SbtProjectStructureTestBase {
 
   import ProjectStructureDsl._
 
