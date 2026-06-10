@@ -219,7 +219,7 @@ package object completion {
    * physical psi change, so we don't need to care about caches there.
    *
    */
-  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
+  def positionFromParameters(implicit parameters: BaseCompletionParameters): PsiElement = {
     val defaultPosition = parameters.getPosition
 
     mirrorPosition(parameters.getOriginalFile, defaultPosition)
