@@ -93,4 +93,26 @@ class ConvertImplicitBoundsToImplicitParameterTest_Scala3_6 extends ConvertImpli
     s"def foo[${CARET}A : Parser as p](x: NoRefHere)(in: p.In): p.Out = ???",
     s"def foo[A](x: NoRefHere)(using p: Parser[A])(in: p.In): p.Out = ???",
   )
+
+  def testClauseReferenceInInterleavedTypeClause(): Unit = doTest(
+    s"def foo[${CARET}A : Parser as p](a: A)[B <: p.In](b: B): p.Out = ???",
+    s"def foo[A](a: A)(using p: Parser[A])[B <: p.In](b: B): p.Out = ???",
+  )
+
+  def testClauseReferenceInInterleavedTypeClauseWithExistingUsingClauses(): Unit = {
+    doTest(
+      s"def foo[${CARET}A : Parser as p](using ctx: Ctx)(a: A)[B <: p.In](b: B): p.Out = ???",
+      s"def foo[A](using ctx: Ctx)(a: A)(using p: Parser[A])[B <: p.In](b: B): p.Out = ???",
+    )
+
+    doTest(
+      s"def foo[${CARET}A : Parser as p](a: A)[B <: p.In](using ctx: Ctx)(b: B): p.Out = ???",
+      s"def foo[A](a: A)(using p: Parser[A])[B <: p.In](using ctx: Ctx)(b: B): p.Out = ???",
+    )
+
+    doTest(
+      s"def foo[${CARET}A : Parser as p](a: A)[B <: p.In](b: B)(using ctx: Ctx): p.Out = ???",
+      s"def foo[A](a: A)(using p: Parser[A])[B <: p.In](b: B)(using ctx: Ctx): p.Out = ???",
+    )
+  }
 }

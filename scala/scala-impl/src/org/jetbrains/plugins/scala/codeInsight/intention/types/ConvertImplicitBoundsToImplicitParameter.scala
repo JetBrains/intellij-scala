@@ -10,8 +10,12 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScInterleavedClausesOwner, ScParameterOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImplicitClauseFromTextWithContext
@@ -22,7 +26,6 @@ import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-//@TODO: review and adapt to 3.6+ new context bounds
 class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")
 
@@ -66,7 +69,7 @@ object ConvertImplicitBoundsToImplicitParameter {
     val clauses        = parameterOwner.allClauses
     val typeParameters = parameterOwner.typeParameters
 
-    val usageIndex = ScParameterOwner.contextBoundUsageInParameterListIndex(clauses, typeParameters)
+    val usageAnchor = contextBoundUsageAnchor(parameterOwner, clauses, typeParameters)
 
     //TODO: new expansion rules in SIP-64
     val existingClause = clauses.lastOption.filter(_.isImplicit)
@@ -95,7 +98,7 @@ object ConvertImplicitBoundsToImplicitParameter {
     } yield s"$name$suffix: $typeText"
 
     val newClause =
-      if (usageIndex == -1) {
+      if (usageAnchor.isEmpty) {
         // context bounds are not referenced in parameters => add to the last clause
         // remove old clause
         existingClause.foreach(_.delete())
@@ -111,7 +114,7 @@ object ConvertImplicitBoundsToImplicitParameter {
         function.parameterList.addClause(clause)
         clause
       } else {
-        // usage in parameters found => insert before the first usage
+        // usage in a later signature clause found => insert before the first usage
         val clause = createImplicitClauseFromTextWithContext(
           newParamsTexts,
           parameterOwner,
@@ -119,8 +122,7 @@ object ConvertImplicitBoundsToImplicitParameter {
         )
 
         CodeEditUtil.setNodeGeneratedRecursively(clause.getNode, true)
-        val clauseAtIdx = clauses(usageIndex)
-        function.parameterList.addBefore(clause, clauseAtIdx)
+        function.parameterList.addBefore(clause, usageAnchor.get)
         clause
       }
 
@@ -131,6 +133,79 @@ object ConvertImplicitBoundsToImplicitParameter {
 
     newClause.parameters.takeRight(newParamsTexts.size)
   }
+
+  private def contextBoundUsageAnchor(
+    parameterOwner: ScParameterOwner with ScTypeParametersOwner,
+    clauses:        Seq[ScParameterClause],
+    typeParameters: Seq[ScTypeParam],
+  ): Option[PsiElement] =
+    parameterOwner match {
+      case owner: ScInterleavedClausesOwner =>
+        contextBoundUsageAnchor(owner.signatureClauses, typeParameters)
+      case _ =>
+        ScParameterOwner.contextBoundUsageInParameterListIndex(clauses, typeParameters) match {
+          case -1  => None
+          case idx => clauses.lift(idx)
+        }
+    }
+
+  private def contextBoundUsageAnchor(
+    signatureClauses: Seq[ScSignatureClause],
+    typeParameters:   Seq[ScTypeParam],
+  ): Option[PsiElement] = {
+    val clausesTypeParameters = signatureClauses.flatMap {
+      case TypeClause(clause) => clause.typeParameters
+      case TermClause(_)      => Seq.empty
+    }
+
+    val pendingTypeParameters = mutable.ArrayBuffer.from(
+      typeParameters.filterNot(clausesTypeParameters.contains)
+    )
+
+    val clausesIterator = signatureClauses.iterator
+    while (clausesIterator.hasNext) {
+      clausesIterator.next() match {
+        case TypeClause(clause) =>
+          if (contextBoundIsUsedIn(clause, pendingTypeParameters.toSeq))
+            return Some(clause)
+          pendingTypeParameters ++= clause.typeParameters
+
+        case TermClause(clause) =>
+          if (contextBoundIsUsedIn(clause, pendingTypeParameters.toSeq))
+            return Some(clause)
+      }
+    }
+
+    None
+  }
+
+  private def contextBoundIsUsedIn(element: PsiElement, typeParameters: Seq[ScTypeParam]): Boolean = {
+    val contextBoundsNames = boundNames(typeParameters)
+    var boundUsageFound    = false
+
+    val visitor =
+      new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReference): Unit = {
+          boundUsageFound ||= contextBoundsNames.exists {
+            name =>
+              ref.textMatches(name) || ref.qualifier.exists(_.textMatches(name))
+          }
+        }
+      }
+
+    if (contextBoundsNames.isEmpty)
+      false
+    else {
+      element.accept(visitor)
+      boundUsageFound
+    }
+  }
+
+  private def boundNames(typeParameters: Seq[ScTypeParam]): Seq[String] =
+    for {
+      tparam    <- typeParameters
+      boundName <- tparam.contextBounds.collect { case ScContextBound.Named(_, name) => name }
+    } yield boundName
 
   def runRenamingTemplate(params: Seq[ScParameter]): Unit = {
     if (params.isEmpty) return
