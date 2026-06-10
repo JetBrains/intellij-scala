@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScIf}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
@@ -183,6 +183,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfExpression(e: ScExpression, indent: String): String = e match {
+    case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
+    case e: ScIf =>
+      "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
+        case Some(e) => " else " + textOfExpression(normalized(e), indent)
+        case None => ""
+      })
     case e => "<expr>"
   }
 
