@@ -12,7 +12,7 @@ import com.intellij.task.{ProjectTaskContext, ProjectTaskListener, ProjectTaskMa
 import com.intellij.testFramework.{PlatformTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
-import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
+import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
 import org.jetbrains.sbt.runner.beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase.*
 import org.jetbrains.sbt.runner.beforeLaunch.utils.RunConfigurationBeforeLaunchTaskTestUtil
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.concurrent.duration.{Duration, DurationInt}
 
 /**
- * Verifies SBT task run configurations attached through the "Run another configuration before launch" provider.
+ * Shared support for SBT task run configurations attached through the "Run another configuration before launch" provider.
  *
  * The checks stay focused on nested execution: runner delegation, execution listener notifications, and ordering between
  * the nested SBT task and the dependent configuration. Build / Make before-launch assertions live in
@@ -37,90 +37,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
  */
 abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  protected def sbtProcessMode: SbtProcessMode
-
-  def testRunMode_UsesExpectedRunnerDelegation(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
-      TestExecutionOptions(
-        ExecutionMode.Run,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  def testDebugMode_UsesExpectedRunnerDelegation(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = true,
-      )
-    )
-
-  def testDebugMode_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  def testRunMode_NotifiesExecutionListeners(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
-      TestExecutionOptions(
-        ExecutionMode.Run,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  def testDebugMode_NotifiesExecutionListeners(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = true,
-      )
-    )
-
-  def testDebugMode_WithDisabledSbtShellDebugging_NotifiesExecutionListeners(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  def testRunMode_DoesNotBlockDependentRunConfiguration(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
-      TestExecutionOptions(
-        ExecutionMode.Run,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  def testDebugMode_DoesNotBlockDependentRunConfiguration(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = true,
-      )
-    )
-
-  def testDebugMode_WithDisabledSbtShellDebugging_DoesNotBlockDependentRunConfiguration(): Unit =
-    assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
-      TestExecutionOptions(
-        ExecutionMode.Debug,
-        sbtProcessMode,
-        enableDebuggingInShell = false,
-      )
-    )
-
-  private def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
+  protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
     val (_, handler) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
     val usesSbtShellDelegation = handler.getClass.getName.contains("DummyProcessHandler")
     if (shouldUseSyntheticSbtShellProcessHandler(options)) {
@@ -130,11 +47,11 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
     }
   }
 
-  private def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(options: TestExecutionOptions): Unit = {
+  protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(options: TestExecutionOptions): Unit = {
     runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
   }
 
-  private def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(options: TestExecutionOptions): Unit = {
+  protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(options: TestExecutionOptions): Unit = {
     val (result, _) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
 
     val sbtTaskTerminated = singleEvent(result.sbtTaskEvents, "processTerminated")
@@ -359,25 +276,4 @@ private object SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
   private val SbtDebugProgramRunnerId: String = new SbtDebugProgramRunner().getRunnerId
   private val DefaultRunRunnerId: String = new DefaultJavaProgramRunner().getRunnerId
   private val DefaultDebugRunnerId: String = new GenericDebuggerRunner().getRunnerId
-}
-
-class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_NoShell_Test
-  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
-
-  override protected def sbtProcessMode: SbtProcessMode =
-    SbtProcessMode.NoShell
-}
-
-class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_OldShell_Test
-  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
-
-  override protected def sbtProcessMode: SbtProcessMode =
-    SbtProcessMode.OldShell
-}
-
-class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_NewShell_Test
-  extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
-
-  override protected def sbtProcessMode: SbtProcessMode =
-    SbtProcessMode.NewShell
 }

@@ -19,8 +19,7 @@ import scala.concurrent.duration.DurationInt
  *     - [[SbtRunConfigurationMigrationReversibilityTest]]
  *  - Test with the mocked sbt process (extend [[SbtRunConfiguration_MockedProcess_ExecutionTestBase]])
  *     - [[SbtRunConfiguration_MockedProcess_ExecutionTest_ExecutionEventsPublishingTest]],
- *     - [[beforeLaunch.SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch]]
- *     - [[beforeLaunch.SbtTask_BeforeLaunchStep_AsDirectTask_TestBase]]
+ *     - [[beforeLaunch.SbtRunConfiguration_BuildBeforeLaunch_TestBase]]
  *     - [[beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase]]
  *
  * For many run-configuration tests the mocked sbt process is enough: runner selection, process lifecycle events,

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.runner.beforeLaunch
 import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
 import org.jetbrains.plugins.scala.util.CollectingLoggedMessagesProcessor
-import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
+import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker, DebuggerSessionsAwaiter}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
@@ -28,88 +28,16 @@ import scala.concurrent.duration.DurationInt
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24434 SCL-24434]]
  *  - [[https://youtrack.jetbrains.com/issue/SCL-25433 SCL-25433]]
  */
-class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
+abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  def testRunMode_NoSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.NoShell,
-    ))
-
-  def testRunMode_OldSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.OldShell,
-    ))
-
-  def testRunMode_NewSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.NewShell,
-    ))
-
-  def testDebugMode_NoSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.NoShell,
-    ))
-
-  def testDebugMode_OldSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.OldShell,
-    ))
-
-  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
-    assertFreshSbtRunConfigurationDoesNotRunBuild(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.NewShell,
-    ))
-
-  def testRunMode_NoSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.NoShell,
-    ))
-
-  def testRunMode_OldSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.OldShell,
-    ))
-
-  def testRunMode_NewSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Run,
-      SbtProcessMode.NewShell,
-    ))
-
-  def testDebugMode_NoSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.NoShell,
-    ))
-
-  def testDebugMode_OldSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.OldShell,
-    ))
-
-  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
-    assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(TestExecutionOptions(
-      ExecutionMode.Debug,
-      SbtProcessMode.NewShell,
-    ))
-
-  private def assertFreshSbtRunConfigurationDoesNotRunBuild(options: TestExecutionOptions): Unit = {
+  protected def assertFreshSbtRunConfiguration_DoesNotRunBuild(options: TestExecutionOptions): Unit = {
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { _ =>
       ()
     }
     assertCompileStepBeforeRunWasNotExecuted(buildTracker)
   }
 
-  private def assertFreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(options: TestExecutionOptions): Unit = {
+  protected def assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(options: TestExecutionOptions): Unit = {
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { configuration =>
       CompileStepBeforeRunTestUtil.addCompileStepBeforeRunTask(getProject, configuration)
     }
@@ -183,3 +111,4 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
     )
   }
 }
+
