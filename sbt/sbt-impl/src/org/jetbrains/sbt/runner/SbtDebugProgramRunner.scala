@@ -1,17 +1,15 @@
 package org.jetbrains.sbt.runner
 
-import com.intellij.debugger.engine.{DelayedRemoteConnection, DelayedRemoteConnectionImpl, RemoteDebugProcessHandler, RemoteStateState}
+import com.intellij.debugger.engine.{DelayedRemoteConnection, DelayedRemoteConnectionImpl}
 import com.intellij.debugger.impl.GenericDebuggerRunner
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState}
-import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.runToolbar.RunToolbarProcessData
-import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionUtil, ProgramRunner}
-import com.intellij.execution.ui.{ConsoleView, RunContentDescriptor}
-import com.intellij.execution.{DefaultExecutionResult, ExecutionException, ExecutionResult, Executor, JavaRunConfigurationExtensionManager}
+import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionUtil}
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowId
-import com.intellij.xdebugger.DapMode
 import org.jetbrains.plugins.scala.extensions.{invokeAndWait, invokeLater}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
@@ -161,63 +159,6 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
       )
     }
   }
-
-  private class MyTrojanRemoteState(
-    environment: ExecutionEnvironment,
-    configuration: SbtRunConfiguration,
-    connection: RemoteConnection,
-  ) extends RemoteStateState(environment.getProject, connection) {
-    private var execResult: Option[ExecutionResult] = None
-
-    override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
-      val processHandler = new RemoteDebugProcessHandler(environment.getProject)
-      val result: DefaultExecutionResult =
-        if (DapMode.isDap)
-          new DefaultExecutionResult(null, processHandler)
-        else {
-          val consoleView = new ConsoleViewImpl(environment.getProject, false)
-          val decoratedConsoleView = decorateExecutionConsole(consoleView, executor)
-          // We have to duplicate most of the logic of `RemoteStateState.execute` and can't just delegate to `super.execite`
-          // Parent method attaches the plain console before decoration.
-          // Console wrappers would miss attachToProcess, and LogCapture can fail during debugger session creation with
-          //    > LogCapturingConsoleImpl.handlerWrapper accessed before attachToProcess() was called.
-          //    > This usually means LogCapture.SessionData was created before the process handler was attached to the wrapping console
-          //    > — the expected order is decorate -> attachToProcess -> DebuggerSession created. delegate=com.intellij.execution.impl.ConsoleViewImp
-          decoratedConsoleView.attachToProcess(processHandler)
-          new DefaultExecutionResult(decoratedConsoleView, processHandler)
-        }
-      execResult = Some(result)
-      result
-    }
-
-    /**
-     * Decorates the console for the remote debugger attach session.
-     *
-     * Unlike the regular non-shell SBT debug path, shell delegation does not go through
-     * [[com.intellij.execution.configurations.JavaCommandLineState.createConsole]],
-     * so Java run configuration extensions do not get a chance to wrap the console there.
-     *
-     * Applying the decoration here keeps this custom remote-debug path aligned with normal Java run/debug execution
-     * and lets debugger console integrations see the expected console shape.
-     */
-    private def decorateExecutionConsole(consoleView: ConsoleView, executor: Executor): ConsoleView =
-      // Reuse the SBT run configuration and the original runner settings,
-      // so enabled Java run configuration extensions make the same decision here as they do in the regular JavaCommandLineState path.
-      JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
-        configuration,
-        environment.getRunnerSettings,
-        consoleView,
-        executor
-      )
-
-    def detach(): Unit = {
-      execResult.foreach {
-        result =>
-          Option(result.getProcessHandler).foreach(_.detachProcess())
-      }
-    }
-  }
-
 
   /**
    * @return true - when sbt run configuration is executed as part of "Before launch" of another configuration,
