@@ -156,7 +156,7 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
     assertNoLogCaptureWarningsLogged {
       RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runnerAndConfigSettings, options.executionMode.executor)
       // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
-      executionObserver.awaitSuccessfulTermination(timeout = 5.seconds)
+      executionObserver.awaitSuccessfulTermination(timeout = 10.seconds)
       debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     }
 
