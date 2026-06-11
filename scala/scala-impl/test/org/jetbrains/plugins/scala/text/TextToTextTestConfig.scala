@@ -127,7 +127,11 @@ private object TextToTextTestConfig {
       minClassCount = 136,
     ),
     CorpusProjects.Doobie.scala3 -> TextToTextTestConfig(
-      minClassCount = 124
+      minClassCount = 124,
+      classExceptions = Set(
+        "doobie.util.ReadPlatform", // _root_.scala.EmptyTuple | _root_.scala.Any
+        "doobie.util.WritePlatform" // _root_.scala.EmptyTuple | _root_.scala.Any
+      )
     ),
 
     // FS2
@@ -652,6 +656,7 @@ private object TextToTextTestConfig {
     CorpusProjects.Zio.scala3 -> TextToTextTestConfig(
       minClassCount = 266,
       classExceptions = Set(
+        "zio.Experimental", // _root_.scala.runtime.$throws[A, E] | Failure(Cannot resolve reference $throws)
         "zio.internal.stacktracer.SourceLocation", // Given without a name
       ),
       withSources = true,

@@ -476,7 +476,7 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 9"),
         PhaseWithTreeText("constructors", "Tree placeholder 10"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", "Tree placeholder 11"),
-        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "Tree placeholder 12"),
+        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, repeatableAnnotations}", "Tree placeholder 12"),
         PhaseWithTreeText("genBCode", ""),
         PhaseWithTreeText("Tasty (class MyClass)", "Tree placeholder 13"),
         PhaseWithTreeText("== WARNING Output ==", "Tree placeholder 14")
@@ -509,7 +509,7 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 4"),
         PhaseWithTreeText("constructors", "Tree placeholder 5"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", ""),
-        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", ""),
+        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, repeatableAnnotations}", ""),
         PhaseWithTreeText("genBCode", ""),
         PhaseWithTreeText("Tasty (class MyClass2)", "Tree placeholder 6"),
       )
