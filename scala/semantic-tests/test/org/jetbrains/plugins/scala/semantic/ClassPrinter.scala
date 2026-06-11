@@ -68,7 +68,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       val classParent =
         if (normalize && isScala3 && !cls.isInterface && cls.superClass.isEmpty) cls.allSupers.find(!_.isInterface).filter(_.qualifiedName != "java.lang.Object").map(ScDesignatorType(_)).toList
         else Seq.empty
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") + (classParent ++ superTypes).map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
+      // TODO Don't add "Foo.this." in class parents, see ScalaTypePresentation.innerTypeText, SCL-25555
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") +
+        (classParent ++ superTypes).map(textOf(_, parens = 1).replace(name + ".this.", "")).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
     }
 
     val derivations = {

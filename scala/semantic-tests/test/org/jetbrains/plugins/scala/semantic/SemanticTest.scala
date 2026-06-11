@@ -41,9 +41,11 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
 
     val sourceText = try {
       ScalaApplicationSettings.PRECISE_TEXT = true
+      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
       textOfCompilationUnit(sourceCls, withPrivate = true, normalize = true)
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
+      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
     }
 
     val tastyFile = cls.getContainingFile.getVirtualFile
