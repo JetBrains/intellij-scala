@@ -17,6 +17,6 @@ Document tests/pos/i15178.scala
 (16:9..16:10) _empty_/i15178$package.a. -> 15:5
 (16:11..16:14) scala/Option#map().
 (16:21..16:22) _empty_/E. -> 8:8
-(16:23..16:25) local7 -> 16:15
+(16:23..16:25) local8 -> 16:15
 (16:26..16:31) _empty_/E#value. -> 5:7
 

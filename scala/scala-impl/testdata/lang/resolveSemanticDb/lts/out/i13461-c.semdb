@@ -1,0 +1,50 @@
+Document tests/pos/i13461-c.scala
+(2:22..2:28) scala/Predef.String#
+(3:26..3:30) _empty_/Time.Time# -> 2:15
+(3:33..3:39) scala/Predef.String#
+(5:33..5:39) scala/Double#
+(5:42..5:49) _empty_/Time.Seconds# -> 3:15
+(6:5..6:6) scala/StringContext#s().
+(6:9..6:10) _empty_/Time.sec().(n) -> 5:30
+(6:15..6:22) _empty_/Time.Seconds# -> 3:15
+(8:43..8:47) scala/package.List#
+(8:48..8:52) _empty_/Time.Time# -> 2:15
+(9:5..9:9) scala/package.List.
+(9:10..9:13) _empty_/Time.sec(). -> 5:26
+(10:41..10:45) scala/package.List#
+(10:46..10:50) _empty_/Time.Time# -> 2:15
+(11:5..11:9) scala/package.List.
+(11:10..11:13) _empty_/Time.sec(). -> 5:26
+(11:19..11:23) scala/package.List#
+(11:24..11:31) _empty_/Time.Seconds# -> 3:15
+(12:46..12:50) scala/package.List#
+(12:51..12:55) _empty_/Time.Time# -> 2:15
+(13:5..13:9) scala/package.List.
+(13:10..13:17) _empty_/Time.Seconds# -> 3:15
+(13:19..13:22) _empty_/Time.sec(). -> 5:26
+(14:48..14:52) scala/package.List#
+(14:53..14:57) _empty_/Time.Time# -> 2:15
+(15:5..15:9) scala/package.List.
+(15:10..15:16) scala/Predef.String#
+(15:18..15:21) _empty_/Time.sec(). -> 5:26
+(17:5..17:9) _empty_/Time. -> 1:8
+(19:2..19:6) scala/main#
+(20:11..20:15) scala/package.List#
+(20:16..20:22) scala/Predef.String#
+(20:26..20:30) _empty_/Time. -> 1:8
+(20:31..20:44) _empty_/Time.testInference(). -> 8:26
+(21:11..21:15) scala/package.List#
+(21:16..21:20) _empty_/Time. -> 1:8
+(21:21..21:28) _empty_/Time.Seconds# -> 3:15
+(21:32..21:36) _empty_/Time. -> 1:8
+(21:37..21:48) _empty_/Time.testGuarded(). -> 10:26
+(22:11..22:15) scala/package.List#
+(22:16..22:20) _empty_/Time. -> 1:8
+(22:21..22:28) _empty_/Time.Seconds# -> 3:15
+(22:32..22:36) _empty_/Time. -> 1:8
+(22:37..22:53) _empty_/Time.testExplicitTime(). -> 12:26
+(23:11..23:15) scala/package.List#
+(23:16..23:22) scala/Predef.String#
+(23:26..23:30) _empty_/Time. -> 1:8
+(23:31..23:49) _empty_/Time.testExplicitString(). -> 14:26
+

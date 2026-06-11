@@ -58,5 +58,5 @@ class WorksheetReplCheckRuntimeVersionScalaTest_3_2 extends WorksheetReplCheckRu
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_3))
 class WorksheetReplCheckRuntimeVersionScalaTest_3_3 extends WorksheetReplCheckRuntimeVersionScalaTest_2_13 {
-  override protected def expectedScalaRuntimeVersion: String = "2.13.16"
+  override protected def expectedScalaRuntimeVersion: String = "2.13.18"
 }

@@ -1,0 +1,11 @@
+Document tests/pos/i23113.scala
+(4:36..4:37) _empty_/P# -> 2:14
+(7:14..7:20) scala/Option#
+(7:21..7:22) _empty_/P# -> 2:14
+(7:26..7:30) scala/Unit#
+(7:33..7:36) _empty_/i23113$package.foo().(opt) -> 7:9
+(8:8..8:12) scala/Some.
+(8:19..8:22) scala/Predef.`???`().
+(9:8..9:12) scala/None.
+(9:19..9:22) scala/Predef.`???`().
+

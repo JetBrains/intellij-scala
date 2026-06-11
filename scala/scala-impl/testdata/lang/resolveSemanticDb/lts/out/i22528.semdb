@@ -1,0 +1,6 @@
+Document tests/pos/i22528.scala
+(5:3..5:11) scala/Predef.identity().
+(6:5..6:12) scala/Predef.locally().
+(7:25..7:28) _empty_/Bar# -> 1:7
+(7:30..7:33) _empty_/Baz# -> 2:7
+

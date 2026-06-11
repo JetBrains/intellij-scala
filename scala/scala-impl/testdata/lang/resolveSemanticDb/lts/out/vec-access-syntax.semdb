@@ -1,0 +1,35 @@
+Document tests/pos/vec-access-syntax.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:33) scala/language.postfixOps.
+(3:22..3:25) scala/Int#
+(4:14..4:20) _empty_/Vector#values. -> 3:14
+(4:21..4:28) scala/collection/IterableOnceOps#toArray().
+(5:19..5:22) scala/Int#
+(6:18..6:21) scala/Int#
+(7:7..7:11) _empty_/Vector#data. -> 4:7
+(7:12..7:13) _empty_/Vector#Getter#i. -> 5:16
+(7:17..7:18) _empty_/Vector#Getter#`>_=`().(x) -> 6:15
+(8:13..8:16) scala/Int#
+(9:7..9:11) _empty_/Vector#data. -> 4:7
+(9:12..9:13) _empty_/Vector#Getter#i. -> 5:16
+(11:12..11:15) scala/Int#
+(11:23..11:29) _empty_/Vector#Getter# -> 5:9
+(11:30..11:31) _empty_/Vector#`<`().(i) -> 11:10
+(12:27..12:31) _empty_/Vector#data. -> 4:7
+(12:32..12:40) scala/collection/IterableOnceOps#mkString().
+(16:18..16:23) scala/Array#
+(16:24..16:30) scala/Predef.String#
+(16:34..16:38) scala/Unit#
+(17:17..17:23) _empty_/Vector# -> 3:7
+(18:5..18:12) scala/Predef.println(+1).
+(18:13..18:14) local0 -> 17:9
+(19:5..19:6) local0 -> 17:9
+(19:6..19:7) _empty_/Vector#`<`(). -> 11:7
+(19:10..19:9) _empty_/Vector#Getter#`>_=`(). -> 6:10
+(20:5..20:12) scala/Predef.println(+1).
+(20:13..20:14) local0 -> 17:9
+(21:5..21:12) scala/Predef.println(+1).
+(21:13..21:14) local0 -> 17:9
+(21:14..21:15) _empty_/Vector#`<`(). -> 11:7
+

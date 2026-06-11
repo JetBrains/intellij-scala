@@ -22,7 +22,7 @@ Document tests/pos/kindPolySemiGroup.scala
 (17:18..17:20) _empty_/Test.Kinder.kinder1().[M0] -> 16:26
 (17:21..17:23) _empty_/Test.Kinder.kinder1().[A0] -> 16:33
 (17:40..17:42) _empty_/Test.Kinder.kinder1().[M0] -> 16:26
-(17:43..17:44) local1 -> 17:35
+(17:43..17:44) local0 -> 17:35
 (18:45..18:51) _empty_/Test.Kinder. -> 13:10
 (18:52..18:55) _empty_/Test.Kinder.Aux# -> 14:10
 (18:56..18:58) _empty_/Test.Kinder.kinder2().[M0] -> 18:26
@@ -34,8 +34,8 @@ Document tests/pos/kindPolySemiGroup.scala
 (19:21..19:23) _empty_/Test.Kinder.kinder2().[A0] -> 18:36
 (19:25..19:27) _empty_/Test.Kinder.kinder2().[B0] -> 18:40
 (19:47..19:49) _empty_/Test.Kinder.kinder2().[M0] -> 18:26
-(19:50..19:51) local5 -> 19:39
-(19:53..19:54) local6 -> 19:42
+(19:50..19:51) local4 -> 19:39
+(19:53..19:54) local5 -> 19:42
 (19:69..19:74) _empty_/HCons# -> 4:12
 (19:75..19:77) _empty_/Test.Kinder.kinder2().[A0] -> 18:36
 (19:79..19:84) _empty_/HCons# -> 4:12
@@ -82,9 +82,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (45:110..45:113) scala/Int#
 (46:21..46:24) scala/Int#
 (46:30..46:33) scala/Int#
-(46:37..46:39) local16 -> 46:17
+(46:37..46:39) local14 -> 46:17
 (46:40..46:41) scala/Int#`+`(+4).
-(46:42..46:44) local17 -> 46:26
+(46:42..46:44) local15 -> 46:26
 (51:41..51:50) _empty_/Test.SemiGroup# -> 26:9
 (51:51..51:55) scala/package.List#
 (53:31..53:40) _empty_/Test.SemiGroup. -> 33:10
@@ -97,9 +97,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (54:26..54:27) _empty_/Test.SemiGroupList.appender().[A] -> 53:27
 (54:34..54:38) scala/package.List#
 (54:39..54:40) _empty_/Test.SemiGroupList.appender().[A] -> 53:27
-(54:45..54:47) local21 -> 54:17
+(54:45..54:47) local19 -> 54:17
 (54:48..54:50) scala/collection/IterableOps#`++`().
-(54:51..54:53) local22 -> 54:30
+(54:51..54:53) local20 -> 54:30
 (59:40..59:49) _empty_/Test.SemiGroup# -> 26:9
 (59:50..59:53) scala/Predef.Map#
 (61:34..61:43) _empty_/Test.SemiGroup. -> 33:10
@@ -115,9 +115,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (62:36..62:39) scala/Predef.Map#
 (62:40..62:41) _empty_/Test.SemiGroupMap.appender().[A] -> 61:27
 (62:43..62:44) _empty_/Test.SemiGroupMap.appender().[B] -> 61:30
-(62:49..62:51) local26 -> 62:17
+(62:49..62:51) local24 -> 62:17
 (62:52..62:54) scala/collection/MapOps#`++`().
-(62:55..62:57) local27 -> 62:32
+(62:55..62:57) local25 -> 62:32
 (67:22..67:29) scala/AnyKind#
 (67:44..67:53) _empty_/Test.SemiGroup# -> 26:9
 (67:54..67:55) _empty_/Test.semiGroup().[M] -> 67:17
