@@ -1,0 +1,399 @@
+import scala.compiletime.summonFrom
+
+trait Decoder[A]
+
+given Decoder[String] with {}
+
+trait Mirror[T]:
+  type IronType
+
+given [T](using mirror: Mirror[T], ev: Decoder[mirror.IronType]): Decoder[T] =
+  ev.asInstanceOf[Decoder[T]]
+
+object Foo:
+  opaque type T = String
+
+  inline given Mirror[T] with
+    type IronType = String
+
+inline def summonFooDecoder: Decoder[Foo.T] =
+  summonFrom {
+    case decodeA: Decoder[Foo.T] => decodeA
+  }
+
+val fooDecoder: Decoder[Foo.T] = summonFooDecoder
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.summonFrom
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonFrom')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Decoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Decoder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: given_Decoder_String
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Decoder[String]
+            SimpleType: Decoder
+              CodeReferenceElement: Decoder
+                PsiElement(identifier)('Decoder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Mirror
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mirror')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: IronType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IronType')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_Decoder_T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: mirror
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('mirror')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Mirror[T]
+              SimpleType: Mirror
+                CodeReferenceElement: Mirror
+                  PsiElement(identifier)('Mirror')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: ev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ev')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Decoder[mirror.IronType]
+              SimpleType: Decoder
+                CodeReferenceElement: Decoder
+                  PsiElement(identifier)('Decoder')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: mirror.IronType
+                    CodeReferenceElement: mirror.IronType
+                      CodeReferenceElement: mirror
+                        PsiElement(identifier)('mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('IronType')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Decoder[T]
+      SimpleType: Decoder
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    GenericCall
+      ReferenceExpression: ev.asInstanceOf
+        ReferenceExpression: ev
+          PsiElement(identifier)('ev')
+        PsiElement(.)('.')
+        PsiElement(identifier)('asInstanceOf')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Decoder[T]
+            SimpleType: Decoder
+              CodeReferenceElement: Decoder
+                PsiElement(identifier)('Decoder')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenDefinition: given_Mirror_T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Mirror[T]
+                  SimpleType: Mirror
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace('\n    ')
+            ScTemplateBody
+              ScTypeAliasDefinition: IronType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('IronType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: summonFooDecoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('summonFooDecoder')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Decoder[Foo.T]
+      SimpleType: Decoder
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Foo.T
+            CodeReferenceElement: Foo.T
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+              PsiElement(.)('.')
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: summonFrom
+        PsiElement(identifier)('summonFrom')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: decodeA
+                  PsiElement(identifier)('decodeA')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: Decoder[Foo.T]
+                    SimpleType: Decoder
+                      CodeReferenceElement: Decoder
+                        PsiElement(identifier)('Decoder')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Foo.T
+                          CodeReferenceElement: Foo.T
+                            CodeReferenceElement: Foo
+                              PsiElement(identifier)('Foo')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: decodeA
+                  PsiElement(identifier)('decodeA')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: fooDecoder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: fooDecoder
+        PsiElement(identifier)('fooDecoder')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Decoder[Foo.T]
+      SimpleType: Decoder
+        CodeReferenceElement: Decoder
+          PsiElement(identifier)('Decoder')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Foo.T
+            CodeReferenceElement: Foo.T
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+              PsiElement(.)('.')
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: summonFooDecoder
+      PsiElement(identifier)('summonFooDecoder')

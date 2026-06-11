@@ -1,0 +1,9 @@
+Document tests/pos/i23025.scala
+(3:10..3:25) scala/PartialFunction#
+(3:26..3:29) scala/Int#
+(3:31..3:34) scala/Int#
+(4:17..4:18) local0 -> 4:5
+(4:36..4:45) scala/package.Throwable#
+(4:55..4:56) local1 -> 4:32
+(4:77..4:78) local2 -> 4:72
+

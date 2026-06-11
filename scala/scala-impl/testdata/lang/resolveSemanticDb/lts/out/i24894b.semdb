@@ -1,0 +1,17 @@
+Document tests/pos/i24894b/Bar_1.scala
+(2:10..2:16) scala/quoted/
+(4:33..4:39) scala/Predef.String#
+(4:45..4:53) _empty_/Bar.macroBar(). -> 5:7
+(5:24..5:30) scala/quoted/Quotes#
+(5:33..5:37) scala/quoted/Expr#
+(5:38..5:44) scala/Predef.String#
+(6:21..6:28) scala/collection/StringOps#reverse().
+(7:5..7:9) scala/quoted/Expr.
+(7:10..7:11) local1 -> 6:9
+
+Document tests/pos/i24894b/Foo_2.scala
+(1:2..1:18) java/lang/SuppressWarnings#
+(1:19..1:24) scala/Array.
+(1:25..1:28) _empty_/Bar. -> 1:8
+(1:29..1:32) _empty_/Bar.bar(). -> 4:26
+

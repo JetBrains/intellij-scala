@@ -469,8 +469,8 @@
 [1953,1959]: AppliedTypeTree
 [1953,1956]: Ident
 [1957,1958]: Ident
-[1966,2036]: New
-[1966,2036]: Template
+[1962,2036]: New
+[1962,2036]: Template
 [1966,1966]: DefDef
 [1966,1966]: TypeTree
 [1966,1972]: AppliedTypeTree
@@ -1253,8 +1253,8 @@
 [5910,5916]: AppliedTypeTree
 [5910,5913]: Ident
 [5914,5915]: Ident
-[5923,5993]: New
-[5923,5993]: Template
+[5919,5993]: New
+[5919,5993]: Template
 [5923,5923]: DefDef
 [5923,5923]: TypeTree
 [5923,5929]: AppliedTypeTree

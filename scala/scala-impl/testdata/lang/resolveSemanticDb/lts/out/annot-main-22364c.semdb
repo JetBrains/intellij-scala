@@ -1,0 +1,13 @@
+Document tests/pos/annot-main-22364c.scala
+(4:16..4:19) scala/Int#
+(4:29..4:39) scala/annotation/
+(4:40..4:50) scala/annotation/Annotation#
+(7:16..7:17) p/P2.id().[T] -> 7:10
+(7:20..7:21) p/P2.id().[T] -> 7:10
+(7:24..7:25) p/P2.id().(x) -> 7:13
+(10:4..10:6) p/P1. -> 3:8
+(10:7..10:10) p/P1.ann# -> 4:9
+(10:11..10:13) p/P2. -> 6:8
+(10:14..10:16) p/P2.id(). -> 7:7
+(10:23..10:27) scala/main#
+

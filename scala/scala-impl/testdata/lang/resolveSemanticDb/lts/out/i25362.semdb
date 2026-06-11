@@ -1,0 +1,57 @@
+Document tests/pos/i25362/Macro_1.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/deriving/
+(2:23..2:29) scala/deriving/Mirror#
+(2:23..2:29) scala/deriving/Mirror.
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(10:49..10:55) scala/deriving/Mirror.
+(10:56..10:65) scala/deriving/Mirror.ProductOf#
+(10:66..10:70) example/TC.derived().[Left] -> 10:34
+(10:74..10:76) example/TC# -> 5:7
+(10:77..10:81) example/TC.derived().[Left] -> 10:34
+(11:8..11:19) example/TC.inline$derivedImpl().
+(11:20..11:24) example/TC.derived().[Left] -> 10:34
+(11:26..11:27) example/TC.derived().(m) -> 10:46
+(13:33..13:37) scala/quoted/Type#
+(13:50..13:54) scala/quoted/Type#
+(13:62..13:68) scala/quoted/Quotes#
+(13:71..13:75) scala/quoted/Expr#
+(13:76..13:78) example/TC# -> 5:7
+(13:79..13:83) example/TC.derivedImpl().[Left] -> 13:27
+(14:12..14:14) example/TC# -> 5:7
+(14:15..14:19) example/TC.derivedImpl().[Left] -> 13:27
+(14:34..14:43) example/TC.derivedImpl().[LeftTypes] -> 13:39
+
+Document tests/pos/i25362/Test_2.scala
+(3:25..3:29) example/Repr# -> 4:18
+(3:32..3:36) example/Repr# -> 4:18
+(5:7..5:10) scala/Int#
+(5:16..5:19) scala/Int#
+(5:25..5:28) scala/Int#
+(5:34..5:37) scala/Int#
+(5:43..5:46) scala/Int#
+(6:7..6:10) scala/Int#
+(6:16..6:19) scala/Int#
+(6:25..6:28) scala/Int#
+(6:34..6:37) scala/Int#
+(6:44..6:47) scala/Int#
+(7:8..7:11) scala/Int#
+(7:18..7:21) scala/Int#
+(7:28..7:31) scala/Int#
+(7:38..7:41) scala/Int#
+(7:48..7:51) scala/Int#
+(8:8..8:11) scala/Int#
+(8:18..8:21) scala/Int#
+(8:28..8:31) scala/Int#
+(8:38..8:41) scala/Int#
+(8:48..8:51) scala/Int#
+(9:8..9:11) scala/Int#
+(9:18..9:21) scala/Int#
+(9:28..9:31) scala/Int#
+(9:38..9:41) scala/Int#
+(9:48..9:51) scala/Int#
+(13:16..13:18) example/TC. -> 9:8
+(13:19..13:26) example/TC.derived(). -> 10:26
+(13:27..13:35) example/Test_2$package.BigTuple# -> 3:13
+

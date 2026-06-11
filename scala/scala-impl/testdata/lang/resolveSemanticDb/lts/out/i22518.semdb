@@ -1,0 +1,8 @@
+Document tests/pos/i22518.scala
+(2:19..2:22) _empty_/Foo# -> 1:14
+(4:15..4:18) _empty_/Foo# -> 1:14
+(4:19..4:20) _empty_/i22518$package.mkFoo().[T] -> 4:11
+(5:3..5:6) scala/Predef.`???`().
+(7:11..7:15) scala/Unit#
+(8:3..8:8) _empty_/i22518$package.mkFoo(). -> 4:5
+

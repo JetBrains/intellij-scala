@@ -4,7 +4,7 @@ Document tests/pos/t7517.scala
 (6:49..6:50) _empty_/Box.`∙`#l#[T] -> 6:40
 (9:35..9:38) _empty_/Box# -> 2:7
 (9:58..9:59) _empty_/Box.SplitBox#[K] -> 9:18
-(9:62..9:63) local1 -> 9:50
+(9:62..9:63) _empty_/Box.SplitBox#l#[A] -> 9:50
 (9:64..9:65) _empty_/Box.`∙`# -> 6:17
 (9:66..9:67) _empty_/Box.SplitBox#[B] -> 9:27
 (9:69..9:70) _empty_/Box.`∙`#l# -> 6:38
@@ -36,7 +36,7 @@ Document tests/pos/t7517.scala
 (20:43..20:46) _empty_/Box.Composed#box. -> 14:11
 (21:15..21:18) _empty_/Box# -> 2:7
 (21:38..21:39) _empty_/Box.Composed#[L] -> 13:25
-(21:42..21:43) local4 -> 21:30
+(21:42..21:43) local1 -> 21:30
 (21:44..21:45) _empty_/Box.`∙`# -> 6:17
 (21:46..21:47) _empty_/Box.Composed#[B] -> 13:19
 (21:49..21:50) _empty_/Box.`∙`#l# -> 6:38
