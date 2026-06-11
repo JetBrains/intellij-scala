@@ -25,8 +25,8 @@ import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
-import java.util.UUID
 import java.nio.file.Files
+import java.util.UUID
 
 /**
  * Full project-structure importing suite for the default separate main/test module layout.
@@ -42,7 +42,7 @@ import java.nio.file.Files
 @Category(Array(classOf[SlowTests]))
 abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructureImportingTestBase {
 
-  import ProjectStructureDsl._
+  import ProjectStructureDsl.*
 
   /**
    * Resolves the test data project directory path.

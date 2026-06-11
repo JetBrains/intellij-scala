@@ -16,7 +16,7 @@ import org.junit.experimental.categories.Category
  * For file-generation-only coverage without import, see [[NewSbtProjectWizardGeneratedFilesTest]].
  */
 @Category(Array(classOf[SlowTests]))
-class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with ExactMatch {
+class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
   import NewSbtProjectWizardTestBase.SbtWizardProjectConfig
 
   def testCreateProjectWithLowerCaseName(): Unit =
@@ -97,7 +97,7 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase with
       useScalaSdkExtraClasspath
     )
     runImportEnabledTest(config) { project =>
-      assertProjectsEqual(expectedProjectStructure, project, singleContentRootModules = false)
+      new ProjectStructureAssertionsFixture(project).assertProjectsEqual(expectedProjectStructure, singleContentRootModules = false)
     }
   }
 

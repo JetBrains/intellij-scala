@@ -9,17 +9,12 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests2]))
-abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
-  with ProjectStructureMatcher {
-
-  protected implicit def compareContext: ProjectStructureComparisonContext =
-    ProjectStructureComparisonContext.Implicit.default(using getProject)
+abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase {
 
   override def tearDown(): Unit = {
     inWriteAction {
@@ -53,7 +48,7 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
       Assert.assertEquals(jdkVersion.getMaxLanguageLevel, LanguageLevelProjectExtension.getInstance(project).getLanguageLevel)
     }
 
-    assertNoNotificationsShown(project)
+    new ProjectStructureAssertionsFixture(project).assertNoNotificationsShown()
 
     IndexingTestUtil.waitUntilIndexesAreReady(project)
 
