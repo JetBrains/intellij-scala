@@ -2,16 +2,14 @@ package org.jetbrains.sbt.runner.beforeLaunch
 
 import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.testFramework.LoggedErrorProcessor
+import org.jetbrains.plugins.scala.util.CollectingLoggedMessagesProcessor
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker, DebuggerSessionsAwaiter}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
 import org.junit.Assert.assertEquals
 
-import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * Verifies the IntelliJ Build before-launch contract for fresh SBT task run configurations.
@@ -174,24 +172,14 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
 
   private def assertNoLogCaptureWarningsLogged(body: => Unit): Unit = {
     val logCaptureLoggerName = classOf[LogCapture].getName
-    val warnings = collectWarningsLoggedByLogger(logCaptureLoggerName)(body)
+    val (_, loggedMessages) = CollectingLoggedMessagesProcessor.collectErrorsAndWarnings(body)
+    val warnings = loggedMessages.warnings
+      .filter(_.category.contains(logCaptureLoggerName))
+      .map(_.message)
     assertEquals(
       s"Unexpected warnings logged by $logCaptureLoggerName: ${warnings.mkString("[", ", ", "]")}",
       0,
       warnings.size
     )
-  }
-
-  private def collectWarningsLoggedByLogger(loggerName: String)(body: => Unit): Seq[String] = {
-    val warningMessages = new ConcurrentLinkedQueue[String]
-    LoggedErrorProcessor.executeWith(new LoggedErrorProcessor {
-      override def processWarn(category: String, message: String, t: Throwable): Boolean = {
-        if (category.contains(loggerName))
-          warningMessages.add(message)
-        super.processWarn(category, message, t)
-      }
-    }, () => body)
-
-    warningMessages.asScala.toSeq
   }
 }

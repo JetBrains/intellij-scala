@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.compiler.PrepareCompileServerTaskIntegrationTest.ProjectTaskTimeoutMillis
 import org.jetbrains.plugins.scala.compiler.testUtils.CompilerUtils
-import org.jetbrains.plugins.scala.util.CollectingLoggedErrorProcessor
+import org.jetbrains.plugins.scala.util.CollectingLoggedMessagesProcessor
 import org.junit.Assert.{assertFalse, assertTrue, fail}
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +95,7 @@ class PrepareCompileServerTaskIntegrationTest extends ScalaCompilerTestBase {
     CompileServerLauncher.stopServerAndWait()
     assertFalse(s"Compile server is running before $compilationName", CompileServerLauncher.running)
 
-    val ((result, diagnostics), loggedErrors) = CollectingLoggedErrorProcessor.collect {
+    val ((result, diagnostics), loggedErrors) = CollectingLoggedMessagesProcessor.collectErrorThrowables {
       BuildDiagnosticsCollector.capture(getProject) {
         val promise = runTask(ProjectTaskManager.getInstance(getProject))
         val result = PlatformTestUtil.waitForPromise(promise, ProjectTaskTimeoutMillis)
