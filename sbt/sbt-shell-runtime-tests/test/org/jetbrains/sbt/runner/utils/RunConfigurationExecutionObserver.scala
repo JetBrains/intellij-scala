@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.junit.Assert.{assertEquals, fail}
 
+import java.io.PrintStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -91,7 +92,7 @@ private[runner] final class RunConfigurationExecutionObserver(
       handler
     } catch {
       case error: AssertionError =>
-        printProcessOutputToStdErr()
+        printProcessOutputToStdErr(error.getMessage)
         throw error
     }
   }
@@ -105,7 +106,7 @@ private[runner] final class RunConfigurationExecutionObserver(
     }
     catch {
       case error: AssertionError =>
-        printProcessOutputToStdErr()
+        printProcessOutputToStdErr(error.getMessage)
         throw error
     }
   }
@@ -129,7 +130,7 @@ private[runner] final class RunConfigurationExecutionObserver(
       )
     } catch {
       case error: AssertionError =>
-        printProcessOutputToStdErr()
+        printProcessOutputToStdErr(error.getMessage)
         throw error
     }
   }
@@ -163,16 +164,19 @@ private[runner] final class RunConfigurationExecutionObserver(
     }
   }
 
-  private def printProcessOutputToStdErr(): Unit = {
-    printProcessOutput("Run configuration process output", bufferText(processOutput))
-    printProcessOutput("SBT process output", SbtProcessOutputDiagnosticsCollector.sharedProcessOutput)
+  private def printProcessOutputToStdErr(reasonToPrint: String): Unit = {
+    val outputStream = System.err
+    val projectName = runConfigAndSettings.getConfiguration.getProject.getName
+    outputStream.println(s"Printing outputs for project $projectName ($reasonToPrint)")
+    printProcessOutput("Run configuration process output", bufferText(processOutput), outputStream)
+    printProcessOutput("SBT process output", SbtProcessOutputDiagnosticsCollector.sharedProcessOutput, outputStream)
   }
 
-  private def printProcessOutput(title: String, output: String): Unit = {
-    val outputText = if (output.isEmpty) "<empty>" else output
-    System.err.println(
+  private def printProcessOutput(title: String, outputText: String, out: PrintStream): Unit = {
+    val outputTextFixed = if (outputText.isEmpty) "<empty>" else outputText
+    out.println(
       s"""$title:
-         |$outputText""".stripMargin
+         |$outputTextFixed""".stripMargin
     )
   }
 
