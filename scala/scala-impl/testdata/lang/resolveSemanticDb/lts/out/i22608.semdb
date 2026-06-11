@@ -1,0 +1,55 @@
+Document tests/pos/i22608.scala
+(2:10..2:13) scala/Int#
+(2:17..2:18) _empty_/i22608$package.f().(i) -> 2:7
+(3:10..3:13) scala/Int#
+(3:18..3:21) scala/Int#
+(3:25..3:26) _empty_/i22608$package.g().(i) -> 3:7
+(3:26..3:27) scala/Int#`+`(+4).
+(3:27..3:28) _empty_/i22608$package.g().(j) -> 3:15
+(6:11..6:12) _empty_/i22608$package.f(). -> 2:5
+(12:3..12:4) local1 -> 6:7
+(14:10..14:13) scala/Int#
+(15:11..15:12) _empty_/i22608$package.g(). -> 3:5
+(20:5..20:6) _empty_/i22608$package.u().(j) -> 14:7
+(22:3..22:4) local3 -> 15:7
+(24:10..24:17) scala/Boolean#
+(24:20..24:23) scala/Int#
+(25:3..25:4) _empty_/i22608$package.f(). -> 2:5
+(27:8..27:9) _empty_/i22608$package.b().(k) -> 24:7
+(28:5..28:7) scala/Boolean#`&&`().
+(28:8..28:9) _empty_/i22608$package.b(). -> 24:5
+(28:11..28:12) _empty_/i22608$package.b().(k) -> 24:7
+(28:14..28:15) scala/Int#`>`(+3).
+(33:10..33:17) scala/Boolean#
+(34:10..34:20) scala/collection/
+(34:21..34:28) scala/collection/mutable/
+(34:29..34:39) scala/collection/mutable/ListBuffer#
+(34:29..34:39) scala/collection/mutable/ListBuffer.
+(35:16..35:26) scala/collection/mutable/ListBuffer.
+(35:27..35:32) scala/collection/mutable/ListBuffer.empty().
+(35:33..35:39) scala/Predef.String#
+(36:8..36:9) _empty_/i22608$package.p().(b) -> 33:7
+(37:5..37:7) local4 -> 35:7
+(39:5..39:7) local5 -> 35:11
+(39:9..39:11) scala/collection/mutable/Growable#`+=`().
+(40:4..40:6) local4 -> 35:7
+(40:7..40:15) scala/collection/Seq#toString().
+(40:17..40:19) local5 -> 35:11
+(40:20..40:28) scala/collection/Seq#toString().
+(42:10..42:17) scala/Boolean#
+(43:10..43:20) scala/collection/
+(43:21..43:28) scala/collection/mutable/
+(43:29..43:39) scala/collection/mutable/ListBuffer#
+(43:29..43:39) scala/collection/mutable/ListBuffer.
+(44:16..44:26) scala/collection/mutable/ListBuffer.
+(44:27..44:32) scala/collection/mutable/ListBuffer.empty().
+(44:33..44:39) scala/Predef.String#
+(45:8..45:9) _empty_/i22608$package.q().(b) -> 42:7
+(46:9..46:11) local6 -> 44:7
+(47:9..47:11) local7 -> 44:11
+(47:13..47:15) scala/collection/mutable/Growable#`+=`().
+(48:4..48:6) local6 -> 44:7
+(48:7..48:15) scala/collection/Seq#toString().
+(48:17..48:19) local7 -> 44:11
+(48:20..48:28) scala/collection/Seq#toString().
+

@@ -1,0 +1,326 @@
+class PartialRequest:
+  protected def handle(i: Int): Int = i
+
+object PartialRequest:
+  trait Bundler:
+    def bundle(req: PartialRequest): Int => Int
+
+  object Bundler:
+    inline given Bundler = new Bundler:
+      def bundle(req: PartialRequest): Int => Int =
+        (i: Int) => req.handle(i)
+
+  def apply()(using bundler: Bundler): Int => Int =
+    bundler.bundle(new PartialRequest)
+
+val request = PartialRequest()
+-----
+ScalaFile
+  ScClass: PartialRequest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PartialRequest')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: handle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('handle')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: i
+            PsiElement(identifier)('i')
+  PsiWhiteSpace('\n\n')
+  ScObject: PartialRequest
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PartialRequest')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Bundler
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bundler')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: bundle
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('bundle')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: req
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('req')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: PartialRequest
+                          CodeReferenceElement: PartialRequest
+                            PsiElement(identifier)('PartialRequest')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                FunctionalType: Int => Int
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Bundler
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Bundler')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: given_Bundler
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(given)('given')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                SimpleType: Bundler
+                  CodeReferenceElement: Bundler
+                    PsiElement(identifier)('Bundler')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Bundler
+                          CodeReferenceElement: Bundler
+                            PsiElement(identifier)('Bundler')
+                    ScTemplateBody
+                      PsiElement(:)(':')
+                      PsiWhiteSpace('\n      ')
+                      ScFunctionDefinition: bundle
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(def)('def')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('bundle')
+                        Parameters
+                          ParametersClause
+                            PsiElement(()('(')
+                            Parameter: req
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(identifier)('req')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              ParameterType
+                                SimpleType: PartialRequest
+                                  CodeReferenceElement: PartialRequest
+                                    PsiElement(identifier)('PartialRequest')
+                            PsiElement())(')')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        FunctionalType: Int => Int
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace('\n        ')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              PsiElement(()('(')
+                              Parameter: i
+                                AnnotationsList
+                                  <empty list>
+                                PsiElement(identifier)('i')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                ParameterType
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: req.handle
+                              ReferenceExpression: req
+                                PsiElement(identifier)('req')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('handle')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: i
+                                PsiElement(identifier)('i')
+                              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: bundler
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bundler')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Bundler
+                    CodeReferenceElement: Bundler
+                      PsiElement(identifier)('Bundler')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: Int => Int
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: bundler.bundle
+              ReferenceExpression: bundler
+                PsiElement(identifier)('bundler')
+              PsiElement(.)('.')
+              PsiElement(identifier)('bundle')
+            ArgumentList
+              PsiElement(()('(')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: PartialRequest
+                        CodeReferenceElement: PartialRequest
+                          PsiElement(identifier)('PartialRequest')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: request
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: request
+        PsiElement(identifier)('request')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: PartialRequest
+        PsiElement(identifier)('PartialRequest')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')

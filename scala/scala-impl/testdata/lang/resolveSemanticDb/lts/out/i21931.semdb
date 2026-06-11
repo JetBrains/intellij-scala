@@ -1,0 +1,6 @@
+Document tests/pos/i21931.scala
+(3:19..3:23) scala/Char#
+(6:9..6:17) local0 -> 3:9
+(11:13..11:18) local1 -> 5:13
+(13:11..13:20) local3 -> 10:15
+

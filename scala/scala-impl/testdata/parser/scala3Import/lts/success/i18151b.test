@@ -1,0 +1,225 @@
+case class El[A](val attr: String, val child: String)
+
+transparent inline def tmplStr(inline t: El[Any]): String =
+  inline t match
+    case El(attr, child) => attr + child
+
+def test: Unit = tmplStr {
+  val el = El("1", "2")
+  El[Any](el.attr, null)
+}
+-----
+ScalaFile
+  ScClass: El
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('El')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: attr
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('attr')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: child
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('child')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: tmplStr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('tmplStr')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: El[Any]
+              SimpleType: El
+                CodeReferenceElement: El
+                  PsiElement(identifier)('El')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: t
+        PsiElement(identifier)('t')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: El
+              PsiElement(identifier)('El')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: attr
+                PsiElement(identifier)('attr')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: child
+                PsiElement(identifier)('child')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            InfixExpression
+              ReferenceExpression: attr
+                PsiElement(identifier)('attr')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: child
+                PsiElement(identifier)('child')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: tmplStr
+        PsiElement(identifier)('tmplStr')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: el
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: el
+                PsiElement(identifier)('el')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: El
+                PsiElement(identifier)('El')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"1"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"2"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: El
+                PsiElement(identifier)('El')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: el.attr
+                ReferenceExpression: el
+                  PsiElement(identifier)('el')
+                PsiElement(.)('.')
+                PsiElement(identifier)('attr')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

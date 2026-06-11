@@ -1,0 +1,31 @@
+Document tests/pos/i13889.scala
+(1:29..1:32) scala/Predef.Map#
+(1:33..1:39) scala/Predef.String#
+(1:41..1:44) scala/Any#
+(1:55..1:65) scala/Selectable#
+(2:27..2:33) scala/Predef.String#
+(2:36..2:39) scala/Any#
+(2:42..2:48) _empty_/DiscordRecord#fields. -> 1:21
+(2:49..2:53) _empty_/DiscordRecord#selectDynamic().(name) -> 2:21
+(5:22..5:35) _empty_/DiscordRecord# -> 1:7
+(6:17..6:23) scala/Predef.String#
+(9:26..9:32) scala/Predef.String#
+(9:49..9:55) scala/Predef.String#
+(9:68..9:71) scala/package.Seq#
+(9:72..9:78) _empty_/i13889$package.IncludeIf#[Stated] -> 9:16
+(10:8..10:11) scala/package.Seq#
+(10:12..10:23) _empty_/i13889$package.IncludeIf#[Requirement] -> 9:34
+(10:28..10:35) _empty_/i13889$package.IncludeIf#[IfMatch] -> 9:57
+(11:8..11:9) scala/Any#
+(11:13..11:16) scala/Any#
+(14:24..14:30) scala/Predef.String#
+(14:34..14:47) _empty_/DiscordRecord# -> 1:7
+(14:48..14:49) scala/`&`#
+(14:50..14:59) _empty_/i13889$package.IncludeIf# -> 9:6
+(14:60..14:66) _empty_/i13889$package.RawUser#[Scopes] -> 14:14
+(14:80..14:93) _empty_/i13889$package.IdentifyScope# -> 5:6
+(16:10..16:17) _empty_/i13889$package.RawUser# -> 14:6
+(16:32..16:35) scala/Predef.`???`().
+(17:9..17:12) _empty_/i13889$package.obj. -> 16:5
+(17:13..17:21) _empty_/DiscordRecord#selectDynamic(). -> 2:7
+

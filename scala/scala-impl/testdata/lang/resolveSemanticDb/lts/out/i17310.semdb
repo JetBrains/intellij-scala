@@ -1,0 +1,17 @@
+Document tests/pos/i17310.scala
+(2:12..2:13) _empty_/Foo#[T] -> 1:11
+(2:16..2:23) scala/Boolean#
+(3:12..3:13) _empty_/Foo#[T] -> 1:11
+(3:18..3:21) scala/Int#
+(3:24..3:31) scala/Boolean#
+(6:13..6:17) scala/Unit#
+(7:10..7:13) _empty_/Foo# -> 1:7
+(7:14..7:19) scala/Float#
+(7:27..7:30) _empty_/Foo# -> 1:7
+(7:31..7:36) scala/Float#
+(8:10..8:19) scala/Function1#
+(8:25..8:30) scala/Float#
+(8:32..8:39) scala/Boolean#
+(8:43..8:44) local0 -> 7:7
+(8:45..8:46) _empty_/Foo#m(). -> 2:7
+

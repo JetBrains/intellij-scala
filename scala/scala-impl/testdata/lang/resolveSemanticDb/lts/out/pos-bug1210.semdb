@@ -13,7 +13,7 @@ Document tests/pos/pos-bug1210.scala
 (13:33..13:34) _empty_/Test.f(). -> 3:9
 (13:35..13:43) _empty_/Test.M#selfType# -> 11:14
 (13:49..13:57) _empty_/Test.M#selfType# -> 11:14
-(13:62..13:63) local2 -> 13:46
+(13:62..13:63) local1 -> 13:46
 (13:64..13:65) _empty_/Test.M#v. -> 13:13
 (19:25..19:27) _empty_/Test.M2# -> 16:20
 (19:45..19:49) _empty_/Test.M2# -> 16:20

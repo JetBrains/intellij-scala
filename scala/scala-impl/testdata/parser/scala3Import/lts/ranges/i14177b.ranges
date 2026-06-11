@@ -46,8 +46,8 @@
 [255,265]: Ident
 [268,347]: DefDef
 [286,287]: Ident
-[294,347]: New
-[294,347]: Template
+[290,347]: New
+[290,347]: Template
 [294,294]: DefDef
 [294,294]: TypeTree
 [294,295]: Ident
@@ -62,8 +62,8 @@
 [365,366]: TypeDef
 [365,365]: TypeBoundsTree
 [369,370]: Ident
-[377,430]: New
-[377,430]: Template
+[373,430]: New
+[373,430]: Template
 [377,377]: DefDef
 [377,377]: TypeTree
 [377,378]: Ident
@@ -78,8 +78,8 @@
 [454,467]: ValDef
 [454,467]: Ident
 [470,471]: Ident
-[478,531]: New
-[478,531]: Template
+[474,531]: New
+[474,531]: Template
 [478,478]: DefDef
 [478,478]: TypeTree
 [478,479]: Ident

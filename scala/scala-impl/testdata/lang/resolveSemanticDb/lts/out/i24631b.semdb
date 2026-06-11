@@ -1,0 +1,15 @@
+Document tests/pos/i24631b.scala
+(4:17..4:23) scala/Predef.String#
+(4:26..4:27) _empty_/C#[A] -> 3:18
+(5:17..5:18) _empty_/C#[A] -> 3:18
+(5:21..5:27) _empty_/C#create(). -> 4:7
+(7:17..7:18) _empty_/C# -> 3:16
+(7:19..7:25) scala/Predef.String#
+(8:17..8:23) scala/Predef.String#
+(8:26..8:32) scala/Predef.String#
+(8:35..8:36) _empty_/D#create().(s) -> 8:14
+(10:9..10:10) _empty_/D# -> 7:7
+(10:13..10:19) _empty_/C#create(+1). -> 5:7
+(11:9..11:15) scala/Predef.String#
+(11:18..11:19) _empty_/i24631b$package.s. -> 10:5
+

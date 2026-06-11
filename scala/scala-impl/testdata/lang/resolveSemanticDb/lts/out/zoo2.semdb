@@ -5,9 +5,9 @@ Document tests/pos/zoo2.scala
 (1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
 (4:17..4:20) scala/Any#
 (7:18..7:21) scala/Any#
-(11:18..11:22) local2 -> 10:8
+(11:18..11:22) _empty_/Test.Animal#Food# -> 10:8
 (11:25..11:29) scala/Unit#
-(12:13..12:17) local2 -> 10:8
+(12:13..12:17) _empty_/Test.Animal#Food# -> 10:8
 (15:17..15:20) scala/Any#
 (16:16..16:21) _empty_/Test.Grass# -> 6:6
 (17:18..17:23) _empty_/Test.Grass# -> 6:6
@@ -33,6 +33,6 @@ Document tests/pos/zoo2.scala
 (42:13..42:19) _empty_/Test.newCow(). -> 31:5
 (43:11..43:18) _empty_/Test.newLion(). -> 37:5
 (44:1..44:4) _empty_/Test.leo. -> 43:5
-(44:5..44:9) scala/reflect/Selectable#applyDynamic().
+(44:5..44:9) _empty_/Test.Lion#eats(). -> 22:7
 (44:10..44:15) _empty_/Test.milka. -> 42:5
 

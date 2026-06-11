@@ -1,0 +1,33 @@
+Document tests/pos/22219b.scala
+(2:5..2:6) scala/`|`#
+(2:9..2:10) scala/`|`#
+(2:13..2:14) scala/`|`#
+(2:17..2:18) scala/`|`#
+(2:21..2:22) scala/`|`#
+(2:25..2:26) scala/`|`#
+(2:29..2:30) scala/`|`#
+(2:33..2:34) scala/`|`#
+(2:37..2:38) scala/`|`#
+(2:42..2:43) scala/`|`#
+(2:47..2:48) scala/`|`#
+(5:3..5:7) scala/package.List.
+(5:9..5:15) scala/Predef.String#
+(5:17..5:28) _empty_/`22219b$package`.MonthNumber# -> 1:6
+(6:17..6:19) scala/Predef.ArrowAssoc#`->`().
+(7:18..7:20) scala/Predef.ArrowAssoc#`->`().
+(8:15..8:17) scala/Predef.ArrowAssoc#`->`().
+(9:15..9:17) scala/Predef.ArrowAssoc#`->`().
+(10:13..10:15) scala/Predef.ArrowAssoc#`->`().
+(11:13..11:15) scala/Predef.ArrowAssoc#`->`().
+(12:14..12:16) scala/Predef.ArrowAssoc#`->`().
+(13:16..13:18) scala/Predef.ArrowAssoc#`->`().
+(14:19..14:21) scala/Predef.ArrowAssoc#`->`().
+(15:17..15:19) scala/Predef.ArrowAssoc#`->`().
+(16:18..16:20) scala/Predef.ArrowAssoc#`->`().
+(17:18..17:20) scala/Predef.ArrowAssoc#`->`().
+(18:7..18:14) scala/collection/immutable/List#foreach().
+(19:7..19:13) scala/Predef.summon().
+(19:14..19:20) local2 -> 18:24
+(19:26..19:29) scala/`<:<`#
+(19:30..19:41) _empty_/`22219b$package`.MonthNumber# -> 1:6
+

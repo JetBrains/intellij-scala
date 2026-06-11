@@ -1,0 +1,409 @@
+object other:
+  sealed abstract class Absent
+  case object Absent extends Absent
+  case class PresentAbsent(val depth: Int)
+  opaque type Present[+A] = A | PresentAbsent
+  opaque type Maybe[+A] >: (Absent | Present[A]) = Absent | Present[A]
+
+  extension [A](self: Maybe[A]) {
+    inline def flatten[B]: Maybe[B] = if self.isEmpty then Absent else ???
+    def isEmpty: Boolean = self.isInstanceOf[Absent]
+  }
+
+class Test {
+  def main(): Unit =
+    import other.Maybe
+    val res: Maybe[Maybe[Int]] = ???
+    res.flatten
+}
+-----
+ScalaFile
+  ScObject: other
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('other')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Absent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Absent')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: Absent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Absent')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Absent
+                  CodeReferenceElement: Absent
+                    PsiElement(identifier)('Absent')
+        PsiWhiteSpace('\n  ')
+        ScClass: PresentAbsent
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('PresentAbsent')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: depth
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('depth')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Present
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Present')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: A | PresentAbsent
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: PresentAbsent
+              CodeReferenceElement: PresentAbsent
+                PsiElement(identifier)('PresentAbsent')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Maybe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Maybe')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Absent | Present[A])
+            PsiElement(()('(')
+            InfixType: Absent | Present[A]
+              SimpleType: Absent
+                CodeReferenceElement: Absent
+                  PsiElement(identifier)('Absent')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Present[A]
+                SimpleType: Present
+                  CodeReferenceElement: Present
+                    PsiElement(identifier)('Present')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Absent | Present[A]
+            SimpleType: Absent
+              CodeReferenceElement: Absent
+                PsiElement(identifier)('Absent')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Present[A]
+              SimpleType: Present
+                CodeReferenceElement: Present
+                  PsiElement(identifier)('Present')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Maybe[A]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: self
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Maybe[A]
+                    SimpleType: Maybe
+                      CodeReferenceElement: Maybe
+                        PsiElement(identifier)('Maybe')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScExtensionBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: flatten
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('flatten')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                PsiElement(])(']')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Maybe[B]
+                SimpleType: Maybe
+                  CodeReferenceElement: Maybe
+                    PsiElement(identifier)('Maybe')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: self.isEmpty
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isEmpty')
+                PsiWhiteSpace(' ')
+                PsiElement(then)('then')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: Absent
+                  PsiElement(identifier)('Absent')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: isEmpty
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('isEmpty')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: self.isInstanceOf
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Absent
+                    CodeReferenceElement: Absent
+                      PsiElement(identifier)('Absent')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: other.Maybe
+                  CodeReferenceElement: other
+                    PsiElement(identifier)('other')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Maybe')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res
+                  PsiElement(identifier)('res')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Maybe[Maybe[Int]]
+                SimpleType: Maybe
+                  CodeReferenceElement: Maybe
+                    PsiElement(identifier)('Maybe')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Maybe[Int]
+                    SimpleType: Maybe
+                      CodeReferenceElement: Maybe
+                        PsiElement(identifier)('Maybe')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: res.flatten
+              ReferenceExpression: res
+                PsiElement(identifier)('res')
+              PsiElement(.)('.')
+              PsiElement(identifier)('flatten')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

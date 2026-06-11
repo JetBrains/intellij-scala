@@ -1,0 +1,353 @@
+type MonthNumber =
+  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
+
+def main =
+  List[(String, MonthNumber)](
+      "January" -> 1,
+      "February" -> 2,
+      "March" -> 3,
+      "April" -> 4,
+      "May" -> 5,
+      "June"-> 6,
+      "July" -> 7,
+      "August" -> 8,
+      "September" -> 9,
+      "October" -> 10,
+      "November" -> 11,
+      "December" -> 12
+    ).foreach { (name, number) =>
+      summon[number.type <:< MonthNumber]
+    }
+-----
+ScalaFile
+  ScTypeAliasDefinition: MonthNumber
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MonthNumber')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
+      InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+        InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+          InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+            InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+              InfixType: 1 | 2 | 3 | 4 | 5 | 6 | 7
+                InfixType: 1 | 2 | 3 | 4 | 5 | 6
+                  InfixType: 1 | 2 | 3 | 4 | 5
+                    InfixType: 1 | 2 | 3 | 4
+                      InfixType: 1 | 2 | 3
+                        InfixType: 1 | 2
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 4
+                        IntegerLiteral
+                          PsiElement(integer)('4')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 6
+                    IntegerLiteral
+                      PsiElement(integer)('6')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: 7
+                  IntegerLiteral
+                    PsiElement(integer)('7')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              LiteralType: 8
+                IntegerLiteral
+                  PsiElement(integer)('8')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            LiteralType: 9
+              IntegerLiteral
+                PsiElement(integer)('9')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          LiteralType: 10
+            IntegerLiteral
+              PsiElement(integer)('10')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        LiteralType: 11
+          IntegerLiteral
+            PsiElement(integer)('11')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      LiteralType: 12
+        IntegerLiteral
+          PsiElement(integer)('12')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: List[(String, MonthNumber)](
+      "January" -> 1,
+      "February" -> 2,
+      "March" -> 3,
+      "April" -> 4,
+      "May" -> 5,
+      "June"-> 6,
+      "July" -> 7,
+      "August" -> 8,
+      "September" -> 9,
+      "October" -> 10,
+      "November" -> 11,
+      "December" -> 12
+    ).foreach
+        MethodCall
+          GenericCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TupleType: (String, MonthNumber)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: MonthNumber
+                    CodeReferenceElement: MonthNumber
+                      PsiElement(identifier)('MonthNumber')
+                PsiElement())(')')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"January"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"February"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"March"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"April"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('4')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"May"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"June"')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('6')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"July"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('7')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"August"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('8')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"September"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('9')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"October"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('10')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"November"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('11')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n      ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"December"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('12')
+            PsiWhiteSpace('\n    ')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('foreach')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: name
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('name')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: number
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('number')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace('\n      ')
+            BlockOfExpressions
+              GenericCall
+                ReferenceExpression: summon
+                  PsiElement(identifier)('summon')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  InfixType: number.type <:< MonthNumber
+                    SimpleType: number.type
+                      CodeReferenceElement: number
+                        PsiElement(identifier)('number')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <:<
+                      PsiElement(identifier)('<:<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: MonthNumber
+                      CodeReferenceElement: MonthNumber
+                        PsiElement(identifier)('MonthNumber')
+                  PsiElement(])(']')
+          PsiWhiteSpace('\n    ')
+          PsiElement(})('}')

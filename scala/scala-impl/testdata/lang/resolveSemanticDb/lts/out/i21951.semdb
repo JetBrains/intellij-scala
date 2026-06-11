@@ -1,0 +1,51 @@
+Document tests/pos/i21951.scala
+(3:18..3:19) _empty_/A.g().[F] -> 3:11
+(3:20..3:21) _empty_/A# -> 1:7
+(3:25..3:28) scala/Predef.`???`().
+(6:3..6:9) scala/Predef.summon().
+(6:10..6:14) scala/package.List#
+(6:15..6:16) _empty_/A# -> 1:7
+(8:5..8:11) scala/Predef.summon().
+(8:12..8:13) _empty_/Test.foo().[F] -> 7:11
+(8:14..8:15) _empty_/A# -> 1:7
+(10:27..10:30) scala/Int#
+(12:39..12:40) _empty_/X.XOps#[F] -> 12:29
+(12:41..12:42) _empty_/X# -> 10:18
+(13:29..13:30) _empty_/X.XOps#[F] -> 12:29
+(13:31..13:32) _empty_/X# -> 10:18
+(13:34..13:37) scala/`<:<`#
+(13:38..13:46) scala/package.Iterable#
+(13:47..13:48) _empty_/X# -> 10:18
+(13:52..13:60) scala/package.Iterable#
+(13:61..13:64) scala/Int#
+(13:68..13:70) _empty_/X.XOps#xs. -> 12:35
+(13:71..13:74) scala/collection/IterableOps#map().
+(13:77..13:78) _empty_/X#i. -> 10:24
+(17:20..17:23) scala/App#
+(19:11..19:15) scala/package.List#
+(19:16..19:17) _empty_/X# -> 10:18
+(19:21..19:25) scala/package.List.
+(19:26..19:27) _empty_/X. -> 11:8
+(20:3..20:10) scala/Predef.println(+1).
+(20:11..20:13) _empty_/App.ys. -> 19:7
+(20:14..20:20) _empty_/X.XOps#unpack(). -> 13:9
+(23:34..23:35) _empty_/App.printPolymorphic().[F] -> 23:24
+(23:36..23:37) _empty_/X# -> 10:18
+(23:53..23:54) _empty_/App.printPolymorphic().[F] -> 23:24
+(23:55..23:56) _empty_/X# -> 10:18
+(23:58..23:61) scala/`<:<`#
+(23:62..23:70) scala/package.Iterable#
+(23:71..23:72) _empty_/X# -> 10:18
+(24:5..24:12) scala/Predef.locally().
+(26:14..26:15) _empty_/X. -> 11:8
+(26:16..26:20) _empty_/X.XOps(). -> 12:24
+(27:7..27:14) scala/Predef.println(+1).
+(27:15..27:17) _empty_/App.printPolymorphic().(xs) -> 23:30
+(27:18..27:24) _empty_/X.XOps#unpack(). -> 13:9
+(30:5..30:12) scala/Predef.println(+1).
+(30:13..30:15) _empty_/App.printPolymorphic().(xs) -> 23:30
+(30:16..30:22) _empty_/X.XOps#unpack(). -> 13:9
+(32:3..32:19) _empty_/App.printPolymorphic(). -> 23:7
+(32:20..32:24) scala/package.List#
+(32:26..32:28) _empty_/App.ys. -> 19:7
+

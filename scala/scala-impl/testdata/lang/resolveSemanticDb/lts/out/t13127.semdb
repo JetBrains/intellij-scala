@@ -1,0 +1,56 @@
+Document tests/pos/t13127.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:34) scala/annotation/unchecked/
+(1:35..1:52) scala/annotation/unchecked/uncheckedOverride#
+(3:28..3:32) java/
+(3:33..3:37) java/util/
+(3:38..3:48) java/util/Comparator#
+(3:49..3:50) _empty_/Hordering#[T] -> 3:17
+(5:4..5:21) scala/annotation/unchecked/uncheckedOverride#
+(5:35..5:36) _empty_/Hordering#[T] -> 3:17
+(5:41..5:42) _empty_/Hordering#max().[U] -> 5:30
+(5:47..5:48) _empty_/Hordering#max().[U] -> 5:30
+(5:51..5:52) _empty_/Hordering#max().[U] -> 5:30
+(5:55..5:56) _empty_/Hordering#max().(x) -> 5:38
+(6:4..6:21) scala/annotation/unchecked/uncheckedOverride#
+(6:35..6:36) _empty_/Hordering#[T] -> 3:17
+(6:41..6:42) _empty_/Hordering#min().[U] -> 6:30
+(6:47..6:48) _empty_/Hordering#min().[U] -> 6:30
+(6:51..6:52) _empty_/Hordering#min().[U] -> 6:30
+(6:55..6:56) _empty_/Hordering#min().(x) -> 6:38
+(10:16..10:17) _empty_/Base#[T] -> 9:12
+(10:22..10:23) _empty_/Base#max().[U] -> 10:11
+(10:28..10:29) _empty_/Base#max().[U] -> 10:11
+(10:32..10:33) _empty_/Base#max().[U] -> 10:11
+(10:36..10:37) _empty_/Base#max().(x) -> 10:19
+(12:14..12:20) scala/Predef.String#
+(12:31..12:32) _empty_/Base#mux().(x) -> 12:11
+(15:22..15:26) _empty_/Base# -> 9:7
+(15:27..15:28) _empty_/Sub#[T] -> 15:11
+(16:4..16:21) scala/annotation/unchecked/uncheckedOverride#
+(16:35..16:36) _empty_/Sub#[T] -> 15:11
+(16:41..16:42) _empty_/Sub#max().[U] -> 16:30
+(16:47..16:48) _empty_/Sub#max().[U] -> 16:30
+(16:51..16:52) _empty_/Sub#max().[U] -> 16:30
+(16:55..16:56) _empty_/Sub#max().(x) -> 16:38
+(17:4..17:21) scala/annotation/unchecked/uncheckedOverride#
+(17:35..17:36) _empty_/Sub#[T] -> 15:11
+(17:41..17:42) _empty_/Sub#min().[U] -> 17:30
+(17:47..17:48) _empty_/Sub#min().[U] -> 17:30
+(17:51..17:52) _empty_/Sub#min().[U] -> 17:30
+(17:55..17:56) _empty_/Sub#min().(x) -> 17:38
+(20:4..20:21) scala/annotation/unchecked/uncheckedOverride#
+(20:33..20:39) scala/Predef.String#
+(20:51..20:52) _empty_/Sub#mux().(x) -> 20:30
+(22:14..22:17) _empty_/Sub#mux(). -> 20:26
+(25:35..25:40) scala/
+(25:41..25:45) scala/math/
+(25:46..25:54) scala/math/Ordering#
+(25:55..25:56) _empty_/OverrideOrdering#[T] -> 25:24
+(26:25..26:26) _empty_/OverrideOrdering#[T] -> 25:24
+(26:31..26:32) _empty_/OverrideOrdering#max().[U] -> 26:20
+(26:37..26:38) _empty_/OverrideOrdering#max().[U] -> 26:20
+(26:41..26:42) _empty_/OverrideOrdering#max().[U] -> 26:20
+(26:45..26:46) _empty_/OverrideOrdering#max().(x) -> 26:28
+
