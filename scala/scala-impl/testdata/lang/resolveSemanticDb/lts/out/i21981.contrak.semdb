@@ -1,0 +1,52 @@
+Document tests/pos/i21981.contrak.scala
+(1:22..1:23) _empty_/Inv#[T] -> 1:16
+(2:31..2:42) _empty_/Contra#[ContraParam] -> 2:15
+(5:19..5:20) _empty_/Ops#[A] -> 4:17
+(5:24..5:30) _empty_/Contra# -> 2:7
+(5:31..5:32) _empty_/Ops#map0().[B] -> 5:12
+(5:36..5:37) _empty_/Ops#[F] -> 4:11
+(5:38..5:39) _empty_/Ops#map0().[B] -> 5:12
+(5:43..5:46) scala/Predef.`???`().
+(14:25..14:33) _empty_/Functor1# -> 7:7
+(14:34..14:35) _empty_/Test#given_Functor2_J#[J] -> 14:10
+(14:34..14:35) _empty_/Test#given_Functor2_J().[J] -> 14:10
+(14:39..14:47) _empty_/Functor2# -> 9:7
+(14:48..14:49) _empty_/Test#given_Functor2_J#[J] -> 14:10
+(15:23..15:24) _empty_/Test#given_Functor2_J#[J] -> 14:10
+(15:25..15:31) _empty_/Contra# -> 2:7
+(15:32..15:33) _empty_/Test#given_Functor2_J#map2().[K] -> 15:16
+(16:23..16:24) _empty_/Test#given_Functor2_J#map2().[K] -> 15:16
+(16:28..16:29) _empty_/Test#given_Functor2_J#map2().[L] -> 16:16
+(16:32..16:33) _empty_/Test#given_Functor2_J#[J] -> 14:10
+(16:34..16:35) _empty_/Test#given_Functor2_J#map2().[L] -> 16:16
+(16:39..16:42) scala/Predef.`???`().
+(21:14..21:22) _empty_/Functor1# -> 7:7
+(21:23..21:24) _empty_/Test#t1().[N] -> 20:5
+(21:28..21:32) scala/Unit#
+(23:13..23:16) _empty_/Ops# -> 4:7
+(23:17..23:18) _empty_/Test#t1().[N] -> 20:5
+(23:20..23:21) _empty_/Test#t1().[M] -> 19:5
+(23:30..23:33) _empty_/Ref# -> 11:7
+(23:34..23:35) _empty_/Test#t1().[N] -> 20:5
+(23:37..23:38) local0 -> 23:23
+(23:44..23:47) scala/Predef.`???`().
+(25:13..25:14) _empty_/Test#t1().[N] -> 20:5
+(25:16..25:17) _empty_/Test#t1().[M] -> 19:5
+(25:18..25:19) _empty_/Test#t1().[N] -> 20:5
+(25:22..25:23) _empty_/Test#t1().[M] -> 19:5
+(25:32..25:35) _empty_/Ref# -> 11:7
+(25:36..25:37) _empty_/Test#t1().[N] -> 20:5
+(25:39..25:40) local2 -> 25:25
+(25:47..25:49) local1 -> 23:9
+(26:8..26:12) _empty_/Ops#map0(). -> 5:7
+(26:42..26:48) _empty_/Contra# -> 2:7
+(26:50..26:57) scala/Nothing#
+(26:59..26:60) _empty_/Test#t1().[M] -> 19:5
+(26:69..26:72) _empty_/Ref# -> 11:7
+(26:73..26:74) _empty_/Test#t1().[N] -> 20:5
+(26:76..26:77) local4 -> 26:62
+(26:83..26:86) scala/Predef.`???`().
+(27:8..27:12) _empty_/Test#given_Functor2_J#map2(). -> 16:11
+(27:36..27:39) scala/Predef.`???`().
+(27:41..27:45) local7 -> 27:26
+

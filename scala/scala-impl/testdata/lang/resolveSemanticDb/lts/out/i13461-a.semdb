@@ -1,0 +1,15 @@
+Document tests/pos/i13461-a.scala
+(3:24..3:27) scala/Int#
+(4:30..4:36) i13461/`i13461-a$package`.Opaque# -> 3:15
+(5:31..5:37) i13461/ -> 1:9
+(5:38..5:44) i13461/`i13461-a$package`.Opaque# -> 3:15
+(8:20..8:25) scala/Array#
+(8:26..8:32) scala/Predef.String#
+(8:36..8:40) scala/Unit#
+(9:15..9:21) i13461/`i13461-a$package`.Opaque# -> 3:15
+(9:24..9:26) i13461/`i13461-a$package`.op(). -> 4:26
+(10:15..10:21) i13461/`i13461-a$package`.Opaque# -> 3:15
+(10:24..10:27) i13461/`i13461-a$package`.oop(). -> 5:26
+(11:22..11:24) i13461/`i13461-a$package`.op(). -> 4:26
+(12:22..12:25) i13461/`i13461-a$package`.oop(). -> 5:26
+

@@ -1,0 +1,133 @@
+
+class A {
+  def f: PartialFunction[Int, Int] =
+    a => { (try a catch { case e : Throwable => throw e}) match { case n => n } }
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: PartialFunction[Int, Int]
+            SimpleType: PartialFunction
+              CodeReferenceElement: PartialFunction
+                PsiElement(identifier)('PartialFunction')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: a
+                  PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ExpressionInParenthesis
+                  PsiElement(()('(')
+                  TryStatement
+                    PsiElement(try)('try')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiWhiteSpace(' ')
+                    CatchBlock
+                      PsiElement(catch)('catch')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace(' ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: e
+                                PsiElement(identifier)('e')
+                              PsiWhiteSpace(' ')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                SimpleType: Throwable
+                                  CodeReferenceElement: Throwable
+                                    PsiElement(identifier)('Throwable')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              ThrowStatement
+                                PsiElement(throw)('throw')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: e
+                                  PsiElement(identifier)('e')
+                        PsiElement(})('}')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace(' ')
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: n
+                      PsiElement(identifier)('n')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: n
+                        PsiElement(identifier)('n')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

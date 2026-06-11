@@ -69,15 +69,15 @@ Document tests/pos/anykind.scala
 (45:49..45:55) _empty_/Test.Kinded# -> 40:9
 (45:56..45:57) _empty_/Test.Kinded.kinded1().[M] -> 45:26
 (45:75..45:76) _empty_/Test.Kinded.kinded1().[M] -> 45:26
-(45:77..45:78) local16 -> 45:70
+(45:77..45:78) local15 -> 45:70
 (46:36..46:39) _empty_/Test.Kinded.Aux# -> 42:10
 (46:40..46:41) _empty_/Test.Kinded.kinded2().[M] -> 46:26
 (46:43..46:44) _empty_/Test.Kinded.kinded2().[M] -> 46:26
 (46:52..46:58) _empty_/Test.Kinded# -> 40:9
 (46:59..46:60) _empty_/Test.Kinded.kinded2().[M] -> 46:26
 (46:81..46:82) _empty_/Test.Kinded.kinded2().[M] -> 46:26
-(46:83..46:84) local20 -> 46:73
-(46:86..46:87) local21 -> 46:76
+(46:83..46:84) local19 -> 46:73
+(46:86..46:87) local20 -> 46:76
 (49:3..49:13) scala/Predef.implicitly().
 (49:14..49:20) _empty_/Test.Kinded. -> 41:10
 (49:21..49:24) _empty_/Test.Kinded.Aux# -> 42:10
@@ -114,7 +114,7 @@ Document tests/pos/anykind.scala
 (59:86..59:88) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
 (59:89..59:91) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
 (59:108..59:110) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
-(59:111..59:112) local27 -> 59:103
+(59:111..59:112) local24 -> 59:103
 (59:127..59:129) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
 (59:130..59:132) _empty_/Test.`::`# -> 94:20
 (59:133..59:137) _empty_/Test.HNil# -> 95:16
@@ -134,8 +134,8 @@ Document tests/pos/anykind.scala
 (63:106..63:108) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
 (63:110..63:112) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
 (63:132..63:134) _empty_/Test.KinderLowerImplicits#kinder2().[M0] -> 63:26
-(63:135..63:136) local32 -> 63:124
-(63:138..63:139) local33 -> 63:127
+(63:135..63:136) local29 -> 63:124
+(63:138..63:139) local30 -> 63:127
 (63:154..63:156) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
 (63:157..63:159) _empty_/Test.`::`# -> 94:20
 (63:160..63:162) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
@@ -395,7 +395,7 @@ Document tests/pos/anykind.scala
 (182:154..182:155) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
 (183:21..183:24) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0] -> 182:23
 (184:20..184:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
-(185:21..185:22) local71 -> 184:16
+(185:21..185:22) local64 -> 184:16
 (185:25..185:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0) -> 182:50
 (186:21..186:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
 (186:25..186:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0) -> 182:61

@@ -1,0 +1,27 @@
+Document tests/pos/i22513.scala
+(1:21..1:22) _empty_/i22513$package.R#[T] -> 1:15
+(1:25..1:26) _empty_/i22513$package.R#[T] -> 1:15
+(5:15..5:18) scala/Int#
+(7:10..7:11) _empty_/i22513$package.R# -> 1:13
+(7:12..7:13) _empty_/Test.E# -> 4:8
+(7:17..7:20) scala/Predef.`???`().
+(8:3..8:4) _empty_/Test.v. -> 7:7
+(9:10..9:11) _empty_/Test.E.
+(9:12..9:13) _empty_/Test.E.A.
+(14:27..14:30) _empty_/Foo# -> 12:14
+(15:27..15:30) _empty_/Foo# -> 12:14
+(18:28..18:31) _empty_/Foo# -> 12:14
+(18:34..18:37) _empty_/Foo# -> 12:14
+(19:15..19:24) _empty_/O.OpaqueFoo# -> 18:15
+(19:27..19:31) _empty_/FooB.
+(22:2..22:6) scala/main#
+(23:10..23:11) _empty_/O. -> 17:8
+(23:12..23:21) _empty_/O.OpaqueFoo# -> 18:15
+(23:24..23:25) _empty_/O. -> 17:8
+(23:26..23:30) _empty_/O.fooB(). -> 19:7
+(25:3..25:4) local0 -> 23:7
+(26:13..26:17) _empty_/FooA# -> 14:12
+(26:21..26:28) scala/Predef.println(+1).
+(27:13..27:17) _empty_/FooB# -> 15:12
+(27:21..27:28) scala/Predef.println(+1).
+

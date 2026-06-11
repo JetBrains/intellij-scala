@@ -37,7 +37,7 @@
 [200,201]: Ident
 [203,210]: AppliedTypeTree
 [203,207]: Ident
-[208,209]: Ident
+[208,209]: TypeBoundsTree
 [211,215]: Block
 [214,215]: Ident
 [220,242]: CaseDef
@@ -94,7 +94,7 @@
 [401,402]: Ident
 [404,410]: AppliedTypeTree
 [404,407]: Ident
-[408,409]: Ident
+[408,409]: TypeBoundsTree
 [411,415]: Block
 [414,415]: Ident
 [419,440]: CaseDef

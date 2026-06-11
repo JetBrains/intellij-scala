@@ -1,0 +1,13 @@
+Document tests/pos/annot-main-22364b.scala
+(1:8..1:12) scala/util/
+(1:13..1:21) scala/util/package.chaining.
+(3:14..3:17) scala/Int#
+(3:26..3:29) scala/Int#
+(3:39..3:49) scala/annotation/
+(3:50..3:60) scala/annotation/Annotation#
+(5:2..5:5) _empty_/ann# -> 3:7
+(5:6..5:7) _empty_/ann#`<init>`().(y)
+(5:13..5:16) scala/util/ChainingOps#tap().
+(5:17..5:24) scala/Predef.println(+1).
+(5:28..5:32) scala/main#
+

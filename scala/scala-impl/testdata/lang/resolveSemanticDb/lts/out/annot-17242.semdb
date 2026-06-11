@@ -1,11 +1,11 @@
 Document tests/pos/annot-17242.scala
-(3:24..3:27) scala/Int#
-(3:37..3:47) scala/annotation/
-(3:48..3:64) scala/annotation/StaticAnnotation#
-(5:17..5:20) scala/Int#
-(5:25..5:28) scala/Int#
-(5:30..5:35) _empty_/local# -> 3:7
-(5:36..5:37) _empty_/`annot-17242$package`.failing1().(x) -> 5:14
-(5:38..5:39) scala/Int#`+`(+4).
-(5:40..5:41) _empty_/`annot-17242$package`.failing1().(x) -> 5:14
+(1:24..1:27) scala/Int#
+(1:37..1:47) scala/annotation/
+(1:48..1:64) scala/annotation/StaticAnnotation#
+(3:17..3:20) scala/Int#
+(3:25..3:28) scala/Int#
+(3:30..3:35) _empty_/local# -> 1:7
+(3:36..3:37) _empty_/`annot-17242$package`.failing1().(x) -> 3:14
+(3:38..3:39) scala/Int#`+`(+4).
+(3:40..3:41) _empty_/`annot-17242$package`.failing1().(x) -> 3:14
 

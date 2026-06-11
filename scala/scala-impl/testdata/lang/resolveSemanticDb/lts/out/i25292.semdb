@@ -1,0 +1,3 @@
+Document tests/pos/i25292.scala
+(4:9..4:14) _empty_/i25292$package.tuple. -> 3:5
+
