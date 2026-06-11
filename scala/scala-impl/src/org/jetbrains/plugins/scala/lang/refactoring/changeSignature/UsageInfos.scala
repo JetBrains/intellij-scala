@@ -83,10 +83,14 @@ private[changeSignature] case class MethodCallUsageInfo(override val ref: ScRefe
         extends UsageInfo(call) with MethodUsageInfo {
   override val argsInfo: OldArgsInfo = OldArgsInfo(allArgs(call), method)
 
-  private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
-    call.getInvokedExpr match {
-      case mc: ScMethodCall => allArgs(mc) ++ call.argumentExpressions
-      case _ => call.argumentExpressions
+  private def allArgs(expr: ScExpression): Seq[ScExpression] = {
+    expr match {
+      case call: ScMethodCall =>
+        allArgs(call.getInvokedExpr) ++ call.argumentExpressions
+      case call: ScGenericCall =>
+        allArgs(call.referencedExpr)
+      case _ =>
+        Seq.empty
     }
   }
 }
