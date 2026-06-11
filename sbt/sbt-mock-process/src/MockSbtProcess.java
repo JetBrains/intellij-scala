@@ -85,7 +85,7 @@ public final class MockSbtProcess {
         String command = String.join(" ", args).trim();
         debug("non-shell stdin mode: command=" + command);
         if (!command.isEmpty()) {
-            System.out.println("[info] mock sbt launcher args: " + command);
+            info("mock sbt launcher args: " + command);
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
@@ -110,26 +110,24 @@ public final class MockSbtProcess {
             waitForFile(filePath);
         }
 
-        System.out.println("[info] mock sbt accepted: " + command);
+        info("mock sbt accepted: " + command);
 
         Path structureFile = extractStructureFile(command);
         if (structureFile != null) {
             writeDummyProjectStructure(structureFile);
-            System.out.println("[info] mock sbt wrote structure to: " + structureFile);
+            info("mock sbt wrote structure to: " + structureFile);
         }
     }
 
     private static void waitForFile(String filePath) throws InterruptedException {
         Path file = Paths.get(unquote(filePath));
-        System.out.println("[info] mock sbt waiting for file: " + file);
-        System.out.flush();
+        info("mock sbt waiting for file: " + file);
 
         while (!Files.exists(file)) {
             Thread.sleep(50);
         }
 
-        System.out.println("[info] mock sbt resumed after file: " + file);
-        System.out.flush();
+        info("mock sbt resumed after file: " + file);
     }
 
     private static Path extractStructureFile(String command) {
@@ -253,6 +251,10 @@ public final class MockSbtProcess {
         System.err.flush();
     }
 
+    private static void info(String message) {
+        System.out.println("[info] " + message);
+        System.out.flush();
+    }
 
     private static void error(String message) {
         System.err.println("[error] MockSbtProcess: " + message);
