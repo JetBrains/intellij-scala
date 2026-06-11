@@ -4,7 +4,7 @@ import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.testFramework.LoggedErrorProcessor
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
-import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker}
+import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker, DebuggerSessionsAwaiter}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
 import org.junit.Assert.assertEquals
@@ -152,10 +152,12 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
     val buildTracker = new CompileStepBeforeRunTracker(getProject, getTestRootDisposable)
 
     val executionObserver = observeExecution(runnerAndConfigSettings)
+    val debuggerSessionsAwaiter = observeDebuggerSessionsIfNeeded(options)
     assertNoLogCaptureWarningsLogged {
       RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runnerAndConfigSettings, options.executionMode.executor)
       // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
       executionObserver.awaitSuccessfulTermination(timeout = 5.seconds)
+      debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     }
 
     buildTracker
@@ -163,6 +165,12 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
 
   private def observeExecution(settings: RunnerAndConfigurationSettings): RunConfigurationExecutionObserver =
     RunConfigurationExecutionObserver.subscribe(settings, getTestRootDisposable)
+
+  private def observeDebuggerSessionsIfNeeded(options: TestExecutionOptions): Option[DebuggerSessionsAwaiter] =
+    options.executionMode match {
+      case ExecutionMode.Debug => Some(DebuggerSessionsAwaiter.subscribe(getProject, timeout = 10.seconds))
+      case ExecutionMode.Run => None
+    }
 
   private def assertNoLogCaptureWarningsLogged(body: => Unit): Unit = {
     val logCaptureLoggerName = classOf[LogCapture].getName
