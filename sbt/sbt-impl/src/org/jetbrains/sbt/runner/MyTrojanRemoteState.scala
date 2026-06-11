@@ -32,21 +32,24 @@ private[runner] final class MyTrojanRemoteState(
   private var execResult: Option[ExecutionResult] = None
 
   override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
-    val processHandler = new RemoteDebugProcessHandler(environment.getProject)
-    val result: DefaultExecutionResult =
-      if (DapMode.isDap)
-        new DefaultExecutionResult(null, processHandler)
-      else {
-        val consoleView = new ConsoleViewImpl(environment.getProject, false)
-
-        // ATTENTION: the most important difference with `super.execute`
-        val decoratedConsoleView = decorateExecutionConsole(consoleView, executor)
-        decoratedConsoleView.attachToProcess(processHandler)
-
-        new DefaultExecutionResult(decoratedConsoleView, processHandler)
-      }
+    val result = executeImpl(executor)
     execResult = Some(result)
     result
+  }
+
+  private def executeImpl(executor: Executor): DefaultExecutionResult = {
+    val processHandler = new RemoteDebugProcessHandler(environment.getProject)
+    if (DapMode.isDap)
+      new DefaultExecutionResult(null, processHandler)
+    else {
+      val consoleView = new ConsoleViewImpl(environment.getProject, false)
+
+      // ATTENTION: the most important difference with `super.execute`
+      val decoratedConsoleView = decorateExecutionConsole(consoleView, executor)
+      decoratedConsoleView.attachToProcess(processHandler)
+
+      new DefaultExecutionResult(decoratedConsoleView, processHandler)
+    }
   }
 
   private def decorateExecutionConsole(consoleView: ConsoleView, executor: Executor): ConsoleView =
