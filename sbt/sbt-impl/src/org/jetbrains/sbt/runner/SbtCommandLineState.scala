@@ -2,9 +2,10 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.execution.util.JavaParametersUtil
-import com.intellij.execution.{ExecutionResult, Executor}
+import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager}
 import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
@@ -56,6 +57,32 @@ private final class SbtCommandLineState(
     }
 
     result
+  }
+
+  /**
+   * Decorates the console for the separate-process SBT run configuration path.
+   *
+   * This state extends the plain [[JavaCommandLineState]], whose default console creation is inherited from
+   * [[CommandLineState]] and returns an undecorated [[com.intellij.execution.impl.ConsoleViewImpl]].
+   * Standard Java application and test states add this decoration in their own `createConsole` implementations.
+   * SBT needs to do the same here so Java run configuration extensions and debugger console integrations see the expected console shape.
+   *
+   * The sbt-shell debug path has a similar requirement, but it is handled separately in [[MyTrojanRemoteState]]
+   * because that path creates a remote attach console through [[com.intellij.debugger.engine.RemoteStateState]]
+   * instead of using this state to create the execution console.
+   */
+  override protected def createConsole(executor: Executor): ConsoleView = {
+    val console = super.createConsole(executor)
+    if (console == null)
+      null
+    else
+      // Use the same Java console extension pipeline as regular Java run/debug configurations.
+      JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
+        configuration,
+        getRunnerSettings,
+        console,
+        executor
+      )
   }
 
   override def createJavaParameters(): JavaParameters = {

@@ -1,13 +1,17 @@
 package org.jetbrains.sbt.runner.beforeLaunch
 
+import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.testFramework.LoggedErrorProcessor
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
 import org.junit.Assert.assertEquals
 
+import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * Verifies the IntelliJ Build before-launch contract for fresh SBT task run configurations.
@@ -148,13 +152,38 @@ class SbtRunConfiguration_ExecutionTest_Mocked_BuildBeforeLaunch extends SbtRunC
     val buildTracker = new CompileStepBeforeRunTracker(getProject, getTestRootDisposable)
 
     val executionObserver = observeExecution(runnerAndConfigSettings)
-    RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runnerAndConfigSettings, options.executionMode.executor)
-    // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
-    executionObserver.awaitSuccessfulTermination(timeout = 5.seconds)
+    assertNoLogCaptureWarningsLogged {
+      RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runnerAndConfigSettings, options.executionMode.executor)
+      // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
+      executionObserver.awaitSuccessfulTermination(timeout = 5.seconds)
+    }
 
     buildTracker
   }
 
   private def observeExecution(settings: RunnerAndConfigurationSettings): RunConfigurationExecutionObserver =
     RunConfigurationExecutionObserver.subscribe(settings, getTestRootDisposable)
+
+  private def assertNoLogCaptureWarningsLogged(body: => Unit): Unit = {
+    val logCaptureLoggerName = classOf[LogCapture].getName
+    val warnings = collectWarningsLoggedByLogger(logCaptureLoggerName)(body)
+    assertEquals(
+      s"Unexpected warnings logged by $logCaptureLoggerName: ${warnings.mkString("[", ", ", "]")}",
+      0,
+      warnings.size
+    )
+  }
+
+  private def collectWarningsLoggedByLogger(loggerName: String)(body: => Unit): Seq[String] = {
+    val warningMessages = new ConcurrentLinkedQueue[String]
+    LoggedErrorProcessor.executeWith(new LoggedErrorProcessor {
+      override def processWarn(category: String, message: String, t: Throwable): Boolean = {
+        if (category.contains(loggerName))
+          warningMessages.add(message)
+        super.processWarn(category, message, t)
+      }
+    }, () => body)
+
+    warningMessages.asScala.toSeq
+  }
 }
