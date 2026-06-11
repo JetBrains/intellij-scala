@@ -5,22 +5,22 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.LibraryScopeCache
-import com.intellij.openapi.roots.{OrderEntry, ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.workspace.storage.WorkspaceEntityWithSymbolicId
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFile, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiImplementationHelper.findAssociatedEntities
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.tasty.reader.CompilerOptions
 
-import java.{util => ju}
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 
 /**
  * For the non-decompiled scala files see [[org.jetbrains.plugins.scala.lang.psi.ScFileViewProvider]]
@@ -91,10 +91,10 @@ object ScClsFileViewProvider {
 
     def findSourceByRelativePath: Option[VirtualFile] = {
       val relPath = relativePath(typeDefinitions)
-      val classOrderEntries = orderEntries(getVirtualFile)
+      val classEntities = findAssociatedEntities(getVirtualFile, projectFileIndex)
 
       findSourceFileWithName(getViewProvider.sourceName) {
-        hasSameRelativePathInSources(_, relPath, classOrderEntries)
+        hasSameRelativePathInSources(_, relPath, classEntities)
       }
     }
 
@@ -149,13 +149,13 @@ object ScClsFileViewProvider {
 
     private def hasSameRelativePathInSources(sourceFile: VirtualFile,
                                              relPath: String,
-                                             classFileEntries: ju.List[OrderEntry]): Boolean =
-      sourceFile.getPath.endsWith(relPath) && haveSameEntry(orderEntries(sourceFile), classFileEntries)
+                                             classFileEntries: Iterable[WorkspaceEntityWithSymbolicId]): Boolean =
+      sourceFile.getPath.endsWith(relPath) && haveSameEntity(findAssociatedEntities(sourceFile, projectFileIndex), classFileEntries)
 
     //noinspection ExistsEquals
-    private def haveSameEntry(firstEntries: ju.List[OrderEntry], secondEntries: ju.List[OrderEntry]): Boolean = {
-      firstEntries.asScala.exists { e1 =>
-        secondEntries.asScala.exists { e2 =>
+    private def haveSameEntity(firstEntities: Iterable[WorkspaceEntityWithSymbolicId], secondEntities: Iterable[WorkspaceEntityWithSymbolicId]): Boolean = {
+      firstEntities.exists { e1 =>
+        secondEntities.exists { e2 =>
           e1 == e2
         }
       }
@@ -181,9 +181,6 @@ object ScClsFileViewProvider {
       )
       Option(processor.getFoundValue)
     }
-
-    private def orderEntries(file: VirtualFile) =
-      projectFileIndex.getOrderEntriesForFile(file)
 
     private def findPsiFile(file: VirtualFile): Option[PsiClassOwner] =
       manager.findFile(file).asOptionOf[PsiClassOwner]
