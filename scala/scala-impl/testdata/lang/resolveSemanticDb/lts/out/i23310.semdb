@@ -1,0 +1,12 @@
+Document tests/pos/i23310.scala
+(3:13..3:28) scala/PartialFunction#
+(3:29..3:33) scala/Unit#
+(3:35..3:39) scala/Unit#
+(3:49..3:50) local0 -> 3:43
+(4:17..4:18) local1 -> 4:12
+(12:5..12:9) scala/package.List.
+(12:14..12:21) scala/collection/immutable/List#collect().
+(14:19..14:20) local3 -> 14:14
+(16:19..16:20) local4 -> 16:14
+(16:21..16:22) scala/Int#`+`(+4).
+

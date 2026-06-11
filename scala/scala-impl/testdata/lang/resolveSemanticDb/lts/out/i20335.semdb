@@ -1,0 +1,25 @@
+Document tests/pos/i20335.scala
+(1:8..1:12) java/
+(1:13..1:17) java/time/
+(1:18..1:32) java/time/OffsetDateTime#
+(2:8..2:13) scala/
+(2:14..2:24) scala/concurrent/
+(2:25..2:33) scala/concurrent/duration/
+(4:15..4:29) java/time/OffsetDateTime#
+(4:32..4:46) java/time/OffsetDateTime#
+(4:47..4:50) java/time/OffsetDateTime#now().
+(6:42..6:56) java/time/OffsetDateTime#
+(7:20..7:34) scala/concurrent/duration/FiniteDuration#
+(7:37..7:51) java/time/OffsetDateTime#
+(8:5..8:13) _empty_/i20335$package.DateTimeOps#dateTime. -> 6:32
+(12:3..12:11) _empty_/i20335$package.dateTime. -> 4:5
+(12:12..12:16) _empty_/i20335$package.DateTimeOps#plus(). -> 7:7
+(12:17..12:25) scala/concurrent/duration/Duration.
+(12:26..12:30) scala/concurrent/duration/Duration.Zero.
+(13:3..13:11) _empty_/i20335$package.dateTime. -> 4:5
+(13:12..13:16) _empty_/i20335$package.DateTimeOps#plus(). -> 7:7
+(13:27..13:35) scala/concurrent/duration/Duration.
+(13:36..13:40) scala/concurrent/duration/Duration.Zero.
+(13:46..13:54) scala/concurrent/duration/Duration.
+(13:55..13:59) scala/concurrent/duration/Duration.Zero.
+

@@ -1,7 +1,7 @@
 Document tests/pos/i12655.scala
 (4:21..4:30) _empty_/Signature# -> 1:7
 (4:44..4:45) _empty_/i12655$package.Operation#[Z] -> 4:16
-(4:50..4:51) local7 -> 4:41
+(4:50..4:51) _empty_/i12655$package.Operation#apply().(z) -> 4:41
 (4:52..4:56) _empty_/Signature#Impl# -> 2:8
 (4:57..4:58) _empty_/i12655$package.Operation#[A] -> 4:32
 (4:60..4:61) _empty_/i12655$package.Operation#[U] -> 4:35
@@ -26,7 +26,7 @@ Document tests/pos/i12655.scala
 (10:68..10:71) scala/Predef.`???`().
 (12:19..12:28) _empty_/Signature# -> 1:7
 (12:44..12:45) _empty_/i12655$package.perform1().[Z] -> 12:14
-(12:50..12:51) local9 -> 12:41
+(12:50..12:51) local7 -> 12:41
 (12:52..12:56) _empty_/Signature#Impl# -> 2:8
 (12:57..12:58) _empty_/i12655$package.perform1().[A] -> 12:30
 (12:60..12:61) _empty_/i12655$package.perform1().[U] -> 12:33

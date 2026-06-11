@@ -1,0 +1,59 @@
+val s = new example.TestJava.Concrete().create
+val s2: String = s
+-----
+ScalaFile
+  ScPatternDefinition: s
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: s
+        PsiElement(identifier)('s')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: new example.TestJava.Concrete().create
+      ScNewTemplateDefinition: <anonymous>
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: example.TestJava.Concrete
+                CodeReferenceElement: example.TestJava.Concrete
+                  CodeReferenceElement: example.TestJava
+                    CodeReferenceElement: example
+                      PsiElement(identifier)('example')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TestJava')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Concrete')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+      PsiElement(.)('.')
+      PsiElement(identifier)('create')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: s2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: s2
+        PsiElement(identifier)('s2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: s
+      PsiElement(identifier)('s')

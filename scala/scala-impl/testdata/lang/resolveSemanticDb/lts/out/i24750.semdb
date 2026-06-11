@@ -1,0 +1,16 @@
+Document tests/pos/i24750.scala
+(2:8..2:13) scala/
+(2:14..2:24) scala/concurrent/
+(2:25..2:33) scala/concurrent/duration/
+(6:19..6:33) scala/concurrent/duration/FiniteDuration#
+(6:36..6:40) scala/Unit#
+(7:5..7:13) _empty_/i24750.f().(duration) -> 6:9
+(7:14..7:18) scala/concurrent/duration/FiniteDuration#unit.
+(8:12..8:23) scala/concurrent/duration/package.NANOSECONDS.
+(9:12..9:24) scala/concurrent/duration/package.MICROSECONDS.
+(10:12..10:24) scala/concurrent/duration/package.MILLISECONDS.
+(11:12..11:19) scala/concurrent/duration/package.SECONDS.
+(12:12..12:19) scala/concurrent/duration/package.MINUTES.
+(13:12..13:17) scala/concurrent/duration/package.HOURS.
+(14:12..14:16) scala/concurrent/duration/package.DAYS.
+

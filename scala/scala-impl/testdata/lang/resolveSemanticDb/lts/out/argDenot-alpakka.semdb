@@ -25,7 +25,7 @@ Document tests/pos/argDenot-alpakka.scala
 (12:28..12:29) _empty_/FlowOps#Repr#[O] -> 12:14
 (12:31..12:34) _empty_/FlowOps#[Mat] -> 11:22
 (12:67..12:71) _empty_/FlowOps#Repr# -> 12:8
-(12:72..12:73) local0 -> 12:49
+(12:72..12:73) _empty_/FlowOps#Repr#Repr#[O] -> 12:49
 (13:17..13:21) _empty_/FlowOps#Repr# -> 12:8
 (13:22..13:23) _empty_/FlowOps#via().[O] -> 13:11
 (13:29..13:32) scala/Predef.`???`().

@@ -1,0 +1,15 @@
+Document tests/pos/i22648.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:19..3:25) scala/quoted/Quotes#
+(3:28..3:32) scala/quoted/Expr#
+(3:33..3:36) scala/Any#
+(5:9..5:15) scala/AnyRef#
+(6:16..6:20) scala/Unit#
+(7:17..7:18) local0 -> 6:12
+(8:19..8:20) local0 -> 6:12
+(8:23..8:27) scala/Unit#
+(11:17..11:18) local6 -> 10:12
+(12:19..12:20) local6 -> 10:12
+(12:23..12:27) scala/Unit#
+

@@ -1,0 +1,78 @@
+Document tests/pos/i23261.scala
+(1:26..1:32) scala/Double#
+(1:37..1:43) scala/Predef.String#
+(1:46..1:47) _empty_/i23261$package.DoubleToString#[D] -> 1:21
+(4:8..4:9) scala/Any#
+(6:27..6:33) scala/Double#
+(6:38..6:44) scala/Predef.String#
+(6:47..6:48) _empty_/i23261$package.DoubleToString2#[D] -> 6:22
+(8:8..8:9) scala/Any#
+(10:27..10:33) scala/Double#
+(10:38..10:44) scala/Predef.String#
+(10:47..10:48) _empty_/i23261$package.DoubleToString3#[D] -> 10:22
+(12:8..12:9) scala/Any#
+(14:25..14:30) scala/Float#
+(14:35..14:41) scala/Predef.String#
+(14:44..14:45) _empty_/i23261$package.FloatToString#[F] -> 14:20
+(17:8..17:9) scala/Any#
+(19:26..19:31) scala/Float#
+(19:36..19:42) scala/Predef.String#
+(19:45..19:46) _empty_/i23261$package.FloatToString2#[F] -> 19:21
+(21:8..21:9) scala/Any#
+(23:26..23:31) scala/Float#
+(23:36..23:42) scala/Predef.String#
+(23:45..23:46) _empty_/i23261$package.FloatToString3#[F] -> 23:21
+(25:8..25:9) scala/Any#
+(27:2..27:6) scala/main#
+(27:19..27:23) scala/Unit#
+(28:3..28:9) scala/Predef.summon().
+(28:14..28:17) scala/`=:=`#
+(29:3..29:9) scala/Predef.summon().
+(29:15..29:18) scala/`=:=`#
+(30:3..30:9) scala/Predef.summon().
+(30:10..30:24) _empty_/i23261$package.DoubleToString# -> 1:6
+(30:30..30:33) scala/`=:=`#
+(31:3..31:9) scala/Predef.summon().
+(31:10..31:24) _empty_/i23261$package.DoubleToString# -> 1:6
+(31:31..31:34) scala/`=:=`#
+(32:3..32:9) scala/Predef.summon().
+(32:10..32:24) _empty_/i23261$package.DoubleToString# -> 1:6
+(32:31..32:34) scala/`=:=`#
+(33:3..33:9) scala/Predef.summon().
+(33:10..33:25) _empty_/i23261$package.DoubleToString2# -> 6:6
+(33:31..33:34) scala/`=:=`#
+(34:3..34:9) scala/Predef.summon().
+(34:10..34:25) _empty_/i23261$package.DoubleToString2# -> 6:6
+(34:32..34:35) scala/`=:=`#
+(35:3..35:9) scala/Predef.summon().
+(35:10..35:25) _empty_/i23261$package.DoubleToString3# -> 10:6
+(35:32..35:35) scala/`=:=`#
+(36:3..36:9) scala/Predef.summon().
+(36:10..36:25) _empty_/i23261$package.DoubleToString3# -> 10:6
+(36:31..36:34) scala/`=:=`#
+(37:3..37:9) scala/Predef.summon().
+(37:15..37:18) scala/`=:=`#
+(38:3..38:9) scala/Predef.summon().
+(38:16..38:19) scala/`=:=`#
+(39:3..39:9) scala/Predef.summon().
+(39:10..39:23) _empty_/i23261$package.FloatToString# -> 14:6
+(39:30..39:33) scala/`=:=`#
+(40:3..40:9) scala/Predef.summon().
+(40:10..40:23) _empty_/i23261$package.FloatToString# -> 14:6
+(40:31..40:34) scala/`=:=`#
+(41:3..41:9) scala/Predef.summon().
+(41:10..41:23) _empty_/i23261$package.FloatToString# -> 14:6
+(41:31..41:34) scala/`=:=`#
+(42:3..42:9) scala/Predef.summon().
+(42:10..42:24) _empty_/i23261$package.FloatToString2# -> 19:6
+(42:31..42:34) scala/`=:=`#
+(43:3..43:9) scala/Predef.summon().
+(43:10..43:24) _empty_/i23261$package.FloatToString2# -> 19:6
+(43:32..43:35) scala/`=:=`#
+(44:3..44:9) scala/Predef.summon().
+(44:10..44:24) _empty_/i23261$package.FloatToString3# -> 23:6
+(44:32..44:35) scala/`=:=`#
+(45:3..45:9) scala/Predef.summon().
+(45:10..45:24) _empty_/i23261$package.FloatToString3# -> 23:6
+(45:31..45:34) scala/`=:=`#
+

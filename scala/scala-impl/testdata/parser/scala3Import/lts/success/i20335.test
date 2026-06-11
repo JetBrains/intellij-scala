@@ -1,0 +1,209 @@
+import java.time.OffsetDateTime
+import scala.concurrent.duration.*
+
+val dateTime: OffsetDateTime = OffsetDateTime.now()
+
+implicit class DateTimeOps(val dateTime: OffsetDateTime) {
+  def plus(amount: FiniteDuration): OffsetDateTime =
+    dateTime
+}
+
+def test = {
+  dateTime.plus(Duration.Zero)
+  dateTime.plus(if (true) Duration.Zero else Duration.Zero)
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.time.OffsetDateTime
+        CodeReferenceElement: java.time
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('time')
+        PsiElement(.)('.')
+        PsiElement(identifier)('OffsetDateTime')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.concurrent.duration
+        CodeReferenceElement: scala.concurrent
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('duration')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: dateTime
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: dateTime
+        PsiElement(identifier)('dateTime')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: OffsetDateTime
+      CodeReferenceElement: OffsetDateTime
+        PsiElement(identifier)('OffsetDateTime')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: OffsetDateTime.now
+        ReferenceExpression: OffsetDateTime
+          PsiElement(identifier)('OffsetDateTime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('now')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: DateTimeOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DateTimeOps')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: dateTime
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('dateTime')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: OffsetDateTime
+                CodeReferenceElement: OffsetDateTime
+                  PsiElement(identifier)('OffsetDateTime')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: plus
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('plus')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: amount
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('amount')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: FiniteDuration
+                    CodeReferenceElement: FiniteDuration
+                      PsiElement(identifier)('FiniteDuration')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: OffsetDateTime
+            CodeReferenceElement: OffsetDateTime
+              PsiElement(identifier)('OffsetDateTime')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: dateTime
+            PsiElement(identifier)('dateTime')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: dateTime.plus
+          ReferenceExpression: dateTime
+            PsiElement(identifier)('dateTime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('plus')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: Duration.Zero
+            ReferenceExpression: Duration
+              PsiElement(identifier)('Duration')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Zero')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: dateTime.plus
+          ReferenceExpression: dateTime
+            PsiElement(identifier)('dateTime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('plus')
+        ArgumentList
+          PsiElement(()('(')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            BooleanLiteral
+              PsiElement(true)('true')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Duration.Zero
+              ReferenceExpression: Duration
+                PsiElement(identifier)('Duration')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Zero')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Duration.Zero
+              ReferenceExpression: Duration
+                PsiElement(identifier)('Duration')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Zero')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
