@@ -48,5 +48,5 @@ class WorksheetPlainCompileLocallyRunLocallyCheckRuntimeVersionTest_3_2
 class WorksheetPlainCompileLocallyRunLocallyCheckRuntimeVersionTest_3_3
   extends WorksheetPlainCompileLocallyRunLocallyCheckRuntimeVersionTestBase
     with WorksheetPlainCheckRuntimeVersionScalaTests_Scala_3 {
-  override protected def expectedRuntimeVersion: String = "2.13.16"
+  override protected def expectedRuntimeVersion: String = "2.13.18"
 }
