@@ -6,13 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jetbrains.sbt.process.mock.MockSbtProcessCommands;
 
 public final class MockSbtProcess {
     private static final String StructureOutputFileProperty = "sbt.structure.outputFile";
 
     private static final class Commands {
-        private static final String Exit = "exit";
-        private static final String WaitForFilePrefix = "mockWaitForFile ";
+        private static final String Exit = MockSbtProcessCommands.Exit;
+        private static final String WaitForFilePrefix = MockSbtProcessCommands.WaitForFilePrefix;
+        private static final String MockJdwpListeningBeforePrompt = MockSbtProcessCommands.JdwpListeningBeforePrompt;
+        private static final String MockJdwpListeningAfterPrompt = MockSbtProcessCommands.JdwpListeningAfterPrompt;
+        private static final String MockJdwpListeningGluedToPrompt = MockSbtProcessCommands.JdwpListeningGluedToPrompt;
         private static final String DumpStructureTo = "dumpStructureTo";
         private static final String DumpStructure = "dumpStructure";
     }
@@ -92,7 +96,18 @@ public final class MockSbtProcess {
             }
 
             processCommand(command);
-            printPromptIfNeeded(promptMode);
+            if (command.equals(Commands.MockJdwpListeningBeforePrompt)) {
+                printMockJdwpListeningMessage();
+            }
+            delayMockJdwpPromptIfNeeded(command);
+            if (command.equals(Commands.MockJdwpListeningGluedToPrompt) && promptMode != null) {
+                printPromptGluedToMockJdwpListeningMessage(promptMode);
+            } else {
+                printPromptIfNeeded(promptMode);
+            }
+            if (command.equals(Commands.MockJdwpListeningAfterPrompt)) {
+                printMockJdwpListeningMessage();
+            }
         }
 
         Log.debug("input stream closed");
@@ -117,6 +132,13 @@ public final class MockSbtProcess {
             waitForFile(filePath);
         }
 
+        boolean printJdwpListeningOutput = command.equals(Commands.MockJdwpListeningBeforePrompt) ||
+                command.equals(Commands.MockJdwpListeningAfterPrompt) ||
+                command.equals(Commands.MockJdwpListeningGluedToPrompt);
+        if (printJdwpListeningOutput) {
+            Log.info(MockSbtProcessCommands.jdwpListeningCommandOutput(command));
+        }
+
         Path structureFile = extractStructureFile(command);
         if (structureFile != null) {
             DummyStructure.writeDummyProjectStructure(structureFile);
@@ -126,13 +148,13 @@ public final class MockSbtProcess {
 
     private static void waitForFile(String filePath) throws InterruptedException {
         Path file = Paths.get(unquote(filePath));
-        Log.info("waiting for file: " + file + "...");
+        Log.info(MockSbtProcessCommands.waitingForFileOutput(file));
 
         while (!Files.exists(file)) {
             Thread.sleep(50);
         }
 
-        Log.info("resumed after waited for file: " + file);
+        Log.info(MockSbtProcessCommands.resumedAfterWaitingForFileOutput(file));
     }
 
     private static Path extractStructureFile(String command) {
@@ -248,12 +270,30 @@ public final class MockSbtProcess {
     }
 
     private static void printPrompt(String mode) {
-        if (VmOptions.NewShellMode.equals(mode)) {
-            System.out.print("sbt:mock>");
-        } else {
-            System.out.print("[IJ]>");
-        }
+        System.out.print(promptText(mode));
         System.out.flush();
+    }
+
+    private static String promptText(String mode) {
+        return VmOptions.NewShellMode.equals(mode)
+                ? "sbt:mock>"
+                : "[IJ]>";
+    }
+
+    private static void printMockJdwpListeningMessage() {
+        System.err.println(MockSbtProcessCommands.JdwpListeningMessage);
+        System.err.flush();
+    }
+
+    private static void printPromptGluedToMockJdwpListeningMessage(String mode) {
+        System.out.print(promptText(mode) + MockSbtProcessCommands.JdwpListeningMessage);
+        System.out.flush();
+    }
+
+    private static void delayMockJdwpPromptIfNeeded(String command) throws InterruptedException {
+        if (command.equals(Commands.MockJdwpListeningBeforePrompt) || command.equals(Commands.MockJdwpListeningAfterPrompt)) {
+            Thread.sleep(500);
+        }
     }
 
     private static class Log {

@@ -61,12 +61,12 @@ private[shell] class SbtShellCommandExecutionOutputListener[Result](
   }
 
   private def shellEventForLine(text: String): ShellEvent = {
-    val shouldCompleteTask = !promise.isCompleted && SbtProcessUtil.promptReady(text, isNewSbtShell)
+    val shouldCompleteTask = !promise.isCompleted && SbtShellOutputRecognizer.isPromptReady(text, isNewSbtShell)
     if (shouldCompleteTask) {
-      log.traceSafe("CommandListener.onLine: promptReady -> TaskComplete")
+      log.traceSafe("CommandListener.onLine: isPromptReady -> TaskComplete")
       TaskComplete
-    } else if (SbtProcessUtil.promptError(text)) {
-      log.traceSafe("CommandListener.onLine: promptError detected -> ErrorWaitForInput")
+    } else if (SbtShellOutputRecognizer.isProjectLoadingPromptError(text)) {
+      log.traceSafe("CommandListener.onLine: isProjectLoadingPromptError detected -> ErrorWaitForInput")
       ErrorWaitForInput
     } else {
       log.traceSafe(s"CommandListener.onLine: output line: $text")

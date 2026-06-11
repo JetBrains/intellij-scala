@@ -2,9 +2,11 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.{ExecutionEnvironment, RunContentBuilder}
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.DefaultExecutionResult
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -13,12 +15,11 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, invokeAndWait, invokeLater}
-import org.jetbrains.sbt.runner.SbtProgramRunnerBase.{DummyProcessHandler, HiddenRunContentDescriptor, commandFinishedSuccessfully}
+import org.jetbrains.sbt.runner.SbtProgramRunnerBase.{DummyProcessHandler, commandFinishedSuccessfully}
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory
 import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandEventProcessor, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter}
 
 import java.io.OutputStream
-import javax.swing.JPanel
 import scala.concurrent.Future
 import scala.util.Try
 
@@ -36,12 +37,13 @@ trait SbtProgramRunnerBase {
   ): RunContentDescriptor = {
     // Some before-run tasks observe the run configuration lifecycle through ExecutionManager.EXECUTION_TOPIC.
     // E.g., see `RunConfigurationBeforeRunProvider.doRunTask` and `LaunchBrowserBeforeRunTaskProvider.executeTask`.
-    // Sbt shell delegation does not start a dedicated OS process, so return a hidden descriptor with a synthetic
+    // Sbt shell delegation does not start a dedicated OS process, so return a descriptor with a synthetic
     // process handler and let `ExecutionManagerImpl` publish the same start/finish events as for regular runs.
     // Related: SCL-24434, SCL-22453
     val sbtCommandSubmitter = SbtShellCommandSubmitter.instance(environment.getProject)
     val request = shellCommandRequest(sbtState)
     val dummyProcessHandler = new DummyProcessHandler(sbtCommandSubmitter, request.requestId)
+    val requestWithRunContentOutput = request.withProcessorModified(_.tap(new RunContentConsoleOutputProcessor(dummyProcessHandler)))
 
     // Ensure all the documents are flushed to disk before running "sbt task" run configuration,
     // otherwise, if you make any changes in some document and do e.g. "sbt assembly", sbt won't see the latest changes.
@@ -52,6 +54,9 @@ trait SbtProgramRunnerBase {
       FileDocumentManager.getInstance().saveAllDocuments()
     }
 
+    // Attach the run console before submitting the shell command; the new shell can print and finish very quickly.
+    val runContentDescriptor = createRunContentDescriptor(environment, dummyProcessHandler)
+
     ApplicationManager.getApplication.executeOnPooledThread((() => {
       import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
 
@@ -60,7 +65,7 @@ trait SbtProgramRunnerBase {
           if (dummyProcessHandler.isCancellationRequested) {
             Future.failed(new ProcessCanceledException)
           } else {
-            val future = submitCommands(environment, request, sbtCommandSubmitter)
+            val future = submitCommandsToShell(environment, requestWithRunContentOutput, sbtCommandSubmitter, showSbtToolWindow = false)
             dummyProcessHandler.commandSubmitted()
             future
           }
@@ -74,42 +79,70 @@ trait SbtProgramRunnerBase {
       }
     }): Runnable)
 
-    new HiddenRunContentDescriptor(dummyProcessHandler, environment.getRunProfile.getName)
+    runContentDescriptor
   }
 
   /**
    * @return a future with all the output collected during the command execution
    */
   @RequiresBackgroundThread
-  protected def submitCommands(
+  protected def submitCommandsToShell(
     env: ExecutionEnvironment,
     state: SbtCommandLineState,
+    commandOutputProcessHandler: Option[ProcessHandler] = None,
   ): Future[java.lang.CharSequence] = {
     val sbtCommandSubmitter = SbtShellCommandSubmitter.instance(env.getProject)
-    val request = shellCommandRequest(state)
-    submitCommands(env, request, sbtCommandSubmitter)
+    val request = shellCommandRequest(state, commandOutputProcessHandler)
+    submitCommandsToShell(
+      env,
+      request,
+      sbtCommandSubmitter,
+      // Show sbt tool window only if we can't show the Run Configuration console
+      showSbtToolWindow = commandOutputProcessHandler.isEmpty
+    )
   }
 
-  private def shellCommandRequest(state: SbtCommandLineState): SbtShellCommandRequest[StringBuilder] = {
+  private def shellCommandRequest(
+    state: SbtCommandLineState,
+    commandOutputProcessHandler: Option[ProcessHandler] = None,
+  ): SbtShellCommandRequest[StringBuilder] = {
     val commands = state.processedCommands
-    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] = new SbtShellCommandEventProcessor.OutputCollector()
+    val outputCollector = new SbtShellCommandEventProcessor.OutputCollector()
+    val eventProcessor: SbtShellCommandEventProcessor[StringBuilder] =
+      commandOutputProcessHandler.fold(outputCollector: SbtShellCommandEventProcessor[StringBuilder]) { processHandler =>
+        outputCollector.tap(new RunContentConsoleOutputProcessor(processHandler))
+      }
     SbtShellCommandRequest(commands, eventProcessor)
   }
 
   @RequiresBackgroundThread
-  private def submitCommands(
+  private def submitCommandsToShell(
     env: ExecutionEnvironment,
     request: SbtShellCommandRequest[StringBuilder],
     sbtCommunication: SbtShellCommandSubmitter,
+    showSbtToolWindow: Boolean,
   ): Future[java.lang.CharSequence] = {
     val project = env.getProject
 
-    // When running sbt run configuration show sbt shell if it's hidden
-    invokeLater {
-      showSbtToolwindow(project)
+    if (showSbtToolWindow) {
+      // When there is no dedicated run content console, show sbt shell if it's hidden.
+      invokeLater {
+        showSbtToolwindow(project)
+      }
     }
 
     sbtCommunication.run(request)
+  }
+
+  private def createRunContentDescriptor(
+    environment: ExecutionEnvironment,
+    processHandler: ProcessHandler,
+  ): RunContentDescriptor = {
+    val consoleView = new ConsoleViewImpl(environment.getProject, false)
+    consoleView.attachToProcess(processHandler)
+
+    val executionResult = new DefaultExecutionResult(consoleView, processHandler)
+    new RunContentBuilder(executionResult, environment).showRunContent(environment.getContentToReuse)
   }
 
   protected def isSbtRunConfigurationWithUseSbtShell(profile: RunProfile): Boolean = profile match {
@@ -194,11 +227,5 @@ object SbtProgramRunnerBase {
   private def endsWithErrorOutput(output: String): Boolean = {
     val lastLine = output.trim.linesIterator.lastOption
     lastLine.exists(SbtShellBuildMessagesEventProcessor.isErrorOutput)
-  }
-
-  private class HiddenRunContentDescriptor(processHandler: ProcessHandler, displayName: String)
-    extends RunContentDescriptor(null, processHandler, new JPanel(), displayName) {
-
-    override def isHiddenContent: Boolean = true
   }
 }

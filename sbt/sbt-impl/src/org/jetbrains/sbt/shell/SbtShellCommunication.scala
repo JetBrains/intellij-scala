@@ -9,7 +9,7 @@ import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.shell.communication.ShellEvent.ErrorWaitForInput
-import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtProcessUtil, SbtShellCommandExecutionOutputListener, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter, SbtShellLifecycle}
+import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtShellCommandExecutionOutputListener, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter, SbtShellLifecycle, SbtShellOutputRecognizer}
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent.*
@@ -144,7 +144,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    * Sends "i" (ignore) to the sbt shell. Works only if the shell is not already in the termination process.
    * Used to handle the interactive error prompt: "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore".
    *
-   * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
+   * @see [[org.jetbrains.sbt.shell.communication.SbtShellOutputRecognizer.isProjectLoadingPromptError]]
    */
   private def sendIgnore(): Unit = {
     if currentState.isShuttingDownOrOff then return
@@ -425,7 +425,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    * This is considered "initial" because it only works until the shell becomes ready.
    * Handling of interactive error prompts during specific commands is managed by [[SbtShellCommandExecutionOutputListener]].
    *
-   * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
+   * @see [[org.jetbrains.sbt.shell.communication.SbtShellOutputRecognizer.isProjectLoadingPromptError]]
    */
   private class InitialErrorDetectorListener
     extends SbtOutputCompleteLinesProcessListener(project) {
@@ -433,9 +433,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     private var isReadyState: Boolean = false
 
     override def onLine(line: String): Unit =
-      if (SbtProcessUtil.promptReady(line, isNewSbtShell)) {
+      if (SbtShellOutputRecognizer.isPromptReady(line, isNewSbtShell)) {
         isReadyState = true
-      } else if (!isReadyState && SbtProcessUtil.promptError(line)) {
+      } else if (!isReadyState && SbtShellOutputRecognizer.isProjectLoadingPromptError(line)) {
         sendIgnore()
       }
   }

@@ -67,7 +67,8 @@ private final class SbtCommandLineState(
    * Standard Java application and test states add this decoration in their own `createConsole` implementations.
    * SBT needs to do the same here so Java run configuration extensions and debugger console integrations see the expected console shape.
    *
-   * The sbt-shell debug path has a similar requirement, but it is handled separately in [[MyTrojanRemoteState]]
+   * The sbt-shell debug path has a similar requirement, but it is handled separately in
+   * [[org.jetbrains.sbt.runner.debugger.MyTrojanRemoteState]]
    * because that path creates a remote attach console through [[com.intellij.debugger.engine.RemoteStateState]]
    * instead of using this state to create the execution console.
    */

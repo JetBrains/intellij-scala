@@ -1,21 +1,23 @@
 package org.jetbrains.sbt.runner.utils
 
+import com.intellij.execution.impl.{RunContentDescriptorLifecycleListener, RunContentDescriptorLifecycleListenerKt}
 import com.intellij.execution.process.{ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.{ExecutionListener, ExecutionManager, RunnerAndConfigurationSettings}
+import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor, RunContentManager}
+import com.intellij.execution.{ExecutionListener, ExecutionManager, Executor, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
-import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.junit.Assert.{assertEquals, fail}
 
-import java.io.PrintStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 private[runner] final class RunConfigurationExecutionObserver(
   runConfigAndSettings: RunnerAndConfigurationSettings,
+  parentDisposable: Disposable,
+  captureConsoleOutput: Boolean,
 ) extends ExecutionListener {
 
   private val configurationName = runConfigAndSettings.getName
@@ -30,6 +32,11 @@ private[runner] final class RunConfigurationExecutionObserver(
   private val exitCode = new AtomicInteger(Int.MinValue)
   private val startedProcessHandler = new AtomicReference[ProcessHandler]()
   private val processOutput = new StringBuffer
+  private val consoleOutputDiagnostics = new ConsoleOutputDiagnosticsCollector(
+    configurationName,
+    parentDisposable,
+    captureConsoleOutput,
+  )
 
   override def processStarting(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler): Unit = {
     if (isObservedEnvironment(env)) {
@@ -40,6 +47,7 @@ private[runner] final class RunConfigurationExecutionObserver(
   override def processStarted(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler): Unit = {
     if (isObservedEnvironment(env)) {
       startedProcessHandler.compareAndSet(null, handler)
+      recordRunContentDescriptorFrom(env, handler)
       executionStarted.countDown()
     }
   }
@@ -66,6 +74,7 @@ private[runner] final class RunConfigurationExecutionObserver(
     terminatedExitCode: Int,
   ): Unit = {
     if (isObservedEnvironment(env)) {
+      recordRunContentDescriptorFrom(env, handler)
       exitCode.set(terminatedExitCode)
       executionFinished.countDown()
     }
@@ -138,6 +147,31 @@ private[runner] final class RunConfigurationExecutionObserver(
   def processOutputSnapshot: String =
     bufferText(processOutput)
 
+  def recordRunContentDescriptor(descriptor: RunContentDescriptor): Unit =
+    consoleOutputDiagnostics.recordRunContentDescriptor(descriptor)
+
+  def recordRunContentDescriptorIfMatches(descriptor: RunContentDescriptor): Unit =
+    consoleOutputDiagnostics.recordRunContentDescriptorIfMatches(descriptor)
+
+  def recordExecutionConsole(console: ExecutionConsole): Unit =
+    consoleOutputDiagnostics.recordExecutionConsole(console)
+
+  def consoleOutputSnapshot: String =
+    consoleOutputDiagnostics.consoleOutputSnapshot
+
+  def consoleCaptureDiagnosticsSnapshot: String =
+    consoleOutputDiagnostics.consoleCaptureDiagnosticsSnapshot
+
+  def diagnosticsSnapshot: String =
+    consoleOutputDiagnostics.diagnosticsSnapshot(processOutputSnapshot)
+
+  private def recordRunContentDescriptorFrom(env: ExecutionEnvironment, handler: ProcessHandler): Unit = {
+    val descriptor = RunContentManager.getInstance(env.getProject).findContentDescriptor(env.getExecutor, handler)
+    if (descriptor != null) {
+      recordRunContentDescriptor(descriptor)
+    }
+  }
+
   private def waitForExecutionFinished(timeout: FiniteDuration): Unit =
     AwaitTestUtils.waitForLatchDispatchingAllEdtEvents(
       executionFinished,
@@ -168,16 +202,7 @@ private[runner] final class RunConfigurationExecutionObserver(
     val outputStream = System.err
     val projectName = runConfigAndSettings.getConfiguration.getProject.getName
     outputStream.println(s"Printing outputs for project $projectName ($reasonToPrint)")
-    printProcessOutput("Run configuration process output", bufferText(processOutput), outputStream)
-    printProcessOutput("SBT process output", SbtProcessOutputDiagnosticsCollector.sharedProcessOutput, outputStream)
-  }
-
-  private def printProcessOutput(title: String, outputText: String, out: PrintStream): Unit = {
-    val outputTextFixed = if (outputText.isEmpty) "<empty>" else outputText
-    out.println(
-      s"""$title:
-         |$outputTextFixed""".stripMargin
-    )
+    consoleOutputDiagnostics.printDiagnostics(processOutputSnapshot, outputStream)
   }
 
   private def bufferText(output: StringBuffer): String =
@@ -203,10 +228,18 @@ private[runner] object RunConfigurationExecutionObserver {
   def subscribe(
     runConfigAndSettings: RunnerAndConfigurationSettings,
     parentDisposable: Disposable,
+    captureConsoleOutput: Boolean = true,
   ): RunConfigurationExecutionObserver = {
-    val executionObserver = new RunConfigurationExecutionObserver(runConfigAndSettings)
+    val executionObserver = new RunConfigurationExecutionObserver(runConfigAndSettings, parentDisposable, captureConsoleOutput)
     val project = runConfigAndSettings.getConfiguration.getProject
-    project.getMessageBus.connect(parentDisposable).subscribe(ExecutionManager.EXECUTION_TOPIC, executionObserver)
+    val connection = project.getMessageBus.connect(parentDisposable)
+    connection.subscribe(ExecutionManager.EXECUTION_TOPIC, executionObserver)
+    connection.subscribe(RunContentDescriptorLifecycleListenerKt.RUN_CONTENT_DESCRIPTOR_LIFECYCLE_TOPIC, new RunContentDescriptorLifecycleListener {
+      override def beforeContentShown(descriptor: RunContentDescriptor, executor: Executor): Unit =
+        executionObserver.recordRunContentDescriptorIfMatches(descriptor)
+
+      override def afterContentShown(descriptor: RunContentDescriptor, executor: Executor): Unit = ()
+    })
     executionObserver
   }
 }

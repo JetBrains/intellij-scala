@@ -12,8 +12,10 @@ import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
 import org.jetbrains.sbt.project.fixture.TestProjectJdkHolder
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.runner.TestExecutionOptions.SbtProcessMode
+import org.jetbrains.sbt.runner.utils.{ExecutionDiagnostics, RunConfigurationExecutionObserver}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil}
+import org.junit.Assert.{assertFalse, assertTrue}
 
 import java.nio.file.Path
 import scala.compiletime.uninitialized
@@ -31,6 +33,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
  * (see [[org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup.enableMockSbtProcess]])
  */
 abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaModuleTestCase with ScalaSdkOwner {
+  import SbtRunConfiguration_MockedProcess_ExecutionTestBase.*
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
@@ -107,7 +110,9 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
 
         setSbtShellDebuggingEnabled(enabled = options.enableDebuggingInShell)
 
-        SbtShellTestUtil.acquireShellProcessHandler(getProject)
+        if (options.prestartSbtShell) {
+          SbtShellTestUtil.acquireShellProcessHandler(getProject)
+        }
       case _ =>
     }
   }
@@ -139,8 +144,68 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
   }
 
   protected def waitUntilSbtShellIsReadyIfNeeded(options: TestExecutionOptions): Unit = {
-    if (options.useSbtShellInRunConfig) {
+    if (options.useSbtShellInRunConfig && options.prestartSbtShell) {
       SbtShellTestUtil.waitUntilSbtShellIsReady(getProject, 5.seconds, "Can't start sbt shell")
     }
   }
+
+  protected final def clearSbtProcessOutputDiagnostics(): Unit =
+    ExecutionDiagnostics.clearSbtProcessOutput()
+
+  protected final def withExecutionDiagnostics[T](
+    executionObserver: => Option[RunConfigurationExecutionObserver] = None,
+  )(body: => T): T =
+    ExecutionDiagnostics.withDiagnostics(executionObserver)(body)
+
+  protected final def assertExpectedDebugOutput(
+    options: TestExecutionOptions,
+    executionObserver: RunConfigurationExecutionObserver,
+  ): Unit = {
+    if (!options.expectsRunConfigurationDebugConnection) {
+      return
+    }
+
+    val runConfigurationOutput = executionObserver.consoleOutputSnapshot
+    assertTrue(
+      s"""Debug run configuration console output must contain debugger attach output.
+         |Expected output fragment:
+         |${DebuggerConnectedOutput.indent(2)}Actual run configuration console output:
+         |${runConfigurationOutput.indent(2)}""".stripMargin,
+      runConfigurationOutput.contains(DebuggerConnectedOutput),
+    )
+    assertTrue(
+      s"""Debug run configuration console output must contain debugger detach output.
+         |Expected output fragment:
+         |${DebuggerDisconnectedOutput.indent(2)}Actual run configuration console output:
+         |${runConfigurationOutput.indent(2)}""".stripMargin,
+      runConfigurationOutput.contains(DebuggerDisconnectedOutput),
+    )
+
+    if (options.useSbtShellInRunConfig && options.enableDebuggingInShell) {
+      assertFalse(
+        s"""Debug run configuration console output must not contain sbt shell debug-server startup output.
+           |Unexpected output fragment:
+           |${DebuggerListeningOutput.indent(2)}Actual run configuration console output:
+           |${runConfigurationOutput.indent(2)}""".stripMargin,
+        runConfigurationOutput.contains(DebuggerListeningOutput),
+      )
+    }
+
+    if (options.expectsSbtShellDebugListeningDuringExecution) {
+      val sbtProcessOutput = ExecutionDiagnostics.sbtProcessOutputSnapshot
+      assertTrue(
+        s"""Fresh sbt shell debug execution must contain shell debug-server startup output.
+           |Expected output fragment:
+           |${DebuggerListeningOutput.indent(2)}Actual SBT process output:
+           |${sbtProcessOutput.indent(2)}""".stripMargin,
+        sbtProcessOutput.contains(DebuggerListeningOutput),
+      )
+    }
+  }
+}
+
+private object SbtRunConfiguration_MockedProcess_ExecutionTestBase {
+  private val DebuggerConnectedOutput = "Connected to the target VM"
+  private val DebuggerDisconnectedOutput = "Disconnected from the target VM"
+  private val DebuggerListeningOutput = "Listening for transport dt_socket at address:"
 }

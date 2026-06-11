@@ -13,6 +13,7 @@ object RunConfigInTestsExecutor {
     project: Project,
     settings: RunnerAndConfigurationSettings,
     executor: Executor,
+    descriptorCallback: RunContentDescriptor => Unit = _ => (),
   ): Unit = {
     val environment = ExecutionEnvironmentBuilder
       .create(executor, settings)
@@ -25,6 +26,13 @@ object RunConfigInTestsExecutor {
     ExecutionManagerImpl.getInstance(project).setForceCompilationInTests(true)
 
     // The most top-level API to run a configuration that I found
-    ProgramRunnerUtil.executeConfigurationAsync(environment, false, true, (_: RunContentDescriptor) => ())
+    ProgramRunnerUtil.executeConfigurationAsync(
+      environment,
+      false,
+      true,
+      (descriptor: RunContentDescriptor) => {
+        descriptorCallback(descriptor)
+      },
+    )
   }
 }

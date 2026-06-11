@@ -103,7 +103,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
 
     // Allow using the "new shell" only with sbt >= 1.4, because starting from this version, JLine 3 is utilized within the "shell" command.
-    // This provides better completion support and is used for detecting when the shell is ready (see org.jetbrains.sbt.shell.SbtProcessUtil.promptReady).
+    // This provides better completion support and is used for detecting when the shell is ready
+    // (see org.jetbrains.sbt.shell.communication.SbtShellOutputRecognizer.isPromptReady).
     val useNewShell = Registry.is("sbt.new.shell") && projectSbtVersion >= SbtVersion.apply("1.4")
 
     val optionsReporter = new WarningsCollectingBuildReporter

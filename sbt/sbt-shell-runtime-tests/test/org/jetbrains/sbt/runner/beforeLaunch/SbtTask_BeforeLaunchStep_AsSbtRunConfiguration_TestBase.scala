@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
 import org.jetbrains.sbt.runner.beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase.*
+import org.jetbrains.sbt.runner.beforeLaunch.utils.DebuggerSessionsAwaiter
 import org.jetbrains.sbt.runner.beforeLaunch.utils.RunConfigurationBeforeLaunchTaskTestUtil
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
 import org.jetbrains.sbt.runner.utils.{ExecutionEventsCollector, RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
@@ -63,7 +64,12 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
   }
 
   private def runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options: TestExecutionOptions): (BeforeLaunchExecutionResult, ProcessHandler) = {
-    val result = runSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
+    val result =
+      try {
+        runSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
+      } finally {
+        tearDownForTestCase(options)
+      }
 
     assertExpectedRunner(result.sbtTaskEvents, options)
     val handler = assertNestedSbtTaskLifecycle(result.sbtTaskEvents)
@@ -86,8 +92,17 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
     val sbtTaskEventsCollector = new ExecutionEventsCollector(sbtTaskSettings, eventCounter)
     val dependentConfigurationEventsCollector = new ExecutionEventsCollector(dependentConfigurationSettings, eventCounter)
 
-    val sbtTaskObserver = RunConfigurationExecutionObserver.subscribe(sbtTaskSettings, getTestRootDisposable)
-    val dependentConfigurationObserver = RunConfigurationExecutionObserver.subscribe(dependentConfigurationSettings, getTestRootDisposable)
+    val sbtTaskObserver = RunConfigurationExecutionObserver.subscribe(
+      sbtTaskSettings,
+      getTestRootDisposable,
+      captureConsoleOutput = options.expectsRunConfigurationDebugConnection,
+    )
+    val dependentConfigurationObserver = RunConfigurationExecutionObserver.subscribe(
+      dependentConfigurationSettings,
+      getTestRootDisposable,
+      captureConsoleOutput = false,
+    )
+    val debuggerSessionsAwaiter = observeDebuggerSessionsIfNeeded(options)
 
     val compileBeforeLaunchObserver = new CompileBeforeLaunchObserver
     val buildDiagnosticsCollector = BuildDiagnosticsCollector.start(getProject, getTestRootDisposable)
@@ -97,6 +112,7 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
     connection.subscribe(ExecutionManager.EXECUTION_TOPIC, dependentConfigurationEventsCollector)
     connection.subscribe(ProjectTaskListener.TOPIC, compileBeforeLaunchObserver)
 
+    clearSbtProcessOutputDiagnostics()
     RunConfigInTestsExecutor.executeTopLevelConfiguration(
       getProject,
       dependentConfigurationSettings,
@@ -109,6 +125,8 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
     // With mock sbt we don't need to wait for a long time, 5 seconds is more than enough
     sbtTaskObserver.awaitSuccessfulTermination(timeout = 5.seconds)
     dependentConfigurationObserver.awaitSuccessfulTermination(timeout = 10.seconds)
+    debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
+    assertExpectedDebugOutput(options, sbtTaskObserver)
 
     BeforeLaunchExecutionResult(
       sbtTaskEventsCollector.eventsSnapshot,
@@ -118,6 +136,12 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
 
   private def shouldUseSyntheticSbtShellProcessHandler(options: TestExecutionOptions): Boolean =
     options.useSbtShellInRunConfig && (options.executionMode != ExecutionMode.Debug || !options.enableDebuggingInShell)
+
+  private def observeDebuggerSessionsIfNeeded(options: TestExecutionOptions): Option[DebuggerSessionsAwaiter] =
+    options.executionMode match {
+      case ExecutionMode.Debug => Some(DebuggerSessionsAwaiter.subscribe(getProject, timeout = 10.seconds))
+      case ExecutionMode.Run => None
+    }
 
   private def assertExpectedRunner(events: Vector[ExecutionEvent], options: TestExecutionOptions): Unit = {
     val expected = expectedRunnerId(options)

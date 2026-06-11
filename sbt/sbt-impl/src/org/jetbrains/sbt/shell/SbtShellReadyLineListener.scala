@@ -2,7 +2,7 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtProcessUtil}
+import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtShellOutputRecognizer}
 
 /**
  * Monitor sbt prompt status, do something when the state changes.
@@ -27,9 +27,7 @@ private class SbtShellReadyLineListener(
   }
 
   private def detectSbtReadyStateFromLine(line: String): Boolean = {
-    val sbtReady: Boolean =
-      SbtProcessUtil.promptReady(line, isNewSbtShell) ||
-        (readyState && SbtProcessUtil.debuggerMessage(line))
+    val sbtReady: Boolean = SbtShellOutputRecognizer.isPromptReady(line, isNewSbtShell)
     log.traceSafe(f"onLine: (sbtReady: $sbtReady%-5s) $line")
     sbtReady
   }

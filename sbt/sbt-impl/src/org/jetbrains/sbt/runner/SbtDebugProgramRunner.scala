@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.runner
 
+import com.intellij.debugger.DebugEnvironment
 import com.intellij.debugger.engine.{DelayedRemoteConnection, DelayedRemoteConnectionImpl}
 import com.intellij.debugger.impl.GenericDebuggerRunner
 import com.intellij.execution.ExecutionException
@@ -12,10 +13,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowId
 import org.jetbrains.plugins.scala.extensions.{invokeAndWait, invokeLater}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.runner.debugger.MyTrojanRemoteState
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtProcessManager
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
+import scala.concurrent.duration.DurationInt
 import scala.util.control.NonFatal
 
 /**
@@ -94,9 +97,9 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
 
       ApplicationManager.getApplication.executeOnPooledThread((() => {
         try {
-          ensureSbtShellStartedAndPrepareDelayedConnection(environment, connection)
+          ensureSbtShellStartedAndPrepareDelayedConnection(environment, state, connection)
 
-          val commandFuture = submitCommands(environment, sbtState)
+          val commandFuture = submitCommandsToShell(environment, sbtState, state.processHandler)
           commandFuture.onComplete { _ =>
             state.detach()
           }
@@ -114,6 +117,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   //noinspection ApiStatus,UnstableApiUsage
   private def ensureSbtShellStartedAndPrepareDelayedConnection(
     environment: ExecutionEnvironment,
+    state: MyTrojanRemoteState,
     delayedConnection: DelayedRemoteConnection & RemoteConnection
   ): Unit = {
     val processManager = SbtProcessManager.forProject(environment.getProject)
@@ -124,6 +128,9 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
     }
     copyRemoteConnection(shellDebugConnection, delayedConnection)
     runDelayedAttach(delayedConnection)
+    // DelayedRemoteConnection returns after the connector obtains a VM, but before DebugProcessImpl finishes commitVM.
+    // If a lightweight sbt command finishes in that gap, detaching can race the debugger attach lifecycle.
+    state.awaitDebuggerAttached(DebugEnvironment.LOCAL_START_TIMEOUT.millis)
   }
 
   private def copyRemoteConnection(from: RemoteConnection, to: RemoteConnection): Unit = {

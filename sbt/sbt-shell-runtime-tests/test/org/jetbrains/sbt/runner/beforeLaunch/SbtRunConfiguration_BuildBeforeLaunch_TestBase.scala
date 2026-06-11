@@ -79,12 +79,19 @@ abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConf
 
     val executionObserver = observeExecution(runnerAndConfigSettings)
     val debuggerSessionsAwaiter = observeDebuggerSessionsIfNeeded(options)
+    clearSbtProcessOutputDiagnostics()
     assertNoLogCaptureWarningsLogged {
-      RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runnerAndConfigSettings, options.executionMode.executor)
+      RunConfigInTestsExecutor.executeTopLevelConfiguration(
+        getProject,
+        runnerAndConfigSettings,
+        options.executionMode.executor,
+        descriptorCallback = executionObserver.recordRunContentDescriptor,
+      )
       // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
       executionObserver.awaitSuccessfulTermination(timeout = 10.seconds)
       debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     }
+    assertExpectedDebugOutput(options, executionObserver)
 
     buildTracker
   }
@@ -111,4 +118,3 @@ abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConf
     )
   }
 }
-

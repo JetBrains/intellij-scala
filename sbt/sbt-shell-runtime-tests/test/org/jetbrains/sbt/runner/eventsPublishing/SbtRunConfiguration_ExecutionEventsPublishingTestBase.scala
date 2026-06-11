@@ -48,8 +48,15 @@ abstract class SbtRunConfiguration_ExecutionEventsPublishingTestBase extends Sbt
     val connection = getProject.getMessageBus.connect(getTestRootDisposable)
     connection.subscribe(ExecutionManager.EXECUTION_TOPIC, eventsCollector)
 
-    RunConfigInTestsExecutor.executeTopLevelConfiguration(getProject, runConfigAndSettings, options.executionMode.executor)
+    clearSbtProcessOutputDiagnostics()
+    RunConfigInTestsExecutor.executeTopLevelConfiguration(
+      getProject,
+      runConfigAndSettings,
+      options.executionMode.executor,
+      descriptorCallback = executionObserver.recordRunContentDescriptor,
+    )
     executionObserver.awaitSuccessfulTermination(timeout = 10.seconds)
+    assertExpectedDebugOutput(options, executionObserver)
 
     val actualEvents = eventsCollector.eventsSnapshot
     assertCollectionEquals(

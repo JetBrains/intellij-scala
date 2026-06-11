@@ -18,7 +18,7 @@ import scala.concurrent.duration.DurationInt
  *     - [[SbtRunConfigurationMigrationTest]]
  *     - [[SbtRunConfigurationMigrationReversibilityTest]]
  *  - Test with the mocked sbt process (extend [[SbtRunConfiguration_MockedProcess_ExecutionTestBase]])
- *     - [[SbtRunConfiguration_MockedProcess_ExecutionTest_ExecutionEventsPublishingTest]],
+ *     - [[SbtRunConfiguration_ExecutionEventsPublishingTestBase]],
  *     - [[beforeLaunch.SbtRunConfiguration_BuildBeforeLaunch_TestBase]]
  *     - [[beforeLaunch.SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase]]
  *
