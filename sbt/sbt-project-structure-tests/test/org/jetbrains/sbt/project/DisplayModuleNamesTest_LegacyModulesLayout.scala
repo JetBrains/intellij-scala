@@ -5,7 +5,7 @@ import org.jetbrains.sbt.project.ProjectStructureTestUtils.checkDisplayModuleNam
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests2]))
-final class DisplayModuleNamesTest_LegacyModulesLayout extends SbtProjectStructureTestBase {
+final class DisplayModuleNamesTest_LegacyModulesLayout extends SbtProjectStructureImportingTestBase {
 
   override protected def getTestSbtProjectSettings =
     super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)

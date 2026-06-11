@@ -49,7 +49,7 @@ import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
  * Tests that only need to import an sbt project and exercise runtime/process behavior
  * should usually extend [[SbtExternalSystemImportingTestLike]] or a more focused runtime base.
  */
-abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
+abstract class SbtProjectStructureImportingTestBase extends SbtExternalSystemImportingTestLike
   with ProjectStructureMatcher
   with ExactMatch {
 

@@ -25,10 +25,12 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 
 /**
+ * Runs project-structure importing coverage with the legacy single-module layout.
+ *
  * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests2]))
-final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProjectStructureTestBase {
+final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProjectStructureImportingTestBase {
 
   import ProjectStructureDsl.*
 
