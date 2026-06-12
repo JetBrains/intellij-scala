@@ -6,8 +6,8 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScTry, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScThisReference, ScTry, ScUnitExpr, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
@@ -187,6 +187,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOfExpression(e: ScExpression, indent: String): String = e match {
     case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
+    case u: ScUnitExpr => "()"
+    case u: ScThisReference => "this"
+    case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
     case e: ScIf =>
       "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
         case Some(e) => " else " + textOfExpression(normalized(e), indent)
