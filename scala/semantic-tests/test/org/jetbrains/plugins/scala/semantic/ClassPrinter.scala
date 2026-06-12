@@ -3,14 +3,15 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScTry, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -206,7 +207,16 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
     case r: ScReferenceExpression => r.qualifier match {
       case Some(q) => textOfExpression(q, indent) + "." + r.refName
-      case None => r.refName
+      case None => r.resolve match {
+        case e: ScSelfTypeElement => e.name
+        case e: ScNamedElement => e.nameContext match {
+          case m: ScMember if !m.isLocal && !m.isTopLevel =>
+            if (e.getContainingFile == r.getContainingFile) m.containingClass.name + ".this." + r.refName
+            else m.qualifiedNameOpt.getOrElse(r.refName)
+          case _ => r.refName
+        }
+        case _ => r.refName
+      }
     }
     case e => "<expr>"
   }
