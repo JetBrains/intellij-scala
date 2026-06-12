@@ -35,4 +35,70 @@ class SbtRunConfiguration_ConsoleOutputTest_RunMode extends SbtRunConfiguration_
       executionMode,
       SbtProcessMode.NewShell,
     ).copy(prestartSbtShell = false))
+
+  def testRunMode_OldSbtShellStartedByRunConfiguration_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.OldShell).copy(prestartSbtShell = false),
+      expectedHintPresent = true,
+    )
+
+  def testRunMode_NewSbtShellStartedByRunConfiguration_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.NewShell).copy(prestartSbtShell = false),
+      expectedHintPresent = true,
+    )
+
+  def testRunMode_OldSbtShellAlreadyRunningAndIdle_ConsoleOutputDoesNotContainWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.OldShell),
+      expectedHintPresent = false,
+    )
+
+  def testRunMode_NewSbtShellAlreadyRunningAndIdle_ConsoleOutputDoesNotContainWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.NewShell),
+      expectedHintPresent = false,
+    )
+
+  def testRunMode_OldSbtShellAlreadyRunningAndBusy_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.OldShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusy = true,
+    )
+
+  def testRunMode_NewSbtShellAlreadyRunningAndBusy_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.NewShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusy = true,
+    )
+
+  def testRunMode_OldSbtShellAlreadyRunningManualCommand_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.OldShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusyWithManualCommand = true,
+    )
+
+  def testRunMode_NewSbtShellAlreadyRunningManualCommand_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.NewShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusyWithManualCommand = true,
+    )
+
+  def testRunMode_OldSbtShellAlreadyRunningRunConfiguration_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.OldShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusyWithRunConfiguration = true,
+    )
+
+  def testRunMode_NewSbtShellAlreadyRunningRunConfiguration_ConsoleOutputContainsWaitingHint(): Unit =
+    assertSbtShellWaitingHintVisibility(
+      TestExecutionOptions(executionMode, SbtProcessMode.NewShell),
+      expectedHintPresent = true,
+      keepPrestartedShellBusyWithRunConfiguration = true,
+    )
 }

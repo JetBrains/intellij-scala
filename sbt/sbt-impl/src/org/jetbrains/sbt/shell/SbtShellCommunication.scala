@@ -13,10 +13,12 @@ import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListe
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent.*
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 
 /**
  * Service for connecting with an sbt shell associated with project.
@@ -45,6 +47,15 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
+  /**
+   * Stores whether the sbt shell has printed non-prompt output since the last observed ready prompt.
+   *
+   * When this value is true, the shell may be running a command that was entered outside [[run]], for example
+   * manually in the sbt shell tool window. In that state, queued IDEA requests must keep waiting even if they have
+   * acquired [[shellQueueReady]], because the next ready prompt is the only signal that the shell can accept another
+   * command.
+   */
+  private val shellWorkingSinceLastReadyPrompt = new AtomicBoolean(true)
 
   private case class QueuedCommand(
     request: SbtShellCommandRequest[?],
@@ -97,11 +108,13 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val listener = new SbtShellCommandExecutionOutputListener[A](project, requestNew)
 
     val qc = QueuedCommand(request, listener)
+    val shellWasReadyForImmediateSubmission = isRunningAndIdle
 
     if (isDestroyingOrEmptyingQueueInProgress) {
       Log.debug(s"command: enqueue to afterRestartCommands: requestId=$requestId...")
 
       afterRestartCommands.put(qc)
+      notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
     } else {
       // TODO it's some imperfection at this place to address in SCL-24338
       // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted here
@@ -111,7 +124,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       Log.debug(s"command: enqueue to commands: requestId=$requestId...")
 
       commands.put(qc)
-      process.acquireShellProcessHandler()
+      notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
+      process.acquireShellProcessHandler(request.activateSbtShellToolWindowOnStartup)
       emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
 
@@ -119,6 +133,16 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     listener.future
   }
+
+  private def notifyQueuedWhileShellBusyIfNeeded(request: SbtShellCommandRequest[?], shellWasReadyForImmediateSubmission: Boolean): Unit =
+    if (!shellWasReadyForImmediateSubmission) {
+      try {
+        request.onQueuedWhileShellBusy()
+      } catch {
+        case NonFatal(exception) =>
+          Log.warn("Failed to run sbt shell wait notification", exception)
+      }
+    }
 
   override def cancel(requestId: SbtShellCommandRequestId): Unit =
     removeCommandFromQueueOrCancel(requestId)
@@ -246,8 +270,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
         if (!afterRestartCommands.isEmpty) {
           // Move commands accumulated in `afterRestartCommands` queue to the standard queue (they will be processed when the new shell starts)
+          val activateSbtShellToolWindowOnStartup = afterRestartCommands.iterator().asScala.exists(_.request.activateSbtShellToolWindowOnStartup)
           afterRestartCommands.drainTo(commands)
-          process.acquireShellProcessHandler()
+          process.acquireShellProcessHandler(activateSbtShellToolWindowOnStartup)
         }
 
         Log.info(s"startQueueProcessing finish: commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}, state=$currentState")
@@ -263,6 +288,10 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val nextCommand = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
     if (nextCommand == null)
       false
+    else if (shellWorkingSinceLastReadyPrompt.get()) {
+      commands.put(nextCommand)
+      false
+    }
     else {
       processCommand(nextCommand)
       true
@@ -288,7 +317,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       if (isCommandProcessed) {
         // NOTE: when sbt shell executes a command, the `shellQueueReady` is released asynchronously
         // in the `whenReady` callback parameter of `SbtShellReadyLineListener` created in `initCommunication`
-      } else {
+      } else if (!shellWorkingSinceLastReadyPrompt.get()) {
         shellQueueReady.release()
       }
     }
@@ -349,7 +378,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     listener.started()
 
-    val handler = process.acquireShellProcessHandler()
+    val handler = process.acquireShellProcessHandler(request.activateSbtShellToolWindowOnStartup)
     handler.addProcessListener(listener)
 
     process.usingWriter { shell =>
@@ -397,10 +426,11 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       val releaseCommandQueueListener = new SbtShellReadyLineListener(
         "release command queue",
         whenReady = {
+          shellWorkingSinceLastReadyPrompt.set(false)
           shellQueueReady.release()
           emitShellStateEvent(shellEventBasedOnCommandsQueue())
         },
-        whenWorking = (),
+        whenWorking = onShellStartedWorking(),
         project
       )
       handler.addProcessListener(releaseCommandQueueListener)
@@ -411,6 +441,14 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       Log.debug(s"initCommunication finish: communication activated, state=$currentState")
     } else {
       Log.debug(s"initCommunication finish: communication NOT activated (lock couldn't be acquired), state=$currentState")
+    }
+  }
+
+  private def onShellStartedWorking(): Unit = {
+    shellWorkingSinceLastReadyPrompt.set(true)
+    shellQueueReady.drainPermits()
+    if (currentState.isIdle) {
+      emitShellStateEvent(ShellStateEvent.ShellBecameBusy)
     }
   }
 

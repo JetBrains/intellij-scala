@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NonNls
  * @param requestId                identifies this request in the sbt shell command requests queue, logs, and cancellation path.
  * @param shellEventProcessor      processes shell events into the command result value.
  * @param interruptionErrorMessage optional error message used when the sbt shell terminates before the command finishes.
+ * @param onQueuedWhileShellBusy   called when this request is queued while the sbt shell is not ready to accept it immediately.
+ * @param activateSbtShellToolWindowOnStartup whether starting a fresh sbt shell for this request should activate the sbt shell tool window.
  * @tparam Result the command result type produced by shell-event processing.
  */
 @Experimental
@@ -20,6 +22,8 @@ final case class SbtShellCommandRequest[Result] private(
   requestId: SbtShellCommandRequestId,
   shellEventProcessor: SbtShellCommandEventProcessor[Result],
   interruptionErrorMessage: Option[String],
+  onQueuedWhileShellBusy: () => Unit,
+  activateSbtShellToolWindowOnStartup: Boolean,
 ) {
   def sbtCommandText: String = commandTextSupplier()
 
@@ -29,9 +33,31 @@ final case class SbtShellCommandRequest[Result] private(
       commandTextSupplier,
       requestId,
       newProcessor,
-      interruptionErrorMessage
+      interruptionErrorMessage,
+      onQueuedWhileShellBusy,
+      activateSbtShellToolWindowOnStartup,
     )
   }
+
+  def withQueuedWhileShellBusyNotification(onQueuedWhileShellBusy: () => Unit): SbtShellCommandRequest[Result] =
+    new SbtShellCommandRequest(
+      commandTextSupplier,
+      requestId,
+      shellEventProcessor,
+      interruptionErrorMessage,
+      onQueuedWhileShellBusy,
+      activateSbtShellToolWindowOnStartup,
+    )
+
+  def withSbtShellToolWindowActivationOnStartup(enabled: Boolean): SbtShellCommandRequest[Result] =
+    new SbtShellCommandRequest(
+      commandTextSupplier,
+      requestId,
+      shellEventProcessor,
+      interruptionErrorMessage,
+      onQueuedWhileShellBusy,
+      enabled,
+    )
 }
 
 /**
@@ -51,7 +77,7 @@ object SbtShellCommandRequest {
     shellEventProcessor: SbtShellCommandEventProcessor[Result],
     interruptionErrorMessage: Option[String]
   ): SbtShellCommandRequest[Result] =
-    new SbtShellCommandRequest(() => sbtCommandText, requestId, shellEventProcessor, interruptionErrorMessage)
+    new SbtShellCommandRequest(() => sbtCommandText, requestId, shellEventProcessor, interruptionErrorMessage, () => (), activateSbtShellToolWindowOnStartup = true)
 
   /**
    * Creates a request from by-name command text and a generated request id.

@@ -50,7 +50,7 @@ public final class MockSbtProcess {
 
         try {
             String mode = System.getProperty(VmOptions.ModeProperty, VmOptions.NoShellMode);
-            Log.debug("started (" + mode + ")");
+            logStartupDebug("started (" + mode + ")", VmOptions.isShellMode(mode));
             if (VmOptions.isShellMode(mode)) {
                 printIgnoredArgs(args);
                 runStdinCommandLoop(mode);
@@ -81,7 +81,7 @@ public final class MockSbtProcess {
     }
 
     private static void runStdinCommandLoop(String promptMode) throws IOException, InterruptedException {
-        Log.debug("starting command loop" + (promptMode == null ? "" : " (" + promptMode + ")"));
+        logStartupDebug("starting command loop" + (promptMode == null ? "" : " (" + promptMode + ")"), promptMode != null);
         enableSingleCharacterInputIfPossible(promptMode);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             processCommandLoop(reader, promptMode);
@@ -113,10 +113,10 @@ public final class MockSbtProcess {
     }
 
     private static void processCommandLoop(BufferedReader reader, String promptMode) throws IOException, InterruptedException {
+        logStartupDebug("listening for input line...", promptMode != null);
         printPromptIfNeeded(promptMode);
 
         String line;
-        Log.debug("listening for input line...");
         while ((line = reader.readLine()) != null) {
             Log.debug("received line=" + line);
             String command = line.trim();
@@ -141,6 +141,15 @@ public final class MockSbtProcess {
         }
 
         Log.debug("input stream closed");
+    }
+
+    private static void logStartupDebug(String message, boolean shellMode) {
+        // In shell mode these startup markers must stay ordered with the prompt on stdout; stderr can be observed later.
+        if (shellMode) {
+            Log.debugStdout(message);
+        } else {
+            Log.debug(message);
+        }
     }
 
     private static void printPromptIfNeeded(String mode) {
@@ -369,6 +378,11 @@ public final class MockSbtProcess {
         private static void debug(String message) {
             System.err.println("[debug] " + message);
             System.err.flush();
+        }
+
+        private static void debugStdout(String message) {
+            System.out.println("[debug] " + message);
+            System.out.flush();
         }
 
         private static void info(String message) {

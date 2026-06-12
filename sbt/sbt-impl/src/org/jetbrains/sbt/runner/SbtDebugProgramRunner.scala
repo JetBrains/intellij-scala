@@ -8,16 +8,19 @@ import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunP
 import com.intellij.execution.runToolbar.RunToolbarProcessData
 import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionUtil}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowId
-import org.jetbrains.plugins.scala.extensions.{invokeAndWait, invokeLater}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, executionContext, invokeAndWait, invokeLater}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.runner.console.SbtShellWaitingForReadyHint
 import org.jetbrains.sbt.runner.debugger.MyTrojanRemoteState
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.SbtProcessManager
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
 import scala.util.control.NonFatal
 
@@ -59,6 +62,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   /**
    * @note This method is only called when `super.doExecute` is used TODO: check
    */
+  @Nullable
   override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor =
     state match {
       case sbtState: SbtCommandLineState =>
@@ -71,6 +75,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
         null
   }
 
+  @Nullable
   private def createContentDescriptorForSbtShellDelegation(environment: ExecutionEnvironment, state: SbtCommandLineState): RunContentDescriptor = {
     val isShellDebuggingEnabled = isDebuggingInSbtShellInstanceOrSettingsEnabled(environment)
     if (isShellDebuggingEnabled) {
@@ -80,6 +85,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
     }
   }
 
+  @Nullable
   private def createContentDescriptorForDebugConnection(
     environment: ExecutionEnvironment,
     sbtState: SbtCommandLineState,
@@ -90,28 +96,75 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
       new DelayedRemoteConnectionImpl(true, "localhost", "", false)
 
     val state = new MyTrojanRemoteState(environment, sbtState.configuration, connection)
-    val attach = attachVirtualMachine(state, environment, connection, true)
+    val attach: RunContentDescriptor = attachVirtualMachine(state, environment, connection, true)
 
     if (attach != null) {
-      import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
-
-      ApplicationManager.getApplication.executeOnPooledThread((() => {
-        try {
-          ensureSbtShellStartedAndPrepareDelayedConnection(environment, state, connection)
-
-          val commandFuture = submitCommandsToShell(environment, sbtState, state.processHandler)
-          commandFuture.onComplete { _ =>
-            state.detach()
-          }
-        } catch {
-          case NonFatal(exception) =>
-            state.detach()
-            reportAsyncExecutionError(environment, exception)
-        }
-      }): Runnable)
+      executeOnPooledThread {
+        startSbtShellDebugCommandAsync(environment, sbtState, connection, state)
+      }
     }
 
     attach
+  }
+
+  private class SbtShellWaitingMessagePrinter(state: MyTrojanRemoteState, project: Project) {
+    // Debug-mode shell startup has two wait points: first while acquiring/attaching to the shell,
+    // and later when the actual sbt command request is queued. Both can observe the same wait,
+    // so keep the console hint behind a shared once-only guard.
+    private val waitingHintPrinted = new AtomicBoolean(false)
+
+    def printSbtShellWaitingHintOnce(): Unit =
+      state.consoleView.foreach { consoleView =>
+        // In the normal Debug path `attachVirtualMachine` has already created the execution console.
+        // Keep this check defensive for platform/DAP/exceptional paths where the execution result has
+        // no ConsoleView; in that case a later queue-time notification may still find a console and print.
+        if (waitingHintPrinted.compareAndSet(false, true)) {
+          SbtShellWaitingForReadyHint.print(consoleView)
+        }
+      }
+  }
+
+  /**
+   * Runs the SBT-shell-backed debug command workflow after the Debug tool window content has been created.
+   *
+   * The caller schedules this method on a pooled thread because it may wait for the shell process and debug connection.
+   * Once running, it:
+   *  1. prepares the delayed debugger connection from the SBT shell process,
+   *  2. prints the run-console waiting hint when the shell cannot accept the command immediately,
+   *  3. submits the SBT command to the shell, and
+   *  4. detaches the lightweight debug process when command execution finishes.
+   */
+  @RequiresBackgroundThread
+  private def startSbtShellDebugCommandAsync(
+    environment: ExecutionEnvironment,
+    sbtState: SbtCommandLineState,
+    connection: DelayedRemoteConnectionImpl,
+    state: MyTrojanRemoteState
+  ): Unit = {
+    try {
+      val waitingPrinter = new SbtShellWaitingMessagePrinter(state, environment.getProject)
+      val sbtShellCommunication = SbtShellCommunication.forProject(environment.getProject)
+      if (!sbtShellCommunication.isRunningAndIdle) {
+        waitingPrinter.printSbtShellWaitingHintOnce()
+      }
+
+      ensureSbtShellStartedAndPrepareDelayedConnection(environment, state, connection)
+
+      val commandFuture = submitCommandsToShell(
+        environment,
+        sbtState.processedCommands,
+        state.processHandler,
+        onQueuedWhileShellBusy = waitingPrinter.printSbtShellWaitingHintOnce,
+      )
+
+      commandFuture.onComplete { _ =>
+        state.detach()
+      }(using executionContext.appExecutionContext)
+    } catch {
+      case NonFatal(exception) =>
+        state.detach()
+        reportAsyncExecutionError(environment, exception)
+    }
   }
 
   //noinspection ApiStatus,UnstableApiUsage
@@ -121,7 +174,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
     delayedConnection: DelayedRemoteConnection & RemoteConnection
   ): Unit = {
     val processManager = SbtProcessManager.forProject(environment.getProject)
-    processManager.acquireShellProcessHandler()
+    processManager.acquireShellProcessHandler(activateSbtShellToolWindowOnStartup = false)
 
     val shellDebugConnection = processManager.debugConnection.getOrElse {
       throw new ExecutionException(SbtBundle.message("debugging.for.sbt.shell.is.disabled.in.sbt.settings"))
@@ -152,6 +205,14 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
     }
   }
 
+  /**
+   * Reports failures from the background SBT-shell debug startup workflow in the Debug tool window.
+   *
+   * These failures happen after `createContentDescriptor` has returned and the work has moved to a pooled thread.
+   * Throwing from there would only fail that background task, so it would not be routed through the normal execution
+   * error UI. Instead, convert the failure to an `ExecutionException` and dispatch it back to the platform error
+   * handler on EDT.
+   */
   private def reportAsyncExecutionError(environment: ExecutionEnvironment, exception: Throwable): Unit = {
     val executionException = exception match {
       case e: ExecutionException => e

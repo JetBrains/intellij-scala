@@ -70,6 +70,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   @volatile private var processData: Option[ProcessData] = None
   private val processDataMutex = new Object
+  private val processStartupMutex = new Object
 
   private val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
@@ -292,37 +293,52 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
-  def initAndRunAsync(): Unit = {
+  /** Asynchronously initializes SbtShellRunner with sbt process, console UI, and optionally opens sbt shell window. */
+  def initAndRunAsync(activateSbtShellToolWindowOnStartup: Boolean = currentProcessToolWindowActivationOnStartup): Unit = {
     log.debug("initAndRunAsync start...")
 
     executeOnPooledThread {
-      acquireShellProcessHandler()
-      SbtShellRunner.openShell(focus = true, project)
+      acquireShellProcessHandler(activateSbtShellToolWindowOnStartup)
+      if (activateSbtShellToolWindowOnStartup) {
+        SbtShellRunner.openShell(focus = true, project)
+      }
 
       log.debug("initAndRunAsync finish")
     }
   }
 
-  private def updateProcessData(): ProcessData = {
+  private def currentProcessToolWindowActivationOnStartup: Boolean =
+    processDataMutex.synchronized {
+      processData match {
+        case Some(pd) if isAlive(pd) =>
+          pd.activateSbtShellToolWindowOnStartup
+        case _ => true
+      }
+    }
+
+  private def updateProcessData(activateSbtShellToolWindowOnStartup: Boolean): ProcessData = {
     log.debug("updateProcessData start...")
 
-    val _processData = createProcessData()
+    val _processData = createProcessData(activateSbtShellToolWindowOnStartup)
     processDataMutex.synchronized {
       processData = Some(_processData)
 
       val communication = SbtShellCommunication.forProject(project)
       communication.initCommunication(_processData.processHandler)
+    }
 
-      _processData match {
-        case pd: AbstractConsoleProcessData =>
-          pd.runner.initAndRun()
-        case pd: TerminalConsoleProcessData =>
-          initTerminalConsole(pd)
-          ConsoleViewsRegistry.set(project, pd.console)
-          SbtShellRunner.openShell(focus = false, project)
-          installTerminalWarningsHost(pd)
-      }
+    _processData match {
+      case pd: AbstractConsoleProcessData =>
+        pd.runner.initAndRun()
+      case pd: TerminalConsoleProcessData =>
+        initTerminalConsole(pd)
+        ConsoleViewsRegistry.set(project, pd.console)
+        SbtShellRunner.openShellOnStartup(
+          activateSbtShellToolWindowOnStartup,
+          focus = false,
+          openShell = focus => SbtShellRunner.openShell(focus, project),
+        )
+        installTerminalWarningsHost(pd)
     }
 
     log.debug(s"updateProcessData finish (sbtVersion=${_processData.sbtVersion}, isNewShell=${_processData.isNewShell})")
@@ -330,16 +346,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
     _processData
   }
 
-  private def createProcessData(): ProcessData = {
+  private def createProcessData(activateSbtShellToolWindowOnStartup: Boolean): ProcessData = {
     val (handler, debugConnection, sbtVersion, useNewShell) = createShellProcessHandler
 
     if (useNewShell) {
       val console = createTerminalConsole(handler)
-      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console, useNewShell)
+      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console, useNewShell, activateSbtShellToolWindowOnStartup)
     } else {
       val title = project.getName
-      val runner = new SbtShellRunner(project, title, debugConnection)
-      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner, useNewShell)
+      val runner = new SbtShellRunner(project, title, debugConnection, activateSbtShellToolWindowOnStartup)
+      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner, useNewShell, activateSbtShellToolWindowOnStartup)
     }
   }
 
@@ -389,20 +405,33 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * (for example [[SbtExternalSystemManager.executionSettingsFor]]).
    */
   @RequiresBackgroundThread
-  def acquireShellProcessHandler(): OSProcessHandler = processDataMutex.synchronized {
+  def acquireShellProcessHandler(activateSbtShellToolWindowOnStartup: Boolean = true): OSProcessHandler = {
     log.debug("acquireShellProcessHandler start...")
 
-    processData match {
+    existingAliveProcessData match {
       case Some(pd) if isAlive(pd) =>
         log.debug("acquireShellProcessHandler finish: reusing existing alive process handler")
         pd.processHandler
       case _ =>
-        log.debug("acquireShellProcessHandler: no alive process, creating new one...")
-        val handler = updateProcessData().processHandler
-        log.debug("acquireShellProcessHandler finish: created new process handler")
-        handler
+        processStartupMutex.synchronized {
+          existingAliveProcessData match {
+            case Some(pd) if isAlive(pd) =>
+              log.debug("acquireShellProcessHandler finish: reusing existing alive process handler")
+              pd.processHandler
+            case _ =>
+              log.debug("acquireShellProcessHandler: no alive process, creating new one...")
+              val handler = updateProcessData(activateSbtShellToolWindowOnStartup).processHandler
+              log.debug("acquireShellProcessHandler finish: created new process handler")
+              handler
+          }
+        }
     }
   }
+
+  private def existingAliveProcessData: Option[ProcessData] =
+    processDataMutex.synchronized {
+      processData.filter(isAlive)
+    }
 
   @TestOnly
   @Internal
@@ -441,10 +470,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     doRestartProcess()
   }
 
-  private def doRestartProcess(): Unit = processDataMutex.synchronized {
+  private def doRestartProcess(): Unit = processStartupMutex.synchronized {
     log.debug("restartProcess")
     destroyProcess()
-    updateProcessData()
+    updateProcessData(activateSbtShellToolWindowOnStartup = true)
   }
 
   //TODO: extract common "retry" utilities
@@ -623,6 +652,24 @@ object SbtProcessManager {
     def debugConnection: Option[RemoteConnection]
     def isNewShell: Boolean
 
+    /**
+     * Whether creating this sbt shell process was allowed to open or focus the sbt shell tool window.
+     *
+     * The primary `true` case is the foreground shell lifecycle.
+     * Most commonly, the platform has already opened or activated the sbt shell tool window before this code runs,
+     * for example because the user opened the tool window or pressed Start/Restart there.
+     * The flag means that process startup should not suppress the shell UI's normal follow-up activation/focus behavior.
+     *
+     * The primary `false` case is run/debug configuration delegation, where sbt shell is started only as a background
+     * execution dependency and the Run/Debug tool window should remain the active UI.
+     *
+     * This is stored with process data because tool window content creation can happen lazily, after the process has
+     * already been created by a run configuration. At that later point the original request object is no longer on the
+     * stack, so the tool-window factory needs this process-level startup intent to avoid reopening/focusing a shell
+     * that was started only as a background run/debug dependency.
+     */
+    def activateSbtShellToolWindowOnStartup: Boolean
+
     @RequiresEdt
     def flushText(): Unit
   }
@@ -632,7 +679,8 @@ object SbtProcessManager {
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
     runner: SbtShellRunner,
-    isNewShell: Boolean
+    isNewShell: Boolean,
+    activateSbtShellToolWindowOnStartup: Boolean,
   ) extends ProcessData {
 
     @RequiresEdt
@@ -644,7 +692,8 @@ object SbtProcessManager {
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
     console: TerminalExecutionConsole,
-    isNewShell: Boolean
+    isNewShell: Boolean,
+    activateSbtShellToolWindowOnStartup: Boolean,
   ) extends ProcessData {
     // Keep the bridge object stable so install/uninstall compare the same TerminalWidget instance.
     lazy val terminalWidget: TerminalWidget = console.getTerminalWidget.asNewWidget()

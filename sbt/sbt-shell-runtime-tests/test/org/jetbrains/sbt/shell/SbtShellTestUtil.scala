@@ -6,7 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
 
+import java.util.concurrent.CountDownLatch
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{Future, Promise}
 
@@ -57,6 +59,38 @@ object SbtShellTestUtil {
     }
 
     shellProcessHandler
+  }
+
+  /**
+   * Awaits one shell state observed through the temporary test state listener.
+   */
+  final class ShellStateAwaiter(
+    shellCommunication: SbtShellCommunication,
+    latch: CountDownLatch,
+  ) {
+    def await(timeout: FiniteDuration, timeoutMessage: String): Unit =
+      try {
+        AwaitTestUtils.waitForLatchDispatchingAllEdtEvents(latch, timeout, timeoutMessage)
+      } finally {
+        dispose()
+      }
+
+    def dispose(): Unit = {
+      shellCommunication.clearTestStateListener()
+    }
+  }
+
+  /**
+   * Installs a temporary listener that completes when the sbt shell next enters the queued state.
+   */
+  def observeNextQueuedState(project: Project): ShellStateAwaiter = {
+    val shellCommunication = SbtShellCommunication.forProject(project)
+    val latch = new CountDownLatch(1)
+    shellCommunication.setTestStateListener {
+      case ShellState.Queued => latch.countDown()
+      case _ =>
+    }
+    new ShellStateAwaiter(shellCommunication, latch)
   }
 
   def awaitFutureWithShellLog[T](

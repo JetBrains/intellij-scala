@@ -73,6 +73,8 @@ private[runner] final class ConsoleOutputDiagnosticsCollector(
 
     if (liveConsoleOutput.isEmpty) observedConsoleOutput
     else if (observedConsoleOutput.isEmpty) liveConsoleOutput
+    else if (liveConsoleOutput.contains(observedConsoleOutput)) liveConsoleOutput
+    else if (observedConsoleOutput.contains(liveConsoleOutput)) observedConsoleOutput
     else liveConsoleOutput + observedConsoleOutput
   }
 
@@ -183,6 +185,13 @@ private[runner] final class ConsoleOutputDiagnosticsCollector(
     }
     text
   }
+
+  def consoleInlayOffsetsAfterTextSnapshot(text: String): Seq[Int] = invokeAndWait {
+    ConsoleInlayHintUtils.inlayOffsetsAfterTextInConsole(consoleViewFromRecordedDescriptor, text)
+  }
+
+  private def consoleViewFromRecordedDescriptor: Option[ConsoleViewImpl] =
+    Option(runContentDescriptor.get()).flatMap(consoleViewFrom)
 
   private def bufferText(output: StringBuffer): String =
     output.synchronized {

@@ -98,6 +98,20 @@ private[shell] object SbtShellLifecycle {
   sealed trait ShellStateEvent
   object ShellStateEvent {
     case object EnqueueCommand extends ShellStateEvent
+    /**
+     * The shell printed non-prompt output after it had already reported a ready prompt.
+     *
+     * This is needed for commands that do not go through [[org.jetbrains.sbt.shell.SbtShellCommunication.run]],
+     * for example commands typed manually in the sbt shell tool window. Such commands do not enqueue an IDEA-side
+     * request, so [[EnqueueCommand]] would incorrectly describe the cause of the busy state and would not protect
+     * against submitting a queued run configuration while the manually entered command is still running.
+     *
+     * The existing [[QueueDrained]]/ready-prompt transition is also not enough: the communication layer can be in
+     * [[ShellState.Idle]] after the previous prompt, while sbt has already accepted a manual command and started
+     * producing output. This event records that observed work and keeps later IDEA requests waiting for the next
+     * ready prompt.
+     */
+    case object ShellBecameBusy extends ShellStateEvent
     case object QueueDrained extends ShellStateEvent
     case object ShutdownRequested extends ShellStateEvent
     case object ProcessTerminated extends ShellStateEvent
@@ -118,6 +132,7 @@ private[shell] object SbtShellLifecycle {
       case (Off, _)                       => None
 
       case (Idle, EnqueueCommand)         => Some(Queued)
+      case (Idle, ShellBecameBusy)        => Some(Queued)
       case (Idle, ShutdownRequested)      => Some(ShuttingDown)
       case (Idle, QueueDrained)           => Some(Idle) // The self-transition Idle -> Idle is allowed for now. It can happen when a ready prompt is observed while no command is queued or running.
       case (Idle, _)                      => None
@@ -125,6 +140,7 @@ private[shell] object SbtShellLifecycle {
       case (Queued, QueueDrained)           => Some(Idle)
       case (Queued, ShutdownRequested)      => Some(ShuttingDown)
       case (Queued, EnqueueCommand)         => Some(Queued)  // This occurs when the shell is in the Queued state and another command is added, triggering another EnqueueCommand event.
+      case (Queued, ShellBecameBusy)        => Some(Queued)
       // Another scenario is a ready prompt observed while command work is still queued or running.
       case (Queued, _)                      => None
 
@@ -132,6 +148,7 @@ private[shell] object SbtShellLifecycle {
       case (ShuttingDown, QueueDrained)      => Some(ShuttingDown) // QueueDrained & EnqueueCommand events may still be emitted after shutdown has started,
                                                                    // because SbtShellReadyLineListener#whenReady can fire even when the shell is already in the ShuttingDown state.
       case (ShuttingDown, EnqueueCommand)    => Some(ShuttingDown)
+      case (ShuttingDown, ShellBecameBusy)   => Some(ShuttingDown)
       case (ShuttingDown, _)                 => None
     }
   }

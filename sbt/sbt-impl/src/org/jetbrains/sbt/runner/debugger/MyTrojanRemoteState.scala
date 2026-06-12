@@ -114,4 +114,9 @@ private[runner] final class MyTrojanRemoteState(
 
   def processHandler: Option[ProcessHandler] =
     execResult.flatMap(result => Option(result.getProcessHandler))
+
+  def consoleView: Option[ConsoleView] = {
+    val executionConsole = execResult.flatMap(result => Option(result.getExecutionConsole))
+    executionConsole.filterByType[ConsoleView]
+  }
 }

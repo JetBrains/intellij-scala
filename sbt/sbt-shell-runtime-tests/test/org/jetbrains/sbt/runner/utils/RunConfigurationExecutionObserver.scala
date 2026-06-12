@@ -162,6 +162,9 @@ private[runner] final class RunConfigurationExecutionObserver(
   def consoleCaptureDiagnosticsSnapshot: String =
     consoleOutputDiagnostics.consoleCaptureDiagnosticsSnapshot
 
+  def consoleInlayOffsetsAfterTextSnapshot(text: String): Seq[Int] =
+    consoleOutputDiagnostics.consoleInlayOffsetsAfterTextSnapshot(text)
+
   def diagnosticsSnapshot: String =
     consoleOutputDiagnostics.diagnosticsSnapshot(processOutputSnapshot)
 
