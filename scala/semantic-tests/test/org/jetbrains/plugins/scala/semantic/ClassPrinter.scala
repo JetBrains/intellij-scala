@@ -3,7 +3,8 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
@@ -14,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtens
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
@@ -203,9 +205,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
         e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
     case mi: MethodInvocation =>
+      val targs = typeArgumentsOf(mi).map("[" + _.map(textOf(_)).mkString(", ") + "]").getOrElse("")
       val invokedExpr = mi.getEffectiveInvokedExpr
       mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
-        textOfExpression(invokedExpr, indent) + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        textOfExpression(invokedExpr, indent) + targs + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
     case gc: ScGenericCall =>
       textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
     case r: ScReferenceExpression => r.qualifier match {
@@ -222,6 +225,25 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       }
     }
     case e => "<expr>"
+  }
+
+  // Add standard API, SCL-25529
+  // Fix Nothing, SCL-25526
+  private def typeArgumentsOf(mi: MethodInvocation): Option[Seq[ScType]] = {
+    val typeParams = mi.target.flatMap(_.element.asOptionOf[ScFunction].map(_.typeParameters)).getOrElse(Seq.empty)
+    val invokedExpr = mi.getEffectiveInvokedExpr
+    val cso = for {
+      tpe <- invokedExpr.getNonValueType(fromUnderscore = true).toOption
+      typePoly <- tpe.asOptionOf[ScTypePolymorphicType]
+      matchedParameters = mi.matchedParameters
+      inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(typePoly.internalType, matchedParameters.map(_._2), matchedParameters.map(_._1), typePoly.typeParameters)
+    } yield inferRes._2.constraints
+    cso.flatMap { cs =>
+      cs.substitutionBounds(canThrowSCE = false)(using invokedExpr, Context(invokedExpr)).map { bounds =>
+        def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
+        typeParams.map(tp => typeParamSubst(tp).removeAbstracts)
+      }
+    }
   }
 
   private def normalized(e: ScExpression): ScExpression = e match {
