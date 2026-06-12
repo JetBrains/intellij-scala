@@ -15,7 +15,7 @@ import java.nio.file.Path
 
 class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabilities, methods: List[ProcessBsp]) extends BspServerConnector() {
 
-  override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
+  override def connect(using reporter: BuildReporter): Either[BspError, Builder] = {
     methods.collectFirst {
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility

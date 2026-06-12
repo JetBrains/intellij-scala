@@ -809,15 +809,7 @@ object CompileServerLauncher {
     BuildManager.getBuildLogDirectory.toCanonicalPath
 
   private def scalaCompileServerSystemDir(eelDescriptor: EelDescriptor): Path = {
-    val systemDir = eelDescriptor match {
-      case LocalEelDescriptor.INSTANCE =>
-        // For filesystem paths which match the machine where IDEA is running on, we call
-        // `PathManager.getSystemDir`, which respects the `-Didea.system.path` VM option.
-        PathManager.getSystemDir
-      case remote =>
-        EelPathUtils.getSystemFolder(remote)
-    }
-
+    val systemDir = PathUtil.getSystemDirectory(eelDescriptor)
     systemDir.resolve(ScalaCompileServerDirName)
   }
 
