@@ -9,7 +9,8 @@ import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.shell.communication.ShellEvent.ErrorWaitForInput
-import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtShellCommandExecutionOutputListener, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter, SbtShellLifecycle, SbtShellOutputRecognizer}
+import org.jetbrains.sbt.shell.communication.SbtShellQueuedStartupOutputMirroring.Owner
+import org.jetbrains.sbt.shell.communication.{SbtOutputCompleteLinesProcessListener, SbtShellCommandExecutionOutputListener, SbtShellCommandRequest, SbtShellCommandRequestId, SbtShellCommandSubmitter, SbtShellLifecycle, SbtShellOutputRecognizer, SbtShellQueuedStartupOutputMirroring}
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent.*
@@ -64,6 +65,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
   //TODO: rename to commandsQueue
   private val commands = new LinkedBlockingQueue[QueuedCommand]()
+
+  private val queuedStartupOutputMirroring = new SbtShellQueuedStartupOutputMirroring(project)
 
   /**
    * The queue for commands accumulated when the shell is in the process of emptying standard queue commands before the "soft" restart or destroying.
@@ -159,6 +162,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   private def terminatePendingCommands(commandsQueue: LinkedBlockingQueue[QueuedCommand]): Unit = {
     commandsQueue.forEach { case QueuedCommand(request, listener) =>
       Log.warn(s"Sbt shell is terminated, skipping command: requestId=${request.requestId}")
+      queuedStartupOutputMirroring.remove(Some(request.requestId))
       listener.processTerminated()
     }
     commandsQueue.clear()
@@ -223,6 +227,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     if (removedElement != null) {
       Log.debug(s"removeCommandFromQueueOrCancel removed from queue: requestId=$requestId")
+      queuedStartupOutputMirroring.remove(Some(requestId))
       removedElement.listener.processTerminated()
     } else {
       Log.debug(s"removeCommandFromQueueOrCancel not found in queue, requesting process cancellation: requestId=$requestId...")
@@ -380,6 +385,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     val handler = process.acquireShellProcessHandler(request.activateSbtShellToolWindowOnStartup)
     handler.addProcessListener(listener)
+    queuedStartupOutputMirroring.remove()
 
     process.usingWriter { shell =>
       // Prefix the command with a leading space.
@@ -420,6 +426,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
     if (lockAcquired) {
+      queuedStartupOutputMirroring.registerIfNeeded(handler, queuedStartupOutputOwner)
+
       // Reset only after communication is acquired: from here on, the ready listener owns the prompt permit for this process.
       shellQueueReady.drainPermits()
 
@@ -443,6 +451,12 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       Log.debug(s"initCommunication finish: communication NOT activated (lock couldn't be acquired), state=$currentState")
     }
   }
+
+  private def queuedStartupOutputOwner: Option[Owner] =
+    commands.iterator().asScala.collectFirst {
+      case QueuedCommand(request, listener) if request.mirrorQueuedOutput =>
+        Owner(request.requestId, listener.processQueuedOutput)
+    }
 
   private def onShellStartedWorking(): Unit = {
     shellWorkingSinceLastReadyPrompt.set(true)

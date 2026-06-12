@@ -27,8 +27,12 @@ private[shell] class SbtShellCommandExecutionOutputListener[Result](
   private val promise = Promise[Result]()
   private var currentResult: Result = request.shellEventProcessor.initialResult
 
-  private def aggregate(event: ShellEvent): Unit = {
+  private def aggregate(event: ShellEvent): Unit = synchronized {
     currentResult = request.shellEventProcessor.process(currentResult, event)
+  }
+
+  private def currentResultSnapshot: Result = synchronized {
+    currentResult
   }
 
   def future: Future[Result] = promise.future
@@ -37,6 +41,9 @@ private[shell] class SbtShellCommandExecutionOutputListener[Result](
     this.log.debug("CommandListener.started")
     aggregate(TaskStart)
   }
+
+  def processQueuedOutput(line: String): Unit =
+    aggregate(Output(line))
 
   override def processTerminated(event: ProcessEvent): Unit = {
     this.log.debug(s"CommandListener.processTerminated(exitCode=${event.getExitCode}, text=${event.getText})")
@@ -56,7 +63,7 @@ private[shell] class SbtShellCommandExecutionOutputListener[Result](
     aggregate(shellEvent)
 
     if (shellEvent == TaskComplete) {
-      promise.complete(Success(currentResult))
+      promise.complete(Success(currentResultSnapshot))
     }
   }
 

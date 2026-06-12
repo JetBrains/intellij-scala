@@ -14,9 +14,9 @@ import org.junit.Assert.assertEquals
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Test helpers for checking that run configurations starting sbt shell do not activate its tool window.
+ * Test helpers for checking that background sbt shell consumers do not activate its tool window.
  */
-private[runner] object SbtShellToolWindowActivationTestUtil {
+private[sbt] object SbtShellToolWindowActivationTestUtil {
 
   final class ActivationProbe private[consoleOutput] (state: () => ToolWindowOpenState) {
     def snapshot(): ToolWindowOpenState = {
@@ -24,10 +24,10 @@ private[runner] object SbtShellToolWindowActivationTestUtil {
       state()
     }
 
-    def assertUnchangedSince(baseline: ToolWindowOpenState, sbtShellModeDisplayName: String): Unit = {
+    def assertUnchangedSince(baseline: ToolWindowOpenState, actionDescription: String): Unit = {
       val actual = snapshot()
       assertEquals(
-        s"Run configuration must not show, activate, or focus the sbt shell tool window for $sbtShellModeDisplayName process",
+        s"$actionDescription must not show, activate, or focus the sbt shell tool window",
         baseline,
         actual,
       )
@@ -46,21 +46,33 @@ private[runner] object SbtShellToolWindowActivationTestUtil {
     parentDisposable: Disposable,
   ): Option[ActivationProbe] =
     if (options.useSbtShellInRunConfig) {
-      val manager = new RecordingToolWindowManager(
+      Some(installSbtShellToolWindowActivationProbe(
         project,
         createContentOnFirstGet = !options.prestartSbtShell,
-      )
-      ServiceContainerUtil.replaceService(
-        project,
-        classOf[ToolWindowManager],
-        manager,
         parentDisposable,
-      )
-      manager.doRegisterToolWindow(SbtShellToolWindowFactory.ID)
-      Some(new ActivationProbe(() => manager.openState(SbtShellToolWindowFactory.ID)))
+      ))
     } else {
       None
     }
+
+  def installSbtShellToolWindowActivationProbe(
+    project: Project,
+    createContentOnFirstGet: Boolean,
+    parentDisposable: Disposable,
+  ): ActivationProbe = {
+    val manager = new RecordingToolWindowManager(
+      project,
+      createContentOnFirstGet = createContentOnFirstGet,
+    )
+    ServiceContainerUtil.replaceService(
+      project,
+      classOf[ToolWindowManager],
+      manager,
+      parentDisposable,
+    )
+    manager.doRegisterToolWindow(SbtShellToolWindowFactory.ID)
+    new ActivationProbe(() => manager.openState(SbtShellToolWindowFactory.ID))
+  }
 
   def captureSbtShellToolWindowActivationBaselineIfNeeded(
     activationProbe: Option[ActivationProbe],
@@ -75,7 +87,7 @@ private[runner] object SbtShellToolWindowActivationTestUtil {
     for {
       probe <- activationProbe
       state <- baseline
-    } probe.assertUnchangedSince(state, sbtShellModeDisplayName)
+    } probe.assertUnchangedSince(state, s"Run configuration for $sbtShellModeDisplayName process")
 
   private def drainToolWindowActivationEvents(): Unit =
     invokeAndWait {

@@ -380,6 +380,7 @@ private class CommandTask(
     // may require collecting results individually and aggregating
     val terminationMessage = "Sbt shell terminated before build command is finished"
     val request = SbtShellCommandRequest(command, resultAggregator, Some(terminationMessage))
+      .withQueuedOutputMirroring()
     val requestId = request.requestId
 
     log.trace(s"run: shell.command enqueue start: requestId=$requestId...")
