@@ -111,15 +111,22 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     data
   }
 
+  override protected def transientRuntimeAccessorNames: Set[String] =
+    super.transientRuntimeAccessorNames + AllInPackageTestData.ClassBufAccessorName
+
   override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     JdomExternalizerMigrationHelper(element) { helper =>
       helper.migrateString("package")(testPackagePath = _)
     }
+    // SCL-25558: ignore classBuf from older run configurations; it is stale runtime cache, not settings state.
+    classBuf = new util.ArrayList[String]()
   }
 }
 
 object AllInPackageTestData {
+  private[testdata] val ClassBufAccessorName = "classBuf"
+
   def apply(config: AbstractTestRunConfiguration, pack: String): AllInPackageTestData = {
     val res = new AllInPackageTestData(config)
     res.setTestPackagePath(pack)
