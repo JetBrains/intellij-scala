@@ -84,7 +84,7 @@ class BspTask[T](project: Project,
   }
 
   override def onCancel(): Unit = {
-    communications.foreach(_.cancelConfigGeneration())
+    communications.foreach(_.cancelSessionCreation())
     resultPromise.tryFailure(new ProcessCanceledException())
   }
 

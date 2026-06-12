@@ -12,6 +12,9 @@ import java.util.UUID
 import scala.util.Try
 
 abstract class BspConfigSetup {
+  // Since config setup run logic is executed using a progress indicator, there is practically
+  // no need for an explicit #cancel method, as cancellation should be handled through the indicator.
+  // Currently, it is only used by `FastpassConfigSetup`, which is going to be removed in SCL-24892.
   def cancel(): Unit
   /**
    * Since `BspConfigSetup` can be run as part of the import and build process, it’s necessary to keep in mind:
