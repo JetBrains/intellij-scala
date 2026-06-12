@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.process.options
 
 import com.intellij.execution.configuration.EnvironmentVariablesData
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.PathTestUtil.tempPathReleasable
 import org.jetbrains.sbt.process.options.utils.MessagesCollectingBuildReporter
 import org.jetbrains.sbt.process.options.utils.SbtOptionsWarningAssertions.{AllAvailableOptionsText, WarningData, assertNoWarnings, assertWarnings}
@@ -75,10 +76,17 @@ class SbtProcessOptionsResolverTest {
         |# My jvm options
         |-Xmx2G # -Dsbt.color=always
         |-Dhoodlump=bloom
+        |--add-exports java.base/sun.nio.ch=ALL-UNNAMED
+        |--add-modules
+        |java.base
       """.stripMargin
     val expected = Seq(
       "-Xmx2G",
-      "-Dhoodlump=bloom"
+      "-Dhoodlump=bloom",
+      "--add-exports",
+      "java.base/sun.nio.ch=ALL-UNNAMED",
+      "--add-modules",
+      "java.base"
     )
 
     writeJvmOptsToFileInDir(input)
@@ -88,24 +96,27 @@ class SbtProcessOptionsResolverTest {
       environmentVariables = envData()
     )
 
-    assertEquals(expected, actual)
+    assertCollectionEquals(expected, actual)
   }
 
   @Test
   def resolveJavaOptionsCollectsEnvironmentOnly(): Unit = {
     val expected = Seq(
       "-Dfrom.env=true",
+      "standalone-env-token",
+      "--add-exports",
+      "java.base/sun.nio.ch=ALL-UNNAMED",
       "-Xmx1G"
     )
     val actual = SbtProcessOptionsResolver.resolveJavaOptions(
       workingDir,
       vmOptionsFromSettings = Seq.empty,
       environmentVariables = envData(
-        userEnvironment = Map("JAVA_OPTS" -> "-Dfrom.env=true ignored -Xmx1G # -Dignored=true")
+        userEnvironment = Map("JAVA_OPTS" -> "-Dfrom.env=true standalone-env-token --add-exports java.base/sun.nio.ch=ALL-UNNAMED -Xmx1G # -Dignored=true")
       )
     )
 
-    assertEquals(expected, actual)
+    assertCollectionEquals(expected, actual)
   }
 
   @Test
@@ -113,7 +124,9 @@ class SbtProcessOptionsResolverTest {
     writeJvmOptsToFileInDir(
       """
         |-Dfrom.file=true
-        |ignored
+        |standalone-file-token
+        |--add-modules
+        |java.base
         |-Xms256M
         |""".stripMargin
     )
@@ -121,8 +134,12 @@ class SbtProcessOptionsResolverTest {
     val expected =
       Seq(
         "-Dfrom.env=true",
+        "standalone-env-token",
         "-Xmx1G",
         "-Dfrom.file=true",
+        "standalone-file-token",
+        "--add-modules",
+        "java.base",
         "-Xms256M",
         "-Dfrom.settings=true"
       )
@@ -131,11 +148,11 @@ class SbtProcessOptionsResolverTest {
       vmOptionsFromSettings = Seq("-Dfrom.settings=true"),
       environmentVariables = envData(
         passParentEnvironment = true,
-        userEnvironment = Map("JAVA_OPTS" -> "-Dfrom.env=true ignored -Xmx1G")
+        userEnvironment = Map("JAVA_OPTS" -> "-Dfrom.env=true standalone-env-token -Xmx1G")
       )
     )
 
-    assertEquals(expected, actual)
+    assertCollectionEquals(expected, actual)
   }
 
   @Test
@@ -147,7 +164,7 @@ class SbtProcessOptionsResolverTest {
       environmentVariables = envData()
     )
 
-    assertEquals(expected, actual)
+    assertCollectionEquals(expected, actual)
   }
 
   // These sbt option source cases indirectly cover SbtOptionsCollector.
@@ -525,9 +542,9 @@ class SbtProcessOptionsResolverTest {
     ).sbtLauncherArgs
 
     val expected = Seq("--debug", "--warn")
-    assertEquals("Inline comments in .sbtopts should not discard following lines", expected, fromFile)
-    assertEquals("Inline comments in SBT_OPTS should not discard following lines", expected, fromEnvironment)
-    assertEquals("Inline comments in IDE settings should not discard following lines", expected, fromSettings)
+    assertCollectionEquals("Inline comments in .sbtopts should not discard following lines", expected, fromFile)
+    assertCollectionEquals("Inline comments in SBT_OPTS should not discard following lines", expected, fromEnvironment)
+    assertCollectionEquals("Inline comments in IDE settings should not discard following lines", expected, fromSettings)
   }
 
   @Test

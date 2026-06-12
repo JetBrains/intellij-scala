@@ -286,6 +286,30 @@ class SbtShellVmOptionsBuilderTest extends UsefulTestCase {
   }
 
   @Test
+  def buildVMParameters_WithSeparateJvmOptionOperandsInJvmopts_ShouldKeepOperands(): Unit = {
+    assertCollectionEquals(
+      Seq(
+        HiddenDefaultXmxParam,
+        "-Dsbt.supershell=false",
+        "-Djdk.console=java.base",
+        "--add-exports",
+        "java.base/sun.nio.ch=ALL-UNNAMED",
+        "--add-modules",
+        "java.base",
+      ),
+      buildParamSeq(
+        userJvmOptions = Seq.empty,
+        fileJvmOpts = Seq(
+          "--add-exports java.base/sun.nio.ch=ALL-UNNAMED",
+          "--add-modules",
+          "java.base"
+        ),
+        sbtOpts = Seq.empty
+      )
+    )
+  }
+
+  @Test
   def buildVMParameters_WithParentEnvironment_ShouldCollectParentJavaOpts(): Unit = {
     val originalEnvironmentMap = EnvironmentUtil.getEnvironmentMap.asScala.toMap
     val originalJavaOpts = originalEnvironmentMap.get(JavaOptsEnvVariableName)

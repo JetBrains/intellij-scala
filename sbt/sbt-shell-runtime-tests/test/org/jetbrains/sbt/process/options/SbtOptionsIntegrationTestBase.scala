@@ -77,7 +77,10 @@ abstract class SbtOptionsIntegrationTestBase extends SbtRuntimeTestBase {
     Files.writeString(
       getTestProjectPath.resolve(".jvmopts"),
       s"""-Doption.source.java=file
-         |-Dquoted.jvmopts.path="$expectedJvmOptsPathWithSpaces"""".stripMargin
+         |-Dquoted.jvmopts.path="$expectedJvmOptsPathWithSpaces"
+         |--add-exports java.base/sun.nio.ch=ALL-UNNAMED
+         |--add-modules
+         |java.base""".stripMargin
     )
   }
 
