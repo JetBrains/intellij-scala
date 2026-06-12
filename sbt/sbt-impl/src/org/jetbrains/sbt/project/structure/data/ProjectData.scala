@@ -20,6 +20,7 @@ case class ProjectData(
   configurations: Seq[ConfigurationData],
   java: Option[JavaData],
   scala: Option[ScalaData],
+  kotlin: Option[KotlinData],
   compileOrder: String,
   dependencies: DependencyData,
   resolvers: Set[ResolverData],
@@ -49,6 +50,7 @@ object ProjectData:
     val configurations = (what \ "configuration").deserializeNodeSeq[ConfigurationData]
     val java = (what \ "java").deserializeNodeSeq[JavaData].headOption
     val scala = (what \ "scala").deserializeNodeSeq[ScalaData].headOption
+    val kotlin = (what \ "kotlin").deserializeNodeSeq[KotlinData].headOption
     val compileOrder = (what \ "compileOrder").text
     val resolvers = (what \ "resolver").deserializeNodeSeq[ResolverData].toSet
     val play2 = (what \ "play2").deserializeNodeSeq[Play2Data].headOption
@@ -66,5 +68,5 @@ object ProjectData:
     val tryDeps = (what \ "dependencies").deserializeOne[DependencyData]
     tryDeps.map: dependencies =>
       ProjectData(id, buildURI, name, organization, version, base, packagePrefix, basePackages,
-        target, configurations, java, scala, compileOrder,
+        target, configurations, java, scala, kotlin, compileOrder,
         dependencies, resolvers, play2, settings, tasks, commands, mainSourceDirectories, testSourceDirectories, generatedManagedSources)

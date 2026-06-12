@@ -123,6 +123,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   @TestOnly
   public transient boolean PRECISE_TEXT = false;
 
+  @TestOnly
+  public transient boolean PRECISE_TEXT_FOR_TYPE_PARAMETERS = false; // SCL-25555
+
   @Override
   public ScalaApplicationSettings getState() {
     return this;

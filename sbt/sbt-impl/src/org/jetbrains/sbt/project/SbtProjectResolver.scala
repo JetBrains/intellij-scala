@@ -445,7 +445,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyDependencyData = sbtStructure.DependencyData(Dependencies(Seq.empty, Seq.empty), Dependencies(Seq.empty, Seq.empty), Dependencies(Seq.empty, Seq.empty))
     val dummyRootProject = ProjectData(
       projectTmpName, projectUri, projectTmpName, s"org.$projectName", "0.0", InterpretablePath.construct(projectRoot), None, Seq.empty,
-      InterpretablePath.construct(projectRoot / "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
+      InterpretablePath.construct(projectRoot / "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, None, CompileOrder.Mixed.toString,
       dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, mainSourceDirectories = Seq(InterpretablePath.construct(projectRoot / "src" / "main")),
       Seq(), generatedManagedSources = false
     )
@@ -854,7 +854,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData, moduleType: ModuleType)(using context: ImportContext): ModuleExtNode = {
-    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, javaData, scala, compileOrder, _, _, _, _, _, _, _, _, _) = project
+    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, javaData, scala, kotlin, compileOrder, _, _, _, _, _, _, _, _, _) = project
 
     val scope = moduleType match {
       case TestModuleType => Configuration.Test
@@ -870,6 +870,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       scalacOptions          = findCompilerOptionsInScope(scope, scala.map(_.options).getOrElse(Seq.empty)),
       sdk                    = javaData.flatMap(_.home).map(home => JdkByHome(home.toPath)),
       javacOptions           = findCompilerOptionsInScope(scope, javaData.map(_.options).getOrElse(Seq.empty)),
+      kotlincOptions         = findCompilerOptionsInScope(scope, kotlin.map(_.options).getOrElse(Seq.empty)),
       packagePrefix          = packagePrefix,
       basePackage            = basePackages.headOption, // TODO Rename basePackages to basePackage in sbt-ide-settings?
       compileOrder           = CompileOrder.valueOf(compileOrder)
@@ -1249,13 +1250,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     useShellImport: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
 
-    extension (file: Path)
-      /**
-       * A copy of [[FileUtil.isAncestor]] but without using `java.io.File`.
-       */
-      def isAncestorOf(other: Path): Boolean =
-        FileUtil.isAncestor(file.toCanonicalPath.toString, other.toCanonicalPath.toString, true)
-
     val buildBaseProject = {
       // Picking the root project from the buildProjectsGroups should be the most appropriate,
       // but, just in case, the old option has also been preserved
@@ -1266,7 +1260,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           .foldLeft(None: Option[ProjectData]) {
             case (None, p) => Some(p)
             case (Some(p), p1) =>
-              val parent = if (p.base.toPath.isAncestorOf(p1.base.toPath)) p else p1
+              val parent = if (p1.base.toPath.isUnder(p.base.toPath)) p else p1
               Some(parent)
           }
       )

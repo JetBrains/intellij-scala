@@ -3,6 +3,7 @@ package org.jetbrains.bsp.protocol.session
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.protocol.session.GenericConnector.RemoteProcessPid
@@ -14,7 +15,7 @@ import java.nio.file.Path
 
 class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabilities, methods: List[ProcessBsp]) extends BspServerConnector() {
 
-  override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
+  override def connect(using reporter: BuildReporter): Either[BspError, Builder] = {
     methods.collectFirst {
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility
@@ -47,8 +48,8 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
       process.destroy()
     }
 
-    val rootUri = base.toCanonicalPath.toUri
-    val compilerOutputUri = compilerOutput.toCanonicalPath.toUri
+    val rootUri = EelPathUtils.getUriLocalToEel(base.toCanonicalPath)
+    val compilerOutputUri = EelPathUtils.getUriLocalToEel(compilerOutput.toCanonicalPath)
     val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
 
     val isLocalProcess = OSProcessHandler.processCanBeKilledByOS(process)

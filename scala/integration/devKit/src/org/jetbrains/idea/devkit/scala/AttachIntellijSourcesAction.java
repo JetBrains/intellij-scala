@@ -9,7 +9,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.PackageIndex;
 import com.intellij.openapi.roots.ProjectFileIndex;
@@ -21,7 +20,10 @@ import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUti
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.*;
+import com.intellij.platform.backend.workspace.WorkspaceModel;
+import com.intellij.platform.workspace.storage.ImmutableEntityStorage;
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread;
+import com.intellij.workspaceModel.ide.legacyBridge.LibraryBridgesKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -148,9 +150,7 @@ public class AttachIntellijSourcesAction extends AnAction {
             else
                 return Arrays
                         .stream(PackageIndex.getInstance(project).getDirectoriesByPackageName("com.intellij", false))
-                        .flatMap(file -> getLibraryOrderEntries(project, file))
-                        .map(LibraryOrderEntry::getLibrary)
-                        .filter(Objects::nonNull)
+                        .flatMap(file -> getLibraries(project, file))
                         .filter(AttachIntellijSourcesAction::isSourceless)
                         .limit(1)          // only take the first matching library, this should be enough
                         .collect(Collectors.toSet());
@@ -158,13 +158,14 @@ public class AttachIntellijSourcesAction extends AnAction {
     }
 
     @NotNull
-    private static Stream<LibraryOrderEntry> getLibraryOrderEntries(@NotNull Project project, @NotNull VirtualFile file) {
+    private static Stream<@NotNull Library> getLibraries(@NotNull Project project, @NotNull VirtualFile file) {
+        ImmutableEntityStorage currentSnapshot = WorkspaceModel.getInstance(project).getCurrentSnapshot();
         return !file.getUrl().contains(".jar!") ?
                 Stream.empty() :
-                ProjectFileIndex.getInstance(project).getOrderEntriesForFile(file)
+                ProjectFileIndex.getInstance(project).findContainingLibraries(file)
                         .stream()
-                        .filter(LibraryOrderEntry.class::isInstance)
-                        .map(LibraryOrderEntry.class::cast);
+                        .map((library -> LibraryBridgesKt.findLibraryBridge(library, currentSnapshot)))
+                        .filter(Objects::nonNull);
     }
 
     private static boolean isSourceless(@NotNull Library library) {

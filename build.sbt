@@ -6,6 +6,7 @@ import DynamicDependenciesFetcher.*
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
+import teamcity.TeamCityAPI
 
 import java.nio.file.Path
 
@@ -89,6 +90,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
+      semanticTests % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectStructureTests % "test->test",
       sbtProjectHighlightingTests % "test->test",
@@ -177,6 +179,35 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
     crossPaths := false,
     autoScalaLibrary := false
   )
+
+lazy val sbtKotlinIjPluginInterop =
+  newProjectWithKotlin("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
+    .dependsOn(sbtApi)
+    .settings(
+      crossPaths := false,
+      autoScalaLibrary := false,
+      intellijPlugins += "org.jetbrains.kotlin".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-kotlin-ij-plugin-interop"),
+
+      // Work around Kotlin compiler plugin auto-discovery during this module compilation.
+      // Adding the Kotlin IDE plugin puts all bundled Kotlin jars on the compiler classpath,
+      // so kotlinc also sees compiler-plugin jars like Parcelize and tries to initialize them.
+      // Those plugins expect a different runtime classpath and can fail with missing IntelliJ SDK classes.
+      // Keep only the jars needed to compile direct Kotlin facet/compiler-settings API usages.
+      intellijPluginJars := intellijPluginJars.value.map {
+        case PluginJars(descriptor, root, classpath) if root.getName == "Kotlin" =>
+          val requiredJars = Set(
+            "kotlin-plugin.jar",
+            "kotlinc.kotlin-jps-common.jar",
+            "kotlinc.kotlin-compiler-common.jar"
+          )
+
+          PluginJars(descriptor, root, classpath.filter(file => requiredJars(file.getName)))
+
+        case pluginJars =>
+          pluginJars
+      }
+    )
 
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
@@ -288,7 +319,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin
+    intellijPlugins += "intellij.structureView.plugin".toPlugin
   )
 
 lazy val repl = newProject("repl", file("scala/repl"))
@@ -322,6 +353,14 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     )
   )
   .settings(compilationCacheSettings)
+
+lazy val semanticTests = newProject("semantic-tests", file("scala/semantic-tests"))
+  .dependsOn(scalaImpl % "test->test;compile->compile")
+  .settings(
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions,
+    libraryDependencies += Dependencies.tastyInspector,
+  )
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -468,6 +507,7 @@ lazy val sbtImpl =
     .dependsOn(
       sbtApi,
       sbtKotlinUtils,
+      sbtKotlinIjPluginInterop % "test->test",
       scalaImpl % "test->test;compile->compile",
     )
     .settings(
@@ -546,7 +586,7 @@ lazy val compilerIntegration =
 lazy val eelTunnelsUtil =
   newProjectWithKotlin("eel-tunnels-util", file("scala/eel-tunnels-util"))
     .settings(
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp")
     )
 
 lazy val compilerIntegrationServerManagement =
@@ -746,7 +786,7 @@ lazy val structuralSearch =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
-        "com.intellij.moduleSet.structuralSearch".toPlugin,
+        "intellij.structuralSearch.plugin".toPlugin,
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")
     )
@@ -761,9 +801,9 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      intellijPlugins += "com.intellij.moduleSet.structureView".toPlugin,
+      intellijPlugins += "intellij.structureView.plugin".toPlugin,
       // TODO: ideally it should be added only in Test (IJPL-244879)
-      intellijPlugins += "com.intellij.moduleSet.servicesView".toPlugin,
+      intellijPlugins += "intellij.execution.serviceView.plugin".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
 
@@ -780,7 +820,7 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
   .settings(
     intellijPlugins ++= Seq(
       "JUnit".toPlugin,
-      "com.intellij.moduleSet.structureView".toPlugin,
+      "intellij.structureView.plugin".toPlugin,
     ),
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support.munit")
   )
@@ -917,6 +957,7 @@ lazy val bsp =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      eelTunnelsUtil,
       compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
@@ -1123,7 +1164,13 @@ lazy val mlCompletionIntegration =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
+      intellijPlugins += TeamCityAPI.getDownloadablePluginOrUseCached(
+        pluginBaseDirName = "completionMlRanking",
+        pluginId = "com.intellij.completion.ml.ranking",
+        intellijVersion = Versions.intellijVersion,
+        isUltimatePlugin = false,
+        isAutoUploading = true
+      ),
       resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1",
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion")
@@ -1139,9 +1186,15 @@ lazy val mlCompletionPropertiesIntegration =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
-        "com.intellij.completion.ml.ranking",
-        "com.intellij.properties"
-      ).map(_.toPlugin),
+        TeamCityAPI.getDownloadablePluginOrUseCached(
+          pluginBaseDirName = "completionMlRanking",
+          pluginId = "com.intellij.completion.ml.ranking",
+          intellijVersion = Versions.intellijVersion,
+          isUltimatePlugin = false,
+          isAutoUploading = true
+        ),
+        "com.intellij.properties".toPlugin
+      ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion.properties")
     )
 

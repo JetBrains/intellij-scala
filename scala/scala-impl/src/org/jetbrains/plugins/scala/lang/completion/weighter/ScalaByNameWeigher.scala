@@ -6,6 +6,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.util.text.EditDistance.optimalAlignment
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.completion.{insideTypePattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScNewTemplateDefinition}
@@ -14,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
- * Suggest type by name where type may be appears. Check on full equality of names, includence one to another
+ * Suggest a type by name where a type may appear. Check on full equality of names, includence one to another,
  * or partial alignment
  * on 3/2/16
  */
@@ -23,10 +25,10 @@ final class ScalaByNameWeigher extends CompletionWeigher {
   import ScalaByNameWeigher._
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val parameters = location.getCompletionParameters
+    val parameters = location.getBaseCompletionParameters
     val position = positionFromParameters(parameters)
 
-    def handleByText(name: String): Option[Integer] = {
+    def handleByText(@NotNull name: String): Option[Integer] = {
       val maybeNameAtPosition = parameters.getOriginalPosition match {
         case null => None
         case originalPosition => Option(originalPosition.getUserData(TextForPositionKey))
@@ -63,13 +65,16 @@ final class ScalaByNameWeigher extends CompletionWeigher {
                          _: PsiClass |
                          _: ScParameter)
         if insideTypePattern.accepts(position, location.getProcessingContext) =>
-        handleByText(namedElement.asInstanceOf[PsiNamedElement].getName).orNull
+        namedElement.asOptionOf[PsiNamedElement]
+          .flatMap(_.name.toOption)
+          .flatMap(handleByText)
+          .orNull
       case _ => null
     }
   }
 }
 
-object ScalaByNameWeigher {
+private object ScalaByNameWeigher {
 
   private[this] val MaxDistance = 4
   private val TextForPositionKey = Key.create[String]("text.for.position")
@@ -78,7 +83,7 @@ object ScalaByNameWeigher {
     // prevent MAX_DISTANCE be more or equals on of comparing strings
     val maxDist = Math.min(MaxDistance, Math.ceil(Math.max(text.length, name.length) / 2))
 
-    // prevent computing distance on long non including strings
+    // prevent computing distance on long non-including strings
     if (Math.abs(text.length - name.length) > maxDist)
       -1
     else {
@@ -101,7 +106,7 @@ object ScalaByNameWeigher {
     }
 
   private def afterColonType(place: PsiElement): Option[String] =
-    place.getContext.getContext.getContext match {
+    place.getContext.nullSafe.map(_.getContext).map(_.getContext).orNull match {
       case typedDeclaration: ScTypedDeclaration =>
         typedDeclaration.declaredElements.headOption.map(_.name)
       case _ => None
@@ -109,7 +114,7 @@ object ScalaByNameWeigher {
 
   //case label name
   private def asBindingPattern(place: PsiElement): Option[String] =
-    place.getContext.getContext.getContext.getContext match {
+    place.getContext.nullSafe.map(_.getContext).map(_.getContext).map(_.getContext).orNull match {
       case bp: ScBindingPattern => Some(bp.name)
       case _ => None
     }

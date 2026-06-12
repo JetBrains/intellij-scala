@@ -19,6 +19,6 @@ Document tests/pos/i14349.scala
 (19:3..19:5) _empty_/i14349$package.test().(ms) -> 18:10
 (19:6..19:13) scala/collection/IterableOps#collect().
 (19:21..19:25) scala/Some.
-(19:37..19:43) local8 -> 19:26
+(19:37..19:43) local4 -> 19:26
 (19:44..19:50) _empty_/Module#expose(). -> 10:7
 

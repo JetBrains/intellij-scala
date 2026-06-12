@@ -1,0 +1,892 @@
+import scala.quoted.*
+
+def goImpl(using Quotes): Expr[Int] =
+  List.empty[Type[?]] match
+    case Nil =>
+      Expr(0)
+    case '[t1] :: Nil =>
+      Expr(1)
+    case '[t1] :: '[t2] :: Nil =>
+      Expr(2)
+    case '[t1] :: '[t2] :: '[t3] :: Nil =>
+      Expr(3)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: Nil =>
+      Expr(4)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: '[t5] :: Nil =>
+      Expr(5)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: '[t5] :: '[t6] :: Nil =>
+      Expr(6)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: '[t5] :: '[t6] :: '[t7] :: Nil =>
+      Expr(7)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: '[t5] :: '[t6] :: '[t7] :: '[t8] :: Nil =>
+      Expr(8)
+    case '[t1] :: '[t2] :: '[t3] :: '[t4] :: '[t5] :: '[t6] :: '[t7] :: '[t8] :: '[t9] :: Nil =>
+      Expr(9)
+    case _ =>
+      Expr(999)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: goImpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('goImpl')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Quotes
+              CodeReferenceElement: Quotes
+                PsiElement(identifier)('Quotes')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Expr[Int]
+      SimpleType: Expr
+        CodeReferenceElement: Expr
+          PsiElement(identifier)('Expr')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      GenericCall
+        ReferenceExpression: List.empty
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          PsiElement(.)('.')
+          PsiElement(identifier)('empty')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: Type[?]
+              SimpleType: Type
+                CodeReferenceElement: Type
+                  PsiElement(identifier)('Type')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: Nil
+              PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            StableElementPattern
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              StableElementPattern
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: Nil
+                    PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('3')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression: Nil
+                      PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('4')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixPattern
+                    QuotedPattern
+                      QuotedType
+                        PsiElement(')(''')
+                        PsiElement([)('[')
+                        SimpleType: t5
+                          CodeReferenceElement: t5
+                            PsiElement(identifier)('t5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    StableElementPattern
+                      ReferenceExpression: Nil
+                        PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixPattern
+                    QuotedPattern
+                      QuotedType
+                        PsiElement(')(''')
+                        PsiElement([)('[')
+                        SimpleType: t5
+                          CodeReferenceElement: t5
+                            PsiElement(identifier)('t5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    InfixPattern
+                      QuotedPattern
+                        QuotedType
+                          PsiElement(')(''')
+                          PsiElement([)('[')
+                          SimpleType: t6
+                            CodeReferenceElement: t6
+                              PsiElement(identifier)('t6')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: ::
+                        PsiElement(identifier)('::')
+                      PsiWhiteSpace(' ')
+                      StableElementPattern
+                        ReferenceExpression: Nil
+                          PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('6')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixPattern
+                    QuotedPattern
+                      QuotedType
+                        PsiElement(')(''')
+                        PsiElement([)('[')
+                        SimpleType: t5
+                          CodeReferenceElement: t5
+                            PsiElement(identifier)('t5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    InfixPattern
+                      QuotedPattern
+                        QuotedType
+                          PsiElement(')(''')
+                          PsiElement([)('[')
+                          SimpleType: t6
+                            CodeReferenceElement: t6
+                              PsiElement(identifier)('t6')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: ::
+                        PsiElement(identifier)('::')
+                      PsiWhiteSpace(' ')
+                      InfixPattern
+                        QuotedPattern
+                          QuotedType
+                            PsiElement(')(''')
+                            PsiElement([)('[')
+                            SimpleType: t7
+                              CodeReferenceElement: t7
+                                PsiElement(identifier)('t7')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: ::
+                          PsiElement(identifier)('::')
+                        PsiWhiteSpace(' ')
+                        StableElementPattern
+                          ReferenceExpression: Nil
+                            PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('7')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixPattern
+                    QuotedPattern
+                      QuotedType
+                        PsiElement(')(''')
+                        PsiElement([)('[')
+                        SimpleType: t5
+                          CodeReferenceElement: t5
+                            PsiElement(identifier)('t5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    InfixPattern
+                      QuotedPattern
+                        QuotedType
+                          PsiElement(')(''')
+                          PsiElement([)('[')
+                          SimpleType: t6
+                            CodeReferenceElement: t6
+                              PsiElement(identifier)('t6')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: ::
+                        PsiElement(identifier)('::')
+                      PsiWhiteSpace(' ')
+                      InfixPattern
+                        QuotedPattern
+                          QuotedType
+                            PsiElement(')(''')
+                            PsiElement([)('[')
+                            SimpleType: t7
+                              CodeReferenceElement: t7
+                                PsiElement(identifier)('t7')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: ::
+                          PsiElement(identifier)('::')
+                        PsiWhiteSpace(' ')
+                        InfixPattern
+                          QuotedPattern
+                            QuotedType
+                              PsiElement(')(''')
+                              PsiElement([)('[')
+                              SimpleType: t8
+                                CodeReferenceElement: t8
+                                  PsiElement(identifier)('t8')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ::
+                            PsiElement(identifier)('::')
+                          PsiWhiteSpace(' ')
+                          StableElementPattern
+                            ReferenceExpression: Nil
+                              PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('8')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixPattern
+            QuotedPattern
+              QuotedType
+                PsiElement(')(''')
+                PsiElement([)('[')
+                SimpleType: t1
+                  CodeReferenceElement: t1
+                    PsiElement(identifier)('t1')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixPattern
+              QuotedPattern
+                QuotedType
+                  PsiElement(')(''')
+                  PsiElement([)('[')
+                  SimpleType: t2
+                    CodeReferenceElement: t2
+                      PsiElement(identifier)('t2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                QuotedPattern
+                  QuotedType
+                    PsiElement(')(''')
+                    PsiElement([)('[')
+                    SimpleType: t3
+                      CodeReferenceElement: t3
+                        PsiElement(identifier)('t3')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                InfixPattern
+                  QuotedPattern
+                    QuotedType
+                      PsiElement(')(''')
+                      PsiElement([)('[')
+                      SimpleType: t4
+                        CodeReferenceElement: t4
+                          PsiElement(identifier)('t4')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: ::
+                    PsiElement(identifier)('::')
+                  PsiWhiteSpace(' ')
+                  InfixPattern
+                    QuotedPattern
+                      QuotedType
+                        PsiElement(')(''')
+                        PsiElement([)('[')
+                        SimpleType: t5
+                          CodeReferenceElement: t5
+                            PsiElement(identifier)('t5')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: ::
+                      PsiElement(identifier)('::')
+                    PsiWhiteSpace(' ')
+                    InfixPattern
+                      QuotedPattern
+                        QuotedType
+                          PsiElement(')(''')
+                          PsiElement([)('[')
+                          SimpleType: t6
+                            CodeReferenceElement: t6
+                              PsiElement(identifier)('t6')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: ::
+                        PsiElement(identifier)('::')
+                      PsiWhiteSpace(' ')
+                      InfixPattern
+                        QuotedPattern
+                          QuotedType
+                            PsiElement(')(''')
+                            PsiElement([)('[')
+                            SimpleType: t7
+                              CodeReferenceElement: t7
+                                PsiElement(identifier)('t7')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: ::
+                          PsiElement(identifier)('::')
+                        PsiWhiteSpace(' ')
+                        InfixPattern
+                          QuotedPattern
+                            QuotedType
+                              PsiElement(')(''')
+                              PsiElement([)('[')
+                              SimpleType: t8
+                                CodeReferenceElement: t8
+                                  PsiElement(identifier)('t8')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: ::
+                            PsiElement(identifier)('::')
+                          PsiWhiteSpace(' ')
+                          InfixPattern
+                            QuotedPattern
+                              QuotedType
+                                PsiElement(')(''')
+                                PsiElement([)('[')
+                                SimpleType: t9
+                                  CodeReferenceElement: t9
+                                    PsiElement(identifier)('t9')
+                                PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: ::
+                              PsiElement(identifier)('::')
+                            PsiWhiteSpace(' ')
+                            StableElementPattern
+                              ReferenceExpression: Nil
+                                PsiElement(identifier)('Nil')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('9')
+                PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: Expr
+                PsiElement(identifier)('Expr')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('999')
+                PsiElement())(')')

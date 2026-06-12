@@ -1,0 +1,274 @@
+//> using options -Wsafe-init
+import scala.quoted.*
+
+class Macro:
+  def tuple[T](name: String): (String, List[T]) = (name, List[T]())
+  inline def nameTuple[T]: (String, List[T]) = tuple(Macro.named)
+
+object Macro:
+  def namedMacro(using q: Quotes): Expr[String] =
+    Expr("test")
+
+  inline def named: String = ${Macro.namedMacro}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wsafe-init')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScClass: Macro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Macro')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tuple
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tuple')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (String, List[T])
+            PsiElement(()('(')
+            TypesList
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[T]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: name
+              PsiElement(identifier)('name')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              GenericCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: nameTuple
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('nameTuple')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (String, List[T])
+            PsiElement(()('(')
+            TypesList
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[T]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: tuple
+              PsiElement(identifier)('tuple')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Macro.named
+                ReferenceExpression: Macro
+                  PsiElement(identifier)('Macro')
+                PsiElement(.)('.')
+                PsiElement(identifier)('named')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: Macro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Macro')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: namedMacro
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('namedMacro')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: q
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('q')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[String]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: Expr
+              PsiElement(identifier)('Expr')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"test"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: named
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('named')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SplicedBlock
+            PsiElement($)('$')
+            PsiElement({)('{')
+            ReferenceExpression: Macro.namedMacro
+              ReferenceExpression: Macro
+                PsiElement(identifier)('Macro')
+              PsiElement(.)('.')
+              PsiElement(identifier)('namedMacro')
+            PsiElement(})('}')

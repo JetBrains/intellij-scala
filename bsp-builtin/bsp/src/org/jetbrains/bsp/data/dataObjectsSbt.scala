@@ -44,6 +44,9 @@ object SbtBuildModuleDataBsp {
  * @note for a similar SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtModuleData]]
  * @note read the difference between `buildModuleId` and `baseDirectory` in [[org.jetbrains.sbt.project.data.SbtModuleData]]
  */
+// The `java.io.File` `baseDirectory` field and the File-based factory/accessor APIs below are intentionally
+// retained to preserve External System serialization compatibility (see the serialization note above).
+//noinspection SSBasedInspection
 class SbtModuleDataBsp private (
   val id: MyURI,
   val buildModuleId: MyURI,
@@ -75,6 +78,7 @@ class SbtModuleDataBsp private (
     Option(_baseDirectoryPath).orElse(Option(baseDirectory).map(f => PathData(f.toPath)))
 }
 
+//noinspection SSBasedInspection
 object SbtModuleDataBsp {
   val Key: Key[SbtModuleDataBsp] = datakey(classOf[SbtModuleDataBsp])
 

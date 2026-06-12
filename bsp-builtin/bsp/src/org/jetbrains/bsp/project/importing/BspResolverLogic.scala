@@ -26,7 +26,7 @@ import org.jetbrains.sbt.asPath
 import org.jetbrains.sbt.project.data.MyURI
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.structure.data.{InterpretablePath, PathConstructor}
-import org.jetbrains.sbt.project.toPath
+import org.jetbrains.sbt.project.{isUnder, toPath}
 
 import java.net.URI
 import java.nio.file.{Path, Paths}
@@ -310,7 +310,7 @@ private[importing] object BspResolverLogic {
   private def excludeChildDirectories(entries: Seq[SourceEntry])(using EelDescriptor) = {
     val dirs = entries.filter(_.isDirectory)
     entries.filter { entry =>
-      !dirs.exists(a => FileUtil.isAncestor(a.file.toPath.toFile, entry.file.toPath.toFile, true))
+      !dirs.exists(a => entry.file.toPath.isUnder(a.file.toPath))
     }
   }
 
@@ -384,8 +384,8 @@ private[importing] object BspResolverLogic {
     val (sourceEntriesFiltered1, resourceEntriesFiltered1) = (moduleBaseDir, moduleKind) match {
       case (Some(baseDir), Some(_: BspResolverDescriptors.ModuleKind.SbtModule)) =>
         (
-          sourceEntries.filter(f => FileUtil.isAncestor(baseDir.toPath.toFile, f.file.toPath.toFile, false)),
-          resourceEntries.filter(f => FileUtil.isAncestor(baseDir.toPath.toFile, f.file.toPath.toFile, false))
+          sourceEntries.filter(f => f.file.toPath.isUnder(baseDir.toPath, strict = false)),
+          resourceEntries.filter(f => f.file.toPath.isUnder(baseDir.toPath, strict = false))
         )
       case _ =>
         (sourceEntries, resourceEntries)

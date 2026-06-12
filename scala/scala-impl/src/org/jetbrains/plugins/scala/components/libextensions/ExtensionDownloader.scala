@@ -52,6 +52,8 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
     downloadViaIvy(normal) ++ withOverrides.flatMap(downloadDirect)
   }
 
+  // DownloadableFileService's downloader only accepts/returns java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   private def downloadDirect(props: ExtensionProps): Option[Path] = {
     import scala.jdk.CollectionConverters._
 

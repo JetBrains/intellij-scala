@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
 import org.junit.Test
 
@@ -13,13 +12,9 @@ import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest,
-))
-class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase
-
-@RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest_RC
 ))
-class WorksheetReplIntegration_Scala_3_LTS_RC_Test extends WorksheetReplIntegration_Since_3_2_TestBase {
+class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase {
   @Test
   override def testAllInOne(): Unit = {
     val before =

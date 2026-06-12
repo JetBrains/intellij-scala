@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -995,6 +997,44 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureTestBase
         modules := Seq(root, module1, module2, module3)
       }
     )
+  }
+
+  def testKotlincOptionsFromSbtKotlinPluginPerModule(): Unit = {
+    val projectName = "kotlincOptionsFromSbtKotlinPluginPerModule"
+    val moduleWithEnabledPluginAndKotlincOptions = s"$projectName.module-with-enabled-plugin-and-kotlinc-options"
+    val moduleWithEnabledPluginAndNoKotlincOptions = s"$projectName.module-with-enabled-plugin-and-no-kotlinc-options"
+    val moduleWithDisabledPlugin = s"$projectName.module-with-disabled-plugin"
+
+    runTest(
+      new project(projectName) {
+        modules := Seq(
+          new module(projectName) {
+            kotlincOptions := Nil
+          },
+          new module(moduleWithEnabledPluginAndKotlincOptions) {
+            kotlincOptions := Seq(
+              "-Xjsr305=strict",
+              "-progressive",
+              "-opt-in=kotlin.RequiresOptIn",
+              "-nowarn"
+            )
+          },
+          new module(moduleWithEnabledPluginAndNoKotlincOptions) {
+            kotlincOptions := Nil
+          },
+          new module(moduleWithDisabledPlugin) {
+            kotlincOptions := Nil
+          }
+        )
+      }
+    )
+  }
+
+  private def assertImportedAdditionalScalacOptions(moduleName: String, expectedOptions: Seq[String]): Unit = {
+    val module = getMyProject.modules.find(_.getName == moduleName).getOrElse {
+      Assert.fail(s"Module not found: $moduleName").asInstanceOf[Module]
+    }
+    assertEquals(s"Module additional scalacOptions ($moduleName)", expectedOptions, ScalaCompilerSettings.forModule(module).additionalCompilerOptions)
   }
 
   def testJavacSpecialOptionsForRootProject(): Unit = {

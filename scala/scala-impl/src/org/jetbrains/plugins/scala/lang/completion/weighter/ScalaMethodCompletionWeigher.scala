@@ -3,22 +3,23 @@ package org.jetbrains.plugins.scala.lang.completion.weighter
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiMethod
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-class ScalaMethodCompletionWeigher extends CompletionWeigher {
-  case class MethodNameComparable(name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
+import java.util.{Comparator, Objects}
+
+final class ScalaMethodCompletionWeigher extends CompletionWeigher {
+  case class MethodNameComparable(@Nullable name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
     override def compareTo(o: MethodNameComparable): Int = {
-      val i = name.compareTo(o.name)
+      val i = Objects.compare(name, o.name, Comparator.nullsLast[String](_.compareTo(_)))
       if (i != 0) return 0
       if (hasParameters == o.hasParameters) 0
       else if (hasParameters && !o.hasParameters) 1
       else -1
     }
   }
-
-
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
     case ScalaLookupItem(_, namedElement) =>

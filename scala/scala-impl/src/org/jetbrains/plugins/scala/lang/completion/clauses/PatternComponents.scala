@@ -99,8 +99,17 @@ final class InfixCaseClassPatternComponents private(
   private val firstParameter: ScClassParameter,
   private val secondParameter: ScClassParameter
 ) extends ClassPatternComponents(`class`) {
-  override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
-    s"${firstParameter.name} ${super.presentablePatternText(reference)} ${secondParameter.name}"
+  override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String = reference match {
+    case Right(ref) if ref.qualifier.isDefined =>
+      // similar to CaseClassPatternComponents if the reference is qualified (SCL-25490).
+      // `case x foo.bar y => ???` won't compile, render as `case foo.bar(x, y) => ???` instead.
+      val presentableSuffix = Seq(firstParameter, secondParameter)
+        .map(CaseClassPatternComponents.presentableParameterText)
+        .commaSeparated(Model.Parentheses)
+      super.presentablePatternText(reference) + presentableSuffix
+    case _ =>
+      s"${firstParameter.name} ${super.presentablePatternText(reference)} ${secondParameter.name}"
+  }
 }
 
 object InfixCaseClassPatternComponents {
@@ -129,11 +138,13 @@ object InfixCaseClassPatternComponents {
 
 final class CaseClassPatternComponents private(`class`: ScConstructorOwner,
                                                constructor: ScPrimaryConstructor)
-  extends SequenceBasedPatternComponents(`class`, constructor.effectiveFirstParameterSection)({ parameter =>
-    parameter.name + (if (parameter.isVarArgs) "@_*" else "")
-  })
+  extends SequenceBasedPatternComponents(`class`, constructor.effectiveFirstParameterSection)(
+    CaseClassPatternComponents.presentableParameterText
+  )
 
 object CaseClassPatternComponents {
+  private[clauses] def presentableParameterText(parameter: ScClassParameter): String =
+    parameter.name + (if (parameter.isVarArgs) "@_*" else "")
 
   def unapply(`class`: ScConstructorOwner): Option[CaseClassPatternComponents] = for {
     constructor <- `class`.constructor

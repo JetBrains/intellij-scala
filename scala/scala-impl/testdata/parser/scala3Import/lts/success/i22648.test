@@ -1,0 +1,223 @@
+import scala.quoted.*
+
+def fooImpl(using Quotes): Expr[Any] =
+  '{
+    new AnyRef {
+      type T = Unit
+      def make: T = ()
+      def take(t: T): Unit = ()
+    }: {
+      type T
+      def make: T
+      def take(t: T): Unit
+    }
+  }
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: fooImpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fooImpl')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: Quotes
+              CodeReferenceElement: Quotes
+                PsiElement(identifier)('Quotes')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Expr[Any]
+      SimpleType: Expr
+        CodeReferenceElement: Expr
+          PsiElement(identifier)('Expr')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    QuotedBlock
+      PsiElement(')(''')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n    ')
+      TypedExpression
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScTypeAliasDefinition: T
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: make
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('make')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: take
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('take')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: t
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('t')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        CompoundType: {
+      type T
+      def make: T
+      def take(t: T): Unit
+    }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            ScTypeAliasDeclaration: T
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('T')
+            PsiWhiteSpace('\n      ')
+            ScFunctionDeclaration: make
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('make')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiWhiteSpace('\n      ')
+            ScFunctionDeclaration: take
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('take')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: t
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('t')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n  ')
+      PsiElement(})('}')

@@ -109,12 +109,12 @@ object LatestScalaVersions {
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "2")
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "3")
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "2")
-  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "7")
+  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "8")
   val Scala_3_4 = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "2")
   val Scala_3_5 = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "2")
   val Scala_3_6 = new ScalaVersion(ScalaLanguageLevel.Scala_3_6, "4")
   val Scala_3_7 = new ScalaVersion(ScalaLanguageLevel.Scala_3_7, "4")
-  val Scala_3_8 = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "3")
+  val Scala_3_8 = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "4")
 
   //
   // Aliases
@@ -127,10 +127,10 @@ object LatestScalaVersions {
   // Release candidates
   //
   // Scala LTS RC
-  val Scala_3_LTS_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "8-RC1")
+  val Scala_3_LTS_RC: ScalaVersion = Scala_3_LTS
 
   // Scala Next RC
-  val Scala_3_Next_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "4-RC3")
+  val Scala_3_Next_RC: ScalaVersion = Scala_3_8
 
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,

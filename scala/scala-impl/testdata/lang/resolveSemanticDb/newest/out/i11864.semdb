@@ -93,7 +93,7 @@ Document tests/pos/i11864.scala
 (46:34..46:38) scala/package.List#
 (46:39..46:40) _empty_/CallbackTo.traverse().[B] -> 45:19
 (46:45..46:48) scala/Predef.`???`().
-(47:5..47:6) local7 -> 46:9
+(47:5..47:6) local6 -> 46:9
 (47:7..47:10) _empty_/CallbackTo#map(). -> 37:14
 (47:13..47:15) _empty_/CallbackTo.traverse().(ta) -> 45:22
 

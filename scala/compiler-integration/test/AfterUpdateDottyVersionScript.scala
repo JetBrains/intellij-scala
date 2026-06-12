@@ -85,8 +85,8 @@ class AfterUpdateDottyVersionScript {
 }
 
 object AfterUpdateDottyVersionScript {
-  private val scala3_repo_lts_branch = "lts-3.3"
-  private val scala3_repo_newest_branch = "release-3.8.3"
+  private val scala3_repo_lts_branch = "release-3.3.8"
+  private val scala3_repo_newest_branch = "release-3.8.4"
 
   private val scala3_bootstrapped_module_name = "scala3-bootstrapped"
 
@@ -821,6 +821,10 @@ object AfterUpdateDottyVersionScript {
         |cc-use-alternatives.scala
         |i10256.scala
         |given-syntax.scala
+        |
+        |# release-3.8.4
+        |i23317.scala
+        |i24990.scala
         |""".stripMargin.trim
     )
 

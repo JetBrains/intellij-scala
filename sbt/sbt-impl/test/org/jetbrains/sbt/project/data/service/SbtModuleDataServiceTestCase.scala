@@ -46,7 +46,8 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
     scalaLibraryVersion: Option[String],
     scalacOptions: Seq[String],
     sdk: Option[SdkReference],
-    javacOptions: Seq[String]
+    javacOptions: Seq[String],
+    kotlincOptions: Seq[String] = Seq.empty
   ): DataNode[ProjectData] =
     new project {
       name := getProject.getName
@@ -74,7 +75,9 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
           new ModuleExtNode(SbtModuleExtData(
             scalacOptions = scalacOptions,
             sdk = sdk,
-            javacOptions = javacOptions)),
+            javacOptions = javacOptions,
+            kotlincOptions = kotlincOptions
+          )),
           new ScalaSdkNode(SbtScalaSdkData(scalaVersion))
         )
       }

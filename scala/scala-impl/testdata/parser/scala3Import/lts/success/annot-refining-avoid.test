@@ -1,0 +1,136 @@
+import scala.annotation.RefiningAnnotation
+
+class myAnnot extends RefiningAnnotation
+
+type Refined = Int @myAnnot
+
+def test =
+  val result =
+    val tmp: Refined = ???
+    tmp
+  result: Refined
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.RefiningAnnotation
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('RefiningAnnotation')
+  PsiWhiteSpace('\n\n')
+  ScClass: myAnnot
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('myAnnot')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: RefiningAnnotation
+            CodeReferenceElement: RefiningAnnotation
+              PsiElement(identifier)('RefiningAnnotation')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Refined
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Refined')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeWithAnnotation: Int @myAnnot
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: myAnnot
+                CodeReferenceElement: myAnnot
+                  PsiElement(identifier)('myAnnot')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: result
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: result
+            PsiElement(identifier)('result')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        BlockExpression
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: tmp
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: tmp
+                PsiElement(identifier)('tmp')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Refined
+              CodeReferenceElement: Refined
+                PsiElement(identifier)('Refined')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: tmp
+            PsiElement(identifier)('tmp')
+      PsiWhiteSpace('\n  ')
+      TypedExpression
+        ReferenceExpression: result
+          PsiElement(identifier)('result')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Refined
+          CodeReferenceElement: Refined
+            PsiElement(identifier)('Refined')

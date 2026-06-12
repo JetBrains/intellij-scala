@@ -1,0 +1,4 @@
+Document tests/pos/3403/test_3.scala
+(2:7..2:10) bug/
+(2:11..2:22) bug/NamedImpl_2#
+

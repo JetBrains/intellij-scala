@@ -46,6 +46,8 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
     else {
       //don't download if zip file is already there
       reporter.notify(s"Starting download")
+      // GithubDownloadUtil.downloadAtomically only accepts a java.io.File target; there is no nio.Path-based alternative.
+      //noinspection SSBasedInspection
       GithubDownloadUtil.downloadAtomically(
         reporter.progressIndicator,
         githubRepositoryWithRevision.revisionDownloadUrl,

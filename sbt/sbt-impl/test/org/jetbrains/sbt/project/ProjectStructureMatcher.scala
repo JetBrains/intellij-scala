@@ -4,6 +4,7 @@ package project
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.notification.Notification
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.project.manage.{SourceFolderManager, SourceFolderManagerImpl, SourceFolderModelState}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -154,6 +155,7 @@ trait ProjectStructureMatcher {
     expected.foreach0(javaLanguageLevel)(assertModuleJavaLanguageLevel(actual))
     expected.foreach0(javaTargetBytecodeLevel)(assertModuleJavaTargetBytecodeLevel(actual))
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
+    expected.foreach(kotlincOptions)(assertModuleKotlincOptions(actual))
     expected.foreach0(compileOrder)(assertModuleCompileOrder(actual))
     expected.foreach0(compileOutputPath)(assertModuleCompileOutputPath(actual))
     expected.foreach0(compileTestOutputPath)(assertModuleCompileOutputPath(actual, test = true))
@@ -199,6 +201,12 @@ trait ProjectStructureMatcher {
     val settings = CompilerConfiguration.getInstance(module.getProject)
     val actual = settings.getAdditionalOptions(module).asScala
     Assert.assertEquals(s"Module javacOptions (${module.getName})", expectedOptions, actual)
+  }
+
+  protected def assertModuleKotlincOptions(module: Module)(expectedOptions: Seq[String])(mt: Option[MatchType]): Unit = {
+    val actual = Option(ApplicationManager.getApplication.getService(classOf[SbtKotlinCompilerOptionsImporter]))
+      .fold(Seq.empty[String])(_.getAdditionalArguments(module).asScala.toSeq)
+    Assert.assertEquals(s"Module kotlincOptions (${module.getName})", expectedOptions, actual)
   }
 
   private def assertModuleCompileOrder(module: Module)(expected: CompileOrder)

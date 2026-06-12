@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.polyglot
 
+import com.intellij.compiler.server.BuildManager
+import com.intellij.compiler.server.impl.BuildProcessClasspathManager
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -148,6 +153,29 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
 
     mainModule = modules.find(_.getName == "groovy-mixed.main").orNull
     assertNotNull("Could not find module with name 'groovy-mixed.main'", mainModule)
+
+    // The platform no longer puts the Groovy JPS builders on the compile server classpath, so the Groovy sources in
+    // the test project fail to compile. Add them ourselves by reflecting into the build process classpath manager and
+    // appending the JPS builder jars resolved from the Groovy plugin's lib folder.
+    locally {
+      val buildManager = ApplicationManager.getApplication.getService(classOf[BuildManager])
+      val classpathManagerField = buildManager.getClass.getDeclaredField("myClasspathManager")
+      classpathManagerField.setAccessible(true)
+      val classpathManager = classpathManagerField.get(buildManager).asInstanceOf[BuildProcessClasspathManager]
+      //noinspection ApiStatus
+      classpathManager.getBuildProcessPluginsClasspath(getMyProject)
+      val field = classpathManager.getClass.getDeclaredField("compileServerPluginsClasspath")
+      field.setAccessible(true)
+      val originalClasspath = field.get(classpathManager).asInstanceOf[java.util.List[String]].asScala
+
+      val groovyPlugin = PluginManagerCore.getPlugin(PluginId.getId("org.intellij.groovy"))
+      assertNotNull("Could not find the Groovy plugin descriptor", groovyPlugin)
+      val groovyLibDir = groovyPlugin.getPluginPath.resolve("lib")
+      val groovyBuilders = Seq("groovy-jps.jar", "groovy-constants-rt.jar").map(groovyLibDir.resolve(_).toString)
+      val newClasspath = originalClasspath ++ groovyBuilders
+      field.set(classpathManager, newClasspath.asJava)
+    }
+
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 

@@ -53,6 +53,8 @@ object GeneratedModifierTestGenerator {
     Files.writeString(codePath, code)
     val logger = ProcessLogger(_ => ())
     // todo: do it better... it's not super slow but it could be a lot (!) faster
+    // scala.sys.process.Process requires a java.io.File for the working directory; there is no nio.Path-based API.
+    //noinspection SSBasedInspection
     Process(Seq("scalac", "-stop:typer", codePath.toAbsolutePath.toString), tmp.toFile).!(logger) != 0
   }
 

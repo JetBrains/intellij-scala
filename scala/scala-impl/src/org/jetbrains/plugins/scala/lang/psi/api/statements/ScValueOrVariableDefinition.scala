@@ -16,3 +16,9 @@ trait ScValueOrVariableDefinition extends ScValueOrVariable with ScDefinitionWit
 
   override def isAbstract: Boolean
 }
+
+object ScValueOrVariableDefinition {
+  object withExpr {
+    def unapply(v: ScValueOrVariableDefinition): Option[ScExpression] = Option(v).flatMap(_.expr)
+  }
+}

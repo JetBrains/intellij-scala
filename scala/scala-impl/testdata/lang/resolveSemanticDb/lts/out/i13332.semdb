@@ -6,7 +6,7 @@ Document tests/pos/i13332.scala
 (3:21..3:30) _empty_/IListDefn# -> 12:7
 (5:13..5:19) scala/deriving/Mirror#
 (5:45..5:50) _empty_/IListDefn#IList# -> 13:16
-(5:51..5:52) local0 -> 5:40
+(5:51..5:52) _empty_/Scope#Of#MirroredType#[X] -> 5:40
 (5:79..5:84) _empty_/IListDefn#IList# -> 13:16
 (5:85..5:88) scala/Any#
 (5:121..5:126) scala/Tuple#

@@ -15,10 +15,10 @@ import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, Reposito
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
-import org.jetbrains.plugins.scala.project.template._
+import org.jetbrains.sbt.usingTempFile
 
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
 import scala.annotation.unused
 import scala.jdk.CollectionConverters._
@@ -114,6 +114,8 @@ abstract class DependencyManagerBase {
 
     def mkIvySettings(): IvySettings = {
       val ivySettings = new IvySettings
+      // Apache Ivy's IvySettings API only accepts java.io.File; there is no nio.Path-based alternative.
+      //noinspection SSBasedInspection
       ivySettings.setDefaultIvyUserDir(ivyHome.toFile)
 
       val useFileSystemOnly = useFileSystemResolversOnly
@@ -168,12 +170,12 @@ abstract class DependencyManagerBase {
       ivy.setSettings(settings)
       ivy.bind()
 
-      val report = usingTempFile("ivy", ".xml") { ivyFile =>
+      val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
         val ivyXml = mkIvyXml(deps)
-        Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
+        Files.write(ivyFile, ivyXml.getBytes)
         val resolveOptions = new ResolveOptions()
           .setConfs(Array("compile"))
-        ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
+        ivy.resolve(ivyFile.toUri.toURL, resolveOptions)
       }
 
       ref.set(report)
@@ -218,6 +220,8 @@ abstract class DependencyManagerBase {
     processIvyReport(ref.get())
   }
 
+  // Ivy's ArtifactDownloadReport#getLocalFile only returns java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   protected def artifactReportToResolvedDependency(artifactReport: ArtifactDownloadReport): ResolvedDependency = {
     val id = artifactReport.getArtifact.getModuleRevisionId
     val kind = artifactReport.getArtifact.getType match {
@@ -228,6 +232,8 @@ abstract class DependencyManagerBase {
     ResolvedDependency(DependencyDescription.fromId(id, kind), file.toPath)
   }
 
+  // Ivy's ArtifactDownloadReport#getLocalFile only returns java.io.File; there is no nio.Path-based alternative.
+  //noinspection SSBasedInspection
   @throws[DependencyManagerBase.ResolveException]
   protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] =
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.nonEmpty) {

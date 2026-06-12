@@ -1,0 +1,18 @@
+Document tests/pos/i22560.scala
+(5:28..5:31) scala/Int#
+(8:22..8:33) companionless/Enumeration# -> 4:9
+(9:18..9:21) companionless/Enumeration#Val# -> 5:21
+(10:20..10:23) companionless/Enumeration#Val# -> 5:21
+(16:28..16:31) scala/Int#
+(20:22..20:33) companioned/Enumeration# -> 15:9
+(21:18..21:21) companioned/Enumeration#Val# -> 16:21
+(22:20..22:23) companioned/Enumeration#Val# -> 16:21
+(28:5..28:6) p/ -> 24:9
+(28:30..28:33) scala/Int#
+(29:5..29:6) p/ -> 24:9
+(29:28..29:31) scala/Int#
+(31:11..31:19) p/internal/ -> 26:11
+(31:20..31:21) p/internal/P# -> 28:24
+(32:11..32:19) p/internal/ -> 26:11
+(32:20..32:21) p/internal/Q# -> 29:22
+

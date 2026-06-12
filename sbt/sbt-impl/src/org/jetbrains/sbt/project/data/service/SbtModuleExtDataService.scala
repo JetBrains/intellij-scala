@@ -5,6 +5,7 @@ package service
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -12,12 +13,13 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.external._
+import org.jetbrains.plugins.scala.project.*
+import org.jetbrains.plugins.scala.project.external.*
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.sbt.project.SbtKotlinCompilerOptionsImporter
 
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtModuleExtData, Library](SbtModuleExtData.Key) {
 
@@ -31,17 +33,28 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtModuleExtData(scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
+      SbtModuleExtData(scalacOptions, sdk, javacOptions, kotlincOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala, project, compileOrder)
       configureOrInheritSdk(module, Option(sdk), project)(using modelsProvider)
       importJavacOptions(module, javacOptions.asScala.toSeq)(using project, modelsProvider)
+      importKotlincOptions(module, kotlincOptions.asScala.toSeq)(using project, modelsProvider)
 
       val contentEntries = modelsProvider.getModifiableRootModel(module).getContentEntries
       contentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
       ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
     }
   }
+
+  private def importKotlincOptions(module: Module, kotlincOptions: Seq[String])
+                                  (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit =
+    if (kotlincOptions.nonEmpty) {
+      Option(ApplicationManager.getApplication.getService(classOf[SbtKotlinCompilerOptionsImporter])).foreach { importer =>
+        executeProjectChangeAction {
+          importer.setAdditionalArguments(module, kotlincOptions.asJava, modelsProvider)
+        }
+      }
+    }
 
   private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference], project: Project)(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val model = modelsProvider.getModifiableRootModel(module)

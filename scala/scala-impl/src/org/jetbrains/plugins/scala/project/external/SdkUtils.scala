@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.util.Try
 
 object SdkUtils {
 
@@ -34,7 +35,8 @@ object SdkUtils {
           if (eelDescriptor == LocalEelDescriptor.INSTANCE) {
             // Based on the commit history, this sophisticated comparison was added to cover some
             // edge case (although not much detail is available), so let's keep it as it is for safety.
-            FileUtil.comparePaths(homeFile.toFile.getCanonicalPath, sdk.getHomePath) == 0 ||
+            val canonicalHomePath = Try(homeFile.toRealPath()).getOrElse(homeFile.toAbsolutePath.normalize()).toString
+            FileUtil.comparePaths(canonicalHomePath, sdk.getHomePath) == 0 ||
               FileUtil.pathsEqual(homeFile.toAbsolutePath.toString, sdk.getHomePath)
           } else {
             val sdkPath = EelNioBridgeServiceKt.asEelPath(Path.of(sdk.getHomePath), eelDescriptor)

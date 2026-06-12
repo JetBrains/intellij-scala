@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.ui.{DialogWrapper, Messages, ValidationInfo}
+import com.intellij.platform.eel.provider.EelProviderUtil
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps.*
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.{ConnectionFileChanges, GenerateBspConfigDialog}
@@ -83,7 +84,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
           ProgressManager.getInstance.runProcessWithProgressSynchronously((() => {
             val indicator = ProgressManager.getInstance().getProgressIndicator
             val buildReporter = new IndicatorReporter(indicator)
-            BloopPreImporter(workspace, sdk)(using buildReporter).run(indicator)
+            BloopPreImporter(workspace, sdk)(using buildReporter, EelProviderUtil.getEelDescriptor(project)).run(indicator)
             //NOTE: I am not sure whether this is the best name for the process
           }): Runnable, BspBundle.message("installing.bloop"), false, project)
         }

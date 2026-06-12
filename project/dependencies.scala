@@ -22,7 +22,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "262.7132.9"
+  val intellijVersion = "262.7581.18"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -49,7 +49,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0"
-  val sbtStructureVersion: String = "2026.1.5"
+  val sbtStructureVersion: String = "2026.2.1"
   val sbtIdeaShellVersion: String = "2025.3.0"
 
   // spray-json is a dependency of scala-compiler-indices-protocol. Make sure the versions match.
@@ -71,7 +71,7 @@ object Versions {
   /**
    * Potentially automate the updating of this version in the future.
    */
-  val HunspellDictionaryVersion = "0.2.318"
+  val HunspellDictionaryVersion = "0.2.359"
 
   object Sbt {
     val binary_0_13 = "0.13"
@@ -121,11 +121,11 @@ object Dependencies {
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
+  val tastyInspector: ModuleID = "org.scala-lang" % "scala3-tasty-inspector_3" % Versions.scala3Version
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val coursierPaths: ModuleID = "io.get-coursier" % "coursier-paths" % "2.1.25-M25"
-  val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.14.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2-1"
@@ -241,7 +241,6 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     coursierPaths,
-    apacheCommonsText,
     ivy2,
     compilerIndicesProtocol,
     scalafmtDynamic
@@ -270,8 +269,7 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect,
-    apacheCommonsText
+    scalaReflect
   )
 
   val testRunners: Seq[ModuleID] = Seq(
