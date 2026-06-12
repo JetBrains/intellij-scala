@@ -65,7 +65,11 @@ private[sbt] final class SbtShellBuildMessagesEventProcessor(
         val result = new FailureResultImpl(msg, ex)
         reporter.finishTask(dumpTaskId, msg, result)
 
-        messages.addError(msg)
+        // addError records the diagnostic text, but it does not make the structure dump fail by itself.
+        // Mark the result as Error so project import stops after failed reload instead of continuing as a successful dump.
+        messages
+          .addError(msg)
+          .status(BuildMessages.Error)
 
       case Output(raw) =>
         // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.

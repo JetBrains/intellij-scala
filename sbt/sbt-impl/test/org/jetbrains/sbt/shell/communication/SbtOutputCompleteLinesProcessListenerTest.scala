@@ -86,6 +86,14 @@ class SbtOutputCompleteLinesProcessListenerTest {
     }
 
   @Test
+  def splitTextToLines_ProjectLoadingFailurePromptWithoutLineSeparator(): Unit = {
+    val prompt = "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?"
+
+    doSelectedSplitTextToLinesTest(prompt, Seq(prompt), OldShellModeProvider)
+    doSelectedSplitTextToLinesTest(prompt, Seq(prompt), NewShellModeProvider)
+  }
+
+  @Test
   def splitTextToLines_JdwpListeningMessageInsideRegularOutputIsPreserved(): Unit =
     for (message <- JdwpListeningMessages) {
       doSelectedSplitTextToLinesTest(
