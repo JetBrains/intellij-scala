@@ -3,7 +3,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScTry, ScWhile}
@@ -200,7 +200,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
     case mi: MethodInvocation =>
       val invokedExpr = mi.getEffectiveInvokedExpr
-      textOfExpression(invokedExpr, indent) + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+      mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
+        textOfExpression(invokedExpr, indent) + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
     case gc: ScGenericCall =>
       textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
     case r: ScReferenceExpression => r.qualifier match {
