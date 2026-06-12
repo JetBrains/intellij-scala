@@ -357,7 +357,7 @@ class SbtShellVmOptionsBuilderTest extends UsefulTestCase {
     val data = createVmOptions(shellDebugMode = true)
     val options = vmOptions(data)
 
-    assertContains(options, "-Xdebug")
+    assertDoesNotContain(options, "-Xdebug")
     assertTrue(options.exists(_.startsWith("-agentlib:jdwp=transport=dt_socket,address=localhost:")))
     data.debugConnection match {
       case Some(debugConnection) =>

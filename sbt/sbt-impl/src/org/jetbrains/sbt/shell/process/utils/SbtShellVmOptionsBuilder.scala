@@ -69,7 +69,6 @@ private[shell] final class SbtShellVmOptionsBuilder @TestOnly private[utils](
     val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
 
     val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
-    vmParams.prepend("-Xdebug")
     vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
 
     new RemoteConnection(true, host, port, false)
