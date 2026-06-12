@@ -577,7 +577,7 @@ lazy val compilerIntegration =
 lazy val eelTunnelsUtil =
   newProjectWithKotlin("eel-tunnels-util", file("scala/eel-tunnels-util"))
     .settings(
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp")
     )
 
 lazy val compilerIntegrationServerManagement =
@@ -948,6 +948,7 @@ lazy val bsp =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      eelTunnelsUtil,
       compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(

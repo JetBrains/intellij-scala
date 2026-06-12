@@ -29,16 +29,16 @@ object BspServerConnector {
   }
 }
 
-abstract class BspServerConnector() {
+abstract class BspServerConnector {
   /**
     * Connect to a bsp server with one of the given methods.
     * @return a BspError if no compatible method is found.
     */
-  def connect(reporter: BuildReporter): Either[BspError, Builder]
+  def connect(using reporter: BuildReporter): Either[BspError, Builder]
 }
 
 class DummyConnector(rootUri: URI) extends BspServerConnector() {
-  override def connect(reporter: BuildReporter): Left[BspErrorMessage, Nothing] =
+  override def connect(using reporter: BuildReporter): Left[BspErrorMessage, Nothing] =
     Left(BspErrorMessage(BspBundle.message("bsp.protocol.no.way.to.connect.to.bsp.server", rootUri)))
 }
 
