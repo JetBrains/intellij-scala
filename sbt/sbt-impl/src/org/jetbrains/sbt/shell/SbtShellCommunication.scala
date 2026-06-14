@@ -434,11 +434,20 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       val releaseCommandQueueListener = new SbtShellReadyLineListener(
         "release command queue",
         whenReady = {
-          shellWorkingSinceLastReadyPrompt.set(false)
-          shellQueueReady.release()
-          emitShellStateEvent(shellEventBasedOnCommandsQueue())
+          // The process can still flush prompt-shaped output while it is being killed.
+          // Do not let that stale callback move the lifecycle back to Idle/Queued.
+          if (canHandlePromptStateChange(handler)) {
+            shellWorkingSinceLastReadyPrompt.set(false)
+            shellQueueReady.release()
+            emitShellStateEvent(shellEventBasedOnCommandsQueue())
+          }
         },
-        whenWorking = onShellStartedWorking(),
+        whenWorking = {
+          // Ignore late non-prompt output from the terminating process for the same reason.
+          if (canHandlePromptStateChange(handler)) {
+            onShellStartedWorking()
+          }
+        },
         project
       )
       handler.addProcessListener(releaseCommandQueueListener)
@@ -451,6 +460,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       Log.debug(s"initCommunication finish: communication NOT activated (lock couldn't be acquired), state=$currentState")
     }
   }
+
+  private def canHandlePromptStateChange(handler: OSProcessHandler): Boolean =
+    !handler.isProcessTerminating && !handler.isProcessTerminated && !currentState.isShuttingDown
 
   private def queuedStartupOutputOwner: Option[Owner] =
     commands.iterator().asScala.collectFirst {

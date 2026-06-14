@@ -37,7 +37,7 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
-import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.shell.optionsWarn.SbtShellOptionsWarningService
 import org.jetbrains.sbt.shell.process.utils.{SbtSettingsInjector, SbtShellJdkSelector, SbtShellRunId, SbtShellVmOptionsBuilder}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
@@ -533,14 +533,21 @@ final class SbtProcessManager(project: Project) extends Disposable {
     processData match {
       case Some(pd) =>
         val shell = SbtShellCommunication.forProject(project)
+        val shellStateBeforeDestroy = shell.currentState
+        // Startup may fail before the communication layer observes a ready prompt.
+        // In that case the process still needs disposal, but the shell lifecycle is already Off.
+        val shouldEmitShutdownRequested = shellStateBeforeDestroy != ShellState.Off && shellStateBeforeDestroy != ShellState.ShuttingDown
+        // If shutdown was already requested elsewhere, only the terminal event is still needed.
+        val shouldEmitProcessTerminated = shellStateBeforeDestroy != ShellState.Off
         // Cancel the soft restart process before emitting `ShutdownRequested`, as it will cause the command loop inside
         // `SbtShellCommunication.startQueueProcessing` to exit, and there should be no commands in the `afterRestartCommands` queue afterward.
         if (!isSoft)
           shell.cancelSoftRestartProcess()
 
-        log.trace("destroyProcess: emit ShutdownRequested...")
-
-        shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
+        if (shouldEmitShutdownRequested) {
+          log.trace("destroyProcess: emit ShutdownRequested...")
+          shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
+        }
 
         val runnable: Runnable = () => terminateProcessGracefully(pd.processHandler.getProcess)
         if (isUnitTestMode)
@@ -548,9 +555,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
         else
           ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
 
-        log.trace("destroyProcess: emit ProcessTerminated...")
-
-        shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
+        if (shouldEmitProcessTerminated) {
+          log.trace("destroyProcess: emit ProcessTerminated...")
+          shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
+        }
         uninstallTerminalWarningsHost(pd)
         processData = None
 
