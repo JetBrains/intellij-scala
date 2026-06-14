@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell.communication
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.{isInternalMode, isUnitTestMode}
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -16,6 +17,10 @@ private[shell] final class SbtShellLifecycle {
 
   private lazy val useAdvancedStateLogging: Boolean =
     isInternalMode || isUnitTestMode
+
+  @TestOnly
+  private[shell] def transitionHistorySnapshot: Seq[String] =
+    transitionHistory.iterator.asScala.toSeq
 
   def transition(state: ShellState, event: ShellStateEvent): ShellState = {
     val nextState = SbtShellLifecycle.transition(state, event)

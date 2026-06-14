@@ -121,7 +121,7 @@ class SbtShellFailedReloadIntegrationTest extends SbtRuntimeTest_WithSbtShell {
       getTestProjectPath / "build.sbt",
       """scalaVersion := "2.13.18"
         |
-        |ThisBuild / scalaVersion :=
+        |intentionalSbtReloadFailureForSbtShellFailedReloadIntegrationTest + "This is an intentional test failure for SbtShellFailedReloadIntegrationTest"
         |""".stripMargin
     )
 
@@ -136,26 +136,41 @@ class SbtShellFailedReloadIntegrationTest extends SbtRuntimeTest_WithSbtShell {
         RevertableChange.withModifiedSystemProperty("sbt.project.structure.location", structureDir.toString)
 
     forceStructureOutputPath.applyChange()
-    try {
-      assertProjectImportFails("real sbt reports a project loading failure")
-    } finally {
-      forceStructureOutputPath.revertChange()
-    }
+    val importFailure =
+      try {
+        assertProjectImportFails("real sbt reports a project loading failure", Seq(structureFile))
+      } finally {
+        forceStructureOutputPath.revertChange()
+      }
 
     val log = processListener.getLog
 
     assertTrue(
-      s"Expected real sbt to print the project loading failure prompt. Full log:\n$log",
+      withFailedReloadDiagnostics(
+        "Expected real sbt to print the project loading failure prompt",
+        importFailure,
+        Seq(structureFile),
+      ),
       log.contains("Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?")
     )
     assertEquals(
-      "Expected sbt shell to continue after the failed reload prompt instead of waiting for user input",
+      withFailedReloadDiagnostics(
+        "Expected sbt shell to continue after the failed reload prompt instead of waiting for user input",
+        importFailure,
+        Seq(structureFile),
+      ),
       ShellState.Idle,
       shellCommunication.currentState
     )
     assertFalse(
-      s"dumpStructureTo must not write structure XML after reload failed: $structureFile. Full log:\n$log",
+      withFailedReloadDiagnostics(
+        s"dumpStructureTo must not write structure XML after reload failed: $structureFile",
+        importFailure,
+        Seq(structureFile),
+      ),
       Files.exists(structureFile)
     )
+
+    printDiagnosticsOnSuccessIfEnabled(importFailure, Seq(structureFile))
   }
 }
