@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 
 class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   import Hint.{End => E, Start => S}
@@ -109,7 +109,7 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
   import Hint.{End => E, Start => S}
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_7
+    version >= ScalaVersion.Latest.Scala_3_0
 
   def testMultipleUsingClausesTrailing(): Unit = {
     doTest(
@@ -167,6 +167,58 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
          |  given D = ???
          |  def foo(using a: A)(s: String)(using b: B)(using C)(x: Int)(using D): Int = 123
          |  foo$S(given_A)$E("foo")$S(?: B)$E$S(?: C)$E(1)$S(given_D)$E
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testUsingClauseAfterInterleavedTypeClause(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait Ctx
+         |  given Ctx = ???
+         |  def foo[A](first: A)[B](second: B)(using Ctx): B = second
+         |  foo[Int](1)[String]("text")$S(given_Ctx)$E
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testLeadingUsingClauseBeforeInterleavedTypeClause(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait Ctx
+         |  given Ctx = ???
+         |  def foo(using Ctx)[A](value: A): A = value
+         |  foo$S(given_Ctx)$E[String]("text")
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testLeadingUsingClauseAfterInitialTypeClause(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait Ctx
+         |  given Ctx = ???
+         |  def foo[A](using Ctx)(value: A): A = value
+         |  foo[String]$S(given_Ctx)$E("text")
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testLeadingUsingClauseBeforeSecondInterleavedTypeClause(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait Ctx
+         |  given Ctx = ???
+         |  def foo[A](first: A)(using Ctx)[B](second: B): B = second
+         |  foo[Int](1)$S(given_Ctx)$E[String]("text")
          |}
          |""".stripMargin
     )

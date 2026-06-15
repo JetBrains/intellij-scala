@@ -392,8 +392,8 @@ object ScExpression {
       }
     }
 
-    //has side effect!
-    private[ScExpression] def updateWithImplicitParameters(
+    //has side effects!
+    def updateWithImplicitParameters(
       tpe:               ScType,
       checkExpectedType: Boolean,
       fromUnderscore:    Boolean,
@@ -415,7 +415,7 @@ object ScExpression {
       updateDeep:        Boolean,
       isLeadingClause:   Boolean = false
     ): (ScType, Seq[ImplicitArgumentsClause]) =  {
-      val shouldUpdate = expr.is[MethodInvocation] || ScalaPsiUtil.isEtaExpandedExpression(expr)
+      val shouldUpdate = expr.is[MethodInvocation, ScGenericCall] || ScalaPsiUtil.isEtaExpandedExpression(expr)
 
       if (shouldUpdate) {
         val (updatedType, implicits) =
@@ -455,6 +455,7 @@ object ScExpression {
     //true if it wasn't updated in MethodInvocation method
     expr match {
       case _: ScLiteral                       => false
+      case _: ScGenericCall                   => false //implicit arguments are calculated in ScGenericCallImpl#convertReferencedType
       case _: ScPrefixExpr                    => true
       case _: ScPostfixExpr                   => true
       case _: ScPolyFunctionExpr              => false

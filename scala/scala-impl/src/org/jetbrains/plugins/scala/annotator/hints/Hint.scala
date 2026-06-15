@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScGenericCall}
 
 import java.awt.Insets
 
@@ -44,6 +44,7 @@ object Hint {
 
     case object BeforeArgClause extends HintPosition {
       override def getOffset(owner: PsiElement): Int = owner match {
+        case gen: ScGenericCall           => gen.typeArgs.getTextRange.getStartOffset
         case inv: MethodInvocation        => inv.argsElement.getTextRange.getStartOffset
         case inv: ScConstructorInvocation =>
           inv.args.map(_.getTextRange.getStartOffset).getOrElse(inv.getTextRange.getEndOffset)
