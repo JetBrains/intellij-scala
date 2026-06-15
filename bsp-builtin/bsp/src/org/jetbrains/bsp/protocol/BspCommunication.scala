@@ -172,7 +172,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
             .map(cause => BspConnectionFileError(path, cause))
       }
 
-      connector.flatMap(_.connect)
+      connector.flatMap(_.connect(using reporter, indicator))
     } finally {
       activeIndicator.set(None)
     }

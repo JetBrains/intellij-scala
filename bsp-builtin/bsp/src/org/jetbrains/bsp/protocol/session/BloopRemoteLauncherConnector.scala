@@ -3,6 +3,7 @@ package org.jetbrains.bsp.protocol.session
 import bloop.rifle.{BloopRifle, BloopRifleConfig, BloopRifleLogger, BloopVersion, BspConnectionAddress}
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.progress.CoroutinesKt.runBlockingCancellable
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.fs.EelFiles
@@ -14,7 +15,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.bsp.protocol.session.BloopRemoteLauncherConnector.{readBloopRemotePort, writeBloopRemotePort}
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.bsp.{BspBundle, BspError, BspSessionCreationError}
+import org.jetbrains.bsp.{BspBundle, BspError, BspSessionCreationError, BspTaskCancelled}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.eel.tunnels.EelTunnels
 import org.jetbrains.plugins.scala.util.PathUtil
@@ -73,7 +74,7 @@ private[protocol] class BloopRemoteLauncherConnector(
 
   private lazy val eelTunnels = EelProviderUtil.toEelApiBlocking(eelDescriptor).getTunnels
 
-  override def connect(using reporter: BuildReporter): Either[BspError, Builder] = {
+  override def connect(using reporter: BuildReporter, indicator: Option[ProgressIndicator]): Either[BspError, Builder] = {
     val appCoroutineScope = CoroutineAppScopeService.coroutineScope
     given scope: CoroutineScope = childScope(appCoroutineScope, "Bloop port forwarding", EmptyCoroutineContext.INSTANCE, true)
     try {
@@ -95,7 +96,7 @@ private[protocol] class BloopRemoteLauncherConnector(
   /** Pair of Bloop ports - the remote port running on a remote host and forwarded local port. */
   private case class BloopPorts(remote: Int, local: Int)
 
-  private def resolveBloopPorts(bspSocketRemotePort: Int)(using reporter: BuildReporter, scope: CoroutineScope): Either[BspError, BloopPorts] = {
+  private def resolveBloopPorts(bspSocketRemotePort: Int)(using reporter: BuildReporter, scope: CoroutineScope, indicator: Option[ProgressIndicator]): Either[BspError, BloopPorts] = {
     val bloopRemotePort = readBloopRemotePort(bloopLauncherPortDir)
     val resolvedPorts = bloopRemotePort match {
       case Some(port) =>
@@ -129,7 +130,7 @@ private[protocol] class BloopRemoteLauncherConnector(
   private def checkAndReuseOrRestartBloop(
     bloopPorts: BloopPorts,
     bspSocketRemotePort: Int
-  )(using reporter: BuildReporter, scope: CoroutineScope): Either[BspError, BloopPorts] = {
+  )(using reporter: BuildReporter, scope: CoroutineScope, indicator: Option[ProgressIndicator]): Either[BspError, BloopPorts] = {
     val config = createBloopConfig(bloopPorts, bspSocketRemotePort)
     val bloopServerInfo = BloopRifle.getCurrentBloopVersion(
       config, BloopRifleLogger.nop, localBasePath, AppExecutorUtil.getAppScheduledExecutorService
@@ -154,7 +155,7 @@ private[protocol] class BloopRemoteLauncherConnector(
   private def establishBspConnection(
     bloopPorts: BloopPorts,
     bspSocketRemotePort: Int
-  )(using reporter: BuildReporter, scope: CoroutineScope): Either[BspError, Builder] = {
+  )(using reporter: BuildReporter, scope: CoroutineScope, indicator: Option[ProgressIndicator]): Either[BspError, Builder] = {
     val bspSocketLocalPort = EelTunnels.forwardLocalPort(scope, eelTunnels, bspSocketRemotePort)
 
     reporter.log(BspBundle.message("bsp.protocol.bloop.remote.starting.bsp.connection", bspSocketRemotePort.toString))
@@ -202,7 +203,7 @@ private[protocol] class BloopRemoteLauncherConnector(
     (bloopV, jvmV)
   }
 
-  private def startBloop(using reporter: BuildReporter, scope: CoroutineScope): Either[BspError, BloopPorts] = {
+  private def startBloop(using reporter: BuildReporter, scope: CoroutineScope, indicator: Option[ProgressIndicator]): Either[BspError, BloopPorts] = {
     val classpath = transferBloopClasspath.fold(
       err => return Left(err),
       identity
@@ -271,7 +272,7 @@ private[protocol] class BloopRemoteLauncherConnector(
   private def awaitRemoteProcess(
     localPort: Int,
     description: String
-  )(using reporter: BuildReporter): Either[BspError, Socket] = {
+  )(using reporter: BuildReporter, indicator: Option[ProgressIndicator]): Either[BspError, Socket] = {
     def isReady(socket: Socket): Boolean =
       try {
         socket.connect(InetSocketAddress(LocalHost, localPort))
@@ -287,24 +288,24 @@ private[protocol] class BloopRemoteLauncherConnector(
     val deadline = System.currentTimeMillis() + timeout.toMillis
 
     @tailrec
-    def pollUntilReady(): Either[BspError, Socket] = {
-      val socket = new Socket()
-      if (isReady(socket)) {
-        socket.setSoTimeout(0) // Clear timeout for normal use
-        reporter.log(BspBundle.message("bsp.protocol.bloop.remote.ready", description))
-        Right(socket)
-      } else {
-        socket.close()
-        if (System.currentTimeMillis() >= deadline) {
-          val msg = BspBundle.message("bsp.protocol.bloop.remote.not.ready", description, timeout.toString)
-          Left(BspSessionCreationError(msg, Exception(msg)))
-        } else {
+    def pollUntilReady(): Either[BspError, Socket] =
+      if indicator.exists(_.isCanceled) then
+        Left(BspTaskCancelled)
+      else if System.currentTimeMillis() >= deadline then
+        val msg = BspBundle.message("bsp.protocol.bloop.remote.not.ready", description, timeout.toString)
+        Left(BspSessionCreationError(msg, Exception(msg)))
+      else
+        val socket = new Socket()
+        if isReady(socket) then
+          socket.setSoTimeout(0) // Clear timeout for normal use
+          reporter.log(BspBundle.message("bsp.protocol.bloop.remote.ready", description))
+          Right(socket)
+        else
+          socket.close()
           reporter.log(BspBundle.message("bsp.protocol.bloop.remote.waiting.for", description))
           Thread.sleep(500)
           pollUntilReady()
-        }
-      }
-    }
+
     pollUntilReady()
   }
 }
