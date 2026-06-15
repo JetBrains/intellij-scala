@@ -147,6 +147,7 @@ object SourceCode {
 
       case cdef @ ClassDef(name, DefDef(_, paramss, _, _), parents, self, stats) =>
         printDefAnnotations(cdef)
+        printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
@@ -265,6 +266,7 @@ object SourceCode {
 
       case tdef @ TypeDef(name, rhs) =>
         printDefAnnotations(tdef)
+        printProtectedOrPrivate(tdef)
         this += highlightKeyword("type ")
         printTargDef((tdef, tdef), isMember = true)
 
