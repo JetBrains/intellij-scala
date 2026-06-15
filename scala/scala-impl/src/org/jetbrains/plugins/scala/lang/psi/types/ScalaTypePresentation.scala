@@ -368,7 +368,7 @@ trait ScalaTypePresentation extends TypePresentation {
         }
       case t @ TypeParameterType(tp) if ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS // SCL-25555
         && tp.psiTypeParameter.is[ScTypeParam] && tp.psiTypeParameter.getOwner.is[ScTypeDefinition] =>
-        // TODO Detect Scala 3 and don't add "Foo.this." in class parents, #SCL-25555
+        // TODO Detect Scala 3 and don't add "Foo.this." in class parents and primary constructors, #SCL-25555
         // We should be able to use `nameResolvesTo` for both once the syntax is resolved correctly, SCL-25553
         tp.psiTypeParameter.getOwner.asInstanceOf[ScTypeDefinition].name + ".this." + t.name
       case namedType: NamedType => namedType.name

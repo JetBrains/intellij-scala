@@ -64,7 +64,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val tps = if (cls.typeParameters.isEmpty) "" else cls.typeParameters.map(textOf).mkString("[", ", ", "]")
 
-    val ps = cls.constructors.filterByType[ScPrimaryConstructor].map(textOf(_, inCaseClass = modifiers.contains("case"))).mkString
+    // TODO Don't add "Foo.this." in primary constructors, see ScalaTypePresentation.innerTypeText, SCL-25555
+    val ps = cls.constructors.filterByType[ScPrimaryConstructor].map(textOf(_, inCaseClass = modifiers.contains("case")).replace(name + ".this.", "")).mkString
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
