@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.testUtils
 
+import com.intellij.compiler.server.BuildManager
+import com.intellij.java.testFramework.backend.CompilerTestUtil
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.testFramework.CompilerTester
+import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -49,5 +51,27 @@ object CompilerUtils {
       compiler.tearDown()
       CompileServerLauncher.stopServerAndWait()
     }
+  }
+
+  def prepareExternalCompilerModel(project: Project): Unit = {
+    // Make sure that the SDK settings are persisted to disk.
+    // Without them, external Make can fail with "No JDK in module".
+    // Saving it to disk will allow the JPS process to read it from there.
+    //
+    // NOTE: a similar thing is done in [[com.intellij.testFramework.CompilerTester.runCompiler]],
+    // which also persists compiler inputs before invoking JPS (though CompilerTester.runCompiler does more than that).
+    // For our needs this manual save is enough.
+    //
+    // Note that this test fixture can be used where the CompilerTester might not be used directly, hence the manual save.
+    //
+    // This is wired into [[org.jetbrains.sbt.runner.SbtRunConfiguration_LightExecution_TestBase]] and currently matters for
+    // [[org.jetbrains.sbt.runner.SbtRunConfiguration_BuildBeforeLaunchTest]], which runs a real Build/Make before-launch step.
+    EdtTestUtil.runInEdtAndWait { () =>
+      CompilerTestUtil.saveApplicationSettings()
+    }
+
+    // Roots and SDKs are changed during fixture setup;
+    // clear cached JPS state so the next external build sees the updated model.
+    BuildManager.getInstance.clearState(project)
   }
 }

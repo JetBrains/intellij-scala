@@ -9,6 +9,7 @@ import org.jetbrains.sbtidea.PluginJars
 import teamcity.TeamCityAPI
 
 import java.nio.file.Path
+import kotlin.Keys.kotlincOptions
 
 // Global build settings
 
@@ -169,9 +170,19 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
-    Compile / unmanagedSourceDirectories ++= Seq(sourceDirectory.value / "gen"),
-    scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions
+    autoScalaLibrary := false,
+    managedScalaInstance := false
+  )
+
+// Register separate module for generated sources to be able to mute ton of warnings in the generated Kotlin sources
+lazy val workspaceEntitiesGen = newProjectWithKotlin("workspace-entities-gen", file("sbt/sbt-impl/workspace-entities/src/gen"))
+  .dependsOn(workspaceEntities)
+  .settings(
+    // The root "gen" directory is used as the root for generated sources for this module
+    Compile / managedSourceDirectories := Seq(baseDirectory.value),
+    Compile / kotlincOptions += "-nowarn",
+    autoScalaLibrary := false,
+    managedScalaInstance := false
   )
 
 lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt-kotlin-utils"))
@@ -215,6 +226,7 @@ lazy val sbtApi =
       scalaApi,
       compilerShared,
       workspaceEntities,
+      workspaceEntitiesGen,
       testUtilsCommon % "test->test"
     )
     .enablePlugins(BuildInfoPlugin)
@@ -509,6 +521,7 @@ lazy val sbtImpl =
       sbtKotlinUtils,
       sbtKotlinIjPluginInterop % "test->test",
       scalaImpl % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
@@ -525,6 +538,10 @@ lazy val sbtProjectImportingTestFramework =
       compilerIntegrationServerManagement % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
+    )
 
 lazy val sbtProjectStructureTests =
   newProject("sbt-project-structure-tests", file("sbt/sbt-project-structure-tests"))
@@ -533,6 +550,10 @@ lazy val sbtProjectStructureTests =
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtProjectHighlightingTests =
@@ -548,22 +569,62 @@ lazy val sbtProjectHighlightingTests =
       Compile / scalacOptions := globalScala3ScalacOptions
     )
 
+// A tiny JVM program used by sbt shell/runtime tests instead of launching a real sbt process.
+//
+// Keep it in a separate module so the mock process can stay independent of IntelliJ platform classes and from the plugin packaging graph.
+// The sources are compiled in Test configuration because it is only ever launched from tests,
+// while Compile contains only generated BuildInfo with the exact test-classes directory.
+//
+// Related code: MockSbtProcessForTests, MockSbtProcessForTestsSetup
+lazy val sbtMockProcess =
+  newPlainScalaProject("sbt-mock-process", file("sbt/sbt-mock-process"))
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      packageMethod := PackagingMethod.Skip(),
+      Compile / unmanagedSourceDirectories := Nil,
+
+      Test / sourceDirectory := baseDirectory.value / "src",
+      Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
+      Test / javacOptions := outOfIDEAProcessJavacOptions,
+
+      //TODO: uncomment once SCL-25316 is fixed
+//      autoScalaLibrary := false,
+//      managedScalaInstance := false,
+//      libraryDependencies := Nil,
+//      intellijExtraJUnitTemplateLibraryDependencies := Nil,
+
+      // Configure build-info plugin
+      buildInfoPackage := "org.jetbrains.sbt.process.mock",
+      buildInfoObject := "MockSbtProcessBuildInfo",
+      buildInfoKeys := Seq("testClassesDirectory" -> (Test / classDirectory).value.getAbsolutePath),
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+    )
+
 lazy val sbtShellRuntimeTests =
   newProject("sbt-shell-runtime-tests", file("sbt/sbt-shell-runtime-tests"))
     .projectWithTestsOnly
     .dependsOn(
+      sbtMockProcess % "compile->compile;test->test",
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtShellBuildDelegationTests =
   newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      sbtProjectImportingTestFramework % "test->test",
+      sbtShellRuntimeTests % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val compilerIntegration =

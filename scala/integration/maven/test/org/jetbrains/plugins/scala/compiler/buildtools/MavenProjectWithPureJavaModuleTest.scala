@@ -8,7 +8,8 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionParameters}
+import org.jetbrains.plugins.scala.compiler.JdkVersionParameters
+import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings

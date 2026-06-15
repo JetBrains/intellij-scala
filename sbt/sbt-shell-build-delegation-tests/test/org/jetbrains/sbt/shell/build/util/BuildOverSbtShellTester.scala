@@ -1,14 +1,11 @@
 package org.jetbrains.sbt.shell.build.util
 
-import com.intellij.build.BuildViewManager
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.compiler.CompilerTopics
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.packaging.artifacts.Artifact
 import com.intellij.task.{ProjectTask, ProjectTaskManager}
+import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.shell.SbtShellTestUtil
 import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.{BuildOverSbtShellResult, BuildRunResult}
@@ -53,7 +50,7 @@ final class BuildOverSbtShellTester(
   def buildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult = {
     runBuildAndCaptureOutput(s"Building artifacts (${artifacts.size})") {
       ProjectTaskManager.getInstance(project)
-        .build(artifacts: _*)
+        .build(artifacts*)
         .blockingGet(1, TimeUnit.MINUTES)
     }
   }
@@ -61,7 +58,7 @@ final class BuildOverSbtShellTester(
   def rebuildArtifactsAndCaptureOutput(artifacts: Seq[Artifact]): BuildOverSbtShellResult = {
     runBuildAndCaptureOutput(s"Rebuilding artifacts (${artifacts.size})") {
       ProjectTaskManager.getInstance(project)
-        .rebuild(artifacts: _*)
+        .rebuild(artifacts*)
         .blockingGet(1, TimeUnit.MINUTES)
     }
   }
@@ -102,48 +99,17 @@ final class BuildOverSbtShellTester(
   private def runBuildAndCaptureBuildToolWindowMessages(
     buildAction: => ProjectTaskManager.Result
   ): BuildRunResult = {
-    val buildProgressCollector = new BuildEventsProgressCollector
-    val listenerDisposable = registerBuildToolWindowProgressListener(buildProgressCollector)
-
-    val compilationStatusCollector = new BuildEventsCompilationStatusCollector
-    val busConnection = subscribeToCompilationStatusEvents(compilationStatusCollector)
-
-    val taskResult = try {
-      buildAction
-    } finally {
-      busConnection.disconnect()
-      Disposer.dispose(listenerDisposable)
-    }
-
-    val buildProgressSnapshot = buildProgressCollector.snapshot
-    val compilationStatusSnapshot = compilationStatusCollector.snapshot
+    val (taskResult, diagnostics) = BuildDiagnosticsCollector.capture(project)(buildAction)
 
     BuildRunResult(
       buildResult = taskResult,
-      buildToolWindowErrors = buildProgressSnapshot.errors,
-      buildToolWindowWarnings = buildProgressSnapshot.warnings,
-      buildToolWindowRootOutput = buildProgressSnapshot.rootOutput,
-      buildToolWindowFinishFailures = buildProgressSnapshot.finishFailures,
-      compilerContextErrors = compilationStatusSnapshot.errors,
-      compilerContextWarnings = compilationStatusSnapshot.warnings,
+      buildToolWindowErrors = diagnostics.buildToolWindowErrors,
+      buildToolWindowWarnings = diagnostics.buildToolWindowWarnings,
+      buildToolWindowRootOutput = diagnostics.buildToolWindowRootOutput,
+      buildToolWindowFinishFailures = diagnostics.buildToolWindowFinishFailures,
+      compilerContextErrors = diagnostics.compilerContextErrors,
+      compilerContextWarnings = diagnostics.compilerContextWarnings,
     )
-  }
-
-  private def registerBuildToolWindowProgressListener(
-    buildProgressCollector: BuildEventsProgressCollector
-  ): Disposable = {
-    val listenerDisposable: Disposable = Disposer.newDisposable("BuildOverSbtShellTester.BuildProgressListener")
-    val viewManager = project.getService(classOf[BuildViewManager])
-    viewManager.addListener(buildProgressCollector, listenerDisposable)
-    listenerDisposable
-  }
-
-  private def subscribeToCompilationStatusEvents(
-    compilationStatusCollector: BuildEventsCompilationStatusCollector
-  ) = {
-    val busConnection = project.getMessageBus.simpleConnect()
-    busConnection.subscribe(CompilerTopics.COMPILATION_STATUS, compilationStatusCollector)
-    busConnection
   }
 
 }

@@ -109,6 +109,20 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
 
   protected final def isDumb: Boolean = DumbService.isDumb(config.getProject)
 
+  /**
+   * SCL-25558: package/regexp configurations keep the last discovered classes/tests as a same-session dumb-mode fallback.
+   * These values are runtime launch results, not durable run configuration settings, so XMLB must not write them to shared
+   * .run files or read old persisted values back into the live configuration model.
+   *
+   * TODO: consider moving Scala package/regexp discovery closer to JUnit's launch-time model. JUnit stores only durable
+   * intent in com.intellij.execution.junit.JUnitConfiguration.Data, discovers package classes for each launch in
+   * com.intellij.execution.junit.TestPackage#createSearchingForTestsTask, and uses
+   * com.intellij.execution.testframework.SearchForTestsTask#arrangeForIndexAccess to wait for smart mode or explicitly
+   * run with partial indexes. Scala package/regexp runs should eventually pass such temporary discovery results to the
+   * runner without storing them on TestConfigurationData objects.
+   */
+  protected def transientRuntimeAccessorNames: Set[String] = Set.empty
+
   // Bean settings:
   @BeanProperty var searchTest          : SearchForTest                 = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
   @BeanProperty var showProgressMessages: Boolean                       = true // TODO: there already exists a parameter in Logs tab, do we need this parameter?
@@ -167,21 +181,28 @@ object TestConfigurationData {
     case null                    => new ClassTestData(configuration) // null can be set by IDEA internally during intermediate xml read/write
   }
 
-  private def serializeIntoSkippingDefaults(data: TestConfigurationData, element: Element): Unit = {
+  private[testdata] def serializeIntoSkippingDefaults(
+    data: TestConfigurationData,
+    element: Element,
+  ): Unit = {
     // ATTENTION: assuming that config isn't used during construction! ideally should remove config constructor parameter
     val constructor = data.getClass.getConstructor(classOf[AbstractTestRunConfiguration])
     val defaultData = constructor.newInstance(null)
+    val transientRuntimeAccessorNames = data.transientRuntimeAccessorNames
 
     XmlSerializer.serializeInto(data, element, (accessor: Accessor, bean: Any) => {
-      val value        = accessor.read(bean)
-      val defaultValue = accessor.read(defaultData)
+      if (transientRuntimeAccessorNames.contains(accessor.getName)) false
+      else {
+        val value        = accessor.read(bean)
+        val defaultValue = accessor.read(defaultData)
 
-      val skip = (value, defaultValue) match {
-        case (list1: ju.List[_], list2: ju.List[_])   => list1.asScala == list2.asScala
-        case (map1: ju.Map[_, _], map2: ju.Map[_, _]) => map1.asScala == map2.asScala
-        case _                                        => value == defaultValue
+        val skip = (value, defaultValue) match {
+          case (list1: ju.List[_], list2: ju.List[_])   => list1.asScala == list2.asScala
+          case (map1: ju.Map[_, _], map2: ju.Map[_, _]) => map1.asScala == map2.asScala
+          case _                                        => value == defaultValue
+        }
+        !skip
       }
-      !skip
     })
   }
 }

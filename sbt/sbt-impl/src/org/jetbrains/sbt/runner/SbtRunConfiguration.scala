@@ -2,30 +2,20 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations.*
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
-import com.intellij.execution.util.JavaParametersUtil
-import com.intellij.execution.{EnvFilesOptions, ExecutionResult, Executor, OutputListener}
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.{EnvFilesOptions, Executor}
 import com.intellij.openapi.application.ApplicationManager.getApplication
-import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jdom.Element
-import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.{JarManifestUtils, JdomExternalizerMigrationHelper}
-import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.{<<, SbtExternalSystemManager}
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
-import java.nio.file.Path
 import java.util
 import scala.beans.BeanProperty
 
@@ -85,6 +75,8 @@ class SbtRunConfiguration(
     else Option(project.baseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
+
+  override def isBuildBeforeLaunchAddedByDefault: Boolean = false
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
     new SbtCommandLineState(commands, this, env)
@@ -200,70 +192,4 @@ private object SbtRunConfiguration {
   def migrateCommandsToTasks(commands: String): String =
     if (commands.isBlank || StringUtil.isQuotedString(commands)) commands
     else ParametersListUtil.join(commands)
-}
-
-class SbtCommandLineState(
-  val processedCommands: String,
-  val configuration: SbtRunConfiguration,
-  environment: ExecutionEnvironment,
-  private var listener: Option[String => Unit] = None
-) extends JavaCommandLineState(environment) {
-
-  def getListener: Option[String => Unit] = listener
-
-  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
-    val r = super.execute(executor, runner)
-    listener.foreach(_ => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = super.onTextAvailable(event, outputType)
-    })))
-    r
-  }
-
-  def determineMainClass(launcherPath: String): String = {
-    val jar = Path.of(launcherPath)
-    JarManifestUtils.readManifestAttribute(jar, "Main-Class").getOrElse("xsbt.boot.Boot")
-  }
-
-  override def createJavaParameters(): JavaParameters = {
-    val project = configuration.getProject
-    val params: JavaParameters = new JavaParameters
-
-    params.setWorkingDirectory(configuration.workingDir)
-
-    val sbtExecutionSettings = SbtExternalSystemManager.executionSettingsFor(project)
-
-    val customJdk = for {
-      vmExecutablePath <- sbtExecutionSettings.getCustomVMExecutableOrWarn(project)
-      // The java installation directory is two levels up.
-      // See org.jetbrains.sbt.project.SbtExternalSystemManager.getVmExecutable
-      javaHome = vmExecutablePath << 2
-      if javaHome != null
-      jdk  <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.toCanonicalPath.toString))
-    } yield jdk
-
-    val jdk = customJdk.getOrElse(JavaParametersUtil.createProjectJdk(project, null))
-    params.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
-
-    val environmentVariables = new util.HashMap(configuration.environmentVariables)
-    environmentVariables.putAll(configureEnvsFromFiles(configuration, true))
-    params.setEnv(environmentVariables)
-
-    val sbtSystemSettings = SbtSettings.getInstance(project).getState
-
-    // One of these checks might be redundant.
-    // Why do we need the customLauncherEnabled at all?
-    if (sbtSystemSettings.customLauncherPath != null) {
-      params.getClassPath.add(sbtSystemSettings.customLauncherPath)
-      params.setMainClass(determineMainClass(sbtSystemSettings.customLauncherPath))
-    } else {
-      val launcher = SbtUtil.defaultLauncherPath
-      params.getClassPath.add(launcher)
-      params.setMainClass(determineMainClass(launcher.toCanonicalPath.toString))
-    }
-
-    params.getVMParametersList.addParametersString(configuration.vmparams)
-    params.getProgramParametersList.add(processedCommands)
-
-    params
-  }
 }

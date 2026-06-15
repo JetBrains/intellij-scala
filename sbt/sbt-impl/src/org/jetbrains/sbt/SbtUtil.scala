@@ -15,11 +15,10 @@ import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
+import com.intellij.util.SystemProperties
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
-import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
-import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -28,19 +27,17 @@ import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
-import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.net.URI
 import java.nio.file.{Files, Path}
-import scala.collection.mutable
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.math.Ordering.Implicits.infixOrderingOps
 
 //noinspection ApiStatus,UnstableApiUsage
 object SbtUtil {
+
   private lazy val log: Logger = Logger.getInstance(getClass)
 
   private object CommandLineOptions {
@@ -310,93 +307,6 @@ object SbtUtil {
   def sbtVersionParam(sbtVersion: SbtVersion): String =
     s"-Dsbt.version=$sbtVersion"
 
-  /** It is needed as we want to behave exactly like sbt. Sbt does not take into account options with unbalanced quoted derived from a single line from
-   * .jvmopts/.sbtopts file. When options entered in the terminal contains unbalanced quotes it still waits until the user aligns the quotes. Additional we don't take into account
-   * those parts of line which are commented out (user can comment the whole line or part of them - everything after # will be discarded, provided that # is not in quotes)
-   * */
-  def removeCommentedOutPartsAndCheckQuotes(options: String): Option[String] = {
-    val quotes = "\"'"
-    val quotesStack = mutable.Stack[Char]()
-    var firstQuote = 0
-    val result = options.foldLeft("") { (acc, char) =>
-      if (quotes.contains(char)) {
-        if (quotesStack.isEmpty) {
-          firstQuote = char
-          quotesStack.push(char)
-        } else if (char == firstQuote) quotesStack.pop()
-      }
-      if (char == '#' && quotesStack.isEmpty) return Some(acc)
-      else acc :+ char
-    }
-    if (quotesStack.isEmpty) Some(result) else None
-  }
-
-  def collectAllOptionsFromJava(workingDir: Path, vmOptionsFromSettings: Seq[String], passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[String] = {
-    val java_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("JAVA_OPTS")
-      .map { options => JvmOpts.processJvmOptions(Seq(options)) }
-      .getOrElse(Seq.empty)
-    java_opts_env ++ JvmOpts.loadFrom(workingDir) ++ vmOptionsFromSettings
-  }
-
-  /**
-   * Holds all the vm options and sbt launcher args required to start the sbt process.
-   *
-   * @param allVmOptions all VM options to pass to the JVM
-   * @param sbtLauncherArgs arguments to pass to the sbt launcher 
-   * @see [[collectAllOptions]] for details on how all VM options are collected.                        
-   */
-  case class SbtProcessOptions(
-    allVmOptions: Seq[String],
-    sbtLauncherArgs: Seq[String]
-  )
-  
-  /**
-   * 1. Collects all VM options from both Java and sbt sources: 
-   *  - `JAVA_OPTS`/`SBT_OPTS` environment variable
-   *  - `.jvmopts`/`.sbtopts` file in the working directory
-   *  - `vmOptions`/`sbtOptions` from settings
-   *  
-   * 2. Extracts sbt launcher options from `sbtOptions`
-   */
-  def collectAllOptions(
-    workingDir: Path,
-    vmOptions: Seq[String],
-    sbtOptions: Seq[String],
-    passParentEnvironment: Boolean,
-    environment: Map[String, String],
-    additionalLauncherArgs: Seq[String]
-  )(implicit reporter: BuildReporter): SbtProcessOptions = {
-    val sbtOpts = collectAllOptionsFromSbt(sbtOptions, workingDir, passParentEnvironment, environment)
-    val javaOpts = collectAllOptionsFromJava(workingDir, vmOptions, passParentEnvironment, environment)
-    
-    val allVmOptions = javaOpts ++ sbtOpts.collect { case a: JvmOptionGlobal => a.value }
-    val launcherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
-    
-    SbtProcessOptions(allVmOptions, launcherArgs ++ additionalLauncherArgs)
-  }
-
-  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: Path, passParentEnvironment: Boolean, userSetEnv: Map[String, String])
-                              (implicit reporter: BuildReporter = null): Seq[SbtOption] = {
-    val sbt_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("SBT_OPTS")
-      .map { options =>
-        val combinedOptions = SbtOpts.combineOptionsWithArgs(options)
-        SbtOpts.mapOptionsToSbtOptions(combinedOptions, directory.toCanonicalPath.toString)
-      }.getOrElse(Seq.empty)
-    sbt_opts_env ++ SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.toCanonicalPath.toString)
-  }
-
-  private def environmentsToUse(passParentEnvironment: Boolean, userSetEnv: Map[String, String]) =
-    if (passParentEnvironment) EnvironmentUtil.getEnvironmentMap.asScala ++ userSetEnv else userSetEnv
-
-  /**
-   * Appending a special suffix to the module name might be needed when unique module names are generated in
-   * [[org.jetbrains.sbt.project.SbtProjectResolver.ModuleUniqueInternalNameGenerator]] and when new modules are being created from <code>SbtNestedModuleData</code>.
-   * In the second case, this is necessary when it is detected that the module name is already occupied by another module.
-   * It was inspired by [[org.jetbrains.plugins.gradle.service.project.data.GradleSourceSetDataService.findDeduplicatedModuleName]]
-   */
-  def appendSuffixToModuleName(moduleName: String, inc: Int): String =
-    moduleName + "~" + inc
-
   implicit class EntityStorageOps(storage: EntityStorage) {
     def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))
   }
@@ -442,7 +352,8 @@ object SbtUtil {
         val message = s"Can't calculate external root project path for project `${project.getName}`, fallback to `ProjectUtil.guessProjectDir`"
         if (!isInTest)
           log.warn(message)
-        Option(ProjectUtil.guessProjectDir(project)).map(_.getCanonicalPath)
+        val guessedDir = ProjectUtil.guessProjectDir(project)
+        Option(guessedDir).map(_.getCanonicalPath)
       }
   }
 

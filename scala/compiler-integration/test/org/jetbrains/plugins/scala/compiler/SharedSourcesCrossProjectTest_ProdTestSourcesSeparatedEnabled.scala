@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsO
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertNotNull, assertNull, fail}
 import org.junit.experimental.categories.Category
@@ -19,7 +20,8 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
 
   override protected def getTestDataProjectPath: String = s"${TestUtils.getTestDataPath}/../../compiler-integration/testData/sharedSourcesCrossProject"
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override def setUp(): Unit = {
     super.setUp()
@@ -74,7 +76,7 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
     def fileIsNullAssertion(sharedClass: Path, moduleName: String): Unit =
       assertNull(s"Shared class file found in $moduleName, but it shouldn't", sharedClass)
 
-    Seq(baseJSMain,baseJVMMain).foreach { module =>
+    Seq(baseJSMain, baseJVMMain).foreach { module =>
       val sharedClass = findClassFile("Shared", module, isTest = false)
       fileIsNullAssertion(sharedClass, module.getName)
     }

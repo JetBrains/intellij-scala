@@ -18,8 +18,7 @@ import org.jetbrains.plugins.scala.project.maven.MavenProjectStructureTestUtils.
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
-import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
-import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
+import org.jetbrains.sbt.project.ProjectStructureAssertionsFixture
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -33,9 +32,7 @@ import scala.compiletime.uninitialized
 @Category(Array(classOf[SlowTests]))
 @RunWith(classOf[JUnit4])
 abstract class ScalaMavenImporterTest
-  extends MavenImportingTestCase
-    with ProjectStructureMatcher
-    with ExactMatch {
+  extends MavenImportingTestCase {
 
   override protected def runInDispatchThread(): Boolean = false
 
@@ -96,8 +93,7 @@ abstract class ScalaMavenImporterTest
 
     importProjects(pomVFile)
 
-    val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
-    assertProjectsEqual(expected, getProject)(using compareContext)
+    new ProjectStructureAssertionsFixture(getProject).assertProjectsEqual(expected)
   }
 
   private def runImportingTest_Common(

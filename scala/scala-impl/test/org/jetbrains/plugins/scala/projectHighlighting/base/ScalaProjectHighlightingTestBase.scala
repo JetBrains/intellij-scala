@@ -7,7 +7,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.TestLoggerFactory
-import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
+import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaProjectTestFixture, IdeaTestFixtureFactory}
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.FixtureDelegate
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
@@ -26,27 +26,26 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
   protected val projectFileName = "testHighlighting"
+
   private def getProjectFilePath: Path = getTestProjectPath.resolve(s"$projectFileName.ipr")
+
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
   protected def isProjectCachingEnabled: Boolean =
     ProjectHighlightingTestUtils.isProjectCachingEnabledPropertySet
 
   override protected def setUpFixtures(): Unit = {
-    //Skip creating fixtures in `com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase.setUpFixtures`
-    //We will init it manually
-    //super.setUpFixtures()
-
-    val factory = IdeaTestFixtureFactory.getFixtureFactory
-
-    val projectFixture =
+    val projectFixture: IdeaProjectTestFixture =
       if (isProjectAlreadyCached && isProjectCachingEnabled)
         new FixtureDelegate(getProjectFilePath)
       else
-        factory.createFixtureBuilder(getName).getFixture
+        createProjectFixture()
 
+
+    val factory = IdeaTestFixtureFactory.getFixtureFactory
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
+
     setMyTestFixture(codeInsightFixture)
   }
 

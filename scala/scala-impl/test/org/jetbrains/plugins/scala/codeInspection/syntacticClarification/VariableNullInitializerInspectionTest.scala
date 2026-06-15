@@ -2,11 +2,14 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
   override protected val description = ScalaInspectionBundle.message("variable.with.null.initializer")
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala2
 
   private val UserUnderscoreInitializer = ScalaInspectionBundle.message("use.underscore.initializer")
 
@@ -24,12 +27,13 @@ class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
       checkTextHasError(declaration)
       val result =
         s"""
-          |object Moo {
-          |  var x: $typeName = _
-          |}
+           |object Moo {
+           |  var x: $typeName = _
+           |}
         """.stripMargin
       testQuickFix(declaration, result, UserUnderscoreInitializer)
     }
+
     testType("String")
     testType("Unit")
     testType("List[_]")
@@ -38,9 +42,9 @@ class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
   def testDeclarationsWithStdValType(): Unit = {
     def testType(typeName: String): Unit = checkTextHasNoErrors(
       s"""
-        |object Moo {
-        |  var x: $typeName = null
-        |}
+         |object Moo {
+         |  var x: $typeName = null
+         |}
       """.stripMargin)
 
     testType("Char")
@@ -101,8 +105,52 @@ class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
 
   private def wrapInObject(code: String): String =
     s"""
-      |object Moo {
-      |  $code
-      |}
+       |object Moo {
+       |  $code
+       |}
     """.stripMargin
+}
+
+class VariableNullInitializerInspectionTest_Scala3 extends ScalaInspectionTestBase {
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
+
+  override protected val description = ScalaInspectionBundle.message("variable.with.null.initializer")
+
+  private val UserUnderscoreInitializer = ScalaInspectionBundle.message("use.underscore.initializer")
+
+  private val UseOptionType = ScalaInspectionBundle.message("use.option.type")
+
+  private val UseCompiletimeUninitialized = ScalaInspectionBundle.message("use.compiletime.uninitialized")
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testCompiletimeUninitializedQuickFix(): Unit = testQuickFix(
+    s"""class Foo {
+       |  var v: String = null
+       |}""".stripMargin,
+    s"""import scala.compiletime.uninitialized
+       |
+       |class Foo {
+       |  var v: String = uninitialized
+       |}""".stripMargin,
+    UseCompiletimeUninitialized
+  )
+
+  def testUnderscoreInitializerQuickFixIsNotAvailable(): Unit = checkNotFixable(
+    s"""class Foo {
+       |  var v: String = null
+       |}""".stripMargin,
+    UserUnderscoreInitializer
+  )
+
+  def testOptionTypeQuickFix(): Unit = testQuickFix(
+    s"""class Foo {
+       |  var v: String = null
+       |}""".stripMargin,
+    s"""class Foo {
+       |  var v: Option[String] = None
+       |}""".stripMargin,
+    UseOptionType
+  )
 }

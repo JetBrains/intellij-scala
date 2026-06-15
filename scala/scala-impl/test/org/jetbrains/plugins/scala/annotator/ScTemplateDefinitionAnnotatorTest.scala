@@ -124,7 +124,7 @@ class ScTemplateDefinitionAnnotatorTest
     val quickFixFixture = new ScalaQuickFixTestFixture(myFixture, objectCreationImpossible, trimExpectedText = false)
     quickFixFixture.descriptionMatcher = _.contains(objectCreationImpossible)
 
-    val quickFixes = quickFixFixture.findMatchingHighlights().flatMap(ScalaQuickFixTestFixture.findRegisteredQuickFixes)
+    val quickFixes = quickFixFixture.findMatchingHighlights().matching.flatMap(ScalaQuickFixTestFixture.findRegisteredQuickFixes)
     quickFixFixture.applyQuickFixesAndCheckExpected(
       quickFixes,
       """trait Test {

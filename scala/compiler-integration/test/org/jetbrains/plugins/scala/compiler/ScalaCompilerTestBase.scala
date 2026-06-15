@@ -12,6 +12,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
 import org.jetbrains.plugins.scala.base.SourceRootTestUtil
+import org.jetbrains.plugins.scala.compiler.testUtils.ScalaCompileServerTester
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.{applyEnabledCompileServerSettings, withModifiedCompileServerSettings}
 
 import java.nio.file.{Files, Path}
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
+import org.jetbrains.plugins.scala.util.CompilerTestUtil
 import org.junit.Assert
 import org.junit.Assert._
 
@@ -40,6 +41,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private val createdFiles: mutable.Set[VirtualFile] = mutable.Set.empty
 
+  private var scalaCompileServerTester: ScalaCompileServerTester = _
+
   /**
    * Called on each project, but before initializing ThreadWatcher.
    * Needed to avoid ThreadLeaked exceptions after each test run,
@@ -47,6 +50,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    */
   override def setUpProject(): Unit = {
     super.setUpProject()
+
+    scalaCompileServerTester = new ScalaCompileServerTester(
+      reuseCompileServerProcessBetweenTests = reuseCompileServerProcessBetweenTests,
+      compileServerShutdownTimeout = compileServerShutdownTimeout
+    )
 
     val modifiedCompileServerSettings = withModifiedCompileServerSettings { settings =>
       applyEnabledCompileServerSettings(settings, useCompileServer)
@@ -79,22 +87,14 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   override protected def setUp(): Unit = {
     super.setUp()
-    if (reuseCompileServerProcessBetweenTests) {
-      CompileServerTestUtil.registerLongRunningThreads()
-    } else {
-      // We don't want to reuse the compile server in this test class, but it may have already been started.
-      // We should shut it down first.
-      stopCompileServer()
-    }
+
+    scalaCompileServerTester.setUp()
   }
 
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
-    if (!reuseCompileServerProcessBetweenTests) {
-      stopCompileServer()
-    } else {
-      //  server will be stopped when Application shuts down (see ShutDownTracker in CompileServerLauncher)
-    }
+    scalaCompileServerTester.tearDown()
+
     EdtTestUtil.runInEdtAndWait { () =>
       disposeLibraries(getModule)
     }
@@ -179,7 +179,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     val srcRoot = getOrCreateChildDir("src")
     PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
   }
-
 
   private def addOutRoot(): Unit = inWriteAction {
     val outRoot = getOrCreateChildDir("out")

@@ -27,6 +27,8 @@ import java.awt.event.{InputEvent, KeyEvent}
 import javax.swing.KeyStroke
 import scala.jdk.CollectionConverters._
 
+//TODO: Split this file into multiple files
+
 final class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
 
   private val end = KeyStroke.getKeyStroke(KeyEvent.VK_END, InputEvent.CTRL_DOWN_MASK)
@@ -210,7 +212,6 @@ final class DebugShellAction(project: Project, remoteConnection: Option[RemoteCo
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
   if (remoteConnection.isDefined) {
     templatePresentation.setText(SbtBundle.message("sbt.shell.attach.debugger"))
-    templatePresentation.setEnabled(false)
   } else {
     templatePresentation.setText(SbtBundle.message("sbt.shell.enable.debugging.in.sbt.settings"))
   }

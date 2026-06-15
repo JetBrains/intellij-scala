@@ -30,11 +30,11 @@ final class ChangeTypeFix(
 
   override val getText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
-    val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
+    val (oldTypeDescription, newTypeDescription) = typeElement.`type`() match {
       case Right(oldType) => TypePresentation.different(oldType, newType)
       case _ => (typeElement.getText, newType.presentableText)
     }
-    ScalaBundle.message("change.type.to", oldTypeDescripton, newTypeDescription)
+    ScalaBundle.message("change.type.to", oldTypeDescription, newTypeDescription)
   }
 
   override def getFamilyName: String = ScalaBundle.message("family.name.change.type")

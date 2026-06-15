@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.shell.action.*
+import org.jetbrains.sbt.shell.optionsWarn.SbtShellOptionsWarningService
 
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.util.Collections
@@ -71,6 +72,7 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
   }
 
   override def dispose(): Unit = {
+    SbtShellOptionsWarningService.instance(project).uninstallHistoryViewer(getHistoryViewer)
     super.dispose()
     ConsoleViewsRegistry.removeConsoleView(project)
   }
@@ -108,6 +110,7 @@ object SbtShellConsoleView {
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
 
     cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
+    SbtShellOptionsWarningService.instance(project).installHistoryViewer(cv.getHistoryViewer)
 
     //in 2020.1 `updateUi` is invoked on toolwindow reopen, it reapplies LookAndFeel and adds default border to console editors
     forbidBorderFor(cv.getHistoryViewer)

@@ -6,7 +6,7 @@ import scala.concurrent.duration.FiniteDuration
 /**
  * Reports periodic heartbeats for long-running sbt import loops.
  *
- * It primarily exists for tests - to tell IntelliJ
+ * It primarily exists to make long-running imports observable in tests and diagnostic runs.
  */
 private final class SbtImportHeartbeatReporter(
   heartbeatInterval: FiniteDuration,

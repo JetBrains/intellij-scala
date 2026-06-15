@@ -4,8 +4,9 @@ import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.plugins.scala.build.{BuildMessages, TaskManagerResult}
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.SbtVersionCapabilities
-import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, ShellEvent, TaskComplete}
 import org.jetbrains.sbt.shell.SettingQueryHandler.*
+import org.jetbrains.sbt.shell.communication.ShellEvent.{Output, TaskComplete}
+import org.jetbrains.sbt.shell.communication.{SbtShellCommandEventProcessor, SbtShellCommandRequest, ShellEvent}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,24 +37,31 @@ class SettingQueryHandler private[jetbrains] (
     val command = s"show $settingColon"
 
     val listener = new BufferedListener(this)
-    comm.command(command, DefaultResult, listener).map {
-      (_: Result) => filterSettingValue(listener.getBufferedOutput)
+    comm.run(SbtShellCommandRequest[ProjectTaskManager.Result](command, listener)).map {
+      _ => filterSettingValue(listener.getBufferedOutput)
     }
   }
 
   def addToSettingValue(add: String): Future[Boolean] = {
     val command = s"set $settingPathForSetCommand += $add"
-    comm.command(command, DefaultResult, EmptyListener).map {
-      (p: Result) => !p.isAborted && !p.hasErrors
-    }
+    runCommandAndGetIsSuccess(command)
   }
 
   def setSettingValue(value: String): Future[Boolean] = {
     val command = s"set $settingPathForSetCommand := $value"
-    comm.command(command, DefaultResult, EmptyListener).map {
-      (p: Result) => !p.isAborted && !p.hasErrors
-    }
+    runCommandAndGetIsSuccess(command)
   }
+
+  private def runCommandAndGetIsSuccess(command: String): Future[Boolean] = {
+    val resultFuture = comm.run(SbtShellCommandRequest(command, new SbtShellCommandEventProcessor.NoOp(DefaultResult)))
+    resultFuture.map(isSuccessResult)
+  }
+
+  private def isSuccessResult(p: ProjectTaskManager.Result): Boolean =
+    !isFailureResult(p)
+
+  private def isFailureResult(p: ProjectTaskManager.Result): Boolean =
+    p.isAborted || p.hasErrors
 
   private val settingPathForSetCommand: String = {
     val scoped = sbtProjectUriAndId.map(buildScopedSettingTextForSetCommand)
@@ -115,17 +123,17 @@ class SettingQueryHandler private[jetbrains] (
 
 object SettingQueryHandler {
 
-  private type Result = ProjectTaskManager.Result
+  private def DefaultResult: TaskManagerResult =
+    TaskManagerResult(new ProjectTaskContext(), isAborted = false, hasErrors = false)
 
-  private val DefaultResult: TaskManagerResult = TaskManagerResult(new ProjectTaskContext(), isAborted = false, hasErrors = false)
-
-  private val EmptyListener: EventAggregator[Result] = (v1: Result, _: ShellEvent) => v1
-
-  private class BufferedListener(handler: SettingQueryHandler) extends EventAggregator[Result]() {
+  private class BufferedListener(handler: SettingQueryHandler) extends SbtShellCommandEventProcessor[ProjectTaskManager.Result] {
     private val filterPrefix = "[info] "
     private val successPrefix = "[success] "
     private var strings = ListBuffer[String]()
     private var collectInfo = true
+
+    override def initialResult: ProjectTaskManager.Result =
+      DefaultResult
 
     def getBufferedOutput: String = {
       // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
@@ -144,11 +152,11 @@ object SettingQueryHandler {
       }
     }
 
-    override def apply(res: Result, se: ShellEvent): Result = {
+    override def process(res: ProjectTaskManager.Result, se: ShellEvent): ProjectTaskManager.Result = {
       se match {
         case TaskComplete =>
           collectInfo = false
-        case SbtShellCommunication.Output(output) if collectInfo =>
+        case Output(output) if collectInfo =>
           strings += output
         case _ =>
       }
