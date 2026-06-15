@@ -11,9 +11,6 @@ public final class MockSbtProcessCommands {
     public static final String JdwpListeningAfterPrompt = "mockJdwpListeningAfterPrompt";
     public static final String JdwpListeningGluedToPrompt = "mockJdwpListeningGluedToPrompt";
     public static final String JdwpListeningMessage = "Listening for transport dt_socket at address: 12345";
-    public static final String FailProjectLoadingMarkerFile = ".mock-sbt-fail-project-loading-on-reload";
-    public static final String ProjectLoadingFailurePrompt = "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?";
-    public static final String ProjectLoadingFailureIgnoreReceivedOutput = WaitForFileMarkerPrefix + " project loading failure ignored";
     public static final String WroteStructureOutputPrefix = "wrote structure to: ";
     private static final String JdwpListeningCommandOutputFormat = "mock jdwp listening command output: %s";
     // Synthetic marker printed by MockSbtProcess.waitForFile; tests assert this exact fragment instead of ordinary sbt output.

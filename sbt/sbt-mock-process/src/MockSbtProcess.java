@@ -1,18 +1,15 @@
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.sbt.process.mock.MockSbtProcessCommands;
 
 public final class MockSbtProcess {
     private static final String StructureOutputFileProperty = "sbt.structure.outputFile";
-    private static final long ProjectLoadingFailureIgnoreTimeoutMillis = 10_000L;
 
     private static final class Commands {
         private static final String Exit = MockSbtProcessCommands.Exit;
@@ -20,10 +17,8 @@ public final class MockSbtProcess {
         private static final String MockJdwpListeningBeforePrompt = MockSbtProcessCommands.JdwpListeningBeforePrompt;
         private static final String MockJdwpListeningAfterPrompt = MockSbtProcessCommands.JdwpListeningAfterPrompt;
         private static final String MockJdwpListeningGluedToPrompt = MockSbtProcessCommands.JdwpListeningGluedToPrompt;
-        private static final String FailProjectLoadingMarkerFile = MockSbtProcessCommands.FailProjectLoadingMarkerFile;
         private static final String DumpStructureTo = "dumpStructureTo";
         private static final String DumpStructure = "dumpStructure";
-        private static final String Reload = "reload";
     }
 
     // Keep in sync with VmOptions in org.jetbrains.sbt.process.mock.MockSbtProcessForTests.
@@ -59,7 +54,7 @@ public final class MockSbtProcess {
                 runStdinCommandLoop(null);
             } else {
                 String command = toCommandText(args);
-                processCommand(command, null);
+                processCommand(command, false);
             }
         } catch (Exception e) {
             Log.error("exception: " + e);
@@ -82,50 +77,27 @@ public final class MockSbtProcess {
 
     private static void runStdinCommandLoop(String promptMode) throws IOException, InterruptedException {
         logStartupDebug("starting command loop" + (promptMode == null ? "" : " (" + promptMode + ")"), promptMode != null);
-        enableSingleCharacterInputIfPossible(promptMode);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             processCommandLoop(reader, promptMode);
         }
     }
 
-    private static void enableSingleCharacterInputIfPossible(String promptMode) throws InterruptedException {
-        if (promptMode == null || isWindows()) {
-            return;
-        }
-
-        try {
-            Process process = new ProcessBuilder("stty", "-icanon", "-echo", "min", "1", "time", "0")
-                    .redirectInput(ProcessBuilder.Redirect.INHERIT)
-                    .redirectOutput(ProcessBuilder.Redirect.to(new File("/dev/null")))
-                    .redirectError(ProcessBuilder.Redirect.to(new File("/dev/null")))
-                    .start();
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                Log.warn("failed to configure terminal for single-character input, exitCode=" + exitCode);
-            }
-        } catch (IOException e) {
-            Log.warn("failed to configure terminal for single-character input: " + e);
-        }
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
-    }
-
     private static void processCommandLoop(BufferedReader reader, String promptMode) throws IOException, InterruptedException {
+        boolean shellMode = promptMode != null;
         logStartupDebug("listening for input line...", promptMode != null);
         printPromptIfNeeded(promptMode);
 
         String line;
         while ((line = reader.readLine()) != null) {
-            Log.debug("received line=" + line);
+            echoInputLineIfNeeded(line, promptMode);
+            Log.debug("received line=" + line, shellMode);
             String command = line.trim();
             if (command.equals(Commands.Exit)) {
-                Log.debug("exit command received");
+                Log.debug("exit command received", shellMode);
                 return;
             }
 
-            processCommand(command, reader);
+            processCommand(command, shellMode);
             if (command.equals(Commands.MockJdwpListeningBeforePrompt)) {
                 printMockJdwpListeningMessage();
             }
@@ -140,7 +112,16 @@ public final class MockSbtProcess {
             }
         }
 
-        Log.debug("input stream closed");
+        Log.debug("input stream closed", shellMode);
+    }
+
+    private static void echoInputLineIfNeeded(String line, String promptMode) {
+        if (promptMode != null) {
+            // Real sbt/JLine renders the submitted command line as terminal input. The mock does not emulate terminal
+            // mode, so shell modes explicitly print the raw line to keep prompt-to-command-to-prompt ordering realistic.
+            System.out.println(line);
+            System.out.flush();
+        }
     }
 
     private static void logStartupDebug(String message, boolean shellMode) {
@@ -158,16 +139,11 @@ public final class MockSbtProcess {
         }
     }
 
-    private static void processCommand(String command, BufferedReader reader) throws IOException, InterruptedException {
-        Log.debug("[processCommand] command=" + command);
+    private static void processCommand(String command, boolean shellMode) throws IOException, InterruptedException {
+        Log.debug("[processCommand] command=" + command, shellMode);
 
         if (command.isEmpty()) {
-            Log.debug("ignoring blank command");
-            return;
-        }
-
-        if (shouldFailProjectLoading(command)) {
-            printProjectLoadingFailureAndWaitForIgnore(reader);
+            Log.debug("ignoring blank command", shellMode);
             return;
         }
 
@@ -188,40 +164,6 @@ public final class MockSbtProcess {
             DummyStructure.writeDummyProjectStructure(structureFile);
             Log.info(MockSbtProcessCommands.WroteStructureOutputPrefix + structureFile);
         }
-    }
-
-    private static boolean shouldFailProjectLoading(String command) {
-        return command.contains(Commands.Reload) && Files.exists(Paths.get(Commands.FailProjectLoadingMarkerFile));
-    }
-
-    private static void printProjectLoadingFailureAndWaitForIgnore(BufferedReader reader) throws IOException, InterruptedException {
-        System.out.print(MockSbtProcessCommands.ProjectLoadingFailurePrompt);
-        System.out.flush();
-
-        if (reader == null) {
-            return;
-        }
-
-        long deadline = System.currentTimeMillis() + ProjectLoadingFailureIgnoreTimeoutMillis;
-        while (System.currentTimeMillis() < deadline) {
-            if (reader.ready()) {
-                int input = reader.read();
-                if (input == -1) {
-                    return;
-                }
-
-                char ch = (char) input;
-                Log.debug("received project loading failure input=" + ch);
-                if (ch == 'i') {
-                    Log.info(MockSbtProcessCommands.ProjectLoadingFailureIgnoreReceivedOutput);
-                    return;
-                }
-            } else {
-                Thread.sleep(50);
-            }
-        }
-
-        Log.warn("timed out waiting for project loading failure ignore input");
     }
 
     private static void waitForFile(String filePath) throws InterruptedException {
@@ -380,6 +322,14 @@ public final class MockSbtProcess {
             System.err.flush();
         }
 
+        private static void debug(String message, boolean stdout) {
+            if (stdout) {
+                debugStdout(message);
+            } else {
+                debug(message);
+            }
+        }
+
         private static void debugStdout(String message) {
             System.out.println("[debug] " + message);
             System.out.flush();
@@ -401,6 +351,9 @@ public final class MockSbtProcess {
         }
 
         private static void debugFinal(String source) {
+            if (VmOptions.isShellMode(System.getProperty(VmOptions.ModeProperty, VmOptions.NoShellMode))) {
+                return;
+            }
             if (FinalDebugPrinted.compareAndSet(false, true)) {
                 debug("finished (" + source + ")");
             }
