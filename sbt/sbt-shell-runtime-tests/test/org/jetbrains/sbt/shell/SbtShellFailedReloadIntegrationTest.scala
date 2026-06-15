@@ -23,8 +23,7 @@ import scala.util.control.NonFatal
  * @see SCL-24349
  * @see SCL-24706
  */
-@Category(Array(classOf[SlowTests2]))
-class SbtShellFailedReloadIntegrationTest extends SbtRuntimeTest_WithSbtShell {
+abstract class SbtShellFailedReloadIntegrationTestBase extends SbtRuntimeTest_WithSbtShell {
 
   private val PrintDiagnosticsOnSuccessProperty =
     "sbt.shell.failed.reload.print.diagnostics.on.success"
@@ -153,6 +152,14 @@ class SbtShellFailedReloadIntegrationTest extends SbtRuntimeTest_WithSbtShell {
       ),
       log.contains("Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?")
     )
+    assertTrue(
+      withFailedReloadDiagnostics(
+        "Expected real sbt to consume ignore input and continue after the project loading failure",
+        importFailure,
+        Seq(structureFile),
+      ),
+      log.contains("Ignoring load failure")
+    )
     assertEquals(
       withFailedReloadDiagnostics(
         "Expected sbt shell to continue after the failed reload prompt instead of waiting for user input",
@@ -173,4 +180,12 @@ class SbtShellFailedReloadIntegrationTest extends SbtRuntimeTest_WithSbtShell {
 
     printDiagnosticsOnSuccessIfEnabled(importFailure, Seq(structureFile))
   }
+}
+
+@Category(Array(classOf[SlowTests2]))
+class SbtShellFailedReloadIntegrationTest extends SbtShellFailedReloadIntegrationTestBase
+
+@Category(Array(classOf[SlowTests2]))
+class SbtShellFailedReloadIntegrationTest_NewShell extends SbtShellFailedReloadIntegrationTestBase {
+  override protected def useNewShell: Boolean = true
 }

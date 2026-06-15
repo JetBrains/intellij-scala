@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
@@ -222,17 +223,15 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       recordDiagnosticEvent(s"sendIgnore skipped: state=$currentState")
       return
 
-    // Prior to sbt 1.4.0, the load failure command input required a newline.
-    // However, in newer versions, adding it unconditionally causes a double prompt to appear.
-    // See https://github.com/sbt/sbt/commit/5afc0f0fdfe4500770c000a02fa57c9b46e8de3c
     val sbtVersion = getRunningOrDetectedSbtVersion
-    val requiresNewLine = sbtVersion < SbtVersion("1.4.0")
-    val command =
-      if (requiresNewLine) "i" + System.lineSeparator
-      else "i"
+    val isNewShell = process.isRunWithNewShell
+    val isLinux = SystemInfo.isLinux
+    val requiresNewLine = isLoadFailureIgnoreNewlineRequired(sbtVersion, isNewShell, isLinux)
+    val command = loadFailureIgnoreCommand(sbtVersion, isNewShell, isLinux)
     recordDiagnosticEvent(
-      s"sendIgnore: sbtVersion=$sbtVersion, requiresNewLine=$requiresNewLine, command=${oneLine(command)}, state=$currentState"
+      s"sendIgnore: sbtVersion=$sbtVersion, isNewShell=$isNewShell, isLinux=$isLinux, requiresNewLine=$requiresNewLine, command=${oneLine(command)}, state=$currentState"
     )
+
     send(command)
   }
 
@@ -590,6 +589,34 @@ object SbtShellCommunication {
   private val Log: Logger = Logger.getInstance(classOf[SbtShellCommunication])
   private val MaxDiagnosticEvents = 200
   private val MaxDiagnosticTextLength = 500
+  private val SbtVersionWithRawLoadFailureInput = SbtVersion("1.4.0")
+
+  private[shell] def loadFailureIgnoreCommand(
+    sbtVersion: SbtVersion,
+    isNewShell: Boolean,
+    isLinux: Boolean,
+    lineSeparator: String = System.lineSeparator,
+  ): String = {
+    val withNewLineAfter = isLoadFailureIgnoreNewlineRequired(sbtVersion, isNewShell, isLinux)
+    if (withNewLineAfter)
+      "i" + lineSeparator
+    else
+      "i"
+  }
+
+  private[shell] def isLoadFailureIgnoreNewlineRequired(
+    sbtVersion: SbtVersion,
+    isNewShell: Boolean,
+    isLinux: Boolean,
+  ): Boolean = {
+    // SCL-25342, SCL-24349: sbt 1.4+ reads one raw byte after printing the failed-load prompt
+    // (https://github.com/sbt/sbt/commit/5afc0f0fdfe4500770c000a02fa57c9b46e8de3c).
+    // On Linux with the legacy idea-shell PTY, IDEA can observe the prompt and write `i` before sbt
+    // enters raw input mode, so the byte is echoed and not consumed as "ignore" without a newline.
+    val isLegacyLinuxShell = isLinux && !isNewShell
+
+    sbtVersion < SbtVersionWithRawLoadFailureInput || isLegacyLinuxShell
+  }
 
   def forProject(project: Project): SbtShellCommunication =
     SbtShellCommandSubmitter.instance(project).asInstanceOf[SbtShellCommunication]
