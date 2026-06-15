@@ -1456,7 +1456,7 @@ object SourceCode {
       var prefixWasPrinted = false
       def printWithin(within: Option[TypeRepr]) = within match
         case _ if definition.symbol.flags.is(Flags.Local) => inSquare(this += "this")
-        case Some(TypeRef(_, name)) => inSquare(this += name)
+        case Some(TypeRef(_, name)) => if (name != definition.symbol.owner.name) inSquare(this += name)
         case Some(within) => inSquare(printFullClassName(within))
         case _ =>
 
