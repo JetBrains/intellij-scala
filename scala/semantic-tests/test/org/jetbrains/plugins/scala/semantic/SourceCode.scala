@@ -294,7 +294,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(_, _) => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty => printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
@@ -346,7 +346,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(_, _) => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty => printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
