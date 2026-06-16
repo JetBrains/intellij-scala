@@ -902,16 +902,14 @@ object SourceCode {
         val ClassDef(_, _, _, _, body) = sym.owner.tree: @unchecked
         body.collectFirst {
           case vdef @ ValDef(`name`, _, _) if vdef.symbol.flags.is(Flags.ParamAccessor) =>
-            if (!vdef.symbol.flags.is(Flags.Local)) {
-              var printedPrefix = false
-              if (vdef.symbol.flags.is(Flags.Override)) {
-                this += "override "
-                printedPrefix = true
-              }
-              printedPrefix  |= printProtectedOrPrivate(vdef)
-              if (vdef.symbol.flags.is(Flags.Mutable)) this += highlightValDef("var ")
-              else if (printedPrefix || !vdef.symbol.flags.is(Flags.CaseAccessor)) this += highlightValDef("val ")
+            var printedPrefix = false
+            if (vdef.symbol.flags.is(Flags.Override)) {
+              this += "override "
+              printedPrefix = true
             }
+            printedPrefix  |= printProtectedOrPrivate(vdef)
+            if (vdef.symbol.flags.is(Flags.Mutable)) this += highlightValDef("var ")
+            else if (printedPrefix || !vdef.symbol.flags.is(Flags.CaseAccessor)) this += highlightValDef("val ")
         }
       end if
 
