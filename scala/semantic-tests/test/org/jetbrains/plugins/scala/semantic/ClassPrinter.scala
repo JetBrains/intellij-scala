@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScThisReference, ScTry, ScUnderscoreSection, ScUnitExpr, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScReferenceExpression, ScThisReference, ScTry, ScUnderscoreSection, ScUnitExpr, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
@@ -213,6 +213,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         textOfExpression(invokedExpr, indent) + targs + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
     case gc: ScGenericCall =>
       textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
+    case sc: ScAssignment =>
+      textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
     case r: ScReferenceExpression => r.qualifier match {
       case Some(q) => textOfExpression(q, indent) + "." + r.refName
       case None => r.resolve match {
