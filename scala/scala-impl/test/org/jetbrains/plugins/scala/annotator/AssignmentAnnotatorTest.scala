@@ -5,6 +5,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
+import org.junit.Assert
 
 class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   import Message._
@@ -26,7 +27,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Nil =>
     }
   }*/
-  
+
   def testValue(): Unit = {
     assertMatches(messages("val v = A; v = A")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
@@ -35,7 +36,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("v = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testFunctionParameter(): Unit = {
     assertMatches(messages("def f(p: A) { p = A }")) {
       case Error("p = A", ReassignmentToVal()) :: Nil =>
@@ -44,7 +45,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("p = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testClassParameter(): Unit = {
     assertMatches(messages("case class C(var p: A) { p = A }")) {
       case Nil =>
@@ -53,7 +54,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("p = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testClassVariableParameter(): Unit = {
     assertMatches(messages("class C(var p: A) { p = A }")) {
       case Nil =>
@@ -68,7 +69,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("p = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testFunctionLiteralParameter(): Unit = {
     assertMatches(messages("(p: A) => { p = A }")) {
       case Error("p = A", ReassignmentToVal()) :: Nil =>
@@ -77,7 +78,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("p = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   //TODO fails on server
 //  def testParameterInsideBlock {
 //    assertMatches(messages("{ p: A => p = A }")) {
@@ -87,7 +88,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
 //      case Error("p = B", ReassignmentToVal()) :: Nil =>
 //    }
 //  }
-  
+
   def testForComprehensionGenerator(): Unit = {
     assertMatches(messages("for(v: A <- null) { v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
@@ -96,7 +97,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("v = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testForComprehensionBinding(): Unit = {
     assertMatches(messages("for(x <- null; v = A) { v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
@@ -105,7 +106,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Error("v = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
   def testCaseClause(): Unit = {
     assertMatches(messages("A match { case v: A => v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
@@ -126,7 +127,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Nil =>
     }
   }
-  
+
   def testVarInsideVar(): Unit = {
     assertMatches(messages("val x = { var a = A; a = A }")) {
       case Nil =>
@@ -138,7 +139,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Nil =>
     }
   }
-  
+
   def testSetter(): Unit = {
     assertMatches(messages("def a = A; def a_=(x: A) {}; a = A")) {
       case Nil =>
@@ -155,6 +156,76 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     assertMatches(messages("def `a` = A; def a_=(x: A) {}; a = A")) {
       case Nil =>
     }
+  }
+
+  def testUnarySetter(): Unit = {
+    val code =
+      """
+        |class C {
+        |  def unary_! : C = this
+        |  def `unary_!_=`(value: A): Unit = ()
+        |}
+        |val c = new C
+        |!c = A
+        |""".stripMargin
+
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+
+    Assert.assertEquals("`unary_!_=`", assignment(code).resolveAssignment.map(_.element.name).orNull)
+  }
+
+  def testUnaryGetterWithoutSetter(): Unit = {
+    assertMatches(messages(
+      """
+        |class C {
+        |  def unary_! : C = this
+        |}
+        |val c = new C
+        |!c = A
+        |""".stripMargin
+    )) {
+      case Error("!c = A", ReassignmentToVal()) :: Nil =>
+    }
+  }
+
+  // SCL-22974
+  def testUnarySettersWithImplicitClause(): Unit = {
+    val code =
+      """
+        |class MyClass {
+        |  def regular: MyClass = this
+        |  def unary_! : MyClass = this
+        |  def unary_~ : MyClass = this
+        |
+        |  def `regular_=`[T](value: T)(implicit x: T) : Unit = println(s"assigning foo $value")
+        |  def `unary_!_=`[T](value: T)(implicit x: T) : Unit = println(s"assigning ! $value")
+        |  def `unary_~_=`[T](value: T)(implicit x: T) : Unit = println(s"assigning ~ $value")
+        |
+        |  def main(args: Array[String]): Unit = {
+        |    val a = new MyClass
+        |    a.regular
+        |    !a
+        |    ~a
+        |
+        |    implicit val s: String = "23"
+        |
+        |    a.regular = "42"
+        |    !a = "42"
+        |    ~a = "42"
+        |  }
+        |}
+        |""".stripMargin
+
+    assertMatches(messagesForAllAssignments(code)) {
+      case Nil =>
+    }
+
+    Assert.assertEquals(
+      Seq("`regular_=`", "`unary_!_=`", "`unary_~_=`"),
+      assignments(code).map(_.resolveAssignment.map(_.element.name).orNull)
+    )
   }
 
   // SCL-17962
@@ -174,14 +245,30 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse()
-    val assignment = file.depthFirst().findByType[ScAssignment].get
+    val assignment = this.assignment(code)
+    val file = assignment.getContainingFile
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     ScAssignmentAnnotator.annotate(assignment, typeAware = true)
     mock.annotations
   }
+
+  private def messagesForAllAssignments(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
+    val allAssignments = assignments(code)
+    val file = allAssignments.head.getContainingFile
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+
+    allAssignments.foreach(ScAssignmentAnnotator.annotate(_, typeAware = true))
+    mock.annotations
+  }
+
+  private def assignment(@Language(value = "Scala", prefix = Header) code: String): ScAssignment =
+    assignments(code).head
+
+  private def assignments(@Language(value = "Scala", prefix = Header) code: String): Seq[ScAssignment] =
+    (Header + code).parse().depthFirst().filterByType[ScAssignment].toSeq
 
   val ReassignmentToVal = StartWith("Reassignment to val")
   val IllegalAssignmentTarget = StartWith(ScalaBundle.message("illegal.assignment.target"))

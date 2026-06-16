@@ -129,6 +129,17 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |}""".stripMargin
   )
 
+  def testUnaryAssignmentRhsExpectedType(): Unit = checkTextHasNoErrors(
+    """
+      |class C {
+      |  def unary_! : C = this
+      |  def `unary_!_=`(f: String => Int): Unit = ()
+      |}
+      |val c = new C
+      |!c = _.length
+      |""".stripMargin
+  )
+
   def testSCL21549(): Unit = checkTextHasNoErrors(
     """import scala.language.postfixOps
       |
