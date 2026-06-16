@@ -235,7 +235,7 @@ object Main {
     val ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
     val classLoader = classLoaderCache.getOrUpdate(classpath) { () =>
-      new URLClassLoader(classpath.map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
+      new URLClassLoader(classpath.map(_.toUri.toURL).toArray)
     }
 
     val bridgeClassName =
