@@ -182,7 +182,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       printTo(sb, t)
       sb.toString.stripSuffix("\n")
     case f: ScFunction => textOf(f, indent).stripSuffix("\n")
-    case v: ScValueOrVariable => textOf(v, v.declaredElements.head, indent).stripSuffix("\n")
+    case v: ScValueOrVariable => v.declaredElements.headOption.map(textOf(v, _, indent).stripSuffix("\n")).getOrElse("")
     case t: ScTypeAlias => textOf(t, indent).stripSuffix("\n")
     case e: ScExpression => "\n" + indent + "  " + textOfExpression(e, indent)
     case _ => "<stmt>"

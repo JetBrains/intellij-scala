@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance as ScalaApplicationSettings
 import org.junit.{Assert, Test}
 
+import java.nio.file.{Files, Path}
+import java.util.Comparator
+
 class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
 
 //  @Test def align(): Unit = doTest("cats.Align")
@@ -23,7 +26,29 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
 
   @Test def foo(): Unit = Assert.assertTrue(true)
 
+//  @Test
+  def compare(): Unit = {
+    val classes = allClasses(excludePackages = Set.empty)
+
+    val directory = Path.of("scala", "semantic-tests", "target", "comparison")
+    if (Files.exists(directory)) Files.walk(directory).sorted(Comparator.reverseOrder).forEach(Files.delete(_))
+    Files.createDirectory(directory)
+
+    classes.take(50).foreach { cls =>
+      println(cls.qualifiedName)
+      val (decompiledText, sourceText) = textOf(cls.qualifiedName)
+      Files.write(directory.resolve(cls.name + ".scala"), cls.getSourceMirrorClass.getText.getBytes)
+      Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
+      Files.write(directory.resolve(cls.name + "2.scala"), sourceText.getBytes)
+    }
+  }
+
   private def doTest(fqn: String): Unit = {
+    val (decompiledText, sourceText) = textOf(fqn)
+    Assert.assertEquals(decompiledText, sourceText)
+  }
+
+  private def textOf(fqn: String): (String, String) = {
     val cls = ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(getProject), fqn)
       .getOrElse(throw new IllegalArgumentException(fqn))
       .asInstanceOf[ScTypeDefinition]
@@ -54,7 +79,7 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
     val decompiler = new Decompiler(classpath)
     val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
 
-    Assert.assertEquals(decompiledText, sourceText)
+    (decompiledText, sourceText)
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
