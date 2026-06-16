@@ -242,8 +242,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
     }
 
-  override def effectiveParameterClauses: Seq[ScParameterClause] =
-    cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
+  override def effectiveSignatureClauses: Seq[ScSignatureClause] =
+    cachedInUserData("effectiveSignatureClauses", this, BlockModificationTracker(this)) {
       val typeParams =
         if (isConstructor) {
           containingClass match {
@@ -252,9 +252,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
           }
         } else this.typeParametersWithExtension()
 
-      ScParameterOwner.insertSyntheticParameterClause(
+      ScParameterOwner.insertSyntheticSignatureClauses(
         paramClauses,
         paramClauses.clauses,
+        signatureClauses,
         typeParams,
         isClassParameter = false
       )

@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -63,6 +64,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)]
+
+  def matchedTypeParameters: Seq[(ScType, TypeParameter)] = Seq.empty
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method

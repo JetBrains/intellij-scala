@@ -37,6 +37,56 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |""".stripMargin
   )
 
+  def testInterleavedArgumentLists(): Unit = doTest(
+    s"""
+       |def test[T](t: T)[S](s: S): Unit = ()
+       |
+       |test$S[Int]$E(1)$S[String]$E("str")
+       |""".stripMargin
+  )
+
+  def testTypeParameterBounds(): Unit = doTest(
+    s"""
+       |trait Base
+       |trait Derived extends Base
+       |
+       |def test[A >: Base](a: A): A = ???
+       |
+       |val z: Base = test$S[Base]$E(new Derived {})
+       |val z2$S: Base$E = test$S[Base]$E(new Derived {})
+       |""".stripMargin
+  )
+
+  def testNamedTypeArgumentAndInferredTypeArgument(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def test[T, S](t: T)(s: S): Unit = ()
+       |
+       |test[T = Int$S, S = String$E](1)("str")
+       |""".stripMargin
+  )
+
+  def testNamedTypeArgumentAndInferredInterleavedTypeArgument(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def test[T](t: T)[S](s: S): Unit = ()
+       |
+       |test[T = Int](1)$S[String]$E("str")
+       |""".stripMargin
+  )
+
+  def testNamedTypeArgumentAndInferredTypeArgumentInInterleavedClause(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def test[T](t: T)[S, R](s: S, r: R): Unit = ()
+       |
+       |test[T = Int](1)[S = String$S, R = Boolean$E]("str", true)
+       |""".stripMargin
+  )
+
   def testApply(): Unit = doTest(
     s"""
        |object Test {
@@ -54,7 +104,7 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |
        |def test[T >: B](t: T): T = t
        |
-       |test$S[B]$E()
+       |test$S[Any]$E()
        |""".stripMargin
   )
 

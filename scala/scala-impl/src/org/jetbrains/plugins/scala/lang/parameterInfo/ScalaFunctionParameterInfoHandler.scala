@@ -176,8 +176,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     def renderParameterClause(clause: ScParameterClause, currentParameterIndex: Int, multipleLists: Boolean): Boolean = {
                       if (multipleLists) buffer.append("(")
                       val parameters = parametersOf(clause)
+                      val isCurrentClause = currentParameterIndex != -1
                       val grey =
-                        if (parameters.nonEmpty)
+                        if (parameters.nonEmpty || isCurrentClause)
                           applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, currentParameterIndex)
                         else
                           false

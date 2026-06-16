@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScParameterOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -41,8 +41,8 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  override def effectiveParameterClauses: Seq[ScParameterClause] =
-    cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
+  override def effectiveSignatureClauses: Seq[ScSignatureClause] =
+    cachedInUserData("effectiveSignatureClauses", this, BlockModificationTracker(this)) {
       def emptyParameterList: ScParameterClause =
         ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 
@@ -52,9 +52,10 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
         case clauses                                 => clauses
       }
 
-      ScParameterOwner.insertSyntheticParameterClause(
+      ScParameterOwner.insertSyntheticSignatureClauses(
         parameterList,
         clausesWithInitialEmpty,
+        signatureClauses,
         containingClass.typeParameters,
         isClassParameter = true
       )

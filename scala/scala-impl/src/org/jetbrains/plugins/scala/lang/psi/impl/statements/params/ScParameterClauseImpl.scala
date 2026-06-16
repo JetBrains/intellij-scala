@@ -49,7 +49,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
    * Builds synthetic parameters for context bounds that should be prepended to this implicit/using clause.
    *
    * We rely on clause-level metadata (`PrependedContextBoundTypeParametersKey`) computed during owner
-   * `effectiveParameterClauses` construction (via `insertSyntheticParameterClauseInterleaved`) instead of
+   * `effectiveSignatureClauses` construction (via `insertSyntheticSignatureClauses`) instead of
    * re-deriving clause placement here.
    *
    * `ensurePrependedContextBoundMetadataInitialized()` ensures that metadata exists even if

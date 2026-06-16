@@ -184,7 +184,9 @@ object MethodTypeProvider {
               case ScSignatureClause.TermClause(paramClause) =>
                 ScMethodType(
                   tp,
-                  paramClause.getSmartParameters
+                  paramClause.getSmartParameters,
+                  hasImplicitKW = paramClause.hasImplicitKeyword,
+                  hasUsingKW    = paramClause.hasUsingKeyword || paramClause.isGivenConditionalClause,
                 )
             }
           }
@@ -201,7 +203,7 @@ object MethodTypeProvider {
       }
 
       val regularMethodResult = {
-        val allClauses = element.signatureClauses
+        val allClauses = element.effectiveSignatureClauses
 
         if (allClauses.nonEmpty) interleavedPolymorphicType(allClauses)
         else                     super.polymorphicType(s, returnType)

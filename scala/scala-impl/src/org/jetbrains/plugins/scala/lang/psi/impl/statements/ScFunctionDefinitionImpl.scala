@@ -153,6 +153,7 @@ private object ScFunctionDefinitionImpl {
     implicit val context: Context = Context(fun)
 
     fun.returnTypeElement match {
+      case None if fun.isConstructor => fun.containingClass.`type`()
       case None if !fun.hasAssign => Right(api.Unit)
       case None =>
         fun.body match {
