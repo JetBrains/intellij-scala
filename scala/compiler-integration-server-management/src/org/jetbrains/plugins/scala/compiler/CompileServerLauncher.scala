@@ -690,6 +690,7 @@ object CompileServerLauncher {
           val opt = port.toIntOption
           opt.foreach(p => CompileServerToken.generateAndWriteTokenFor(compileServerSystemDir, p))
           return opt
+        case _ =>
       }
     }
     None
