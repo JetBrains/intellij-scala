@@ -849,6 +849,7 @@ object AfterUpdateDottyVersionScript {
         |# release-3.9.0
         |i25644.scala
         |i18234.scala
+        |t8244d
         |""".stripMargin.trim
     )
 
