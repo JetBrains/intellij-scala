@@ -2903,10 +2903,13 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
     )
   }
 
-  // When the managed scalaInstance is disabled (see https://www.scala-sbt.org/1.x/docs/Configuring-Scala.html#Configuring+Scala+tool+dependencies),
-  // an error like "Missing Scala tool configuration" is thrown, but it is ignored in the sbt-structure plugin
-  // (see https://github.com/JetBrains/sbt-structure/commit/92d78ea4b4fe7dbb48e586751f957d420136a809), so such a project can still be imported.
-  // SCL-24321 SCL-25275
+  // When managed scalaInstance is disabled (SCL-24321), sbt behaves differently depending on the version:
+  // - sbt < 1.12.0: throws "Missing Scala tool configuration", which sbt-structure silently ignores
+  //   (see https://github.com/JetBrains/sbt-structure/commit/92d78ea4b4fe7dbb48e586751f957d420136a809)
+  // - sbt >= 1.12.0: returns a scalaInstance with version 0.0.0 and no jars, which sbt-structure filters out
+  //   (see https://github.com/JetBrains/sbt-structure/commit/ff960b9e7c2ff801652881d4482dab197666e7b9)
+  // In both cases the project is still imported.
+  // See https://www.scala-sbt.org/1.x/docs/Configuring-Scala.html#Configuring+Scala+tool+dependencies
   def testManagedScalaInstanceOff(): Unit = runTest(
     new project("scalaInstance") {
       val scalaSdk_2_13_14: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
@@ -2914,13 +2917,10 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       lazy val scalaInstance: module = new module("scalaInstance")
       lazy val scalaInstanceMain: module = new module("scalaInstance.main") { libraryDependencies := scalaSdk_2_13_14 }
       lazy val scalaInstanceTest: module = new module("scalaInstance.test") { libraryDependencies := scalaSdk_2_13_14 }
-
-      // TODO: SCL-25316
-      val scalaSdk_0_0_0: Seq[library] = Seq(new library("sbt: scala-sdk-0.0.0"))
-
+      
       lazy val project1: module = new module("scalaInstance.project1") { libraryDependencies := Nil }
-      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := scalaSdk_0_0_0 }
-      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := scalaSdk_0_0_0 }
+      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := Nil }
+      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := Nil }
 
       modules := Seq(
         scalaInstance,

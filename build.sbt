@@ -587,7 +587,9 @@ lazy val sbtMockProcess =
       Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
       Test / javacOptions := outOfIDEAProcessJavacOptions,
 
-      //TODO: uncomment once SCL-25316 is fixed
+      // It looks like, even though there are no regular Scala sources in this module,
+      // the `build-info` plugin generates a Scala file that requires the Scala compiler to be available.
+      // Because of this, uncommenting the lines below is not possible at the moment.
 //      autoScalaLibrary := false,
 //      managedScalaInstance := false,
 //      libraryDependencies := Nil,
