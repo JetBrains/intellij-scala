@@ -805,6 +805,12 @@ object SourceCode {
         case rhs: WildcardTypeTree =>
           printType(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
+          def printName(t: TypeDef): Unit = {
+            this += (t.name match {
+              case WildcardName() => "_"
+              case s => s
+            })
+          }
           def printParam(t: Tree /*TypeTree | TypeBoundsTree*/): Unit = t match {
             case t: TypeBoundsTree => printBoundsTree(t)
             case t: TypeTree => printTypeTree(t)
@@ -812,13 +818,10 @@ object SourceCode {
           def printSeparated(list: List[TypeDef]): Unit = list match {
             case Nil =>
             case x :: Nil =>
-              this += (x.name match {
-                case WildcardName() => "_"
-                case s => s
-              })
+              printName(x)
               printParam(x.rhs)
             case x :: xs =>
-              this += x.name
+              printName(x)
               printParam(x.rhs)
               this += ", "
               printSeparated(xs)
