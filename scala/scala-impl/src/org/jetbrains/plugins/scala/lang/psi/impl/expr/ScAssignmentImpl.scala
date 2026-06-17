@@ -48,15 +48,34 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
   override def mirrorMethodCall: Option[ScMethodCall] = _mirrorMethodCall()
 
   private val _mirrorMethodCall = cached("mirrorMethodCall", BlockModificationTracker(this), () => {
+    def setterCall(text: String): Option[ScMethodCall] = {
+      val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+      mirrorExpr match {
+        case call@ScMethodCall(referenceExpression: ScReferenceExpression, _) =>
+          referenceExpression.assignment = this
+          Some(call)
+        case _ => None
+      }
+    }
+
+    def assignmentFunction(reference: ScReferenceExpression): Option[ScFunction] =
+      reference.bind().flatMap { r =>
+        r.element.nameContext match {
+          case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) => Some(fun)
+          case _                                                                 => None
+        }
+      }
+
+    def rightText: String =
+      rightExpression.map(_.getText).getOrElse("")
+
     leftExpression match {
       case ref: ScReferenceExpression =>
-        val text = s"${ref.getText}_=(${rightExpression.map(_.getText).getOrElse("")})"
-        val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-        mirrorExpr match {
-          case call@ScMethodCall(referenceExpression: ScReferenceExpression, _) =>
-            referenceExpression.assignment = this
-            Some(call)
-          case _ => None
+        setterCall(s"${ref.getText}_=($rightText)")
+      case ScPrefixExpr(operation, operand) =>
+        assignmentFunction(operation).flatMap { fun =>
+          val setterName = ScalaNamesUtil.clean(fun.name) + "_="
+          setterCall(s"(${operand.getText}).`$setterName`($rightText)")
         }
       case methodCall: ScMethodCall =>
         val invokedExpr = methodCall.getInvokedExpr
@@ -89,43 +108,46 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     }
 
   private def resolveAssignmentInner(shapeResolve: Boolean): Option[ScalaResolveResult] = {
+    def resolveSetter(ref: ScReferenceExpression): Option[ScalaResolveResult] =
+      ref.bind() match {
+        case Some(r) =>
+          r.element.nameContext match {
+            case _: ScVariable                  => None
+            case c: ScClassParameter if c.isVar => None
+            case _: PsiField                    => None
+            case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
+
+              val clauses = Seq(InvocationClause(args = rightExpression.map(expr => Seq(expr))))
+
+              val processor = new MethodResolveProcessor(
+                ref,
+                ScalaNamesUtil.clean(fun.name) + "_=",
+                clauses,
+                ref.getPrevTypeInfoParams,
+                isShapeResolve = shapeResolve,
+                kinds          = StdKinds.methodsOnly
+              )
+
+              r.fromType match {
+                case Some(tp) => processor.processType(tp, ref)
+                case None =>
+                  fun.getContext match {
+                    case d: ScDeclarationSequenceHolder =>
+                      d.processDeclarations(processor, ScalaResolveState.empty, fun, ref)
+                    case _ =>
+                  }
+              }
+              val candidates = processor.candidatesS
+              if (candidates.size == 1) Some(candidates.toArray.apply(0))
+              else None
+            case _ => None
+          }
+        case _ => None
+      }
+
     leftExpression match {
-      case ref: ScReferenceExpression =>
-        ref.bind() match {
-          case Some(r) =>
-            r.element.nameContext match {
-              case _: ScVariable                  => None
-              case c: ScClassParameter if c.isVar => None
-              case _: PsiField                    => None
-              case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
-
-                val clauses = Seq(InvocationClause(args = rightExpression.map(expr => Seq(expr))))
-
-                val processor = new MethodResolveProcessor(
-                  ref,
-                  ScalaNamesUtil.clean(fun.name) + "_=",
-                  clauses,
-                  ref.getPrevTypeInfoParams,
-                  isShapeResolve = shapeResolve,
-                  kinds          = StdKinds.methodsOnly
-                )
-
-                r.fromType match {
-                  case Some(tp) => processor.processType(tp, ref)
-                  case None =>
-                    fun.getContext match {
-                      case d: ScDeclarationSequenceHolder =>
-                        d.processDeclarations(processor, ScalaResolveState.empty, fun, ref)
-                      case _ =>
-                    }
-                }
-                val candidates = processor.candidatesS
-                if (candidates.size == 1) Some(candidates.toArray.apply(0))
-                else None
-              case _ => None
-            }
-          case _ => None
-        }
+      case ref: ScReferenceExpression => resolveSetter(ref)
+      case ScPrefixExpr(operation, _) => resolveSetter(operation)
       case _ => None
     }
   }

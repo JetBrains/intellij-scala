@@ -515,7 +515,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
               case _ => Array.empty
             }
           case _: ScReferenceExpression => expectedExprTypes(a)
-          case _: ScMethodCall =>
+          case _: ScMethodCall | _: ScPrefixExpr =>
             a.mirrorMethodCall match {
               case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(fromUnderscore = fromUnderscore)
               case _ => Array.empty
