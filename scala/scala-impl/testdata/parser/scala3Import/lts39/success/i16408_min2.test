@@ -1,0 +1,374 @@
+object Helpers:
+  type NodeFun[R] = Matchable // compiles without [R] parameter
+
+  type URIFun[R] = R match
+    case RDF[u] => u & NodeFun[R]
+end Helpers
+
+trait RDF[URIParam]
+
+trait ROps[R <: RDF[?]]:
+  def auth(uri: Helpers.URIFun[R]): String
+
+object TraitRDF extends RDF[TraitTypes.UriImpl]:
+
+  val rops = new ROps[TraitRDF.type] {
+    override def auth(uri: Helpers.URIFun[TraitRDF.type]): String = ???
+  }
+end TraitRDF
+
+object TraitTypes:
+  trait UriImpl // doesn't compile
+  // class UriImpl // compiles
+-----
+ScalaFile
+  ScObject: Helpers
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Helpers')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: NodeFun
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NodeFun')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Matchable
+            CodeReferenceElement: Matchable
+              PsiElement(identifier)('Matchable')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// compiles without [R] parameter')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: URIFun
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('URIFun')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match
+    case RDF[u] => u & NodeFun[R]
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: RDF[u]
+                  SimpleType: RDF
+                    CodeReferenceElement: RDF
+                      PsiElement(identifier)('RDF')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: u
+                        PsiElement(identifier)('u')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: u & NodeFun[R]
+                  SimpleType: u
+                    CodeReferenceElement: u
+                      PsiElement(identifier)('u')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: NodeFun[R]
+                    SimpleType: NodeFun
+                      CodeReferenceElement: NodeFun
+                        PsiElement(identifier)('NodeFun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: Helpers
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Helpers')
+  PsiWhiteSpace('\n\n')
+  ScTrait: RDF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RDF')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: URIParam
+        PsiElement(identifier)('URIParam')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: ROps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ROps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: RDF[?]
+          SimpleType: RDF
+            CodeReferenceElement: RDF
+              PsiElement(identifier)('RDF')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: auth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('auth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: uri
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('uri')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Helpers.URIFun[R]
+                    SimpleType: Helpers.URIFun
+                      CodeReferenceElement: Helpers.URIFun
+                        CodeReferenceElement: Helpers
+                          PsiElement(identifier)('Helpers')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('URIFun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+  PsiWhiteSpace('\n\n')
+  ScObject: TraitRDF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TraitRDF')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: RDF[TraitTypes.UriImpl]
+            SimpleType: RDF
+              CodeReferenceElement: RDF
+                PsiElement(identifier)('RDF')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: TraitTypes.UriImpl
+                  CodeReferenceElement: TraitTypes.UriImpl
+                    CodeReferenceElement: TraitTypes
+                      PsiElement(identifier)('TraitTypes')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('UriImpl')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: rops
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: rops
+              PsiElement(identifier)('rops')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: ROps[TraitRDF.type]
+                    SimpleType: ROps
+                      CodeReferenceElement: ROps
+                        PsiElement(identifier)('ROps')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: TraitRDF.type
+                          CodeReferenceElement: TraitRDF
+                            PsiElement(identifier)('TraitRDF')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition: auth
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('auth')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: uri
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('uri')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          ParametrizedType: Helpers.URIFun[TraitRDF.type]
+                            SimpleType: Helpers.URIFun
+                              CodeReferenceElement: Helpers.URIFun
+                                CodeReferenceElement: Helpers
+                                  PsiElement(identifier)('Helpers')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('URIFun')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: TraitRDF.type
+                                  CodeReferenceElement: TraitRDF
+                                    PsiElement(identifier)('TraitRDF')
+                                  PsiElement(.)('.')
+                                  PsiElement(type)('type')
+                              PsiElement(])(']')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        End: TraitRDF
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TraitRDF')
+  PsiWhiteSpace('\n\n')
+  ScObject: TraitTypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TraitTypes')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: UriImpl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('UriImpl')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// doesn't compile')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// class UriImpl // compiles')

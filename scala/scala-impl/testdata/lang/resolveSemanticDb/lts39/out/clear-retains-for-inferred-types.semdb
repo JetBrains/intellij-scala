@@ -1,0 +1,62 @@
+Document tests/pos/clear-retains-for-inferred-types/S1.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:45) scala/language.experimental.captureChecking.
+(4:25..4:26) _empty_/MyMap#[K] -> 3:13
+(4:28..4:29) _empty_/MyMap#[V] -> 3:16
+(4:35..4:42) scala/Boolean#
+(4:45..4:50) _empty_/MyMap# -> 3:7
+(4:51..4:52) _empty_/MyMap#[K] -> 3:13
+(4:54..4:55) _empty_/MyMap#[V] -> 3:16
+(4:64..4:68) _empty_/MyMap#filterNot().(pred) -> 4:17
+(4:72..4:75) scala/Predef.`???`().
+(7:17..7:18) _empty_/MySeq#[T] -> 6:14
+(7:22..7:23) _empty_/MySeq#map().[U] -> 7:11
+(7:26..7:31) _empty_/MySeq# -> 6:7
+(7:32..7:33) _empty_/MySeq#map().[U] -> 7:11
+(7:42..7:43) _empty_/MySeq#map().(f) -> 7:14
+(7:47..7:50) scala/Predef.`???`().
+
+Document tests/pos/clear-retains-for-inferred-types/S2.scala
+(6:9..6:15) scala/Predef.String#
+(7:15..7:20) _empty_/MyMap# -> 3:7
+(7:21..7:27) scala/Predef.String#
+(7:29..7:43) _empty_/AttributeValue# -> 3:7
+(9:27..9:32) _empty_/MyMap# -> 3:7
+(9:33..9:39) scala/Predef.String#
+(9:41..9:55) _empty_/AttributeValue# -> 3:7
+(9:59..9:69) _empty_/CompletedSpan#attributes. -> 7:3
+(10:23..10:28) _empty_/MyMap# -> 3:7
+(10:29..10:35) scala/Predef.String#
+(10:37..10:51) _empty_/AttributeValue# -> 3:7
+(10:55..10:65) _empty_/CompletedSpan#attributes. -> 7:3
+(14:13..14:26) _empty_/CompletedSpan# -> 5:12
+(14:29..14:32) scala/Predef.`???`().
+(15:3..15:7) local0 -> 14:7
+(15:8..15:12) _empty_/CompletedSpan#copy().
+(15:13..15:23) _empty_/CompletedSpan#copy().(attributes)
+(15:26..15:30) local0 -> 14:7
+(15:31..15:44) _empty_/CompletedSpan#allAttributes. -> 9:12
+(15:45..15:54) _empty_/MyMap#filterNot(). -> 4:7
+(16:3..16:7) local0 -> 14:7
+(16:8..16:12) _empty_/CompletedSpan#copy().
+(16:13..16:23) _empty_/CompletedSpan#copy().(attributes)
+(16:26..16:30) local0 -> 14:7
+(16:31..16:45) _empty_/CompletedSpan#allAttributes2(). -> 10:7
+(16:46..16:55) _empty_/MyMap#filterNot(). -> 4:7
+(22:18..22:28) _empty_/ColumnDef_# -> 23:12
+(22:29..22:33) _empty_/Type# -> 20:7
+(23:37..23:43) scala/Predef.String#
+(25:17..25:26) _empty_/TableDef_# -> 26:12
+(25:27..25:36) _empty_/S2$package.ColumnDef# -> 22:6
+(26:28..26:38) _empty_/ColumnDef_# -> 23:12
+(26:49..26:54) _empty_/MySeq# -> 6:7
+(26:55..26:56) _empty_/TableDef_#[C] -> 26:23
+(30:25..30:33) _empty_/S2$package.TableDef# -> 25:6
+(30:37..30:38) _empty_/DdlGenerator#columnComments().(t) -> 30:22
+(30:39..30:43) _empty_/TableDef_#cols. -> 26:43
+(30:44..30:47) _empty_/MySeq#map(). -> 7:7
+(32:39..32:51) _empty_/DdlGenerator# -> 28:16
+(34:34..34:42) _empty_/S2$package.TableDef# -> 25:6
+(34:46..34:49) scala/Predef.`???`().
+

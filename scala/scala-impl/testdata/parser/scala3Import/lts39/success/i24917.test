@@ -1,0 +1,1044 @@
+// Test for issue #24917: Named tuple type in pattern type ascription
+// The pattern `_: (a: Int, b: String)` should be valid - it's a type annotation
+// with a named tuple type, not a named pattern.
+
+object Test {
+  val ab: (a: Int, b: String) = (42, "hello, world")
+
+  // Basic case from the issue
+  ??? match {
+    case _: (a: Int, b: String) => ???
+  }
+
+  def `named tuple type in pattern with binding` =
+    ab match
+    case x: (a: Int, b: String) => x.b * x.a
+
+  // Named tuple type in pattern with binding
+  ??? match {
+    case x: (a: Int, b: String) => ???
+  }
+
+  // Single element named tuple type
+  ??? match {
+    case _: (name: String) => ???
+  }
+
+  // Three element named tuple type
+  ??? match {
+    case _: (x: Int, y: Int, z: Int) => ???
+  }
+
+  // Named tuple type with different types
+  ??? match {
+    case _: (flag: Boolean, count: Long, data: List[Int]) => ???
+  }
+
+  // Named tuple type in nested match
+  ??? match {
+    case outer @ (_: (inner: (a: Int, b: String))) => ???
+  }
+
+  // Named tuple type with type parameters
+  def foo[T]: Unit = {
+    ??? match {
+      case _: (elem: T) => ???
+    }
+  }
+
+  // Multiple patterns with named tuple types
+  ??? match {
+    case _: (a: Int) => ???
+    case _: (a: Int, b: Int) => ???
+    case _: (a: Int, b: Int, c: Int) => ???
+    case _ => ???
+  }
+
+  // Named tuple type in val pattern
+  val _: (x: Int, y: Int) = ???
+
+  // Named tuple type as function parameter pattern
+  def bar(t: (a: Int, b: String)): Int = t match {
+    case _: (a: Int, b: String) => 1
+  }
+}
+
+// Ensure existing named pattern functionality still works
+object NamedPatternTest {
+  type Person = (name: String, age: Int)
+  val person: Person = (name = "Alice", age = 30)
+
+  // Named patterns in tuple destructuring (existing functionality)
+  val (name = n, age = a) = person
+
+  // Named patterns in match (existing functionality)
+  person match {
+    case (name = x, age = y) => println(s"$x is $y years old")
+  }
+}
+-----
+ScalaFile
+  PsiComment(comment)('// Test for issue #24917: Named tuple type in pattern type ascription')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// The pattern `_: (a: Int, b: String)` should be valid - it's a type annotation')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// with a named tuple type, not a named pattern.')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: ab
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: ab
+              PsiElement(identifier)('ab')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          NamedTupleType: (a: Int, b: String)
+            PsiElement(()('(')
+            NamedTupleTypeComponent: a: Int
+              PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            NamedTupleTypeComponent: b: String
+              PsiElement(identifier)('b')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('42')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"hello, world"')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Basic case from the issue')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (a: Int, b: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: b: String
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: `named tuple type in pattern with binding`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`named tuple type in pattern with binding`')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ReferenceExpression: ab
+              PsiElement(identifier)('ab')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    NamedTupleType: (a: Int, b: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: a: Int
+                        PsiElement(identifier)('a')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: b: String
+                        PsiElement(identifier)('b')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InfixExpression
+                    ReferenceExpression: x.b
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('b')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: *
+                      PsiElement(identifier)('*')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x.a
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('a')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Named tuple type in pattern with binding')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (a: Int, b: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: b: String
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Single element named tuple type')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (name: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: name: String
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Three element named tuple type')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (x: Int, y: Int, z: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: x: Int
+                      PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: y: Int
+                      PsiElement(identifier)('y')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: z: Int
+                      PsiElement(identifier)('z')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Named tuple type with different types')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (flag: Boolean, count: Long, data: List[Int])
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: flag: Boolean
+                      PsiElement(identifier)('flag')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: count: Long
+                      PsiElement(identifier)('count')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: data: List[Int]
+                      PsiElement(identifier)('data')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: List[Int]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Named tuple type in nested match')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              NamingPattern: outer
+                PsiElement(identifier)('outer')
+                PsiWhiteSpace(' ')
+                PsiElement(@)('@')
+                PsiWhiteSpace(' ')
+                PatternInParenthesis
+                  PsiElement(()('(')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      NamedTupleType: (inner: (a: Int, b: String))
+                        PsiElement(()('(')
+                        NamedTupleTypeComponent: inner: (a: Int, b: String)
+                          PsiElement(identifier)('inner')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          NamedTupleType: (a: Int, b: String)
+                            PsiElement(()('(')
+                            NamedTupleTypeComponent: a: Int
+                              PsiElement(identifier)('a')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            NamedTupleTypeComponent: b: String
+                              PsiElement(identifier)('b')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          PsiComment(comment)('// Named tuple type with type parameters')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      NamedTupleType: (elem: T)
+                        PsiElement(()('(')
+                        NamedTupleTypeComponent: elem: T
+                          PsiElement(identifier)('elem')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Multiple patterns with named tuple types')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (a: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (a: Int, b: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: b: Int
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  NamedTupleType: (a: Int, b: Int, c: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: b: Int
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: c: Int
+                      PsiElement(identifier)('c')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition
+          PsiComment(comment)('// Named tuple type in val pattern')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            WildcardPattern
+              PsiElement(_)('_')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          NamedTupleType: (x: Int, y: Int)
+            PsiElement(()('(')
+            NamedTupleTypeComponent: x: Int
+              PsiElement(identifier)('x')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            NamedTupleTypeComponent: y: Int
+              PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bar
+          PsiComment(comment)('// Named tuple type as function parameter pattern')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  NamedTupleType: (a: Int, b: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: a: Int
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: b: String
+                      PsiElement(identifier)('b')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: t
+              PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    NamedTupleType: (a: Int, b: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: a: Int
+                        PsiElement(identifier)('a')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: b: String
+                        PsiElement(identifier)('b')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: NamedPatternTest
+    PsiComment(comment)('// Ensure existing named pattern functionality still works')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NamedPatternTest')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Person
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Person')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NamedTupleType: (name: String, age: Int)
+            PsiElement(()('(')
+            NamedTupleTypeComponent: name: String
+              PsiElement(identifier)('name')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            NamedTupleTypeComponent: age: Int
+              PsiElement(identifier)('age')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: person
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: person
+              PsiElement(identifier)('person')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Person
+            CodeReferenceElement: Person
+              PsiElement(identifier)('Person')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NamedTuple
+            PsiElement(()('(')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('name')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"Alice"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('age')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('30')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: n, a
+          PsiComment(comment)('// Named patterns in tuple destructuring (existing functionality)')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            NamedTuplePattern
+              PsiElement(()('(')
+              ScNamedTuplePatternComponentImpl(named tuple pattern component)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: n
+                  PsiElement(identifier)('n')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ScNamedTuplePatternComponentImpl(named tuple pattern component)
+                PsiElement(identifier)('age')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: person
+            PsiElement(identifier)('person')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// Named patterns in match (existing functionality)')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ReferenceExpression: person
+            PsiElement(identifier)('person')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              NamedTuplePattern
+                PsiElement(()('(')
+                ScNamedTuplePatternComponentImpl(named tuple pattern component)
+                  PsiElement(identifier)('name')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: x
+                    PsiElement(identifier)('x')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ScNamedTuplePatternComponentImpl(named tuple pattern component)
+                  PsiElement(identifier)('age')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: y
+                    PsiElement(identifier)('y')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: println
+                    PsiElement(identifier)('println')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InterpolatedStringLiteral
+                      InterpolatedExpressionPrefix: s
+                        PsiElement(interpolated string id)('s')
+                      PsiElement(interpolated string)('"')
+                      PsiElement(interpolated string injection)('$')
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(interpolated string)(' is ')
+                      PsiElement(interpolated string injection)('$')
+                      ReferenceExpression: y
+                        PsiElement(identifier)('y')
+                      PsiElement(interpolated string)(' years old')
+                      PsiElement(interpolated string end)('"')
+                    PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

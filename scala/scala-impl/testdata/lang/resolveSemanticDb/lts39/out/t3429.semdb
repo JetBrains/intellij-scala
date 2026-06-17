@@ -1,0 +1,6 @@
+Document tests/pos/t3429/A.scala
+(2:4..2:8) _empty_/Test#
+(2:9..2:12) _empty_/Test#`<init>`(+1).(exc)
+(2:15..2:22) scala/Predef.classOf().
+(2:23..2:32) scala/package.Exception#
+

@@ -1,0 +1,14 @@
+Document tests/pos/i6419.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(4:19..4:23) scala/Unit#
+(5:6..5:11) scala/
+(5:12..5:22) scala/annotation/
+(5:23..5:38) scala/annotation/compileTimeOnly#
+(5:65..5:68) scala/Predef.`???`().
+(6:5..6:8) local0 -> 5:59
+(9:19..9:23) scala/Unit#
+(10:5..10:8) _empty_/Foo#foo(). -> 4:14
+

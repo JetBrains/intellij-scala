@@ -1,0 +1,7 @@
+Document tests/pos/t296.scala
+(2:18..2:24) scala/Predef.String#
+(2:33..2:39) scala/Predef.String#
+(2:43..2:49) scala/Predef.String#
+(3:16..3:18) _empty_/Bug.foo().(l1) -> 2:26
+(4:15..4:16) _empty_/Bug.foo().(l) -> 2:12
+

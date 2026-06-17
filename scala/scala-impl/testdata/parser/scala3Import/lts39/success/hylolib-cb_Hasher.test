@@ -1,0 +1,507 @@
+package hylo
+
+import scala.util.Random
+
+/** A universal hash function. */
+final class Hasher private (private val hash: Int = Hasher.offsetBasis) {
+
+  /** Returns the computed hash value. */
+  def finalizeHash(): Int =
+    hash
+
+  /** Adds `n` to the computed hash value. */
+  def combine(n: Int): Hasher =
+    var h = hash
+    h = h ^ n
+    h = h * Hasher.prime
+    new Hasher(h)
+}
+
+object Hasher {
+
+  private val offsetBasis = 0x811c9dc5
+  private val prime = 0x01000193
+
+  /** A random seed ensuring different hashes across multiple runs. */
+  private lazy val seed = scala.util.Random.nextInt()
+
+  /** Creates an instance with the given `seed`. */
+  def apply(): Hasher =
+    val h = new Hasher()
+    h.combine(seed)
+    h
+
+  /** Returns the hash of `v`. */
+  def hash[T: Value](v: T): Int =
+    v.hashInto(Hasher()).finalizeHash()
+
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hylo
+      PsiElement(identifier)('hylo')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.util.Random
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Random')
+    PsiWhiteSpace('\n\n')
+    ScClass: Hasher
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A universal hash function.')
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Hasher')
+      PsiWhiteSpace(' ')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(private)('private')
+        PsiWhiteSpace(' ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: hash
+              AnnotationsList
+                <empty list>
+              Modifiers
+                AccessModifier
+                  PsiElement(private)('private')
+              PsiWhiteSpace(' ')
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('hash')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Hasher.offsetBasis
+                ReferenceExpression: Hasher
+                  PsiElement(identifier)('Hasher')
+                PsiElement(.)('.')
+                PsiElement(identifier)('offsetBasis')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: finalizeHash
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns the computed hash value.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('finalizeHash')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: hash
+              PsiElement(identifier)('hash')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: combine
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Adds ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('n')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' to the computed hash value.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('combine')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: n
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('n')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Hasher
+              CodeReferenceElement: Hasher
+                PsiElement(identifier)('Hasher')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: h
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: h
+                    PsiElement(identifier)('h')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: hash
+                  PsiElement(identifier)('hash')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                ReferenceExpression: h
+                  PsiElement(identifier)('h')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: h
+                    PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ^
+                    PsiElement(identifier)('^')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: n
+                    PsiElement(identifier)('n')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                ReferenceExpression: h
+                  PsiElement(identifier)('h')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: h
+                    PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: *
+                    PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Hasher.prime
+                    ReferenceExpression: Hasher
+                      PsiElement(identifier)('Hasher')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('prime')
+              PsiWhiteSpace('\n    ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Hasher
+                        CodeReferenceElement: Hasher
+                          PsiElement(identifier)('Hasher')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: h
+                          PsiElement(identifier)('h')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Hasher
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Hasher')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: offsetBasis
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: offsetBasis
+                PsiElement(identifier)('offsetBasis')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0x811c9dc5')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: prime
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: prime
+                PsiElement(identifier)('prime')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0x01000193')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: seed
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('A random seed ensuring different hashes across multiple runs.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+              PsiWhiteSpace(' ')
+              PsiElement(lazy)('lazy')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: seed
+                PsiElement(identifier)('seed')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: scala.util.Random.nextInt
+                ReferenceExpression: scala.util.Random
+                  ReferenceExpression: scala.util
+                    ReferenceExpression: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('util')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Random')
+                PsiElement(.)('.')
+                PsiElement(identifier)('nextInt')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: apply
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Creates an instance with the given ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('seed')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('apply')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Hasher
+              CodeReferenceElement: Hasher
+                PsiElement(identifier)('Hasher')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: h
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: h
+                    PsiElement(identifier)('h')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Hasher
+                          CodeReferenceElement: Hasher
+                            PsiElement(identifier)('Hasher')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: h.combine
+                  ReferenceExpression: h
+                    PsiElement(identifier)('h')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('combine')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: seed
+                    PsiElement(identifier)('seed')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: h
+                PsiElement(identifier)('h')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: hash
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns the hash of ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('v')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('hash')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ScContextBoundImpl(context bound)
+                  SimpleType: Value
+                    CodeReferenceElement: Value
+                      PsiElement(identifier)('Value')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: v
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('v')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: v.hashInto(Hasher()).finalizeHash
+                MethodCall
+                  ReferenceExpression: v.hashInto
+                    ReferenceExpression: v
+                      PsiElement(identifier)('v')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('hashInto')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: Hasher
+                        PsiElement(identifier)('Hasher')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('finalizeHash')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

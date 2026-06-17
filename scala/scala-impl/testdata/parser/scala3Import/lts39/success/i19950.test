@@ -1,0 +1,336 @@
+
+trait Apply[F[_]]:
+  extension [T <: NonEmptyTuple](tuple: T)(using toMap: Tuple.IsMappedBy[F][T])
+    def mapN[B](f: Tuple.InverseMap[T, F] => B): F[B] = ???
+
+given Apply[Option] = ???
+given Apply[List] = ???
+given Apply[util.Try] = ???
+
+@main def Repro = (Option(1), Option(2), Option(3)).mapN(_ + _ + _)
+-----
+ScalaFile
+  ScTrait: Apply
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Apply')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on T
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTuple
+                CodeReferenceElement: NonEmptyTuple
+                  PsiElement(identifier)('NonEmptyTuple')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: tuple
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tuple')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: toMap
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('toMap')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tuple.IsMappedBy[F][T]
+                    ParametrizedType: Tuple.IsMappedBy[F]
+                      SimpleType: Tuple.IsMappedBy
+                        CodeReferenceElement: Tuple.IsMappedBy
+                          CodeReferenceElement: Tuple
+                            PsiElement(identifier)('Tuple')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('IsMappedBy')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: mapN
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('mapN')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: f
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('f')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: Tuple.InverseMap[T, F] => B
+                        ParametrizedType: Tuple.InverseMap[T, F]
+                          SimpleType: Tuple.InverseMap
+                            CodeReferenceElement: Tuple.InverseMap
+                              CodeReferenceElement: Tuple
+                                PsiElement(identifier)('Tuple')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('InverseMap')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: F[B]
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_Apply_Option
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: Apply[Option]
+      SimpleType: Apply
+        CodeReferenceElement: Apply
+          PsiElement(identifier)('Apply')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_Apply_List
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: Apply[List]
+      SimpleType: Apply
+        CodeReferenceElement: Apply
+          PsiElement(identifier)('Apply')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: given_Apply_Try
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: Apply[util.Try]
+      SimpleType: Apply
+        CodeReferenceElement: Apply
+          PsiElement(identifier)('Apply')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: util.Try
+            CodeReferenceElement: util.Try
+              CodeReferenceElement: util
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Try')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Repro
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: (Option(1), Option(2), Option(3)).mapN
+        Tuple
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: Option
+              PsiElement(identifier)('Option')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Option
+              PsiElement(identifier)('Option')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Option
+              PsiElement(identifier)('Option')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('3')
+              PsiElement())(')')
+          PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('mapN')
+      ArgumentList
+        PsiElement(()('(')
+        InfixExpression
+          InfixExpression
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            UnderscoreSection
+              PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiElement())(')')

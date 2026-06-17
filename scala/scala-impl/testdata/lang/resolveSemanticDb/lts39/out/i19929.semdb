@@ -1,0 +1,7 @@
+Document tests/pos/i19929.scala
+(4:12..4:13) _empty_/A# -> 1:7
+(4:23..4:26) scala/Int#
+(5:10..5:11) _empty_/i19929$package.foo().(a) -> 4:9
+(5:12..5:13) local0 -> 4:19
+(5:16..5:19) scala/Predef.`???`().
+

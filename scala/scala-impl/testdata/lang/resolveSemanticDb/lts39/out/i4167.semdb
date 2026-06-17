@@ -1,0 +1,32 @@
+Document tests/pos/i4167/Test_2.scala
+(4:23..4:26) scala/Any#
+(5:13..5:19) collection/SeqOps# -> 4:7
+(5:20..5:24) scala/Char#
+(5:26..5:35) collection/Test.AnyConstr# -> 4:8
+(5:47..5:59) scala/Any#asInstanceOf().
+(5:60..5:69) collection/StringOps# -> 11:7
+
+Document tests/pos/i4167/collections_1.scala
+(3:23..3:29) collection/SeqOps# -> 4:7
+(3:30..3:31) collection/Seq#[A] -> 3:12
+(3:38..3:41) collection/Seq# -> 3:7
+(3:42..3:43) collection/Seq#[A] -> 3:12
+(4:38..4:41) scala/Any#
+(7:25..7:35) collection/ -> 1:9
+(7:36..7:39) collection/Seq# -> 3:7
+(7:40..7:41) collection/immutable/Seq#[A] -> 7:14
+(7:48..7:54) collection/immutable/SeqOps# -> 8:9
+(7:55..7:56) collection/immutable/Seq#[A] -> 7:14
+(7:63..7:66) collection/immutable/Seq# -> 7:9
+(7:67..7:68) collection/immutable/Seq#[A] -> 7:14
+(8:40..8:50) collection/ -> 1:9
+(8:51..8:57) collection/SeqOps# -> 4:7
+(8:58..8:59) collection/immutable/SeqOps#[A] -> 8:17
+(8:61..8:63) collection/immutable/SeqOps#[CC] -> 8:21
+(8:65..8:66) collection/immutable/SeqOps#[C] -> 8:29
+(11:25..11:35) collection/ -> 1:9
+(11:36..11:42) collection/SeqOps# -> 4:7
+(11:43..11:47) scala/Char#
+(11:49..11:58) collection/immutable/ -> 6:9
+(11:64..11:70) scala/Predef.String#
+

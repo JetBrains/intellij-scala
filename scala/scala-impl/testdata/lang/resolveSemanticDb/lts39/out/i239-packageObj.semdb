@@ -1,0 +1,9 @@
+Document tests/pos/i239-packageObj.scala
+(2:25..2:26) p/C#[A] -> 2:11
+(2:29..2:32) scala/Predef.`???`().
+(4:28..4:29) p/C# -> 2:9
+(4:30..4:36) scala/Predef.String#
+(9:10..9:16) scala/Predef.String#
+(9:19..9:20) p/ -> 1:9
+(9:21..9:24) p/C#foo(). -> 2:20
+

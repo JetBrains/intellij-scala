@@ -1,0 +1,14 @@
+Document tests/pos/21681d.scala
+(3:14..3:17) scala/Int#
+(3:20..3:23) scala/Predef.`???`().
+(4:18..4:21) scala/Int#
+(4:24..4:28) scala/Unit#
+(4:31..4:34) scala/Predef.`???`().
+(6:16..6:22) local3 -> 2:9
+(8:4..8:10) local5 -> 6:7
+(8:11..8:14) local2 -> 4:9
+(12:14..12:17) scala/Int#
+(14:16..14:22) local9 -> 11:9
+(16:4..16:10) local11 -> 14:7
+(16:11..16:14) local8
+

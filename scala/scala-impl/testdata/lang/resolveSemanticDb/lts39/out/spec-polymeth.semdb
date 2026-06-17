@@ -1,0 +1,9 @@
+Document tests/pos/spec-polymeth.scala
+(1:24..1:35) scala/specialized#
+(4:21..4:22) _empty_/AbsFun#compose().[A] -> 4:15
+(4:27..4:28) _empty_/AbsFun#[R] -> 1:36
+(4:31..4:32) _empty_/AbsFun#compose().[A] -> 4:15
+(5:12..5:13) _empty_/AbsFun#compose().[A] -> 4:15
+(5:16..5:17) _empty_/AbsFun#compose().(x) -> 4:18
+(6:5..6:6) _empty_/AbsFun#compose().(x) -> 4:18
+

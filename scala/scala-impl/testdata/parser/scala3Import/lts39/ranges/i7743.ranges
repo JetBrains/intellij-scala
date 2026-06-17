@@ -1,0 +1,13 @@
+[0,51]: PackageDef
+[0,0]: Ident
+[0,51]: DefDef
+[8,20]: ValDef
+[11,20]: ByNameTypeTree
+[14,20]: Ident
+[21,21]: TypeTree
+[24,51]: Match
+[24,25]: Number
+[38,49]: CaseDef
+[43,44]: Ident
+[45,49]: Block
+[48,49]: Ident

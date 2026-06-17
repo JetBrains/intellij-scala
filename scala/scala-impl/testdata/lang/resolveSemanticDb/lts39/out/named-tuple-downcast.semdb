@@ -1,0 +1,37 @@
+Document tests/pos/named-tuple-downcast.scala
+(1:22..1:28) scala/Predef.String#
+(1:35..1:38) scala/Int#
+(3:10..3:16) _empty_/`named-tuple-downcast$package`.Person# -> 1:6
+(5:12..5:18) scala/Predef.String#
+(5:20..5:23) scala/Int#
+(7:14..7:15) _empty_/`named-tuple-downcast$package`.id().[X] -> 7:8
+(7:18..7:19) _empty_/`named-tuple-downcast$package`.id().[X] -> 7:8
+(7:22..7:23) _empty_/`named-tuple-downcast$package`.id().(x) -> 7:11
+(8:9..8:15) scala/Predef.String#
+(8:17..8:20) scala/Int#
+(8:24..8:27) _empty_/`named-tuple-downcast$package`.Bob. -> 3:5
+(8:24..8:27) scala/NamedTuple.toTuple().
+(9:8..9:10) _empty_/`named-tuple-downcast$package`.SI# -> 5:6
+(9:13..9:15) _empty_/`named-tuple-downcast$package`.id(). -> 7:5
+(9:16..9:19) _empty_/`named-tuple-downcast$package`.Bob. -> 3:5
+(9:16..9:19) scala/NamedTuple.toTuple().
+(10:10..10:16) _empty_/`named-tuple-downcast$package`.Person# -> 1:6
+(10:17..10:18) scala/`&`#
+(10:19..10:25) scala/Predef.String#
+(10:28..10:31) scala/Predef.`???`().
+(11:8..11:10) _empty_/`named-tuple-downcast$package`.SI# -> 5:6
+(11:13..11:16) _empty_/`named-tuple-downcast$package`.and. -> 10:5
+(11:13..11:16) scala/NamedTuple.toTuple().
+(12:9..12:15) _empty_/`named-tuple-downcast$package`.Person# -> 1:6
+(12:16..12:17) scala/`|`#
+(12:43..12:46) scala/Predef.`???`().
+(13:8..13:10) _empty_/`named-tuple-downcast$package`.SI# -> 5:6
+(13:13..13:15) _empty_/`named-tuple-downcast$package`.or. -> 12:5
+(13:13..13:15) scala/NamedTuple.toTuple().
+(15:14..15:20) _empty_/`named-tuple-downcast$package`.Person# -> 1:6
+(15:25..15:26) _empty_/C#[P] -> 15:9
+(16:11..16:17) scala/Predef.String#
+(16:19..16:22) scala/Int#
+(16:26..16:27) _empty_/C#p. -> 15:22
+(16:26..16:27) scala/NamedTuple.toTuple().
+

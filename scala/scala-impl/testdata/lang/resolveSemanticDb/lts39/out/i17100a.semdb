@@ -1,0 +1,18 @@
+Document tests/pos/i17100a.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:31) scala/language.dynamics.
+(3:19..3:26) scala/Dynamic#
+(5:15..5:18) _empty_/Sel# -> 3:7
+(6:27..6:33) scala/Predef.String#
+(6:37..6:40) scala/Predef.`???`().
+(8:15..8:18) _empty_/Sel# -> 3:7
+(9:11..9:14) _empty_/i17100a$package.sel. -> 8:5
+(9:15..9:18) _empty_/i17100a$package.selectDynamic(). -> 6:7
+(10:17..10:20) _empty_/Sel# -> 3:7
+(10:25..10:37) scala/Any#asInstanceOf().
+(10:38..10:41) _empty_/Sel# -> 3:7
+(10:52..10:58) scala/Predef.String#
+(11:12..11:16) _empty_/i17100a$package.sel2. -> 10:5
+(11:17..11:20) _empty_/i17100a$package.selectDynamic(). -> 6:7
+

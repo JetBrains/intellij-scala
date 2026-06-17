@@ -1,0 +1,16 @@
+Document tests/pos/i25979.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:35) scala/language.experimental.
+(2:36..2:65) scala/language.experimental.strictEqualityPatternMatching.
+(6:22..6:25) _empty_/Foo# -> 4:14
+(6:26..6:29) scala/Int#
+(8:13..8:16) _empty_/Foo# -> 4:14
+(8:17..8:18) _empty_/i25979$package.a().[A] -> 8:7
+(9:3..9:4) _empty_/i25979$package.a().(a) -> 8:10
+(10:10..10:13) _empty_/Foo. -> 5:8
+(10:14..10:17) _empty_/Foo.Bar. -> 6:10
+

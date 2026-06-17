@@ -1,0 +1,7 @@
+Document tests/pos/t6797.scala
+(1:21..1:24) scala/App#
+(2:33..2:39) scala/Option#
+(2:40..2:46) scala/Predef.String#
+(2:50..2:54) scala/None.
+(3:35..3:42) _empty_/Test.Matcher# -> 2:17
+

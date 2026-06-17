@@ -1,0 +1,511 @@
+trait Schema[A]
+object Schema:
+    final case class Either[A, B](left: Schema[A], right: Schema[B]) extends Schema[scala.util.Either[A, B]]
+trait DecodeError
+
+object DynamicValue:
+  final case class LeftValue(value: DynamicValue) extends DynamicValue
+  final case class RightValue(value: DynamicValue) extends DynamicValue
+
+sealed trait DynamicValue:
+  self =>
+    def toTypedValueLazyError[A](using schema: Schema[A]): Either[DecodeError, A] =
+      (self, schema) match
+        case (DynamicValue.LeftValue(value), Schema.Either(schema1, _)) =>
+          value.toTypedValueLazyError(using schema1).map(Left(_))
+        case (DynamicValue.RightValue(value), Schema.Either(_, schema1)) =>
+          value.toTypedValueLazyError(using schema1).map(Right(_))
+        case _ => ???
+-----
+ScalaFile
+  ScTrait: Schema
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Schema')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Schema
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Schema')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n    ')
+        ScClass: Either
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Either')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: left
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('left')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Schema[A]
+                      SimpleType: Schema
+                        CodeReferenceElement: Schema
+                          PsiElement(identifier)('Schema')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: right
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('right')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Schema[B]
+                      SimpleType: Schema
+                        CodeReferenceElement: Schema
+                          PsiElement(identifier)('Schema')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Schema[scala.util.Either[A, B]]
+                  SimpleType: Schema
+                    CodeReferenceElement: Schema
+                      PsiElement(identifier)('Schema')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: scala.util.Either[A, B]
+                        SimpleType: scala.util.Either
+                          CodeReferenceElement: scala.util.Either
+                            CodeReferenceElement: scala.util
+                              CodeReferenceElement: scala
+                                PsiElement(identifier)('scala')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('util')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: DecodeError
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DecodeError')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: DynamicValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DynamicValue')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: LeftValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('LeftValue')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: DynamicValue
+                      CodeReferenceElement: DynamicValue
+                        PsiElement(identifier)('DynamicValue')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: DynamicValue
+                  CodeReferenceElement: DynamicValue
+                    PsiElement(identifier)('DynamicValue')
+        PsiWhiteSpace('\n  ')
+        ScClass: RightValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RightValue')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('value')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: DynamicValue
+                      CodeReferenceElement: DynamicValue
+                        PsiElement(identifier)('DynamicValue')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: DynamicValue
+                  CodeReferenceElement: DynamicValue
+                    PsiElement(identifier)('DynamicValue')
+  PsiWhiteSpace('\n\n')
+  ScTrait: DynamicValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DynamicValue')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        SelfType: self
+          PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: toTypedValueLazyError
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toTypedValueLazyError')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: schema
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('schema')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Schema[A]
+                    SimpleType: Schema
+                      CodeReferenceElement: Schema
+                        PsiElement(identifier)('Schema')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Either[DecodeError, A]
+            SimpleType: Either
+              CodeReferenceElement: Either
+                PsiElement(identifier)('Either')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: DecodeError
+                  CodeReferenceElement: DecodeError
+                    PsiElement(identifier)('DecodeError')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          MatchStatement
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: self
+                PsiElement(identifier)('self')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: schema
+                PsiElement(identifier)('schema')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n        ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ConstructorPattern
+                      CodeReferenceElement: DynamicValue.LeftValue
+                        CodeReferenceElement: DynamicValue
+                          PsiElement(identifier)('DynamicValue')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('LeftValue')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: value
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: Schema.Either
+                        CodeReferenceElement: Schema
+                          PsiElement(identifier)('Schema')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Either')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: schema1
+                          PsiElement(identifier)('schema1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n          ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: value.toTypedValueLazyError(using schema1).map
+                      MethodCall
+                        ReferenceExpression: value.toTypedValueLazyError
+                          ReferenceExpression: value
+                            PsiElement(identifier)('value')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('toTypedValueLazyError')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement(using)('using')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: schema1
+                            PsiElement(identifier)('schema1')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('map')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Left
+                          PsiElement(identifier)('Left')
+                        ArgumentList
+                          PsiElement(()('(')
+                          UnderscoreSection
+                            PsiElement(_)('_')
+                          PsiElement())(')')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ConstructorPattern
+                      CodeReferenceElement: DynamicValue.RightValue
+                        CodeReferenceElement: DynamicValue
+                          PsiElement(identifier)('DynamicValue')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('RightValue')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        ReferencePattern: value
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorPattern
+                      CodeReferenceElement: Schema.Either
+                        CodeReferenceElement: Schema
+                          PsiElement(identifier)('Schema')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Either')
+                      Pattern Argument List
+                        PsiElement(()('(')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferencePattern: schema1
+                          PsiElement(identifier)('schema1')
+                        PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n          ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: value.toTypedValueLazyError(using schema1).map
+                      MethodCall
+                        ReferenceExpression: value.toTypedValueLazyError
+                          ReferenceExpression: value
+                            PsiElement(identifier)('value')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('toTypedValueLazyError')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement(using)('using')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: schema1
+                            PsiElement(identifier)('schema1')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('map')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: Right
+                          PsiElement(identifier)('Right')
+                        ArgumentList
+                          PsiElement(()('(')
+                          UnderscoreSection
+                            PsiElement(_)('_')
+                          PsiElement())(')')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n        ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')

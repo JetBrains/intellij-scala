@@ -1,0 +1,468 @@
+import scala.quoted.*
+
+package jam {
+    trait JamCoreDsl {
+        implicit inline def defaultJamConfig: this.JamConfig =
+            new JamConfig(brewRecRegex = ".*")
+        class JamConfig(val brewRecRegex: String)
+        inline def brew(implicit inline config: JamConfig): Unit = ${ brewImpl() }
+    }
+    private object internal extends JamCoreDsl
+    export internal._
+
+    def brewImpl(using q: Quotes)(): Expr[Unit] = {
+        findSelf
+        '{()}
+    }
+
+    private def findSelf(using q: Quotes): Unit = {
+        import q.reflect.*
+        def rec(s: Symbol): Option[Symbol] = s.maybeOwner match {
+            case o if o.isNoSymbol => None
+            case o if o.isClassDef => Option(o)
+            case o => rec(o)
+        }
+        rec(Symbol.spliceOwner)
+    }
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: jam
+      PsiElement(identifier)('jam')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n    ')
+    ScTrait: JamCoreDsl
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('JamCoreDsl')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n        ')
+          ScFunctionDefinition: defaultJamConfig
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('defaultJamConfig')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: this.JamConfig
+              CodeReferenceElement: this.JamConfig
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(.)('.')
+                PsiElement(identifier)('JamConfig')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n            ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: JamConfig
+                      CodeReferenceElement: JamConfig
+                        PsiElement(identifier)('JamConfig')
+                    ArgumentList
+                      PsiElement(()('(')
+                      AssignStatement
+                        ReferenceExpression: brewRecRegex
+                          PsiElement(identifier)('brewRecRegex')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('".*"')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n        ')
+          ScClass: JamConfig
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('JamConfig')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: brewRecRegex
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('brewRecRegex')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n        ')
+          ScFunctionDefinition: brew
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('brew')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                Parameter: config
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(inline)('inline')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('config')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: JamConfig
+                      CodeReferenceElement: JamConfig
+                        PsiElement(identifier)('JamConfig')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SplicedBlock
+              PsiElement($)('$')
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: brewImpl
+                  PsiElement(identifier)('brewImpl')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n    ')
+    ScObject: internal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('internal')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: JamCoreDsl
+              CodeReferenceElement: JamCoreDsl
+                PsiElement(identifier)('JamCoreDsl')
+    PsiWhiteSpace('\n    ')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: internal
+          PsiElement(identifier)('internal')
+        PsiElement(.)('.')
+        PsiElement(_)('_')
+    PsiWhiteSpace('\n\n    ')
+    ScFunctionDefinition: brewImpl
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('brewImpl')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: q
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('q')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Quotes
+                CodeReferenceElement: Quotes
+                  PsiElement(identifier)('Quotes')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Expr[Unit]
+        SimpleType: Expr
+          CodeReferenceElement: Expr
+            PsiElement(identifier)('Expr')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace('\n        ')
+        ReferenceExpression: findSelf
+          PsiElement(identifier)('findSelf')
+        PsiWhiteSpace('\n        ')
+        QuotedBlock
+          PsiElement(')(''')
+          PsiElement({)('{')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n    ')
+        PsiElement(})('}')
+    PsiWhiteSpace('\n\n    ')
+    ScFunctionDefinition: findSelf
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('findSelf')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: q
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('q')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Quotes
+                CodeReferenceElement: Quotes
+                  PsiElement(identifier)('Quotes')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Unit
+        CodeReferenceElement: Unit
+          PsiElement(identifier)('Unit')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace('\n        ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: q.reflect
+              CodeReferenceElement: q
+                PsiElement(identifier)('q')
+              PsiElement(.)('.')
+              PsiElement(identifier)('reflect')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n        ')
+        ScFunctionDefinition: rec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rec')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Symbol
+                    CodeReferenceElement: Symbol
+                      PsiElement(identifier)('Symbol')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[Symbol]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: s.maybeOwner
+              ReferenceExpression: s
+                PsiElement(identifier)('s')
+              PsiElement(.)('.')
+              PsiElement(identifier)('maybeOwner')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n            ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+                PsiWhiteSpace(' ')
+                Guard
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: o.isNoSymbol
+                    ReferenceExpression: o
+                      PsiElement(identifier)('o')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('isNoSymbol')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+              PsiWhiteSpace('\n            ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+                PsiWhiteSpace(' ')
+                Guard
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: o.isClassDef
+                    ReferenceExpression: o
+                      PsiElement(identifier)('o')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('isClassDef')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: Option
+                      PsiElement(identifier)('Option')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: o
+                        PsiElement(identifier)('o')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n            ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ReferencePattern: o
+                  PsiElement(identifier)('o')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: rec
+                      PsiElement(identifier)('rec')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: o
+                        PsiElement(identifier)('o')
+                      PsiElement())(')')
+            PsiWhiteSpace('\n        ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n        ')
+        MethodCall
+          ReferenceExpression: rec
+            PsiElement(identifier)('rec')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: Symbol.spliceOwner
+              ReferenceExpression: Symbol
+                PsiElement(identifier)('Symbol')
+              PsiElement(.)('.')
+              PsiElement(identifier)('spliceOwner')
+            PsiElement())(')')
+        PsiWhiteSpace('\n    ')
+        PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

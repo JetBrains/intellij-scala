@@ -1,0 +1,12 @@
+Document tests/pos/unapplyContexts2.scala
+(5:25..5:33) _empty_/Analyzer# -> 1:7
+(7:23..7:27) scala/package.List#
+(7:28..7:34) scala/Predef.String#
+(7:38..7:42) scala/package.List#
+(7:43..7:49) scala/Predef.String#
+(7:53..7:57) _empty_/Contexts2#Context#collect().(sels) -> 7:17
+(8:12..8:16) scala/package.List.
+(8:17..8:25) _empty_/Analyzer#WILDCARD. -> 2:7
+(8:42..8:50) _empty_/Analyzer#WILDCARD. -> 2:7
+(8:52..8:55) scala/package.Nil.
+

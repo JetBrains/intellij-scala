@@ -1,0 +1,3078 @@
+package hylo
+
+import java.util.Arrays
+import scala.collection.mutable
+
+/** An ordered, random-access collection. */
+final class HyArray[Element] private (using
+    elementIsValue: Value[Element]
+)(
+    private var _storage: scala.Array[AnyRef | Null] | Null,
+    private var _count: Int // NOTE: where do I document private fields
+) {
+
+  // NOTE: The fact that we need Array[AnyRef] is diappointing and difficult to discover
+  // The compiler error sent me on a wild goose chase with ClassTag.
+
+  /** Returns `true` iff `this` is empty. */
+  def isEmpty: Boolean =
+    _count == 0
+
+  /** Returns the number of elements in `this`. */
+  def count: Int =
+    _count
+
+  /** Returns the number of elements that `this` can contain before allocating new storage. */
+  def capacity: Int =
+    if _storage == null then 0 else _storage.length
+
+  /** Reserves enough storage to store `n` elements in `this`. */
+  def reserveCapacity(n: Int, assumeUniqueness: Boolean = false): HyArray[Element] =
+    if n <= capacity then {
+      this
+    } else {
+      var newCapacity = max(1, capacity)
+      while newCapacity < n do { newCapacity = newCapacity << 1 }
+
+      val newStorage = new scala.Array[AnyRef | Null](newCapacity)
+      val s = _storage.asInstanceOf[scala.Array[AnyRef | Null]]
+      var i = 0
+      while i < count do {
+        newStorage(i) = _storage(i).asInstanceOf[Element].copy().asInstanceOf[AnyRef]
+        i += 1
+      }
+
+      if assumeUniqueness then {
+        _storage = newStorage
+        this
+      } else {
+        new HyArray(newStorage, count)
+      }
+    }
+
+  /** Adds a new element at the end of the array. */
+  def append(source: Element, assumeUniqueness: Boolean = false): HyArray[Element] =
+    val result = if assumeUniqueness && (count < capacity) then this else copy(count + 1)
+    result._storage(count) = source.asInstanceOf[AnyRef]
+    result._count += 1
+    result
+
+  // NOTE: Can't refine `C.Element` without renaming the generic parameter of `HyArray`.
+  // /** Adds the contents of `source` at the end of the array. */
+  // def appendContents[C](using
+  //     s: Collection[C]
+  // )(
+  //     source: C { type Element = Element },
+  //     assumeUniqueness: Boolean = false
+  // ): HyArray[Element] =
+  //   val result = if (assumeUniqueness) { this } else { copy(count + source.count) }
+  //   source.reduce(result, (r, e) => r.append(e, assumeUniqueness = true))
+
+  /** Removes and returns the last element, or returns `None` if the array is empty. */
+  def popLast(assumeUniqueness: Boolean = false): (HyArray[Element], Option[Element]) =
+    if isEmpty then {
+      (this, None)
+    } else {
+      val result = if assumeUniqueness then this else copy()
+      result._count -= 1
+      (result, Some(result._storage(result._count).asInstanceOf[Element]))
+    }
+
+  /** Removes all elements in the array, keeping allocated storage iff `keepStorage` is true. */
+  def removeAll(
+      keepStorage: Boolean = false,
+      assumeUniqueness: Boolean = false
+  ): HyArray[Element] =
+    if isEmpty then {
+      this
+    } else if keepStorage then {
+      val result = if assumeUniqueness then this else copy()
+      Arrays.fill(result._storage, null)
+      result._count = 0
+      result
+    } else {
+      HyArray()
+    }
+
+  /** Accesses the element at `p`.
+    *
+    * @requires
+    *   `p` is a valid position in `self` different from `endPosition`.
+    * @complexity
+    *   O(1).
+    */
+  def at(p: Int): Element =
+    _storage(p).asInstanceOf[Element]
+
+  /** Calls `transform` on the element at `p` to update its value.
+    *
+    * @requires
+    *   `p` is a valid position in `self` different from `endPosition`.
+    * @complexity
+    *   O(1).
+    */
+  def modifyAt(
+      p: Int,
+      transform: (Element) => Element,
+      assumeUniqueness: Boolean = false
+  ): HyArray[Element] =
+    val result = if assumeUniqueness then this else copy()
+    result._storage(p) = transform(at(p)).asInstanceOf[AnyRef]
+    result
+
+  /** Returns a textual description of `this`. */
+  override def toString: String =
+    var s = "["
+    var i = 0
+    while i < count do {
+      if i > 0 then { s += ", " }
+      s += s"${at(i)}"
+      i += 1
+    }
+    s + "]"
+
+  /** Returns an independent copy of `this`, capable of storing `minimumCapacity` elements before
+    * allocating new storage.
+    */
+  def copy(minimumCapacity: Int = 0): HyArray[Element] =
+    if minimumCapacity > capacity then {
+      // If the requested capacity on the copy is greater than what we have, `reserveCapacity` will
+      // create an independent value.
+      reserveCapacity(minimumCapacity)
+    } else {
+      val clone = HyArray[Element]().reserveCapacity(max(minimumCapacity, count))
+      var i = 0
+      while i < count do {
+        clone._storage(i) = _storage(i).asInstanceOf[Element].copy().asInstanceOf[AnyRef]
+        i += 1
+      }
+      clone._count = count
+      clone
+    }
+
+}
+
+object HyArray {
+
+  /** Creates an array with the given `elements`. */
+  def apply[T](using t: Value[T])(elements: T*): HyArray[T] =
+    var a = new HyArray[T](null, 0)
+    for e <- elements do a = a.append(e, assumeUniqueness = true)
+    a
+
+}
+
+given hyArrayIsValue: [T] => (tIsValue: Value[T]) => Value[HyArray[T]] {
+
+  extension (self: HyArray[T]) {
+
+    def copy(): HyArray[T] =
+      self.copy()
+
+    def eq(other: HyArray[T]): Boolean =
+      self.elementsEqual(other)
+
+    def hashInto(hasher: Hasher): Hasher =
+      self.reduce(hasher, (h, e) => e.hashInto(h))
+
+  }
+
+}
+
+given hyArrayIsCollection: [T] => (tIsValue: Value[T]) => Collection[HyArray[T]] {
+
+  type Element = T
+  //given elementIsValue: Value[T] = tIsValue
+
+  type Position = Int
+  override given positionIsValue: Value[Int] = intIsValue
+
+  extension (self: HyArray[T]) {
+
+    // NOTE: Having to explicitly override means that primary declaration can't automatically
+    // specialize trait requirements.
+    override def isEmpty: Boolean = self.isEmpty
+
+    override def count: Int = self.count
+
+    def startPosition = 0
+
+    def endPosition = self.count
+
+    def positionAfter(p: Int) = p + 1
+
+    def at(p: Int) = self.at(p)
+
+  }
+
+}
+
+// NOTE: This should work.
+// given hyArrayIsStringConvertible[T](using
+//     tIsValue: Value[T],
+//     tIsStringConvertible: StringConvertible[T]
+// ): StringConvertible[HyArray[T]] with {
+//
+//   given Collection[HyArray[T]] = hyArrayIsCollection[T]
+//
+//   extension (self: HyArray[T])
+//     override def description: String =
+//       var contents = mutable.StringBuilder()
+//       self.forEach((e) => { contents ++= e.description; true })
+//       s"[${contents.mkString(", ")}]"
+//
+// }
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hylo
+      PsiElement(identifier)('hylo')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: java.util.Arrays
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Arrays')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.collection.mutable
+          CodeReferenceElement: scala.collection
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('collection')
+          PsiElement(.)('.')
+          PsiElement(identifier)('mutable')
+    PsiWhiteSpace('\n\n')
+    ScClass: HyArray
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('An ordered, random-access collection.')
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('HyArray')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Element
+          PsiElement(identifier)('Element')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(private)('private')
+        PsiWhiteSpace(' ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace('\n    ')
+            ClassParameter: elementIsValue
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('elementIsValue')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                ParametrizedType: Value[Element]
+                  SimpleType: Value
+                    CodeReferenceElement: Value
+                      PsiElement(identifier)('Value')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Element
+                        CodeReferenceElement: Element
+                          PsiElement(identifier)('Element')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n')
+            PsiElement())(')')
+          ParametersClause
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            ClassParameter: _storage
+              AnnotationsList
+                <empty list>
+              Modifiers
+                AccessModifier
+                  PsiElement(private)('private')
+              PsiWhiteSpace(' ')
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('_storage')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                InfixType: scala.Array[AnyRef | Null] | Null
+                  ParametrizedType: scala.Array[AnyRef | Null]
+                    SimpleType: scala.Array
+                      CodeReferenceElement: scala.Array
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        InfixType: AnyRef | Null
+                          SimpleType: AnyRef
+                            CodeReferenceElement: AnyRef
+                              PsiElement(identifier)('AnyRef')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Null
+                            CodeReferenceElement: Null
+                              PsiElement(identifier)('Null')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Null
+                    CodeReferenceElement: Null
+                      PsiElement(identifier)('Null')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            ClassParameter: _count
+              AnnotationsList
+                <empty list>
+              Modifiers
+                AccessModifier
+                  PsiElement(private)('private')
+              PsiWhiteSpace(' ')
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('_count')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// NOTE: where do I document private fields')
+            PsiWhiteSpace('\n')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          PsiComment(comment)('// NOTE: The fact that we need Array[AnyRef] is diappointing and difficult to discover')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// The compiler error sent me on a wild goose chase with ClassTag.')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: isEmpty
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('true')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' iff ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' is empty.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('isEmpty')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Boolean
+              CodeReferenceElement: Boolean
+                PsiElement(identifier)('Boolean')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: _count
+                PsiElement(identifier)('_count')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: count
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns the number of elements in ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('count')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: _count
+              PsiElement(identifier)('_count')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: capacity
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns the number of elements that ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' can contain before allocating new storage.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('capacity')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: _storage
+                  PsiElement(identifier)('_storage')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ==
+                  PsiElement(identifier)('==')
+                PsiWhiteSpace(' ')
+                NullLiteral
+                  PsiElement(null)('null')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: _storage.length
+                ReferenceExpression: _storage
+                  PsiElement(identifier)('_storage')
+                PsiElement(.)('.')
+                PsiElement(identifier)('length')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: reserveCapacity
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Reserves enough storage to store ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('n')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' elements in ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('reserveCapacity')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: n
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('n')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: assumeUniqueness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assumeUniqueness')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[Element]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: <=
+                  PsiElement(identifier)('<=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: capacity
+                  PsiElement(identifier)('capacity')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ThisReference
+                  PsiElement(this)('this')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScVariableDefinition: newCapacity
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: newCapacity
+                      PsiElement(identifier)('newCapacity')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: max
+                      PsiElement(identifier)('max')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: capacity
+                        PsiElement(identifier)('capacity')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                WhileStatement
+                  PsiElement(while)('while')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: newCapacity
+                      PsiElement(identifier)('newCapacity')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: n
+                      PsiElement(identifier)('n')
+                  PsiWhiteSpace(' ')
+                  PsiElement(do)('do')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    AssignStatement
+                      ReferenceExpression: newCapacity
+                        PsiElement(identifier)('newCapacity')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: newCapacity
+                          PsiElement(identifier)('newCapacity')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: <<
+                          PsiElement(identifier)('<<')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                ScPatternDefinition: newStorage
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: newStorage
+                      PsiElement(identifier)('newStorage')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: scala.Array[AnyRef | Null]
+                            SimpleType: scala.Array
+                              CodeReferenceElement: scala.Array
+                                CodeReferenceElement: scala
+                                  PsiElement(identifier)('scala')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Array')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: AnyRef | Null
+                                  SimpleType: AnyRef
+                                    CodeReferenceElement: AnyRef
+                                      PsiElement(identifier)('AnyRef')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: |
+                                    PsiElement(identifier)('|')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Null
+                                    CodeReferenceElement: Null
+                                      PsiElement(identifier)('Null')
+                              PsiElement(])(']')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: newCapacity
+                              PsiElement(identifier)('newCapacity')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: s
+                      PsiElement(identifier)('s')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: _storage.asInstanceOf
+                      ReferenceExpression: _storage
+                        PsiElement(identifier)('_storage')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: scala.Array[AnyRef | Null]
+                          SimpleType: scala.Array
+                            CodeReferenceElement: scala.Array
+                              CodeReferenceElement: scala
+                                PsiElement(identifier)('scala')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Array')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              InfixType: AnyRef | Null
+                                SimpleType: AnyRef
+                                  CodeReferenceElement: AnyRef
+                                    PsiElement(identifier)('AnyRef')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Null
+                                  CodeReferenceElement: Null
+                                    PsiElement(identifier)('Null')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                ScVariableDefinition: i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: i
+                      PsiElement(identifier)('i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace('\n      ')
+                WhileStatement
+                  PsiElement(while)('while')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: count
+                      PsiElement(identifier)('count')
+                  PsiWhiteSpace(' ')
+                  PsiElement(do)('do')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    AssignStatement
+                      MethodCall
+                        ReferenceExpression: newStorage
+                          PsiElement(identifier)('newStorage')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: i
+                            PsiElement(identifier)('i')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      GenericCall
+                        ReferenceExpression: _storage(i).asInstanceOf[Element].copy().asInstanceOf
+                          MethodCall
+                            ReferenceExpression: _storage(i).asInstanceOf[Element].copy
+                              GenericCall
+                                ReferenceExpression: _storage(i).asInstanceOf
+                                  MethodCall
+                                    ReferenceExpression: _storage
+                                      PsiElement(identifier)('_storage')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: i
+                                        PsiElement(identifier)('i')
+                                      PsiElement())(')')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('asInstanceOf')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Element
+                                      CodeReferenceElement: Element
+                                        PsiElement(identifier)('Element')
+                                  PsiElement(])(']')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('copy')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('asInstanceOf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: AnyRef
+                              CodeReferenceElement: AnyRef
+                                PsiElement(identifier)('AnyRef')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n        ')
+                    InfixExpression
+                      ReferenceExpression: i
+                        PsiElement(identifier)('i')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +=
+                        PsiElement(identifier)('+=')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: assumeUniqueness
+                    PsiElement(identifier)('assumeUniqueness')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    AssignStatement
+                      ReferenceExpression: _storage
+                        PsiElement(identifier)('_storage')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: newStorage
+                        PsiElement(identifier)('newStorage')
+                    PsiWhiteSpace('\n        ')
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: HyArray
+                              CodeReferenceElement: HyArray
+                                PsiElement(identifier)('HyArray')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: newStorage
+                                PsiElement(identifier)('newStorage')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: count
+                                PsiElement(identifier)('count')
+                              PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: append
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Adds a new element at the end of the array.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('append')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: source
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('source')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Element
+                      CodeReferenceElement: Element
+                        PsiElement(identifier)('Element')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: assumeUniqueness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assumeUniqueness')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[Element]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: result
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: result
+                    PsiElement(identifier)('result')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: assumeUniqueness
+                      PsiElement(identifier)('assumeUniqueness')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: &&
+                      PsiElement(identifier)('&&')
+                    PsiWhiteSpace(' ')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: count
+                          PsiElement(identifier)('count')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: <
+                          PsiElement(identifier)('<')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: capacity
+                          PsiElement(identifier)('capacity')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace(' ')
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: copy
+                      PsiElement(identifier)('copy')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: count
+                          PsiElement(identifier)('count')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                MethodCall
+                  ReferenceExpression: result._storage
+                    ReferenceExpression: result
+                      PsiElement(identifier)('result')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_storage')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: count
+                      PsiElement(identifier)('count')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: source.asInstanceOf
+                    ReferenceExpression: source
+                      PsiElement(identifier)('source')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('asInstanceOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: AnyRef
+                        CodeReferenceElement: AnyRef
+                          PsiElement(identifier)('AnyRef')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              InfixExpression
+                ReferenceExpression: result._count
+                  ReferenceExpression: result
+                    PsiElement(identifier)('result')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('_count')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +=
+                  PsiElement(identifier)('+=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: result
+                PsiElement(identifier)('result')
+          PsiWhiteSpace('\n\n  ')
+          PsiComment(comment)('// NOTE: Can't refine `C.Element` without renaming the generic parameter of `HyArray`.')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// /** Adds the contents of `source` at the end of the array. */')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// def appendContents[C](using')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//     s: Collection[C]')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// )(')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//     source: C { type Element = Element },')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//     assumeUniqueness: Boolean = false')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('// ): HyArray[Element] =')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//   val result = if (assumeUniqueness) { this } else { copy(count + source.count) }')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//   source.reduce(result, (r, e) => r.append(e, assumeUniqueness = true))')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: popLast
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Removes and returns the last element, or returns ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('None')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' if the array is empty.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('popLast')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: assumeUniqueness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assumeUniqueness')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TupleType: (HyArray[Element], Option[Element])
+              PsiElement(()('(')
+              TypesList
+                ParametrizedType: HyArray[Element]
+                  SimpleType: HyArray
+                    CodeReferenceElement: HyArray
+                      PsiElement(identifier)('HyArray')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Element
+                        CodeReferenceElement: Element
+                          PsiElement(identifier)('Element')
+                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Option[Element]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Element
+                        CodeReferenceElement: Element
+                          PsiElement(identifier)('Element')
+                    PsiElement(])(']')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: isEmpty
+                PsiElement(identifier)('isEmpty')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                Tuple
+                  PsiElement(()('(')
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: None
+                    PsiElement(identifier)('None')
+                  PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: result
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: result
+                      PsiElement(identifier)('result')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: assumeUniqueness
+                      PsiElement(identifier)('assumeUniqueness')
+                    PsiWhiteSpace(' ')
+                    PsiElement(then)('then')
+                    PsiWhiteSpace(' ')
+                    ThisReference
+                      PsiElement(this)('this')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: copy
+                        PsiElement(identifier)('copy')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                InfixExpression
+                  ReferenceExpression: result._count
+                    ReferenceExpression: result
+                      PsiElement(identifier)('result')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_count')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: -=
+                    PsiElement(identifier)('-=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiWhiteSpace('\n      ')
+                Tuple
+                  PsiElement(()('(')
+                  ReferenceExpression: result
+                    PsiElement(identifier)('result')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: Some
+                      PsiElement(identifier)('Some')
+                    ArgumentList
+                      PsiElement(()('(')
+                      GenericCall
+                        ReferenceExpression: result._storage(result._count).asInstanceOf
+                          MethodCall
+                            ReferenceExpression: result._storage
+                              ReferenceExpression: result
+                                PsiElement(identifier)('result')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('_storage')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: result._count
+                                ReferenceExpression: result
+                                  PsiElement(identifier)('result')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('_count')
+                              PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('asInstanceOf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Element
+                              CodeReferenceElement: Element
+                                PsiElement(identifier)('Element')
+                          PsiElement(])(']')
+                      PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: removeAll
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Removes all elements in the array, keeping allocated storage iff ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('keepStorage')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' is true.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('removeAll')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                Parameter: keepStorage
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('keepStorage')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                Parameter: assumeUniqueness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assumeUniqueness')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[Element]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: isEmpty
+                PsiElement(identifier)('isEmpty')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ThisReference
+                  PsiElement(this)('this')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: keepStorage
+                  PsiElement(identifier)('keepStorage')
+                PsiWhiteSpace(' ')
+                PsiElement(then)('then')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: result
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: result
+                        PsiElement(identifier)('result')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: assumeUniqueness
+                        PsiElement(identifier)('assumeUniqueness')
+                      PsiWhiteSpace(' ')
+                      PsiElement(then)('then')
+                      PsiWhiteSpace(' ')
+                      ThisReference
+                        PsiElement(this)('this')
+                      PsiWhiteSpace(' ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: copy
+                          PsiElement(identifier)('copy')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: Arrays.fill
+                      ReferenceExpression: Arrays
+                        PsiElement(identifier)('Arrays')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('fill')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: result._storage
+                        ReferenceExpression: result
+                          PsiElement(identifier)('result')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('_storage')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NullLiteral
+                        PsiElement(null)('null')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  AssignStatement
+                    ReferenceExpression: result._count
+                      ReferenceExpression: result
+                        PsiElement(identifier)('result')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('_count')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: result
+                    PsiElement(identifier)('result')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: HyArray
+                      PsiElement(identifier)('HyArray')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: at
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Accesses the element at ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('p')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@requires')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('p')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' is a valid position in ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('self')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' different from ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('endPosition')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                  ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@complexity')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('O(1).')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('at')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: p
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('p')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Element
+              CodeReferenceElement: Element
+                PsiElement(identifier)('Element')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: _storage(p).asInstanceOf
+                MethodCall
+                  ReferenceExpression: _storage
+                    PsiElement(identifier)('_storage')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('asInstanceOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: modifyAt
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Calls ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('transform')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' on the element at ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('p')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' to update its value.')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@requires')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('p')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' is a valid position in ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('self')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' different from ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('endPosition')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                  ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@complexity')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('O(1).')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('modifyAt')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                Parameter: p
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('p')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                Parameter: transform
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('transform')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: (Element) => Element
+                      TypeInParenthesis: (Element)
+                        PsiElement(()('(')
+                        SimpleType: Element
+                          CodeReferenceElement: Element
+                            PsiElement(identifier)('Element')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Element
+                        CodeReferenceElement: Element
+                          PsiElement(identifier)('Element')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                Parameter: assumeUniqueness
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assumeUniqueness')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[Element]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: result
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: result
+                    PsiElement(identifier)('result')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: assumeUniqueness
+                    PsiElement(identifier)('assumeUniqueness')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace(' ')
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: copy
+                      PsiElement(identifier)('copy')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                MethodCall
+                  ReferenceExpression: result._storage
+                    ReferenceExpression: result
+                      PsiElement(identifier)('result')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_storage')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: transform(at(p)).asInstanceOf
+                    MethodCall
+                      ReferenceExpression: transform
+                        PsiElement(identifier)('transform')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: at
+                            PsiElement(identifier)('at')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: p
+                              PsiElement(identifier)('p')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('asInstanceOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: AnyRef
+                        CodeReferenceElement: AnyRef
+                          PsiElement(identifier)('AnyRef')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: result
+                PsiElement(identifier)('result')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: toString
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns a textual description of ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('toString')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"["')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              WhileStatement
+                PsiElement(while)('while')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: i
+                    PsiElement(identifier)('i')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: <
+                    PsiElement(identifier)('<')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: count
+                    PsiElement(identifier)('count')
+                PsiWhiteSpace(' ')
+                PsiElement(do)('do')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      ReferenceExpression: i
+                        PsiElement(identifier)('i')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: >
+                        PsiElement(identifier)('>')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiWhiteSpace(' ')
+                    PsiElement(then)('then')
+                    PsiWhiteSpace(' ')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: s
+                          PsiElement(identifier)('s')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +=
+                          PsiElement(identifier)('+=')
+                        PsiWhiteSpace(' ')
+                        StringLiteral
+                          PsiElement(string content)('", "')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  InfixExpression
+                    ReferenceExpression: s
+                      PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +=
+                      PsiElement(identifier)('+=')
+                    PsiWhiteSpace(' ')
+                    InterpolatedStringLiteral
+                      InterpolatedExpressionPrefix: s
+                        PsiElement(interpolated string id)('s')
+                      PsiElement(interpolated string)('"')
+                      PsiElement(interpolated string injection)('$')
+                      BlockExpression
+                        PsiElement({)('{')
+                        MethodCall
+                          ReferenceExpression: at
+                            PsiElement(identifier)('at')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: i
+                              PsiElement(identifier)('i')
+                            PsiElement())(')')
+                        PsiElement(})('}')
+                      PsiElement(interpolated string end)('"')
+                  PsiWhiteSpace('\n      ')
+                  InfixExpression
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +=
+                      PsiElement(identifier)('+=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              InfixExpression
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"]"')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: copy
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns an independent copy of ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(', capable of storing ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('minimumCapacity')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' elements before')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('allocating new storage.')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('copy')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: minimumCapacity
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('minimumCapacity')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[Element]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Element
+                    CodeReferenceElement: Element
+                      PsiElement(identifier)('Element')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: minimumCapacity
+                  PsiElement(identifier)('minimumCapacity')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: >
+                  PsiElement(identifier)('>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: capacity
+                  PsiElement(identifier)('capacity')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                PsiComment(comment)('// If the requested capacity on the copy is greater than what we have, `reserveCapacity` will')
+                PsiWhiteSpace('\n      ')
+                PsiComment(comment)('// create an independent value.')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: reserveCapacity
+                    PsiElement(identifier)('reserveCapacity')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: minimumCapacity
+                      PsiElement(identifier)('minimumCapacity')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: clone
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: clone
+                      PsiElement(identifier)('clone')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: HyArray[Element]().reserveCapacity
+                      MethodCall
+                        GenericCall
+                          ReferenceExpression: HyArray
+                            PsiElement(identifier)('HyArray')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Element
+                                CodeReferenceElement: Element
+                                  PsiElement(identifier)('Element')
+                            PsiElement(])(']')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('reserveCapacity')
+                    ArgumentList
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: max
+                          PsiElement(identifier)('max')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: minimumCapacity
+                            PsiElement(identifier)('minimumCapacity')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: count
+                            PsiElement(identifier)('count')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                ScVariableDefinition: i
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: i
+                      PsiElement(identifier)('i')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace('\n      ')
+                WhileStatement
+                  PsiElement(while)('while')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: count
+                      PsiElement(identifier)('count')
+                  PsiWhiteSpace(' ')
+                  PsiElement(do)('do')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    AssignStatement
+                      MethodCall
+                        ReferenceExpression: clone._storage
+                          ReferenceExpression: clone
+                            PsiElement(identifier)('clone')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('_storage')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: i
+                            PsiElement(identifier)('i')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      GenericCall
+                        ReferenceExpression: _storage(i).asInstanceOf[Element].copy().asInstanceOf
+                          MethodCall
+                            ReferenceExpression: _storage(i).asInstanceOf[Element].copy
+                              GenericCall
+                                ReferenceExpression: _storage(i).asInstanceOf
+                                  MethodCall
+                                    ReferenceExpression: _storage
+                                      PsiElement(identifier)('_storage')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: i
+                                        PsiElement(identifier)('i')
+                                      PsiElement())(')')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('asInstanceOf')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Element
+                                      CodeReferenceElement: Element
+                                        PsiElement(identifier)('Element')
+                                  PsiElement(])(']')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('copy')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('asInstanceOf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: AnyRef
+                              CodeReferenceElement: AnyRef
+                                PsiElement(identifier)('AnyRef')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n        ')
+                    InfixExpression
+                      ReferenceExpression: i
+                        PsiElement(identifier)('i')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +=
+                        PsiElement(identifier)('+=')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: clone._count
+                    ReferenceExpression: clone
+                      PsiElement(identifier)('clone')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_count')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: count
+                    PsiElement(identifier)('count')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: clone
+                  PsiElement(identifier)('clone')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: HyArray
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('HyArray')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: apply
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Creates an array with the given ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('elements')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('apply')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: t
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('t')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Value[T]
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: elements
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('elements')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(identifier)('*')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: HyArray[T]
+              SimpleType: HyArray
+                CodeReferenceElement: HyArray
+                  PsiElement(identifier)('HyArray')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: HyArray[T]
+                          SimpleType: HyArray
+                            CodeReferenceElement: HyArray
+                              PsiElement(identifier)('HyArray')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        ArgumentList
+                          PsiElement(()('(')
+                          NullLiteral
+                            PsiElement(null)('null')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('0')
+                          PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ForStatement
+                PsiElement(for)('for')
+                PsiWhiteSpace(' ')
+                Enumerators
+                  Generator
+                    ReferencePattern: e
+                      PsiElement(identifier)('e')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<-)('<-')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: elements
+                      PsiElement(identifier)('elements')
+                PsiWhiteSpace(' ')
+                PsiElement(do)('do')
+                PsiWhiteSpace(' ')
+                AssignStatement
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: a.append
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('append')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: e
+                        PsiElement(identifier)('e')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      AssignStatement
+                        ReferenceExpression: assumeUniqueness
+                          PsiElement(identifier)('assumeUniqueness')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        BooleanLiteral
+                          PsiElement(true)('true')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: hyArrayIsValue
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('hyArrayIsValue')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: tIsValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('tIsValue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Value[T]
+                SimpleType: Value
+                  CodeReferenceElement: Value
+                    PsiElement(identifier)('Value')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Value[HyArray[T]]
+              SimpleType: Value
+                CodeReferenceElement: Value
+                  PsiElement(identifier)('Value')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: HyArray[T]
+                    SimpleType: HyArray
+                      CodeReferenceElement: HyArray
+                        PsiElement(identifier)('HyArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          Extension on HyArray[T]
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: HyArray[T]
+                      SimpleType: HyArray
+                        CodeReferenceElement: HyArray
+                          PsiElement(identifier)('HyArray')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: HyArray[T]
+                  SimpleType: HyArray
+                    CodeReferenceElement: HyArray
+                      PsiElement(identifier)('HyArray')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: self.copy
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('copy')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: eq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eq')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: HyArray[T]
+                          SimpleType: HyArray
+                            CodeReferenceElement: HyArray
+                              PsiElement(identifier)('HyArray')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: self.elementsEqual
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('elementsEqual')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: other
+                      PsiElement(identifier)('other')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: hashInto
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('hashInto')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: hasher
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('hasher')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Hasher
+                          CodeReferenceElement: Hasher
+                            PsiElement(identifier)('Hasher')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Hasher
+                  CodeReferenceElement: Hasher
+                    PsiElement(identifier)('Hasher')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: self.reduce
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('reduce')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: hasher
+                      PsiElement(identifier)('hasher')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: h
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('h')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          Parameter: e
+                            AnnotationsList
+                              <empty list>
+                            PsiElement(identifier)('e')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: e.hashInto
+                          ReferenceExpression: e
+                            PsiElement(identifier)('e')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('hashInto')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: h
+                            PsiElement(identifier)('h')
+                          PsiElement())(')')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: hyArrayIsCollection
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('hyArrayIsCollection')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: tIsValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('tIsValue')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Value[T]
+                SimpleType: Value
+                  CodeReferenceElement: Value
+                    PsiElement(identifier)('Value')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Collection[HyArray[T]]
+              SimpleType: Collection
+                CodeReferenceElement: Collection
+                  PsiElement(identifier)('Collection')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: HyArray[T]
+                    SimpleType: HyArray
+                      CodeReferenceElement: HyArray
+                        PsiElement(identifier)('HyArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: Element
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Element')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiWhiteSpace('\n  ')
+          PsiComment(comment)('//given elementIsValue: Value[T] = tIsValue')
+          PsiWhiteSpace('\n\n  ')
+          ScTypeAliasDefinition: Position
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Position')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace('\n  ')
+          ScGivenAliasDefinition: positionIsValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(given)('given')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('positionIsValue')
+            PsiElement(:)(':')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            ParametrizedType: Value[Int]
+              SimpleType: Value
+                CodeReferenceElement: Value
+                  PsiElement(identifier)('Value')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: intIsValue
+              PsiElement(identifier)('intIsValue')
+          PsiWhiteSpace('\n\n  ')
+          Extension on HyArray[T]
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: HyArray[T]
+                      SimpleType: HyArray
+                        CodeReferenceElement: HyArray
+                          PsiElement(identifier)('HyArray')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: isEmpty
+                PsiComment(comment)('// NOTE: Having to explicitly override means that primary declaration can't automatically')
+                PsiWhiteSpace('\n    ')
+                PsiComment(comment)('// specialize trait requirements.')
+                PsiWhiteSpace('\n    ')
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('isEmpty')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: self.isEmpty
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isEmpty')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: count
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('count')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: self.count
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('count')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: startPosition
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('startPosition')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: endPosition
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('endPosition')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: self.count
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('count')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: positionAfter
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('positionAfter')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: p
+                    PsiElement(identifier)('p')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: at
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('at')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: p
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('p')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: self.at
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('at')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// NOTE: This should work.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// given hyArrayIsStringConvertible[T](using')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     tIsValue: Value[T],')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     tIsStringConvertible: StringConvertible[T]')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// ): StringConvertible[HyArray[T]] with {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   given Collection[HyArray[T]] = hyArrayIsCollection[T]')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//   extension (self: HyArray[T])')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//     override def description: String =')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//       var contents = mutable.StringBuilder()')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//       self.forEach((e) => { contents ++= e.description; true })')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//       s"[${contents.mkString(", ")}]"')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// }')

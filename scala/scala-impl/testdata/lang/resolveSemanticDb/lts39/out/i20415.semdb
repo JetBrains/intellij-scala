@@ -1,0 +1,7 @@
+Document tests/pos/i20415.scala
+(2:14..2:22) scala/package.Ordering#
+(2:23..2:26) scala/Int#
+(2:30..2:36) scala/Predef.summon().
+(2:37..2:45) scala/package.Ordering#
+(2:46..2:49) scala/Int#
+

@@ -1,0 +1,31 @@
+Document tests/pos/i16342.scala
+(1:15..1:19) _empty_/i16342$package.Base# -> 3:6
+(1:25..1:28) _empty_/Tag# -> 7:7
+(3:13..3:16) scala/Any#
+(10:20..10:26) scala/Predef.String#
+(10:29..10:35) _empty_/i16342$package.Opaque# -> 1:6
+(10:38..10:43) _empty_/i16342$package.Opaque.apply().(value) -> 10:13
+(10:44..10:56) scala/Any#asInstanceOf().
+(10:57..10:63) _empty_/i16342$package.Opaque# -> 1:6
+(12:23..12:29) _empty_/i16342$package.Opaque# -> 1:6
+(12:32..12:38) scala/Option#
+(12:39..12:45) scala/Predef.String#
+(12:49..12:55) scala/Option.
+(12:56..12:62) _empty_/i16342$package.Opaque.unapply().(userId) -> 12:15
+(12:64..12:67) scala/Option#map().
+(12:70..12:75) _empty_/i16342$package.Ops#value(). -> 17:7
+(13:23..13:27) _empty_/i16342$package.Base# -> 3:6
+(13:33..13:36) _empty_/Tag# -> 7:7
+(13:39..13:45) scala/Option#
+(13:46..13:52) scala/Predef.String#
+(13:56..13:62) scala/Option.
+(13:63..13:69) _empty_/i16342$package.Opaque.unappy2().(userId) -> 13:15
+(13:71..13:74) scala/Option#map().
+(13:77..13:82) _empty_/i16342$package.Ops#value(). -> 17:7
+(16:46..16:52) _empty_/i16342$package.Opaque# -> 1:6
+(16:62..16:68) scala/AnyVal#
+(17:14..17:20) scala/Predef.String#
+(17:23..17:29) _empty_/i16342$package.Ops#userId. -> 16:38
+(17:30..17:42) scala/Any#asInstanceOf().
+(17:43..17:49) scala/Predef.String#
+

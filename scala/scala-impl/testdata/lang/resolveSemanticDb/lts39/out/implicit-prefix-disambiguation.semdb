@@ -1,0 +1,19 @@
+Document tests/pos/implicit-prefix-disambiguation.scala
+(6:9..6:10) _empty_/I# -> 2:7
+(6:11..6:12) _empty_/B# -> 10:7
+(6:16..6:19) scala/Predef.`???`().
+(7:9..7:10) _empty_/I# -> 2:7
+(7:11..7:12) _empty_/B# -> 10:7
+(7:17..7:18) _empty_/J# -> 3:7
+(7:19..7:20) _empty_/B# -> 10:7
+(7:24..7:27) scala/Predef.`???`().
+(8:18..8:19) _empty_/A# -> 5:7
+(10:17..10:18) _empty_/A# -> 5:7
+(11:18..11:19) _empty_/B# -> 10:7
+(16:3..16:9) scala/Predef.summon().
+(16:10..16:11) _empty_/I# -> 2:7
+(16:12..16:13) _empty_/B# -> 10:7
+(17:3..17:9) scala/Predef.summon().
+(17:10..17:11) _empty_/J# -> 3:7
+(17:12..17:13) _empty_/B# -> 10:7
+

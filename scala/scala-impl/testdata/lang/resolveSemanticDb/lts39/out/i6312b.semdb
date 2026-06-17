@@ -1,0 +1,8 @@
+Document tests/pos/i6312b.scala
+(2:19..2:23) scala/Unit#
+(3:6..3:11) scala/
+(3:12..3:22) scala/annotation/
+(3:23..3:38) scala/annotation/compileTimeOnly#
+(3:65..3:68) scala/Predef.`???`().
+(4:5..4:8) local0 -> 3:59
+

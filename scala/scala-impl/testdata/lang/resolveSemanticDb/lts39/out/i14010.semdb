@@ -1,0 +1,71 @@
+Document tests/pos/i14010.scala
+(2:13..2:14) _empty_/LazyList#[T] -> 1:26
+(3:13..3:21) _empty_/LazyList# -> 1:16
+(3:22..3:23) _empty_/LazyList#[T] -> 1:26
+(4:16..4:23) scala/Boolean#
+(5:17..5:18) _empty_/LazyList#[T] -> 1:26
+(5:28..5:29) _empty_/LazyList#push().[E] -> 5:12
+(5:32..5:40) _empty_/LazyList# -> 1:16
+(5:41..5:42) _empty_/LazyList#push().[E] -> 5:12
+(6:9..6:13) _empty_/Push# -> 11:15
+(6:14..6:15) _empty_/LazyList#push().[E] -> 5:12
+(6:17..6:20) _empty_/LazyList#push().(top) -> 5:20
+(8:19..8:20) _empty_/LazyList#[T] -> 1:26
+(8:31..8:39) _empty_/LazyList# -> 1:16
+(8:40..8:41) _empty_/LazyList#append().[E] -> 8:14
+(8:45..8:53) _empty_/LazyList# -> 1:16
+(8:54..8:55) _empty_/LazyList#append().[E] -> 8:14
+(11:1..11:8) _empty_/
+(11:32..11:33) _empty_/Push#[T] -> 11:21
+(11:45..11:53) _empty_/LazyList# -> 1:16
+(11:54..11:55) _empty_/Push#[T] -> 11:21
+(11:66..11:74) _empty_/LazyList# -> 1:16
+(11:75..11:76) _empty_/Push#[T] -> 11:21
+(12:22..12:23) _empty_/Push#[T] -> 11:21
+(13:5..13:8) _empty_/Push#top. -> 11:24
+(14:22..14:30) _empty_/LazyList# -> 1:16
+(14:31..14:32) _empty_/Push#[T] -> 11:21
+(15:5..15:10) _empty_/Push#stack. -> 11:35
+(16:25..16:32) scala/Boolean#
+(23:28..23:29) _empty_/Push#[T] -> 11:21
+(23:40..23:48) _empty_/LazyList# -> 1:16
+(23:49..23:50) _empty_/Push#append().[E] -> 23:23
+(23:54..23:62) _empty_/LazyList# -> 1:16
+(23:63..23:64) _empty_/Push#append().[E] -> 23:23
+(24:9..24:13) _empty_/Push# -> 11:15
+(24:14..24:15) _empty_/Push#append().[E] -> 23:23
+(24:17..24:20) _empty_/Push#top. -> 11:24
+(24:22..24:27) _empty_/Push#stack. -> 11:35
+(24:28..24:34) _empty_/LazyList#append(). -> 8:7
+(24:35..24:39) _empty_/Push#append().(that) -> 23:31
+(25:37..25:38) _empty_/Push#append().[E] -> 23:23
+(25:50..25:58) _empty_/LazyList# -> 1:16
+(25:59..25:61) local0 -> 25:31
+(25:65..25:73) _empty_/LazyList# -> 1:16
+(25:74..25:76) local0 -> 25:31
+(26:23..26:29) _empty_/Push#append(). -> 23:16
+(26:30..26:34) _empty_/Push#append().(that) -> 23:31
+(26:35..26:41) _empty_/LazyList#append(). -> 8:7
+(26:42..26:47) local1 -> 25:40
+(32:9..32:17) _empty_/LazyList# -> 1:16
+(32:18..32:25) scala/Nothing#
+(33:30..33:37) scala/Nothing#
+(34:23..34:45) scala/package.NoSuchElementException#
+(35:30..35:38) _empty_/LazyList# -> 1:16
+(35:39..35:46) scala/Nothing#
+(36:23..36:52) scala/package.UnsupportedOperationException#
+(37:33..37:40) scala/Boolean#
+(41:43..41:51) _empty_/LazyList# -> 1:16
+(41:52..41:53) local8 -> 41:31
+(41:57..41:65) _empty_/LazyList# -> 1:16
+(41:66..41:67) local8 -> 41:31
+(42:13..42:17) local9 -> 41:34
+(44:26..44:27) _empty_/LazyList.apply().[T] -> 44:13
+(44:31..44:39) _empty_/LazyList# -> 1:16
+(44:40..44:41) _empty_/LazyList.apply().[T] -> 44:13
+(45:5..45:13) _empty_/LazyList.apply().(elements) -> 44:16
+(45:14..45:23) scala/collection/IterableOnceOps#foldRight().
+(45:24..45:32) _empty_/LazyList# -> 1:16
+(45:33..45:34) _empty_/LazyList.apply().[T] -> 44:13
+(45:37..45:42) _empty_/LazyList.empty. -> 31:7
+

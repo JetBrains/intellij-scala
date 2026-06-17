@@ -1,0 +1,26 @@
+Document tests/pos/i17100.scala
+(1:19..1:29) scala/Selectable#
+(3:15..3:18) _empty_/Sel# -> 1:7
+(4:27..4:33) scala/Predef.String#
+(4:37..4:40) scala/Predef.`???`().
+(5:26..5:32) scala/Predef.String#
+(5:37..5:40) scala/Int#
+(5:44..5:47) scala/Predef.`???`().
+(6:26..6:32) scala/Predef.String#
+(6:38..6:41) scala/Predef.`???`().
+(8:16..8:19) _empty_/Sel# -> 1:7
+(8:24..8:36) scala/Any#asInstanceOf().
+(8:37..8:40) _empty_/Sel# -> 1:7
+(8:51..8:57) scala/Predef.String#
+(8:70..8:73) scala/Int#
+(8:76..8:79) scala/Int#
+(8:92..8:95) scala/Int#
+(9:11..9:14) _empty_/i17100$package.sel. -> 8:5
+(9:15..9:28) _empty_/i17100$package.selectDynamic(). -> 4:7
+(10:12..10:15) _empty_/i17100$package.sel. -> 8:5
+(10:16..10:19) _empty_/i17100$package.selectDynamic(). -> 4:7
+(11:12..11:15) _empty_/i17100$package.sel. -> 8:5
+(11:16..11:19) _empty_/i17100$package.applyDynamic(). -> 5:7
+(12:12..12:15) _empty_/i17100$package.sel. -> 8:5
+(12:16..12:19) _empty_/i17100$package.applyDynamic(+1). -> 6:7
+

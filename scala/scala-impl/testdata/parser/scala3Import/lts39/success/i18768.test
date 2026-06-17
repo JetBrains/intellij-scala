@@ -1,0 +1,576 @@
+package minimized:
+  object Module:
+    object Exportee:
+
+      opaque type Id = Long
+
+      def apply(): Id = ???
+
+      extension (e: Id)
+        def updated: Id = ???
+
+
+  object Client:
+    export Module.*
+    val x = Exportee().updated
+
+package original:
+  object Module:
+    trait EntityDef:
+      type Id
+      type Record
+      type Entity = (Id, Record)
+
+      extension (e: Entity)
+        def updated: Entity = e
+
+    case class Exportee()
+    object Exportee extends EntityDef:
+      opaque type Id = Long
+      type Record = Exportee
+
+      def apply(id: Long): Entity = (id, Exportee())
+
+  object Client:
+    export Module.*
+    val x = Exportee(1L).updated
+
+
+  object ClientWorkingWithManualExport:
+    export Module.{Exportee as _, *}
+    type Exportee = Module.Exportee
+    val Exportee = Module.Exportee
+
+    val x = Exportee(1L).updated
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: minimized
+      PsiElement(identifier)('minimized')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScObject: Module
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Module')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScObject: Exportee
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exportee')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n\n      ')
+                ScTypeAliasDefinition: Id
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(opaque)('opaque')
+                  PsiWhiteSpace(' ')
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Id')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiWhiteSpace('\n\n      ')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Id
+                    CodeReferenceElement: Id
+                      PsiElement(identifier)('Id')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n\n      ')
+                Extension on Id
+                  PsiElement(extension)('extension')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: e
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('e')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Id
+                            CodeReferenceElement: Id
+                              PsiElement(identifier)('Id')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n        ')
+                  ScExtensionBody
+                    ScFunctionDefinition: updated
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('updated')
+                      Parameters
+                        <empty list>
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Id
+                        CodeReferenceElement: Id
+                          PsiElement(identifier)('Id')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n\n  ')
+    ScObject: Client
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Client')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: Module
+                PsiElement(identifier)('Module')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Exportee().updated
+              MethodCall
+                ReferenceExpression: Exportee
+                  PsiElement(identifier)('Exportee')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('updated')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: original
+      PsiElement(identifier)('original')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScObject: Module
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Module')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScTrait: EntityDef
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(trait)('trait')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('EntityDef')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n      ')
+                ScTypeAliasDeclaration: Id
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Id')
+                PsiWhiteSpace('\n      ')
+                ScTypeAliasDeclaration: Record
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Record')
+                PsiWhiteSpace('\n      ')
+                ScTypeAliasDefinition: Entity
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Entity')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  TupleType: (Id, Record)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Id
+                        CodeReferenceElement: Id
+                          PsiElement(identifier)('Id')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Record
+                        CodeReferenceElement: Record
+                          PsiElement(identifier)('Record')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n\n      ')
+                Extension on Entity
+                  PsiElement(extension)('extension')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: e
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('e')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Entity
+                            CodeReferenceElement: Entity
+                              PsiElement(identifier)('Entity')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n        ')
+                  ScExtensionBody
+                    ScFunctionDefinition: updated
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('updated')
+                      Parameters
+                        <empty list>
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Entity
+                        CodeReferenceElement: Entity
+                          PsiElement(identifier)('Entity')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: e
+                        PsiElement(identifier)('e')
+          PsiWhiteSpace('\n\n    ')
+          ScClass: Exportee
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exportee')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+          PsiWhiteSpace('\n    ')
+          ScObject: Exportee
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exportee')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: EntityDef
+                    CodeReferenceElement: EntityDef
+                      PsiElement(identifier)('EntityDef')
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n      ')
+                ScTypeAliasDefinition: Id
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(opaque)('opaque')
+                  PsiWhiteSpace(' ')
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Id')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+                PsiWhiteSpace('\n      ')
+                ScTypeAliasDefinition: Record
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Record')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Exportee
+                    CodeReferenceElement: Exportee
+                      PsiElement(identifier)('Exportee')
+                PsiWhiteSpace('\n\n      ')
+                ScFunctionDefinition: apply
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('apply')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: id
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('id')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Long
+                            CodeReferenceElement: Long
+                              PsiElement(identifier)('Long')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Entity
+                    CodeReferenceElement: Entity
+                      PsiElement(identifier)('Entity')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  Tuple
+                    PsiElement(()('(')
+                    ReferenceExpression: id
+                      PsiElement(identifier)('id')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Exportee
+                        PsiElement(identifier)('Exportee')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement())(')')
+    PsiWhiteSpace('\n\n  ')
+    ScObject: Client
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Client')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: Module
+                PsiElement(identifier)('Module')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Exportee(1L).updated
+              MethodCall
+                ReferenceExpression: Exportee
+                  PsiElement(identifier)('Exportee')
+                ArgumentList
+                  PsiElement(()('(')
+                  LongLiteral
+                    PsiElement(long)('1L')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('updated')
+    PsiWhiteSpace('\n\n\n  ')
+    ScObject: ClientWorkingWithManualExport
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ClientWorkingWithManualExport')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: Module
+                PsiElement(identifier)('Module')
+              PsiElement(.)('.')
+              ImportSelectors
+                PsiElement({)('{')
+                ImportSelector
+                  CodeReferenceElement: Exportee
+                    PsiElement(identifier)('Exportee')
+                  PsiWhiteSpace(' ')
+                  PsiElement(as)('as')
+                  PsiWhiteSpace(' ')
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ImportSelector
+                  PsiElement(*)('*')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          ScTypeAliasDefinition: Exportee
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Exportee')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Module.Exportee
+              CodeReferenceElement: Module.Exportee
+                CodeReferenceElement: Module
+                  PsiElement(identifier)('Module')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Exportee')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: Exportee
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Exportee
+                PsiElement(identifier)('Exportee')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Module.Exportee
+              ReferenceExpression: Module
+                PsiElement(identifier)('Module')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Exportee')
+          PsiWhiteSpace('\n\n    ')
+          ScPatternDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Exportee(1L).updated
+              MethodCall
+                ReferenceExpression: Exportee
+                  PsiElement(identifier)('Exportee')
+                ArgumentList
+                  PsiElement(()('(')
+                  LongLiteral
+                    PsiElement(long)('1L')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('updated')

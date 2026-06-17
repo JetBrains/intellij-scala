@@ -1,0 +1,460 @@
+// This works for implicit/implicit pairs but not for givens, see neg version.
+import scala.language.implicitConversions
+
+trait QueryKey[A]
+object QueryKey extends QueryKeyInstances
+sealed trait QueryKeyInstances:
+  implicit val stringQueryKey: QueryKey[String] = ???
+
+trait QueryValue[-A]
+object QueryValue extends QueryValueInstances
+sealed trait QueryValueInstances1:
+  implicit final val stringQueryValue: QueryValue[String] = ???
+  implicit final val noneQueryValue: QueryValue[None.type] = ???
+
+sealed trait QueryValueInstances extends QueryValueInstances1:
+  implicit final def optionQueryValue[A: QueryValue]: QueryValue[Option[A]] = ???
+
+trait QueryKeyValue[A]
+object QueryKeyValue:
+  implicit def tuple2QueryKeyValue[K: QueryKey, V: QueryValue]: QueryKeyValue[(K, V)] = ???
+
+@main def Test = summon[QueryKeyValue[(String, None.type)]]
+-----
+ScalaFile
+  PsiComment(comment)('// This works for implicit/implicit pairs but not for givens, see neg version.')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.implicitConversions
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('implicitConversions')
+  PsiWhiteSpace('\n\n')
+  ScTrait: QueryKey
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryKey')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: QueryKey
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryKey')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: QueryKeyInstances
+            CodeReferenceElement: QueryKeyInstances
+              PsiElement(identifier)('QueryKeyInstances')
+  PsiWhiteSpace('\n')
+  ScTrait: QueryKeyInstances
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryKeyInstances')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: stringQueryKey
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: stringQueryKey
+              PsiElement(identifier)('stringQueryKey')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: QueryKey[String]
+            SimpleType: QueryKey
+              CodeReferenceElement: QueryKey
+                PsiElement(identifier)('QueryKey')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: QueryValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryValue')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: QueryValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryValue')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: QueryValueInstances
+            CodeReferenceElement: QueryValueInstances
+              PsiElement(identifier)('QueryValueInstances')
+  PsiWhiteSpace('\n')
+  ScTrait: QueryValueInstances1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryValueInstances1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: stringQueryValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: stringQueryValue
+              PsiElement(identifier)('stringQueryValue')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: QueryValue[String]
+            SimpleType: QueryValue
+              CodeReferenceElement: QueryValue
+                PsiElement(identifier)('QueryValue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: noneQueryValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: noneQueryValue
+              PsiElement(identifier)('noneQueryValue')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: QueryValue[None.type]
+            SimpleType: QueryValue
+              CodeReferenceElement: QueryValue
+                PsiElement(identifier)('QueryValue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: None.type
+                  CodeReferenceElement: None
+                    PsiElement(identifier)('None')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: QueryValueInstances
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryValueInstances')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: QueryValueInstances1
+            CodeReferenceElement: QueryValueInstances1
+              PsiElement(identifier)('QueryValueInstances1')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: optionQueryValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('optionQueryValue')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: QueryValue
+                  CodeReferenceElement: QueryValue
+                    PsiElement(identifier)('QueryValue')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: QueryValue[Option[A]]
+            SimpleType: QueryValue
+              CodeReferenceElement: QueryValue
+                PsiElement(identifier)('QueryValue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Option[A]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: QueryKeyValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryKeyValue')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: QueryKeyValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('QueryKeyValue')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tuple2QueryKeyValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tuple2QueryKeyValue')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: QueryKey
+                  CodeReferenceElement: QueryKey
+                    PsiElement(identifier)('QueryKey')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: QueryValue
+                  CodeReferenceElement: QueryValue
+                    PsiElement(identifier)('QueryValue')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: QueryKeyValue[(K, V)]
+            SimpleType: QueryKeyValue
+              CodeReferenceElement: QueryKeyValue
+                PsiElement(identifier)('QueryKeyValue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TupleType: (K, V)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: V
+                      CodeReferenceElement: V
+                        PsiElement(identifier)('V')
+                  PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: QueryKeyValue[(String, None.type)]
+            SimpleType: QueryKeyValue
+              CodeReferenceElement: QueryKeyValue
+                PsiElement(identifier)('QueryKeyValue')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TupleType: (String, None.type)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: None.type
+                      CodeReferenceElement: None
+                        PsiElement(identifier)('None')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement())(')')
+              PsiElement(])(']')
+        PsiElement(])(']')

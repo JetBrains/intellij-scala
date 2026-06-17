@@ -1,0 +1,516 @@
+type LifecycleF = [_] =>> Any
+trait Lifecycle[+F[_], +A]
+
+trait LifecycleTag[R]
+object LifecycleTag:
+  implicit def resourceTag[R <: Lifecycle[F0, A0], F0[_], A0]: LifecycleTag[R] = ???
+
+trait MakeDSL[T]:
+  final def fromResource[R <: Lifecycle[LifecycleF, T]](implicit tag: LifecycleTag[R]): Any = ???
+
+object distage:
+  // Cannot be defined in the same scope as rest of code
+  final type Identity[+A] = A
+import distage.*
+
+trait Resource
+trait DependentResource() extends Lifecycle[Identity, Resource]
+
+@main def Test =  {
+  val dsl: MakeDSL[Resource] = ???
+  val fails = dsl.fromResource[DependentResource]
+  val works = dsl.fromResource[DependentResource](using LifecycleTag.resourceTag[DependentResource, Identity, Resource])
+}
+-----
+ScalaFile
+  ScTypeAliasDefinition: LifecycleF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LifecycleF')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [_] =>> Any
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: _
+          PsiElement(_)('_')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      SimpleType: Any
+        CodeReferenceElement: Any
+          PsiElement(identifier)('Any')
+  PsiWhiteSpace('\n')
+  ScTrait: Lifecycle
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Lifecycle')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: LifecycleTag
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LifecycleTag')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: LifecycleTag
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LifecycleTag')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: resourceTag
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('resourceTag')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Lifecycle[F0, A0]
+                SimpleType: Lifecycle
+                  CodeReferenceElement: Lifecycle
+                    PsiElement(identifier)('Lifecycle')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: F0
+                      CodeReferenceElement: F0
+                        PsiElement(identifier)('F0')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: A0
+                      CodeReferenceElement: A0
+                        PsiElement(identifier)('A0')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: F0
+              PsiElement(identifier)('F0')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A0
+              PsiElement(identifier)('A0')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: LifecycleTag[R]
+            SimpleType: LifecycleTag
+              CodeReferenceElement: LifecycleTag
+                PsiElement(identifier)('LifecycleTag')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MakeDSL
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MakeDSL')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fromResource
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromResource')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Lifecycle[LifecycleF, T]
+                SimpleType: Lifecycle
+                  CodeReferenceElement: Lifecycle
+                    PsiElement(identifier)('Lifecycle')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: LifecycleF
+                      CodeReferenceElement: LifecycleF
+                        PsiElement(identifier)('LifecycleF')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: tag
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tag')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: LifecycleTag[R]
+                    SimpleType: LifecycleTag
+                      CodeReferenceElement: LifecycleTag
+                        PsiElement(identifier)('LifecycleTag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: distage
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('distage')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Identity
+          PsiComment(comment)('// Cannot be defined in the same scope as rest of code')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Identity')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: distage
+        PsiElement(identifier)('distage')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Resource
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Resource')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: DependentResource
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DependentResource')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Lifecycle[Identity, Resource]
+            SimpleType: Lifecycle
+              CodeReferenceElement: Lifecycle
+                PsiElement(identifier)('Lifecycle')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Identity
+                  CodeReferenceElement: Identity
+                    PsiElement(identifier)('Identity')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Resource
+                  CodeReferenceElement: Resource
+                    PsiElement(identifier)('Resource')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('  ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: dsl
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: dsl
+            PsiElement(identifier)('dsl')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: MakeDSL[Resource]
+          SimpleType: MakeDSL
+            CodeReferenceElement: MakeDSL
+              PsiElement(identifier)('MakeDSL')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Resource
+                CodeReferenceElement: Resource
+                  PsiElement(identifier)('Resource')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: fails
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: fails
+            PsiElement(identifier)('fails')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: dsl.fromResource
+            ReferenceExpression: dsl
+              PsiElement(identifier)('dsl')
+            PsiElement(.)('.')
+            PsiElement(identifier)('fromResource')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: DependentResource
+                CodeReferenceElement: DependentResource
+                  PsiElement(identifier)('DependentResource')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: works
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: works
+            PsiElement(identifier)('works')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: dsl.fromResource
+              ReferenceExpression: dsl
+                PsiElement(identifier)('dsl')
+              PsiElement(.)('.')
+              PsiElement(identifier)('fromResource')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: DependentResource
+                  CodeReferenceElement: DependentResource
+                    PsiElement(identifier)('DependentResource')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement(using)('using')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: LifecycleTag.resourceTag
+                ReferenceExpression: LifecycleTag
+                  PsiElement(identifier)('LifecycleTag')
+                PsiElement(.)('.')
+                PsiElement(identifier)('resourceTag')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: DependentResource
+                    CodeReferenceElement: DependentResource
+                      PsiElement(identifier)('DependentResource')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Identity
+                    CodeReferenceElement: Identity
+                      PsiElement(identifier)('Identity')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Resource
+                    CodeReferenceElement: Resource
+                      PsiElement(identifier)('Resource')
+                PsiElement(])(']')
+            PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

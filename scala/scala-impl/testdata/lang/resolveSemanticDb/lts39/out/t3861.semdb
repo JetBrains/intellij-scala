@@ -1,0 +1,5 @@
+Document tests/pos/t3861.scala
+(2:21..2:24) scala/Int#
+(2:34..2:35) _empty_/Y# -> 1:7
+(2:39..2:40) _empty_/X#x. -> 2:18
+

@@ -1,0 +1,59 @@
+Document tests/pos/i18626.scala
+(2:25..2:28) scala/package.Seq#
+(2:29..2:31) _empty_/Random#element().[T1] -> 2:15
+(2:35..2:37) _empty_/Random#[F1] -> 1:14
+(2:38..2:40) _empty_/Random#element().[T1] -> 2:15
+(2:44..2:47) scala/Predef.`???`().
+(5:23..5:25) _empty_/Monad#[F2] -> 4:13
+(5:26..5:28) _empty_/Monad#map().[A1] -> 5:11
+(5:34..5:36) _empty_/Monad#map().[A1] -> 5:11
+(5:40..5:42) _empty_/Monad#map().[B1] -> 5:15
+(5:45..5:47) _empty_/Monad#[F2] -> 4:13
+(5:48..5:50) _empty_/Monad#map().[B1] -> 5:15
+(8:21..8:26) _empty_/Monad# -> 4:7
+(8:21..8:26) _empty_/Monad.map().[F3] -> 8:14
+(8:36..8:38) _empty_/Monad.map().[F3] -> 8:14
+(8:39..8:41) _empty_/Monad.map().[A3] -> 8:28
+(9:20..9:22) _empty_/Monad.map().[A3] -> 8:28
+(9:26..9:28) _empty_/Monad.map().[B3] -> 9:13
+(9:31..9:33) _empty_/Monad.map().[F3] -> 8:14
+(9:34..9:36) _empty_/Monad.map().[B3] -> 9:13
+(9:40..9:43) scala/Predef.`???`().
+(12:20..12:26) _empty_/Animal# -> 11:14
+(13:20..13:26) _empty_/Animal# -> 11:14
+(15:15..15:18) _empty_/Cat. -> 12:8
+(15:24..15:25) scala/`|`#
+(15:26..15:29) _empty_/Dog. -> 13:8
+(16:14..16:18) scala/package.List#
+(16:19..16:25) _empty_/i18626$package.Mammal# -> 15:6
+(16:29..16:32) scala/Predef.`???`().
+(18:27..18:33) _empty_/Random# -> 1:7
+(18:34..18:36) _empty_/Work#[F4] -> 18:12
+(18:49..18:54) _empty_/Monad# -> 4:7
+(18:55..18:57) _empty_/Work#[F4] -> 18:12
+(19:16..19:18) _empty_/Work#[F4] -> 18:12
+(19:19..19:25) _empty_/i18626$package.Mammal# -> 15:6
+(20:5..20:7) _empty_/Work#mf. -> 18:45
+(20:8..20:11) _empty_/Monad#map(). -> 5:7
+(20:12..20:14) _empty_/Monad#map().(fa) -> 5:19
+(20:17..20:23) _empty_/Work#random. -> 18:19
+(20:24..20:31) _empty_/Random#element(). -> 2:7
+(20:32..20:39) _empty_/i18626$package.mammals. -> 16:5
+(20:47..20:48) local0 -> 20:42
+(22:16..22:18) _empty_/Work#[F4] -> 18:12
+(22:19..22:25) _empty_/i18626$package.Mammal# -> 15:6
+(22:29..22:34) _empty_/Monad. -> 7:8
+(22:35..22:38) _empty_/Monad.map(). -> 9:9
+(22:39..22:45) _empty_/Work#random. -> 18:19
+(22:46..22:53) _empty_/Random#element(). -> 2:7
+(22:54..22:61) _empty_/i18626$package.mammals. -> 16:5
+(22:69..22:70) local1 -> 22:64
+(24:10..24:15) _empty_/Monad. -> 7:8
+(26:16..26:18) _empty_/Work#[F4] -> 18:12
+(26:19..26:25) _empty_/i18626$package.Mammal# -> 15:6
+(26:29..26:35) _empty_/Work#random. -> 18:19
+(27:6..27:13) _empty_/Random#element(). -> 2:7
+(27:14..27:21) _empty_/i18626$package.mammals. -> 16:5
+(28:6..28:9) _empty_/Monad.map(). -> 9:9
+(29:8..29:9) local2 -> 28:12
+

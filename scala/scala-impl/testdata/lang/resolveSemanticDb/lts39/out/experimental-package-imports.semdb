@@ -1,0 +1,23 @@
+Document tests/pos/experimental-package-imports.scala
+(3:8..3:18) scala/annotation/
+(3:19..3:31) scala/annotation/experimental#
+(6:10..6:18) scala/language.
+(6:19..6:31) scala/language.experimental.
+(6:32..6:50) scala/language.experimental.namedTypeArguments.
+(7:10..7:18) scala/language.
+(7:19..7:31) scala/language.experimental.
+(7:32..7:53) scala/language.experimental.genericNumberLiterals.
+(8:10..8:18) scala/language.
+(8:19..8:31) scala/language.experimental.
+(8:32..8:49) scala/language.experimental.erasedDefinitions.
+(17:10..17:18) scala/language.
+(17:19..17:31) scala/language.experimental.
+(17:32..17:50) scala/language.experimental.namedTypeArguments.
+(18:10..18:18) scala/language.
+(18:19..18:31) scala/language.experimental.
+(18:32..18:53) scala/language.experimental.genericNumberLiterals.
+(19:10..19:18) scala/language.
+(19:19..19:31) scala/language.experimental.
+(19:32..19:49) scala/language.experimental.erasedDefinitions.
+(22:6..22:18) scala/annotation/experimental#
+

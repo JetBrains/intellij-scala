@@ -1,0 +1,24 @@
+Document tests/pos/simpleRefinement.scala
+(3:17..3:20) _empty_/Bar# -> 16:7
+(4:14..4:17) scala/Int#
+(5:14..5:17) scala/Int#
+(5:21..5:24) scala/Int#
+(6:22..6:25) scala/Int#
+(7:12..7:16) scala/Long#
+(8:12..8:19) scala/Boolean#
+(9:14..9:18) scala/Char#
+(10:17..10:21) scala/Char#
+(11:15..11:21) scala/Predef.String#
+(12:18..12:22) scala/Null#
+(12:27..12:31) scala/Null#
+(12:34..12:38) scala/Null#
+(19:21..19:24) scala/Any#
+(20:10..20:13) scala/Any#
+(21:10..21:13) scala/Any#
+(22:12..22:15) scala/Any#
+(23:15..23:18) scala/Any#
+(24:13..24:16) scala/Any#
+(25:16..25:20) scala/Null#
+(25:25..25:29) scala/Null#
+(25:32..25:35) scala/Any#
+

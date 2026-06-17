@@ -1,0 +1,43 @@
+Document tests/pos/i22068.less-min.scala
+(2:17..2:18) _empty_/A# -> 1:7
+(3:17..3:18) _empty_/A# -> 1:7
+(6:24..6:30) scala/Predef.String#
+(8:28..8:31) _empty_/foos.Tag# -> 6:15
+(8:32..8:33) _empty_/foos.Tag.mkTag().[A] -> 8:24
+(8:37..8:40) scala/Predef.`???`().
+(9:20..9:23) _empty_/foos.Tag# -> 6:15
+(9:24..9:25) _empty_/foos.Tag.Full#[A] -> 9:15
+(9:27..9:28) scala/`|`#
+(9:29..9:32) _empty_/foos.Tag.Set# -> 10:18
+(9:33..9:34) _empty_/foos.Tag.Full#[A] -> 9:15
+(10:33..10:36) scala/Any#
+(11:31..11:34) scala/package.Seq#
+(11:35..11:38) _empty_/foos.Tag# -> 6:15
+(11:39..11:42) scala/Any#
+(11:54..11:60) scala/AnyVal#
+(11:66..11:69) _empty_/foos.Tag.Set# -> 10:18
+(11:70..11:71) _empty_/foos.Tag.Union#[A] -> 11:22
+(12:28..12:32) _empty_/foos.Tag.Full# -> 9:10
+(12:33..12:34) _empty_/foos.Tag.Union#and().[B] -> 12:21
+(12:38..12:42) scala/Unit#
+(12:45..12:48) scala/Predef.`???`().
+(14:32..14:37) _empty_/foos.Tag.Union# -> 11:16
+(14:38..14:39) _empty_/foos.Tag.Union.mkUnion().[A] -> 14:28
+(14:43..14:46) scala/Predef.`???`().
+(15:8..15:12) _empty_/foos. -> 5:8
+(15:13..15:16) _empty_/foos.Tag. -> 7:10
+(18:35..18:40) _empty_/foos.Tag.Union# -> 11:16
+(18:41..18:43) _empty_/Test#m1().[K1] -> 18:17
+(18:50..18:55) _empty_/foos.Tag.Union# -> 11:16
+(18:56..18:58) _empty_/Test#m1().[K2] -> 18:21
+(18:62..18:66) scala/Unit#
+(19:5..19:7) _empty_/Test#m1().(b1) -> 18:31
+(19:8..19:11) _empty_/foos.Tag.Union#and(). -> 12:17
+(19:12..19:14) _empty_/Test#m1().(b2) -> 18:46
+(21:13..21:17) scala/Unit#
+(21:20..21:22) _empty_/Test#m1(). -> 18:14
+(21:23..21:24) _empty_/B# -> 2:7
+(21:25..21:26) scala/`|`#
+(21:27..21:28) _empty_/C# -> 3:7
+(21:30..21:31) _empty_/A# -> 1:7
+

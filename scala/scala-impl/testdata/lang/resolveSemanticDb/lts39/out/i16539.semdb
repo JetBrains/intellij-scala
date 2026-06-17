@@ -1,0 +1,25 @@
+Document tests/pos/i16539.scala
+(6:11..6:12) _empty_/Hidden.Reveal#[A] -> 5:15
+(7:14..7:15) _empty_/Hidden.Reveal#[A] -> 5:15
+(7:17..7:18) _empty_/Hidden.Reveal#[A] -> 5:15
+(7:23..7:24) _empty_/Hidden.Reveal#[A] -> 5:15
+(8:13..8:19) _empty_/Hidden# -> 4:6
+(8:25..8:28) _empty_/Tag# -> 2:14
+(8:29..8:30) _empty_/Hidden.Reveal#[A] -> 5:15
+(11:19..11:20) _empty_/Handle#[C] -> 10:14
+(11:21..11:22) scala/`&`#
+(11:23..11:26) _empty_/Tag# -> 2:14
+(11:27..11:28) _empty_/Handle#apply().[A] -> 11:13
+(11:32..11:33) _empty_/Handle#apply().[A] -> 11:13
+(13:13..13:19) _empty_/Handle# -> 10:7
+(13:20..13:26) _empty_/Hidden# -> 4:6
+(14:19..14:25) _empty_/Hidden# -> 4:6
+(14:26..14:27) scala/`&`#
+(14:28..14:31) _empty_/Tag# -> 2:14
+(14:32..14:33) local0 -> 14:13
+(14:37..14:38) local0 -> 14:13
+(14:41..14:42) local1 -> 14:16
+(15:10..15:16) _empty_/Hidden.
+(15:17..15:23) _empty_/Hidden.Reveal.
+(15:33..15:34) local2 -> 15:24
+

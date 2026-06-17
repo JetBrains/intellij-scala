@@ -1,0 +1,18 @@
+Document tests/pos/Tuple.Drop.scala
+(1:8..1:19) scala/compiletime/
+(1:20..1:23) scala/compiletime/ops/
+(1:24..1:27) scala/compiletime/ops/int.
+(3:16..3:21) scala/Tuple#
+(3:28..3:31) scala/Int#
+(3:36..3:41) scala/Tuple#
+(3:44..3:45) _empty_/`Tuple.Drop$package`.Drop#[N] -> 3:23
+(4:13..4:14) _empty_/`Tuple.Drop$package`.Drop#[T] -> 3:11
+(5:8..5:9) scala/compiletime/ops/int.S#
+(5:17..5:18) _empty_/`Tuple.Drop$package`.Drop#[T] -> 3:11
+(6:10..6:20) scala/Tuple$package.EmptyTuple#
+(6:24..6:34) scala/Tuple$package.EmptyTuple#
+(7:12..7:14) scala/`*:`#
+(7:21..7:25) _empty_/`Tuple.Drop$package`.Drop# -> 3:6
+(7:26..7:28) local2 -> 7:15
+(7:30..7:32) local0 -> 5:10
+

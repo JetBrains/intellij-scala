@@ -1,0 +1,21 @@
+Document tests/pos/i12754.scala
+(1:44..1:47) scala/Any#
+(1:50..1:53) scala/Any#
+(1:63..1:64) _empty_/i12754$package.transform().(a) -> 1:41
+(2:11..2:15) scala/Byte#
+(2:21..2:22) local0 -> 2:8
+(3:11..3:16) scala/Short#
+(3:21..3:22) local1 -> 3:8
+(4:11..4:14) scala/Int#
+(4:21..4:22) local2 -> 4:8
+(5:11..5:15) scala/Long#
+(5:21..5:22) local3 -> 5:8
+(6:11..6:16) scala/Float#
+(6:21..6:22) local4 -> 6:8
+(7:11..7:17) scala/Double#
+(7:21..7:22) local5 -> 7:8
+(8:21..8:22) _empty_/i12754$package.transform().(a) -> 1:41
+(12:3..12:10) scala/Predef.println(+1).
+(12:11..12:20) _empty_/i12754$package.transform(). -> 1:24
+(12:24..12:25) scala/Int#`<`(+3).
+

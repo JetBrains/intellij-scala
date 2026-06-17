@@ -1,0 +1,18 @@
+Document tests/pos/i480a.scala
+(6:36..6:40) scala/Unit#
+(8:14..8:18) scala/package.List#
+(8:19..8:22) scala/Int#
+(8:26..8:30) scala/Unit#
+(9:25..9:33) test/Definitions#LazyType# -> 6:9
+(10:23..10:27) scala/Unit#
+(11:21..11:26) scala/runtime/RichInt#until().
+(11:27..11:30) test/Definitions#f().(vcs) -> 8:9
+(11:31..11:37) scala/collection/immutable/List#length().
+(11:41..11:44) test/Definitions#f().(vcs) -> 8:9
+(11:45..11:46) local0 -> 11:14
+(11:48..11:50) scala/Int#`!=`(+3).
+(12:11..12:12) test/Definitions#f(). -> 8:7
+(12:13..12:16) test/Definitions#f().(vcs) -> 8:9
+(12:17..12:24) scala/collection/immutable/List#updated().
+(12:25..12:26) local0 -> 11:14
+

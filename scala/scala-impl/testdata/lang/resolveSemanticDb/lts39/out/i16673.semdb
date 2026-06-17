@@ -1,0 +1,11 @@
+Document tests/pos/i16673/FooStub_1.scala
+(1:34..1:37) _empty_/Foo# -> 1:13
+
+Document tests/pos/i16673/FooStub_2.scala
+(1:34..1:37) _empty_/Foo# -> 1:13
+
+Document tests/pos/i16673/Foo_1.scala
+(1:24..1:27) _empty_/Foo# -> 1:13
+(1:37..1:44) _empty_/FooStub# -> 1:16
+(1:45..1:50) _empty_/Foo#_that. -> 1:17
+

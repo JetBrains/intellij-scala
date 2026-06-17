@@ -1,0 +1,8 @@
+[0,21]: PackageDef
+[0,0]: Ident
+[0,21]: ValDef
+[5,5]: TypeTree
+[8,21]: Select
+[8,17]: Tuple
+[9,16]: NamedArg
+[15,16]: Number

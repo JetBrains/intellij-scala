@@ -1,0 +1,7 @@
+Document tests/pos/t3582b.scala
+(4:35..4:36) _empty_/ParamScoping.noOverlapFOwithHO().[G] -> 4:28
+(4:37..4:38) _empty_/ParamScoping.noOverlapFOwithHO().[T] -> 4:25
+(4:48..4:60) scala/Any#asInstanceOf().
+(4:61..4:62) _empty_/ParamScoping.noOverlapFOwithHO().[G] -> 4:28
+(4:63..4:64) _empty_/ParamScoping.noOverlapFOwithHO().[T] -> 4:25
+

@@ -1,0 +1,274 @@
+// 3
+// One way to fix the issue, using the
+// "universal function call syntax"
+// (to borrow from what Rust calls the syntax to
+// disambiguate which trait's method is intended.)
+import java.util.concurrent.atomic.AtomicReference
+
+package lib:
+  opaque type Worm[V] = AtomicReference[AnyRef]
+  object Worm:
+    extension [V](worm: Worm[V])
+      def get: V  = worm.get().asInstanceOf[V]
+      def get2: V = Worm.get(worm)
+
+package test:
+  import lib.Worm
+  object Test:
+    def usage(worm: Worm[String]): String = worm.get2
+-----
+ScalaFile
+  PsiComment(comment)('// 3')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// One way to fix the issue, using the')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// "universal function call syntax"')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (to borrow from what Rust calls the syntax to')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// disambiguate which trait's method is intended.)')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.atomic.AtomicReference
+        CodeReferenceElement: java.util.concurrent.atomic
+          CodeReferenceElement: java.util.concurrent
+            CodeReferenceElement: java.util
+              CodeReferenceElement: java
+                PsiElement(identifier)('java')
+              PsiElement(.)('.')
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(identifier)('concurrent')
+          PsiElement(.)('.')
+          PsiElement(identifier)('atomic')
+        PsiElement(.)('.')
+        PsiElement(identifier)('AtomicReference')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: lib
+      PsiElement(identifier)('lib')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScTypeAliasDefinition: Worm
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(opaque)('opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Worm')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: V
+          PsiElement(identifier)('V')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: AtomicReference[AnyRef]
+        SimpleType: AtomicReference
+          CodeReferenceElement: AtomicReference
+            PsiElement(identifier)('AtomicReference')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n  ')
+    ScObject: Worm
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Worm')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          Extension on Worm[V]
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: V
+                PsiElement(identifier)('V')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: worm
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('worm')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Worm[V]
+                      SimpleType: Worm
+                        CodeReferenceElement: Worm
+                          PsiElement(identifier)('Worm')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: V
+                            CodeReferenceElement: V
+                              PsiElement(identifier)('V')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace('\n      ')
+            ScExtensionBody
+              ScFunctionDefinition: get
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('get')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiWhiteSpace('  ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: worm.get().asInstanceOf
+                    MethodCall
+                      ReferenceExpression: worm.get
+                        ReferenceExpression: worm
+                          PsiElement(identifier)('worm')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('get')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('asInstanceOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDefinition: get2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('get2')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Worm.get
+                    ReferenceExpression: Worm
+                      PsiElement(identifier)('Worm')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('get')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: worm
+                      PsiElement(identifier)('worm')
+                    PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n  ')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: lib.Worm
+          CodeReferenceElement: lib
+            PsiElement(identifier)('lib')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Worm')
+    PsiWhiteSpace('\n  ')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: usage
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('usage')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: worm
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('worm')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Worm[String]
+                      SimpleType: Worm
+                        CodeReferenceElement: Worm
+                          PsiElement(identifier)('Worm')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: worm.get2
+              ReferenceExpression: worm
+                PsiElement(identifier)('worm')
+              PsiElement(.)('.')
+              PsiElement(identifier)('get2')

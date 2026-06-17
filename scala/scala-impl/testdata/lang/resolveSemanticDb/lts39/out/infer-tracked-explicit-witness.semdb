@@ -1,0 +1,33 @@
+Document tests/pos/infer-tracked-explicit-witness.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(6:12..6:16) _empty_/T#Self# -> 4:8
+(8:26..8:27) _empty_/D#[C] -> 8:9
+(8:28..8:30) scala/Predef.is#
+(8:31..8:32) _empty_/T# -> 3:7
+(9:23..9:26) scala/Int#
+(9:27..9:29) scala/Predef.is#
+(9:30..9:31) _empty_/T# -> 3:7
+(12:12..12:15) scala/Int#
+(12:16..12:18) scala/Predef.is#
+(12:19..12:20) _empty_/T# -> 3:7
+(13:14..13:17) scala/Int#
+(14:14..14:18) scala/Long#
+(15:19..15:20) local4
+(16:3..16:9) scala/Predef.summon().
+(16:10..16:11) local6 -> 15:7
+(16:12..16:14) _empty_/D#wd. -> 8:22
+(16:15..16:16) local1 -> 14:10
+(16:17..16:20) scala/`=:=`#
+(16:21..16:25) scala/Long#
+(17:11..17:12) _empty_/E# -> 9:7
+(17:19..17:20) local4
+(18:3..18:9) scala/Predef.summon().
+(18:10..18:11) local8 -> 17:7
+(18:12..18:14) _empty_/E#we. -> 9:19
+(18:15..18:16) local1 -> 14:10
+(18:17..18:20) scala/`=:=`#
+(18:21..18:25) scala/Long#
+

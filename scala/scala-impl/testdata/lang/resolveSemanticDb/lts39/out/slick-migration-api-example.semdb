@@ -1,0 +1,51 @@
+Document tests/pos/slick-migration-api-example.scala
+(3:39..3:48) _empty_/Migration# -> 1:7
+(3:53..3:54) _empty_/Migration.MigrationConcat#[M] -> 3:34
+(4:16..4:25) _empty_/Migration# -> 1:7
+(4:33..4:34) _empty_/Migration.MigrationConcat#`&`().[N] -> 4:11
+(4:50..4:69) _empty_/CanConcatMigrations# -> 13:7
+(4:70..4:71) _empty_/Migration.MigrationConcat#[M] -> 3:34
+(4:73..4:74) _empty_/Migration.MigrationConcat#`&`().[N] -> 4:11
+(4:76..4:77) _empty_/Migration.MigrationConcat#`&`().[O] -> 4:27
+(4:81..4:82) _empty_/Migration.MigrationConcat#`&`().[O] -> 4:27
+(4:85..4:88) scala/Predef.`???`().
+(6:35..6:44) _empty_/Migration# -> 1:7
+(7:28..7:37) _empty_/Migration# -> 1:7
+(8:38..8:50) _empty_/MigrationSeq# -> 7:7
+(8:56..8:75) _empty_/ReversibleMigration# -> 6:7
+(10:26..10:35) _empty_/Migration# -> 1:7
+(12:28..12:40) _empty_/ToReversible# -> 10:7
+(12:41..12:60) _empty_/ReversibleMigration# -> 6:7
+(12:64..12:67) scala/Predef.`???`().
+(15:29..15:38) _empty_/Migration# -> 1:7
+(15:45..15:54) _empty_/Migration# -> 1:7
+(15:57..15:76) _empty_/CanConcatMigrations# -> 13:7
+(15:77..15:78) _empty_/CanConcatMigrationsLow#default().[A] -> 15:24
+(15:80..15:81) _empty_/CanConcatMigrationsLow#default().[B] -> 15:40
+(15:83..15:95) _empty_/MigrationSeq# -> 7:7
+(15:99..15:102) scala/Predef.`???`().
+(16:36..16:58) _empty_/CanConcatMigrationsLow# -> 14:7
+(17:32..17:41) _empty_/Migration# -> 1:7
+(17:48..17:57) _empty_/Migration# -> 1:7
+(17:78..17:90) _empty_/ToReversible# -> 10:7
+(17:91..17:92) _empty_/CanConcatMigrations.reversible().[A] -> 17:27
+(18:69..18:81) _empty_/ToReversible# -> 10:7
+(18:82..18:83) _empty_/CanConcatMigrations.reversible().[B] -> 17:43
+(18:87..18:106) _empty_/CanConcatMigrations# -> 13:7
+(18:107..18:108) _empty_/CanConcatMigrations.reversible().[A] -> 17:27
+(18:110..18:111) _empty_/CanConcatMigrations.reversible().[B] -> 17:43
+(18:113..18:135) _empty_/ReversibleMigrationSeq# -> 8:7
+(18:139..18:142) scala/Predef.`???`().
+(20:2..20:6) scala/main#
+(21:11..21:30) _empty_/ReversibleMigration# -> 6:7
+(21:33..21:36) scala/Predef.`???`().
+(22:13..22:15) local0 -> 21:7
+(22:16..22:17) _empty_/Migration.MigrationConcat#`&`(). -> 4:9
+(22:18..22:20) local0 -> 21:7
+(22:21..22:22) _empty_/Migration.MigrationConcat#`&`(). -> 4:9
+(22:23..22:25) local0 -> 21:7
+(23:3..23:9) scala/Predef.summon().
+(23:10..23:13) local1 -> 22:7
+(23:19..23:22) scala/`<:<`#
+(23:23..23:45) _empty_/ReversibleMigrationSeq# -> 8:7
+

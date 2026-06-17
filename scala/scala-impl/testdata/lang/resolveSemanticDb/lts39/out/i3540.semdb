@@ -1,0 +1,9 @@
+Document tests/pos/i3540.scala
+(2:25..2:28) scala/Int#
+(2:42..2:45) scala/Int#
+(3:26..3:29) scala/Int#
+(3:34..3:37) scala/Int#
+(3:51..3:54) scala/Int#
+(4:26..4:29) scala/Int#
+(4:34..4:37) scala/Int#
+

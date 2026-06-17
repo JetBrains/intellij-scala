@@ -1,0 +1,12 @@
+Document tests/pos/i6003.scala
+(2:19..2:25) scala/Predef.String#
+(4:19..4:20) _empty_/Test.T# -> 2:15
+(4:23..4:29) scala/Predef.String#
+(4:32..4:33) _empty_/Test.T.unwrap().(t) -> 4:16
+(7:19..7:25) scala/Predef.String#
+(8:12..8:13) _empty_/Test.U# -> 7:15
+(10:19..10:20) _empty_/Test.W# -> 8:8
+(10:23..10:29) scala/Predef.String#
+(10:32..10:33) _empty_/Test.U.unwrap().(w) -> 10:16
+(10:35..10:36) _empty_/Test.U# -> 7:15
+

@@ -1,0 +1,473 @@
+def Test = Seq.empty[DenseMatrix[Double]].reduce(DenseMatrix.horzcat(_, _))
+
+trait Matrix[T]
+trait DenseMatrix[T] extends Matrix[T]
+
+object DenseMatrix:
+    def horzcat[M, V](matrices: M*)(using OpSet.InPlaceImpl2[DenseMatrix[V], M]): DenseMatrix[V] = ???
+
+object OpSet extends HasOps:
+  trait InPlaceImpl2[V1, V2]
+
+trait HasOps
+object HasOps extends DenseMatrixExpandedOps with DensMatrixLowPriority
+
+trait DenseMatrixExpandedOps:
+  given OpSet.InPlaceImpl2[DenseMatrix[Double], DenseMatrix[Double]] = ???
+
+trait DensMatrixLowPriority extends LowPriorityDenseMatrix1
+trait LowPriorityDenseMatrix1:
+  given [V]: OpSet.InPlaceImpl2[DenseMatrix[V], Matrix[V]] = ???
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Seq.empty[DenseMatrix[Double]].reduce
+        GenericCall
+          ReferenceExpression: Seq.empty
+            ReferenceExpression: Seq
+              PsiElement(identifier)('Seq')
+            PsiElement(.)('.')
+            PsiElement(identifier)('empty')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: DenseMatrix[Double]
+                SimpleType: DenseMatrix
+                  CodeReferenceElement: DenseMatrix
+                    PsiElement(identifier)('DenseMatrix')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reduce')
+      ArgumentList
+        PsiElement(()('(')
+        MethodCall
+          ReferenceExpression: DenseMatrix.horzcat
+            ReferenceExpression: DenseMatrix
+              PsiElement(identifier)('DenseMatrix')
+            PsiElement(.)('.')
+            PsiElement(identifier)('horzcat')
+          ArgumentList
+            PsiElement(()('(')
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Matrix
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Matrix')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: DenseMatrix
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseMatrix')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Matrix[T]
+            SimpleType: Matrix
+              CodeReferenceElement: Matrix
+                PsiElement(identifier)('Matrix')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: DenseMatrix
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseMatrix')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: horzcat
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('horzcat')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: matrices
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('matrices')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: OpSet.InPlaceImpl2[DenseMatrix[V], M]
+                    SimpleType: OpSet.InPlaceImpl2
+                      CodeReferenceElement: OpSet.InPlaceImpl2
+                        CodeReferenceElement: OpSet
+                          PsiElement(identifier)('OpSet')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('InPlaceImpl2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: DenseMatrix[V]
+                          SimpleType: DenseMatrix
+                            CodeReferenceElement: DenseMatrix
+                              PsiElement(identifier)('DenseMatrix')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: V
+                                CodeReferenceElement: V
+                                  PsiElement(identifier)('V')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: DenseMatrix[V]
+            SimpleType: DenseMatrix
+              CodeReferenceElement: DenseMatrix
+                PsiElement(identifier)('DenseMatrix')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: OpSet
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OpSet')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: HasOps
+            CodeReferenceElement: HasOps
+              PsiElement(identifier)('HasOps')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: InPlaceImpl2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('InPlaceImpl2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: V1
+              PsiElement(identifier)('V1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V2
+              PsiElement(identifier)('V2')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: HasOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HasOps')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: HasOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HasOps')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: DenseMatrixExpandedOps
+            CodeReferenceElement: DenseMatrixExpandedOps
+              PsiElement(identifier)('DenseMatrixExpandedOps')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: DensMatrixLowPriority
+            CodeReferenceElement: DensMatrixLowPriority
+              PsiElement(identifier)('DensMatrixLowPriority')
+  PsiWhiteSpace('\n\n')
+  ScTrait: DenseMatrixExpandedOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DenseMatrixExpandedOps')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_InPlaceImpl2_DenseMatrix_DenseMatrix
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: OpSet.InPlaceImpl2[DenseMatrix[Double], DenseMatrix[Double]]
+            SimpleType: OpSet.InPlaceImpl2
+              CodeReferenceElement: OpSet.InPlaceImpl2
+                CodeReferenceElement: OpSet
+                  PsiElement(identifier)('OpSet')
+                PsiElement(.)('.')
+                PsiElement(identifier)('InPlaceImpl2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: DenseMatrix[Double]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: DenseMatrix[Double]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: DensMatrixLowPriority
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DensMatrixLowPriority')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: LowPriorityDenseMatrix1
+            CodeReferenceElement: LowPriorityDenseMatrix1
+              PsiElement(identifier)('LowPriorityDenseMatrix1')
+  PsiWhiteSpace('\n')
+  ScTrait: LowPriorityDenseMatrix1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LowPriorityDenseMatrix1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_InPlaceImpl2_DenseMatrix_Matrix
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: OpSet.InPlaceImpl2[DenseMatrix[V], Matrix[V]]
+            SimpleType: OpSet.InPlaceImpl2
+              CodeReferenceElement: OpSet.InPlaceImpl2
+                CodeReferenceElement: OpSet
+                  PsiElement(identifier)('OpSet')
+                PsiElement(.)('.')
+                PsiElement(identifier)('InPlaceImpl2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: DenseMatrix[V]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Matrix[V]
+                  SimpleType: Matrix
+                    CodeReferenceElement: Matrix
+                      PsiElement(identifier)('Matrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')

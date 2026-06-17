@@ -1,0 +1,60 @@
+Document tests/pos/i13349.scala
+(2:12..2:18) _empty_/Stream. -> 18:8
+(4:28..4:29) _empty_/Stream#foldRight().[B] -> 4:19
+(4:35..4:36) _empty_/Stream#[A] -> 1:22
+(4:41..4:42) _empty_/Stream#foldRight().[B] -> 4:19
+(4:47..4:48) _empty_/Stream#foldRight().[B] -> 4:19
+(4:51..4:52) _empty_/Stream#foldRight().[B] -> 4:19
+(6:14..6:18) _empty_/Cons.
+(6:27..6:28) _empty_/Stream#foldRight().(f) -> 4:31
+(6:29..6:30) local0 -> 6:19
+(6:34..6:35) local1 -> 6:21
+(6:38..6:47) _empty_/Stream#foldRight(). -> 4:9
+(6:48..6:49) _empty_/Stream#foldRight().(z) -> 4:22
+(6:51..6:52) _empty_/Stream#foldRight().(f) -> 4:31
+(7:19..7:20) _empty_/Stream#foldRight().(z) -> 4:22
+(10:21..10:22) _empty_/Stream#[A] -> 1:22
+(10:35..10:41) _empty_/Stream# -> 1:14
+(10:42..10:43) _empty_/Stream#append().[B] -> 10:16
+(10:48..10:54) _empty_/Stream# -> 1:14
+(10:55..10:56) _empty_/Stream#append().[B] -> 10:16
+(11:7..11:16) _empty_/Stream#foldRight(). -> 4:9
+(11:17..11:22) _empty_/Stream#append().(other) -> 10:24
+(11:25..11:31) _empty_/Stream# -> 1:14
+(11:32..11:33) _empty_/Stream#append().[B] -> 10:16
+(11:54..11:58) _empty_/Stream.cons(). -> 20:7
+(11:59..11:63) local2 -> 11:37
+(11:65..11:71) local3 -> 11:43
+(15:27..15:33) _empty_/Stream# -> 1:14
+(15:34..15:41) scala/Nothing#
+(16:30..16:31) _empty_/Cons#[A] -> 16:18
+(16:42..16:48) _empty_/Stream# -> 1:14
+(16:49..16:50) _empty_/Cons#[A] -> 16:18
+(16:61..16:67) _empty_/Stream# -> 1:14
+(16:68..16:69) _empty_/Cons#[A] -> 16:18
+(20:22..20:23) _empty_/Stream.cons().[A] -> 20:12
+(20:32..20:38) _empty_/Stream# -> 1:14
+(20:39..20:40) _empty_/Stream.cons().[A] -> 20:12
+(20:44..20:50) _empty_/Stream# -> 1:14
+(20:51..20:52) _empty_/Stream.cons().[A] -> 20:12
+(21:21..21:23) _empty_/Stream.cons().(hd) -> 20:15
+(22:21..22:23) _empty_/Stream.cons().(tl) -> 20:25
+(23:5..23:9) _empty_/Cons.
+(23:16..23:20) local4 -> 21:14
+(23:28..23:32) local5 -> 22:14
+(26:17..26:23) _empty_/Stream# -> 1:14
+(26:24..26:25) _empty_/Stream.empty().[A] -> 26:13
+(26:29..26:34) _empty_/Empty. -> 15:13
+(28:20..28:21) _empty_/Stream.apply().[A] -> 28:13
+(28:25..28:31) _empty_/Stream# -> 1:14
+(28:32..28:33) _empty_/Stream.apply().[A] -> 28:13
+(29:9..29:11) _empty_/Stream.apply().(as) -> 28:16
+(29:12..29:19) scala/collection/SeqOps#isEmpty().
+(29:21..29:26) _empty_/Stream.empty(). -> 26:7
+(29:32..29:36) _empty_/Stream.cons(). -> 20:7
+(29:37..29:39) _empty_/Stream.apply().(as) -> 28:16
+(29:40..29:44) scala/collection/IterableOps#head().
+(29:46..29:51) _empty_/Stream.apply(). -> 28:7
+(29:52..29:54) _empty_/Stream.apply().(as) -> 28:16
+(29:55..29:59) scala/collection/IterableOps#tail().
+

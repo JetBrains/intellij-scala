@@ -1,0 +1,13 @@
+[71,114]: PackageDef
+[71,71]: Ident
+[71,114]: TypeDef
+[86,112]: Template
+[86,86]: DefDef
+[86,86]: TypeTree
+[86,112]: Match
+[86,87]: Number
+[96,110]: CaseDef
+[101,107]: Typed
+[101,102]: Ident
+[104,107]: Ident
+[108,110]: Block

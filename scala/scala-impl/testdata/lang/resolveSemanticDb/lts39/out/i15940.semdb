@@ -1,0 +1,37 @@
+Document tests/pos/i15940.scala
+(2:54..2:57) scala/package.Seq#
+(2:58..2:64) scala/package.Either#
+(2:65..2:66) _empty_/Ops.EitherSeqOps#[E] -> 2:31
+(2:68..2:69) _empty_/Ops.EitherSeqOps#[T] -> 2:34
+(2:81..2:87) scala/AnyVal#
+(3:19..3:25) scala/package.Either#
+(3:26..3:28) scala/package.`::`#
+(3:29..3:30) _empty_/Ops.EitherSeqOps#[E] -> 2:31
+(3:33..3:36) scala/package.Seq#
+(3:37..3:38) _empty_/Ops.EitherSeqOps#[T] -> 2:34
+(3:43..3:46) scala/Predef.`???`().
+(6:40..6:42) scala/package.`::`#
+(6:43..6:57) _empty_/BuildException# -> 5:7
+(6:68..6:82) _empty_/BuildException# -> 5:7
+(9:30..9:50) _empty_/ActionableDiagnostic# -> 8:7
+(10:13..10:19) scala/package.Either#
+(10:20..10:34) _empty_/BuildException# -> 5:7
+(10:36..10:39) scala/package.Seq#
+(10:40..10:41) _empty_/ActionableHandler#[A] -> 9:25
+(12:8..12:11) _empty_/Ops. -> 1:8
+(14:11..14:17) scala/package.Either#
+(14:18..14:32) _empty_/BuildException# -> 5:7
+(14:34..14:37) scala/package.Seq#
+(14:38..14:58) _empty_/ActionableDiagnostic# -> 8:7
+(16:3..16:6) scala/package.Seq.
+(16:7..16:12) scala/collection/SeqFactory.Delegate#empty().
+(16:13..16:30) _empty_/ActionableHandler# -> 9:7
+(16:35..16:38) scala/collection/IterableOps#map().
+(16:41..16:45) _empty_/ActionableHandler#exec(). -> 10:7
+(17:6..17:14) _empty_/Ops.EitherSeqOps#sequence(). -> 3:9
+(18:6..18:10) scala/util/Either#left().
+(18:11..18:14) scala/util/Either.LeftProjection#map().
+(18:17..18:21) scala/collection/immutable/`::`#head.
+(19:6..19:9) scala/util/Either#map().
+(19:12..19:19) scala/collection/IterableOps#flatten().
+

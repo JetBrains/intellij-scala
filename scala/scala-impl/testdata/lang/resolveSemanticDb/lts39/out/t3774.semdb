@@ -1,0 +1,14 @@
+Document tests/pos/t3774.scala
+(4:3..4:6) scala/Predef.Map.
+(4:8..4:11) scala/Int#
+(4:12..4:15) scala/Int#
+(4:17..4:21) scala/package.List#
+(4:22..4:25) scala/Int#
+(4:30..4:32) scala/collection/MapOps#`++`().
+(4:45..4:47) scala/runtime/RichInt#to().
+(4:59..4:61) scala/runtime/RichInt#to().
+(4:73..4:74) local0 -> 4:38
+(4:75..4:76) local1 -> 4:52
+(4:77..4:79) scala/Predef.ArrowAssoc#`->`().
+(4:83..4:85) scala/runtime/RichInt#to().
+

@@ -1,0 +1,9 @@
+Document tests/pos/i13512.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(5:9..5:13) scala/package.List.
+(5:18..5:30) _empty_/NotEquatable# -> 3:7
+(6:8..6:11) scala/package.Nil.
+(6:15..6:18) scala/Predef.`???`().
+

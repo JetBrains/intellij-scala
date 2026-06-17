@@ -1,0 +1,7 @@
+Document tests/pos/macro-deprecate-dont-touch-backquotedidents.scala
+(2:17..2:20) scala/Predef.`???`().
+(6:17..6:20) scala/Predef.`???`().
+(10:18..10:21) scala/Int#
+(38:11..38:18) macro/macro/
+(43:11..43:18) foo/macro/
+

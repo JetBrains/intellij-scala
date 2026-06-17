@@ -1,0 +1,71 @@
+Document tests/pos/bson/Test.scala
+(2:8..2:12) bson/ -> 1:9
+(4:39..4:49) bson/BSONWriter# -> 3:7
+(4:50..4:53) scala/Predef.Map#
+(4:54..4:60) scala/Predef.String#
+(4:62..4:63) _empty_/Test$package.stringMapHandler().[V] -> 4:22
+(4:68..4:79) bson/BSONHandler# -> 7:7
+(4:80..4:83) scala/Predef.Map#
+(4:84..4:90) scala/Predef.String#
+(4:92..4:93) _empty_/Test$package.stringMapHandler().[V] -> 4:22
+(4:98..4:101) scala/Predef.`???`().
+(5:27..5:38) _empty_/Test$package.typedMapHandler().[V] -> 5:24
+(5:27..5:38) bson/BSONHandler# -> 7:7
+(5:42..5:58) _empty_/Test$package.stringMapHandler(). -> 4:5
+(5:59..5:60) _empty_/Test$package.typedMapHandler().[V] -> 5:24
+
+Document tests/pos/bson/bson.scala
+(4:37..4:47) bson/BSONWriter# -> 3:7
+(4:48..4:49) bson/BSONDocumentWriter#[T] -> 4:26
+(5:27..5:46) bson/BSONWriterInstances# -> 9:21
+(7:30..7:40) bson/BSONWriter# -> 3:7
+(7:41..7:42) bson/BSONHandler#[T] -> 7:19
+(9:9..9:13) bson/ -> 1:9
+(10:27..10:37) bson/BSONWriter# -> 3:7
+(10:38..10:39) bson/BSONWriterInstances#mapWriter().[V] -> 10:21
+(10:44..10:62) bson/BSONDocumentWriter# -> 4:7
+(10:63..10:66) scala/Predef.Map#
+(10:67..10:73) scala/Predef.String#
+(10:75..10:76) bson/BSONWriterInstances#mapWriter().[V] -> 10:21
+(10:81..10:85) bson/bson/
+(10:86..10:95) bson/LowPriorityHandlers#mapWriter(). -> 25:21
+(10:96..10:97) bson/BSONWriterInstances#mapWriter().[V] -> 10:21
+(11:10..11:14) bson/bson/
+(16:39..16:40) bson/`¬`# -> 14:13
+(16:41..16:42) bson/`¬`.defaultEvidence().[A] -> 16:32
+(16:44..16:45) bson/`¬`.defaultEvidence().[B] -> 16:35
+(16:53..16:54) bson/`¬`# -> 14:13
+(16:55..16:56) bson/`¬`.defaultEvidence().[A] -> 16:32
+(16:58..16:59) bson/`¬`.defaultEvidence().[B] -> 16:35
+(17:4..17:14) scala/annotation/
+(17:15..17:32) scala/annotation/implicitAmbiguous#
+(18:39..18:40) bson/`¬`# -> 14:13
+(18:41..18:42) bson/`¬`.ambiguousEvidence1().[A] -> 18:35
+(18:44..18:45) bson/`¬`.ambiguousEvidence1().[A] -> 18:35
+(19:39..19:40) bson/`¬`# -> 14:13
+(19:41..19:42) bson/`¬`.ambiguousEvidence2().[A] -> 19:35
+(19:44..19:45) bson/`¬`.ambiguousEvidence2().[A] -> 19:35
+(22:9..22:13) bson/ -> 1:9
+(22:49..22:68) bson/LowPriorityHandlers# -> 23:21
+(23:9..23:13) bson/ -> 1:9
+(24:39..24:47) scala/package.Iterable#
+(24:48..24:49) bson/LowPriorityHandlers#collectionWriter().[T] -> 24:28
+(24:56..24:66) bson/BSONWriter# -> 3:7
+(24:67..24:68) bson/LowPriorityHandlers#collectionWriter().[T] -> 24:28
+(24:71..24:75) bson/LowPriorityHandlers#collectionWriter().[Repr] -> 24:31
+(24:76..24:77) bson/`¬`# -> 14:13
+(24:78..24:84) scala/Option#
+(24:85..24:86) bson/LowPriorityHandlers#collectionWriter().[T] -> 24:28
+(24:92..24:102) bson/BSONWriter# -> 3:7
+(24:103..24:107) bson/LowPriorityHandlers#collectionWriter().[Repr] -> 24:31
+(24:111..24:114) scala/Predef.`???`().
+(25:11..25:15) bson/ -> 1:9
+(25:56..25:66) bson/BSONWriter# -> 3:7
+(25:67..25:68) bson/LowPriorityHandlers#mapWriter().[V] -> 25:31
+(25:72..25:90) bson/BSONDocumentWriter# -> 4:7
+(25:91..25:94) scala/Predef.Map#
+(25:95..25:101) scala/Predef.String#
+(25:103..25:104) bson/LowPriorityHandlers#mapWriter().[V] -> 25:31
+(25:109..25:112) scala/Predef.`???`().
+(29:29..29:48) bson/DefaultBSONHandlers# -> 22:21
+

@@ -1,0 +1,12 @@
+Document tests/pos/t397.scala
+(5:17..5:18) _empty_/Root#Edge#V# -> 4:10
+(10:15..10:19) _empty_/Root#Edge# -> 3:18
+(10:29..10:30) _empty_/Root#Graph#W# -> 9:10
+(11:15..11:16) _empty_/Root#Graph#E# -> 10:10
+(14:10..14:15) _empty_/Root#Graph# -> 8:18
+(14:25..14:28) scala/Int#
+(15:10..15:13) scala/Int#
+(15:16..15:17) _empty_/Root#g. -> 14:7
+(15:18..15:22) _empty_/Root#Graph#edge(). -> 11:9
+(15:23..15:29) _empty_/Root#Edge#source(). -> 5:9
+

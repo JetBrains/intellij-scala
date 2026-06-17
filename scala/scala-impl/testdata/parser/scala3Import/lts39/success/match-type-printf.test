@@ -1,0 +1,496 @@
+import scala.compiletime.ops.int.+
+import scala.compiletime.ops.string.{CharAt, Length, Substring}
+import scala.Tuple.*
+
+type ArgTypes[S <: String] <: Tuple = S match
+  case "" => EmptyTuple
+  case _ =>
+    CharAt[S, 0] match
+      case '%' =>
+        CharAt[S, 1] match
+          case 'd' => Int *: ArgTypes[Substring[S, 2, Length[S]]]
+          case 's' => String *: ArgTypes[Substring[S, 2, Length[S]]]
+      case _ => ArgTypes[Substring[S, 1, Length[S]]]
+
+def printf(s: String)(t: ArgTypes[s.type]): Unit = ()
+
+def test() =
+  printf("%s is %d")(("Ada", 36)) // works in Scala 3.2.0, 3.3.0 and 3.4.0
+  printf("%s is lorem %d")(("Ada", 36)) // works in Scala 3.4.0 but fails in Scala 3.2.0 and 3.3.0
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int.+
+        CodeReferenceElement: scala.compiletime.ops.int
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('int')
+        PsiElement(.)('.')
+        PsiElement(identifier)('+')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.string
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('string')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: CharAt
+            PsiElement(identifier)('CharAt')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Length
+            PsiElement(identifier)('Length')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Substring
+            PsiElement(identifier)('Substring')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.Tuple
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Tuple')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ArgTypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ArgTypes')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Tuple
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: S match
+  case "" => EmptyTuple
+  case _ =>
+    CharAt[S, 0] match
+      case '%' =>
+        CharAt[S, 1] match
+          case 'd' => Int *: ArgTypes[Substring[S, 2, Length[S]]]
+          case 's' => String *: ArgTypes[Substring[S, 2, Length[S]]]
+      case _ => ArgTypes[Substring[S, 1, Length[S]]]
+      SimpleType: S
+        CodeReferenceElement: S
+          PsiElement(identifier)('S')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: ""
+            StringLiteral
+              PsiElement(string content)('""')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          MatchType: CharAt[S, 0] match
+      case '%' =>
+        CharAt[S, 1] match
+          case 'd' => Int *: ArgTypes[Substring[S, 2, Length[S]]]
+          case 's' => String *: ArgTypes[Substring[S, 2, Length[S]]]
+      case _ => ArgTypes[Substring[S, 1, Length[S]]]
+            ParametrizedType: CharAt[S, 0]
+              SimpleType: CharAt
+                CodeReferenceElement: CharAt
+                  PsiElement(identifier)('CharAt')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '%'
+                  CharLiteral
+                    PsiElement(Character)(''%'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                MatchType: CharAt[S, 1] match
+          case 'd' => Int *: ArgTypes[Substring[S, 2, Length[S]]]
+          case 's' => String *: ArgTypes[Substring[S, 2, Length[S]]]
+                  ParametrizedType: CharAt[S, 1]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n          ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 'd'
+                        CharLiteral
+                          PsiElement(Character)(''d'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: Int *: ArgTypes[Substring[S, 2, Length[S]]]
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: ArgTypes[Substring[S, 2, Length[S]]]
+                          SimpleType: ArgTypes
+                            CodeReferenceElement: ArgTypes
+                              PsiElement(identifier)('ArgTypes')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Substring[S, 2, Length[S]]
+                                SimpleType: Substring
+                                  CodeReferenceElement: Substring
+                                    PsiElement(identifier)('Substring')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: S
+                                      CodeReferenceElement: S
+                                        PsiElement(identifier)('S')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    ParametrizedType: Length[S]
+                                      SimpleType: Length
+                                        CodeReferenceElement: Length
+                                          PsiElement(identifier)('Length')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: S
+                                            CodeReferenceElement: S
+                                              PsiElement(identifier)('S')
+                                        PsiElement(])(']')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiWhiteSpace('\n          ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 's'
+                        CharLiteral
+                          PsiElement(Character)(''s'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: String *: ArgTypes[Substring[S, 2, Length[S]]]
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: ArgTypes[Substring[S, 2, Length[S]]]
+                          SimpleType: ArgTypes
+                            CodeReferenceElement: ArgTypes
+                              PsiElement(identifier)('ArgTypes')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Substring[S, 2, Length[S]]
+                                SimpleType: Substring
+                                  CodeReferenceElement: Substring
+                                    PsiElement(identifier)('Substring')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: S
+                                      CodeReferenceElement: S
+                                        PsiElement(identifier)('S')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    ParametrizedType: Length[S]
+                                      SimpleType: Length
+                                        CodeReferenceElement: Length
+                                          PsiElement(identifier)('Length')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: S
+                                            CodeReferenceElement: S
+                                              PsiElement(identifier)('S')
+                                        PsiElement(])(']')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+              PsiWhiteSpace('\n      ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ArgTypes[Substring[S, 1, Length[S]]]
+                  SimpleType: ArgTypes
+                    CodeReferenceElement: ArgTypes
+                      PsiElement(identifier)('ArgTypes')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Substring[S, 1, Length[S]]
+                        SimpleType: Substring
+                          CodeReferenceElement: Substring
+                            PsiElement(identifier)('Substring')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: S
+                              CodeReferenceElement: S
+                                PsiElement(identifier)('S')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: 1
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Length[S]
+                              SimpleType: Length
+                                CodeReferenceElement: Length
+                                  PsiElement(identifier)('Length')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: S
+                                    CodeReferenceElement: S
+                                      PsiElement(identifier)('S')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: printf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('printf')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: ArgTypes[s.type]
+              SimpleType: ArgTypes
+                CodeReferenceElement: ArgTypes
+                  PsiElement(identifier)('ArgTypes')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: s.type
+                    CodeReferenceElement: s
+                      PsiElement(identifier)('s')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: printf
+            PsiElement(identifier)('printf')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"%s is %d"')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"Ada"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('36')
+            PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// works in Scala 3.2.0, 3.3.0 and 3.4.0')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: printf
+            PsiElement(identifier)('printf')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"%s is lorem %d"')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          Tuple
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"Ada"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('36')
+            PsiElement())(')')
+          PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// works in Scala 3.4.0 but fails in Scala 3.2.0 and 3.3.0')

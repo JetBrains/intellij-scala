@@ -1,0 +1,37 @@
+Document tests/pos/i14903a.scala
+(6:5..6:6) _empty_/i14903a$package.Func#[T] -> 5:13
+(7:12..7:18) scala/Predef.String#
+(7:22..7:26) scala/Long#
+(8:12..8:16) scala/Long#
+(8:22..8:25) scala/Int#
+(9:12..9:15) scala/Int#
+(9:22..9:27) scala/Float#
+(10:12..10:17) scala/Float#
+(10:21..10:27) scala/Double#
+(11:12..11:18) scala/Double#
+(11:22..11:26) scala/Unit#
+(12:12..12:16) scala/Unit#
+(12:20..12:26) scala/Predef.String#
+(15:26..15:33) _empty_/Wrapper# -> 1:7
+(15:34..15:37) _empty_/One# -> 17:9
+(15:38..15:39) _empty_/i14903a$package.infer().[A] -> 15:22
+(15:55..15:59) _empty_/i14903a$package.Func# -> 5:8
+(15:60..15:61) _empty_/i14903a$package.infer().[A] -> 15:22
+(15:67..15:70) scala/Predef.`???`().
+(18:25..18:32) _empty_/Wrapper# -> 1:7
+(18:33..18:36) _empty_/One# -> 17:9
+(18:37..18:38) _empty_/One#[A] -> 17:13
+(18:43..18:46) _empty_/One# -> 17:9
+(18:47..18:48) _empty_/One#use().(w) -> 18:22
+(18:49..18:52) _empty_/Wrapper#Out# -> 2:10
+(21:10..21:13) _empty_/One# -> 17:9
+(21:14..21:18) scala/Long#
+(22:11..22:12) _empty_/i14903a$package.x. -> 21:7
+(22:13..22:16) _empty_/One#use(). -> 18:9
+(22:17..22:20) _empty_/One#use(). -> 18:9
+(22:21..22:24) _empty_/One#use(). -> 18:9
+(22:25..22:28) _empty_/One#use(). -> 18:9
+(22:29..22:32) _empty_/One#use(). -> 18:9
+(22:33..22:36) _empty_/One#use(). -> 18:9
+(22:37..22:40) _empty_/One#use(). -> 18:9
+

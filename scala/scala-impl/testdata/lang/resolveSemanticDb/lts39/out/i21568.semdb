@@ -1,0 +1,13 @@
+Document tests/pos/i21568.scala
+(1:18..1:24) scala/Predef.String#
+(3:17..3:21) _empty_/Lang. -> 2:8
+(4:23..4:29) scala/Predef.String#
+(4:32..4:36) _empty_/Lang# -> 1:7
+(4:39..4:42) scala/Predef.`???`().
+(5:24..5:30) scala/Option#
+(5:31..5:37) scala/Predef.String#
+(5:49..5:53) _empty_/Lang# -> 1:7
+(5:56..5:63) _empty_/Lang.Default. -> 3:7
+(5:66..5:70) _empty_/Lang# -> 1:7
+(5:73..5:76) scala/Predef.`???`().
+

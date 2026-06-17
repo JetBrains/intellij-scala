@@ -1,0 +1,11 @@
+Document tests/pos/simple-boundary.scala
+(1:8..1:13) scala/
+(1:14..1:18) scala/util/
+(1:19..1:27) scala/util/boundary.
+(1:29..1:37) scala/util/boundary.
+(1:38..1:43) scala/util/boundary.break().
+(1:38..1:43) scala/util/boundary.break(+1).
+(2:11..2:15) scala/Unit#
+(3:3..3:11) scala/util/boundary.
+(4:19..4:24) scala/util/boundary.break(+1).
+

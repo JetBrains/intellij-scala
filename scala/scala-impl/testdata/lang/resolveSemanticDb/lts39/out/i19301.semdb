@@ -1,0 +1,17 @@
+Document tests/pos/i19301.scala
+(4:20..4:26) scala/Predef.String#
+(4:29..4:33) scala/Unit#
+(5:20..5:23) scala/Int#
+(5:44..5:47) scala/Int#
+(5:50..5:53) scala/Int#
+(5:56..5:60) _empty_/Extensions.X().(arg1) -> 5:14
+(5:61..5:62) scala/Int#`*`(+3).
+(5:63..5:67) _empty_/Extensions.X().(arg2) -> 5:38
+(8:8..8:18) _empty_/Extensions. -> 3:8
+(10:11..10:12) _empty_/i19301$package.X().
+(11:12..11:15) scala/Int#
+(11:16..11:17) _empty_/i19301$package.X#
+(11:18..11:21) scala/Int#
+(12:9..12:19) _empty_/Extensions. -> 3:8
+(12:20..12:23) _empty_/Extensions.foo(). -> 4:13
+

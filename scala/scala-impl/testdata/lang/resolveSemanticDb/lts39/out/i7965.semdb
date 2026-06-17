@@ -1,0 +1,111 @@
+Document tests/pos/i7965.scala
+(7:10..7:13) _empty_/Has# -> 1:7
+(7:14..7:15) _empty_/X# -> 2:7
+(7:17..7:18) scala/`|`#
+(7:20..7:23) _empty_/Has# -> 1:7
+(7:24..7:25) _empty_/Y# -> 3:7
+(7:27..7:28) scala/`&`#
+(7:29..7:32) _empty_/Has# -> 1:7
+(7:33..7:34) _empty_/Z# -> 4:7
+(8:16..8:19) _empty_/Has# -> 1:7
+(8:29..8:30) _empty_/Test#foo().[T] -> 8:11
+(8:33..8:34) _empty_/Test#foo().[T] -> 8:11
+(8:37..8:40) _empty_/Test#foo().(has) -> 8:24
+(9:3..9:6) _empty_/Test#foo(). -> 8:7
+(9:7..9:8) _empty_/Test#x(). -> 7:7
+(14:33..14:36) _empty_/Has# -> 1:7
+(15:17..15:18) _empty_/ZLayer#[E] -> 14:21
+(15:29..15:32) _empty_/Has# -> 1:7
+(15:43..15:49) _empty_/ZLayer# -> 14:7
+(15:50..15:54) _empty_/ZLayer#[ROut] -> 14:25
+(15:56..15:58) _empty_/ZLayer#`>>>`().[E1] -> 15:11
+(15:60..15:65) _empty_/ZLayer#`>>>`().[ROut2] -> 15:20
+(15:69..15:75) _empty_/ZLayer# -> 14:7
+(15:76..15:79) _empty_/ZLayer#[RIn] -> 14:15
+(15:81..15:83) _empty_/ZLayer#`>>>`().[E1] -> 15:11
+(15:85..15:90) _empty_/ZLayer#`>>>`().[ROut2] -> 15:20
+(16:16..16:17) _empty_/ZLayer#[E] -> 14:21
+(16:34..16:38) _empty_/ZLayer#[ROut] -> 14:25
+(16:42..16:45) _empty_/Has# -> 1:7
+(16:59..16:62) _empty_/Has# -> 1:7
+(16:73..16:79) _empty_/ZLayer# -> 14:7
+(16:80..16:84) _empty_/ZLayer#`++`().[RIn2] -> 16:19
+(16:86..16:88) _empty_/ZLayer#`++`().[E1] -> 16:10
+(16:90..16:95) _empty_/ZLayer#`++`().[ROut2] -> 16:50
+(16:99..16:105) _empty_/ZLayer# -> 14:7
+(16:106..16:109) _empty_/ZLayer#[RIn] -> 14:15
+(16:115..16:119) _empty_/ZLayer#`++`().[RIn2] -> 16:19
+(16:121..16:123) _empty_/ZLayer#`++`().[E1] -> 16:10
+(16:125..16:130) _empty_/ZLayer#`++`().[ROut1] -> 16:25
+(16:136..16:141) _empty_/ZLayer#`++`().[ROut2] -> 16:50
+(19:25..19:28) _empty_/Has# -> 1:7
+(19:35..19:41) _empty_/ZLayer# -> 14:7
+(19:42..19:45) scala/Any#
+(19:47..19:48) _empty_/ZLayer.NoDeps#[E] -> 19:16
+(19:50..19:51) _empty_/ZLayer.NoDeps#[B] -> 19:20
+(22:17..22:20) _empty_/Has# -> 1:7
+(22:21..22:29) _empty_/i7965$package.ServiceA. -> 23:8
+(22:30..22:37) _empty_/i7965$package.ServiceA.Service# -> 24:9
+(25:13..25:19) _empty_/ZLayer. -> 18:8
+(25:20..25:26) _empty_/ZLayer.NoDeps# -> 19:8
+(25:27..25:34) scala/Nothing#
+(25:36..25:44) _empty_/i7965$package.ServiceA# -> 22:6
+(25:48..25:51) scala/Predef.`???`().
+(28:17..28:20) _empty_/Has# -> 1:7
+(28:21..28:29) _empty_/i7965$package.ServiceB. -> 29:8
+(28:30..28:37) _empty_/i7965$package.ServiceB.Service# -> 30:9
+(31:13..31:19) _empty_/ZLayer. -> 18:8
+(31:20..31:26) _empty_/ZLayer.NoDeps# -> 19:8
+(31:27..31:34) scala/Nothing#
+(31:36..31:44) _empty_/i7965$package.ServiceB# -> 28:6
+(31:48..31:51) scala/Predef.`???`().
+(34:17..34:20) _empty_/Has# -> 1:7
+(34:21..34:29) _empty_/i7965$package.ServiceC. -> 35:8
+(34:30..34:37) _empty_/i7965$package.ServiceC.Service# -> 36:9
+(37:13..37:19) _empty_/ZLayer. -> 18:8
+(37:20..37:26) _empty_/ZLayer.NoDeps# -> 19:8
+(37:27..37:34) scala/Nothing#
+(37:36..37:44) _empty_/i7965$package.ServiceC# -> 34:6
+(37:48..37:51) scala/Predef.`???`().
+(40:17..40:20) _empty_/Has# -> 1:7
+(40:21..40:29) _empty_/i7965$package.ServiceD. -> 41:8
+(40:30..40:37) _empty_/i7965$package.ServiceD.Service# -> 42:9
+(43:13..43:19) _empty_/ZLayer. -> 18:8
+(43:20..43:26) _empty_/ZLayer.NoDeps# -> 19:8
+(43:27..43:35) _empty_/i7965$package.ServiceC# -> 34:6
+(43:37..43:45) _empty_/i7965$package.ServiceD# -> 40:6
+(43:51..43:59) _empty_/i7965$package.ServiceC# -> 34:6
+(43:63..43:66) scala/Predef.`???`().
+(47:5..47:13) _empty_/i7965$package.ServiceA. -> 23:8
+(47:14..47:18) _empty_/i7965$package.ServiceA.live. -> 25:7
+(47:19..47:22) _empty_/ZLayer#`>>>`(). -> 15:7
+(48:8..48:16) _empty_/i7965$package.ServiceB. -> 29:8
+(48:17..48:21) _empty_/i7965$package.ServiceB.live. -> 31:7
+(48:22..48:24) _empty_/ZLayer#`++`(). -> 16:7
+(48:26..48:34) _empty_/i7965$package.ServiceC. -> 35:8
+(48:35..48:39) _empty_/i7965$package.ServiceC.live. -> 37:7
+(48:40..48:43) _empty_/ZLayer#`>>>`(). -> 15:7
+(48:44..48:52) _empty_/i7965$package.ServiceD. -> 41:8
+(48:53..48:57) _empty_/i7965$package.ServiceD.live. -> 43:7
+(57:11..57:16) _empty_/Outer# -> 52:7
+(57:19..57:22) scala/Predef.`???`().
+(58:11..58:16) _empty_/Outer# -> 52:7
+(58:19..58:22) scala/Predef.`???`().
+(59:11..59:16) _empty_/Outer# -> 52:7
+(59:19..59:22) scala/Predef.`???`().
+(61:10..61:12) _empty_/Test2#o1. -> 57:7
+(61:13..61:17) _empty_/Outer#Elem# -> 53:9
+(61:18..61:19) scala/`|`#
+(61:21..61:23) _empty_/Test2#o2. -> 58:7
+(61:24..61:28) _empty_/Outer#Elem# -> 53:9
+(61:29..61:30) scala/`&`#
+(61:31..61:33) _empty_/Test2#o3. -> 59:7
+(61:34..61:38) _empty_/Outer#Elem# -> 53:9
+(62:16..62:21) _empty_/Outer# -> 52:7
+(62:22..62:26) _empty_/Outer#Elem# -> 53:9
+(62:33..62:34) _empty_/Test2#foo().[T] -> 62:11
+(62:37..62:38) _empty_/Test2#foo().[T] -> 62:11
+(62:41..62:44) scala/Predef.`???`().
+(63:3..63:6) _empty_/Test2#foo(). -> 62:7
+(63:7..63:8) _empty_/Test2#x. -> 61:7
+

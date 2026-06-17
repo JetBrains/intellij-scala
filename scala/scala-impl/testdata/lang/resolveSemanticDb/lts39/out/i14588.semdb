@@ -1,0 +1,19 @@
+Document tests/pos/i14588.scala
+(4:11..4:15) scala/Unit#
+(7:11..7:15) scala/Unit#
+(10:11..10:15) scala/Unit#
+(15:18..15:23) scala/Array#
+(15:24..15:30) scala/Predef.String#
+(15:34..15:38) scala/Unit#
+(16:17..16:21) _empty_/Test# -> 3:7
+(17:5..17:6) local70 -> 16:9
+(17:7..17:9) _empty_/Test#t1(). -> 4:7
+(18:11..18:12) local70 -> 16:9
+(18:13..18:15) _empty_/Test#t2(). -> 7:7
+(18:17..18:20) scala/Predef.`???`().
+(18:37..18:47) scala/MatchError#
+(19:11..19:12) local70 -> 16:9
+(19:13..19:15) _empty_/Test#t3(). -> 10:7
+(19:17..19:20) scala/Predef.`???`().
+(19:37..19:47) scala/MatchError#
+

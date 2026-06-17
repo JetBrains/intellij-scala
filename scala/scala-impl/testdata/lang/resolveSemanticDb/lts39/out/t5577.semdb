@@ -1,0 +1,30 @@
+Document tests/pos/t5577.scala
+(4:8..4:18) scala/collection/
+(10:35..10:42) scala/collection/mutable/
+(10:43..10:54) scala/collection/mutable/ArrayBuffer#
+(10:55..10:56) _empty_/Test.AlarmingBuffer#[T] -> 10:24
+(11:30..11:33) scala/Int#
+(11:36..11:40) scala/Unit#
+(12:7..12:14) scala/Predef.println(+1).
+(12:40..12:41) java/lang/String#`+`().
+(12:42..12:43) _empty_/Test.AlarmingBuffer#sizeHint().(x) -> 11:27
+(13:13..13:21) scala/collection/mutable/ArrayBuffer#sizeHint().
+(13:22..13:23) _empty_/Test.AlarmingBuffer#sizeHint().(x) -> 11:27
+(17:18..17:23) scala/Array#
+(17:24..17:30) scala/Predef.String#
+(17:34..17:38) scala/Unit#
+(18:32..18:46) _empty_/Test.AlarmingBuffer# -> 10:9
+(18:47..18:50) scala/Int#
+(18:53..18:62) scala/collection/mutable/ArrayBuffer#mapResult().
+(19:14..19:17) local0 -> 19:7
+(19:18..19:26) scala/collection/IndexedSeqOps#iterator().
+(22:5..22:20) local1 -> 18:9
+(22:21..22:29) scala/collection/mutable/Builder#sizeHint().
+(23:5..23:20) local1 -> 18:9
+(23:21..23:24) scala/collection/mutable/Growable#`++=`().
+(23:28..23:33) scala/runtime/RichInt#until().
+(24:5..24:20) local1 -> 18:9
+(24:21..24:27) scala/collection/mutable/Builder#result().
+(24:30..24:37) scala/collection/IterableOnceOps#foreach().
+(24:38..24:45) scala/Predef.println(+1).
+

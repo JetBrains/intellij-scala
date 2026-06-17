@@ -1,0 +1,40 @@
+Document tests/pos/20538.scala
+(4:12..4:13) _empty_/Column#F# -> 3:8
+(4:14..4:15) _empty_/Column#T# -> 2:8
+(6:23..6:29) _empty_/Column# -> 1:7
+(7:12..7:18) scala/Predef.String#
+(9:23..9:29) _empty_/Column# -> 1:7
+(10:15..10:16) _empty_/notnull#F#[X] -> 10:10
+(14:23..14:30) _empty_/varchar# -> 6:7
+(14:36..14:43) _empty_/notnull# -> 9:7
+(15:22..15:29) _empty_/varchar# -> 6:7
+(15:35..15:42) _empty_/notnull# -> 9:7
+(17:19..17:28) _empty_/Error.firstName. -> 14:7
+(17:30..17:38) _empty_/Error.lastName. -> 15:7
+(19:24..19:29) scala/Tuple.
+(19:30..19:40) scala/Tuple.InverseMap#
+(19:41..19:49) _empty_/Error.relation. -> 17:7
+(19:64..19:70) _empty_/Column# -> 1:7
+(19:82..19:83) _empty_/Error.RelationTypes#[X] -> 19:57
+(21:3..21:9) scala/Predef.summon().
+(21:10..21:23) _empty_/Error.RelationTypes# -> 19:8
+(21:24..21:27) scala/`=:=`#
+(21:29..21:35) scala/Predef.String#
+(21:37..21:43) scala/Predef.String#
+(25:28..25:35) _empty_/varchar# -> 6:7
+(25:41..25:48) _empty_/notnull# -> 9:7
+(26:27..26:34) _empty_/varchar# -> 6:7
+(26:40..26:47) _empty_/notnull# -> 9:7
+(28:19..28:28) _empty_/Works.firstName. -> 25:10
+(28:30..28:38) _empty_/Works.lastName. -> 26:10
+(30:24..30:29) scala/Tuple.
+(30:30..30:40) scala/Tuple.InverseMap#
+(30:41..30:49) _empty_/Works.relation. -> 28:7
+(30:64..30:70) _empty_/Column# -> 1:7
+(30:82..30:83) _empty_/Works.RelationTypes#[X] -> 30:57
+(32:3..32:9) scala/Predef.summon().
+(32:10..32:23) _empty_/Works.RelationTypes# -> 30:8
+(32:24..32:27) scala/`=:=`#
+(32:29..32:35) scala/Predef.String#
+(32:37..32:43) scala/Predef.String#
+

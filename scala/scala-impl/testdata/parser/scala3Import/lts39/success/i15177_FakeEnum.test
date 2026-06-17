@@ -1,0 +1,332 @@
+// From https://github.com/scala/scala3/issues/15177#issuecomment-1463088400
+trait FakeEnum[A, @specialized(Byte, Short, Int, Long) B]
+{
+  trait Value {
+    self: A =>
+      def name: String
+      def id: B
+  }
+}
+
+object FakeEnumType
+  extends FakeEnum[FakeEnumType, Short]
+{
+  val MEMBER1 = new FakeEnumType((0: Short), "MEMBER1") {}
+  val MEMBER2 = new FakeEnumType((1: Short), "MEMBER2") {}
+}
+
+sealed abstract
+class FakeEnumType(val id: Short, val name: String)
+  extends FakeEnumType.Value
+{}
+-----
+ScalaFile
+  ScTrait: FakeEnum
+    PsiComment(comment)('// From https://github.com/scala/scala3/issues/15177#issuecomment-1463088400')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FakeEnum')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        AnnotationsList
+          Annotation
+            PsiElement(@)('@')
+            AnnotationExpression
+              ConstructorInvocation
+                SimpleType: specialized
+                  CodeReferenceElement: specialized
+                    PsiElement(identifier)('specialized')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: Byte
+                    PsiElement(identifier)('Byte')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Short
+                    PsiElement(identifier)('Short')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Int
+                    PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: Long
+                    PsiElement(identifier)('Long')
+                  PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace('\n')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Value')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              SelfType: self
+                PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDeclaration: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('name')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n      ')
+              ScFunctionDeclaration: id
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('id')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: FakeEnumType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FakeEnumType')
+    PsiWhiteSpace('\n  ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: FakeEnum[FakeEnumType, Short]
+            SimpleType: FakeEnum
+              CodeReferenceElement: FakeEnum
+                PsiElement(identifier)('FakeEnum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: FakeEnumType
+                  CodeReferenceElement: FakeEnumType
+                    PsiElement(identifier)('FakeEnumType')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Short
+                  CodeReferenceElement: Short
+                    PsiElement(identifier)('Short')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: MEMBER1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: MEMBER1
+              PsiElement(identifier)('MEMBER1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: FakeEnumType
+                    CodeReferenceElement: FakeEnumType
+                      PsiElement(identifier)('FakeEnumType')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      TypedExpression
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Short
+                          CodeReferenceElement: Short
+                            PsiElement(identifier)('Short')
+                      PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"MEMBER1"')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: MEMBER2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: MEMBER2
+              PsiElement(identifier)('MEMBER2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: FakeEnumType
+                    CodeReferenceElement: FakeEnumType
+                      PsiElement(identifier)('FakeEnumType')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ExpressionInParenthesis
+                      PsiElement(()('(')
+                      TypedExpression
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Short
+                          CodeReferenceElement: Short
+                            PsiElement(identifier)('Short')
+                      PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"MEMBER2"')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: FakeEnumType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace('\n')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FakeEnumType')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: id
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('id')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Short
+                CodeReferenceElement: Short
+                  PsiElement(identifier)('Short')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: FakeEnumType.Value
+            CodeReferenceElement: FakeEnumType.Value
+              CodeReferenceElement: FakeEnumType
+                PsiElement(identifier)('FakeEnumType')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Value')
+      PsiWhiteSpace('\n')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiElement(})('}')

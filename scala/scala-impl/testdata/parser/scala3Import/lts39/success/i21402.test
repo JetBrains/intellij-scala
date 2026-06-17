@@ -1,0 +1,1108 @@
+abstract class AbstractServiceKey:
+  type Protocol
+
+abstract class ServiceKey[T] extends AbstractServiceKey:
+  type Protocol = T
+
+type Aux[P] = AbstractServiceKey { type Protocol = P }
+type Service[K <: Aux[?]] = K match
+  case Aux[t] => ActorRef[t]
+type Subscriber[K <: Aux[?]] = K match
+  case Aux[t] => ActorRef[ReceptionistMessages.Listing[t]]
+
+trait ActorRef[-T]
+
+object ReceptionistMessages:
+  final case class Listing[T](key: ServiceKey[T])
+
+class TypedMultiMap[T <: AnyRef, K[_ <: T]]:
+  def get(key: T): Set[K[key.type]] = ???
+  transparent inline def getInlined(key: T): Set[K[key.type]] = ???
+  inline def inserted(key: T, value: K[key.type]): TypedMultiMap[T, K] = ???
+
+object LocalReceptionist {
+  final case class State(
+      services: TypedMultiMap[AbstractServiceKey, Service],
+      subscriptions: TypedMultiMap[AbstractServiceKey, Subscriber]
+  ):
+    def testInsert(key: AbstractServiceKey)(serviceInstance: ActorRef[key.Protocol]): State = {
+      val fails = services.inserted(key, serviceInstance) // error
+      ???
+    }
+
+  def testGet[T](key: AbstractServiceKey): Unit = {
+    val newState: State = ???
+    val fails: Set[ActorRef[key.Protocol]] = newState.services.get(key) // error
+    val works: Set[ActorRef[key.Protocol]] = newState.services.getInlined(key) // workaround
+
+    val fails2: Set[ActorRef[ReceptionistMessages.Listing[key.Protocol]]] = newState.subscriptions.get(key) // error
+    val works2: Set[ActorRef[ReceptionistMessages.Listing[key.Protocol]]] = newState.subscriptions.getInlined(key) // workaround
+  }
+}
+-----
+ScalaFile
+  ScClass: AbstractServiceKey
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractServiceKey')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Protocol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Protocol')
+  PsiWhiteSpace('\n\n')
+  ScClass: ServiceKey
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ServiceKey')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AbstractServiceKey
+            CodeReferenceElement: AbstractServiceKey
+              PsiElement(identifier)('AbstractServiceKey')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Protocol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Protocol')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Aux
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Aux')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: AbstractServiceKey { type Protocol = P }
+      SimpleType: AbstractServiceKey
+        CodeReferenceElement: AbstractServiceKey
+          PsiElement(identifier)('AbstractServiceKey')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Protocol
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Protocol')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: P
+            CodeReferenceElement: P
+              PsiElement(identifier)('P')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Service
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Service')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Aux[?]
+          SimpleType: Aux
+            CodeReferenceElement: Aux
+              PsiElement(identifier)('Aux')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: K match
+  case Aux[t] => ActorRef[t]
+      SimpleType: K
+        CodeReferenceElement: K
+          PsiElement(identifier)('K')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Aux[t]
+            SimpleType: Aux
+              CodeReferenceElement: Aux
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ActorRef[t]
+            SimpleType: ActorRef
+              CodeReferenceElement: ActorRef
+                PsiElement(identifier)('ActorRef')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Subscriber
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Subscriber')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Aux[?]
+          SimpleType: Aux
+            CodeReferenceElement: Aux
+              PsiElement(identifier)('Aux')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: K match
+  case Aux[t] => ActorRef[ReceptionistMessages.Listing[t]]
+      SimpleType: K
+        CodeReferenceElement: K
+          PsiElement(identifier)('K')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Aux[t]
+            SimpleType: Aux
+              CodeReferenceElement: Aux
+                PsiElement(identifier)('Aux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ActorRef[ReceptionistMessages.Listing[t]]
+            SimpleType: ActorRef
+              CodeReferenceElement: ActorRef
+                PsiElement(identifier)('ActorRef')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: ReceptionistMessages.Listing[t]
+                  SimpleType: ReceptionistMessages.Listing
+                    CodeReferenceElement: ReceptionistMessages.Listing
+                      CodeReferenceElement: ReceptionistMessages
+                        PsiElement(identifier)('ReceptionistMessages')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Listing')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ActorRef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActorRef')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: ReceptionistMessages
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ReceptionistMessages')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Listing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Listing')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: key
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('key')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ServiceKey[T]
+                      SimpleType: ServiceKey
+                        CodeReferenceElement: ServiceKey
+                          PsiElement(identifier)('ServiceKey')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: TypedMultiMap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TypedMultiMap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: AnyRef
+          CodeReferenceElement: AnyRef
+            PsiElement(identifier)('AnyRef')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(<:)('<:')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: get
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('get')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[K[key.type]]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: K[key.type]
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: key.type
+                        CodeReferenceElement: key
+                          PsiElement(identifier)('key')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getInlined
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getInlined')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[K[key.type]]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: K[key.type]
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: key.type
+                        CodeReferenceElement: key
+                          PsiElement(identifier)('key')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: inserted
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('inserted')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: K[key.type]
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: key.type
+                          CodeReferenceElement: key
+                            PsiElement(identifier)('key')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TypedMultiMap[T, K]
+            SimpleType: TypedMultiMap
+              CodeReferenceElement: TypedMultiMap
+                PsiElement(identifier)('TypedMultiMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: LocalReceptionist
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LocalReceptionist')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: State
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('State')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                ClassParameter: services
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('services')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: TypedMultiMap[AbstractServiceKey, Service]
+                      SimpleType: TypedMultiMap
+                        CodeReferenceElement: TypedMultiMap
+                          PsiElement(identifier)('TypedMultiMap')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: AbstractServiceKey
+                            CodeReferenceElement: AbstractServiceKey
+                              PsiElement(identifier)('AbstractServiceKey')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: Service
+                            CodeReferenceElement: Service
+                              PsiElement(identifier)('Service')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                ClassParameter: subscriptions
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('subscriptions')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: TypedMultiMap[AbstractServiceKey, Subscriber]
+                      SimpleType: TypedMultiMap
+                        CodeReferenceElement: TypedMultiMap
+                          PsiElement(identifier)('TypedMultiMap')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: AbstractServiceKey
+                            CodeReferenceElement: AbstractServiceKey
+                              PsiElement(identifier)('AbstractServiceKey')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: Subscriber
+                            CodeReferenceElement: Subscriber
+                              PsiElement(identifier)('Subscriber')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: testInsert
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('testInsert')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: key
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('key')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: AbstractServiceKey
+                          CodeReferenceElement: AbstractServiceKey
+                            PsiElement(identifier)('AbstractServiceKey')
+                    PsiElement())(')')
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: serviceInstance
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('serviceInstance')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: ActorRef[key.Protocol]
+                          SimpleType: ActorRef
+                            CodeReferenceElement: ActorRef
+                              PsiElement(identifier)('ActorRef')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: key.Protocol
+                                CodeReferenceElement: key.Protocol
+                                  CodeReferenceElement: key
+                                    PsiElement(identifier)('key')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Protocol')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: State
+                  CodeReferenceElement: State
+                    PsiElement(identifier)('State')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: fails
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: fails
+                        PsiElement(identifier)('fails')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: services.inserted
+                        ReferenceExpression: services
+                          PsiElement(identifier)('services')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('inserted')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: key
+                          PsiElement(identifier)('key')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: serviceInstance
+                          PsiElement(identifier)('serviceInstance')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiComment(comment)('// error')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testGet
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testGet')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: AbstractServiceKey
+                    CodeReferenceElement: AbstractServiceKey
+                      PsiElement(identifier)('AbstractServiceKey')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: newState
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: newState
+                  PsiElement(identifier)('newState')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: State
+                CodeReferenceElement: State
+                  PsiElement(identifier)('State')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: fails
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: fails
+                  PsiElement(identifier)('fails')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Set[ActorRef[key.Protocol]]
+                SimpleType: Set
+                  CodeReferenceElement: Set
+                    PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: ActorRef[key.Protocol]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: key.Protocol
+                            CodeReferenceElement: key.Protocol
+                              CodeReferenceElement: key
+                                PsiElement(identifier)('key')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Protocol')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: newState.services.get
+                  ReferenceExpression: newState.services
+                    ReferenceExpression: newState
+                      PsiElement(identifier)('newState')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('services')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('get')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: key
+                    PsiElement(identifier)('key')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// error')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: works
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: works
+                  PsiElement(identifier)('works')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Set[ActorRef[key.Protocol]]
+                SimpleType: Set
+                  CodeReferenceElement: Set
+                    PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: ActorRef[key.Protocol]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: key.Protocol
+                            CodeReferenceElement: key.Protocol
+                              CodeReferenceElement: key
+                                PsiElement(identifier)('key')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Protocol')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: newState.services.getInlined
+                  ReferenceExpression: newState.services
+                    ReferenceExpression: newState
+                      PsiElement(identifier)('newState')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('services')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getInlined')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: key
+                    PsiElement(identifier)('key')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// workaround')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: fails2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: fails2
+                  PsiElement(identifier)('fails2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Set[ActorRef[ReceptionistMessages.Listing[key.Protocol]]]
+                SimpleType: Set
+                  CodeReferenceElement: Set
+                    PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
+                            SimpleType: ReceptionistMessages.Listing
+                              CodeReferenceElement: ReceptionistMessages.Listing
+                                CodeReferenceElement: ReceptionistMessages
+                                  PsiElement(identifier)('ReceptionistMessages')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Listing')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: key.Protocol
+                                  CodeReferenceElement: key.Protocol
+                                    CodeReferenceElement: key
+                                      PsiElement(identifier)('key')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Protocol')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: newState.subscriptions.get
+                  ReferenceExpression: newState.subscriptions
+                    ReferenceExpression: newState
+                      PsiElement(identifier)('newState')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('subscriptions')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('get')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: key
+                    PsiElement(identifier)('key')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// error')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: works2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: works2
+                  PsiElement(identifier)('works2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Set[ActorRef[ReceptionistMessages.Listing[key.Protocol]]]
+                SimpleType: Set
+                  CodeReferenceElement: Set
+                    PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: ActorRef[ReceptionistMessages.Listing[key.Protocol]]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: ReceptionistMessages.Listing[key.Protocol]
+                            SimpleType: ReceptionistMessages.Listing
+                              CodeReferenceElement: ReceptionistMessages.Listing
+                                CodeReferenceElement: ReceptionistMessages
+                                  PsiElement(identifier)('ReceptionistMessages')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Listing')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: key.Protocol
+                                  CodeReferenceElement: key.Protocol
+                                    CodeReferenceElement: key
+                                      PsiElement(identifier)('key')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Protocol')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: newState.subscriptions.getInlined
+                  ReferenceExpression: newState.subscriptions
+                    ReferenceExpression: newState
+                      PsiElement(identifier)('newState')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('subscriptions')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getInlined')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: key
+                    PsiElement(identifier)('key')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// workaround')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,288 @@
+object Test {
+  type FieldType2[K, +V] = V with KeyTag2[K, V]
+  trait KeyTag2[K, +V] extends Any
+
+  type WrapUpper = Tuple
+  type Wrap[A] = Tuple1[A]
+
+  type Extract[A <: WrapUpper] = A match {
+    case Wrap[h] => h
+  }
+
+  summon[Extract[Wrap[FieldType2["foo", Int]]] =:= FieldType2["foo", Int]]
+
+  // This used to cause an error because `Tuple1[FieldType2["foo", Int]]` was
+  // "provablyEmpty". Since we switched to testing the combination of
+  // `scrut <: pattern` *and* `provablyDisjoint(scrut, pattern)` instead, this
+  // particular example compiles, because `FieldType2["foo", Int]` is not
+  // `provablyDisjoint` from `h` (`Any`).
+}
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: FieldType2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FieldType2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: V with KeyTag2[K, V]
+            SimpleType: V
+              CodeReferenceElement: V
+                PsiElement(identifier)('V')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: KeyTag2[K, V]
+              SimpleType: KeyTag2
+                CodeReferenceElement: KeyTag2
+                  PsiElement(identifier)('KeyTag2')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTrait: KeyTag2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('KeyTag2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: K
+              PsiElement(identifier)('K')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: WrapUpper
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WrapUpper')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Wrap
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Wrap')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tuple1[A]
+            SimpleType: Tuple1
+              CodeReferenceElement: Tuple1
+                PsiElement(identifier)('Tuple1')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Extract
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Extract')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: WrapUpper
+                CodeReferenceElement: WrapUpper
+                  PsiElement(identifier)('WrapUpper')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: A match {
+    case Wrap[h] => h
+  }
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Wrap[h]
+                  SimpleType: Wrap
+                    CodeReferenceElement: Wrap
+                      PsiElement(identifier)('Wrap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: h
+                        PsiElement(identifier)('h')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: h
+                  CodeReferenceElement: h
+                    PsiElement(identifier)('h')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: Extract[Wrap[FieldType2["foo", Int]]] =:= FieldType2["foo", Int]
+                ParametrizedType: Extract[Wrap[FieldType2["foo", Int]]]
+                  SimpleType: Extract
+                    CodeReferenceElement: Extract
+                      PsiElement(identifier)('Extract')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Wrap[FieldType2["foo", Int]]
+                        SimpleType: Wrap
+                          CodeReferenceElement: Wrap
+                            PsiElement(identifier)('Wrap')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: FieldType2["foo", Int]
+                              SimpleType: FieldType2
+                                CodeReferenceElement: FieldType2
+                                  PsiElement(identifier)('FieldType2')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  LiteralType: "foo"
+                                    StringLiteral
+                                      PsiElement(string content)('"foo"')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: FieldType2["foo", Int]
+                  SimpleType: FieldType2
+                    CodeReferenceElement: FieldType2
+                      PsiElement(identifier)('FieldType2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: "foo"
+                        StringLiteral
+                          PsiElement(string content)('"foo"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// This used to cause an error because `Tuple1[FieldType2["foo", Int]]` was')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// "provablyEmpty". Since we switched to testing the combination of')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// `scrut <: pattern` *and* `provablyDisjoint(scrut, pattern)` instead, this')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// particular example compiles, because `FieldType2["foo", Int]` is not')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// `provablyDisjoint` from `h` (`Any`).')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

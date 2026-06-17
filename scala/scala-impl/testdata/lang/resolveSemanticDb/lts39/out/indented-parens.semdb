@@ -1,0 +1,14 @@
+Document tests/pos/indented-parens.scala
+(1:10..1:13) scala/Int#
+(2:10..2:13) scala/Int#
+(2:16..2:19) scala/Int#
+(2:22..2:23) _empty_/`indented-parens$package`.f().(x) -> 1:7
+(2:24..2:25) scala/Int#`+`(+4).
+(2:26..2:27) _empty_/`indented-parens$package`.f().(y) -> 2:7
+(5:2..5:6) scala/main#
+(6:11..6:12) _empty_/`indented-parens$package`.f(). -> 1:5
+(8:5..8:6) scala/Int#`+`(+4).
+(8:7..8:8) _empty_/`indented-parens$package`.f(). -> 1:5
+(10:5..10:12) scala/Predef.println(+1).
+(10:13..10:14) local0 -> 6:7
+

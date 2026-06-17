@@ -1,0 +1,14 @@
+[0,74]: PackageDef
+[0,0]: Ident
+[0,58]: DefDef
+[14,14]: TypeTree
+[19,58]: InlineIf
+[29,42]: Typed
+[29,33]: Literal
+[35,42]: Ident
+[48,50]: Tuple
+[56,58]: Tuple
+[60,74]: DefDef
+[68,68]: TypeTree
+[71,74]: Apply
+[71,72]: Ident

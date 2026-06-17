@@ -1,0 +1,57 @@
+package dfhdl
+object hdl:
+  export DFBoolOrBit.given
+  export DFDecimal.Ops.*
+
+export hdl.*
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: dfhdl
+      PsiElement(identifier)('dfhdl')
+    PsiWhiteSpace('\n')
+    ScObject: hdl
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('hdl')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: DFBoolOrBit
+                PsiElement(identifier)('DFBoolOrBit')
+              PsiElement(.)('.')
+              ImportSelectors
+                ImportSelector
+                  PsiElement(given)('given')
+          PsiWhiteSpace('\n  ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: DFDecimal.Ops
+                CodeReferenceElement: DFDecimal
+                  PsiElement(identifier)('DFDecimal')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Ops')
+              PsiElement(.)('.')
+              PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: hdl
+          PsiElement(identifier)('hdl')
+        PsiElement(.)('.')
+        PsiElement(*)('*')

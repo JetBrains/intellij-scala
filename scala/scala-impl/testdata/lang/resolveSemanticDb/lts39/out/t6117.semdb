@@ -1,0 +1,9 @@
+Document tests/pos/t6117.scala
+(4:14..4:17) scala/Int#
+(5:14..5:20) scala/Predef.String#
+(8:26..8:34) test/ImportMe# -> 3:7
+(9:10..9:18) test/Test#importMe. -> 8:16
+(10:10..10:18) test/Test#importMe. -> 8:16
+(18:3..18:10) scala/Predef.println(+1).
+(18:11..18:14) test/ImportMe#foo(). -> 4:7
+

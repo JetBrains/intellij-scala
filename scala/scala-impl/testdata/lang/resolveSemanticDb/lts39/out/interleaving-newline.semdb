@@ -1,0 +1,7 @@
+Document tests/pos/interleaving-newline.scala
+(5:13..5:14) _empty_/newline.multipleLines().[T] -> 4:10
+(7:17..7:18) _empty_/newline.multipleLines().[T] -> 4:10
+(7:19..7:20) _empty_/newline.multipleLines().[U] -> 6:10
+(8:13..8:14) _empty_/newline.multipleLines().[U] -> 6:10
+(9:11..9:14) scala/Predef.`???`().
+

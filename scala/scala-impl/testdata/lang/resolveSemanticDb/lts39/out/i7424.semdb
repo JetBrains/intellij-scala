@@ -1,0 +1,21 @@
+Document tests/pos/i7424.scala
+(3:10..3:13) _empty_/GADT.`=:=`.
+(6:29..6:30) _empty_/GADT.`=:=`.Refl#[C] -> 6:15
+(6:31..6:34) _empty_/GADT.`=:=`# -> 5:8
+(6:35..6:36) _empty_/GADT.`=:=`.Refl#[C] -> 6:15
+(9:24..9:30) scala/Option#
+(9:31..9:32) _empty_/GADT.unwrap().[A] -> 9:14
+(9:45..9:46) _empty_/GADT.unwrap().[A] -> 9:14
+(9:47..9:50) _empty_/GADT.`=:=`# -> 5:8
+(9:51..9:57) scala/Option#
+(9:58..9:59) _empty_/GADT.unwrap().[B] -> 9:16
+(9:63..9:69) scala/Option#
+(9:70..9:71) _empty_/GADT.unwrap().[B] -> 9:16
+(9:75..9:77) _empty_/GADT.unwrap().(ev) -> 9:41
+(10:10..10:14) _empty_/GADT.`=:=`.Refl.
+(10:20..10:23) _empty_/GADT.unwrap().(opt) -> 9:19
+(10:24..10:31) scala/Option#flatMap().
+(10:32..10:40) scala/Predef.identity().
+(10:41..10:47) scala/Option#
+(10:48..10:49) _empty_/GADT.unwrap().[B] -> 9:16
+

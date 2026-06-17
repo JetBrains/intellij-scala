@@ -1,0 +1,21 @@
+Document tests/pos/i22192.scala
+(1:23..1:29) scala/Predef.String#
+(1:43..1:46) scala/Int#
+(3:23..3:27) _empty_/City# -> 1:12
+(3:31..3:35) _empty_/i22192$package.getCityInfo().(city) -> 3:17
+(4:8..4:12) _empty_/City.
+(5:5..5:6) scala/StringContext#s().
+(5:8..5:9) local0 -> 4:36
+(5:31..5:32) local1 -> 4:26
+(7:24..7:30) scala/Option#
+(7:38..7:44) scala/Predef.String#
+(7:50..7:54) _empty_/i22192$package.getCityInfo1().(city) -> 7:18
+(8:8..8:12) scala/Some.
+(8:26..8:27) local2 -> 8:20
+(11:24..11:30) scala/Option#
+(11:38..11:44) scala/Predef.String#
+(11:58..11:61) scala/Int#
+(11:67..11:71) _empty_/i22192$package.getCityInfo2().(city) -> 11:18
+(12:8..12:12) scala/Some.
+(12:26..12:27) local3 -> 12:20
+

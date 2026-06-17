@@ -1,0 +1,14 @@
+Document tests/pos/i13974.scala
+(4:29..4:32) _empty_/Test.Use# -> 3:9
+(4:33..4:34) _empty_/Test.C# -> 2:9
+(6:27..6:28) _empty_/Test.C# -> 2:9
+(6:31..6:47) _empty_/Test.ConversionTarget# -> 5:9
+(6:50..6:53) scala/Predef.`???`().
+(7:16..7:19) _empty_/Test.Use# -> 3:9
+(7:20..7:21) _empty_/Test.go().[X] -> 7:10
+(7:27..7:28) _empty_/Test.go().[X] -> 7:10
+(8:5..8:6) _empty_/Test.go().(u) -> 7:13
+(9:12..9:16) _empty_/Test.UseC.
+(11:9..11:10) _empty_/Test.go().(x) -> 7:24
+(11:12..11:28) _empty_/Test.ConversionTarget# -> 5:9
+

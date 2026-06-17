@@ -1,0 +1,6 @@
+Document tests/pos/i14660.scala
+(3:13..3:16) _empty_/Foo# -> 1:7
+(3:36..3:39) scala/Int#
+(5:12..5:15) _empty_/Foo#Bar# -> 2:9
+(5:16..5:19) _empty_/Foo#Bar#Baz# -> 3:30
+

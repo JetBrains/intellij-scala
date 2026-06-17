@@ -1,0 +1,5 @@
+Document tests/pos/t697.scala
+(2:14..2:16) scala/Int#`==`(+3).
+(2:20..2:22) scala/Boolean#`==`().
+(2:26..2:27) scala/Int#`<`(+3).
+

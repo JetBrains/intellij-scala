@@ -1,0 +1,32 @@
+Document tests/pos/i8612.scala
+(2:18..2:25) scala/Boolean#
+(2:33..2:34) _empty_/Foo1.assert1().(x) -> 2:15
+(2:40..2:43) scala/Predef.`???`().
+(3:25..3:32) scala/Boolean#
+(3:40..3:41) _empty_/Foo1.assert2().(x) -> 3:22
+(3:47..3:50) scala/Predef.`???`().
+(4:32..4:39) scala/Boolean#
+(4:47..4:48) _empty_/Foo1.assert3().(x) -> 4:29
+(4:54..4:57) scala/Predef.`???`().
+(6:3..6:10) _empty_/Foo1.assert1(). -> 2:7
+(6:11..6:14) scala/Predef.`???`().
+(7:3..7:10) _empty_/Foo1.assert2(). -> 3:14
+(7:11..7:14) scala/Predef.`???`().
+(8:3..8:10) _empty_/Foo1.assert3(). -> 4:14
+(8:11..8:14) scala/Predef.`???`().
+(11:18..11:25) scala/Boolean#
+(11:33..11:34) _empty_/Foo2.assert1().(x) -> 11:15
+(11:40..11:43) scala/Predef.`???`().
+(12:37..12:44) scala/Boolean#
+(12:52..12:53) _empty_/Foo2.assert2().(x) -> 12:34
+(12:59..12:62) scala/Predef.`???`().
+(13:44..13:51) scala/Boolean#
+(13:59..13:60) _empty_/Foo2.assert3().(x) -> 13:41
+(13:66..13:69) scala/Predef.`???`().
+(15:3..15:10) _empty_/Foo2.assert1(). -> 11:7
+(15:11..15:14) scala/Predef.`???`().
+(16:3..16:10) _empty_/Foo2.assert2(). -> 12:26
+(16:11..16:14) scala/Predef.`???`().
+(17:3..17:10) _empty_/Foo2.assert3(). -> 13:26
+(17:11..17:14) scala/Predef.`???`().
+

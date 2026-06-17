@@ -1,0 +1,237 @@
+//> using options -feature
+package test
+
+object Test:
+  given Conversion[Int, C] = C(_)
+
+  def f(x: T) = ()
+  f(1)      // ok
+
+  given stringToKeyword: Conversion[String, Keyword] = Keyword(_)
+
+  val dclKeywords = Set[Keyword]("def", "val") // ok
+  val keywords = dclKeywords + "if" + "then" + "else" // ok
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScObject: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScGivenAliasDefinition: given_Conversion_Int_C
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(given)('given')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            ParametrizedType: Conversion[Int, C]
+              SimpleType: Conversion
+                CodeReferenceElement: Conversion
+                  PsiElement(identifier)('Conversion')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: C
+                PsiElement(identifier)('C')
+              ArgumentList
+                PsiElement(()('(')
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiWhiteSpace('      ')
+          PsiComment(comment)('// ok')
+          PsiWhiteSpace('\n\n  ')
+          ScGivenAliasDefinition: stringToKeyword
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(given)('given')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('stringToKeyword')
+            PsiElement(:)(':')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            ParametrizedType: Conversion[String, Keyword]
+              SimpleType: Conversion
+                CodeReferenceElement: Conversion
+                  PsiElement(identifier)('Conversion')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Keyword
+                    CodeReferenceElement: Keyword
+                      PsiElement(identifier)('Keyword')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Keyword
+                PsiElement(identifier)('Keyword')
+              ArgumentList
+                PsiElement(()('(')
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: dclKeywords
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: dclKeywords
+                PsiElement(identifier)('dclKeywords')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              GenericCall
+                ReferenceExpression: Set
+                  PsiElement(identifier)('Set')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Keyword
+                      CodeReferenceElement: Keyword
+                        PsiElement(identifier)('Keyword')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"def"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"val"')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// ok')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: keywords
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: keywords
+                PsiElement(identifier)('keywords')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              InfixExpression
+                InfixExpression
+                  ReferenceExpression: dclKeywords
+                    PsiElement(identifier)('dclKeywords')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"if"')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"then"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"else"')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// ok')

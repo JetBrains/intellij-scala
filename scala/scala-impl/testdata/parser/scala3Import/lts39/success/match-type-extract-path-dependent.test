@@ -1,0 +1,362 @@
+// Test that match types can extract path-dependent abstract types out of singleton types
+
+trait Base:
+  type Value
+
+  def getValue(): Value
+  def setValue(v: Value): Unit
+end Base
+
+object Extractor:
+  type Helper[X] = Base { type Value = X }
+
+  type Extract[B <: Base] = B match
+    case Helper[x] => x
+end Extractor
+
+object Test:
+  import Extractor.Extract
+
+  /* As is, this is a bit silly, since we could use `b.Value` instead. However,
+   * in larger examples with more indirections, it is not always possible to
+   * directly use the path-dependent version. See i21402 for a real-world use
+   * case.
+   */
+  def foo(b: Base): Extract[b.type] = b.getValue()
+  def bar(b: Base, v: Extract[b.type]): Unit = b.setValue(v)
+end Test
+-----
+ScalaFile
+  PsiComment(comment)('// Test that match types can extract path-dependent abstract types out of singleton types')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Base
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Base')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Value')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDeclaration: getValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getValue')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Value
+            CodeReferenceElement: Value
+              PsiElement(identifier)('Value')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: setValue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('setValue')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Value
+                    CodeReferenceElement: Value
+                      PsiElement(identifier)('Value')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n')
+        End: Base
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Base')
+  PsiWhiteSpace('\n\n')
+  ScObject: Extractor
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Extractor')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Helper
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Helper')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Base { type Value = X }
+            SimpleType: Base
+              CodeReferenceElement: Base
+                PsiElement(identifier)('Base')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Value')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Extract
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Extract')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Base
+                CodeReferenceElement: Base
+                  PsiElement(identifier)('Base')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: B match
+    case Helper[x] => x
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Helper[x]
+                  SimpleType: Helper
+                    CodeReferenceElement: Helper
+                      PsiElement(identifier)('Helper')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: x
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+        PsiWhiteSpace('\n')
+        End: Extractor
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Extractor')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Extractor.Extract
+              CodeReferenceElement: Extractor
+                PsiElement(identifier)('Extractor')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Extract')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: foo
+          PsiComment(BlockComment)('/* As is, this is a bit silly, since we could use `b.Value` instead. However,\n   * in larger examples with more indirections, it is not always possible to\n   * directly use the path-dependent version. See i21402 for a real-world use\n   * case.\n   */')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Base
+                    CodeReferenceElement: Base
+                      PsiElement(identifier)('Base')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Extract[b.type]
+            SimpleType: Extract
+              CodeReferenceElement: Extract
+                PsiElement(identifier)('Extract')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: b.type
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: b.getValue
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement(.)('.')
+              PsiElement(identifier)('getValue')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Base
+                    CodeReferenceElement: Base
+                      PsiElement(identifier)('Base')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Extract[b.type]
+                    SimpleType: Extract
+                      CodeReferenceElement: Extract
+                        PsiElement(identifier)('Extract')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: b.type
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: b.setValue
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement(.)('.')
+              PsiElement(identifier)('setValue')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: v
+                PsiElement(identifier)('v')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

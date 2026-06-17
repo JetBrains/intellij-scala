@@ -1,0 +1,11 @@
+Document tests/pos/dependent-annot-type-param.scala
+(1:24..1:34) scala/annotation/
+(1:35..1:45) scala/annotation/Annotation#
+(3:10..3:13) scala/Int#
+(3:16..3:19) scala/Int#
+(3:21..3:26) _empty_/annot# -> 1:7
+(3:27..3:30) _empty_/Box# -> 2:7
+(3:31..3:32) _empty_/`dependent-annot-type-param$package`.f().(x) -> 3:7
+(3:42..3:43) _empty_/`dependent-annot-type-param$package`.f().(x) -> 3:7
+(5:13..5:14) _empty_/`dependent-annot-type-param$package`.f(). -> 3:5
+

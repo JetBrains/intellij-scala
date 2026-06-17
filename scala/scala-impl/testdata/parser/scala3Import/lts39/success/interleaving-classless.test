@@ -1,0 +1,303 @@
+
+def f1[T]()[U](x: T, y: U): (T, U) = (x, y)
+def f2[T](x: T)[U](y: U): (T, U) = (x, y)
+def f3[T, U](using DummyImplicit)[V](x: T): U = ???
+def f4[T](x: T)[U <: x.type](y: U): (T, U) = (x, y)
+-----
+ScalaFile
+  ScFunctionDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: U
+          PsiElement(identifier)('U')
+        PsiElement(])(']')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (T, U)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: U
+          CodeReferenceElement: U
+            PsiElement(identifier)('U')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y
+        PsiElement(identifier)('y')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: U
+          PsiElement(identifier)('U')
+        PsiElement(])(']')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (T, U)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: U
+          CodeReferenceElement: U
+            PsiElement(identifier)('U')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y
+        PsiElement(identifier)('y')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f3')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            SimpleType: DummyImplicit
+              CodeReferenceElement: DummyImplicit
+                PsiElement(identifier)('DummyImplicit')
+        PsiElement())(')')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: V
+          PsiElement(identifier)('V')
+        PsiElement(])(']')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: U
+      CodeReferenceElement: U
+        PsiElement(identifier)('U')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f4')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: U
+          PsiElement(identifier)('U')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiElement(])(']')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (T, U)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: U
+          CodeReferenceElement: U
+            PsiElement(identifier)('U')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y
+        PsiElement(identifier)('y')
+      PsiElement())(')')

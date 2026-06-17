@@ -1,0 +1,13 @@
+[0,52]: PackageDef
+[0,0]: Ident
+[0,15]: ValDef
+[6,9]: Ident
+[12,15]: Ident
+[16,32]: ValDef
+[22,26]: Ident
+[29,32]: Ident
+[33,52]: ValDef
+[38,38]: TypeTree
+[41,52]: TypeApply
+[41,47]: Ident
+[48,51]: Ident

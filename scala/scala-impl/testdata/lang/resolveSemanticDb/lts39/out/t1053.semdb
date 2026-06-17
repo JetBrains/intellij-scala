@@ -1,0 +1,8 @@
+Document tests/pos/t1053.scala
+(1:33..1:34) _empty_/T#[A] -> 1:9
+(5:12..5:16) _empty_/Base# -> 2:7
+(5:28..5:29) _empty_/T# -> 1:7
+(5:44..5:45) _empty_/Base#V# -> 2:19
+(6:15..6:16) _empty_/Test.x. -> 5:7
+(6:17..6:18) _empty_/T#U# -> 1:20
+

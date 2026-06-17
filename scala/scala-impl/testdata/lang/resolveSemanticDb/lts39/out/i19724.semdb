@@ -1,0 +1,11 @@
+Document tests/pos/i19724.scala
+(2:40..2:41) _empty_/repro.Mapper#[A] -> 2:25
+(2:45..2:46) _empty_/repro.Mapper#[B] -> 2:28
+(4:9..4:15) _empty_/repro.Mapper# -> 2:18
+(4:16..4:19) scala/Int#
+(4:21..4:27) scala/Double#
+(5:25..5:28) scala/Int#
+(5:31..5:37) scala/Double#
+(5:40..5:41) _empty_/repro.given_Mapper_Int_Double.apply().(v) -> 5:22
+(5:42..5:50) scala/Int#toDouble().
+

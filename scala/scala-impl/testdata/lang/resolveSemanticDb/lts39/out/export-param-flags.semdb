@@ -1,0 +1,9 @@
+Document tests/pos/export-param-flags/A_1.scala
+(2:23..2:26) scala/Int#
+(2:34..2:35) _empty_/A.defaultParam().(x) -> 2:20
+(5:10..5:11) _empty_/A. -> 1:8
+
+Document tests/pos/export-param-flags/B_2.scala
+(2:11..2:19) _empty_/Exported. -> 4:8
+(2:20..2:32) _empty_/Exported.defaultParam().
+

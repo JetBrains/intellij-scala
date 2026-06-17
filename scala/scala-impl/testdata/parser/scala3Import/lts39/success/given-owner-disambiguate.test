@@ -1,0 +1,210 @@
+class General
+class Specific extends General
+
+class LowPriority:
+  given a:General()
+
+object NormalPriority extends LowPriority:
+  given b:Specific()
+
+def run =
+  import NormalPriority.given
+  val x = summon[General]
+  val _: Specific = x // <- b was picked
+-----
+ScalaFile
+  ScClass: General
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('General')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Specific
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Specific')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: General
+            CodeReferenceElement: General
+              PsiElement(identifier)('General')
+  PsiWhiteSpace('\n\n')
+  ScClass: LowPriority
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('LowPriority')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: General
+                  CodeReferenceElement: General
+                    PsiElement(identifier)('General')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: NormalPriority
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NormalPriority')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: LowPriority
+            CodeReferenceElement: LowPriority
+              PsiElement(identifier)('LowPriority')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Specific
+                  CodeReferenceElement: Specific
+                    PsiElement(identifier)('Specific')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: run
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('run')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScImportStatement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        ImportExpression
+          CodeReferenceElement: NormalPriority
+            PsiElement(identifier)('NormalPriority')
+          PsiElement(.)('.')
+          ImportSelectors
+            ImportSelector
+              PsiElement(given)('given')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: x
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: x
+            PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: General
+                CodeReferenceElement: General
+                  PsiElement(identifier)('General')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          WildcardPattern
+            PsiElement(_)('_')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Specific
+          CodeReferenceElement: Specific
+            PsiElement(identifier)('Specific')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// <- b was picked')

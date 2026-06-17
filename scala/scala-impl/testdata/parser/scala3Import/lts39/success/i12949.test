@@ -1,0 +1,378 @@
+object Catch22:
+  trait TC[V]
+  object TC:
+    export Hodor.TC.given
+
+object Hodor:
+  object TC:
+    import Catch22.TC
+    given fromString: [V <: String] => TC[V] = ???
+    transparent inline given fromDouble: [V <: Double] => TC[V] =
+      new TC[V]:
+        type Out = Double
+    given fromInt: [V <: Int] => TC[V]:
+      type Out = Int
+
+object Test:
+  summon[Catch22.TC["hi"]] //works
+  summon[Catch22.TC[7.7]] //works
+  summon[Catch22.TC[1]] //error
+-----
+ScalaFile
+  ScObject: Catch22
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Catch22')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TC')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TC')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScExportStatement
+                PsiElement(export)('export')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: Hodor.TC
+                    CodeReferenceElement: Hodor
+                      PsiElement(identifier)('Hodor')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TC')
+                  PsiElement(.)('.')
+                  ImportSelectors
+                    ImportSelector
+                      PsiElement(given)('given')
+  PsiWhiteSpace('\n\n')
+  ScObject: Hodor
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Hodor')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: TC
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TC')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
+                  CodeReferenceElement: Catch22.TC
+                    CodeReferenceElement: Catch22
+                      PsiElement(identifier)('Catch22')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TC')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: fromString
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('fromString')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: V
+                    PsiElement(identifier)('V')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: TC[V]
+                  SimpleType: TC
+                    CodeReferenceElement: TC
+                      PsiElement(identifier)('TC')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: fromDouble
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(transparent)('transparent')
+                  PsiWhiteSpace(' ')
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('fromDouble')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: V
+                    PsiElement(identifier)('V')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: TC[V]
+                  SimpleType: TC
+                    CodeReferenceElement: TC
+                      PsiElement(identifier)('TC')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: TC[V]
+                          SimpleType: TC
+                            CodeReferenceElement: TC
+                              PsiElement(identifier)('TC')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: V
+                                CodeReferenceElement: V
+                                  PsiElement(identifier)('V')
+                            PsiElement(])(']')
+                    ScTemplateBody
+                      PsiElement(:)(':')
+                      PsiWhiteSpace('\n        ')
+                      ScTypeAliasDefinition: Out
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(type)('type')
+                        PsiWhiteSpace(' ')
+                        PsiElement(identifier)('Out')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Double
+                          CodeReferenceElement: Double
+                            PsiElement(identifier)('Double')
+              PsiWhiteSpace('\n    ')
+              ScGivenDefinition: fromInt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('fromInt')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: V
+                    PsiElement(identifier)('V')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TC[V]
+                        SimpleType: TC
+                          CodeReferenceElement: TC
+                            PsiElement(identifier)('TC')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: V
+                              CodeReferenceElement: V
+                                PsiElement(identifier)('V')
+                          PsiElement(])(']')
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScTypeAliasDefinition: Out
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Out')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Catch22.TC["hi"]
+                SimpleType: Catch22.TC
+                  CodeReferenceElement: Catch22.TC
+                    CodeReferenceElement: Catch22
+                      PsiElement(identifier)('Catch22')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: "hi"
+                      StringLiteral
+                        PsiElement(string content)('"hi"')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//works')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Catch22.TC[7.7]
+                SimpleType: Catch22.TC
+                  CodeReferenceElement: Catch22.TC
+                    CodeReferenceElement: Catch22
+                      PsiElement(identifier)('Catch22')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 7.7
+                      DoubleLiteral
+                        PsiElement(double)('7.7')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//works')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Catch22.TC[1]
+                SimpleType: Catch22.TC
+                  CodeReferenceElement: Catch22.TC
+                    CodeReferenceElement: Catch22
+                      PsiElement(identifier)('Catch22')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('//error')

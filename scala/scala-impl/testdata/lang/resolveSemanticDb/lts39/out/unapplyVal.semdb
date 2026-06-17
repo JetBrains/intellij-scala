@@ -1,0 +1,28 @@
+Document tests/pos/unapplyVal.scala
+(4:22..4:25) scala/Any#
+(4:28..4:34) scala/Option#
+(4:35..4:38) scala/Any#
+(4:42..4:46) scala/None.
+(8:17..8:22) test/Async# -> 3:7
+(11:18..11:21) scala/Any#
+(11:24..11:28) scala/Unit#
+(12:5..12:6) test/Buffer#joinPat().(x) -> 11:15
+(13:12..13:15) test/Buffer#Put. -> 8:7
+(14:12..14:15) test/Buffer#Put. -> 8:7
+(15:9..15:16) scala/Predef.println(+1).
+(15:30..15:31) java/lang/String#`+`().
+(15:32..15:33) local0 -> 14:16
+(21:29..21:32) scala/App#
+(24:18..24:21) scala/Int#
+(25:24..25:27) scala/Any#
+(25:30..25:37) scala/Boolean#
+(29:24..29:28) test/unapplyJoins.Sync# -> 23:9
+(31:13..31:28) scala/PartialFunction#
+(31:29..31:32) scala/Any#
+(31:34..31:37) scala/Any#
+(32:12..32:15) test/unapplyJoins.Buffer#Get. -> 29:12
+(36:3..36:10) scala/Predef.println(+1).
+(36:16..36:22) test/unapplyJoins.Buffer# -> 28:9
+(36:24..36:26) test/unapplyJoins.Buffer#jp. -> 31:9
+(36:27..36:38) scala/PartialFunction#isDefinedAt().
+

@@ -1,0 +1,39 @@
+Document tests/pos/i18123.scala
+(6:30..6:31) pkg/P# -> 4:7
+(6:32..6:33) pkg/i18123$package.`|`().[T] -> 6:12
+(7:22..7:23) pkg/i18123$package.`|`().[T] -> 6:12
+(7:39..7:40) pkg/P# -> 4:7
+(7:41..7:42) pkg/i18123$package.`|`().[V] -> 7:17
+(7:46..7:47) pkg/P# -> 4:7
+(7:48..7:49) pkg/i18123$package.`|`().[V] -> 7:17
+(7:53..7:56) scala/Predef.`???`().
+(9:33..9:34) pkg/P# -> 4:7
+(9:35..9:36) pkg/i18123$package.rep$default$2().[T] -> 9:12
+(9:35..9:36) pkg/i18123$package.rep().[T] -> 9:12
+(11:45..11:48) scala/Int#
+(11:70..11:79) pkg/Implicits. -> 13:8
+(11:80..11:88) pkg/Implicits.Repeater# -> 14:9
+(11:89..11:90) pkg/i18123$package.rep().[T] -> 9:12
+(11:92..11:93) pkg/i18123$package.rep().[V] -> 11:30
+(11:97..11:98) pkg/P# -> 4:7
+(11:99..11:100) pkg/i18123$package.rep().[V] -> 11:30
+(11:104..11:107) scala/Predef.`???`().
+(16:46..16:54) pkg/Implicits.Repeater# -> 14:9
+(16:55..16:56) pkg/Implicits.Repeater.GenericRepeaterImplicit().[T] -> 16:42
+(16:58..16:61) scala/package.Seq#
+(16:62..16:63) pkg/Implicits.Repeater.GenericRepeaterImplicit().[T] -> 16:42
+(16:68..16:71) scala/Predef.`???`().
+(19:29..19:38) pkg/RegexTree# -> 18:14
+(20:39..20:43) pkg/Node# -> 19:16
+(22:16..22:17) pkg/P# -> 4:7
+(22:18..22:27) pkg/RegexTree# -> 18:14
+(22:31..22:34) scala/Predef.`???`().
+(23:28..23:29) pkg/P# -> 4:7
+(23:30..23:51) pkg/CharClassIntersection# -> 20:7
+(23:55..23:58) scala/Predef.`???`().
+(26:4..26:25) pkg/i18123$package.charClassIntersection(). -> 23:5
+(26:26..26:29) pkg/i18123$package.rep(). -> 11:26
+(26:32..26:33) pkg/i18123$package.`|`(). -> 7:14
+(26:34..26:43) pkg/i18123$package.classItem(). -> 22:5
+(26:44..26:47) pkg/i18123$package.rep(). -> 11:26
+

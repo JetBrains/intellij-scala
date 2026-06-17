@@ -1,0 +1,12 @@
+Document tests/pos/gadt-all-params.scala
+(3:26..3:30) _empty_/`gadt-all-params`.Expr# -> 2:8
+(3:31..3:35) scala/Unit#
+(6:16..6:18) _empty_/`gadt-all-params`.foo().[TT] -> 6:26
+(6:22..6:24) _empty_/`gadt-all-params`.foo().[TT] -> 6:26
+(6:33..6:37) _empty_/`gadt-all-params`.Expr# -> 2:8
+(6:38..6:39) _empty_/`gadt-all-params`.foo().[T] -> 6:11
+(6:43..6:44) _empty_/`gadt-all-params`.foo().[T] -> 6:11
+(6:47..6:48) _empty_/`gadt-all-params`.foo().(e) -> 6:30
+(7:10..7:14) _empty_/`gadt-all-params`.Expr.
+(7:15..7:22) _empty_/`gadt-all-params`.Expr.UnitLit. -> 3:10
+

@@ -1,0 +1,19 @@
+Document tests/pos/i8900a2.scala
+(1:31..1:32) _empty_/ContraCo#[S] -> 1:21
+(2:31..2:32) _empty_/CoContra#[T] -> 2:17
+(4:26..4:34) _empty_/CoContra# -> 2:7
+(4:35..4:40) _empty_/Test.unwrap().[Outer] -> 4:14
+(4:42..4:47) _empty_/Test.unwrap().[Outer] -> 4:14
+(4:51..4:56) _empty_/Test.unwrap().[Outer] -> 4:14
+(4:59..4:62) _empty_/Test.unwrap().(inv) -> 4:21
+(4:63..4:64) _empty_/CoContra#t. -> 2:28
+(5:22..5:27) _empty_/Test.wrap().[Inner] -> 5:12
+(5:30..5:38) _empty_/CoContra# -> 2:7
+(5:39..5:44) _empty_/Test.wrap().[Inner] -> 5:12
+(5:46..5:51) _empty_/Test.wrap().[Inner] -> 5:12
+(5:68..5:69) _empty_/Test.wrap().(i) -> 5:19
+(7:11..7:17) _empty_/Test.unwrap(). -> 4:7
+(9:21..9:26) local0 -> 8:11
+(10:5..10:9) _empty_/Test.wrap(). -> 5:7
+(10:10..10:15) local2 -> 9:9
+

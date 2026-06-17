@@ -1,0 +1,6 @@
+Document tests/pos/i15177.FakeEnum.min.scala
+(3:18..3:19) _empty_/X# -> 2:7
+(3:20..3:21) _empty_/B# -> 4:7
+(4:17..4:18) _empty_/A. -> 3:8
+(4:19..4:21) _empty_/X#Id# -> 2:20
+

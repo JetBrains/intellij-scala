@@ -1,0 +1,15 @@
+Document tests/pos/i17064.scala
+(1:23..1:28) _empty_/Outer# -> 4:7
+(1:40..1:41) _empty_/HiddenInner#[O] -> 1:20
+(5:16..5:27) _empty_/HiddenInner# -> 1:7
+(8:9..8:14) _empty_/Outer# -> 4:7
+(8:27..8:32) _empty_/Outer# -> 4:7
+(9:9..9:10) _empty_/i17064$package.o. -> 8:5
+(9:11..9:16) _empty_/Outer#Inner# -> 5:8
+(9:27..9:28) _empty_/i17064$package.o. -> 8:5
+(9:29..9:34) _empty_/Outer#Inner# -> 5:8
+(9:35..9:36) _empty_/i17064$package.o. -> 8:5
+(10:9..10:14) _empty_/Outer# -> 4:7
+(10:15..10:20) _empty_/Outer#Inner# -> 5:8
+(10:23..10:24) _empty_/i17064$package.a(). -> 9:5
+

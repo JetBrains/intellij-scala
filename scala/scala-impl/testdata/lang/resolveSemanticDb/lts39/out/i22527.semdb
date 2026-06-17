@@ -1,0 +1,97 @@
+Document tests/pos/i22527.scala
+(3:8..3:18) scala/annotation/
+(5:8..5:12) scala/Unit#
+(6:3..6:11) scala/Predef.identity().
+(7:5..7:13) scala/Predef.identity().
+(8:23..8:29) scala/AnyRef#
+(8:31..8:43) scala/package.Serializable#
+(12:11..12:15) scala/Unit#
+(13:3..13:9) scala/Predef.assert().
+(14:5..14:13) scala/Predef.identity().
+(19:11..19:15) scala/Unit#
+(20:3..20:9) scala/Predef.assert().
+(25:12..25:16) scala/Unit#
+(26:3..26:9) scala/Predef.assert().
+(31:21..31:22) _empty_/i22527$package.callme().[A] -> 31:12
+(31:29..31:35) scala/Predef.String#
+(31:43..31:44) _empty_/i22527$package.callme().(x) -> 31:15
+(31:45..31:53) scala/Any#toString().
+(31:68..31:84) scala/package.RuntimeException#
+(31:88..31:91) _empty_/i22527$package.callme().(msg) -> 31:24
+(33:15..33:18) scala/Int#
+(33:21..33:25) scala/Unit#
+(34:3..34:9) _empty_/i22527$package.callme(). -> 31:5
+(35:8..35:9) _empty_/i22527$package.orElse().(x) -> 33:12
+(35:10..35:11) scala/Int#`>`(+3).
+(40:2..40:8) scala/annotation/nowarn#
+(41:15..41:18) scala/Int#
+(41:21..41:25) scala/Unit#
+(42:3..42:9) _empty_/i22527$package.callme(). -> 31:5
+(43:9..43:10) _empty_/i22527$package.onlyIf().(x) -> 41:12
+(43:11..43:12) scala/Int#`>`(+3).
+(46:11..46:15) scala/package.List#
+(46:16..46:19) scala/Int#
+(47:3..47:5) _empty_/i22527$package.h().(xs) -> 46:7
+(47:6..47:14) scala/collection/LinearSeqOps#foldLeft().
+(50:11..50:14) local4 -> 49:8
+(51:9..51:10) scala/Int#`+`(+4).
+(51:11..51:12) local5 -> 49:13
+(54:12..54:15) scala/Int#
+(54:20..54:23) scala/Int#
+(54:28..54:31) scala/Int#
+(54:35..54:36) _empty_/i22527$package.sum().(x) -> 54:9
+(54:36..54:37) scala/Int#`+`(+4).
+(54:37..54:38) _empty_/i22527$package.sum().(y) -> 54:17
+(54:38..54:39) scala/Int#`+`(+4).
+(54:39..54:40) _empty_/i22527$package.sum().(z) -> 54:25
+(56:11..56:15) scala/package.List#
+(56:16..56:19) scala/Int#
+(56:25..56:28) scala/Int#
+(56:33..56:36) scala/Int#
+(57:3..57:5) _empty_/i22527$package.k().(xs) -> 56:7
+(57:6..57:14) scala/collection/LinearSeqOps#foldLeft().
+(60:11..60:14) _empty_/i22527$package.sum(). -> 54:5
+(61:13..61:14) local7 -> 59:13
+(62:11..62:12) scala/Int#`+`(+4).
+(62:13..62:14) _empty_/i22527$package.k().(y) -> 56:22
+(63:13..63:14) scala/Int#`+`(+4).
+(63:15..63:16) _empty_/i22527$package.k().(z) -> 56:30
+(64:13..64:14) _empty_/i22527$package.k().(y) -> 56:22
+(65:13..65:14) _empty_/i22527$package.k().(z) -> 56:30
+(70:12..70:15) scala/Int#
+(70:19..70:22) scala/Int#
+(70:27..70:30) scala/Int#
+(70:33..70:36) scala/Int#
+(70:39..70:40) _empty_/`arrow eol`.f().(g) -> 70:9
+(70:41..70:42) _empty_/`arrow eol`.f().(i) -> 70:24
+(71:14..71:17) scala/Int#
+(71:21..71:24) scala/Int#
+(71:27..71:30) scala/Int#
+(71:34..71:37) scala/Int#
+(71:40..71:43) _empty_/`arrow eol`.g().(map) -> 71:9
+(73:5..73:6) _empty_/`arrow eol`.f(). -> 70:7
+(74:7..74:8) _empty_/`arrow eol`.g(). -> 71:7
+(75:9..75:10) local0 -> 74:10
+(75:11..75:12) scala/Int#`+`(+4).
+(78:12..78:16) scala/Unit#
+(79:3..79:9) scala/Predef.assert().
+(80:5..80:13) scala/Predef.identity().
+(84:16..84:19) scala/Int#
+(84:22..84:26) scala/Unit#
+(85:3..85:9) _empty_/i22527$package.callme(). -> 31:5
+(86:8..86:9) _empty_/i22527$package.orElse2().(x) -> 84:13
+(86:10..86:11) scala/Int#`>`(+3).
+(87:23..87:29) scala/AnyRef#
+(87:31..87:43) scala/package.Serializable#
+(92:8..92:12) scala/Unit#
+(93:3..93:11) scala/Predef.identity().
+(94:5..94:6) scala/Predef.identity().(x)
+(95:23..95:29) scala/AnyRef#
+(95:31..95:43) scala/package.Serializable#
+(99:2..99:8) scala/annotation/nowarn#
+(100:16..100:19) scala/Int#
+(100:22..100:26) scala/Unit#
+(101:3..101:9) _empty_/i22527$package.callme(). -> 31:5
+(102:9..102:10) _empty_/i22527$package.onlyIf2().(x) -> 100:13
+(102:11..102:12) scala/Int#`>`(+3).
+

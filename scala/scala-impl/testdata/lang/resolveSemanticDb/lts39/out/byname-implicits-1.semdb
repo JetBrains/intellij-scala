@@ -1,0 +1,7 @@
+Document tests/pos/byname-implicits-1.scala
+(3:37..3:40) _empty_/Foo# -> 1:7
+(3:43..3:46) _empty_/Foo# -> 1:7
+(3:49..3:52) scala/Predef.`???`().
+(11:3..11:13) scala/Predef.implicitly().
+(11:14..11:17) _empty_/Foo# -> 1:7
+

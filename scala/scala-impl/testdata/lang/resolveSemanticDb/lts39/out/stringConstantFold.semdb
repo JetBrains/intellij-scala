@@ -1,0 +1,5 @@
+Document tests/pos/stringConstantFold.scala
+(2:8..2:9) java/lang/String#`+`().
+(4:8..4:10) scala/Any#`==`().
+(5:8..5:10) scala/Any#`==`().
+

@@ -1,0 +1,289 @@
+
+trait FromString[A]:
+  def fromString(s: String): A
+
+given FromString[Int] = _.toInt
+
+given FromString[Double] = _.toDouble
+
+def add[N: {FromString, Numeric}](a: String, b: String): N =
+  val num = summon[Numeric[N]]
+  val N = summon[FromString[N]]
+  num.plus(N.fromString(a), N.fromString(b))
+-----
+ScalaFile
+  ScTrait: FromString
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FromString')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: fromString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromString')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_FromString_Int
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: FromString[Int]
+      SimpleType: FromString
+        CodeReferenceElement: FromString
+          PsiElement(identifier)('FromString')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: _.toInt
+      UnderscoreSection
+        PsiElement(_)('_')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toInt')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given_FromString_Double
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: FromString[Double]
+      SimpleType: FromString
+        CodeReferenceElement: FromString
+          PsiElement(identifier)('FromString')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Double
+            CodeReferenceElement: Double
+              PsiElement(identifier)('Double')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: _.toDouble
+      UnderscoreSection
+        PsiElement(_)('_')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toDouble')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: add
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('add')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        PsiElement({)('{')
+        ScContextBoundImpl(context bound)
+          SimpleType: FromString
+            CodeReferenceElement: FromString
+              PsiElement(identifier)('FromString')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ScContextBoundImpl(context bound)
+          SimpleType: Numeric
+            CodeReferenceElement: Numeric
+              PsiElement(identifier)('Numeric')
+        PsiElement(})('}')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: N
+      CodeReferenceElement: N
+        PsiElement(identifier)('N')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: num
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: num
+            PsiElement(identifier)('num')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Numeric[N]
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: N
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: N
+            PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: FromString[N]
+                SimpleType: FromString
+                  CodeReferenceElement: FromString
+                    PsiElement(identifier)('FromString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: N
+                      CodeReferenceElement: N
+                        PsiElement(identifier)('N')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: num.plus
+          ReferenceExpression: num
+            PsiElement(identifier)('num')
+          PsiElement(.)('.')
+          PsiElement(identifier)('plus')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: N.fromString
+              ReferenceExpression: N
+                PsiElement(identifier)('N')
+              PsiElement(.)('.')
+              PsiElement(identifier)('fromString')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement())(')')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: N.fromString
+              ReferenceExpression: N
+                PsiElement(identifier)('N')
+              PsiElement(.)('.')
+              PsiElement(identifier)('fromString')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement())(')')
+          PsiElement())(')')

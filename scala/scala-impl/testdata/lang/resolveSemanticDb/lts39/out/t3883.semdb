@@ -1,0 +1,32 @@
+Document tests/pos/t3883.scala
+(3:19..3:24) scala/package.Equiv#
+(3:25..3:32) scala/Boolean#
+(3:36..3:39) scala/sys/
+(3:40..3:45) scala/sys/package.error().
+(4:38..4:39) _empty_/A1.div().[T] -> 4:20
+(4:43..4:44) _empty_/A1.div().[A] -> 4:23
+(4:50..4:55) scala/package.Equiv#
+(4:56..4:57) _empty_/A1.div().[A] -> 4:23
+(4:61..4:66) scala/package.Equiv#
+(4:67..4:68) _empty_/A1.div().[T] -> 4:20
+(4:72..4:75) scala/sys/
+(4:76..4:81) scala/sys/package.error().
+(6:3..6:13) scala/Predef.implicitly().
+(6:14..6:19) scala/package.Equiv#
+(6:20..6:27) scala/Boolean#
+(10:38..10:39) _empty_/A2.div().[T] -> 10:20
+(10:43..10:44) _empty_/A2.div().[A] -> 10:23
+(10:50..10:55) scala/package.Equiv#
+(10:56..10:57) _empty_/A2.div().[A] -> 10:23
+(10:61..10:66) scala/package.Equiv#
+(10:67..10:68) _empty_/A2.div().[T] -> 10:20
+(10:72..10:75) scala/sys/
+(10:76..10:81) scala/sys/package.error().
+(11:19..11:24) scala/package.Equiv#
+(11:25..11:32) scala/Boolean#
+(11:36..11:39) scala/sys/
+(11:40..11:45) scala/sys/package.error().
+(13:3..13:13) scala/Predef.implicitly().
+(13:14..13:19) scala/package.Equiv#
+(13:20..13:27) scala/Boolean#
+

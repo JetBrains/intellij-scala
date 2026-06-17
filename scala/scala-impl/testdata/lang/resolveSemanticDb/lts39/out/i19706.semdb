@@ -1,0 +1,46 @@
+Document tests/pos/i19706.scala
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:29) scala/compiletime/ops/
+(2:30..2:36) scala/compiletime/ops/string.
+(4:21..4:25) scala/Unit#
+(5:3..5:9) scala/Predef.summon().
+(5:10..5:17) _empty_/i19706$package.Decoded# -> 7:6
+(5:42..5:45) scala/`=:=`#
+(5:48..5:50) scala/`*:`#
+(5:51..5:61) scala/Tuple$package.EmptyTuple#
+(7:19..7:25) scala/Predef.String#
+(7:29..7:36) scala/compiletime/ops/string.Matches#
+(7:37..7:38) _empty_/i19706$package.Decoded#[S] -> 7:14
+(8:16..8:22) _empty_/i19706$package.Parsed# -> 12:6
+(8:23..8:32) scala/compiletime/ops/string.Substring#
+(8:33..8:34) _empty_/i19706$package.Decoded#[S] -> 7:14
+(9:20..9:27) _empty_/i19706$package.Decoded# -> 7:6
+(9:33..9:35) scala/`*:`#
+(9:36..9:46) scala/Tuple$package.EmptyTuple#
+(12:18..12:24) scala/Predef.String#
+(12:31..12:34) scala/Int#
+(12:41..12:47) scala/Predef.String#
+(12:53..12:59) scala/Predef.String#
+(12:61..12:67) scala/Predef.String#
+(12:71..12:78) scala/compiletime/ops/string.Matches#
+(12:79..12:80) _empty_/i19706$package.Parsed#[S] -> 12:13
+(13:16..13:17) _empty_/i19706$package.Parsed#[I] -> 12:26
+(15:10..15:11) scala/Any#
+(15:15..15:21) _empty_/i19706$package.Parsed# -> 12:6
+(15:22..15:31) scala/compiletime/ops/string.Substring#
+(15:32..15:33) _empty_/i19706$package.Parsed#[S] -> 12:13
+(15:38..15:44) scala/compiletime/ops/string.Length#
+(15:45..15:46) _empty_/i19706$package.Parsed#[S] -> 12:13
+(15:50..15:51) _empty_/i19706$package.Parsed#[I] -> 12:26
+(21:18..21:25) scala/Boolean#
+(21:30..21:36) scala/Tuple2#
+(21:37..21:43) scala/Predef.String#
+(21:45..21:51) scala/Predef.String#
+(21:55..21:56) _empty_/Minimization.Cond#[B] -> 21:13
+(25:21..25:28) scala/Boolean#
+(25:32..25:36) _empty_/Minimization.Cond# -> 21:8
+(25:37..25:38) _empty_/Minimization.Decoded#[B] -> 25:16
+(26:21..26:24) scala/Int#
+(28:10..28:17) _empty_/Minimization.Decoded# -> 25:8
+

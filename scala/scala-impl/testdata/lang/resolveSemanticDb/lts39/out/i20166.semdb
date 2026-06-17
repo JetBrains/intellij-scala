@@ -1,0 +1,24 @@
+Document tests/pos/i20166.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(5:15..5:16) _empty_/i20166$package.MyS#[X] -> 5:10
+(10:13..10:16) scala/Int#
+(11:10..11:11) scala/compiletime/ops/int.`-`#
+(12:8..12:11) _empty_/i20166$package.MyS# -> 5:6
+(12:12..12:13) _empty_/i20166$package.M#[I] -> 10:8
+(13:8..13:9) scala/compiletime/ops/int.S#
+(13:10..13:11) _empty_/i20166$package.M#[I] -> 10:8
+(14:10..14:11) scala/compiletime/ops/int.`+`#
+(14:12..14:13) _empty_/i20166$package.M#[I] -> 10:8
+(15:8..15:9) _empty_/i20166$package.M#[I] -> 10:8
+(15:10..15:11) scala/compiletime/ops/int.`+`#
+(17:8..17:9) _empty_/i20166$package.M# -> 10:6
+(20:14..20:17) scala/Int#
+(20:24..20:25) _empty_/i20166$package.M2#[I] -> 20:9
+(21:8..21:9) _empty_/i20166$package.M2#[P] -> 20:19
+(22:8..22:9) scala/Any#
+(24:8..24:10) _empty_/i20166$package.M2# -> 20:6
+(24:16..24:17) scala/compiletime/ops/int.`+`#
+

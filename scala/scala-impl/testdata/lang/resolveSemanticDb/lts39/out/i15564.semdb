@@ -1,0 +1,16 @@
+Document tests/pos/i15564.scala
+(2:19..2:22) _empty_/i15564$package.Var# -> 1:6
+(2:23..2:25) _empty_/i15564$package.Set#[TS] -> 2:10
+(2:33..2:35) _empty_/i15564$package.Set#[TS] -> 2:10
+(3:16..3:18) _empty_/i15564$package.Foo#[GX] -> 3:20
+(5:15..5:16) _empty_/i15564$package.Get#[S] -> 5:10
+(6:8..6:11) _empty_/i15564$package.Set# -> 2:6
+(6:24..6:25) local2 -> 6:18
+(9:12..9:15) scala/Any#
+(9:19..9:20) _empty_/i15564$package.get().(s) -> 9:9
+(10:11..10:14) _empty_/i15564$package.Set# -> 2:6
+(10:27..10:30) scala/Predef.`???`().
+(10:33..10:34) local5 -> 10:21
+(11:11..11:14) _empty_/i15564$package.Foo# -> 3:6
+(11:24..11:27) scala/Predef.`???`().
+

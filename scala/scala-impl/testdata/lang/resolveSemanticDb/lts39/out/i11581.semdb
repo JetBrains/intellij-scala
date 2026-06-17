@@ -1,0 +1,7 @@
+Document tests/pos/i11581.scala
+(3:5..3:12) scala/Predef.println(+1).
+(9:7..9:8) _empty_/Abc#a(). -> 2:7
+(14:5..14:8) _empty_/Abc# -> 1:7
+(18:5..18:12) scala/Predef.println(+1).
+(27:5..27:8) _empty_/Xyz# -> 16:7
+

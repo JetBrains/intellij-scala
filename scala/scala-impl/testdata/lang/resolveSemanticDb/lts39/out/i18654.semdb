@@ -1,0 +1,9 @@
+Document tests/pos/i18654/MyRoutineScala.scala
+(1:9..1:12) com/
+(3:8..3:11) org/
+(3:12..3:16) org/jooq/
+(3:17..3:21) org/jooq/impl/
+(3:22..3:37) org/jooq/impl/AbstractRoutine#
+(6:30..6:45) org/jooq/impl/AbstractRoutine#
+(6:46..6:52) scala/Predef.String#
+

@@ -1,0 +1,14 @@
+Document tests/pos/overloadedAccess.scala
+(4:14..4:20) java/lang/Object#
+(4:23..4:26) scala/Int#
+(5:14..5:17) scala/Int#
+(5:20..5:24) scala/Unit#
+(8:20..8:22) _empty_/overloadedAccess.ST# -> 3:9
+(9:14..9:20) scala/Predef.String#
+(9:23..9:27) scala/Unit#
+(12:19..12:21) _empty_/overloadedAccess.ST# -> 3:9
+(13:12..13:13) _empty_/overloadedAccess.O. -> 8:10
+(14:13..14:14) _empty_/overloadedAccess.ST#f(). -> 4:9
+(15:12..15:15) scala/Int#
+(15:18..15:19) _empty_/overloadedAccess.C#x. -> 14:9
+

@@ -1,0 +1,43 @@
+Document tests/pos/i21981.scala
+(2:19..2:20) _empty_/Ops#[A] -> 1:17
+(2:24..2:25) _empty_/Ops#map0().[B] -> 2:12
+(2:28..2:29) _empty_/Ops#[F] -> 1:11
+(2:30..2:31) _empty_/Ops#map0().[B] -> 2:12
+(2:35..2:38) scala/Predef.`???`().
+(11:25..11:33) _empty_/Functor1# -> 4:7
+(11:34..11:35) _empty_/Test#given_Functor2_J#[J] -> 11:10
+(11:34..11:35) _empty_/Test#given_Functor2_J().[J] -> 11:10
+(11:39..11:47) _empty_/Functor2# -> 6:7
+(11:48..11:49) _empty_/Test#given_Functor2_J#[J] -> 11:10
+(12:23..12:24) _empty_/Test#given_Functor2_J#[J] -> 11:10
+(12:25..12:26) _empty_/Test#given_Functor2_J#map2().[K] -> 12:16
+(13:23..13:24) _empty_/Test#given_Functor2_J#map2().[K] -> 12:16
+(13:28..13:29) _empty_/Test#given_Functor2_J#map2().[L] -> 13:16
+(13:32..13:33) _empty_/Test#given_Functor2_J#[J] -> 11:10
+(13:34..13:35) _empty_/Test#given_Functor2_J#map2().[L] -> 13:16
+(13:39..13:42) scala/Predef.`???`().
+(18:14..18:22) _empty_/Functor1# -> 4:7
+(18:23..18:24) _empty_/Test#t1().[N] -> 17:5
+(18:28..18:32) scala/Unit#
+(20:13..20:16) _empty_/Ops# -> 1:7
+(20:17..20:18) _empty_/Test#t1().[N] -> 17:5
+(20:20..20:21) _empty_/Test#t1().[M] -> 16:5
+(20:30..20:33) _empty_/Ref# -> 8:7
+(20:34..20:35) _empty_/Test#t1().[N] -> 17:5
+(20:37..20:38) local0 -> 20:23
+(20:44..20:47) scala/Predef.`???`().
+(22:13..22:14) _empty_/Test#t1().[N] -> 17:5
+(22:16..22:17) _empty_/Test#t1().[M] -> 16:5
+(22:18..22:19) _empty_/Test#t1().[N] -> 17:5
+(22:22..22:23) _empty_/Test#t1().[M] -> 16:5
+(22:32..22:35) _empty_/Ref# -> 8:7
+(22:36..22:37) _empty_/Test#t1().[N] -> 17:5
+(22:39..22:40) local2 -> 22:25
+(22:47..22:49) local1 -> 20:9
+(23:8..23:12) _empty_/Ops#map0(). -> 2:7
+(23:36..23:39) scala/Predef.`???`().
+(23:41..23:45) local3 -> 23:15
+(24:8..24:12) _empty_/Test#given_Functor2_J#map2(). -> 13:11
+(24:36..24:39) scala/Predef.`???`().
+(24:41..24:45) local6 -> 24:26
+

@@ -1,0 +1,274 @@
+def Test = {
+  val avs = ((0d, BigDecimal(1)), (1d, BigDecimal(2)))
+
+  val ((y1, g1), (y2, g2)) = avs
+
+  val ((x1, f1), (x2, f2)): (
+    (Double, BigDecimal),
+    (Double, BigDecimal)
+  ) = avs
+
+  val (a, b, c: Double): (Int, String, Double) = ((42, "hello, world", 3.14): Any).runtimeChecked
+}
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: avs
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: avs
+            PsiElement(identifier)('avs')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        Tuple
+          PsiElement(()('(')
+          Tuple
+            PsiElement(()('(')
+            DoubleLiteral
+              PsiElement(double)('0d')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: BigDecimal
+                PsiElement(identifier)('BigDecimal')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiElement())(')')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            DoubleLiteral
+              PsiElement(double)('1d')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: BigDecimal
+                PsiElement(identifier)('BigDecimal')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement())(')')
+            PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: y1, g1, y2, g2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: y1
+                    PsiElement(identifier)('y1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: g1
+                    PsiElement(identifier)('g1')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: y2
+                    PsiElement(identifier)('y2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: g2
+                    PsiElement(identifier)('g2')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: avs
+          PsiElement(identifier)('avs')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: x1, f1, x2, f2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: x1
+                    PsiElement(identifier)('x1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: f1
+                    PsiElement(identifier)('f1')
+                PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: x2
+                    PsiElement(identifier)('x2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferencePattern: f2
+                    PsiElement(identifier)('f2')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (
+    (Double, BigDecimal),
+    (Double, BigDecimal)
+  )
+          PsiElement(()('(')
+          PsiWhiteSpace('\n    ')
+          TypesList
+            TupleType: (Double, BigDecimal)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: BigDecimal
+                  CodeReferenceElement: BigDecimal
+                    PsiElement(identifier)('BigDecimal')
+              PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            TupleType: (Double, BigDecimal)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: BigDecimal
+                  CodeReferenceElement: BigDecimal
+                    PsiElement(identifier)('BigDecimal')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: avs
+          PsiElement(identifier)('avs')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: a, b, c
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ReferencePattern: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: b
+                PsiElement(identifier)('b')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: c
+                  PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (Int, String, Double)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Double
+              CodeReferenceElement: Double
+                PsiElement(identifier)('Double')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ((42, "hello, world", 3.14): Any).runtimeChecked
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              Tuple
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('42')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"hello, world"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                DoubleLiteral
+                  PsiElement(double)('3.14')
+                PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+            PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('runtimeChecked')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -1,0 +1,26 @@
+Document tests/pos/i16186.scala
+(5:16..5:17) _empty_/Test#x. -> 4:7
+(5:19..5:20) _empty_/Test#x. -> 4:7
+(5:22..5:23) _empty_/Test#x. -> 4:7
+(5:25..5:26) _empty_/Test#x. -> 4:7
+(5:28..5:29) _empty_/Test#x. -> 4:7
+(5:31..5:32) _empty_/Test#x. -> 4:7
+(5:34..5:35) _empty_/Test#x. -> 4:7
+(5:37..5:38) _empty_/Test#x. -> 4:7
+(5:40..5:41) _empty_/Test#x. -> 4:7
+(5:43..5:44) _empty_/Test#x. -> 4:7
+(5:46..5:47) _empty_/Test#x. -> 4:7
+(5:49..5:50) _empty_/Test#x. -> 4:7
+(5:52..5:53) _empty_/Test#x. -> 4:7
+(5:55..5:56) _empty_/Test#x. -> 4:7
+(5:58..5:59) _empty_/Test#x. -> 4:7
+(5:61..5:62) _empty_/Test#x. -> 4:7
+(5:64..5:65) _empty_/Test#x. -> 4:7
+(5:67..5:68) _empty_/Test#x. -> 4:7
+(5:70..5:71) _empty_/Test#x. -> 4:7
+(5:73..5:74) _empty_/Test#x. -> 4:7
+(5:76..5:77) _empty_/Test#x. -> 4:7
+(5:79..5:80) _empty_/Test#x. -> 4:7
+(5:82..5:83) _empty_/Test#x. -> 4:7
+(7:3..7:8) _empty_/Test#tup23. -> 5:7
+

@@ -1,0 +1,5 @@
+Document tests/pos/t5809.scala
+(2:35..2:38) scala/Int#
+(3:15..3:18) scala/Predef.`???`().
+(4:17..4:20) foo/package.EnrichedInt#foo. -> 2:30
+

@@ -1,0 +1,5 @@
+Document tests/pos/i8151.scala
+(4:17..4:18) _empty_/A# -> 1:7
+(4:35..4:36) _empty_/B# -> 2:7
+(5:11..5:12) _empty_/O.m(). -> 4:7
+

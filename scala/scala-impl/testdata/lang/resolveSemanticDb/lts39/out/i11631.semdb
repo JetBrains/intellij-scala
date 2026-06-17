@@ -1,0 +1,28 @@
+Document tests/pos/i11631.scala
+(2:12..2:18) scala/Predef.String#
+(6:18..6:19) _empty_/i11631$package.nnn().[T] -> 6:12
+(6:20..6:21) scala/`|`#
+(6:22..6:27) _empty_/Nulll# -> 4:7
+(6:45..6:46) _empty_/i11631$package.nnn().(x) -> 6:15
+(6:52..6:53) scala/`&`#
+(6:54..6:55) _empty_/i11631$package.nnn().[T] -> 6:12
+(6:58..6:61) scala/Predef.`???`().
+(9:16..9:23) _empty_/MyTrait# -> 1:7
+(9:23..9:24) scala/`|`#
+(9:24..9:28) scala/Null#
+(11:17..11:21) scala/Unit#
+(11:24..11:31) scala/Predef.println(+1).
+(11:32..11:39) _empty_/MyClass#myTrait(). -> 9:7
+(11:40..11:43) _empty_/i11631$package.nnn(). -> 6:40
+(11:44..11:45) _empty_/MyTrait#a(). -> 2:7
+(13:2..13:6) scala/main#
+(13:22..13:26) scala/Unit#
+(14:16..14:23) _empty_/MyTrait# -> 1:7
+(15:23..15:29) scala/Predef.String#
+(17:12..17:19) _empty_/MyClass# -> 8:7
+(18:3..18:5) local4 -> 17:7
+(18:6..18:13) _empty_/MyClass#`myTrait_=`().
+(18:16..18:18) local3 -> 14:7
+(19:3..19:5) local4 -> 17:7
+(19:6..19:12) _empty_/MyClass#printA(). -> 11:7
+

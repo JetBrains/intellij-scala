@@ -1,0 +1,6 @@
+Document tests/pos/tinondefcons.scala
+(5:18..5:25) scala/Boolean#
+(6:13..6:14) _empty_/Atom#[T] -> 5:12
+(7:15..7:16) _empty_/Atom#[T] -> 5:12
+(12:21..12:25) _empty_/Atom#`elem_=`().
+

@@ -1,0 +1,122 @@
+Document tests/pos/boundary-variations.scala
+(1:8..1:12) scala/util/
+(1:13..1:21) scala/util/boundary.
+(2:8..2:16) scala/util/boundary.
+(2:18..2:23) scala/util/boundary.break().
+(2:18..2:23) scala/util/boundary.break(+1).
+(2:25..2:30) scala/util/boundary.Label#
+(4:12..4:15) scala/Int#
+(4:19..4:25) scala/Predef.String#
+(4:30..4:33) scala/Int#
+(4:36..4:42) scala/Predef.String#
+(5:3..5:11) scala/util/boundary.
+(6:18..6:21) scala/Int#
+(6:24..6:30) scala/Predef.String#
+(7:10..7:11) local1 -> 6:15
+(7:12..7:13) scala/Int#`<`(+3).
+(7:21..7:26) scala/util/boundary.break().
+(8:15..8:16) local1 -> 6:15
+(8:17..8:19) scala/Int#`==`(+3).
+(9:12..9:13) _empty_/`boundary-variations$package`.run().(f) -> 4:9
+(9:14..9:15) local1 -> 6:15
+(9:17..9:19) scala/collection/StringOps#`++`(+2).
+(9:24..9:26) scala/collection/StringOps#`++`(+2).
+(9:27..9:32) local2 -> 6:9
+(9:33..9:34) local1 -> 6:15
+(9:35..9:36) scala/Int#`-`(+3).
+(10:5..10:10) local2 -> 6:9
+(10:11..10:12) _empty_/`boundary-variations$package`.run().(x) -> 4:27
+(12:15..12:18) scala/Int#
+(12:22..12:27) scala/util/boundary.Label#
+(12:28..12:34) scala/Predef.String#
+(12:40..12:46) scala/Predef.String#
+(12:51..12:54) scala/Int#
+(12:57..12:63) scala/Predef.String#
+(13:3..13:11) scala/util/boundary.
+(14:18..14:21) scala/Int#
+(14:24..14:30) scala/Predef.String#
+(15:10..15:11) local4 -> 14:15
+(15:12..15:13) scala/Int#`<`(+3).
+(15:21..15:26) scala/util/boundary.break().
+(16:15..16:16) local4 -> 14:15
+(16:17..16:19) scala/Int#`==`(+3).
+(17:12..17:13) _empty_/`boundary-variations$package`.runDyn().(f) -> 12:12
+(17:14..17:15) local4 -> 14:15
+(17:17..17:19) scala/collection/StringOps#`++`(+2).
+(17:24..17:26) scala/collection/StringOps#`++`(+2).
+(17:27..17:32) local5 -> 14:9
+(17:33..17:34) local4 -> 14:15
+(17:35..17:36) scala/Int#`-`(+3).
+(18:5..18:10) local5 -> 14:9
+(18:11..18:12) _empty_/`boundary-variations$package`.runDyn().(x) -> 12:48
+(20:14..20:17) scala/Int#
+(20:30..20:35) scala/util/boundary.Label#
+(20:36..20:42) scala/Predef.String#
+(20:46..20:52) scala/Predef.String#
+(20:55..20:56) _empty_/`boundary-variations$package`.toStr().(x) -> 20:11
+(20:57..20:65) scala/Any#toString().
+(22:18..22:21) scala/Int#
+(22:34..22:39) scala/util/boundary.Label#
+(22:40..22:46) scala/Predef.String#
+(23:6..23:7) _empty_/`boundary-variations$package`.middleDyn().(x) -> 22:15
+(23:8..23:10) scala/Int#`==`(+3).
+(23:18..23:23) scala/util/boundary.break().
+(23:50..23:53) _empty_/`boundary-variations$package`.middleDyn().(lbl) -> 22:29
+(24:3..24:4) _empty_/`boundary-variations$package`.middleDyn().(x) -> 22:15
+(24:5..24:13) scala/Any#toString().
+(26:21..26:27) scala/Predef.String#
+(26:37..26:46) scala/package.Exception#
+(28:15..28:18) scala/Int#
+(28:22..28:28) scala/Predef.String#
+(28:33..28:36) scala/Int#
+(28:39..28:45) scala/Predef.String#
+(30:18..30:21) scala/Int#
+(30:24..30:30) scala/Predef.String#
+(31:10..31:11) local6 -> 30:15
+(31:12..31:13) scala/Int#`<`(+3).
+(31:27..31:32) _empty_/Break.
+(32:15..32:16) local6 -> 30:15
+(32:17..32:19) scala/Int#`==`(+3).
+(33:12..33:13) _empty_/`boundary-variations$package`.runExc().(f) -> 28:12
+(33:14..33:15) local6 -> 30:15
+(33:17..33:19) scala/collection/StringOps#`++`(+2).
+(33:24..33:26) scala/collection/StringOps#`++`(+2).
+(33:27..33:32) local7 -> 30:9
+(33:33..33:34) local6 -> 30:15
+(33:35..33:36) scala/Int#`-`(+3).
+(34:5..34:10) local7 -> 30:9
+(34:11..34:12) _empty_/`boundary-variations$package`.runExc().(x) -> 28:30
+(35:14..35:19) _empty_/Break.
+(35:26..35:27) local8 -> 35:20
+(37:18..37:21) scala/Int#
+(38:6..38:7) _empty_/`boundary-variations$package`.middleExc().(x) -> 37:15
+(38:8..38:10) scala/Int#`==`(+3).
+(38:24..38:29) _empty_/Break.
+(39:3..39:4) _empty_/`boundary-variations$package`.middleExc().(x) -> 37:15
+(39:5..39:13) scala/Any#toString().
+(41:2..41:6) scala/main#
+(42:3..42:10) scala/Predef.println(+1).
+(42:11..42:14) _empty_/`boundary-variations$package`.run(). -> 4:5
+(42:17..42:25) scala/Any#toString().
+(43:3..43:10) scala/Predef.println(+1).
+(43:11..43:14) _empty_/`boundary-variations$package`.run(). -> 4:5
+(43:17..43:25) scala/Any#toString().
+(45:3..45:10) scala/Predef.println(+1).
+(45:11..45:17) _empty_/`boundary-variations$package`.runDyn(). -> 12:5
+(45:18..45:23) _empty_/`boundary-variations$package`.toStr(). -> 20:5
+(46:3..46:10) scala/Predef.println(+1).
+(46:11..46:17) _empty_/`boundary-variations$package`.runDyn(). -> 12:5
+(46:18..46:23) _empty_/`boundary-variations$package`.toStr(). -> 20:5
+(47:3..47:10) scala/Predef.println(+1).
+(47:11..47:17) _empty_/`boundary-variations$package`.runDyn(). -> 12:5
+(47:18..47:27) _empty_/`boundary-variations$package`.middleDyn(). -> 22:5
+(49:3..49:10) scala/Predef.println(+1).
+(49:11..49:17) _empty_/`boundary-variations$package`.runExc(). -> 28:5
+(49:20..49:28) scala/Any#toString().
+(50:3..50:10) scala/Predef.println(+1).
+(50:11..50:17) _empty_/`boundary-variations$package`.runExc(). -> 28:5
+(50:20..50:28) scala/Any#toString().
+(51:3..51:10) scala/Predef.println(+1).
+(51:11..51:17) _empty_/`boundary-variations$package`.runExc(). -> 28:5
+(51:18..51:27) _empty_/`boundary-variations$package`.middleExc(). -> 37:5
+

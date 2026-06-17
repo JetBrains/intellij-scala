@@ -1,0 +1,17 @@
+Document tests/pos/t2421b_pos.scala
+(7:22..7:23) _empty_/Test.F# -> 5:9
+(7:24..7:25) _empty_/Test.A# -> 2:9
+(7:30..7:37) scala/Predef.println(+1).
+(7:38..7:40) _empty_/Test.f().(aa) -> 7:18
+(9:20..9:21) _empty_/Test.F# -> 5:9
+(9:22..9:23) _empty_/Test.A# -> 2:9
+(9:31..9:32) _empty_/Test.F# -> 5:9
+(9:33..9:34) _empty_/Test.A# -> 2:9
+(10:23..10:24) _empty_/Test.B# -> 3:9
+(10:27..10:31) _empty_/Test. -> 1:8
+(10:32..10:33) _empty_/Test.F# -> 5:9
+(10:34..10:35) _empty_/Test.b().[X] -> 10:18
+(10:43..10:44) _empty_/Test.F# -> 5:9
+(10:45..10:46) _empty_/Test.b().[X] -> 10:18
+(12:3..12:4) _empty_/Test.f(). -> 7:7
+

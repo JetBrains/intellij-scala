@@ -1,0 +1,100 @@
+Document tests/pos/sets-tc.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:40) scala/language.experimental.modularity.
+(7:19..7:23) _empty_/v1.Set#Self# -> 6:10
+(7:24..7:25) _empty_/v1.Set#empty().[A] -> 7:15
+(8:24..8:28) _empty_/v1.Set#Self# -> 6:10
+(8:29..8:30) _empty_/v1.Set#union().[A] -> 8:15
+(8:40..8:44) _empty_/v1.Set#Self# -> 6:10
+(8:45..8:46) _empty_/v1.Set#union().[A] -> 8:15
+(8:50..8:54) _empty_/v1.Set#Self# -> 6:10
+(8:55..8:56) _empty_/v1.Set#union().[A] -> 8:15
+(10:32..10:36) scala/package.List#
+(10:37..10:38) _empty_/v1.ListSet#[A] -> 10:22
+(12:17..12:19) scala/Predef.is#
+(12:20..12:23) _empty_/v1.Set# -> 5:9
+(13:19..13:26) _empty_/v1.ListSet# -> 10:14
+(13:27..13:28) _empty_/v1.given_is_ListSet_Set.empty().[A] -> 13:15
+(13:32..13:39) _empty_/v1.ListSet.
+(13:40..13:43) scala/package.Nil.
+(15:24..15:31) _empty_/v1.ListSet# -> 10:14
+(15:32..15:33) _empty_/v1.given_is_ListSet_Set.union().[A] -> 15:15
+(15:43..15:50) _empty_/v1.ListSet# -> 10:14
+(15:51..15:52) _empty_/v1.given_is_ListSet_Set.union().[A] -> 15:15
+(15:56..15:63) _empty_/v1.ListSet# -> 10:14
+(15:64..15:65) _empty_/v1.given_is_ListSet_Set.union().[A] -> 15:15
+(16:7..16:14) _empty_/v1.ListSet.
+(16:15..16:19) _empty_/v1.given_is_ListSet_Set.union().(self) -> 15:18
+(16:20..16:25) _empty_/v1.ListSet#elems. -> 10:25
+(16:26..16:28) scala/collection/IterableOps#`++`().
+(16:29..16:34) _empty_/v1.given_is_ListSet_Set.union().(other) -> 15:36
+(16:35..16:40) _empty_/v1.ListSet#elems. -> 10:25
+(18:26..18:29) _empty_/v1.Set# -> 5:9
+(18:26..18:29) _empty_/v1.listUnion().[S] -> 18:20
+(18:35..18:39) scala/package.List#
+(18:40..18:41) _empty_/v1.listUnion().[S] -> 18:20
+(18:42..18:43) _empty_/v1.listUnion().[A] -> 18:17
+(18:48..18:49) _empty_/v1.listUnion().[S] -> 18:20
+(18:50..18:51) _empty_/v1.listUnion().[A] -> 18:17
+(19:5..19:7) _empty_/v1.listUnion().(xs) -> 18:31
+(19:8..19:16) scala/collection/LinearSeqOps#foldLeft().
+(19:17..19:18) _empty_/v1.listUnion().(evidence$1) -> 18:29
+(19:19..19:24) _empty_/v1.Set#empty(). -> 7:9
+(19:26..19:27) _empty_/v1.listUnion().(evidence$1) -> 18:29
+(19:28..19:33) _empty_/v1.Set#union(). -> 8:9
+(21:12..21:19) _empty_/v1.ListSet.
+(21:20..21:24) scala/package.List.
+(22:12..22:19) _empty_/v1.ListSet.
+(22:20..22:24) scala/package.List.
+(23:12..23:21) _empty_/v1.listUnion(). -> 18:7
+(23:22..23:26) scala/package.List.
+(23:27..23:29) _empty_/v1.xs. -> 21:7
+(23:31..23:33) _empty_/v1.ys. -> 22:7
+(29:16..29:20) _empty_/v2.Set#Self# -> 28:10
+(30:19..30:23) _empty_/v2.Set#Self# -> 28:10
+(30:43..30:47) _empty_/v2.Set#Self# -> 28:10
+(30:50..30:54) _empty_/v2.Set#Self# -> 28:10
+(32:32..32:36) scala/package.List#
+(32:37..32:38) _empty_/v2.ListSet#[A] -> 32:22
+(34:16..34:23) _empty_/v2.ListSet# -> 32:14
+(34:24..34:25) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(34:27..34:29) scala/Predef.is#
+(34:30..34:33) _empty_/v2.Set# -> 27:9
+(34:34..34:35) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(35:16..35:23) _empty_/v2.ListSet# -> 32:14
+(35:24..35:25) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(35:29..35:36) _empty_/v2.ListSet.
+(35:37..35:40) scala/package.Nil.
+(37:22..37:29) _empty_/v2.ListSet# -> 32:14
+(37:30..37:31) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(37:51..37:58) _empty_/v2.ListSet# -> 32:14
+(37:59..37:60) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(37:64..37:71) _empty_/v2.ListSet# -> 32:14
+(37:72..37:73) _empty_/v2.given_is_ListSet_Set#[A] -> 34:10
+(38:7..38:14) _empty_/v2.ListSet.
+(38:15..38:19) _empty_/v2.given_is_ListSet_Set#union().(self) -> 37:16
+(38:20..38:25) _empty_/v2.ListSet#elems. -> 32:25
+(38:26..38:28) scala/collection/IterableOps#`++`().
+(38:29..38:34) _empty_/v2.given_is_ListSet_Set#union().(other) -> 37:44
+(38:35..38:40) _empty_/v2.ListSet#elems. -> 32:25
+(40:23..40:26) _empty_/v2.Set# -> 27:9
+(40:23..40:29) _empty_/v2.listUnion().[S] -> 40:20
+(40:27..40:28) _empty_/v2.listUnion().[A] -> 40:17
+(40:35..40:39) scala/package.List#
+(40:40..40:41) _empty_/v2.listUnion().[S] -> 40:20
+(40:45..40:46) _empty_/v2.listUnion().[S] -> 40:20
+(41:5..41:7) _empty_/v2.listUnion().(xs) -> 40:31
+(41:8..41:16) scala/collection/LinearSeqOps#foldLeft().
+(41:17..41:18) _empty_/v2.listUnion().(evidence$1) -> 40:29
+(41:19..41:24) _empty_/v2.Set#empty(). -> 29:9
+(41:28..41:35) _empty_/v2.Set#union(). -> 30:29
+(43:12..43:19) _empty_/v2.ListSet.
+(43:20..43:24) scala/package.List.
+(44:12..44:19) _empty_/v2.ListSet.
+(44:20..44:24) scala/package.List.
+(45:12..45:21) _empty_/v2.listUnion(). -> 40:7
+(45:22..45:26) scala/package.List.
+(45:27..45:29) _empty_/v2.xs. -> 43:7
+(45:31..45:33) _empty_/v2.ys. -> 44:7
+

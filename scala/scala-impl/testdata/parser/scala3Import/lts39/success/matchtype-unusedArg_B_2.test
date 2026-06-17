@@ -1,0 +1,35 @@
+
+def Test = foo[Int](3d) // crash before changes
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: foo
+          PsiElement(identifier)('foo')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        DoubleLiteral
+          PsiElement(double)('3d')
+        PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// crash before changes')

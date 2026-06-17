@@ -1,0 +1,6 @@
+Document tests/pos/t946.scala
+(3:18..3:21) _empty_/pmbugbounds.Bar# -> 2:9
+(5:8..5:11) _empty_/pmbugbounds.Foo# -> 3:9
+(5:12..5:15) _empty_/pmbugbounds.Bar# -> 2:9
+(6:14..6:17) _empty_/pmbugbounds.Foo# -> 3:9
+

@@ -1,0 +1,10 @@
+Document tests/pos/f112.scala
+(2:8..2:9) _empty_/f112$package.X# -> 1:6
+(2:12..2:15) scala/Predef.`???`().
+(3:15..3:16) _empty_/f112$package.X# -> 1:6
+(3:35..3:38) scala/Any#
+(3:41..3:48) scala/Boolean#
+(5:3..5:6) scala/Predef.`???`().
+(6:10..6:11) _empty_/f112$package.unapply(). -> 3:22
+(6:10..6:11) _empty_/f112$package.x. -> 2:5
+

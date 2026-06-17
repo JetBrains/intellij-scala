@@ -1,0 +1,14 @@
+Document tests/pos/i15181.scala
+(3:10..3:19) _empty_/Semigroup. -> 8:8
+(6:19..6:20) _empty_/Semigroup#[A] -> 5:17
+(6:25..6:26) _empty_/Semigroup#[A] -> 5:17
+(6:29..6:30) _empty_/Semigroup#[A] -> 5:17
+(9:22..9:23) _empty_/Semigroup.scombine().[A] -> 9:16
+(9:28..9:29) _empty_/Semigroup.scombine().[A] -> 9:16
+(9:37..9:46) _empty_/Semigroup# -> 5:7
+(9:47..9:48) _empty_/Semigroup.scombine().[A] -> 9:16
+(9:55..9:56) local1 -> 9:34
+(9:57..9:65) _empty_/Semigroup#scombine(). -> 6:7
+(9:66..9:67) _empty_/Semigroup.scombine().(x) -> 9:19
+(9:68..9:69) _empty_/Semigroup.scombine().(y) -> 9:25
+

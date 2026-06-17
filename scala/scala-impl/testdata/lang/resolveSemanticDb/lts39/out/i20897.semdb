@@ -1,0 +1,13 @@
+Document tests/pos/i20897.scala
+(3:5..3:6) _empty_/Test.Disj#[A] -> 2:13
+(4:12..4:13) _empty_/Test.Disj#[B] -> 2:16
+(5:12..5:13) scala/Any#
+(7:12..7:16) _empty_/Test.Disj# -> 2:8
+(7:19..7:20) scala/`|`#
+(7:21..7:28) scala/Nothing#
+(7:32..7:33) scala/`|`#
+(7:34..7:41) scala/Nothing#
+(7:45..7:49) scala/Unit#
+(9:11..9:12) _empty_/Test.f(). -> 7:7
+(10:5..10:9) _empty_/Test. -> 1:8
+

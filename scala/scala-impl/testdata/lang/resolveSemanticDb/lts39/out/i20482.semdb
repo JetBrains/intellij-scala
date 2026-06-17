@@ -1,0 +1,18 @@
+Document tests/pos/i20482.scala
+(7:31..7:32) _empty_/i20482$package.FooToBar#[D] -> 7:15
+(7:33..7:37) scala/Unit#
+(8:8..8:11) _empty_/Foo# -> 3:12
+(8:12..8:16) scala/Unit#
+(8:21..8:24) _empty_/Bar# -> 5:12
+(8:25..8:26) _empty_/i20482$package.FooToBar#[A] -> 7:24
+(13:29..13:40) _empty_/WrapperType# -> 1:7
+(13:41..13:44) _empty_/Bar# -> 5:12
+(13:45..13:49) _empty_/Test# -> 11:12
+(13:58..13:69) _empty_/WrapperType# -> 1:7
+(13:70..13:73) _empty_/Bar# -> 5:12
+(13:74..13:78) _empty_/Test# -> 11:12
+(16:12..16:18) scala/Predef.summon().
+(16:19..16:30) _empty_/WrapperType# -> 1:7
+(16:31..16:39) _empty_/i20482$package.FooToBar# -> 7:6
+(16:45..16:49) _empty_/Test# -> 11:12
+

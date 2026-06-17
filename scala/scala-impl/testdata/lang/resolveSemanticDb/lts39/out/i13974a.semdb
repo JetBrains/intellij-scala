@@ -1,0 +1,28 @@
+Document tests/pos/i13974a.scala
+(5:28..5:31) _empty_/Test2.SUB# -> 4:8
+(5:32..5:33) _empty_/Test2.SUB.Refl#[U] -> 5:15
+(5:35..5:36) _empty_/Test2.SUB.Refl#[U] -> 5:15
+(6:24..6:25) _empty_/Test2.f().[A] -> 6:9
+(6:26..6:29) _empty_/Test2.SUB# -> 4:8
+(6:31..6:32) _empty_/Test2.f().[B] -> 6:12
+(6:33..6:34) _empty_/Test2.f().[C] -> 6:15
+(7:11..7:14) _empty_/Test2.Foo# -> 3:9
+(7:15..7:16) _empty_/Test2.f().[A] -> 6:9
+(7:20..7:23) scala/Predef.`???`().
+(8:13..8:19) scala/Predef.summon().
+(8:20..8:23) _empty_/Test2.Foo# -> 3:9
+(8:24..8:25) _empty_/Test2.f().[A] -> 6:9
+(9:5..9:8) _empty_/Test2.f().(sub) -> 6:18
+(10:12..10:15) _empty_/Test2.SUB.
+(10:16..10:20) _empty_/Test2.SUB.Refl.
+(11:16..11:19) _empty_/Test2.Foo# -> 3:9
+(11:21..11:22) _empty_/Test2.f().[B] -> 6:12
+(11:24..11:25) _empty_/Test2.f().[C] -> 6:15
+(11:30..11:36) scala/Predef.summon().
+(11:37..11:40) _empty_/Test2.Foo# -> 3:9
+(11:41..11:42) _empty_/Test2.f().[A] -> 6:9
+(12:9..12:15) scala/Predef.summon().
+(12:16..12:19) _empty_/Test2.Foo# -> 3:9
+(12:21..12:22) _empty_/Test2.f().[B] -> 6:12
+(12:24..12:25) _empty_/Test2.f().[C] -> 6:15
+

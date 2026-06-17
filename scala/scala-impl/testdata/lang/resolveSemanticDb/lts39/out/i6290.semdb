@@ -1,0 +1,18 @@
+Document tests/pos/i6290.scala
+(5:15..5:17) _empty_/TC# -> 3:7
+(5:29..5:32) scala/Int#
+(7:17..7:19) _empty_/TC# -> 3:7
+(7:23..7:26) scala/Predef.`???`().
+(8:15..8:24) scala/unchecked#
+(8:28..8:30) _empty_/TC# -> 3:7
+(8:34..8:37) scala/Predef.`???`().
+(9:31..9:33) _empty_/TC# -> 3:7
+(9:37..9:40) scala/Predef.`???`().
+(11:19..11:21) _empty_/TC# -> 3:7
+(12:17..12:26) scala/unchecked#
+(12:30..12:32) _empty_/TC# -> 3:7
+(13:23..13:25) _empty_/TC# -> 3:7
+(14:23..14:25) _empty_/TC# -> 3:7
+(15:31..15:33) _empty_/TC# -> 3:7
+(16:37..16:39) _empty_/TC# -> 3:7
+

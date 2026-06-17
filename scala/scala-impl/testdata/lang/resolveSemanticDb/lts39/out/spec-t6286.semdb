@@ -1,0 +1,26 @@
+Document tests/pos/spec-t6286.scala
+(1:12..1:23) scala/specialized#
+(1:24..1:27) scala/Int.
+(2:12..2:23) scala/specialized#
+(2:24..2:27) scala/Int.
+(2:38..2:39) _empty_/Foo#fun().[B] -> 2:29
+(2:45..2:46) _empty_/Foo#fun().[B] -> 2:29
+(2:48..2:49) _empty_/Foo#[A] -> 1:29
+(2:54..2:55) _empty_/Foo#fun().[B] -> 2:29
+(2:58..2:59) _empty_/Foo#fun().[B] -> 2:29
+(5:19..5:24) scala/Array#
+(5:25..5:28) scala/Int#
+(5:39..5:42) _empty_/Foo# -> 1:7
+(5:43..5:46) scala/Int#
+(6:12..6:23) scala/specialized#
+(6:24..6:27) scala/Int.
+(6:38..6:39) _empty_/Bar#fun().[C] -> 6:29
+(6:45..6:46) _empty_/Bar#fun().[C] -> 6:29
+(6:48..6:51) scala/Int#
+(6:56..6:57) _empty_/Bar#fun().[C] -> 6:29
+(6:60..6:61) _empty_/Bar#fun().[C] -> 6:29
+(7:15..7:21) _empty_/Bar#values. -> 5:11
+(8:5..8:6) _empty_/Bar#fun().(f) -> 6:41
+(8:7..8:11) _empty_/Bar#fun().(init) -> 6:32
+(8:13..8:16) local0 -> 7:9
+

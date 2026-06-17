@@ -1,0 +1,11 @@
+Document tests/pos/list-optim-check.scala
+(7:10..7:17) scala/Boolean#
+(8:14..8:17) scala/package.Nil.
+(8:18..8:21) scala/collection/immutable/List#map().
+(12:10..12:17) scala/Boolean#
+(13:14..13:17) scala/package.Nil.
+(13:18..13:25) scala/collection/immutable/List#collect().
+(17:10..17:17) scala/Boolean#
+(18:14..18:17) scala/package.Nil.
+(18:18..18:25) scala/collection/immutable/List#flatMap().
+

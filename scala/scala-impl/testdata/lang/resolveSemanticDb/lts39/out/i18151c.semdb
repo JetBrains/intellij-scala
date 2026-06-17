@@ -1,0 +1,172 @@
+Document tests/pos/i18151c.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:29) scala/compiletime/ops/
+(2:30..2:33) scala/compiletime/ops/any.
+(5:31..5:35) _empty_/Attr# -> 4:7
+(6:42..6:46) _empty_/Attr# -> 4:7
+(6:49..6:55) scala/Predef.String#
+(6:65..6:66) _empty_/i18151c$package.attrStr().(a) -> 6:39
+(7:8..7:17) _empty_/EmptyAttr. -> 5:13
+(8:48..8:52) _empty_/Attr# -> 4:7
+(8:55..8:61) scala/Predef.String#
+(8:71..8:72) _empty_/i18151c$package.attrStrHelper().(a) -> 8:45
+(9:8..9:17) _empty_/EmptyAttr. -> 5:13
+(11:20..11:26) scala/Predef.String#
+(11:27..11:28) scala/`&`#
+(11:29..11:38) scala/Singleton#
+(11:45..11:49) _empty_/Attr# -> 4:7
+(11:56..11:60) _empty_/i18151c$package.Tmpl# -> 15:6
+(11:71..11:72) _empty_/El#[T] -> 11:15
+(11:84..11:85) _empty_/El#[A] -> 11:40
+(11:98..11:99) _empty_/El#[C] -> 11:51
+(12:13..12:21) _empty_/TmplNode# -> 10:7
+(13:21..13:25) _empty_/i18151c$package.Tmpl# -> 15:6
+(13:32..13:36) _empty_/i18151c$package.Tmpl# -> 15:6
+(13:44..13:45) _empty_/Sib#[L] -> 13:16
+(13:54..13:55) _empty_/Sib#[R] -> 13:27
+(13:65..13:73) _empty_/TmplNode# -> 10:7
+(14:22..14:28) scala/Predef.String#
+(14:29..14:30) scala/`|`#
+(14:31..14:35) scala/Char#
+(14:36..14:37) scala/`|`#
+(14:38..14:41) scala/Int#
+(14:42..14:43) scala/`|`#
+(14:44..14:48) scala/Long#
+(14:49..14:50) scala/`|`#
+(14:51..14:56) scala/Float#
+(14:57..14:58) scala/`|`#
+(14:59..14:65) scala/Double#
+(14:66..14:67) scala/`|`#
+(14:68..14:75) scala/Boolean#
+(15:13..15:21) _empty_/TmplNode# -> 10:7
+(15:22..15:23) scala/`|`#
+(15:24..15:28) scala/Unit#
+(15:29..15:30) scala/`|`#
+(15:32..15:45) _empty_/i18151c$package.TmplSingleton# -> 14:6
+(15:46..15:47) scala/`&`#
+(15:48..15:57) scala/Singleton#
+(16:42..16:46) _empty_/i18151c$package.Tmpl# -> 15:6
+(16:49..16:55) scala/Predef.String#
+(16:65..16:66) _empty_/i18151c$package.tmplStr().(t) -> 16:39
+(17:8..17:10) _empty_/El.
+(17:39..17:46) _empty_/i18151c$package.attrStr(). -> 6:24
+(17:47..17:51) local4 -> 17:16
+(18:22..18:23) java/lang/String#`+`().
+(18:24..18:27) local3 -> 17:11
+(18:28..18:29) java/lang/String#`+`().
+(18:34..18:35) java/lang/String#`+`().
+(18:36..18:43) _empty_/i18151c$package.tmplStr(). -> 16:24
+(18:44..18:49) local5 -> 17:22
+(19:22..19:23) java/lang/String#`+`().
+(19:24..19:27) local3 -> 17:11
+(19:28..19:29) java/lang/String#`+`().
+(19:34..19:35) java/lang/String#`+`().
+(19:36..19:37) local6 -> 19:12
+(19:38..19:39) java/lang/String#`+`().
+(19:44..19:45) java/lang/String#`+`().
+(19:46..19:53) _empty_/i18151c$package.tmplStr(). -> 16:24
+(19:54..19:59) local5 -> 17:22
+(20:8..20:11) _empty_/Sib.
+(20:35..20:42) _empty_/i18151c$package.tmplStr(). -> 16:24
+(20:43..20:48) local10 -> 20:18
+(21:21..21:28) _empty_/i18151c$package.tmplStr(). -> 16:24
+(21:29..21:33) local9 -> 20:12
+(22:21..22:34) _empty_/i18151c$package.tmplStrHelper(). -> 25:24
+(22:35..22:39) local9 -> 20:12
+(22:41..22:42) java/lang/String#`+`().
+(22:43..22:48) local11 -> 22:12
+(24:14..24:15) scala/`&`#
+(24:16..24:29) _empty_/i18151c$package.TmplSingleton# -> 14:6
+(24:34..24:44) scala/compiletime/package$package.constValue().
+(24:45..24:53) scala/compiletime/ops/any.ToString#
+(24:54..24:55) local12 -> 24:12
+(25:48..25:52) _empty_/i18151c$package.Tmpl# -> 15:6
+(25:55..25:61) scala/Predef.String#
+(25:71..25:72) _empty_/i18151c$package.tmplStrHelper().(t) -> 25:45
+(26:8..26:10) _empty_/El.
+(26:40..26:47) _empty_/i18151c$package.tmplStr(). -> 16:24
+(26:48..26:53) local19 -> 26:22
+(26:56..26:63) _empty_/i18151c$package.attrStr(). -> 6:24
+(26:64..26:68) local18 -> 26:16
+(27:33..27:34) java/lang/String#`+`().
+(27:35..27:38) local17 -> 26:11
+(27:39..27:40) java/lang/String#`+`().
+(28:33..28:34) java/lang/String#`+`().
+(28:35..28:38) local17 -> 26:11
+(28:39..28:40) java/lang/String#`+`().
+(28:45..28:46) java/lang/String#`+`().
+(28:47..28:52) local20 -> 28:13
+(28:53..28:54) java/lang/String#`+`().
+(28:60..28:61) java/lang/String#`+`().
+(28:62..28:65) local17 -> 26:11
+(28:66..28:67) java/lang/String#`+`().
+(29:33..29:34) java/lang/String#`+`().
+(29:35..29:38) local17 -> 26:11
+(29:39..29:40) java/lang/String#`+`().
+(29:45..29:46) java/lang/String#`+`().
+(29:47..29:51) local21 -> 29:17
+(29:52..29:53) java/lang/String#`+`().
+(30:33..30:34) java/lang/String#`+`().
+(30:35..30:38) local17 -> 26:11
+(30:39..30:40) java/lang/String#`+`().
+(30:45..30:46) java/lang/String#`+`().
+(30:47..30:51) local23 -> 30:20
+(30:52..30:53) java/lang/String#`+`().
+(30:58..30:59) java/lang/String#`+`().
+(30:60..30:65) local22 -> 30:13
+(30:66..30:67) java/lang/String#`+`().
+(30:73..30:74) java/lang/String#`+`().
+(30:75..30:78) local17 -> 26:11
+(30:79..30:80) java/lang/String#`+`().
+(31:8..31:11) _empty_/Sib.
+(31:34..31:47) _empty_/i18151c$package.tmplStrHelper(). -> 25:24
+(31:48..31:52) local26 -> 31:12
+(31:54..31:55) java/lang/String#`+`().
+(31:56..31:69) _empty_/i18151c$package.tmplStrHelper(). -> 25:24
+(31:70..31:75) local27 -> 31:18
+(33:14..33:15) scala/`&`#
+(33:16..33:29) _empty_/i18151c$package.TmplSingleton# -> 14:6
+(33:34..33:44) scala/compiletime/package$package.constValue().
+(33:45..33:53) scala/compiletime/ops/any.ToString#
+(33:54..33:55) local28 -> 33:12
+(34:32..34:38) scala/Predef.String#
+(34:39..34:40) scala/`&`#
+(34:41..34:50) scala/Singleton#
+(34:53..34:55) _empty_/El# -> 11:12
+(34:56..34:59) _empty_/i18151c$package.el().(tag) -> 34:27
+(34:66..34:75) _empty_/EmptyAttr. -> 5:13
+(34:82..34:86) scala/Unit#
+(35:3..35:5) _empty_/El.
+(35:6..35:9) _empty_/i18151c$package.el().(tag) -> 34:27
+(35:11..35:20) _empty_/EmptyAttr. -> 5:13
+(36:17..36:23) scala/Predef.String#
+(36:24..36:25) scala/`&`#
+(36:26..36:35) scala/Singleton#
+(36:42..36:46) _empty_/Attr# -> 4:7
+(36:53..36:57) _empty_/i18151c$package.Tmpl# -> 15:6
+(36:63..36:65) _empty_/El# -> 11:12
+(36:66..36:67) _empty_/i18151c$package.`>>`().[T] -> 36:12
+(36:69..36:70) _empty_/i18151c$package.`>>`().[A] -> 36:37
+(36:72..36:73) _empty_/i18151c$package.`>>`().[C] -> 36:48
+(37:35..37:39) _empty_/i18151c$package.Tmpl# -> 15:6
+(37:48..37:50) _empty_/i18151c$package.`>>`().[C2] -> 37:29
+(37:54..37:56) _empty_/El.
+(37:57..37:59) _empty_/i18151c$package.`>>`().(el) -> 36:59
+(37:60..37:63) _empty_/El#tag. -> 11:66
+(37:65..37:67) _empty_/i18151c$package.`>>`().(el) -> 36:59
+(37:68..37:72) _empty_/El#attr. -> 11:78
+(37:74..37:76) _empty_/i18151c$package.`>>`().(el) -> 36:59
+(37:77..37:82) _empty_/El#child. -> 11:91
+(37:83..37:85) _empty_/i18151c$package.`++`(). -> 39:55
+(37:86..37:91) _empty_/i18151c$package.`>>`().(child) -> 37:41
+(39:17..39:21) _empty_/i18151c$package.Tmpl# -> 15:6
+(39:29..39:30) _empty_/i18151c$package.`++`().[L] -> 39:12
+(39:63..39:67) _empty_/i18151c$package.Tmpl# -> 15:6
+(39:76..39:77) _empty_/i18151c$package.`++`().[R] -> 39:58
+(39:81..39:84) _empty_/Sib.
+(39:85..39:89) _empty_/i18151c$package.`++`().(left) -> 39:23
+(39:91..39:96) _empty_/i18151c$package.`++`().(right) -> 39:69
+

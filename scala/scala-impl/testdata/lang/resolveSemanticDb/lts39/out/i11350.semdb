@@ -1,0 +1,7 @@
+Document tests/pos/i11350.scala
+(3:21..3:23) _empty_/A1# -> 3:7
+(3:24..3:25) _empty_/A1#[T] -> 3:10
+(3:31..3:37) scala/Predef.String#
+(3:44..3:46) _empty_/A1# -> 3:7
+(3:47..3:48) _empty_/A1.$lessinit$greater$default$1().[T] -> 3:10
+

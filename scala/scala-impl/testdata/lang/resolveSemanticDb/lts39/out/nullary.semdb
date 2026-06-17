@@ -1,0 +1,17 @@
+Document tests/pos/nullary.scala
+(2:16..2:22) scala/Predef.String#
+(3:11..3:18) _empty_/NullaryTest#nullary(). -> 2:7
+(5:17..5:18) _empty_/NullaryTest#[T] -> 1:28
+(6:12..6:20) _empty_/NullaryTest#nullary2(). -> 5:7
+(8:17..8:18) _empty_/NullaryTest#[m] -> 1:31
+(8:19..8:20) _empty_/NullaryTest#[T] -> 1:28
+(9:12..9:20) _empty_/NullaryTest#nullary3(). -> 8:7
+(12:24..12:35) _empty_/NullaryTest# -> 1:16
+(12:36..12:39) scala/Int#
+(12:41..12:45) scala/package.List#
+(14:24..14:28) scala/package.List.
+(18:14..18:22) _empty_/Concrete# -> 12:7
+(18:24..18:32) _empty_/Concrete#nullary2(). -> 13:13
+(19:14..19:22) _empty_/Concrete# -> 12:7
+(19:24..19:32) _empty_/Concrete#nullary3(). -> 14:13
+

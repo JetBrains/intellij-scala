@@ -1,0 +1,22 @@
+Document tests/pos/t0032.scala
+(1:8..1:12) java/
+(1:13..1:15) java/io/
+(1:17..1:29) java/io/OutputStream#
+(1:31..1:42) java/io/PrintStream#
+(3:23..3:35) java/io/OutputStream#
+(3:45..3:56) java/io/PrintStream#
+(3:57..3:58) _empty_/PromptStream#s. -> 3:20
+(4:36..4:43) java/io/PrintStream#println().
+(9:19..9:31) _empty_/PromptStream# -> 3:7
+(9:32..9:36) java/
+(9:37..9:41) java/lang/
+(9:42..9:48) java/lang/System#
+(9:49..9:52) java/lang/System#out.
+(11:5..11:9) java/
+(11:10..11:14) java/lang/
+(11:15..11:21) java/lang/System#
+(11:22..11:28) java/lang/System#setOut().
+(11:29..11:32) _empty_/Main.out. -> 9:9
+(13:20..13:25) scala/Array#
+(13:26..13:32) scala/Predef.String#
+

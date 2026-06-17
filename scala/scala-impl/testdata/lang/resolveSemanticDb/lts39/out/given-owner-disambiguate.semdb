@@ -1,0 +1,11 @@
+Document tests/pos/given-owner-disambiguate.scala
+(2:24..2:31) _empty_/General# -> 1:7
+(5:11..5:18) _empty_/General# -> 1:7
+(7:31..7:42) _empty_/LowPriority# -> 4:7
+(8:11..8:19) _empty_/Specific# -> 2:7
+(11:10..11:24) _empty_/NormalPriority. -> 7:8
+(12:11..12:17) scala/Predef.summon().
+(12:18..12:25) _empty_/General# -> 1:7
+(13:10..13:18) _empty_/Specific# -> 2:7
+(13:21..13:22) local0 -> 12:7
+

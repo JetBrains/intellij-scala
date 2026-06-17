@@ -1,0 +1,22 @@
+Document tests/pos/i18124/definition.scala
+(2:9..2:15) oolong/
+(6:13..6:22) oolong/bson/BsonValue# -> 4:9
+(7:14..7:23) oolong/bson/BsonValue# -> 4:9
+(8:23..8:30) scala/Boolean#
+(9:6..9:15) oolong/bson/BsonValue# -> 4:9
+(9:18..9:21) scala/Predef.`???`().
+(11:20..11:23) scala/Int#
+(14:15..14:19) oolong/bson/ -> 2:16
+
+Document tests/pos/i18124/usage.scala
+(2:9..2:15) oolong/
+(4:16..4:25) oolong/bson/BsonValue# -> 4:9
+(5:17..5:26) oolong/bson/BsonValue# -> 4:9
+(5:29..5:38) oolong/bson/BsonValue# -> 4:9
+(5:41..5:46) oolong/bson/definition$package.merge(). -> 5:17
+(5:47..5:52) oolong/bson/usage$package.`:+`().(other) -> 5:10
+(5:54..5:56) oolong/bson/usage$package.`:+`().(bv) -> 4:12
+(7:9..7:12) oolong/bson/definition$package.foo(). -> 11:15
+(8:9..8:14) oolong/bson/inner/ -> 13:11
+(8:15..8:18) oolong/bson/inner/definition$package.bar(). -> 14:25
+

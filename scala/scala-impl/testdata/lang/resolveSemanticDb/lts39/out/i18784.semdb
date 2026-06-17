@@ -1,0 +1,51 @@
+Document tests/pos/i18784/Macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(4:27..4:32) _empty_/Macro. -> 3:8
+(4:33..4:45) _empty_/Macro.repeatedImpl(). -> 5:7
+(5:26..5:32) scala/quoted/Quotes#
+(5:34..5:38) scala/quoted/Expr#
+(5:39..5:43) scala/package.List#
+(5:44..5:47) scala/Int#
+(6:12..6:18) scala/quoted/Quotes$package.quotes().
+(6:19..6:26) scala/quoted/Quotes#reflect.
+(7:16..7:20) scala/package.List.
+(7:21..7:25) scala/quoted/Expr.
+(7:30..7:34) scala/quoted/Expr.
+(8:29..8:33) scala/package.List.
+(8:36..8:42) scala/quoted/Quotes#reflectModule#asTerm().
+(9:5..9:10) scala/quoted/Quotes#reflectModule#Apply.
+(10:7..10:16) scala/quoted/Quotes#reflectModule#TypeApply.
+(11:9..11:15) scala/quoted/Quotes#reflectModule#Select.
+(11:16..11:22) scala/quoted/Quotes#reflectModule#SelectModule#unique().
+(11:23..11:37) local2 -> 8:9
+(12:9..12:13) scala/package.List.
+(12:14..12:22) scala/quoted/Quotes#reflectModule#TypeTree.
+(12:23..12:25) scala/quoted/Quotes#reflectModule#TypeTreeModule#of().
+(12:26..12:29) scala/Int#
+(14:7..14:11) scala/package.List.
+(15:9..15:14) scala/quoted/Quotes#reflectModule#Typed.
+(16:11..16:19) scala/quoted/Quotes#reflectModule#Repeated.
+(16:20..16:24) local1 -> 7:9
+(16:25..16:28) scala/collection/immutable/List#map().
+(16:31..16:37) scala/quoted/Quotes#reflectModule#asTerm().
+(16:40..16:48) scala/quoted/Quotes#reflectModule#TypeTree.
+(16:49..16:51) scala/quoted/Quotes#reflectModule#TypeTreeModule#of().
+(16:52..16:55) scala/Int#
+(17:11..17:19) scala/quoted/Quotes#reflectModule#Inferred.
+(17:20..17:24) scala/quoted/Quotes#reflectModule#defn.
+(17:25..17:43) scala/quoted/Quotes#reflectModule#defnModule#RepeatedParamClass().
+(17:44..17:51) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(17:52..17:61) scala/quoted/Quotes#reflectModule#TypeReprMethods#appliedTo().
+(17:62..17:70) scala/quoted/Quotes#reflectModule#TypeRepr.
+(17:71..17:73) scala/quoted/Quotes#reflectModule#TypeReprModule#of().
+(17:74..17:77) scala/Int#
+(18:7..18:15) scala/quoted/Quotes#reflectModule#TreeMethods#asExprOf().
+(18:16..18:20) scala/package.List#
+(18:21..18:24) scala/Int#
+
+Document tests/pos/i18784/Test_2.scala
+(1:11..1:15) scala/Unit#
+(2:3..2:8) _empty_/Macro. -> 3:8
+(2:9..2:17) _empty_/Macro.repeated(). -> 4:14
+
