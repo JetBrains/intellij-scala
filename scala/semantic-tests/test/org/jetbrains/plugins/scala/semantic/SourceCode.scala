@@ -806,6 +806,11 @@ object SourceCode {
           printType(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
           def printName(t: TypeDef): Unit = {
+            if (t.symbol.flags.is(Flags.Covariant)) {
+              this += highlightValDef("+")
+            } else if (t.symbol.flags.is(Flags.Contravariant)) {
+              this += highlightValDef("-")
+            }
             this += (t.name match {
               case WildcardName() => "_"
               case s => s
