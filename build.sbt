@@ -191,12 +191,18 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
     autoScalaLibrary := false
   )
 
+// NOTE: this module used to be a `newProjectWithKotlin`. However, it became broken after an update to 262.7966+.
+//       Compilation failed with errors like `Unresolved reference 'facet'`, `Unresolved reference 'KotlinFacet'`.
+//       Even with the workaround below, the unresolved packages and classes should still be on the classpath as a
+//       part of `kotlin-plugin.jar`. It seems like there is a bug in `sbt-kotlin-plugin`. The errors simply look
+//       like a misconfigured classpath. For now, we decided to convert the module to Scala, but if there will be
+//       a need to use Kotlin in the module again, we should be aware of the issue and investigate it first.
 lazy val sbtKotlinIjPluginInterop =
-  newProjectWithKotlin("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
+  newProject("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
     .dependsOn(sbtApi)
     .settings(
-      crossPaths := false,
-      autoScalaLibrary := false,
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.kotlin".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-kotlin-ij-plugin-interop"),
 
