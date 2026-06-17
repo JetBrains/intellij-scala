@@ -341,6 +341,14 @@
                 order="last"/>
         <codeInsight.completion.command.provider
                 language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaOverrideMethodsCommandProvider"
+                order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
+                implementationClass="org.jetbrains.plugins.scala.lang.completion.command.ScalaImplementMethodsCommandProvider"
+                order="last"/>
+        <codeInsight.completion.command.provider
+                language="Scala"
                 implementationClass="org.jetbrains.plugins.scala.lang.completion.command.CreateScalaDocStubCommandProvider"
                 order="last"/>
         <codeInsight.completion.command.provider
