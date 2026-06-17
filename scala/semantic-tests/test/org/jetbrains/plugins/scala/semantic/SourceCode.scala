@@ -147,6 +147,7 @@ object SourceCode {
 
       case cdef @ ClassDef(name, DefDef(_, paramss, _, _), parents, self, stats) =>
         printDefAnnotations(cdef)
+        printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
@@ -265,6 +266,7 @@ object SourceCode {
 
       case tdef @ TypeDef(name, rhs) =>
         printDefAnnotations(tdef)
+        printProtectedOrPrivate(tdef)
         this += highlightKeyword("type ")
         printTargDef((tdef, tdef), isMember = true)
 
@@ -292,7 +294,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(_, _) => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty => printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
@@ -344,7 +346,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(_, _) => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty => printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
@@ -505,12 +507,12 @@ object SourceCode {
       case If(cond, thenp, elsep) =>
         this += highlightKeyword("if ")
         inParens(printTree(cond))
+        this += " "
+        printTree(thenp)
         elsep match {
           case Literal(UnitConstant()) =>
             this
           case _ =>
-            this += " "
-            printTree(thenp)
             this+= highlightKeyword(" else ")
             printTree(elsep)
         }
@@ -803,6 +805,17 @@ object SourceCode {
         case rhs: WildcardTypeTree =>
           printType(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
+          def printName(t: TypeDef): Unit = {
+            if (t.symbol.flags.is(Flags.Covariant)) {
+              this += highlightValDef("+")
+            } else if (t.symbol.flags.is(Flags.Contravariant)) {
+              this += highlightValDef("-")
+            }
+            this += (t.name match {
+              case WildcardName() => "_"
+              case s => s
+            })
+          }
           def printParam(t: Tree /*TypeTree | TypeBoundsTree*/): Unit = t match {
             case t: TypeBoundsTree => printBoundsTree(t)
             case t: TypeTree => printTypeTree(t)
@@ -810,13 +823,10 @@ object SourceCode {
           def printSeparated(list: List[TypeDef]): Unit = list match {
             case Nil =>
             case x :: Nil =>
-              this += (x.name match {
-                case WildcardName() => "_"
-                case s => s
-              })
+              printName(x)
               printParam(x.rhs)
             case x :: xs =>
-              this += x.name
+              printName(x)
               printParam(x.rhs)
               this += ", "
               printSeparated(xs)
@@ -900,16 +910,14 @@ object SourceCode {
         val ClassDef(_, _, _, _, body) = sym.owner.tree: @unchecked
         body.collectFirst {
           case vdef @ ValDef(`name`, _, _) if vdef.symbol.flags.is(Flags.ParamAccessor) =>
-            if (!vdef.symbol.flags.is(Flags.Local)) {
-              var printedPrefix = false
-              if (vdef.symbol.flags.is(Flags.Override)) {
-                this += "override "
-                printedPrefix = true
-              }
-              printedPrefix  |= printProtectedOrPrivate(vdef)
-              if (vdef.symbol.flags.is(Flags.Mutable)) this += highlightValDef("var ")
-              else if (printedPrefix || !vdef.symbol.flags.is(Flags.CaseAccessor)) this += highlightValDef("val ")
+            var printedPrefix = false
+            if (vdef.symbol.flags.is(Flags.Override)) {
+              this += "override "
+              printedPrefix = true
             }
+            printedPrefix  |= printProtectedOrPrivate(vdef)
+            if (vdef.symbol.flags.is(Flags.Mutable)) this += highlightValDef("var ")
+            else if (printedPrefix || !vdef.symbol.flags.is(Flags.CaseAccessor)) this += highlightValDef("val ")
         }
       end if
 
@@ -1454,7 +1462,7 @@ object SourceCode {
       var prefixWasPrinted = false
       def printWithin(within: Option[TypeRepr]) = within match
         case _ if definition.symbol.flags.is(Flags.Local) => inSquare(this += "this")
-        case Some(TypeRef(_, name)) => inSquare(this += name)
+        case Some(TypeRef(_, name)) => if (name != definition.symbol.owner.name) inSquare(this += name)
         case Some(within) => inSquare(printFullClassName(within))
         case _ =>
 
