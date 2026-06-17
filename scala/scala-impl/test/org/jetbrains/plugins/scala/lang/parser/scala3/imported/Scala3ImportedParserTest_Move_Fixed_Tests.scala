@@ -15,6 +15,10 @@ class Scala3ImportedParserTest_Move_Fixed_Tests_LTS
 class Scala3ImportedParserTest_Move_Fixed_Tests_Newest
   extends Scala3ImportedParserTest_Move_Fixed_Tests_Base(Scala3ImportedParserTestConfig.Newest)
 
+@Ignore("For local running only")
+class Scala3ImportedParserTest_Move_Fixed_Tests_LTS_3_9
+  extends Scala3ImportedParserTest_Move_Fixed_Tests_Base(Scala3ImportedParserTestConfig.LTS_3_9)
+
 abstract class Scala3ImportedParserTest_Move_Fixed_Tests_Base(config: Scala3ImportedParserTestConfig)
   extends Scala3ImportedParserTestBase_UsedAsScript(config, runOnSucceedDirectory = false) {
 
