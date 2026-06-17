@@ -1107,24 +1107,7 @@ lazy val intellijBazelIntegration =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += {
-        // TODO: BAZEL-3025
-        //       The Bazel plugin will be fully converted to plugin v2 and we should be able to go back to a simple
-        //       plugin definition: `org.jetbrains.bazel::super-early-bird.toPlugin`.
-        val plugin = "org.jetbrains.bazel::super-early-bird".toPlugin
-        val oldSettings = plugin.resolveSettings
-        plugin.resolveSettings = oldSettings.copy(
-          excludedIds = Set(
-            "intellij.bazel.bazelisk",
-            "intellij.bazel.commons",
-            "intellij.bazel.connector",
-            "intellij.bazel.importer",
-            "intellij.bazel.projectview",
-            "intellij.bazel.protobuf"
-          )
-        )
-        plugin
-      },
+      intellijPlugins += "org.jetbrains.bazel::super-early-bird".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
     )
 
