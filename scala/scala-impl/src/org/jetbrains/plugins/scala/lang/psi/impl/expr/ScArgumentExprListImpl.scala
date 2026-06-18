@@ -12,27 +12,21 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createC
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
+import scala.annotation.tailrec
+
 class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprList {
   override def toString: String = "ArgumentList"
 
   override def invocationCount: Int =
-    callExpression match {
-      case call: ScMethodCall => call.args.invocationCount + 1
-      case _ => 1
+    getContext match {
+      case call: ScMethodCall => countValueArgumentClauses(call)
+      case _                  => 1
     }
 
   override def callReference: Option[ScReferenceExpression] =
     getContext match {
       case call: ScMethodCall =>
-        call.deepestInvokedExpr match {
-          case ref: ScReferenceExpression => Some(ref)
-          case gen: ScGenericCall =>
-            gen.referencedExpr match {
-              case ref: ScReferenceExpression => Some(ref)
-              case _ => None
-            }
-          case _ => None
-        }
+        deepestInvokedReference(call.getEffectiveInvokedExpr)
       case _ => None
     }
 
@@ -52,6 +46,27 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         call.getEffectiveInvokedExpr
       case _ => null
     }
+
+  private def countValueArgumentClauses(call: ScMethodCall): Int =
+    deepestInvokedMethodCall(call.getEffectiveInvokedExpr) match {
+      case Some(innerCall) => innerCall.args.invocationCount + 1
+      case None            => 1
+    }
+
+  @tailrec
+  private def deepestInvokedMethodCall(expr: ScExpression): Option[ScMethodCall] = expr match {
+    case call: ScMethodCall => Some(call)
+    case gen: ScGenericCall => deepestInvokedMethodCall(gen.referencedExpr)
+    case _                  => None
+  }
+
+  @tailrec
+  private def deepestInvokedReference(expr: ScExpression): Option[ScReferenceExpression] = expr match {
+    case ref: ScReferenceExpression => Some(ref)
+    case call: ScMethodCall         => deepestInvokedReference(call.getEffectiveInvokedExpr)
+    case gen: ScGenericCall         => deepestInvokedReference(gen.referencedExpr)
+    case _                          => None
+  }
 
   override def isUsing: Boolean =
     findChildByType(ScalaTokenType.UsingKeyword) != null

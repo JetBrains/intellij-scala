@@ -265,6 +265,14 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     )
   }
 
+  def testInterleavedTypeParameterClauses(): Unit = {
+    check(
+      """def top[A](a: A)[B](b: B): (A, B) = ???
+        |""".stripMargin,
+      Node(FUNCTION, "top[A](A)[B](B): (A, B)")
+    )
+  }
+
   def testExtension_InAllScopes(): Unit = {
     check(
       """object Wrapper {

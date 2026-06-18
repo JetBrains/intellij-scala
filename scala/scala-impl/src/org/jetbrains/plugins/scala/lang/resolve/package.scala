@@ -2,11 +2,27 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
+import scala.annotation.tailrec
+
 package object resolve {
+  @tailrec
+  private[lang] def referenceTargetDeep(expr: ScExpression): Option[ScReferenceExpression] = expr match {
+    case ref: ScReferenceExpression => Some(ref)
+    case gen: ScGenericCall         => referenceTargetDeep(gen.referencedExpr)
+    case inv: MethodInvocation      => referenceTargetDeep(inv.getEffectiveInvokedExpr)
+    case paren: ScParenthesisedExpr =>
+      paren.innerElement match {
+        case Some(inner) => referenceTargetDeep(inner)
+        case None        => None
+      }
+    case _ => None
+  }
+
   implicit class ScalaResolveResultUtils(private val srr: ScalaResolveResult) extends AnyVal {
     def elementHasParameters: Boolean =
       srr.element match {

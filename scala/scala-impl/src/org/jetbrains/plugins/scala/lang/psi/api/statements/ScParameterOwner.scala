@@ -29,6 +29,8 @@ trait ScInterleavedClausesOwner extends ScParameterOwner with ScTypeParametersOw
 
   def signatureClauses: Seq[ScSignatureClause] = _signatureClauses()
 
+  def effectiveSignatureClauses: Seq[ScSignatureClause] = signatureClauses
+
   private val _signatureClauses = cached("signatureClauses", ModTracker.anyScalaPsiChange, () => {
     val clausesFromParameters = clauses.toSeq.flatMap { parameters =>
       val clausesInLexicalOrder = parameters.stubOrPsiChildren.collect {
@@ -73,17 +75,21 @@ object ScParameterOwner {
 
   trait WithContextBounds extends ScInterleavedClausesOwner {
     def effectiveParameterClauses: Seq[ScParameterClause] =
+      effectiveSignatureClauses.collect { case ScSignatureClause.TermClause(clause) => clause }
+
+    override def effectiveSignatureClauses: Seq[ScSignatureClause] =
       cachedInUserData(
-        "effectiveParameterClauses",
+        "effectiveSignatureClauses",
         this,
         BlockModificationTracker(this)
       ) {
         clauses
           .map(
             parameters =>
-              insertSyntheticParameterClause(
+              insertSyntheticSignatureClauses(
                 parameters,
                 parameters.clauses,
+                signatureClauses,
                 typeParameters,
                 isClassParameter = false
               )
@@ -184,33 +190,13 @@ object ScParameterOwner {
     }
   }
 
-  def insertSyntheticParameterClause(
-    parameters:       ScParameters,
-    effectiveClauses: Seq[ScParameterClause],
-    typeParameters:   Seq[ScTypeParam],
-    isClassParameter: Boolean
-  ): Seq[ScParameterClause] = {
-    val signatureClauses = parameters.getContext match {
-      case owner: ScInterleavedClausesOwner => owner.signatureClauses
-      case _                                => effectiveClauses.map(ScSignatureClause.TermClause)
-    }
-
-    insertSyntheticParameterClauseInterleaved(
-      parameters,
-      effectiveClauses,
-      signatureClauses,
-      typeParameters,
-      isClassParameter
-    )
-  }
-
-  private def insertSyntheticParameterClauseInterleaved(
+  def insertSyntheticSignatureClauses(
     parameters:       ScParameters,
     effectiveClauses: Seq[ScParameterClause],
     signatureClauses: Seq[ScSignatureClause],
     typeParameters:   Seq[ScTypeParam],
     isClassParameter: Boolean
-  ): Seq[ScParameterClause] = {
+  ): Seq[ScSignatureClause] = {
     import ScSignatureClause._
 
     effectiveClauses.foreach(setPrependedContextBoundTypeParameters(_, Seq.empty))
@@ -233,7 +219,8 @@ object ScParameterOwner {
     )
 
     val orphanClauses = effectiveClauses.filterNot(clausesInSignature.contains)
-    val resultClauses = scala.collection.mutable.ArrayBuffer.from(orphanClauses)
+    val resultClauses = scala.collection.mutable.ArrayBuffer.empty[ScSignatureClause]
+    resultClauses ++= orphanClauses.map(TermClause)
 
     def flushPendingTypeParameters(): Unit = {
       if (pendingTypeParameters.nonEmpty) {
@@ -242,7 +229,7 @@ object ScParameterOwner {
           parameters,
           isClassParameter,
           hasImplicit = false
-        ).foreach(resultClauses += _)
+        ).foreach(clause => resultClauses += TermClause(clause))
         pendingTypeParameters.clear()
       }
     }
@@ -251,6 +238,7 @@ object ScParameterOwner {
       case TypeClause(clause) =>
         if (contextBoundIsUsedInTypeParameterClause(clause, pendingTypeParameters.toSeq))
           flushPendingTypeParameters()
+        resultClauses += TypeClause(clause)
         pendingTypeParameters ++= clause.typeParameters
 
       case TermClause(clause) =>
@@ -263,7 +251,7 @@ object ScParameterOwner {
           setPrependedContextBoundTypeParameters(clause, pendingTypeParameters.toSeq)
           pendingTypeParameters.clear()
         }
-        resultClauses += clause
+        resultClauses += TermClause(clause)
     }
 
     flushPendingTypeParameters()

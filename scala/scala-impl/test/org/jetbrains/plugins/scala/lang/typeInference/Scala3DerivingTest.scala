@@ -131,7 +131,7 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
     s"""
        |trait Eq[+A]
        |object Eq {
-       |  val derived: Eq[Any] = ???
+       |  val derived: Eq[Bar] = ???
        |}
        |
        |trait Bar derives Eq

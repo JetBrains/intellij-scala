@@ -392,8 +392,8 @@ object ScExpression {
       }
     }
 
-    //has side effect!
-    private[ScExpression] def updateWithImplicitParameters(
+    //has side effects!
+    def updateWithImplicitParameters(
       tpe:               ScType,
       checkExpectedType: Boolean,
       fromUnderscore:    Boolean,
@@ -415,7 +415,7 @@ object ScExpression {
       updateDeep:        Boolean,
       isLeadingClause:   Boolean = false
     ): (ScType, Seq[ImplicitArgumentsClause]) =  {
-      val shouldUpdate = expr.is[MethodInvocation] || ScalaPsiUtil.isEtaExpandedExpression(expr)
+      val shouldUpdate = expr.is[MethodInvocation, ScGenericCall] || ScalaPsiUtil.isEtaExpandedExpression(expr)
 
       if (shouldUpdate) {
         val (updatedType, implicits) =
@@ -454,17 +454,24 @@ object ScExpression {
   private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
     //true if it wasn't updated in MethodInvocation method
     expr match {
-      case _: ScLiteral                       => false
-      case _: ScPrefixExpr                    => true
-      case _: ScPostfixExpr                   => true
-      case _: ScPolyFunctionExpr              => false
-      case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
-      case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
-      case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
-      case _: MethodInvocation                => false
-      case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
-      case fn: ScFunctionExpr if fn.isContext => false
-      case _                                  => true
+      case _: ScLiteral                                 => false
+      case _: ScPrefixExpr                              => true
+      case _: ScPostfixExpr                             => true
+      case _: ScPolyFunctionExpr                        => false
+      case ChildOf(ScInfixExpr(_, `expr`, _))           => false //implicit parameters are in infix expression
+      case ChildOf(_: ScGenericCall)                    => false //implicit parameters are in generic call
+      case ChildOf(ScAssignment(`expr`, _))             => false //simple var cannot have implicit parameters, otherwise it's for assignment
+      case _: MethodInvocation                          => false
+      case ScParenthesisedExpr(inner)                   => shouldUpdateImplicitParams(inner)
+      case fn: ScFunctionExpr if fn.isContext           => false
+      case gen: ScGenericCall                           =>
+        gen.getParent match {
+          // if this is a gen. call inside a method invocation,
+          // implicits belong to the invocation itself
+          case MethodInvocation(`gen`, _) => false
+          case _                          => true
+        }
+      case _                                            => true
     }
   }
 

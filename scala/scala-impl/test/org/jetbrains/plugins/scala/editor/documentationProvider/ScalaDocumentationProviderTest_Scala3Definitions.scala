@@ -681,3 +681,21 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 }
+
+final class ScalaDocumentationProviderTest_Scala3InterleavedDefinitions extends ScalaDocumentationProviderTestBase
+  with ScalaDocumentationsDefinitionSectionTesting {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version.isScala3
+
+  def testMethodWithInterleavedTypeParameterClauses(): Unit = {
+    val fileContent =
+      s"""def ${|}foo[T](first: T)[U](second: U): U = second
+         |""".stripMargin
+
+    val expectedContent =
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>[<span style="color:#20999d;">T</span>](first: <span style="color:#20999d;">T</span>)[<span style="color:#20999d;">U</span>](second: <span style="color:#20999d;">U</span>): <span style="color:#20999d;">U</span>""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+}

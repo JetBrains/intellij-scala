@@ -89,7 +89,7 @@ object RemoveBracesIntention {
       case ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
       case ifStmt: ScIf =>
         ifStmt.thenExpression.filter(isAncestorOfElement).orElse(ifStmt.elseExpression.filter(isAncestorOfElement))
-      case funDef: ScFunctionDefinition if !funDef.hasUnitResultType =>
+      case funDef: ScFunctionDefinition if !funDef.hasUnitResultType && !funDef.isConstructor =>
         funDef.body.filter(isAncestorOfElement)
       case tryExpr: ScTry =>
         tryExpr.expression.filter(isAncestorOfElement)

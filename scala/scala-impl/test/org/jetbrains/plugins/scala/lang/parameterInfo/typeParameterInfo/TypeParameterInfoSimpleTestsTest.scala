@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo.typeParameterInfo
 
+import org.jetbrains.plugins.scala.ScalaVersion
+
 class TypeParameterInfoSimpleTestsTest extends TypeParameterInfoTestBase {
 
   override def getTestDataPath: String =
@@ -32,4 +34,18 @@ class TypeParameterInfoSimpleTestsTest extends TypeParameterInfoTestBase {
   def testApplyFromVal(): Unit = doTest()
 
   def testInfixCall(): Unit = doTest()
+}
+
+class TypeParameterInfoInterleavedClausesTest extends TypeParameterInfoTestBase {
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}SimpleTests/"
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version.isScala3
+
+  def testInterleavedTypeParameterClause(): Unit = doTest()
+
+  def testInterleavedTypeParameterClauseAfterOmittedTypeArguments(): Unit = doTest()
+
+  def testInterleavedTypeParameterClauseAfterOmittedUsingClause(): Unit = doTest()
 }

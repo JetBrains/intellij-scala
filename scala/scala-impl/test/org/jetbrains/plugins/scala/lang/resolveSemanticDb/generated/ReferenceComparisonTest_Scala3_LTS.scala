@@ -2115,7 +2115,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part21 extends ReferenceCompariso
   def test_multiversal(): Unit = doTest("multiversal", true)
   def test_named_typeargs(): Unit = doTest("named-typeargs", true)
   def test_nameddefaults(): Unit = doTest("nameddefaults", false)
-  def test_namedTypeParams(): Unit = doTest("namedTypeParams", false)
+  def test_namedTypeParams(): Unit = doTest("namedTypeParams", true)
   def test_native_warning(): Unit = doTest("native-warning", true)
   def test_needstypeearly(): Unit = doTest("needstypeearly", true)
   def test_nested(): Unit = doTest("nested", true)

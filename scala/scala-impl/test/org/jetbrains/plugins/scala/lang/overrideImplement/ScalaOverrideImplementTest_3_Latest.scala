@@ -612,6 +612,64 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     )
   }
 
+  def testOverrideWithMultipleInterleavedTypeClauses(): Unit = {
+    val fileText =
+      s"""
+         |trait Base:
+         |  def foo[A](a: A)[B](b: B)[C](c: C): C = ???
+         |
+         |class Child extends Base:
+         |  $CARET_TAG
+         |""".stripMargin
+
+    val expectedText =
+      s"""
+         |trait Base:
+         |  def foo[A](a: A)[B](b: B)[C](c: C): C = ???
+         |
+         |class Child extends Base:
+         |  override def foo[A](a: A)[B](b: B)[C](c: C): C = ${SELECTION_START_TAG}super.foo[A](a)[B](b)[C](c)$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
+
+    runTest(
+      methodName = "foo",
+      fileText = fileText,
+      expectedText = expectedText,
+      isImplement = false,
+      settings = settingsWithIndentationBasedSyntax
+    )
+  }
+
+  def testOverrideWithInterleavedTypeClauseAfterUsingClause(): Unit = {
+    val fileText =
+      s"""
+         |trait Base:
+         |  def foo(first: Int)(using Int)[A](second: A): A = ???
+         |
+         |class Child extends Base:
+         |  $CARET_TAG
+         |""".stripMargin
+
+    val expectedText =
+      s"""
+         |trait Base:
+         |  def foo(first: Int)(using Int)[A](second: A): A = ???
+         |
+         |class Child extends Base:
+         |  override def foo(first: Int)(using Int)[A](second: A): A = ${SELECTION_START_TAG}super.foo(first)[A](second)$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
+
+    runTest(
+      methodName = "foo",
+      fileText = fileText,
+      expectedText = expectedText,
+      isImplement = false,
+      settings = settingsWithIndentationBasedSyntax
+    )
+  }
+
   def test_SCL_20350_ImplementUsingIndentationBasedSyntaxInsideAnEmptyGivenTemplateBody_Inner(): Unit = {
     val fileText =
       s"""

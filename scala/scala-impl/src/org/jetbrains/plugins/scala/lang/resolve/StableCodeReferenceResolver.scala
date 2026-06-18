@@ -33,9 +33,14 @@ class StableCodeReferenceResolver(
   private def processNamedTypeArgument(targ: ScTypeArgument, name: String): Array[ScalaResolveResult] =
     targ.getContext.getContext match {
       case gCall: ScGenericCall =>
+        val targetReference = referenceTargetDeep(gCall) match {
+          case Some(ref) => ref
+          case _         => return ScalaResolveResult.EMPTY_ARRAY
+        }
+
         val resolveResults =
-          if (shapeResolve) gCall.shapeMultiResolve.getOrElse(Array.empty)
-          else              gCall.multiResolve.getOrElse(Array.empty)
+          if (shapeResolve) targetReference.shapeResolve
+          else              targetReference.multiResolveScala(incomplete = false)
 
         resolveResults match {
           case Array(srr) =>

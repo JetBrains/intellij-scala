@@ -376,10 +376,44 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   def argsText(change: ChangeInfo, methodUsage: MethodUsageInfo): String = {
     val args = arguments(change, methodUsage)
-    if (args.isEmpty && !methodUsage.is[RefExpressionUsage])
-      "()"
-    else
-      args.map(_.mkString("(", ", ", ")")).mkString
+    methodUsage match {
+      case usage: MethodCallUsageInfo =>
+        methodCallArgsText(usage.call, args)
+      case _ =>
+        if (args.isEmpty && !methodUsage.is[RefExpressionUsage])
+          "()"
+        else
+          args.map(_.mkString("(", ", ", ")")).mkString
+    }
+  }
+
+  private def methodCallArgsText(call: ScMethodCall, args: Seq[Seq[String]]): String = {
+    val newTermClauses = args.map(_.mkString("(", ", ", ")"))
+    val text = renderClauses(callClauses(call), newTermClauses)
+    if (text.isEmpty && args.isEmpty) "()" else text
+  }
+
+  private def callClauses(expr: ScExpression): Seq[ClauseToRender] = {
+    expr match {
+      case call: ScMethodCall =>
+        callClauses(call.getInvokedExpr) :+ ClauseToRender.NewTerm
+      case call: ScGenericCall =>
+        callClauses(call.referencedExpr) :+ ClauseToRender.Existing(call.typeArgs.getText)
+      case _ =>
+        Seq.empty
+    }
+  }
+
+  private def renderClauses(clauses: Seq[ClauseToRender], newTermClauses: Seq[String]): String = {
+    val termClausesIterator = newTermClauses.iterator
+
+    val renderedClauses = clauses.flatMap {
+      case ClauseToRender.Existing(text)                         => Option(text)
+      case ClauseToRender.NewTerm if termClausesIterator.hasNext => Option(termClausesIterator.next())
+      case ClauseToRender.NewTerm                                => None
+    }
+
+    (renderedClauses ++ termClausesIterator.toSeq).mkString
   }
 
   private def newArgumentExpression(argsInfo: OldArgsInfo,
@@ -485,10 +519,37 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       keywordsAndAnnots + typedName + default
     }
 
-    change match {
+    val newTermClauses = change match {
       case sc: ScalaChangeInfo =>
-        sc.newParams.map(cl => cl.map(paramText).mkString("(", ", ", ")")).mkString
-      case _ => change.getNewParameters.toSeq.map(paramText).mkString("(", ", ", ")")
+        sc.newParams.map(cl => cl.map(paramText).mkString("(", ", ", ")"))
+      case _ =>
+        Seq(change.getNewParameters.toSeq.map(paramText).mkString("(", ", ", ")"))
+    }
+
+    def parameterClausesText(preservedClauses: Seq[ScSignatureClause]): String = {
+      val clausesToRender = preservedClauses.map {
+        case ScSignatureClause.TypeClause(clause) =>
+          ClauseToRender.Existing(clause.getText)
+        case ScSignatureClause.TermClause(_) =>
+          ClauseToRender.NewTerm
+      }
+
+      renderClauses(clausesToRender, newTermClauses)
+    }
+
+    usage.namedElement match {
+      case owner: ScInterleavedClausesOwner =>
+        usage.paramClauses
+          .map { parameters =>
+            owner.signatureClauses.filter {
+              case ScSignatureClause.TypeClause(clause) => clause.getParent == parameters
+              case ScSignatureClause.TermClause(clause) => clause.getParent == parameters
+            }
+          }
+          .map(parameterClausesText)
+          .getOrElse(parameterClausesText(Seq.empty))
+      case _ =>
+        parameterClausesText(Seq.empty)
     }
   }
 
@@ -504,6 +565,13 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     case p: JavaParameterInfo => p.isVarargType
     case _ => false
   }
+}
+
+private sealed trait ClauseToRender
+
+private object ClauseToRender {
+  final case class Existing(text: String) extends ClauseToRender
+  case object NewTerm extends ClauseToRender
 }
 
 private object ScalaChangeSignatureUsageHandler {

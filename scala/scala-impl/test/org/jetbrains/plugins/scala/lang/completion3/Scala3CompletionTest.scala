@@ -76,3 +76,29 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
        |""".stripMargin
   )("values")
 }
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+class Scala3InterleavedClausesCompletionTest extends ScalaCompletionTestBase {
+
+  @Test
+  def testParameterNameCompletionInInterleavedValueClause(): Unit = checkLookupItemsExist(
+    s"""
+       |object Test {
+       |  def foo[T](firstParam: T)[U](secondParam: U): Unit = ()
+       |
+       |  foo[Int](1)[String](sec$CARET)
+       |}
+       |""".stripMargin
+  )("secondParam")
+
+  @Test
+  def testParameterNameCompletionInThirdInterleavedValueClause(): Unit = checkLookupItemsExist(
+    s"""
+       |object Test {
+       |  def foo[T](firstParam: T)[U](secondParam: U)[V](thirdParam: V): Unit = ()
+       |
+       |  foo[Int](1)[String]("two")[Boolean](thi$CARET)
+       |}
+       |""".stripMargin
+  )("thirdParam")
+}
