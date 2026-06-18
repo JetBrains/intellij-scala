@@ -425,6 +425,23 @@ object IntroduceExpressions {
                     firstRange = firstRange.shiftLeft(ws.getTextLength)
                     ws.delete()
                   }
+                  else {
+                    // move comments and whitespaces inside the block
+                    val toMove = replaced.prevSiblings.takeWhile(_.isWhitespaceOrComment).toList
+                    val anchor = replaced.getFirstChild
+                    if (toMove.nonEmpty && anchor != null) {
+                      // use copies to avoid illegal access errors after deletion
+                      val copies = toMove.map(_.copy())
+                      // note: the list is backwards (bottom to top)
+                      replaced.getParent.deleteChildRange(toMove.last, toMove.head)
+                      copies.foreach { copy =>
+                        replaced.addAfter(copy, anchor)
+                      }
+                      // add a single space between the block and the previous element
+                      replaced.getParent.addBefore(createWhitespace, replaced)
+                      firstRange = firstRange.shiftRight(1)
+                    }
+                  }
                 case _ =>
               }
               replaced

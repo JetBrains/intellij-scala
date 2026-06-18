@@ -9,12 +9,11 @@ class A {
 -------
 class A {
   def test(b: Boolean): Unit = {
-    if (b)
+    if (b) {
       //comment
-      {
-        val value: String = "yes"
-        println(value)
-      }
+      val value: String = "yes"
+      println(value)
+    }
     else println("no")
   }
 }

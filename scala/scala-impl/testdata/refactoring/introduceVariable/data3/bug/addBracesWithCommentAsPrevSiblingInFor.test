@@ -8,11 +8,10 @@ class A {
 -------
 class A {
   def test(): Unit = {
-    for (i <- 1 to 5) do
+    for (i <- 1 to 5) do {
       //comment
-      {
-        val value: String = "text"
-        println(value)
-      }
+      val value: String = "text"
+      println(value)
+    }
   }
 }

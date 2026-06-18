@@ -1,7 +1,10 @@
 class A {
   def test(b: Boolean): Unit = {
-    if b then
-      //comment
+    if (b)
+      //comment 1
+
+      //comment 2
+
       println(<selection>"yes"</selection>)
     else println("no")
   }
@@ -9,8 +12,11 @@ class A {
 -------
 class A {
   def test(b: Boolean): Unit = {
-    if b then {
-      //comment
+    if (b) {
+      //comment 1
+
+      //comment 2
+
       val value: String = "yes"
       println(value)
     }
