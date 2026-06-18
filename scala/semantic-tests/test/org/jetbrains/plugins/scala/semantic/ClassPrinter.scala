@@ -222,7 +222,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case e: ScSelfTypeElement => e.name
         case e: ScNamedElement => e.nameContext match {
           case m: ScMember if !m.isLocal && !m.isTopLevel =>
-            if (e.getContainingFile == r.getContainingFile) m.containingClass.name + ".this." + r.refName
+            if (e.getContainingFile == r.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
             else m.qualifiedNameOpt.getOrElse(r.refName)
           case _ => r.refName
         }

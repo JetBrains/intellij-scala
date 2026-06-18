@@ -146,13 +146,15 @@ object SourceCode {
         printSelectors(selectors)
 
       case cdef @ ClassDef(name, DefDef(_, paramss, _, _), parents, self, stats) =>
+        val isAnonymous = name == "$anon"
+
         printDefAnnotations(cdef)
         printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
         if (flags.is(Flags.Case)) this += highlightKeyword("case ")
 
         if (name == "package$") {
@@ -161,6 +163,7 @@ object SourceCode {
         else if (flags.is(Flags.Module)) this += highlightKeyword("object ") += highlightTypeDef(name.stripSuffix("$"))
         else if (flags.is(Flags.Trait)) this += highlightKeyword("trait ") += highlightTypeDef(name)
         else if (flags.is(Flags.Abstract)) this += highlightKeyword("abstract class ") += highlightTypeDef(name)
+        else if (isAnonymous) ()
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
         if (!flags.is(Flags.Module)) {
@@ -179,7 +182,9 @@ object SourceCode {
           case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") => false
           case _ => true
         }
-        if (parents1.nonEmpty)
+        if (isAnonymous)
+          this += highlightKeyword("new ")
+        else if (parents1.nonEmpty)
           this += highlightKeyword(" extends ")
 
         def printParent(parent: Tree /* Term | TypeTree */, needEmptyParens: Boolean = false): Unit = parent match {
@@ -261,6 +266,8 @@ object SourceCode {
           case _ =>
             if (stats1.nonEmpty)
               printBody(printSelf = false)
+            else if (isAnonymous)
+              this += " {}"
         }
         this
 
@@ -294,7 +301,8 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(statements, _) if statements.nonEmpty => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) =>
+                  printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
@@ -346,7 +354,8 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(statements, _) if statements.nonEmpty => printTree(tree)
+                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) =>
+                  printTree(tree)
                 case _ => indented {
                   this += lineBreak()
                   printTree(tree)
@@ -376,9 +385,9 @@ object SourceCode {
 
       case This(id) =>
         id match {
-          case Some(name) =>
+          case Some(name) if name != "$anon" =>
             this += name.stripSuffix("$") += "."
-          case None =>
+          case _ =>
         }
         this += "this"
 
@@ -494,12 +503,16 @@ object SourceCode {
           printTree(body)
         }
 
-      case Block(stats0, expr) =>
-        val stats = stats0.filter {
-          case tree: ValDef => !tree.symbol.flags.is(Flags.Module)
-          case _ => true
-        }
-        printFlatBlock(stats, expr)
+      case Block(stats0, expr) => stats0 match {
+        case List(td @ ClassDef("$anon", _, _, _, _)) =>
+          printTree(td)
+        case _ =>
+          val stats = stats0.filter {
+            case tree: ValDef => !tree.symbol.flags.is(Flags.Module)
+            case _ => true
+          }
+          printFlatBlock(stats, expr)
+      }
 
       case Inlined(_, bindings, expansion) =>
         printFlatBlock(bindings, expansion)
@@ -1252,9 +1265,13 @@ object SourceCode {
 
       case ThisType(tp) =>
         tp match {
-          case tp: TypeRef if !tp.typeSymbol.flags.is(Flags.Module) =>
-            printFullClassName(tp)
-            this += highlightTypeDef(".this")
+          case tp: TypeRef if !tp.typeSymbol.flags.is(Flags.Module)=>
+            if (tp.name == "$anon") {
+              this += highlightTypeDef("this")
+            } else {
+              printFullClassName(tp)
+              this += highlightTypeDef(".this")
+            }
           case TypeRef(prefix, name) if name.endsWith("$") =>
             if (fullNames){
               prefix match {
