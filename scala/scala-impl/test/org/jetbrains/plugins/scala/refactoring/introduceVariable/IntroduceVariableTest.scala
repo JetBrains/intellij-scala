@@ -18,6 +18,17 @@ class IntroduceVariableScala3Test extends IntroduceVariableTestBase {
   override protected def relativeTestDataPath: Path = Path.of("refactoring", "introduceVariable", "data3")
 
   override protected def language: Language = Scala3Language.INSTANCE
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+}
+
+class IntroduceVariableScala3BracelessTest extends IntroduceVariableScala3Test {
+  override protected def relativeTestDataPath: Path = Path.of("refactoring", "introduceVariable", "data3braceless")
+
+  override def setUp(): Unit = {
+    super.setUp()
+    scalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+  }
 }
 
 abstract class IntroduceVariableTestBase extends SdkFileSetTestBase with ActionTestBase {
