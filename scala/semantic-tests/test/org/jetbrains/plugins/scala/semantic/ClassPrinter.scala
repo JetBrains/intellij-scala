@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssign
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
@@ -94,19 +95,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val previousLength = sb.length
 
-    cls.extendsBlock.members.filter(m => withPrivate || !isPrivate(m)).foreach {
-      case f: ScFunction =>
-        sb ++= textOf(f, indent)
-      case v: ScValueOrVariable =>
-        sb ++= textOf(v, v.declaredElements.head, indent)
-      case t: ScTypeAlias =>
-        sb ++= textOf(t, indent)
-      case t: ScExtension =>
-        sb ++= textOf(t, indent)
-      case td: ScTypeDefinition =>
-        printTo(sb, td, indent + "  ")
-      case _ =>
-    }
+    printTo(sb, cls.extendsBlock, indent)
 
     cls match {
       case e: ScEnum =>
@@ -129,6 +118,21 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     sb ++= "\n"
   }
+
+  private def printTo(sb: StringBuilder, extendsBlock: ScExtendsBlock, indent: String): Unit =
+    extendsBlock.members.filter(m => withPrivate || !isPrivate(m)).foreach {
+      case f: ScFunction =>
+        sb ++= textOf(f, indent)
+      case v: ScValueOrVariable =>
+        sb ++= textOf(v, v.declaredElements.head, indent)
+      case t: ScTypeAlias =>
+        sb ++= textOf(t, indent)
+      case t: ScExtension =>
+        sb ++= textOf(t, indent)
+      case td: ScTypeDefinition =>
+        printTo(sb, td, indent + "  ")
+      case _ =>
+    }
 
   private def isPrivate(e: ScModifierListOwner): Boolean =
     e.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
@@ -232,7 +236,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case e: ScNewTemplateDefinition =>
       "new " + e.firstConstructorInvocation
         .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
-        .getOrElse("")
+        .getOrElse("") + " {" + {
+          val sb = new StringBuilder()
+          printTo(sb, e.extendsBlock, indent + "  ")
+          if (sb.nonEmpty) sb ++= indent + "  "
+          sb.toString
+        } + "}"
     case e => "<expr>"
   }
 
