@@ -236,7 +236,8 @@ object SourceCode {
         }
         val stats1 = stats.collect {
           case stat: Definition if keepDefinition(stat) => stat
-          case stat @ (_:Import | _:Export) => stat
+          case stat: Import if !fullNames => stat
+          case stat: Export => stat
           case stat: Term => stat
         }
 
@@ -301,7 +302,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) =>
+                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) && !statements.forall { case Import(_, _) => true; case _ => false } =>
                   printTree(tree)
                 case _ => indented {
                   this += lineBreak()
@@ -354,7 +355,7 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
-                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) =>
+                case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) && !statements.forall { case Import(_, _) => true; case _ => false } =>
                   printTree(tree)
                 case _ => indented {
                   this += lineBreak()
@@ -509,6 +510,7 @@ object SourceCode {
         case _ =>
           val stats = stats0.filter {
             case tree: ValDef => !tree.symbol.flags.is(Flags.Module)
+            case Import(_, _) => !fullNames
             case _ => true
           }
           printFlatBlock(stats, expr)
