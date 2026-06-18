@@ -8,10 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScGenericCall, ScIf, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScThisReference, ScTry, ScUnderscoreSection, ScUnitExpr, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
@@ -180,7 +181,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfStatement(s: ScBlockStatement, indent: String): String = s match {
-    case b: ScBlock => "{" + b.statements.map(s => textOfStatement(s, indent)).mkString("") + "\n" + indent + "}"
+    case b: ScBlock => "{" + b.statements.filter(!_.is[ScImportStmt]).map(s => textOfStatement(s, indent)).mkString("") + "\n" + indent + "}"
     case t: ScTypeDefinition =>
       val sb = new StringBuilder()
       printTo(sb, t)
@@ -267,6 +268,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def normalized(e: ScExpression): ScExpression = e match {
     case b: ScBlock if normalize => b.statements match {
       case Seq(e: ScExpression) => e
+      case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => statements.last.asInstanceOf[ScExpression]
       case _ => b
     }
     case e => e
