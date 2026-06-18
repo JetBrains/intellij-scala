@@ -23,4 +23,16 @@ trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
 
 object ScPrefixExpr {
   def unapply(e: ScPrefixExpr): Some[(ScReferenceExpression, ScExpression)] = Some(e.operation, e.operand)
+
+  def isAssignmentLhs(prefix: ScPrefixExpr): Boolean =
+    prefix.getParent match {
+      case ScAssignment(`prefix`, _) => true
+      case _                         => false
+    }
+
+  def isAssignmentLhs(expression: ScExpression): Boolean =
+    expression match {
+      case prefix: ScPrefixExpr => isAssignmentLhs(prefix)
+      case _                    => false
+    }
 }

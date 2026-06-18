@@ -353,6 +353,22 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_4)
 
+  def testUnaryAssignmentDoesNotRequireImplicitParametersOfUnaryGetter(): Unit = {
+    assertNothing(messages3(
+      """
+        |class C {
+        |  def unary_!(using Int): C = this
+        |  def `unary_!_=`(value: Int): Unit = ()
+        |}
+        |
+        |object aaa {
+        |  val c = new C
+        |  !c = 123
+        |}
+        |""".stripMargin
+    ))
+  }
+
   // SCL-21490
   def testGivenPatternsInFor(): Unit = {
     assertNothing(messages3(

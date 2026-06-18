@@ -119,6 +119,12 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         case _                           => None
       }
 
+      def isUnaryAssignmentLhs: Boolean =
+        this match {
+          case prefix: ScPrefixExpr => ScPrefixExpr.isAssignmentLhs(prefix)
+          case _                    => false
+        }
+
       val context = methodInvocationContext(this)
 
       val shouldUpdate = argKind match {
@@ -144,7 +150,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           !isExplicit
       }
 
-      if (shouldUpdate) {
+      if (shouldUpdate && !isUnaryAssignmentLhs) {
         val isLeadingClause = argKind == ImplicitClausePosition.Leading
 
         val updateDeep =

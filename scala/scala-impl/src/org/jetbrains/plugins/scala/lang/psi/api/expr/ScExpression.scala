@@ -454,24 +454,28 @@ object ScExpression {
   private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
     //true if it wasn't updated in MethodInvocation method
     expr match {
-      case _: ScLiteral                                 => false
-      case _: ScPrefixExpr                              => true
-      case _: ScPostfixExpr                             => true
-      case _: ScPolyFunctionExpr                        => false
-      case ChildOf(ScInfixExpr(_, `expr`, _))           => false //implicit parameters are in infix expression
-      case ChildOf(_: ScGenericCall)                    => false //implicit parameters are in generic call
-      case ChildOf(ScAssignment(`expr`, _))             => false //simple var cannot have implicit parameters, otherwise it's for assignment
-      case _: MethodInvocation                          => false
-      case ScParenthesisedExpr(inner)                   => shouldUpdateImplicitParams(inner)
-      case fn: ScFunctionExpr if fn.isContext           => false
-      case gen: ScGenericCall                           =>
+      case prefix: ScPrefixExpr if ScPrefixExpr.isAssignmentLhs(prefix)                                      => false
+      case ChildOf(prefix: ScPrefixExpr) if prefix.operation == expr && ScPrefixExpr.isAssignmentLhs(prefix) => false
+      case _: ScLiteral                       => false
+      case _: ScPrefixExpr                    => true
+      case _: ScPostfixExpr                   => true
+      case _: ScPolyFunctionExpr              => false
+      case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
+      case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
+      case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
+      case _: MethodInvocation                => false
+      case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
+      case fn: ScFunctionExpr if fn.isContext => false
+      case gen: ScGenericCall                 =>
         gen.getParent match {
-          // if this is a gen. call inside a method invocation,
-          // implicits belong to the invocation itself
+          //`foo[Bar](baz)` or `foo bar[Baz] Qux` case
+          //trailing implicits belong to the invocation
           case MethodInvocation(`gen`, _) => false
+          //Standalone gen. call `foo[Bar]` -> trailing implicits belong
+          //to the call itself
           case _                          => true
         }
-      case _                                            => true
+      case _ => true
     }
   }
 
