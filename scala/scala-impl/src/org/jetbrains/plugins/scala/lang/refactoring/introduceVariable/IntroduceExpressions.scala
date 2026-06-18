@@ -421,8 +421,10 @@ object IntroduceExpressions {
               val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}", features))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") =>
-                  firstRange = firstRange.shiftLeft(ws.getTextLength)
-                  ws.delete()
+                  if (!ws.getPrevSibling.is[PsiComment]) {
+                    firstRange = firstRange.shiftLeft(ws.getTextLength)
+                    ws.delete()
+                  }
                 case _ =>
               }
               replaced
