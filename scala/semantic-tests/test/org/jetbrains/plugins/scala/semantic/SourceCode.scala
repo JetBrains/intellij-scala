@@ -1099,7 +1099,9 @@ object SourceCode {
 
       case Refined(tpt, refinements) =>
         printTypeTree(tpt)
-        inBlock(printTrees(refinements, "; "))
+        this += " { "
+        printTrees(refinements, "; ")
+        this += " }"
 
       case Applied(tpt, args) =>
         tpt.tpe match {
@@ -1406,26 +1408,24 @@ object SourceCode {
       def rec(tp: TypeRepr): Unit = tp match {
         case Refinement(parent, name, info) =>
           rec(parent)
-          indented {
-            this += lineBreak()
-            info match {
-              case info: TypeBounds =>
-                this += highlightKeyword("type ") += highlightTypeDef(name)
-                printBounds(info)
-              case ByNameType(_) | MethodType(_, _, _) | TypeLambda(_, _, _) =>
-                this += highlightKeyword("def ") += highlightTypeDef(name)
-                printMethodicType(info)
-              case info: TypeRepr =>
-                this += highlightKeyword("val ") += highlightValDef(name)
-                printMethodicType(info)
-            }
+          this += "; "
+          info match {
+            case info: TypeBounds =>
+              this += highlightKeyword("type ") += highlightTypeDef(name)
+              printBounds(info)
+            case ByNameType(_) | MethodType(_, _, _) | TypeLambda(_, _, _) =>
+              this += highlightKeyword("def ") += highlightTypeDef(name)
+              printMethodicType(info)
+            case info: TypeRepr =>
+              this += highlightKeyword("val ") += highlightValDef(name)
+              printMethodicType(info)
           }
         case tp =>
           printType(tp)
-          this += " {"
+          this += " { "
       }
       rec(tpe)
-      this += lineBreak() += "}"
+      this += " }"
     }
 
     private def printMethodicTypeParams(paramNames: List[String], params: List[TypeRepr])(using elideThis: Option[Symbol]): Unit = {
