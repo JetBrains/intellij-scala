@@ -1,0 +1,10 @@
+Document tests/pos/i21415.scala
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:33) scala/compiletime/testing/
+(2:34..2:49) scala/compiletime/testing/package$package.typeCheckErrors().
+(4:14..4:17) scala/Int#
+(4:20..4:24) scala/Unit#
+(4:27..4:30) scala/Predef.`???`().
+(6:2..6:6) scala/main#
+

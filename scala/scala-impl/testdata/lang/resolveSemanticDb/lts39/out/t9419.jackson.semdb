@@ -1,0 +1,19 @@
+Document tests/pos/t9419.jackson.scala
+(5:8..5:13) scala/
+(5:14..5:22) scala/language.
+(5:23..5:42) scala/language.implicitConversions.
+(8:14..8:15) _empty_/EnrichedType#[X] -> 7:20
+(10:22..10:34) _empty_/EnrichedType# -> 7:7
+(10:35..10:40) scala/Predef.Class#
+(14:31..14:36) scala/Predef.Class#
+(14:42..14:48) _empty_/ClassW# -> 10:7
+(14:55..14:61) _empty_/ClassW# -> 10:7
+(15:22..15:23) _empty_/Test#mkClassW().(c) -> 14:25
+(17:17..17:22) scala/Predef.Class#
+(17:29..17:31) _empty_/Test#test1().(c1) -> 17:13
+(17:32..17:49) _empty_/ClassW#extendsScalaClass(). -> 11:7
+(18:17..18:22) scala/Predef.Class#
+(18:29..18:37) _empty_/Test#mkClassW(). -> 14:16
+(18:38..18:40) _empty_/Test#test2().(c2) -> 18:13
+(18:42..18:59) _empty_/ClassW#extendsScalaClass(). -> 11:7
+

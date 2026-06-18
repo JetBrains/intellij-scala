@@ -1,0 +1,43 @@
+Document tests/pos/interleaving-functor.scala
+(7:19..7:20) _empty_/functorInterleaving.Functor#[F] -> 6:17
+(7:21..7:22) _empty_/functorInterleaving.Functor#map().[A] -> 7:13
+(7:31..7:32) _empty_/functorInterleaving.Functor#map().[A] -> 7:13
+(7:36..7:37) _empty_/functorInterleaving.Functor#map().[B] -> 7:25
+(7:40..7:41) _empty_/functorInterleaving.Functor#[F] -> 6:17
+(7:42..7:43) _empty_/functorInterleaving.Functor#map().[B] -> 7:25
+(10:9..10:16) _empty_/functorInterleaving.Functor# -> 6:9
+(10:17..10:21) scala/package.List#
+(11:19..11:23) scala/package.List#
+(11:24..11:25) _empty_/functorInterleaving.given_Functor_List.map().[A] -> 11:13
+(11:34..11:35) _empty_/functorInterleaving.given_Functor_List.map().[A] -> 11:13
+(11:39..11:40) _empty_/functorInterleaving.given_Functor_List.map().[B] -> 11:28
+(11:43..11:47) scala/package.List#
+(11:48..11:49) _empty_/functorInterleaving.given_Functor_List.map().[B] -> 11:28
+(12:7..12:8) _empty_/functorInterleaving.given_Functor_List.map().(x) -> 11:16
+(12:9..12:12) scala/collection/immutable/List#map().
+(12:13..12:14) _empty_/functorInterleaving.given_Functor_List.map().(f) -> 11:31
+(14:34..14:41) _empty_/functorInterleaving.Functor# -> 6:9
+(14:34..14:41) _empty_/functorInterleaving.assertTransformation().[F] -> 14:28
+(14:56..14:57) _empty_/functorInterleaving.assertTransformation().[F] -> 14:28
+(14:58..14:59) _empty_/functorInterleaving.assertTransformation().[A] -> 14:43
+(14:75..14:76) _empty_/functorInterleaving.assertTransformation().[F] -> 14:28
+(14:77..14:78) _empty_/functorInterleaving.assertTransformation().[B] -> 14:62
+(14:90..14:91) _empty_/functorInterleaving.assertTransformation().[A] -> 14:43
+(14:95..14:96) _empty_/functorInterleaving.assertTransformation().[B] -> 14:62
+(14:99..14:103) scala/Unit#
+(15:5..15:11) scala/Predef.assert(+1).
+(15:12..15:20) _empty_/functorInterleaving.assertTransformation().(expected) -> 14:65
+(15:21..15:23) scala/Any#`==`().
+(15:24..15:30) scala/Predef.summon().
+(15:31..15:38) _empty_/functorInterleaving.Functor# -> 6:9
+(15:39..15:40) _empty_/functorInterleaving.assertTransformation().[F] -> 14:28
+(15:43..15:46) _empty_/functorInterleaving.Functor#map(). -> 7:9
+(15:47..15:55) _empty_/functorInterleaving.assertTransformation().(original) -> 14:46
+(15:57..15:64) _empty_/functorInterleaving.assertTransformation().(mapping) -> 14:81
+(17:4..17:8) scala/main#
+(18:5..18:25) _empty_/functorInterleaving.assertTransformation(). -> 14:7
+(18:26..18:30) scala/package.List.
+(18:42..18:46) scala/package.List.
+(18:67..18:68) scala/StringContext#s().
+(18:71..18:74) local0 -> 18:60
+

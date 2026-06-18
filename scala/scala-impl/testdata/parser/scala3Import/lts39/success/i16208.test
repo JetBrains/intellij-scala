@@ -1,0 +1,228 @@
+
+class Ann(x: Any) extends annotation.Annotation
+object Message:
+  implicit def toNoExplanation(str: String): Message @Ann(str) = ???
+class Message
+
+object report:
+  def error(x: Message): Unit = ???
+
+def test =
+  report.error("a") // works
+  report.error("a".stripMargin) // was an error
+-----
+ScalaFile
+  ScClass: Ann
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ann')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.Annotation
+            CodeReferenceElement: annotation.Annotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n')
+  ScObject: Message
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Message')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: toNoExplanation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toNoExplanation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: str
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('str')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeWithAnnotation: Message @Ann(str)
+            SimpleType: Message
+              CodeReferenceElement: Message
+                PsiElement(identifier)('Message')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: Ann
+                      CodeReferenceElement: Ann
+                        PsiElement(identifier)('Ann')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: str
+                        PsiElement(identifier)('str')
+                      PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScClass: Message
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Message')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: report
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('report')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: error
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('error')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Message
+                    CodeReferenceElement: Message
+                      PsiElement(identifier)('Message')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: report.error
+          ReferenceExpression: report
+            PsiElement(identifier)('report')
+          PsiElement(.)('.')
+          PsiElement(identifier)('error')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"a"')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// works')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: report.error
+          ReferenceExpression: report
+            PsiElement(identifier)('report')
+          PsiElement(.)('.')
+          PsiElement(identifier)('error')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: "a".stripMargin
+            StringLiteral
+              PsiElement(string content)('"a"')
+            PsiElement(.)('.')
+            PsiElement(identifier)('stripMargin')
+          PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was an error')

@@ -1,0 +1,17 @@
+Document tests/pos/i1181c.scala
+(5:10..5:12) _empty_/Bar#[DD] -> 4:11
+(5:13..5:16) scala/Int#
+(5:18..5:21) scala/Int#
+(9:18..9:21) _empty_/Foo# -> 2:7
+(9:22..9:23) _empty_/Test.F#[X] -> 9:10
+(11:22..11:25) _empty_/Foo# -> 2:7
+(11:26..11:27) _empty_/Test.LAMBDA#[X] -> 11:15
+(12:21..12:24) _empty_/Bar# -> 4:7
+(12:25..12:31) _empty_/Test.LAMBDA# -> 11:8
+(13:24..13:25) _empty_/Test.Baz#foo().[M] -> 13:13
+(13:26..13:29) scala/Int#
+(13:31..13:34) scala/Int#
+(13:39..13:40) _empty_/Test.Baz#foo().(x) -> 13:21
+(15:5..15:8) _empty_/Test.Baz#foo(). -> 13:9
+(15:9..15:10) _empty_/Bar#x. -> 5:7
+

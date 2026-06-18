@@ -1,0 +1,24 @@
+Document tests/pos/i19521.scala
+(5:27..5:33) scala/Predef.String#
+(5:41..5:45) _empty_/Expr# -> 4:14
+(5:46..5:47) _empty_/ELet#[A] -> 5:18
+(5:58..5:62) _empty_/Expr# -> 4:14
+(5:63..5:64) _empty_/ELet#[A] -> 5:18
+(5:65..5:66) scala/`|`#
+(5:67..5:71) _empty_/PLet# -> 2:22
+(7:14..7:18) _empty_/Expr# -> 4:14
+(7:19..7:20) _empty_/i19521$package.go().[P] -> 7:8
+(7:24..7:25) _empty_/i19521$package.go().[P] -> 7:8
+(7:28..7:29) _empty_/i19521$package.go().(e) -> 7:11
+(8:8..8:12) _empty_/ELet.
+(9:12..9:16) _empty_/Expr# -> 4:14
+(9:17..9:18) _empty_/i19521$package.go().[P] -> 7:8
+(9:20..9:21) scala/`|`#
+(9:22..9:26) _empty_/ELet# -> 5:12
+(9:27..9:28) _empty_/i19521$package.go().[P] -> 7:8
+(9:32..9:35) scala/Predef.`???`().
+(10:12..10:16) _empty_/Expr# -> 4:14
+(10:17..10:18) _empty_/i19521$package.go().[P] -> 7:8
+(10:22..10:23) local0 -> 9:9
+(13:5..13:8) scala/Predef.`???`().
+

@@ -1,0 +1,29 @@
+Document tests/pos/6322.scala
+(7:18..7:20) _empty_/Test.F1#[T1] -> 6:12
+(7:23..7:27) scala/Unit#
+(10:15..10:16) _empty_/Test.F#[N] -> 10:10
+(11:10..11:11) _empty_/Test.A# -> 2:15
+(11:15..11:17) _empty_/Test.F1# -> 6:9
+(11:18..11:24) scala/Predef.String#
+(12:10..12:11) _empty_/Test.B# -> 3:15
+(12:15..12:16) _empty_/Test.F# -> 10:8
+(12:17..12:18) _empty_/Test.A# -> 2:15
+(13:10..13:11) _empty_/Test.C# -> 4:15
+(13:15..13:16) _empty_/Test.F# -> 10:8
+(13:17..13:18) _empty_/Test.B# -> 3:15
+(16:11..16:12) _empty_/Test.F# -> 10:8
+(16:13..16:14) _empty_/Test.A# -> 2:15
+(16:18..16:21) scala/Predef.`???`().
+(17:3..17:5) _empty_/Test.s1. -> 16:7
+(17:6..17:11) _empty_/Test.F1#apply(). -> 7:9
+(19:11..19:12) _empty_/Test.F# -> 10:8
+(19:13..19:14) _empty_/Test.B# -> 3:15
+(19:18..19:21) scala/Predef.`???`().
+(20:3..20:5) _empty_/Test.s2. -> 19:7
+(20:6..20:11) _empty_/Test.F1#apply(). -> 7:9
+(22:11..22:12) _empty_/Test.F# -> 10:8
+(22:13..22:14) _empty_/Test.C# -> 4:15
+(22:18..22:21) scala/Predef.`???`().
+(23:3..23:5) _empty_/Test.s3. -> 22:7
+(23:6..23:11) _empty_/Test.F1#apply(). -> 7:9
+

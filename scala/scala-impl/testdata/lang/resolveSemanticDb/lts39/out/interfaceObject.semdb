@@ -1,0 +1,4 @@
+Document tests/pos/interfaceObject.scala
+(4:17..4:18) _empty_/A# -> 1:7
+(5:13..5:14) _empty_/A#O. -> 2:10
+

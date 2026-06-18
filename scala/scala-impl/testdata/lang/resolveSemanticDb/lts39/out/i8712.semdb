@@ -1,0 +1,22 @@
+Document tests/pos/i8712.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/tailrec#
+(4:22..4:25) _empty_/Foo# -> 3:14
+(4:26..4:27) _empty_/Bar#[A] -> 4:16
+(4:38..4:41) _empty_/Foo# -> 3:14
+(4:42..4:43) _empty_/Bar#[A] -> 4:16
+(5:23..5:24) _empty_/Done#[A] -> 5:17
+(5:34..5:37) _empty_/Foo# -> 3:14
+(5:38..5:39) _empty_/Done#[A] -> 5:17
+(8:4..8:11) scala/annotation/tailrec#
+(9:18..9:21) _empty_/Foo# -> 3:14
+(9:22..9:23) _empty_/Test.runT().[A] -> 9:12
+(9:27..9:28) _empty_/Test.runT().[A] -> 9:12
+(9:31..9:32) _empty_/Test.runT().(c) -> 9:15
+(10:10..10:13) _empty_/Bar.
+(10:20..10:24) _empty_/Test.runT(). -> 9:7
+(10:25..10:26) local1 -> 10:14
+(11:10..11:14) _empty_/Done.
+(11:21..11:22) local3 -> 11:15
+

@@ -1,0 +1,9 @@
+Document tests/pos/i11226b.scala
+(5:9..5:10) _empty_/A# -> 1:7
+(6:12..6:15) scala/Int#
+(6:22..6:25) scala/Any#
+(8:17..8:18) _empty_/B# -> 4:7
+(9:9..9:10) _empty_/A# -> 1:7
+(10:12..10:13) _empty_/A#T# -> 2:9
+(10:16..10:19) scala/Any#
+

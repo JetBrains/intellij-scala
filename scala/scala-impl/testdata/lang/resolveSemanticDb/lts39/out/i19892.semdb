@@ -1,0 +1,55 @@
+Document tests/pos/i19892.scala
+(2:13..2:24) _empty_/EndpointOps# -> 7:7
+(2:25..2:26) _empty_/ZPartialServerEndpoint#[A] -> 1:42
+(2:28..2:29) _empty_/ZPartialServerEndpoint#[I] -> 1:48
+(2:31..2:32) _empty_/ZPartialServerEndpoint#[E] -> 1:51
+(2:34..2:35) _empty_/ZPartialServerEndpoint#[O] -> 1:54
+(2:37..2:38) _empty_/ZPartialServerEndpoint#[C] -> 1:58
+(3:33..3:55) _empty_/ZPartialServerEndpoint# -> 1:16
+(3:56..3:57) _empty_/ZPartialServerEndpoint#[R] -> 1:39
+(3:59..3:60) _empty_/ZPartialServerEndpoint#[A] -> 1:42
+(3:62..3:63) _empty_/ZPartialServerEndpoint#[B] -> 1:45
+(3:65..3:66) _empty_/ZPartialServerEndpoint#[I] -> 1:48
+(3:68..3:69) _empty_/ZPartialServerEndpoint#[E] -> 1:51
+(3:71..3:72) _empty_/ZPartialServerEndpoint#[O] -> 1:54
+(3:74..3:76) _empty_/ZPartialServerEndpoint#ThisType#[_R] -> 3:27
+(4:52..4:74) _empty_/ZPartialServerEndpoint# -> 1:16
+(4:75..4:76) _empty_/ZPartialServerEndpoint#[R] -> 1:39
+(4:78..4:80) _empty_/ZPartialServerEndpoint#EndpointType#[_A] -> 4:30
+(4:82..4:83) _empty_/ZPartialServerEndpoint#[B] -> 1:45
+(4:85..4:87) _empty_/ZPartialServerEndpoint#EndpointType#[_I] -> 4:34
+(4:89..4:91) _empty_/ZPartialServerEndpoint#EndpointType#[_E] -> 4:38
+(4:93..4:95) _empty_/ZPartialServerEndpoint#EndpointType#[_O] -> 4:42
+(4:97..4:99) _empty_/ZPartialServerEndpoint#EndpointType#[_R] -> 4:47
+(10:15..10:27) _empty_/EndpointOps#EndpointType# -> 8:8
+(10:28..10:29) _empty_/EndpointOps#[A] -> 7:19
+(10:31..10:32) _empty_/EndpointOps#[I] -> 7:22
+(10:34..10:35) _empty_/EndpointOps#[E] -> 7:25
+(10:37..10:38) _empty_/EndpointOps#out().[T] -> 10:11
+(10:40..10:41) _empty_/EndpointOps#[R] -> 7:32
+(11:22..11:28) scala/Predef.String#
+(11:31..11:39) _empty_/EndpointOps#ThisType# -> 9:8
+(11:40..11:41) _empty_/EndpointOps#[R] -> 7:32
+(15:27..15:49) _empty_/ZPartialServerEndpoint# -> 1:16
+(15:50..15:51) _empty_/Test.basicEndpoint().[R] -> 15:21
+(15:53..15:56) scala/Any#
+(15:58..15:61) scala/Any#
+(15:63..15:67) scala/Unit#
+(15:69..15:72) scala/Any#
+(15:74..15:78) scala/Unit#
+(15:80..15:83) scala/Any#
+(15:87..15:90) scala/Predef.`???`().
+(19:6..19:19) _empty_/Test.basicEndpoint(). -> 15:7
+(20:10..20:13) _empty_/EndpointOps#out(). -> 10:7
+(20:14..20:17) scala/Any#
+(21:10..21:13) _empty_/EndpointOps#out(). -> 10:7
+(21:14..21:17) scala/Any#
+(22:10..22:13) _empty_/EndpointOps#out(). -> 10:7
+(22:14..22:17) scala/Any#
+(23:10..23:13) _empty_/EndpointOps#out(). -> 10:7
+(23:14..23:17) scala/Any#
+(24:10..24:13) _empty_/EndpointOps#out(). -> 10:7
+(24:14..24:17) scala/Any#
+(25:10..25:13) _empty_/EndpointOps#out(). -> 10:7
+(25:14..25:17) scala/Any#
+

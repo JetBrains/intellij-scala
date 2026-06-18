@@ -1,0 +1,14 @@
+[0,63]: PackageDef
+[0,0]: Ident
+[0,28]: DefDef
+[12,21]: ValDef
+[15,21]: ByNameTypeTree
+[18,21]: Ident
+[23,23]: TypeTree
+[26,28]: Tuple
+[35,63]: DefDef
+[50,56]: ValDef
+[50,56]: ByNameTypeTree
+[53,56]: Ident
+[58,58]: TypeTree
+[61,63]: Tuple

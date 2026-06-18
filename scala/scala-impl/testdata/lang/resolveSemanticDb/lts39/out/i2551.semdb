@@ -1,0 +1,19 @@
+Document tests/pos/i2551/library_1.scala
+(7:24..7:29) scala/ -> 1:9
+(7:30..7:34) scala/meta/ -> 2:11
+(7:35..7:41) scala/meta/config/ -> 3:13
+(7:42..7:49) scala/meta/config/Version# -> 4:18
+(8:23..8:28) scala/ -> 1:9
+(8:29..8:33) scala/meta/ -> 2:11
+(8:34..8:40) scala/meta/config/ -> 3:13
+(8:41..8:48) scala/meta/config/Version.
+(13:31..13:36) scala/ -> 1:9
+(13:37..13:41) scala/meta/ -> 2:11
+(13:42..13:48) scala/meta/config/ -> 3:13
+(13:49..13:56) scala/meta/config/Aliases# -> 6:13
+
+Document tests/pos/i2551/test_2.scala
+(1:8..1:13) scala/ -> 1:9
+(1:14..1:18) scala/meta/ -> 2:11
+(4:11..4:18) scala/meta/config/Aliases#Version. -> 8:13
+

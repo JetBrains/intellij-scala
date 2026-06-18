@@ -3,6 +3,7 @@
     <dependencies>
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-integration"/>
+        <module name="intellij.platform.testRunner"/>
     </dependencies>
 
     <extensionPoints>

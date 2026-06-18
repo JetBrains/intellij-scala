@@ -1,0 +1,28 @@
+Document tests/pos/enum-widen.scala
+(4:21..4:22) _empty_/test.Option.Some#[T] -> 4:15
+(4:32..4:38) _empty_/test.Option# -> 3:8
+(4:39..4:40) _empty_/test.Option.Some#[T] -> 4:15
+(7:10..7:16) _empty_/test.Option.
+(9:11..9:15) _empty_/test.Option.Some.
+(10:10..10:14) _empty_/test.Option.Some# -> 4:10
+(10:15..10:18) scala/Int#
+(10:22..10:26) _empty_/test.Option.Some.
+(11:12..11:13) _empty_/test.y. -> 10:7
+(11:14..11:18) _empty_/test.Option.Some#copy().
+(12:11..12:15) _empty_/test.Option.Some# -> 4:10
+(12:16..12:19) scala/Int#
+(12:23..12:24) _empty_/test.y. -> 10:7
+(12:25..12:29) _empty_/test.Option.Some#copy().
+(13:3..13:4) _empty_/test.`x_=`().
+(13:7..13:11) _empty_/test.Option.None. -> 5:10
+(14:3..14:5) _empty_/test.`xc_=`().
+(14:8..14:12) _empty_/test.Option.None. -> 5:10
+(18:17..18:18) _empty_/test.Nat.Z. -> 17:10
+(18:24..18:25) scala/`|`#
+(18:26..18:27) _empty_/test.Nat.S# -> 18:10
+(18:38..18:39) _empty_/test.Nat.S#[N] -> 18:12
+(19:10..19:13) _empty_/test.Nat.
+(21:13..21:14) _empty_/test.Nat.S.
+(21:15..21:16) _empty_/test.Nat.S.
+(21:17..21:18) _empty_/test.Nat.Z. -> 17:10
+

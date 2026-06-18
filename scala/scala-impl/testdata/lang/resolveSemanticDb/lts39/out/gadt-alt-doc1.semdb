@@ -1,0 +1,18 @@
+Document tests/pos/gadt-alt-doc1.scala
+(1:23..1:31) _empty_/Document# -> 1:7
+(1:32..1:35) _empty_/Document#[Doc] -> 1:16
+(4:21..4:29) _empty_/Document# -> 1:7
+(4:30..4:33) _empty_/C#[Doc] -> 4:14
+(4:46..4:56) _empty_/Conversion# -> 2:14
+(4:57..4:60) _empty_/C#[Doc] -> 4:14
+(4:62..4:65) _empty_/C#[Doc] -> 4:14
+(6:17..6:25) _empty_/Document# -> 1:7
+(6:26..6:29) _empty_/`gadt-alt-doc1$package`.Test().[Doc] -> 6:10
+(6:47..6:57) _empty_/Conversion# -> 2:14
+(6:58..6:61) _empty_/`gadt-alt-doc1$package`.Test().[Doc] -> 6:10
+(6:63..6:64) _empty_/`gadt-alt-doc1$package`.Test().[V] -> 6:32
+(7:3..7:13) _empty_/`gadt-alt-doc1$package`.Test().(conversion) -> 6:35
+(8:10..8:11) _empty_/C.
+(8:16..8:17) _empty_/C.
+(8:23..8:26) scala/Predef.`???`().
+

@@ -115,6 +115,7 @@ object LatestScalaVersions {
   val Scala_3_6 = new ScalaVersion(ScalaLanguageLevel.Scala_3_6, "4")
   val Scala_3_7 = new ScalaVersion(ScalaLanguageLevel.Scala_3_7, "4")
   val Scala_3_8 = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "4")
+  val Scala_3_9 = new ScalaVersion(ScalaLanguageLevel.Scala_3_9, "0-RC1")
 
   //
   // Aliases
@@ -130,7 +131,7 @@ object LatestScalaVersions {
   val Scala_3_LTS_RC: ScalaVersion = Scala_3_LTS
 
   // Scala Next RC
-  val Scala_3_Next_RC: ScalaVersion = Scala_3_8
+  val Scala_3_Next_RC: ScalaVersion = Scala_3_9
 
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,
@@ -152,7 +153,8 @@ object LatestScalaVersions {
     Scala_3_5,
     Scala_3_6,
     Scala_3_7,
-    Scala_3_8
+    Scala_3_8,
+    Scala_3_9
   )
 
   val allScala3: Seq[ScalaVersion] =

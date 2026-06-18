@@ -1,0 +1,8 @@
+Document tests/pos/inlined-inline-param.scala
+(2:28..2:31) scala/Int#
+(2:34..2:37) scala/Int#
+(2:40..2:41) _empty_/Foo#foo().(x) -> 2:25
+(3:12..3:15) scala/Int#
+(3:18..3:21) _empty_/Foo#foo(). -> 2:14
+(3:22..3:25) _empty_/Foo#foo(). -> 2:14
+

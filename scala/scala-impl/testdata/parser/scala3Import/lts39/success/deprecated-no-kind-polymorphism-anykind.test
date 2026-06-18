@@ -1,0 +1,43 @@
+// This test is kept as a placeholder for historical reasons.
+// The -Yno-kind-polymorphism flag is now deprecated and has no effect.
+// Kind polymorphism with AnyKind is always enabled.
+
+trait Foo[T <: AnyKind] // This now works as AnyKind is always defined
+-----
+ScalaFile
+  PsiComment(comment)('// This test is kept as a placeholder for historical reasons.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// The -Yno-kind-polymorphism flag is now deprecated and has no effect.')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Kind polymorphism with AnyKind is always enabled.')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: AnyKind
+          CodeReferenceElement: AnyKind
+            PsiElement(identifier)('AnyKind')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// This now works as AnyKind is always defined')

@@ -1,0 +1,23 @@
+Document tests/pos/i1540.scala
+(1:21..1:24) scala/Int#
+(2:16..2:23) scala/Boolean#
+(3:18..3:21) scala/Int#
+(3:24..3:31) scala/Boolean#
+(3:34..3:37) scala/Predef.`???`().
+(4:12..4:15) scala/Int#
+(4:18..4:19) _empty_/Casey1#a. -> 1:18
+(5:14..5:17) scala/Int#
+(5:20..5:26) scala/Predef.String#
+(5:29..5:32) scala/Predef.`???`().
+(7:32..7:38) _empty_/Casey1# -> 1:7
+(7:42..7:43) _empty_/Casey1.unapply().(a) -> 7:29
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(11:29..11:35) _empty_/Casey1# -> 1:7
+(12:5..12:11) scala/Predef.assert(+1).
+(12:12..12:13) local1 -> 11:20
+(12:14..12:16) scala/Int#`==`(+3).
+(12:17..12:18) local0 -> 11:9
+(12:19..12:22) _empty_/Casey1#get(). -> 4:7
+

@@ -23,6 +23,11 @@ object ReferenceComparisonTestsGenerator_Scala3  {
    */
   final class TestCase_Scala3_Newest extends ScriptTestCaseBase(ReferenceComparisonTestConfig_Scala3_Newest)
 
+  /**
+   * Generates [[org.jetbrains.plugins.scala.lang.resolveSemanticDb.generated.ReferenceComparisonTest_Scala3_LTS_3_9]]
+   */
+  final class TestCase_Scala3_LTS_3_9 extends ScriptTestCaseBase(ReferenceComparisonTestConfig_Scala3_LTS_3_9)
+
   abstract class ScriptTestCaseBase(config: ReferenceComparisonTestConfig) extends TestCase {
     val targetTestsPerPart: Int = 100
     val excluded: Set[String] = Set(

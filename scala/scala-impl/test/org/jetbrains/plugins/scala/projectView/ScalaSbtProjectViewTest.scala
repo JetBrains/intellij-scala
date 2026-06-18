@@ -30,7 +30,7 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |    scala
                               |     Dummy
                               |""".stripMargin
-    runTest(expectedStructure)
+    importProjectAndCheckStructure(expectedStructure)
   }
 
   @Test
@@ -62,7 +62,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |    scala
                               |     DummyTest
                               |""".stripMargin
-    runTestWithOutsideSources(projectDirectory = "testProject", expectedStructure)
+    setProjectRootToTestProjectDirectory(projectDirectory = "testProject")
+    importProjectAndCheckStructure(expectedStructure)
   }
 
   @Test
@@ -95,7 +96,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |   build.properties
                               |   project
                               |""".stripMargin
-    runtTestWithTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple", expectedStructure)
+    prepareTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple")
+    assertStructureEqual(expectedStructure)
   }
 
   // It tests the functionality of org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider.convertGroupNodeToPsiDirectoryNode
@@ -134,7 +136,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |   build.properties
                               |   project
                               |""".stripMargin
-    runtTestWithTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple", expectedStructure)
+    prepareTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple")
+    assertStructureEqual(expectedStructure)
   }
 
   @Test
@@ -151,6 +154,6 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
                               |   build.properties
                               |   project
                               |""".stripMargin
-    runTest(expectedStructure)
+    importProjectAndCheckStructure(expectedStructure)
   }
 }

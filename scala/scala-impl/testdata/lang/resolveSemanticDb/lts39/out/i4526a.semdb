@@ -1,0 +1,4 @@
+Document tests/pos/i4526a.scala
+(3:13..3:16) bar/ -> 1:9
+(3:29..3:32) scala/Int#
+

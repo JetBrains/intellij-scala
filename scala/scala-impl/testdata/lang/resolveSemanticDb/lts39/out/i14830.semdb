@@ -1,0 +1,13 @@
+Document tests/pos/i14830.scala
+(3:8..3:18) java/lang/Comparable#
+(3:19..3:25) scala/Predef.String#
+(4:22..4:25) scala/Int#
+(5:8..5:18) java/lang/Comparable#
+(5:19..5:25) scala/Predef.String#
+(5:27..5:28) scala/`&`#
+(5:43..5:46) scala/Int#
+(6:8..6:18) java/lang/Comparable#
+(6:19..6:25) scala/Predef.String#
+(6:27..6:28) scala/`&`#
+(6:45..6:48) scala/Int#
+

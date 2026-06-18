@@ -1,0 +1,700 @@
+val n: Byte = 2
+val n2: Byte | Null = 2
+val n3: Int = 2
+val n4: Int | Null = 2222
+val n5: Int | Byte = 2
+val n6: Byte | Int = 10000
+
+val x: Option[Byte] = Option(2)
+val x2: Option[Byte] = Option[Byte](2)
+val x3: Option[Int] = Option(2)
+val x4: Option[Null] = Option(null)
+val x5: Option[Byte | Null] = Option(2)
+
+trait MyOption[+T]
+
+object MyOption:
+  def apply[T](x: T | Null): MyOption[T] = ???
+  def applyOld[T](x: T): MyOption[T] = ???
+
+val test1: MyOption[Byte] = MyOption(2)
+val test2: MyOption[Byte] = MyOption.applyOld(2)
+val test3: MyOption[Int] = MyOption(2)
+val test4: MyOption[Null] = MyOption(null)
+val test5: MyOption[Byte | Null] = MyOption(2)
+-----
+ScalaFile
+  ScPatternDefinition: n
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n
+        PsiElement(identifier)('n')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Byte
+      CodeReferenceElement: Byte
+        PsiElement(identifier)('Byte')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: n2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n2
+        PsiElement(identifier)('n2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: Byte | Null
+      SimpleType: Byte
+        CodeReferenceElement: Byte
+          PsiElement(identifier)('Byte')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Null
+        CodeReferenceElement: Null
+          PsiElement(identifier)('Null')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: n3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n3
+        PsiElement(identifier)('n3')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: n4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n4
+        PsiElement(identifier)('n4')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: Int | Null
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Null
+        CodeReferenceElement: Null
+          PsiElement(identifier)('Null')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2222')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: n5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n5
+        PsiElement(identifier)('n5')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: Int | Byte
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Byte
+        CodeReferenceElement: Byte
+          PsiElement(identifier)('Byte')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: n6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: n6
+        PsiElement(identifier)('n6')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: Byte | Int
+      SimpleType: Byte
+        CodeReferenceElement: Byte
+          PsiElement(identifier)('Byte')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('10000')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Byte]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Option
+        PsiElement(identifier)('Option')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x2
+        PsiElement(identifier)('x2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Byte]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: Option
+          PsiElement(identifier)('Option')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x3
+        PsiElement(identifier)('x3')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Int]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Option
+        PsiElement(identifier)('Option')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x4
+        PsiElement(identifier)('x4')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Null]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Option
+        PsiElement(identifier)('Option')
+      ArgumentList
+        PsiElement(()('(')
+        NullLiteral
+          PsiElement(null)('null')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x5
+        PsiElement(identifier)('x5')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Option[Byte | Null]
+      SimpleType: Option
+        CodeReferenceElement: Option
+          PsiElement(identifier)('Option')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: Byte | Null
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Option
+        PsiElement(identifier)('Option')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MyOption
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyOption')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: MyOption
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyOption')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: T | Null
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Null
+                      CodeReferenceElement: Null
+                        PsiElement(identifier)('Null')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyOption[T]
+            SimpleType: MyOption
+              CodeReferenceElement: MyOption
+                PsiElement(identifier)('MyOption')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: applyOld
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('applyOld')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyOption[T]
+            SimpleType: MyOption
+              CodeReferenceElement: MyOption
+                PsiElement(identifier)('MyOption')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test1
+        PsiElement(identifier)('test1')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOption[Byte]
+      SimpleType: MyOption
+        CodeReferenceElement: MyOption
+          PsiElement(identifier)('MyOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: MyOption
+        PsiElement(identifier)('MyOption')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test2
+        PsiElement(identifier)('test2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOption[Byte]
+      SimpleType: MyOption
+        CodeReferenceElement: MyOption
+          PsiElement(identifier)('MyOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: MyOption.applyOld
+        ReferenceExpression: MyOption
+          PsiElement(identifier)('MyOption')
+        PsiElement(.)('.')
+        PsiElement(identifier)('applyOld')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: test3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test3
+        PsiElement(identifier)('test3')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOption[Int]
+      SimpleType: MyOption
+        CodeReferenceElement: MyOption
+          PsiElement(identifier)('MyOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: MyOption
+        PsiElement(identifier)('MyOption')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: test4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test4
+        PsiElement(identifier)('test4')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOption[Null]
+      SimpleType: MyOption
+        CodeReferenceElement: MyOption
+          PsiElement(identifier)('MyOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: MyOption
+        PsiElement(identifier)('MyOption')
+      ArgumentList
+        PsiElement(()('(')
+        NullLiteral
+          PsiElement(null)('null')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: test5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test5
+        PsiElement(identifier)('test5')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOption[Byte | Null]
+      SimpleType: MyOption
+        CodeReferenceElement: MyOption
+          PsiElement(identifier)('MyOption')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: Byte | Null
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: MyOption
+        PsiElement(identifier)('MyOption')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement())(')')

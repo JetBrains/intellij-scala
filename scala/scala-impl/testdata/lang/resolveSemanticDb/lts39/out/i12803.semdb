@@ -1,0 +1,15 @@
+Document tests/pos/i12803.scala
+(8:10..8:11) _empty_/X# -> 1:7
+(9:15..9:16) _empty_/X# -> 1:7
+(9:19..9:20) _empty_/E# -> 5:7
+(9:21..9:22) _empty_/Test#wrap().(x) -> 9:12
+(9:23..9:24) _empty_/X#Y# -> 2:8
+(9:28..9:31) scala/Predef.`???`().
+(10:17..10:18) _empty_/E# -> 5:7
+(10:19..10:20) _empty_/Test#run().[I] -> 10:11
+(10:24..10:28) scala/Unit#
+(10:31..10:34) scala/Predef.`???`().
+(11:3..11:6) _empty_/Test#run(). -> 10:7
+(11:7..11:11) _empty_/Test#wrap(). -> 9:7
+(11:12..11:13) _empty_/Test#x. -> 8:7
+

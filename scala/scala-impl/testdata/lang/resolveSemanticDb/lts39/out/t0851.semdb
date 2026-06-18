@@ -1,0 +1,28 @@
+Document tests/pos/t0851.scala
+(4:29..4:30) test/test1.Foo#[T] -> 4:18
+(4:31..4:33) test/test1.Foo#[T2] -> 4:20
+(4:38..4:44) scala/Predef.String#
+(5:19..5:20) test/test1.Foo#[T] -> 4:18
+(5:27..5:29) test/test1.Foo#[T2] -> 4:20
+(5:34..5:35) test/test1.Foo#f. -> 4:24
+(5:36..5:37) test/test1.Foo#apply().(t) -> 5:15
+(5:38..5:39) local0 -> 5:25
+(7:26..7:27) test/test1.g().[T] -> 7:18
+(7:28..7:34) scala/Predef.String#
+(7:39..7:45) scala/Predef.String#
+(7:48..7:51) test/test1.Foo# -> 4:14
+(7:52..7:53) test/test1.g().[T] -> 7:18
+(7:55..7:61) scala/Predef.String#
+(7:65..7:68) test/test1.Foo.
+(7:69..7:70) test/test1.g().(f) -> 7:21
+(8:19..8:24) scala/Array#
+(8:25..8:31) scala/Predef.String#
+(8:36..8:40) scala/Unit#
+(9:16..9:19) scala/Int#
+(9:22..9:28) scala/Predef.String#
+(9:33..9:34) local2 -> 9:20
+(9:35..9:36) java/lang/String#`+`().
+(9:37..9:38) local1 -> 9:14
+(10:5..10:12) scala/Predef.println(+1).
+(10:13..10:14) local3 -> 9:9
+

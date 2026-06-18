@@ -1,0 +1,26 @@
+Document tests/pos/i23451.scala
+(2:26..2:27) _empty_/Inliner#[A] -> 1:15
+(4:35..4:42) _empty_/Inliner# -> 1:7
+(4:43..4:50) _empty_/i23451$package.ForSome# -> 7:6
+(4:51..4:52) _empty_/SummonInliner#[F] -> 4:21
+(5:26..5:33) _empty_/i23451$package.ForSome# -> 7:6
+(5:34..5:35) _empty_/SummonInliner#[F] -> 4:21
+(5:39..5:46) _empty_/i23451$package.ForSome. -> 8:8
+(5:47..5:58) scala/compiletime/
+(5:59..5:71) scala/compiletime/package$package.summonInline().
+(5:72..5:73) _empty_/SummonInliner#[F] -> 4:21
+(5:74..5:75) _empty_/SummonInliner#apply().[T] -> 5:22
+(7:22..7:29) _empty_/i23451$package.ForSome. -> 8:8
+(7:30..7:34) _empty_/i23451$package.ForSome.Type# -> 9:10
+(7:35..7:36) _empty_/i23451$package.ForSome#[F] -> 7:14
+(9:23..9:29) _empty_/i23451$package.ForSome.Unwrap# -> 10:11
+(9:30..9:31) _empty_/i23451$package.ForSome.Type#[F] -> 9:15
+(10:39..10:40) _empty_/i23451$package.ForSome.Unwrap#[F] -> 10:18
+(10:41..10:42) _empty_/i23451$package.ForSome.Unwrap#[A] -> 10:24
+(10:53..10:59) scala/AnyVal#
+(12:34..12:35) _empty_/i23451$package.ForSome.apply().[F] -> 12:22
+(12:36..12:37) _empty_/i23451$package.ForSome.apply().[A] -> 12:28
+(12:41..12:45) _empty_/i23451$package.ForSome.Type# -> 9:10
+(12:46..12:47) _empty_/i23451$package.ForSome.apply().[F] -> 12:22
+(12:58..12:59) _empty_/i23451$package.ForSome.apply().(v) -> 12:31
+

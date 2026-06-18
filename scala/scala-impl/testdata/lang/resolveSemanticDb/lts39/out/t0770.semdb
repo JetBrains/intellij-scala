@@ -1,0 +1,6 @@
+Document tests/pos/t0770.scala
+(5:17..5:21) scala/Byte#
+(5:26..5:27) _empty_/A#p. -> 3:23
+(10:18..10:25) scala/Boolean#
+(11:20..11:27) _empty_/B#failure(). -> 10:9
+

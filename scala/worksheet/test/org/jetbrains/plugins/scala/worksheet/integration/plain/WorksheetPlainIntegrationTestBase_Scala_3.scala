@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
+import com.intellij.openapi.compiler.CompilerMessage
 import org.junit.Test
 
 trait WorksheetPlainIntegrationTestBase_Scala_3_AllInOne { self: PlainWorksheetTestBase =>
@@ -234,6 +235,8 @@ trait WorksheetPlainIntegrationTestBase_Scala_3_4_to_3_7_AllInOne { self: PlainW
 }
 
 trait WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne { self: PlainWorksheetTestBase =>
+  def allowedCompilerMessage(message: CompilerMessage): Boolean = false
+
   @Test
   def testScala3_Next_RC_AllInOne(): Unit = {
     val before =
@@ -344,11 +347,13 @@ trait WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne { self: PlainWorkshe
          |val res5: Unit = ()${foldEnd}
          |${foldStart}Cons(42,Empty)
          |val res6: Unit = ()${foldEnd}""".stripMargin
-    doRenderTest(before, after)
+    doRenderTest(before, after, allowedCompilerMessage)
   }
 }
 
 trait WorksheetPlainIntegrationTestBase_Scala_3_BracelessSyntax { self: PlainWorksheetTestBase =>
+  def allowedCompilerMessage(message: CompilerMessage): Boolean = false
+
   @Test
   def testScala3_WithBracelessSyntax(): Unit = {
     val before =
@@ -380,6 +385,6 @@ trait WorksheetPlainIntegrationTestBase_Scala_3_BracelessSyntax { self: PlainWor
          |val res0: Int = 3
          |
          |val res1: Int = 5""".stripMargin
-    doRenderTest(before, after)
+    doRenderTest(before, after, allowedCompilerMessage)
   }
 }

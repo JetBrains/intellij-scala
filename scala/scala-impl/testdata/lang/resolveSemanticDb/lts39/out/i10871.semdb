@@ -1,0 +1,21 @@
+Document tests/pos/i10871.scala
+(2:17..2:18) _empty_/A# -> 1:7
+(4:21..4:22) _empty_/A#i(). -> 1:15
+(6:10..6:13) scala/Int#
+(6:17..6:20) scala/Int#
+(7:16..7:17) _empty_/A#i(). -> 1:15
+(9:16..9:19) scala/Int#
+(9:22..9:25) scala/Int#
+(11:11..11:16) _empty_/B#Sammy# -> 8:9
+(11:23..11:26) scala/Int#
+(11:37..11:38) _empty_/A#i(). -> 1:15
+(13:16..13:19) scala/Int#
+(13:22..13:25) scala/Int#
+(15:11..15:14) _empty_/B#Sam# -> 12:18
+(15:21..15:24) scala/Int#
+(15:35..15:36) _empty_/A#i(). -> 1:15
+(16:10..16:25) scala/PartialFunction#
+(16:26..16:29) scala/Int#
+(16:31..16:34) scala/Int#
+(17:21..17:22) _empty_/A#i(). -> 1:15
+

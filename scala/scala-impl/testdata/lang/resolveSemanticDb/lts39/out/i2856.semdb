@@ -1,0 +1,6 @@
+Document tests/pos/i2856.scala
+(1:9..1:11) io/
+(5:10..5:12) io/
+(5:13..5:17) io/grpc/ -> 1:12
+(6:20..6:24) io/grpc/Grpc# -> 2:9
+

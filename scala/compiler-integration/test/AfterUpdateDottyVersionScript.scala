@@ -4,7 +4,7 @@ import junit.framework.TestCase
 import junitparams.JUnitParamsRunner
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_LTS_3_9, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.disambiguatedStoreFileNameForUppercaseNames
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
@@ -46,12 +46,17 @@ class AfterUpdateDottyVersionScript {
    */
   @Test def test_1_Scala3ImportedParserTest_Import_FromDottyDirectory_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_LTS]))
+
   @Test def test_2_Scala3ImportedParserTest_Import_FromDottyDirectory_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_Newest]))
 
-  @Test def test_3_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit = {
+  @Test def test_3_Scala3ImportedParserTest_Import_FromDottyDirectory_LTS_3_9(): Unit =
+    runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_LTS_3_9]))
+
+  @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit = {
     runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_LTS])
     runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_Newest])
+    runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_LTS_3_9])
   }
 
   /**
@@ -60,10 +65,10 @@ class AfterUpdateDottyVersionScript {
    * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
    * See `patchFile` usages.
    */
-  @Test def test_4_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_LTS(): Unit =
+  @Test def test_5_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS]))
 
-  @Test def test_5_ReferenceComparisonTestsGenerator_LTS(): Unit =
+  @Test def test_6_ReferenceComparisonTestsGenerator_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.TestCase_Scala3_LTS]))
 
   /**
@@ -72,21 +77,32 @@ class AfterUpdateDottyVersionScript {
    * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
    * See `patchFile` usages.
    */
-  @Test def test_6_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Newest(): Unit =
+  @Test def test_7_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_Newest]))
 
-  @Test def test_7_ReferenceComparisonTestsGenerator_Newest(): Unit =
+  @Test def test_8_ReferenceComparisonTestsGenerator_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.TestCase_Scala3_Newest]))
 
+  /**
+   * NOTE:
+   * if it fails because there are compilation errors in [[dotty.tools.dotc.FromTastyTests.posTestFromTasty]]
+   * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
+   * See `patchFile` usages.
+   */
+  @Test def test_9_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_LTS_3_9(): Unit =
+    runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS_3_9]))
 
+  @Test def test_10_ReferenceComparisonTestsGenerator_LTS_3_9(): Unit =
+    runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.TestCase_Scala3_LTS_3_9]))
 
-  @Test def test_8_UpdateScalacOptionsInfo(): Unit =
+  @Test def test_11_UpdateScalacOptionsInfo(): Unit =
     runScript(Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]))
 }
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "release-3.3.8"
   private val scala3_repo_newest_branch = "release-3.8.4"
+  private val scala3_repo_lts_39_branch = "release-3.9.0"
 
   private val scala3_bootstrapped_module_name = "scala3-bootstrapped"
 
@@ -221,6 +237,8 @@ object AfterUpdateDottyVersionScript {
     extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS, scala3_repo_lts_branch, scala3_bootstrapped_module_name)
   class Scala3ImportedParserTest_Import_FromDottyDirectory_Newest
     extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.Newest, scala3_repo_newest_branch, scala3_bootstrapped_module_name)
+  class Scala3ImportedParserTest_Import_FromDottyDirectory_LTS_3_9
+    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS_3_9, scala3_repo_lts_39_branch, scala3_bootstrapped_module_name)
 
   abstract class Scala3ImportedParserTest_Import_FromDottyDirectory(config: Scala3ImportedParserTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
@@ -404,7 +422,7 @@ object AfterUpdateDottyVersionScript {
 
       runSbt(s"$sbtTestModule/testCompilation --from-tasty pos", repo.path)
 
-      val allFilesInFailed = allFilesIn(failDataPath).toSet
+      val allFilesInFailed = allFilesIn(failDataPath).toSet.filterNot(p => config.extraFilesInFailedIgnore(p.getFileName.toString))
       val allFilesInRanges = allFilesIn(rangesPath).toSet
       val blacklistedFileNames = loadBlacklist(repo)
 
@@ -444,6 +462,8 @@ object AfterUpdateDottyVersionScript {
     extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS, scala3_repo_lts_branch, scala3_bootstrapped_module_name)
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_Newest
     extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_Newest, scala3_repo_newest_branch, scala3_bootstrapped_module_name)
+  class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS_3_9
+    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS_3_9, scala3_repo_lts_39_branch, scala3_bootstrapped_module_name)
   abstract class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(config: ReferenceComparisonTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
 
@@ -825,6 +845,11 @@ object AfterUpdateDottyVersionScript {
         |# release-3.8.4
         |i23317.scala
         |i24990.scala
+        |
+        |# release-3.9.0
+        |i25644.scala
+        |i18234.scala
+        |t8244d
         |""".stripMargin.trim
     )
 

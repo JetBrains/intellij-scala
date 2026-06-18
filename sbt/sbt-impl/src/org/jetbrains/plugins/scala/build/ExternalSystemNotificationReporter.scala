@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.*
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.issue.BuildIssue
-import com.intellij.build.{FilePosition, SyncViewManager}
+import com.intellij.build.{BuildContentManager, FilePosition, SyncViewManager}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.task.event.{Failure as ExternalSystemFailure, FailureResult as ExternalSystemFailureResult, SkippedResult as ExternalSystemSkippedResult, SuccessResult as ExternalSystemSuccessResult, *}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -19,10 +20,11 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
-class ExternalSystemNotificationReporter(workingDir: String,
-                                         taskId: ExternalSystemTaskId,
-                                         notifications: ExternalSystemTaskNotificationListener)
-  extends BuildReporter {
+class ExternalSystemNotificationReporter(
+  workingDir: String,
+  taskId: ExternalSystemTaskId,
+  notifications: ExternalSystemTaskNotificationListener
+) extends BuildReporter {
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
@@ -30,6 +32,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
     Option(taskId.findProject()).map(_.getService(classOf[SyncViewManager]))
 
   private var isFinished: Boolean = false
+  private var warningActivatedToolWindow: Boolean = false
 
   override def start(): Unit = {
     notifications.onStart(workingDir, taskId)
@@ -74,16 +77,16 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    onEvent(message, Kind.WARNING, position)
+    onWarningEvent(message, position)
 
   override def warning(message: String, position: Option[FilePosition], details: String): Unit =
-    onEvent(message, Kind.WARNING, position, details)
+    onWarningEvent(message, position, details)
 
   override def warning(issue: BuildIssue): Unit =
-    onEvent(issue, Kind.WARNING)
+    onWarningEvent(issue)
 
   override def warning(message: String, position: Option[FilePosition], details: String, navigatable: Option[Navigatable]): Unit =
-    onEvent(message, Kind.WARNING, position, details, navigatable = navigatable)
+    onWarningEvent(message, position, details, navigatable = navigatable)
 
   override def error(message: String, position: Option[FilePosition]): Unit =
     onEvent(message, Kind.ERROR, position)
@@ -94,6 +97,21 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def info(issue: BuildIssue): Unit =
     onEvent(issue, Kind.INFO)
 
+  private def onWarningEvent(
+    @Nls message: String,
+    position: Option[FilePosition],
+    @Nls @Nullable details: String = null,
+    navigatable: Option[Navigatable] = None
+  ): Unit = {
+    activateToolWindowOnWarning()
+    onEvent(message, Kind.WARNING, position, details, navigatable)
+  }
+
+  private def onWarningEvent(issue: BuildIssue): Unit = {
+    activateToolWindowOnWarning()
+    onEvent(issue, Kind.WARNING)
+  }
+
   private def onEvent(
     @Nls message: String,
     kind: Kind,
@@ -101,19 +119,32 @@ class ExternalSystemNotificationReporter(workingDir: String,
     @Nls @Nullable details: String = null,
     navigatable: Option[Navigatable] = None
   ): Unit = {
+    val event = createBuildEvent(message, kind, position, details, navigatable)
+    notifications.onStatusChange(new ExternalSystemBuildEvent(taskId, event))
     viewManager.foreach { manager =>
-      val event = createBuildEvent(message, kind, position, details, navigatable)
       manager.onEvent(taskId, event)
     }
   }
 
-  private def onEvent(issue: BuildIssue, kind: Kind): Unit =
+  private def onEvent(issue: BuildIssue, kind: Kind): Unit = {
+    val event = BuildEvents.getInstance()
+      .buildIssue(issue, kind)
+      .withParentId(taskId)
+      .build()
+    notifications.onStatusChange(new ExternalSystemBuildEvent(taskId, event))
     viewManager.foreach { manager =>
-      val event = BuildEvents.getInstance()
-        .buildIssue(issue, kind)
-        .withParentId(taskId)
-        .build()
       manager.onEvent(taskId, event)
+    }
+  }
+
+  private def activateToolWindowOnWarning(): Unit =
+    if (!warningActivatedToolWindow) {
+      warningActivatedToolWindow = true
+      Option(taskId.findProject()).foreach { project =>
+        ToolWindowManager.getInstance(project).invokeLater { () =>
+          BuildContentManager.getInstance(project).getOrCreateToolWindow.activate(null, true)
+        }
+      }
     }
 
   override def log(message: String): Unit =

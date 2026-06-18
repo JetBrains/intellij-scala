@@ -1,0 +1,48 @@
+Document tests/pos/i20288.scala
+(4:9..4:16) _empty_/Decoder# -> 2:7
+(4:17..4:24) _empty_/DataRow# -> 15:7
+(4:28..4:31) scala/Predef.`???`().
+(5:19..5:24) scala/Tuple#
+(5:29..5:36) _empty_/Decoder# -> 2:7
+(5:37..5:38) _empty_/Decoder.`~`().[A] -> 5:14
+(6:18..6:23) _empty_/Field# -> 9:7
+(6:24..6:25) _empty_/Decoder.`~`().[B] -> 6:11
+(6:29..6:36) _empty_/Decoder# -> 2:7
+(6:37..6:42) scala/Tuple.
+(6:43..6:49) scala/Tuple.Concat#
+(6:50..6:51) _empty_/Decoder.`~`().[A] -> 5:14
+(6:53..6:59) scala/Tuple1#
+(6:60..6:61) _empty_/Decoder.`~`().[B] -> 6:11
+(6:67..6:70) scala/Predef.`???`().
+(11:12..11:17) _empty_/Field# -> 9:7
+(11:18..11:21) scala/Int#
+(11:25..11:28) scala/Predef.`???`().
+(12:23..12:28) _empty_/Field# -> 9:7
+(12:29..12:30) _empty_/Field.`~`().[A] -> 12:14
+(13:20..13:25) _empty_/Field# -> 9:7
+(13:26..13:27) _empty_/Field.`~`().[B] -> 13:11
+(13:36..13:43) _empty_/Decoder# -> 2:7
+(13:44..13:51) _empty_/DataRow# -> 15:7
+(13:55..13:62) _empty_/Decoder# -> 2:7
+(13:64..13:65) _empty_/Field.`~`().[A] -> 12:14
+(13:67..13:68) _empty_/Field.`~`().[B] -> 13:11
+(13:73..13:76) scala/Predef.`???`().
+(16:30..16:36) scala/Predef.String#
+(16:44..16:51) _empty_/Decoder# -> 2:7
+(16:52..16:53) _empty_/i20288$package.simpleQuery().[A] -> 16:20
+(16:57..16:63) scala/package.Either#
+(16:64..16:73) scala/package.Throwable#
+(16:75..16:76) _empty_/i20288$package.simpleQuery().[A] -> 16:20
+(16:80..16:83) scala/Predef.`???`().
+(18:2..18:6) scala/main#
+(19:10..19:17) _empty_/Decoder. -> 3:8
+(20:15..20:26) _empty_/i20288$package.simpleQuery(). -> 16:5
+(21:5..21:10) _empty_/Field. -> 10:8
+(21:11..21:14) _empty_/Field.int. -> 11:7
+(21:15..21:16) _empty_/Field.`~`(). -> 13:9
+(21:17..21:22) _empty_/Field. -> 10:8
+(21:23..21:26) _empty_/Field.int. -> 11:7
+(21:27..21:28) _empty_/Decoder.`~`(). -> 6:9
+(21:29..21:34) _empty_/Field. -> 10:8
+(21:35..21:38) _empty_/Field.int. -> 11:7
+

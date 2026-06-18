@@ -1,0 +1,349 @@
+trait TestContainer:
+  trait TestPath[T]:
+    type AbsMember
+
+  extension (path: TestPath[?])
+    infix def ext(color: path.AbsMember): Unit = ???
+    infix def ext(other: Int): Unit = ???
+
+object Repro:
+  val dc2: TestContainer = ???
+  import dc2.TestPath
+
+  def transition(path: TestPath[?])(using DummyImplicit): TestPath[?] = ???
+
+  def test: Unit =
+    val di: TestPath[?] = ???
+    // error
+    val z1 = transition(di).ext(1)
+-----
+ScalaFile
+  ScTrait: TestContainer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestContainer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: TestPath
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TestPath')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: AbsMember
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AbsMember')
+        PsiWhiteSpace('\n\n  ')
+        Extension on TestPath[?]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: path
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('path')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TestPath[?]
+                    SimpleType: TestPath
+                      CodeReferenceElement: TestPath
+                        PsiElement(identifier)('TestPath')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: ext
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(infix)('infix')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('ext')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: color
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('color')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: path.AbsMember
+                        CodeReferenceElement: path.AbsMember
+                          CodeReferenceElement: path
+                            PsiElement(identifier)('path')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('AbsMember')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: ext
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(infix)('infix')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('ext')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: other
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('other')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: Repro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: dc2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: dc2
+              PsiElement(identifier)('dc2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: TestContainer
+            CodeReferenceElement: TestContainer
+              PsiElement(identifier)('TestContainer')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: dc2.TestPath
+              CodeReferenceElement: dc2
+                PsiElement(identifier)('dc2')
+              PsiElement(.)('.')
+              PsiElement(identifier)('TestPath')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: transition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('transition')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: path
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('path')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TestPath[?]
+                    SimpleType: TestPath
+                      CodeReferenceElement: TestPath
+                        PsiElement(identifier)('TestPath')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: DummyImplicit
+                    CodeReferenceElement: DummyImplicit
+                      PsiElement(identifier)('DummyImplicit')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TestPath[?]
+            SimpleType: TestPath
+              CodeReferenceElement: TestPath
+                PsiElement(identifier)('TestPath')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                WildcardType: ?
+                  PsiElement(?)('?')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: di
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: di
+                  PsiElement(identifier)('di')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: TestPath[?]
+                SimpleType: TestPath
+                  CodeReferenceElement: TestPath
+                    PsiElement(identifier)('TestPath')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    WildcardType: ?
+                      PsiElement(?)('?')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: z1
+              PsiComment(comment)('// error')
+              PsiWhiteSpace('\n    ')
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: z1
+                  PsiElement(identifier)('z1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: transition(di).ext
+                  MethodCall
+                    ReferenceExpression: transition
+                      PsiElement(identifier)('transition')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: di
+                        PsiElement(identifier)('di')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ext')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')

@@ -1,0 +1,15 @@
+Document tests/pos/i1044.scala
+(2:15..2:16) _empty_/Test.f().[X] -> 2:9
+(3:5..3:8) scala/Predef.`???`().
+(3:9..3:17) scala/Any#getClass().
+(3:18..3:28) java/lang/Class#getMethods().
+(3:29..3:33) scala/collection/ArrayOps#head().
+(3:34..3:51) java/lang/reflect/Method#getParameterTypes().
+(3:52..3:60) scala/collection/IterableOnceOps#mkString(+1).
+(5:5..5:6) _empty_/Test.f().(x) -> 2:12
+(5:7..5:15) scala/Any#getClass().
+(5:16..5:26) java/lang/Class#getMethods().
+(5:27..5:31) scala/collection/ArrayOps#head().
+(5:32..5:49) java/lang/reflect/Method#getParameterTypes().
+(5:50..5:58) scala/collection/IterableOnceOps#mkString(+1).
+

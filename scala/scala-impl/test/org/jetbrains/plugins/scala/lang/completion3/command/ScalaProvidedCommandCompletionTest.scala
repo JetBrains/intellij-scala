@@ -169,6 +169,9 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
     predicate = FileStructurePredicate
   )
 
+  // FIXME(IJPL-247033): DirectIntentionCommandProvider now runs annotators in batch mode
+  //                     so our fixes are ignored as they are not added as `batch` or `universal` fixes
+  /*
   @Test
   def redCode(): Unit = doCommandCompletionTest(
     fileText =
@@ -182,8 +185,12 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
     predicate = lookupStringStartsWith(_, "Change type 'Int' to 'Long'"),
     expectedIcon = AllIcons.Actions.QuickfixBulb,
   )
+  */
 
+  // FIXME(IJPL-247033): DirectIntentionCommandProvider now runs annotators in batch mode
+  //                     so our fixes are ignored as they are not added as `batch` or `universal` fixes
   // TODO: seems to be working in unit tests only (see `if (isUnitTestMode)` in `ScalaImportElementFix`)
+  /*
   @Test
   def redCodeImport(): Unit = doCommandCompletionTest(
     fileText =
@@ -199,6 +206,7 @@ final class ScalaProvidedCommandCompletionTest extends ScalaCommandCompletionTes
     predicate = lookupStringStartsWith(_, "Import 'java.util.ArrayList'"),
     expectedIcon = AllIcons.Actions.QuickfixBulb,
   )
+  */
 
   @Test
   def explainRegexOnDotRString(): Unit = doCommandCompletionTest(

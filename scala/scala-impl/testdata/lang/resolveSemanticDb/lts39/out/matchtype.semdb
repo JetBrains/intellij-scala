@@ -1,0 +1,207 @@
+Document tests/pos/matchtype.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(2:8..2:12) scala/caps/
+(2:13..2:19) scala/caps/unsafe.
+(2:20..2:37) scala/caps/unsafe.unsafeErasedValue().
+(3:8..3:19) scala/compiletime/
+(3:20..3:23) scala/compiletime/ops/
+(3:24..3:27) scala/compiletime/ops/int.
+(5:15..5:16) _empty_/Test.T#[X] -> 5:10
+(6:10..6:16) scala/Predef.String#
+(6:20..6:23) scala/Int#
+(7:10..7:13) scala/Int#
+(7:17..7:23) scala/Predef.String#
+(10:18..10:21) scala/Int#
+(10:24..10:25) _empty_/Test.Len#[X] -> 10:12
+(11:10..11:20) scala/Tuple$package.EmptyTuple#
+(12:12..12:14) scala/`*:`#
+(12:21..12:22) scala/compiletime/ops/int.S#
+(12:23..12:26) _empty_/Test.Len# -> 10:8
+(12:27..12:29) local1 -> 12:15
+(15:13..15:16) _empty_/Test.Len# -> 10:8
+(16:21..16:32) scala/caps/unsafe.unsafeErasedValue().
+(16:33..16:35) _empty_/Test.T2# -> 15:8
+(18:13..18:14) scala/compiletime/ops/int.S#
+(20:22..20:33) scala/caps/unsafe.unsafeErasedValue().
+(20:34..20:36) _empty_/Test.T1# -> 18:8
+(22:18..22:19) scala/compiletime/ops/int.S#
+(22:20..22:21) scala/compiletime/ops/int.S#
+(22:22..22:23) scala/compiletime/ops/int.S#
+(22:31..22:42) scala/caps/unsafe.unsafeErasedValue().
+(22:43..22:45) _empty_/Test.T2# -> 15:8
+(23:18..23:20) _empty_/Test.T2# -> 15:8
+(23:23..23:34) scala/caps/unsafe.unsafeErasedValue().
+(23:35..23:36) scala/compiletime/ops/int.S#
+(23:37..23:38) scala/compiletime/ops/int.S#
+(23:39..23:40) scala/compiletime/ops/int.S#
+(25:18..25:23) scala/Tuple#
+(25:27..25:28) _empty_/Test.Head#[X] -> 25:13
+(26:21..26:23) local2 -> 26:11
+(29:18..29:21) scala/Int#
+(29:24..29:35) scala/caps/unsafe.unsafeErasedValue().
+(29:36..29:40) _empty_/Test.Head# -> 25:8
+(29:42..29:45) scala/Int#
+(29:47..29:53) scala/Predef.String#
+(30:18..30:22) _empty_/Test.Head# -> 25:8
+(30:24..30:27) scala/Int#
+(30:29..30:35) scala/Predef.String#
+(32:20..32:25) scala/Tuple#
+(32:32..32:37) scala/Tuple#
+(32:42..32:47) scala/Tuple#
+(32:50..32:51) _empty_/Test.Concat#[X] -> 32:15
+(33:10..33:20) scala/Tuple$package.EmptyTuple#
+(33:24..33:25) _empty_/Test.Concat#[Y] -> 32:27
+(34:13..34:15) scala/`*:`#
+(34:23..34:25) local3 -> 34:10
+(34:26..34:28) scala/`*:`#
+(34:29..34:35) _empty_/Test.Concat# -> 32:8
+(34:36..34:39) local4 -> 34:16
+(34:41..34:42) _empty_/Test.Concat#[Y] -> 32:27
+(37:18..37:23) scala/Tuple#
+(37:30..37:31) _empty_/Test.Elem#[X] -> 37:13
+(38:12..38:14) scala/`*:`#
+(39:7..39:8) _empty_/Test.Elem#[N] -> 37:25
+(40:19..40:20) local5 -> 38:10
+(41:14..41:15) scala/compiletime/ops/int.S#
+(41:23..41:27) _empty_/Test.Elem# -> 37:8
+(41:28..41:30) local6 -> 38:15
+(41:32..41:34) local7 -> 41:16
+(45:19..45:24) scala/Tuple#
+(45:32..45:33) _empty_/Test.Elem1#[X] -> 45:14
+(45:35..45:36) _empty_/Test.Elem1#[N] -> 45:26
+(46:13..46:15) scala/`*:`#
+(46:26..46:27) local8 -> 46:11
+(47:13..47:15) scala/`*:`#
+(47:20..47:21) scala/compiletime/ops/int.S#
+(47:30..47:35) _empty_/Test.Elem1# -> 45:8
+(47:36..47:38) local11 -> 47:16
+(47:40..47:42) local12 -> 47:22
+(50:18..50:24) scala/Predef.String#
+(50:27..50:38) scala/caps/unsafe.unsafeErasedValue().
+(50:39..50:43) _empty_/Test.Elem# -> 37:8
+(50:45..50:51) scala/Predef.String#
+(50:53..50:56) scala/Int#
+(51:18..51:21) scala/Int#
+(51:24..51:35) scala/caps/unsafe.unsafeErasedValue().
+(51:36..51:41) _empty_/Test.Elem1# -> 45:8
+(51:43..51:49) scala/Predef.String#
+(51:51..51:54) scala/Int#
+(53:18..53:22) _empty_/Test.Elem# -> 37:8
+(53:24..53:30) scala/Predef.String#
+(53:32..53:35) scala/Int#
+(53:37..53:44) scala/Boolean#
+(53:52..53:63) scala/caps/unsafe.unsafeErasedValue().
+(53:64..53:70) scala/Predef.String#
+(54:18..54:24) scala/Predef.String#
+(54:27..54:38) scala/caps/unsafe.unsafeErasedValue().
+(54:39..54:43) _empty_/Test.Elem# -> 37:8
+(54:45..54:51) scala/Predef.String#
+(54:53..54:56) scala/Int#
+(54:58..54:65) scala/Boolean#
+(55:18..55:23) _empty_/Test.Elem1# -> 45:8
+(55:25..55:31) scala/Predef.String#
+(55:33..55:36) scala/Int#
+(55:38..55:45) scala/Boolean#
+(55:53..55:64) scala/caps/unsafe.unsafeErasedValue().
+(55:65..55:68) scala/Int#
+(56:18..56:21) scala/Int#
+(56:24..56:35) scala/caps/unsafe.unsafeErasedValue().
+(56:36..56:41) _empty_/Test.Elem1# -> 45:8
+(56:43..56:49) scala/Predef.String#
+(56:51..56:54) scala/Int#
+(56:56..56:63) scala/Boolean#
+(57:18..57:22) _empty_/Test.Elem# -> 37:8
+(57:24..57:30) scala/Predef.String#
+(57:32..57:35) scala/Int#
+(57:37..57:44) scala/Boolean#
+(57:52..57:63) scala/caps/unsafe.unsafeErasedValue().
+(57:64..57:71) scala/Boolean#
+(58:18..58:25) scala/Boolean#
+(58:28..58:39) scala/caps/unsafe.unsafeErasedValue().
+(58:40..58:44) _empty_/Test.Elem# -> 37:8
+(58:46..58:52) scala/Predef.String#
+(58:54..58:57) scala/Int#
+(58:59..58:66) scala/Boolean#
+(60:18..60:24) _empty_/Test.Concat# -> 32:8
+(60:25..60:35) scala/Tuple$package.EmptyTuple#
+(60:38..60:44) scala/Predef.String#
+(60:46..60:49) scala/Int#
+(60:54..60:65) scala/caps/unsafe.unsafeErasedValue().
+(60:67..60:73) scala/Predef.String#
+(60:75..60:78) scala/Int#
+(61:19..61:25) scala/Predef.String#
+(61:27..61:30) scala/Int#
+(61:34..61:45) scala/caps/unsafe.unsafeErasedValue().
+(61:46..61:52) _empty_/Test.Concat# -> 32:8
+(61:53..61:63) scala/Tuple$package.EmptyTuple#
+(61:66..61:72) scala/Predef.String#
+(61:74..61:77) scala/Int#
+(62:18..62:24) _empty_/Test.Concat# -> 32:8
+(62:26..62:33) scala/Boolean#
+(62:35..62:42) scala/Boolean#
+(62:46..62:52) scala/Predef.String#
+(62:54..62:57) scala/Int#
+(62:62..62:73) scala/caps/unsafe.unsafeErasedValue().
+(62:74..62:81) scala/Boolean#
+(62:82..62:84) scala/`*:`#
+(62:85..62:92) scala/Boolean#
+(62:93..62:95) scala/`*:`#
+(62:97..62:103) scala/Predef.String#
+(62:105..62:108) scala/Int#
+(63:18..63:25) scala/Boolean#
+(63:26..63:28) scala/`*:`#
+(63:29..63:36) scala/Boolean#
+(63:37..63:39) scala/`*:`#
+(63:41..63:47) scala/Predef.String#
+(63:49..63:52) scala/Int#
+(63:56..63:67) scala/caps/unsafe.unsafeErasedValue().
+(63:68..63:74) _empty_/Test.Concat# -> 32:8
+(63:76..63:83) scala/Boolean#
+(63:85..63:92) scala/Boolean#
+(63:96..63:102) scala/Predef.String#
+(63:104..63:107) scala/Int#
+(64:19..64:26) scala/Boolean#
+(64:28..64:35) scala/Boolean#
+(64:37..64:43) scala/Predef.String#
+(64:45..64:48) scala/Int#
+(64:52..64:63) scala/caps/unsafe.unsafeErasedValue().
+(64:64..64:70) _empty_/Test.Concat# -> 32:8
+(64:72..64:79) scala/Boolean#
+(64:81..64:88) scala/Boolean#
+(64:91..64:97) scala/Predef.String#
+(64:98..64:100) scala/`*:`#
+(64:101..64:104) scala/Int#
+(64:105..64:107) scala/`*:`#
+(64:108..64:118) scala/Tuple$package.EmptyTuple#
+(65:18..65:24) _empty_/Test.Concat# -> 32:8
+(65:26..65:33) scala/Boolean#
+(65:35..65:42) scala/Boolean#
+(65:45..65:51) scala/Predef.String#
+(65:52..65:54) scala/`*:`#
+(65:55..65:58) scala/Int#
+(65:59..65:61) scala/`*:`#
+(65:62..65:72) scala/Tuple$package.EmptyTuple#
+(65:76..65:87) scala/caps/unsafe.unsafeErasedValue().
+(65:89..65:96) scala/Boolean#
+(65:98..65:105) scala/Boolean#
+(65:107..65:113) scala/Predef.String#
+(65:115..65:118) scala/Int#
+(67:19..67:32) scala/NonEmptyTuple#
+(67:38..67:40) _empty_/Test.index().[Xs] -> 67:13
+(67:45..67:48) scala/Int#
+(67:51..67:55) _empty_/Test.Elem# -> 37:8
+(67:56..67:58) _empty_/Test.index().[Xs] -> 67:13
+(67:60..67:61) _empty_/Test.index().(n) -> 67:42
+(67:70..67:72) _empty_/Test.index().(xs) -> 67:34
+(67:73..67:74) _empty_/Test.index().(n) -> 67:42
+(67:76..67:88) scala/Any#asInstanceOf().
+(70:3..70:8) _empty_/Test.index(). -> 67:7
+(70:9..70:13) _empty_/Test.test. -> 69:7
+(70:19..70:22) scala/Int#
+(71:3..71:8) _empty_/Test.index(). -> 67:7
+(71:9..71:13) _empty_/Test.test. -> 69:7
+(71:19..71:25) scala/Predef.String#
+

@@ -1,0 +1,10 @@
+Document tests/pos/i7944.scala
+(4:18..4:23) scala/Array#
+(4:24..4:30) scala/Predef.String#
+(4:34..4:38) scala/Unit#
+(5:5..5:12) scala/Predef.println(+1).
+(5:13..5:19) hello/HelloWorld.erased(). -> 7:7
+(7:17..7:20) scala/Int#
+(7:23..7:26) scala/Any#
+(7:29..7:30) hello/HelloWorld.erased().(x) -> 7:14
+

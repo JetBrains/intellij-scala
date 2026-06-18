@@ -1,0 +1,62 @@
+Document tests/pos/i20154.scala
+(2:26..2:27) _empty_/i20154$package.`<`#[T] -> 2:16
+(2:30..2:31) _empty_/i20154$package.`<`#[T] -> 2:16
+(2:32..2:33) scala/`|`#
+(2:34..2:37) _empty_/Kyo# -> 1:23
+(2:38..2:39) _empty_/i20154$package.`<`#[T] -> 2:16
+(2:41..2:42) _empty_/i20154$package.`<`#[S] -> 2:20
+(7:48..7:54) _empty_/Effect# -> 4:16
+(7:55..7:56) _empty_/Recurse#[E] -> 7:43
+(8:8..8:21) _empty_/ResultHandler# -> 12:16
+(8:22..8:29) _empty_/Recurse#[Command] -> 7:20
+(8:31..8:37) _empty_/Recurse#[Result] -> 7:32
+(8:39..8:40) _empty_/Recurse#[E] -> 7:43
+(8:42..8:43) _empty_/Recurse#[S] -> 7:62
+(9:8..9:9) _empty_/Recurse#[T] -> 7:59
+(9:10..9:11) _empty_/i20154$package.`<`# -> 2:13
+(9:13..9:14) _empty_/Recurse#[E] -> 7:43
+(9:15..9:16) scala/`&`#
+(9:17..9:18) _empty_/Recurse#[S] -> 7:62
+(9:19..9:20) scala/`&`#
+(9:21..9:23) _empty_/Recurse#[S2] -> 7:65
+(12:58..12:64) _empty_/Effect# -> 4:16
+(12:65..12:66) _empty_/ResultHandler#[E] -> 12:53
+(13:33..13:39) _empty_/ResultHandler#[Result] -> 12:42
+(13:40..13:41) _empty_/ResultHandler#Handle#[T] -> 13:22
+(13:43..13:44) _empty_/i20154$package.`<`# -> 2:13
+(13:46..13:47) _empty_/ResultHandler#[S] -> 12:69
+(13:48..13:49) scala/`&`#
+(13:50..13:52) _empty_/ResultHandler#Handle#[S2] -> 13:25
+(13:57..13:63) _empty_/ResultHandler#[Result] -> 12:42
+(13:64..13:65) _empty_/ResultHandler#Handle#[T] -> 13:22
+(13:67..13:68) _empty_/i20154$package.`<`# -> 2:13
+(13:70..13:71) _empty_/ResultHandler#[S] -> 12:69
+(13:72..13:73) scala/`&`#
+(13:74..13:76) _empty_/ResultHandler#Handle#[S2] -> 13:25
+(13:78..13:79) scala/`|`#
+(13:80..13:87) _empty_/Recurse# -> 7:12
+(13:88..13:95) _empty_/ResultHandler#[Command] -> 12:30
+(13:97..13:103) _empty_/ResultHandler#[Result] -> 12:42
+(13:105..13:106) _empty_/ResultHandler#[E] -> 12:53
+(13:108..13:109) _empty_/ResultHandler#Handle#[T] -> 13:22
+(13:111..13:112) _empty_/ResultHandler#[S] -> 12:69
+(13:114..13:116) _empty_/ResultHandler#Handle#[S2] -> 13:25
+(15:24..15:37) _empty_/ResultHandler# -> 12:16
+(15:38..15:45) _empty_/ResultHandler#[Command] -> 12:30
+(15:47..15:53) _empty_/ResultHandler#[Result] -> 12:42
+(15:55..15:56) _empty_/ResultHandler#[E] -> 12:53
+(15:58..15:59) _empty_/ResultHandler#[S] -> 12:69
+(15:65..15:66) _empty_/ResultHandler#handle().[T] -> 15:14
+(15:67..15:68) _empty_/i20154$package.`<`# -> 2:13
+(15:70..15:71) _empty_/ResultHandler#[E] -> 12:53
+(15:72..15:73) scala/`&`#
+(15:74..15:75) _empty_/ResultHandler#[S] -> 12:69
+(15:76..15:77) scala/`&`#
+(15:78..15:80) _empty_/ResultHandler#handle().[S2] -> 15:17
+(15:84..15:90) _empty_/ResultHandler#Handle# -> 13:15
+(15:91..15:92) _empty_/ResultHandler#handle().[T] -> 15:14
+(15:94..15:96) _empty_/ResultHandler#handle().[S2] -> 15:17
+(15:100..15:107) _empty_/Recurse.
+(15:108..15:109) _empty_/ResultHandler#handle().(h) -> 15:21
+(15:111..15:112) _empty_/ResultHandler#handle().(v) -> 15:62
+

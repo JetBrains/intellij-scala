@@ -1,0 +1,195 @@
+import scala.compiletime.summonAll
+
+inline def f[M <: Tuple]: Unit =
+  type Alias = Tuple.Map[M, [X] =>> Numeric[X]]
+  summonAll[Tuple.Map[M, [X] =>> Numeric[X]]] // compiles
+  summonAll[Alias] // error: Tuple element types must be known at compile time
+
+val y1 = f[(Int, Int)]
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.summonAll
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonAll')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: M
+        PsiElement(identifier)('M')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScTypeAliasDefinition: Alias
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Alias')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Tuple.Map[M, [X] =>> Numeric[X]]
+          SimpleType: Tuple.Map
+            CodeReferenceElement: Tuple.Map
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Map')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: M
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeArgument
+              TypeLambda: [X] =>> Numeric[X]
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: X
+                    PsiElement(identifier)('X')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>>)('=>>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Numeric[X]
+                  SimpleType: Numeric
+                    CodeReferenceElement: Numeric
+                      PsiElement(identifier)('Numeric')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summonAll
+          PsiElement(identifier)('summonAll')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: Tuple.Map[M, [X] =>> Numeric[X]]
+              SimpleType: Tuple.Map
+                CodeReferenceElement: Tuple.Map
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  TypeLambda: [X] =>> Numeric[X]
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: X
+                        PsiElement(identifier)('X')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>>)('=>>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Numeric[X]
+                      SimpleType: Numeric
+                        CodeReferenceElement: Numeric
+                          PsiElement(identifier)('Numeric')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// compiles')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summonAll
+          PsiElement(identifier)('summonAll')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Alias
+              CodeReferenceElement: Alias
+                PsiElement(identifier)('Alias')
+          PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error: Tuple element types must be known at compile time')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: y1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y1
+        PsiElement(identifier)('y1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: f
+        PsiElement(identifier)('f')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          TupleType: (Int, Int)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+        PsiElement(])(']')

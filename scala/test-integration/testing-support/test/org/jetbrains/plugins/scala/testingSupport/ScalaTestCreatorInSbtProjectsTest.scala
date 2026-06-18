@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
@@ -31,7 +32,8 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   override protected def getTestDataProjectPath: String =
     s"scala/test-integration/testing-support/testData/testCreationProjects/${getTestName(true)}"
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override def setUp(): Unit = {
     super.setUp()
@@ -298,7 +300,7 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
     expectedTestClassFqn: String,
     @Language("Scala")
     expectedTestFileText: String
-  ): Unit =     doTestCreateNewTest(
+  ): Unit = doTestCreateNewTest(
     mainClassFqn = mainClassFqn,
     testDialogMockData = ScalaTestCreator.MockTestDialogData(),
     ExpectedTestResult(

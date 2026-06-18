@@ -1,0 +1,11 @@
+Document tests/pos/i14739.works.scala
+(2:13..2:14) _empty_/Foo#[T] -> 1:20
+(3:15..3:18) _empty_/Foo# -> 1:16
+(3:19..3:20) _empty_/Foo#[T] -> 1:20
+(3:24..3:25) _empty_/Foo#[T] -> 1:20
+(3:28..3:30) _empty_/Foo#foo().(xs) -> 3:11
+(4:14..4:17) _empty_/Foo# -> 1:16
+(4:24..4:26) local1 -> 4:10
+(4:27..4:31) _empty_/Foo#head(). -> 2:7
+(4:33..4:34) local0 -> 4:18
+

@@ -1,0 +1,16 @@
+Document tests/pos/erasure-array.scala
+(5:22..5:25) scala/Int#
+(5:28..5:33) scala/Array#
+(5:39..5:45) scala/AnyVal#
+(6:10..6:15) hello/world.mkArray().(atype) -> 5:15
+(6:16..6:18) scala/Int#`==`(+3).
+(6:26..6:31) scala/Array#
+(6:32..6:35) scala/Int#
+(6:50..6:55) scala/Array#
+(6:56..6:61) scala/Float#
+(9:18..9:23) scala/Array#
+(9:24..9:30) scala/Predef.String#
+(9:34..9:38) scala/Unit#
+(10:5..10:12) scala/Predef.println(+1).
+(10:13..10:20) hello/world.mkArray(). -> 5:7
+

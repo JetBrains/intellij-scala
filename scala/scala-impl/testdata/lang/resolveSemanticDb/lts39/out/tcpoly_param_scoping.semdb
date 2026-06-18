@@ -1,0 +1,5 @@
+Document tests/pos/tcpoly_param_scoping.scala
+(1:21..1:22) _empty_/FOO#[B] -> 1:11
+(2:17..2:18) _empty_/FOO2#[B] -> 2:20
+(3:19..3:20) _empty_/FOO3#[B] -> 3:23
+

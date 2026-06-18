@@ -1,0 +1,5 @@
+Document tests/pos/t5877b.scala
+(6:7..6:10) foo/Foo# -> 3:7
+(6:13..6:19) foo/package.EnrichedFoo2#huzzah(). -> 11:9
+(10:38..10:41) foo/Foo# -> 3:7
+

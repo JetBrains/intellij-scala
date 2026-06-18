@@ -18,6 +18,7 @@ public enum TestScalaVersion {
     Scala_3_6,
     Scala_3_7,
     Scala_3_8,
+    Scala_3_9,
     Scala_3_Latest,
     Scala_3_Latest_RC,
     Scala_3_Next_RC,
@@ -46,6 +47,7 @@ public enum TestScalaVersion {
             case Scala_3_6 -> LatestScalaVersions.Scala_3_6();
             case Scala_3_7 -> LatestScalaVersions.Scala_3_7();
             case Scala_3_8 -> LatestScalaVersions.Scala_3_8();
+            case Scala_3_9 -> LatestScalaVersions.Scala_3_9();
             case Scala_3_Latest -> LatestScalaVersions.Scala_3();
             case Scala_3_Latest_RC -> LatestScalaVersions.Scala_3_LTS_RC();
             case Scala_3_Next_RC -> LatestScalaVersions.Scala_3_Next_RC();

@@ -31,11 +31,12 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, Scala
 import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
-import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
+import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector.PrintProcessOutputOnFailurePropertyName
 import org.jetbrains.sbt.process.{SbtImportTimingCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
+import org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionBuildToolWindowWarning
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.data.*
@@ -199,7 +200,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     indicator: ProgressIndicator,
     useShellImport: Boolean
   )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
+    if (isUnitTestMode) {
+      SbtProjectResolver.setProcessOutputOfLatestStructureDump("")
+    }
 
     val optString = makeOptionsStringLiteral(settings)
 
@@ -298,7 +301,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       lazy val processOutput = dumper.processOutput.mkString
       if (isUnitTestMode) {
-        SbtProjectResolver.processOutputOfLatestStructureDump = processOutput
+        SbtProjectResolver.setProcessOutputOfLatestStructureDump(processOutput)
       }
       if (result.isFailure) {
         //NOTE: exception is logged in other places
@@ -314,9 +317,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.toCanonicalPath.toString)
       Failure(new FileNotFoundException(error))
     } else {
-      if (sbtVersion.isSbt0) {
-        LegacySbtVersionNotifications.warnForBuildToolWindow(project, projectRoot, sbtVersion, reporter)
-      }
+      LegacySbtVersionBuildToolWindowWarning.warnForBuildToolWindowIfNeeded(project, projectRoot, sbtVersion, reporter)
 
       if (!settings.separateProdTestSources) {
         LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
@@ -340,7 +341,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         log.warn(s"reused structure file created: $structureFilePath")
         doDumpStructure(structureFilePath.get)
       } else {
-        usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+        SbtProjectResolver.withStructureFile { structureFile =>
           doDumpStructure(structureFile)
         }
       }
@@ -1511,7 +1512,39 @@ object SbtProjectResolver {
   //It's hard to access process output from tests, because we use quite high-level project import API in tests
   @TestOnly
   @ApiStatus.Internal
-  var processOutputOfLatestStructureDump: String = ""
+  private var processOutputOfLatestStructureDump: String = ""
+
+  @TestOnly
+  @ApiStatus.Internal
+  def getProcessOutputOfLatestStructureDump: String =
+    processOutputOfLatestStructureDump
+
+  private def setProcessOutputOfLatestStructureDump(processOutput: String): Unit =
+    processOutputOfLatestStructureDump = processOutput
+
+  private def withStructureFile[T](action: Path => T): T =
+    structureFileForTests match {
+      case Some(structureFile) =>
+        action(structureFile)
+      case None =>
+        usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+          action(structureFile)
+        }
+    }
+
+  @TestOnly
+  @ApiStatus.Internal
+  private var structureFileForTests: Option[Path] = None
+
+  @TestOnly
+  @ApiStatus.Internal
+  def setStructureFileForTests(structureFile: Path): Unit =
+    structureFileForTests = Some(structureFile)
+
+  @TestOnly
+  @ApiStatus.Internal
+  def clearStructureFileForTests(): Unit =
+    structureFileForTests = None
 
   private case class LibraryIdentifierWithoutRevision(
     organization: String,
@@ -1612,7 +1645,7 @@ object SbtProjectResolver {
     timingCollector: Option[SbtImportTimingCollector.TimingCollector]
   ) {
     /**
-     * @see [[org.jetbrains.sbt.SbtUtil#getRepoDir]]
+     * @see [[SbtUtil#getRepoDir]]
      */
     val repoDir: Path = SbtUtil.getRepoDir(eelDescriptor)
 

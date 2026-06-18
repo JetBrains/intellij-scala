@@ -1,0 +1,15 @@
+Document tests/pos/polymorphic-functions-this.scala
+(3:10..3:11) _empty_/Foo#X# -> 2:8
+(5:16..5:17) _empty_/Foo#X# -> 2:8
+(5:26..5:27) local4 -> 5:6
+(5:37..5:38) _empty_/Foo#X# -> 2:8
+(5:44..5:45) local5 -> 5:23
+(5:47..5:48) local6 -> 5:29
+(6:3..6:4) _empty_/Foo#f. -> 4:7
+(6:5..6:6) _empty_/Foo#x(). -> 3:7
+(6:8..6:9) _empty_/Foo#x(). -> 3:7
+(9:29..9:30) local11 -> 9:6
+(9:50..9:51) local12 -> 9:26
+(9:53..9:54) local13 -> 9:32
+(10:3..10:4) _empty_/Foo#g. -> 8:7
+

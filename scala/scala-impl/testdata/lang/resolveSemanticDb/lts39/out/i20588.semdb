@@ -1,0 +1,7 @@
+Document tests/pos/i20588/Baz_2.scala
+(1:19..1:22) _empty_/Foo# -> 1:7
+
+Document tests/pos/i20588/Foo_1.scala
+(2:4..2:10) scala/native#
+(2:23..2:27) scala/Unit#
+

@@ -1,0 +1,6 @@
+Document tests/pos/i14637.scala
+(6:20..6:28) scala/package.Ordering#
+(6:29..6:30) _empty_/C# -> 3:7
+(7:30..7:31) _empty_/C# -> 3:7
+(7:37..7:38) _empty_/C# -> 3:7
+

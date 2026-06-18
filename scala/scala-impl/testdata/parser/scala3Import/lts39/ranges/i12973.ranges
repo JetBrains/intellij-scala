@@ -1,0 +1,13 @@
+[164,227]: PackageDef
+[164,164]: Ident
+[164,227]: TypeDef
+[183,227]: Template
+[183,185]: DefDef
+[183,183]: TypeTree
+[189,227]: DefDef
+[198,198]: TypeTree
+[201,227]: InterpolatedString
+[203,217]: Thicket
+[203,203]: Literal
+[204,217]: Ident
+[217,226]: Literal

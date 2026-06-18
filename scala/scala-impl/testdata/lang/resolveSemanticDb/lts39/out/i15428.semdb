@@ -1,0 +1,19 @@
+Document tests/pos/i15428.scala
+(1:8..1:15) scala/reflect/
+(1:16..1:26) scala/reflect/Selectable.
+(1:27..1:47) scala/reflect/Selectable.reflectiveSelectable().
+(4:12..4:16) scala/Long#
+(6:11..6:12) _empty_/i15428$package.k(). -> 11:5
+(6:17..6:20) _empty_/Foo# -> 3:7
+(6:25..6:28) scala/Predef.`???`().
+(9:7..9:10) _empty_/Bar# -> 8:7
+(9:11..9:14) _empty_/Foo# -> 3:7
+(9:18..9:21) scala/Predef.`???`().
+(11:29..11:31) _empty_/i15428$package.k().[Tk] -> 11:7
+(11:45..11:48) _empty_/i15428$package.k().[Ptr] -> 11:11
+(11:52..11:55) scala/Int#
+(11:70..11:73) _empty_/Bar# -> 8:7
+(11:74..11:77) _empty_/i15428$package.k().[Ptr] -> 11:11
+(11:81..11:83) _empty_/i15428$package.k().[Tk] -> 11:7
+(11:86..11:89) scala/Predef.`???`().
+

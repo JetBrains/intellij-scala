@@ -1,0 +1,24 @@
+Document tests/pos/i5938.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(3:8..3:19) scala/compiletime/
+(3:20..3:30) scala/compiletime/package$package.summonFrom().
+(9:13..9:17) _empty_/Link# -> 5:7
+(9:18..9:19) _empty_/i5938$package.link().[T] -> 7:29
+(11:21..11:22) local0 -> 9:21
+(11:26..11:31) local1 -> 11:14
+(17:32..17:36) _empty_/Link# -> 5:7
+(17:37..17:40) _empty_/Foo# -> 15:7
+(17:42..17:45) _empty_/i5938$package.Bar. -> 20:17
+(17:54..17:58) scala/caps/
+(17:59..17:65) scala/caps/unsafe.
+(17:66..17:83) scala/caps/unsafe.unsafeErasedValue().
+(21:12..21:16) scala/Unit#
+(24:21..24:24) scala/App#
+(25:13..25:17) _empty_/i5938$package.link(). -> 7:24
+(25:18..25:21) _empty_/Foo# -> 15:7
+(26:3..26:6) _empty_/Test.bar. -> 25:7
+(26:7..26:10) _empty_/i5938$package.Bar.baz(). -> 21:7
+

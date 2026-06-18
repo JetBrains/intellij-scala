@@ -1,0 +1,13 @@
+Document tests/pos/i20572.scala
+(3:25..3:31) _empty_/Writes# -> 2:7
+(3:32..3:33) _empty_/Format#[T] -> 3:14
+(4:11..4:15) _empty_/i20572$package.given_Writes_T().[T] -> 4:8
+(4:11..4:15) scala/package.List#
+(4:20..4:26) _empty_/Writes# -> 2:7
+(4:27..4:28) _empty_/i20572$package.given_Writes_T().[T] -> 4:8
+(5:14..5:20) _empty_/Format# -> 3:7
+(5:21..5:22) _empty_/i20572$package.given_Format_T().[T] -> 5:8
+(7:9..7:15) scala/Predef.summon().
+(7:16..7:22) _empty_/Writes# -> 2:7
+(7:23..7:26) scala/Int#
+

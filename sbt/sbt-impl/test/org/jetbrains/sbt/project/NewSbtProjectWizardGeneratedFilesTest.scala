@@ -11,7 +11,7 @@ import org.jetbrains.sbt.project.template.SbtModuleBuilder.IdeSettingsPluginVers
  *
  * For full-import and IntelliJ project-structure validation, see [[NewSbtProjectWizardFullImportTest]]
  */
-class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase with ExactMatch {
+class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase {
   import NewSbtProjectWizardGeneratedFilesTest.TestData.*
 
   def testCreateSbt_0_13_Project(): Unit = {

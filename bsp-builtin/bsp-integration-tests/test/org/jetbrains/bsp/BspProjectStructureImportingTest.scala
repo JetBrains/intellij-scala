@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, excluded, libraries, libraryDependencies, module, modules, project, resources, sources, testResources, testSources}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
-import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk}
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk, ScalaExternalSystemImportingTestBase}
 import org.junit.experimental.categories.Category
 
 abstract class BspProjectStructureImportingTestBase
@@ -21,7 +21,8 @@ abstract class BspProjectStructureImportingTestBase
 
   override protected def reuseExistingConnectionFile = false
 
-  override protected def copyTestProjectToTemporaryDir = true
+  override protected def getTestProjectCopyOptions: ScalaExternalSystemImportingTestBase.TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   protected implicit lazy val defaultCompareContext: ProjectStructureComparisonContext =
     ProjectStructureComparisonContext.Implicit.default(using getMyProject)

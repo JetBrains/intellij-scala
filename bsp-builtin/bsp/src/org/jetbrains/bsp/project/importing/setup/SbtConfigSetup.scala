@@ -9,6 +9,7 @@ import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion, sbtVers
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 
 import java.nio.file.Path
 import scala.util.Try
@@ -48,9 +49,18 @@ object SbtConfigSetup {
     val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
 
     val runInit = (runner: SbtRunner, indicator: ProgressIndicator, reporter: BuildReporter) => runner.runSbt(
-      indicator, baseDir, jdkExe, vmArgs,
-      Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
-      BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true, timingCollector = None
+      indicator,
+      baseDir,
+      jdkExe,
+      vmArgs,
+      Map.empty,
+      sbtLauncher,
+      SbtExecutionSettings.SbtOptions.empty,
+      sbtLauncherArgs,
+      sbtCommands,
+      BspBundle.message("bsp.resolver.creating.sbt.configuration"),
+      passParentEnvironment = true,
+      timingCollector = None
     )(using reporter)
     new SbtConfigSetup(runInit)
   }

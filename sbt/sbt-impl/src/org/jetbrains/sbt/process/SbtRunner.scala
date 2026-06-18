@@ -1,12 +1,14 @@
 package org.jetbrains.sbt.process
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
+import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
@@ -15,11 +17,13 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
-import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
+import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, asLocalPath, eelDescriptor}
+import org.jetbrains.sbt.{SbtBundle, asLocalPath, eelDescriptor}
 
 import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -31,7 +35,7 @@ import scala.concurrent.duration.{FiniteDuration, given}
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try, Using}
 
-final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = None):
+final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector] = None):
   import SbtRunner.*
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
@@ -46,12 +50,13 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     vmOptions: Seq[String],
     environment0: Map[String, String],
     sbtLauncher: Path,
-    sbtOptions: Seq[String],
+    sbtOptions: SbtExecutionSettings.SbtOptions,
     sbtLauncherArgs: Seq[String],
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector],
+    project: Option[Project] = None,
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] =
@@ -65,7 +70,15 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       reportMessage,
       passParentEnvironment,
       timingCollector,
-      sbtProcessOptions = SbtUtil.collectAllOptions(directory, vmOptions, sbtOptions, passParentEnvironment, environment0, sbtLauncherArgs)
+      sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
+        directory,
+        vmOptions,
+        sbtOptions.options,
+        EnvironmentVariablesData.create(environment0.asJava, passParentEnvironment),
+        sbtLauncherArgs,
+        sbtOptions.malformedOptions
+      ),
+      project = project,
     )
 
   /**
@@ -107,7 +120,8 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
     timingCollector: Option[SbtImportTimingCollector.TimingCollector],
-    sbtProcessOptions: SbtProcessOptions
+    sbtProcessOptions: SbtProcessOptions,
+    project: Option[Project],
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] = {
@@ -132,15 +146,21 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
 
     val startTime = System.currentTimeMillis()
 
-    //noinspection ApiStatus,UnstableApiUsage
-    val transferredSbtLauncher =
-      EelPathUtils.transferLocalContentToRemote(sbtLauncher, TransferTarget.Temporary(directory.eelDescriptor))
-
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
-      validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, transferredSbtLauncher)
+      val useMockSbt = project.exists(MockSbtProcessForTests.isEnabled)
+      val sbtLaunchCommand: Seq[String] =
+        if (useMockSbt) {
+          val mockProcessCommandLineTail = project.toSeq.flatMap(MockSbtProcessForTests.mockMainClassCommandLineTailForNonShellFromStdin)
+          mockProcessCommandLineTail ++ sbtProcessOptions.sbtLauncherArgs
+        } else {
+          //noinspection ApiStatus,UnstableApiUsage
+          val transferredSbtLauncher = EelPathUtils.transferLocalContentToRemote(sbtLauncher, TransferTarget.Temporary(directory.eelDescriptor))
+          validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, transferredSbtLauncher)
+          List("-jar", transferredSbtLauncher.asLocalPath) ++ sbtProcessOptions.sbtLauncherArgs
+        }
 
       val processCommandsRaw =
         List(
@@ -150,8 +170,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
           "-Dfile.encoding=UTF-8"
         ) ++
           sbtProcessOptions.allVmOptions ++
-          List("-jar", transferredSbtLauncher.asLocalPath) ++
-          sbtProcessOptions.sbtLauncherArgs // :+ "--debug"
+          sbtLaunchCommand // :+ "--debug"
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -254,15 +273,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       }
     }
 
-    val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
-
     val processListener: (OutputType, String) => Unit = (typ, line) => {
-      optProcessOutputBuilder.foreach { builder =>
-        builder.append(s"[${typ.name}] $line")
-        if (!line.endsWith("\n")) {
-          builder.append('\n')
-        }
-      }
       (typ, line) match {
         case (typ@OutputType.StdOut, text) =>
           outputDumpRecorder.onProcessOutput(typ, text)
@@ -283,6 +294,8 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     val handler = new OSProcessHandler(process, "sbt import", StandardCharsets.UTF_8)
     // TODO: rewrite this code, do not use try, throw
     val result = Try {
+      SbtProcessOutputDiagnosticsCollector.collectProcessOutputFrom(handler, processTitle = "SBT separate process output")
+      processOutputCollector.foreach(_.collectProcessOutputFrom(handler, processTitle = "SBT separate process output"))
       handler.addProcessListener(new ListenerAdapter(processListener))
       Log.debug("handler.startNotify()")
       handler.startNotify()

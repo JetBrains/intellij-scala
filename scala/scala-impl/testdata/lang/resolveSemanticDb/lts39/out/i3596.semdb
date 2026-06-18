@@ -1,0 +1,6 @@
+Document tests/pos/i3596.scala
+(1:18..1:21) scala/Int#
+(1:25..1:28) scala/Int#
+(2:19..2:22) _empty_/Bar# -> 1:7
+(2:28..2:29) local0 -> 2:23
+

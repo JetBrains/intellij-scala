@@ -1,0 +1,17 @@
+[0,89]: PackageDef
+[0,0]: Ident
+[0,26]: TypeDef
+[14,26]: Template
+[14,26]: DefDef
+[15,25]: ValDef
+[18,21]: Ident
+[24,25]: Number
+[25,25]: TypeTree
+[28,89]: ExtMethods
+[39,45]: ValDef
+[42,45]: Ident
+[49,70]: DefDef
+[64,64]: TypeTree
+[67,70]: Ident
+[73,89]: Export
+[80,83]: Ident

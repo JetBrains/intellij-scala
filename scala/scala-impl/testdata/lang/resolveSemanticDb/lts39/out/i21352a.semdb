@@ -1,0 +1,78 @@
+Document tests/pos/i21352a/schema.scala
+(3:30..3:36) scala/Predef.String#
+(4:17..4:23) _empty_/Schema# -> 3:12
+(4:24..4:30) scala/Option#
+(4:31..4:32) _empty_/Schema#[T] -> 3:19
+(4:37..4:40) scala/Predef.`???`().
+(5:18..5:24) scala/Option#
+(5:25..5:30) _empty_/SName# -> 6:7
+(5:34..5:40) _empty_/Schema# -> 3:12
+(5:41..5:42) _empty_/Schema#[T] -> 3:19
+(5:46..5:49) scala/Predef.`???`().
+(6:17..6:23) scala/Predef.String#
+(6:26..6:32) _empty_/Schema# -> 3:12
+(6:33..6:34) _empty_/Schema#[T] -> 3:19
+(6:38..6:41) scala/Predef.`???`().
+(8:23..8:44) _empty_/SchemaCompanionMacros# -> 13:7
+(9:35..9:41) _empty_/Schema# -> 3:12
+(9:35..9:41) _empty_/Schema.schemaForOption().[T] -> 9:32
+(9:44..9:50) _empty_/Schema# -> 3:12
+(9:51..9:57) scala/Option#
+(9:58..9:59) _empty_/Schema.schemaForOption().[T] -> 9:32
+(10:5..10:15) scala/Predef.implicitly().
+(10:16..10:22) _empty_/Schema# -> 3:12
+(10:23..10:24) _empty_/Schema.schemaForOption().[T] -> 9:32
+(11:5..11:8) scala/Predef.`???`().
+(13:37..13:53) _empty_/SchemaDerivation# -> 21:7
+(14:52..14:61) _empty_/IsUnionOf# -> 16:14
+(14:62..14:68) scala/Predef.String#
+(14:70..14:71) _empty_/SchemaCompanionMacros#derivedStringBasedUnionEnumeration().[S] -> 14:46
+(14:76..14:82) _empty_/Schema# -> 3:12
+(14:83..14:84) _empty_/SchemaCompanionMacros#derivedStringBasedUnionEnumeration().[S] -> 14:46
+(15:12..15:18) _empty_/Schema# -> 3:12
+(15:19..15:20) _empty_/SchemaCompanionMacros#derivedStringBasedUnionEnumeration().[S] -> 14:46
+(15:24..15:27) scala/Predef.`???`().
+(16:5..16:6) local0 -> 15:9
+(16:7..16:11) _empty_/Schema#name(). -> 5:7
+(16:12..16:16) scala/None.
+(18:2..18:6) scala/main#
+(19:21..19:24) scala/Int#
+
+Document tests/pos/i21352a/schemaDerivation.scala
+(3:8..3:13) scala/
+(3:14..3:22) scala/deriving/
+(4:8..4:13) scala/
+(4:14..4:20) scala/quoted/
+(8:14..8:23) _empty_/CaseClass. -> 10:8
+(8:24..8:29) _empty_/CaseClass.Param# -> 11:9
+(8:30..8:39) _empty_/CaseClass#[Typeclass] -> 7:26
+(8:41..8:45) _empty_/CaseClass#[Type] -> 7:40
+(13:20..13:29) _empty_/CaseClass.Param#[Typeclass] -> 11:15
+(13:30..13:35) _empty_/CaseClass.Param#PType# -> 12:10
+(18:47..18:56) _empty_/IsUnionOf# -> 16:14
+(18:57..18:58) _empty_/IsUnionOf.derived().[T] -> 18:38
+(18:60..18:61) _empty_/IsUnionOf.derived().[A] -> 18:41
+(18:68..18:78) _empty_/IsUnionOf.inline$deriveImpl().
+(18:79..18:80) _empty_/IsUnionOf.derived().[T] -> 18:38
+(18:82..18:83) _empty_/IsUnionOf.derived().[A] -> 18:41
+(19:46..19:52) scala/quoted/Quotes#
+(19:55..19:59) scala/quoted/Expr#
+(19:60..19:69) _empty_/IsUnionOf# -> 16:14
+(19:70..19:71) _empty_/IsUnionOf.deriveImpl().[T] -> 19:26
+(19:73..19:74) _empty_/IsUnionOf.deriveImpl().[A] -> 19:29
+(19:79..19:82) scala/Predef.`???`().
+(22:46..22:52) scala/deriving/Mirror.
+(22:53..22:55) scala/deriving/Mirror.Of#
+(22:56..22:57) _empty_/SchemaDerivation#derived().[T] -> 22:31
+(22:61..22:67) _empty_/Schema# -> 3:12
+(22:68..22:69) _empty_/SchemaDerivation#derived().[T] -> 22:31
+(23:14..23:23) _empty_/CaseClass# -> 7:16
+(23:32..23:33) _empty_/SchemaDerivation#derived().[T] -> 22:31
+(23:37..23:40) scala/Predef.`???`().
+(24:23..24:26) local1 -> 23:9
+(24:27..24:32) _empty_/CaseClass#param(). -> 8:7
+(24:33..24:42) _empty_/CaseClass.Param#typeclass(). -> 13:9
+(25:18..25:29) local2 -> 24:9
+(25:30..25:36) _empty_/Schema#format. -> 3:22
+(26:5..26:8) scala/Predef.`???`().
+

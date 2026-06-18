@@ -23,7 +23,12 @@ import java.util
 import javax.swing.{Icon, JLabel, SwingConstants}
 import scala.jdk.CollectionConverters.*
 
-final class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
+final class SbtShellRunner(
+  project: Project,
+  consoleTitle: String,
+  debugConnection: Option[RemoteConnection],
+  activateToolWindowOnStartup: Boolean = true,
+)
   extends AbstractConsoleRunnerWithHistory[SbtShellConsoleView](project, consoleTitle, project.baseDir.getCanonicalPath) {
 
   private val log = Logger.getInstance(getClass)
@@ -109,7 +114,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
     myProcessHandler.addProcessListener(shellPromptChanger(consoleView))
 
-    SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
+    // Do not initialize shell communication here: SbtProcessManager does it before startNotify, so prompt output cannot race ahead of the command queue listener.
 
     SbtShellToolWindowFactory.initUi(
       project,
@@ -119,14 +124,14 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   // TODO update icon with ready/working state
-  private def shellPromptChanger(consoleView: SbtShellConsoleView): SbtShellReadyListener = {
+  private def shellPromptChanger(consoleView: SbtShellConsoleView): SbtShellReadyLineListener = {
     def scrollToEnd(): Unit = invokeLater {
       val editor = consoleView.getHistoryViewer
       if (!editor.isDisposed)
         EditorUtil.scrollToTheEnd(editor)
     }
 
-    new SbtShellReadyListener(
+    new SbtShellReadyLineListener(
       "prompt changer",
       whenReady = {
         consoleView.setPrompt(">")
@@ -160,7 +165,11 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
   override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit =
-    openShell(contentDescriptor.isAutoFocusContent)
+    SbtShellRunner.openShellOnStartup(
+      activateToolWindowOnStartup,
+      focus = contentDescriptor.isAutoFocusContent,
+      openShell = openShell,
+    )
 
   /** Shows ToolWindow on UI thread asynchronously */
   def openShell(focus: Boolean): Unit =
@@ -192,6 +201,15 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 }
 
 object SbtShellRunner {
+  private[shell] def openShellOnStartup(
+    activateToolWindowOnStartup: Boolean,
+    focus: Boolean,
+    openShell: Boolean => Unit,
+  ): Unit =
+    if (activateToolWindowOnStartup) {
+      openShell(focus)
+    }
+
   /**
    * Shows ToolWindow on UI thread asynchronously.
    * This method doesn't start the sbt shell process.

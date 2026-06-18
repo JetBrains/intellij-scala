@@ -1,0 +1,9 @@
+Document tests/pos/t10350/Bar.scala
+(5:14..5:20) scala/Predef.String#
+(5:23..5:26) foo/
+(5:27..5:30) foo/Foo#
+(5:33..5:36) foo/
+(5:37..5:40) foo/Foo#
+(5:41..5:47) foo/Foo#create().
+(5:48..5:49) bar/Bar.xxx().(s) -> 5:11
+

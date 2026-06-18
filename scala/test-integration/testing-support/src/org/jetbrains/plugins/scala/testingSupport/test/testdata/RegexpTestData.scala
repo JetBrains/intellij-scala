@@ -27,7 +27,16 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 
   @BeanProperty var classRegexps: Array[String] = Array.empty
   @BeanProperty var testRegexps: Array[String]  = Array.empty
+
+  // Same-session cache for dumb mode: in smart mode regexp discovery recalculates the class -> test map below and
+  // overwrites this value. In dumb mode we can only reuse that last live result, because collecting classes/tests by
+  // regexp needs indexes. The cache is intentionally not a persisted setting; see transientRuntimeAccessorNames.
   @BeanProperty var testsBuf: ju.Map[String, ju.Set[String]] = new ju.HashMap()
+
+  // testsBuf used to be serialized as ordinary XMLB bean state. That made shared .run files contain discovered test
+  // implementation details and go stale/churn in VCS. Keep only the user-entered regexps persistent.
+  override protected def transientRuntimeAccessorNames: Set[String] =
+    super.transientRuntimeAccessorNames + RegexpTestData.TestsBufAccessorName
 
   protected[test] def zippedRegexps: Array[(String, String)] = classRegexps.zipAll(testRegexps, "", "")
   def regexps: (Array[String], Array[String]) = (classRegexps, testRegexps)
@@ -158,6 +167,8 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
         findTestsByFqnCondition(getCondition(classPatternString), getCondition(testPatternString), classToTests)
     }
     val res = classToTests.toMap.filter(_._2.nonEmpty)
+    // Refresh the dumb-mode fallback after every smart-mode discovery, so newly added/removed tests are reflected
+    // before this live configuration object is reused during indexing.
     testsBuf = res.map { case (k, v) => k -> v.asJava }.asJava
     res
   }
@@ -187,10 +198,13 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
       helper.migrateArray("classRegexps", "pattern")(arr => classRegexps = arr.clone())
       helper.migrateArray("testRegexps", "pattern")(arr => testRegexps = arr.clone())
     }
+    // Ignore testsBuf from old persisted configurations. It is stale launch-time cache data, not configuration intent.
+    testsBuf = new ju.HashMap()
   }
 }
 
 object RegexpTestData {
+  private[testdata] val TestsBufAccessorName = "testsBuf"
 
   def apply(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String]): RegexpTestData = {
     val res = new RegexpTestData(config)

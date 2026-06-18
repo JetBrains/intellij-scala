@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <module name="scalaCommunity.compiler-integration"/>
+        <module name="intellij.java.debugger.impl"/>
     </dependencies>
 
     <extensionPoints>

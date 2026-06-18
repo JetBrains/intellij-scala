@@ -1,0 +1,16 @@
+Document tests/pos/i5750.scala
+(2:12..2:18) scala/Predef.String#
+(3:18..3:25) scala/Boolean#
+(3:28..3:31) scala/Int#
+(4:9..4:13) _empty_/Test#test().(cond) -> 3:12
+(4:15..4:18) _empty_/Test#foo(). -> 2:7
+(8:19..8:26) scala/Boolean#
+(8:29..8:33) scala/Unit#
+(9:17..9:21) _empty_/Test#test2().(cond) -> 8:13
+(9:23..9:26) _empty_/Test#foo(). -> 2:7
+(12:19..12:26) scala/Boolean#
+(12:29..12:33) scala/Unit#
+(13:12..13:16) scala/Unit#
+(13:23..13:27) _empty_/Test#test3().(cond) -> 12:13
+(13:29..13:32) _empty_/Test#foo(). -> 2:7
+

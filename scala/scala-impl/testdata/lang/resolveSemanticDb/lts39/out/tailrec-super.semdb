@@ -1,0 +1,29 @@
+Document tests/pos/tailrec-super.scala
+(2:26..2:30) _empty_/Tree# -> 1:7
+(2:42..2:46) scala/package.List#
+(2:47..2:53) scala/Predef.String#
+(2:62..2:66) _empty_/Tree# -> 1:7
+(2:76..2:80) _empty_/Tree# -> 1:7
+(3:31..3:35) _empty_/Tree# -> 1:7
+(7:23..7:27) _empty_/Tree# -> 1:7
+(7:35..7:42) _empty_/Context# -> 4:7
+(7:45..7:49) _empty_/Tree# -> 1:7
+(7:52..7:56) _empty_/Transform#transform().(tree) -> 7:17
+(10:26..10:30) scala/package.List#
+(10:31..10:37) scala/Predef.String#
+(10:41..10:44) scala/package.Nil.
+(11:33..11:40) _empty_/Context# -> 4:7
+(12:33..12:42) _empty_/Transform# -> 6:7
+(13:36..13:40) _empty_/Tree# -> 1:7
+(13:48..13:55) _empty_/Context# -> 4:7
+(13:59..13:63) local0 -> 13:30
+(14:14..14:21) _empty_/Inlined.
+(14:22..14:31) _empty_/EmptyTree. -> 3:13
+(14:33..14:36) scala/package.Nil.
+(14:47..14:64) _empty_/Inliner#enclosingInlineds(). -> 10:7
+(14:65..14:72) scala/collection/immutable/List#isEmpty().
+(14:76..14:85) local3 -> 13:20
+(14:86..14:90) local2 -> 14:38
+(15:25..15:34) _empty_/Transform#transform(). -> 7:7
+(15:35..15:39) local0 -> 13:30
+

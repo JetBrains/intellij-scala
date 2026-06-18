@@ -13,12 +13,6 @@ class ResolveCompilerBridgeTest_3 extends SbtExternalSystemImportingTestLike {
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/resolveCompilerBridge_Scala3"
 
-  override def setUp(): Unit = {
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-  }
-
   def testResolveCompilerBridge(): Unit = {
     importProject(false)
 

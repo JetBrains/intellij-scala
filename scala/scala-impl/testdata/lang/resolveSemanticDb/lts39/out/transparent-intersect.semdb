@@ -1,0 +1,13 @@
+Document tests/pos/transparent-intersect.scala
+(3:10..3:13) scala/Any#
+(3:25..3:28) scala/Int#
+(3:31..3:32) scala/`&`#
+(3:33..3:39) java/lang/Object#
+(3:42..3:45) scala/Predef.`???`().
+(4:14..4:17) scala/Predef.`???`().
+(4:23..4:24) _empty_/Test.x. -> 3:7
+(4:30..4:31) _empty_/Test.x. -> 3:7
+(5:11..5:17) java/lang/Object#
+(5:29..5:32) scala/Int#
+(5:37..5:38) _empty_/Test.y. -> 4:7
+

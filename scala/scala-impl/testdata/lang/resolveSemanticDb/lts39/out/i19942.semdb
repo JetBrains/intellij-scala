@@ -1,0 +1,36 @@
+Document tests/pos/i19942.scala
+(1:27..1:30) scala/Any#
+(6:33..6:42) _empty_/Lifecycle# -> 2:7
+(6:43..6:45) _empty_/LifecycleTag.resourceTag().[F0] -> 6:52
+(6:47..6:49) _empty_/LifecycleTag.resourceTag().[A0] -> 6:59
+(6:64..6:76) _empty_/LifecycleTag# -> 4:7
+(6:77..6:78) _empty_/LifecycleTag.resourceTag().[R] -> 6:28
+(6:82..6:85) scala/Predef.`???`().
+(9:31..9:40) _empty_/Lifecycle# -> 2:7
+(9:41..9:51) _empty_/i19942$package.LifecycleF# -> 1:6
+(9:53..9:54) _empty_/MakeDSL#[T] -> 8:15
+(9:71..9:83) _empty_/LifecycleTag# -> 4:7
+(9:84..9:85) _empty_/MakeDSL#fromResource().[R] -> 9:26
+(9:89..9:92) scala/Any#
+(9:95..9:98) scala/Predef.`???`().
+(13:29..13:30) _empty_/distage.Identity#[A] -> 13:24
+(14:8..14:15) _empty_/distage. -> 11:8
+(17:35..17:44) _empty_/Lifecycle# -> 2:7
+(17:45..17:53) _empty_/distage.Identity# -> 13:14
+(17:55..17:63) _empty_/Resource# -> 16:7
+(19:2..19:6) scala/main#
+(20:12..20:19) _empty_/MakeDSL# -> 8:7
+(20:20..20:28) _empty_/Resource# -> 16:7
+(20:32..20:35) scala/Predef.`???`().
+(21:15..21:18) local0 -> 20:7
+(21:19..21:31) _empty_/MakeDSL#fromResource(). -> 9:13
+(21:32..21:49) _empty_/DependentResource# -> 17:7
+(22:15..22:18) local0 -> 20:7
+(22:19..22:31) _empty_/MakeDSL#fromResource(). -> 9:13
+(22:32..22:49) _empty_/DependentResource# -> 17:7
+(22:57..22:69) _empty_/LifecycleTag. -> 5:8
+(22:70..22:81) _empty_/LifecycleTag.resourceTag(). -> 6:16
+(22:82..22:99) _empty_/DependentResource# -> 17:7
+(22:101..22:109) _empty_/distage.Identity# -> 13:14
+(22:111..22:119) _empty_/Resource# -> 16:7
+

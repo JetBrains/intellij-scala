@@ -1,0 +1,4 @@
+Document tests/pos/t7689.scala
+(6:12..6:16) scala/package.List#
+(6:23..6:26) scala/Int#
+

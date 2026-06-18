@@ -1,0 +1,19 @@
+Document tests/pos/i17948.scala
+(2:19..2:22) scala/Int#
+(3:17..3:20) scala/Int#
+(3:23..3:24) _empty_/P. -> 5:8
+(3:25..3:27) _empty_/P.id(). -> 6:7
+(6:13..6:14) _empty_/O. -> 1:8
+(6:15..6:16) _empty_/O.T# -> 2:15
+(6:19..6:20) _empty_/O. -> 1:8
+(6:21..6:22) _empty_/O.T# -> 2:15
+(6:25..6:26) _empty_/P.id().(x) -> 6:10
+(9:18..9:23) scala/Array#
+(9:24..9:30) scala/Predef.String#
+(9:34..9:38) scala/Unit#
+(9:41..9:48) scala/Predef.println(+1).
+(9:49..9:52) _empty_/Test.foo(). -> 11:7
+(11:14..11:17) scala/Int#
+(11:20..11:21) _empty_/O. -> 1:8
+(11:22..11:23) _empty_/O.x(). -> 3:14
+

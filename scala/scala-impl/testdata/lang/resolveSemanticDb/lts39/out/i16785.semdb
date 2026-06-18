@@ -1,0 +1,17 @@
+Document tests/pos/i16785.scala
+(4:18..4:25) _empty_/VarImpl# -> 1:7
+(4:26..4:30) _empty_/Outer#[Lbl1] -> 3:24
+(4:32..4:34) _empty_/Outer#Var#[A1] -> 4:12
+(8:13..8:16) _empty_/Outer#Foo# -> 6:16
+(8:17..8:20) _empty_/Outer#Var# -> 4:8
+(8:21..8:22) _empty_/Outer#Bar#[T] -> 7:18
+(8:24..8:27) _empty_/Outer#[`|*|`] -> 3:13
+(8:28..8:31) _empty_/Outer#Var# -> 4:8
+(8:32..8:33) _empty_/Outer#Bar#[U] -> 7:21
+(10:18..10:21) _empty_/Outer#Foo# -> 6:16
+(10:22..10:25) _empty_/Outer#Var# -> 4:8
+(10:26..10:27) _empty_/Outer#go().[X] -> 10:10
+(10:32..10:36) scala/Unit#
+(10:39..10:42) _empty_/Outer#go().(scr) -> 10:13
+(11:10..11:13) _empty_/Outer#Bar.
+

@@ -1,0 +1,12 @@
+Document tests/pos/i15289.scala
+(3:30..3:31) _empty_/Bar#[C] -> 3:22
+(3:41..3:44) _empty_/Foo# -> 2:23
+(3:45..3:46) _empty_/Bar#[C] -> 3:22
+(3:48..3:49) _empty_/Bar#[C] -> 3:22
+(6:17..6:20) _empty_/Foo# -> 2:23
+(6:21..6:22) _empty_/Test#m1().[X] -> 6:10
+(6:24..6:30) scala/Predef.String#
+(6:34..6:40) scala/Predef.String#
+(6:43..6:45) _empty_/Test#m1().(f1) -> 6:13
+(6:59..6:62) _empty_/Bar.
+

@@ -1,0 +1,11 @@
+Document tests/pos/i5411.scala
+(4:12..4:15) scala/package.Seq#
+(4:16..4:17) _empty_/A# -> 1:7
+(4:18..4:19) scala/`&`#
+(4:20..4:21) _empty_/B# -> 2:7
+(4:26..4:30) java/
+(4:31..4:35) java/util/
+(4:36..4:42) java/util/Arrays#
+(4:43..4:49) java/util/Arrays#asList().
+(4:50..4:51) _empty_/O.m().(x) -> 4:9
+

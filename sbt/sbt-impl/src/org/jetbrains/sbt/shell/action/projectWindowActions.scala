@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction.*
+import org.jetbrains.sbt.shell.communication.SbtShellCommandRequest
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
-import java.util.UUID
 import scala.jdk.CollectionConverters.*
 import scala.jdk.FutureConverters.*
 
@@ -41,16 +41,16 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
     val cmd = buildCmd(projectPart, keyPart)
 
     // Running a command in the sbt shell requires a BGT because some underlying eel methods used when the shell is created need it
-    val id = UUID.randomUUID().toString
+    val request = SbtShellCommandRequest.collectOutput(cmd)
     val task = new Task.Backgroundable(e.getProject, SbtBundle.message("sbt.shell.action.run.task.indicator", keyPart), true) {
       override def run(indicator: ProgressIndicator): Unit = {
-        val future = comms.command(cmd, id)
+        val future = comms.runAndCollectOutput(request)
         // It checks if the indicator was canceled, if so, it will trigger the #onCancel method
         ProgressIndicatorUtils.awaitWithCheckCanceled(future.asJava.toCompletableFuture)
       }
 
       override def onCancel(): Unit =
-        comms.removeCommandFromQueueOrCancel(id)
+        comms.removeCommandFromQueueOrCancel(request.requestId)
     }
     ProgressManager.getInstance().run(task)
   }

@@ -1,0 +1,5 @@
+Document tests/pos/thistypes.scala
+(3:19..3:20) _empty_/B#I# -> 2:9
+(6:17..6:18) _empty_/B# -> 1:7
+(7:19..7:20) _empty_/B#I# -> 2:9
+

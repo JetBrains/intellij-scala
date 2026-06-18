@@ -1,0 +1,9 @@
+Document tests/pos/i7070.scala
+(5:19..5:25) scala/Predef.String#
+(5:36..5:37) _empty_/Test.C# -> 3:9
+(5:42..5:45) scala/Int#
+(5:48..5:51) scala/Predef.`???`().
+(7:9..7:10) _empty_/Test.C# -> 3:9
+(7:13..7:16) scala/Predef.`???`().
+(9:19..9:22) _empty_/Test.foo(). -> 5:31
+

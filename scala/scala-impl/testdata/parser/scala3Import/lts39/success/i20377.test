@@ -1,0 +1,431 @@
+import NamedTuple.{NamedTuple, AnyNamedTuple}
+
+// Repros for bugs or questions
+class ClassToMap[A]()
+abstract class ClassToFind[Rows <: AnyNamedTuple]:
+  def mapped: NamedTuple.Map[Rows, ClassToMap]
+
+given TDB: ClassToFind[(t1: Int, t2: String)]:
+  override def mapped = (
+    t1 = ClassToMap[Int](),
+    t2 = ClassToMap[String]()
+  )
+
+type TypeAlias = (t1: Int, t2: String)
+class Repro1_Pass(using val testDB: ClassToFind[TypeAlias]) {
+  def query() =
+    testDB.mapped.t1
+}
+class Repro1_Fail(using val testDB: ClassToFind[(t1: Int, t2: String)]) {
+  def query() =
+    testDB.mapped.t1 // fails to compile
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: NamedTuple
+        PsiElement(identifier)('NamedTuple')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: NamedTuple
+            PsiElement(identifier)('NamedTuple')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: AnyNamedTuple
+            PsiElement(identifier)('AnyNamedTuple')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ClassToMap
+    PsiComment(comment)('// Repros for bugs or questions')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassToMap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ClassToFind
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassToFind')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Rows
+        PsiElement(identifier)('Rows')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: AnyNamedTuple
+          CodeReferenceElement: AnyNamedTuple
+            PsiElement(identifier)('AnyNamedTuple')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: mapped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mapped')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: NamedTuple.Map[Rows, ClassToMap]
+            SimpleType: NamedTuple.Map
+              CodeReferenceElement: NamedTuple.Map
+                CodeReferenceElement: NamedTuple
+                  PsiElement(identifier)('NamedTuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Rows
+                  CodeReferenceElement: Rows
+                    PsiElement(identifier)('Rows')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: ClassToMap
+                  CodeReferenceElement: ClassToMap
+                    PsiElement(identifier)('ClassToMap')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScGivenDefinition: TDB
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TDB')
+    PsiElement(:)(':')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: ClassToFind[(t1: Int, t2: String)]
+            SimpleType: ClassToFind
+              CodeReferenceElement: ClassToFind
+                PsiElement(identifier)('ClassToFind')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                NamedTupleType: (t1: Int, t2: String)
+                  PsiElement(()('(')
+                  NamedTupleTypeComponent: t1: Int
+                    PsiElement(identifier)('t1')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  NamedTupleTypeComponent: t2: String
+                    PsiElement(identifier)('t2')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mapped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mapped')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NamedTuple
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('t1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: ClassToMap
+                    PsiElement(identifier)('ClassToMap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('t2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: ClassToMap
+                    PsiElement(identifier)('ClassToMap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: TypeAlias
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TypeAlias')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (t1: Int, t2: String)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: t1: Int
+        PsiElement(identifier)('t1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      NamedTupleTypeComponent: t2: String
+        PsiElement(identifier)('t2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScClass: Repro1_Pass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro1_Pass')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: testDB
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('testDB')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: ClassToFind[TypeAlias]
+                SimpleType: ClassToFind
+                  CodeReferenceElement: ClassToFind
+                    PsiElement(identifier)('ClassToFind')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: TypeAlias
+                      CodeReferenceElement: TypeAlias
+                        PsiElement(identifier)('TypeAlias')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: query
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('query')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: testDB.mapped.t1
+            ReferenceExpression: testDB.mapped
+              ReferenceExpression: testDB
+                PsiElement(identifier)('testDB')
+              PsiElement(.)('.')
+              PsiElement(identifier)('mapped')
+            PsiElement(.)('.')
+            PsiElement(identifier)('t1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: Repro1_Fail
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro1_Fail')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: testDB
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('testDB')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: ClassToFind[(t1: Int, t2: String)]
+                SimpleType: ClassToFind
+                  CodeReferenceElement: ClassToFind
+                    PsiElement(identifier)('ClassToFind')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    NamedTupleType: (t1: Int, t2: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: t1: Int
+                        PsiElement(identifier)('t1')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      NamedTupleTypeComponent: t2: String
+                        PsiElement(identifier)('t2')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: query
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('query')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: testDB.mapped.t1
+            ReferenceExpression: testDB.mapped
+              ReferenceExpression: testDB
+                PsiElement(identifier)('testDB')
+              PsiElement(.)('.')
+              PsiElement(identifier)('mapped')
+            PsiElement(.)('.')
+            PsiElement(identifier)('t1')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// fails to compile')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

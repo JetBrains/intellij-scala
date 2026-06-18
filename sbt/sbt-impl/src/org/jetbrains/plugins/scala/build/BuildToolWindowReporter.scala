@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.events.impl.*
 import com.intellij.build.events.{BuildEvent, BuildEvents, EventResult, MessageEvent}
-import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
+import com.intellij.build.issue.BuildIssue
+import com.intellij.build.{AbstractViewManager, BuildContentManager, BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.sbt.SbtBundle
@@ -21,21 +24,38 @@ import scala.concurrent.Promise
  * Reports events to the Build Tool Window.
  *
  * @param activateToolWindowWhenFailed If true, activates the tool window when a finish event with failure result is emitted.
+ * @param activateToolWindowWhenWarned If true, activates the tool window when the first warning is emitted.
  */
-class BuildToolWindowReporter(project: Project,
-                              buildId: EventId,
-                              @Nls title: String,
-                              viewManager: BuildViewManager,
-                              cancelAction: AnAction,
-                              activateToolWindowWhenFailed: Boolean)
-  extends BuildReporter {
+class BuildToolWindowReporter(
+  project: Project,
+  buildId: EventId,
+  @Nls title: String,
+  viewManager: AbstractViewManager,
+  cancelAction: AnAction,
+  activateToolWindowWhenFailed: Boolean,
+  activateToolWindowWhenWarned: Boolean
+) extends BuildReporter {
+
   import MessageEvent.Kind
 
-  def this(project: Project, buildId: EventId, @Nls title: String, cancelAction: AnAction, activateToolWindowWhenFailed: Boolean = true) =
+  private var warningActivatedToolWindow = false
+
+  def this(
+    project: Project,
+    buildId: EventId,
+    @Nls title: String,
+    cancelAction: AnAction,
+    activateToolWindowWhenFailed: Boolean = true,
+    activateToolWindowWhenWarned: Boolean = false
+  ) =
     this(
-      project, buildId, title,
+      project,
+      buildId,
+      title,
       project.getService(classOf[BuildViewManager]),
-      cancelAction, activateToolWindowWhenFailed
+      cancelAction,
+      activateToolWindowWhenFailed = activateToolWindowWhenFailed,
+      activateToolWindowWhenWarned = activateToolWindowWhenWarned
     )
 
   override def start(): Unit = {
@@ -126,8 +146,29 @@ class BuildToolWindowReporter(project: Project,
 
   override def clear(file: Path): Unit = ()
 
-  override def warning(message: String, position: Option[FilePosition]): Unit =
+  override def warning(message: String, position: Option[FilePosition]): Unit = {
+    activateToolWindowOnWarning()
     viewManager.onEvent(buildId, event(message, Kind.WARNING, position))
+  }
+
+  override def warning(message: String, position: Option[FilePosition], details: String): Unit = {
+    activateToolWindowOnWarning()
+    viewManager.onEvent(buildId, event(message, Kind.WARNING, position, details = details))
+  }
+
+  override def warning(issue: BuildIssue): Unit = {
+    activateToolWindowOnWarning()
+    val event = BuildEvents.getInstance()
+      .buildIssue(issue, Kind.WARNING)
+      .withParentId(buildId)
+      .build()
+    viewManager.onEvent(buildId, event)
+  }
+
+  override def warning(message: String, position: Option[FilePosition], details: String, navigatable: Option[Navigatable]): Unit = {
+    activateToolWindowOnWarning()
+    viewManager.onEvent(buildId, event(message, Kind.WARNING, position, details = details, navigatable = navigatable))
+  }
 
   override def error(message: String, position: Option[FilePosition]): Unit =
     viewManager.onEvent(buildId, event(message, Kind.ERROR, position))
@@ -152,10 +193,24 @@ class BuildToolWindowReporter(project: Project,
       .build()
   }
 
-  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {
+  private def event(
+    message: String,
+    kind: MessageEvent.Kind,
+    position: Option[FilePosition],
+    details: String = null,
+    navigatable: Option[Navigatable] = None
+  ) = {
     //noinspection ReferencePassedToNls
-    BuildMessages.message(buildId, message, kind, position, eventTime = System.currentTimeMillis)
+    BuildMessages.message(buildId, message, kind, position, eventTime = System.currentTimeMillis, details, navigatable)
   }
+
+  private def activateToolWindowOnWarning(): Unit =
+    if (activateToolWindowWhenWarned && !warningActivatedToolWindow) {
+      warningActivatedToolWindow = true
+      ToolWindowManager.getInstance(project).invokeLater { () =>
+        BuildContentManager.getInstance(project).getOrCreateToolWindow.activate(null, true)
+      }
+    }
 }
 
 object BuildToolWindowReporter {

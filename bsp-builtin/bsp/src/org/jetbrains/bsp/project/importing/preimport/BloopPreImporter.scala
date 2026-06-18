@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, sbtVersionParam}
 import org.jetbrains.sbt.process.SbtRunner
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.{EelPathKotlinUtils, SbtExternalSystemManager}
 import org.jetbrains.sbt.{Sbt, SbtUtil, SbtVersion, normalizedLocalPath}
 
@@ -55,9 +56,18 @@ object BloopPreImporter {
 
     try {
       val runDump = (runner: SbtRunner, indicator: ProgressIndicator) => runner.runSbt(
-        indicator, baseDir, jdkExe, vmArgs,
-        Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
-        BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"), passParentEnvironment = true, timingCollector = None
+        indicator = indicator,
+        directory = baseDir,
+        vmExecutable = jdkExe,
+        vmOptions = vmArgs,
+        environment0 = Map.empty,
+        sbtLauncher = sbtLauncher,
+        sbtOptions = SbtExecutionSettings.SbtOptions.empty,
+        sbtLauncherArgs = sbtLauncherArgs,
+        sbtCommands = sbtCommands,
+        reportMessage = BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"),
+        passParentEnvironment = true,
+        timingCollector = None
       )
       new BloopPreImporter(runDump)
     } finally {

@@ -1,0 +1,42 @@
+Document tests/pos/i11681.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(3:25..3:32) scala/collection/Factory#
+(3:25..3:32) scala/collection/Factory.
+(6:20..6:28) scala/package.Iterable#
+(6:29..6:30) _empty_/Gen#take().[C][X] -> 6:14
+(7:10..7:13) scala/Int#
+(8:17..8:18) _empty_/Gen#[A] -> 5:23
+(8:19..8:22) scala/`<:<`#
+(8:23..8:24) _empty_/Gen#take().[C] -> 6:12
+(8:25..8:26) _empty_/Gen#take().[B] -> 6:33
+(8:32..8:39) scala/collection/Factory#
+(8:40..8:41) _empty_/Gen#take().[B] -> 6:33
+(8:43..8:44) _empty_/Gen#take().[C] -> 6:12
+(8:45..8:46) _empty_/Gen#take().[B] -> 6:33
+(8:51..8:54) _empty_/Gen# -> 5:18
+(8:55..8:56) _empty_/Gen#take().[C] -> 6:12
+(8:57..8:58) _empty_/Gen#take().[B] -> 6:33
+(9:5..9:8) _empty_/Gen.
+(13:17..13:20) _empty_/Gen# -> 5:18
+(13:21..13:25) scala/package.List#
+(13:26..13:29) scala/Int#
+(14:5..14:8) _empty_/Gen.
+(14:9..14:13) scala/package.List#
+(14:14..14:17) scala/Int#
+(14:22..14:26) _empty_/Gen#take(). -> 6:7
+(19:9..19:10) _empty_/example.G# -> 18:8
+(19:11..19:12) _empty_/example.H# -> 21:9
+(19:13..19:16) scala/Int#
+(19:21..19:24) scala/Predef.`???`().
+(23:11..23:12) _empty_/example.H# -> 21:9
+(23:13..23:16) scala/Int#
+(23:20..23:23) scala/Predef.`???`().
+(26:27..26:28) _empty_/example.G# -> 18:8
+(26:29..26:30) _empty_/example.take().[C] -> 26:12
+(26:31..26:34) scala/Int#
+(26:41..26:42) _empty_/example.take().[C] -> 26:12
+(26:43..26:46) scala/Int#
+(26:51..26:54) scala/Predef.`???`().
+(28:14..28:18) _empty_/example.take(). -> 26:7
+

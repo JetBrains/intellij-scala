@@ -1,0 +1,62 @@
+package test
+
+// IMPORTANT: this object has undefined behavior due to its illegal use of a $ in an identifier
+//            This test is only to check that the ad-hoc workaround for Amonite `object $` is working.
+//            If at some point it becomes impossible to support this test, we can drop it.
+//            Ideally Amonite will have deprecated the `object $` by then.
+object $ {
+  def test(): Int = 1
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScObject: $
+      PsiComment(comment)('// IMPORTANT: this object has undefined behavior due to its illegal use of a $ in an identifier')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('//            This test is only to check that the ad-hoc workaround for Amonite `object $` is working.')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('//            If at some point it becomes impossible to support this test, we can drop it.')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('//            Ideally Amonite will have deprecated the `object $` by then.')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('$')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: test
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('test')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

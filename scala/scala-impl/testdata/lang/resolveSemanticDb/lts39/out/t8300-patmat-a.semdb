@@ -1,0 +1,19 @@
+Document tests/pos/t8300-patmat-a.scala
+(3:16..3:20) scala/Null#
+(3:24..3:30) scala/AnyRef#
+(3:36..3:43) _empty_/Universe#NameApi# -> 4:9
+(6:20..6:24) scala/Null#
+(6:28..6:32) _empty_/Universe#Name# -> 3:8
+(6:38..6:49) _empty_/Universe#TermNameApi# -> 7:9
+(7:29..7:36) _empty_/Universe#NameApi# -> 4:9
+(10:21..10:24) scala/App#
+(11:10..11:18) _empty_/Universe# -> 2:7
+(11:21..11:24) scala/Predef.`???`().
+(12:10..12:11) _empty_/Test.u. -> 11:7
+(14:3..14:10) scala/Predef.locally().
+(15:20..15:28) _empty_/Universe#TermName# -> 6:8
+(15:31..15:34) scala/Predef.`???`().
+(16:5..16:8) scala/Predef.`???`().
+(17:12..17:21) local0 -> 15:9
+(17:25..17:28) scala/Predef.`???`().
+

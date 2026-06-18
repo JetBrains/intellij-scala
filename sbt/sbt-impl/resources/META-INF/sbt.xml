@@ -28,7 +28,7 @@
                   class="org.jetbrains.sbt.project.SbtProjectImportStateModuleRootListener"/>
 
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
-                  class="org.jetbrains.sbt.project.LegacySbtVersionNotifications$MyDumbModeListener"/>
+                  class="org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionProjectNotification$MyDumbModeListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -51,6 +51,9 @@
 
         <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules"/>
         <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.DisplayModuleName"/>
+
+        <projectService serviceInterface="org.jetbrains.sbt.shell.communication.SbtShellCommandSubmitter"
+                        serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
 
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtScalaSdkDataService"/>
@@ -200,7 +203,7 @@
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.SetupScalaHighlightingNotificationProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
-        <postStartupActivity implementation="org.jetbrains.sbt.project.LegacySbtVersionNotifications$MyProjectActivity"/>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionProjectNotification$MyProjectActivity"/>
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtImportTimingFilesCleaner"/>
     </extensions>
 

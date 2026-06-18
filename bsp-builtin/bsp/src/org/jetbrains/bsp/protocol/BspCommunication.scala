@@ -16,7 +16,7 @@ import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
 import org.jetbrains.bsp.project.importing.bspConfigSteps
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ScalaCliSetup
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, NoConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.protocol.BspCommunication.*
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector.*
@@ -41,7 +41,11 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
-  private val runningBspConfigSetup: AtomicReference[Option[BspConfigSetup]] = new AtomicReference[Option[BspConfigSetup]](None)
+  /**
+   * The [[ProgressIndicator]] active during [[prepareSession]].
+   * Cancelling this indicator is the mechanism for stopping BSP connection file generation.
+   */
+  private val activeIndicator = new AtomicReference[Option[ProgressIndicator]](None)
 
   /**
    * Tracks the active server config, which may differ from the original `config` passed at construction.
@@ -128,11 +132,79 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     project: => Option[Project],
     canGenerateBspConfigFile: Boolean
   )(using reporter: BuildReporter, eelDescriptor: EelDescriptor): Either[BspError, Builder] = {
+    val indicator = Option(ProgressManager.getInstance().getProgressIndicator)
+    activeIndicator.set(indicator)
+    try {
+      val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
+
+      indicator.foreach(regenerateBspConfigIfNeeded(project, canGenerateBspConfigFile, bloopEnabled, _))
+
+      // TODO supported languages should be extendable
+      val supportedLanguages = List("scala","java")
+      val capabilities = BspCapabilities(supportedLanguages)
+      val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
+        .getOrElse(base.resolve("out"))
+
+      val connector: Either[BspError, BspServerConnector] = effectiveConfig match {
+        case BspProjectSettings.AutoConfig =>
+          // only use workspace configs for auto-detection, system configs might not be applicable
+          val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
+          val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp.apply)
+          if (connectionDetails.nonEmpty)
+            Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
+          else if (bloopEnabled)
+            configureBloopLauncherIfJdkExists(project, compilerOutputDir, capabilities)
+          else
+            Left(BspInvalidAutoConfigError(base))
+
+        case BspProjectSettings.BloopConfig =>
+          if (bloopEnabled)
+            configureBloopLauncherIfJdkExists(project, compilerOutputDir, capabilities)
+          else
+            Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
+
+        case BspProjectSettings.BspConfigFile(path) =>
+          BspConnectionConfig.readConnectionFile(path)(using new Gson)
+            .map { details =>
+              val method = ProcessBsp(details)
+              new GenericConnector(base, compilerOutputDir, capabilities, List(method))
+            }.toEither.left
+            .map(cause => BspConnectionFileError(path, cause))
+      }
+
+      connector.flatMap(_.connect(using reporter, indicator))
+    } finally {
+      activeIndicator.set(None)
+    }
+  }
+
+  private def configureBloopLauncherIfJdkExists(
+    project: => Option[Project],
+    compilerOutputDir: Path,
+    capabilities: BspCapabilities
+  )(using eelDescriptor: EelDescriptor): Either[BspError, BloopLauncherConnectorBase] =
+    BspJdkUtil.findOrCreateBestJdkForProject(project, eelDescriptor) match {
+      case Some(jdk) =>
+        val connector =
+          if eelDescriptor == LocalEelDescriptor.INSTANCE then
+            new BloopLocalLauncherConnector(base, compilerOutputDir, capabilities, jdk)
+          else
+            new BloopRemoteLauncherConnector(base, compilerOutputDir, capabilities, jdk, eelDescriptor)
+        Right(connector)
+      case None => Left(BspNoJdkConfiguredError)
+    }
+
+  private def regenerateBspConfigIfNeeded(
+    project: => Option[Project],
+    canGenerateBspConfigFile: Boolean,
+    bloopEnabled: Boolean,
+    indicator: ProgressIndicator
+  )(using BuildReporter, EelDescriptor): Unit = {
     val bspConnectionFiles = BspConnectionConfig.workspaceConfigurationFiles(base)
-    val bloopProject = BspUtil.bloopConfigDir(base).isDefined
-    val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopProject
+    val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopEnabled
 
     lazy val settings = project.flatMap(BspUtil.getBspProjectSettings(_, base))
+
     def generateForScalaCliOrMill: Boolean =
       isScalaCliOrMill(base) && settings.exists { s =>
         // If the connection file hash is null, it means that it's the first BSP startup in a freshly imported project,
@@ -146,76 +218,24 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
     val shouldGenerate = canGenerateBspConfigFile && !hasMultipleConnectionsWithAutoConfig && (!hasBspConfigs || generateForScalaCliOrMill)
     if (shouldGenerate) {
-      val indicator = ProgressManager.getInstance().getProgressIndicator
-      if (indicator != null) {
-        tryToGenerateBspConfig(indicator, project, hasBspConfigs, bspConnectionFiles, settings)
+      tryToGenerateBspConfig(indicator, project, hasBspConfigs, bspConnectionFiles, settings)
 
-        effectiveConfig match {
-          case BspProjectSettings.BspConfigFile(path)
-            if !Files.exists(path) && !hasBspConfigs && BspConnectionConfig.workspaceConfigurationFiles(base).nonEmpty =>
-            effectiveConfig = BspProjectSettings.AutoConfig
-            // Update BspProjectSettings to AutoConfig so that future BspCommunication instances reuse the existing
-            // connection file without relying on a specific file name from BspConfigFile.
-            // NOTE: it comes with a trade-off — changing the serverConfig type causes a new BspCommunication session
-            // to be created alongside the existing one, since BspCommunication is keyed by project path and serverConfig type.
-            // A proper fix would be to disallow multiple sessions for the same project path: we don't support switching
-            // between sessions or using multiple sessions simultaneously anyway.
-            // Historically it worked that way (see BspCommunicationService.closeCommunication docs), but when serverConfig
-            // was introduced, BspCommunication was additionally scoped per serverConfig — I don't see any advantage of this today.
-            settings.foreach(_.serverConfig = BspProjectSettings.AutoConfig)
-          case _ =>
-        }
+      val needSettingsAdjust = !hasBspConfigs && BspConnectionConfig.workspaceConfigurationFiles(base).nonEmpty
+      effectiveConfig match {
+        case BspProjectSettings.BspConfigFile(path) if !Files.exists(path) && needSettingsAdjust =>
+          effectiveConfig = BspProjectSettings.AutoConfig
+          // Update BspProjectSettings to AutoConfig so that future BspCommunication instances reuse the existing
+          // connection file without relying on a specific file name from BspConfigFile.
+          // NOTE: it comes with a trade-off — changing the serverConfig type causes a new BspCommunication session
+          // to be created alongside the existing one, since BspCommunication is keyed by project path and serverConfig type.
+          // A proper fix would be to disallow multiple sessions for the same project path: we don't support switching
+          // between sessions or using multiple sessions simultaneously anyway.
+          // Historically it worked that way (see BspCommunicationService.closeCommunication docs), but when serverConfig
+          // was introduced, BspCommunication was additionally scoped per serverConfig — I don't see any advantage of this today.
+          settings.foreach(_.serverConfig = BspProjectSettings.AutoConfig)
+        case _ =>
       }
     }
-
-    // TODO supported languages should be extendable
-    val supportedLanguages = List("scala","java")
-    val capabilities = BspCapabilities(supportedLanguages)
-    val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
-      .getOrElse(base.resolve("out"))
-    val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
-
-    def configureBloopLauncherIfJdkExists() =
-      BspJdkUtil.findOrCreateBestJdkForProject(project, eelDescriptor) match {
-        case Some(jdk) => Right(
-          if eelDescriptor == LocalEelDescriptor.INSTANCE then
-            new BloopLocalLauncherConnector(base, compilerOutputDir, capabilities, jdk)
-          else
-            new BloopRemoteLauncherConnector(base, compilerOutputDir, capabilities, jdk, eelDescriptor)
-        )
-
-        case None => Left(BspNoJdkConfiguredError)
-      }
-
-    val connector: Either[BspError, BspServerConnector] = effectiveConfig match {
-
-      case BspProjectSettings.AutoConfig =>
-        // only use workspace configs for auto-detection, system configs might not be applicable
-        val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
-        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp.apply)
-        if (connectionDetails.nonEmpty)
-          Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
-        else if (bloopEnabled)
-          configureBloopLauncherIfJdkExists()
-        else
-          Left(BspInvalidAutoConfigError(base))
-
-      case BspProjectSettings.BloopConfig =>
-        if (bloopEnabled)
-          configureBloopLauncherIfJdkExists()
-        else
-          Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
-
-      case BspProjectSettings.BspConfigFile(path) =>
-        BspConnectionConfig.readConnectionFile(path)(using new Gson)
-          .map { details =>
-            val method = ProcessBsp(details)
-            new GenericConnector(base, compilerOutputDir, capabilities, List(method))
-          }.toEither.left
-          .map(cause => BspConnectionFileError(path, cause))
-    }
-
-    connector.flatMap(_.connect)
   }
 
   /**
@@ -238,44 +258,38 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       val (setup, _) = bspConfigSteps.getBspConfigurationForRegeneration(jdk, base, setupChoice)
       if (setup == NoConfigSetup) return
 
-      if (runningBspConfigSetup.compareAndSet(None, Some(setup))) {
-        val beforeGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
-        val showTheNotification = hasBspConfigs && settings.exists { s =>
-          // If the `beforeGenerationHash` is different from the saved hash, it means that it was changed externally (e.g., by the user)
-          val isHashDifferent = Option(s.connectionFileHash).exists(_ != beforeGenerationHash)
-          isHashDifferent || !s.bspConfigGenerated
-        }
+      val beforeGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+      val showTheNotification = hasBspConfigs && settings.exists { s =>
+        // If the `beforeGenerationHash` is different from the saved hash, it means that it was changed externally (e.g., by the user)
+        val isHashDifferent = Option(s.connectionFileHash).exists(_ != beforeGenerationHash)
+        isHashDifferent || !s.bspConfigGenerated
+      }
 
-        try {
-          // Scala CLI has two installation kinds that produce different connection files:
-          //   - Bundled (Scala 3.5+): generates scala.json
-          //   - Standalone: generates scala-cli.json
-          //
-          // When regenerating the BSP connection file, we must preserve the originally used installation kind to avoid
-          // creating duplicate connection files (e.g., generating scala.json when scala-cli.json already exists).
-          // This only matters when a BSP connection file already exists; if none exists, any available tool can be used.
-          // If the path of the newly generated connection file differs from the one stored in BspConfigFile,
-          // effectiveConfig will handle this case, because otherwise the BSP server startup would fail.
-          //
-          // If a custom-named connection file exists (e.g., custom.json), regeneration is skipped to prevent creating an additional file alongside it
-          // (see CommandBasedBspConfigSetup.run). Right now, skipping regeneration works only for Scala CLI.
-          val targetConnectionFileName =
-            if (setupChoice == ScalaCliSetup && hasBspConfigs) resolveTargetConnectionFileName(bspConnectionFiles)
-            else None
+      // Scala CLI has two installation kinds that produce different connection files:
+      //   - Bundled (Scala 3.5+): generates scala.json
+      //   - Standalone: generates scala-cli.json
+      //
+      // When regenerating the BSP connection file, we must preserve the originally used installation kind to avoid
+      // creating duplicate connection files (e.g., generating scala.json when scala-cli.json already exists).
+      // This only matters when a BSP connection file already exists; if none exists, any available tool can be used.
+      // If the path of the newly generated connection file differs from the one stored in BspConfigFile,
+      // effectiveConfig will handle this case, because otherwise the BSP server startup would fail.
+      //
+      // If a custom-named connection file exists (e.g., custom.json), regeneration is skipped to prevent creating an additional file alongside it
+      // (see CommandBasedBspConfigSetup.run). Right now, skipping regeneration works only for Scala CLI.
+      val targetConnectionFileName =
+        if (setupChoice == ScalaCliSetup && hasBspConfigs) resolveTargetConnectionFileName(bspConnectionFiles)
+        else None
 
-          setup.run(indicator, targetConnectionFileName)
-        } finally {
-          runningBspConfigSetup.set(None)
-        }
+      setup.run(indicator, targetConnectionFileName)
 
-        val afterGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
-        connectionFileHash = afterGenerationHash
+      val afterGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+      connectionFileHash = afterGenerationHash
 
-        if (showTheNotification && beforeGenerationHash != afterGenerationHash) {
-          findProject.foreach { project =>
-            val service = BspConnectionFileNotificationService.getInstance(project)
-            service.showConfigChangedNotification(base)
-          }
+      if (showTheNotification && beforeGenerationHash != afterGenerationHash) {
+        findProject.foreach { project =>
+          val service = BspConnectionFileNotificationService.getInstance(project)
+          service.showConfigChangedNotification(base)
         }
       }
     }
@@ -332,8 +346,8 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   def alive: Boolean = session.get().exists(_.isAlive)
 
   /**
-   * @param canGenerateBspConfigFile whether to auto-generate missing BSP config before server start.
-   *                                 Caller must remember to call [[org.jetbrains.bsp.protocol.BspCommunication.cancelConfigGeneration]] on cancellation.
+   * @param canGenerateBspConfigFile whether to auto-generate missing BSP config before server startup.
+   *                                 Caller must remember to call [[cancelSessionCreation]] on cancellation.
    */
   def run[T, A](task: BspSessionTask[T],
                 default: A,
@@ -360,12 +374,15 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     new NonAggregatingBspJob(job)
   }
 
-  /** Cancels ongoing BSP configuration file generation. */
-  def cancelConfigGeneration(): Unit =
-    runningBspConfigSetup.getAndSet(None).foreach(_.cancel())
+  /**
+   * Cancels the ongoing session creation, including BSP config generation.
+   * Cancellation works by cancelling the [[ProgressIndicator]] captured in [[prepareSession]].
+   */
+  def cancelSessionCreation(): Unit =
+    activeIndicator.getAndSet(None).foreach(_.cancel())
 
   override def dispose(): Unit = {
-    cancelConfigGeneration()
+    cancelSessionCreation()
     closeSession()
   }
 }

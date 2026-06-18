@@ -1,0 +1,12 @@
+Document tests/pos/i3343.scala
+(2:29..2:30) _empty_/Test.foo().[C] -> 2:11
+(2:31..2:35) scala/Char#
+(2:40..2:51) scala/package.Traversable#
+(2:52..2:56) scala/Char#
+(2:60..2:61) _empty_/Test.foo().[C] -> 2:11
+(2:62..2:66) scala/Char#
+(2:70..2:73) scala/Predef.`???`().
+(4:10..4:14) scala/package.List#
+(4:15..4:19) scala/Char#
+(4:23..4:26) _empty_/Test.foo(). -> 2:7
+

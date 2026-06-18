@@ -1,0 +1,16 @@
+Document tests/pos/case-semi.scala
+(2:12..2:15) scala/Int#
+(3:10..3:11) _empty_/Test.X# -> 2:8
+(5:13..5:14) _empty_/Test.X# -> 2:8
+(5:28..5:31) scala/Int#
+(5:35..5:41) scala/Predef.String#
+(5:47..5:53) scala/Predef.String#
+(5:57..5:60) scala/Int#
+(6:3..6:4) _empty_/Test.x. -> 3:7
+(7:3..7:4) _empty_/Test.x. -> 3:7
+(9:13..9:14) _empty_/Test.X# -> 2:8
+(9:28..9:31) scala/Int#
+(9:35..9:41) scala/Predef.String#
+(9:48..9:54) scala/Predef.String#
+(9:58..9:61) scala/Int#
+

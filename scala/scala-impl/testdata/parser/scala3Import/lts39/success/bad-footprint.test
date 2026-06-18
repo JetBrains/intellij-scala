@@ -1,0 +1,1185 @@
+
+object NamedTuple:
+
+  opaque type AnyNamedTuple = Any
+  opaque type NamedTuple[N <: Tuple, +V <: Tuple] >: V <: AnyNamedTuple = V
+
+  export NamedTupleDecomposition.{Names, DropNames}
+
+  /** The type of the named tuple `X` mapped with the type-level function `F`.
+   *  If `X = (n1 : T1, ..., ni : Ti)` then `Map[X, F] = `(n1 : F[T1], ..., ni : F[Ti])`.
+   */
+  type Map[X <: AnyNamedTuple, F[_ <: Tuple.Union[DropNames[X]]]] =
+    NamedTuple[Names[X], Tuple.Map[DropNames[X], F]]
+
+end NamedTuple
+
+object NamedTupleDecomposition:
+  import NamedTuple.*
+
+  /** The names of a named tuple, represented as a tuple of literal string values. */
+  type Names[X <: AnyNamedTuple] <: Tuple = X match
+    case NamedTuple[n, _] => n
+
+  /** The value types of a named tuple represented as a regular tuple. */
+  type DropNames[NT <: AnyNamedTuple] <: Tuple = NT match
+    case NamedTuple[_, x] => x
+end NamedTupleDecomposition
+
+class Expr[Result]
+
+object Expr:
+  import NamedTuple.{NamedTuple, AnyNamedTuple}
+
+  type Of[A] = Expr[A]
+
+  type StripExpr[E] = E match
+    case Expr.Of[b] => b
+
+  case class Ref[A]($name: String = "") extends Expr.Of[A]
+
+  case class Join[A <: AnyNamedTuple](a: A)
+  extends Expr.Of[NamedTuple.Map[A, StripExpr]]
+end Expr
+
+trait Query[A]
+
+object Query:
+  // Extension methods to support for-expression syntax for queries
+  extension [R](x: Query[R])
+    def map[B](f: Expr.Ref[R] => Expr.Of[B]): Query[B] = ???
+
+case class City(zipCode: Int, name: String, population: Int)
+
+object Test:
+  import Expr.StripExpr
+  import NamedTuple.{NamedTuple, AnyNamedTuple}
+
+  val cities: Query[City] = ???
+  val q6 =
+    cities.map: city =>
+      val x: NamedTuple[
+        ("name", "zipCode"),
+        (Expr.Of[String], Expr.Of[Int])] = ???
+      Expr.Join(x)
+
+/* Was error:
+
+-- [E007] Type Mismatch Error: bad-footprint.scala:60:16 +
+60 |    cities.map: city =>
+   |                ^
+   |Found:    Expr.Ref[City] =>
+   |  Expr[
+   |    NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (String,
+   |      Int)]
+   |  ]
+   |Required: Expr.Ref[City] =>
+   |  Expr[
+   |    NamedTuple.NamedTuple[
+   |      NamedTupleDecomposition.Names[
+   |        NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (
+   |          Expr[String], Expr[Int])]
+   |      ],
+   |      Tuple.Map[
+   |        NamedTupleDecomposition.DropNames[
+   |          NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (
+   |            Expr[String], Expr[Int])]
+   |        ],
+   |      Expr.StripExpr]
+   |    ]
+   |  ]
+61 |      val x: NamedTuple[
+62 |        ("name", "zipCode"),
+63 |        (Expr.Of[String], Expr.Of[Int])] = ???
+64 |      Expr.Join(x)
+   |
+   | longer explanation available when compiling with `-explain`
+1 error found
+
+*/
+-----
+ScalaFile
+  ScObject: NamedTuple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NamedTuple')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: AnyNamedTuple
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('AnyNamedTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: NamedTuple
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NamedTuple')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: V
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('V')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(>:)('>:')
+          PsiWhiteSpace(' ')
+          SimpleType: V
+            CodeReferenceElement: V
+              PsiElement(identifier)('V')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: AnyNamedTuple
+            CodeReferenceElement: AnyNamedTuple
+              PsiElement(identifier)('AnyNamedTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: V
+            CodeReferenceElement: V
+              PsiElement(identifier)('V')
+        PsiWhiteSpace('\n\n  ')
+        ScExportStatement
+          PsiElement(export)('export')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: NamedTupleDecomposition
+              PsiElement(identifier)('NamedTupleDecomposition')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                CodeReferenceElement: Names
+                  PsiElement(identifier)('Names')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                CodeReferenceElement: DropNames
+                  PsiElement(identifier)('DropNames')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Map
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('The type of the named tuple ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('X')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)(' mapped with the type-level function ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('F')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('.')
+              ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+              ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              ScPsiDocToken(DOC_WHITESPACE)('  ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('If ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('X = (n1 : T1, ..., ni : Ti)')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)(' then ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Map[X, F] = ')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('(n1 : F[T1], ..., ni : F[Ti])`.')
+              ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyNamedTuple
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Tuple.Union[DropNames[X]]
+                    SimpleType: Tuple.Union
+                      CodeReferenceElement: Tuple.Union
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Union')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: DropNames[X]
+                          SimpleType: DropNames
+                            CodeReferenceElement: DropNames
+                              PsiElement(identifier)('DropNames')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ParametrizedType: NamedTuple[Names[X], Tuple.Map[DropNames[X], F]]
+            SimpleType: NamedTuple
+              CodeReferenceElement: NamedTuple
+                PsiElement(identifier)('NamedTuple')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Names[X]
+                  SimpleType: Names
+                    CodeReferenceElement: Names
+                      PsiElement(identifier)('Names')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Tuple.Map[DropNames[X], F]
+                  SimpleType: Tuple.Map
+                    CodeReferenceElement: Tuple.Map
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Map')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: DropNames[X]
+                        SimpleType: DropNames
+                          CodeReferenceElement: DropNames
+                            PsiElement(identifier)('DropNames')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n')
+        End: NamedTuple
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NamedTuple')
+  PsiWhiteSpace('\n\n')
+  ScObject: NamedTupleDecomposition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NamedTupleDecomposition')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: NamedTuple
+              PsiElement(identifier)('NamedTuple')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Names
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('The names of a named tuple, represented as a tuple of literal string values.')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Names')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyNamedTuple
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+    case NamedTuple[n, _] => n
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NamedTuple[n, _]
+                  SimpleType: NamedTuple
+                    CodeReferenceElement: NamedTuple
+                      PsiElement(identifier)('NamedTuple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: n
+                        PsiElement(identifier)('n')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: n
+                  CodeReferenceElement: n
+                    PsiElement(identifier)('n')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: DropNames
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('The value types of a named tuple represented as a regular tuple.')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DropNames')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: NT
+              PsiElement(identifier)('NT')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyNamedTuple
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: NT match
+    case NamedTuple[_, x] => x
+            SimpleType: NT
+              CodeReferenceElement: NT
+                PsiElement(identifier)('NT')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NamedTuple[_, x]
+                  SimpleType: NamedTuple
+                    CodeReferenceElement: NamedTuple
+                      PsiElement(identifier)('NamedTuple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: x
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+        PsiWhiteSpace('\n')
+        End: NamedTupleDecomposition
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NamedTupleDecomposition')
+  PsiWhiteSpace('\n\n')
+  ScClass: Expr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expr')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Result
+        PsiElement(identifier)('Result')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Expr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expr')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: NamedTuple
+              PsiElement(identifier)('NamedTuple')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                CodeReferenceElement: NamedTuple
+                  PsiElement(identifier)('NamedTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Of
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Of')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[A]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: StripExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('StripExpr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: E match
+    case Expr.Of[b] => b
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Expr.Of[b]
+                  SimpleType: Expr.Of
+                    CodeReferenceElement: Expr.Of
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: b
+                        PsiElement(identifier)('b')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: b
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Ref
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Ref')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: $name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('$name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Expr.Of[A]
+                  SimpleType: Expr.Of
+                    CodeReferenceElement: Expr.Of
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Join
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Join')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: AnyNamedTuple
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: Expr.Of[NamedTuple.Map[A, StripExpr]]
+                  SimpleType: Expr.Of
+                    CodeReferenceElement: Expr.Of
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: NamedTuple.Map[A, StripExpr]
+                        SimpleType: NamedTuple.Map
+                          CodeReferenceElement: NamedTuple.Map
+                            CodeReferenceElement: NamedTuple
+                              PsiElement(identifier)('NamedTuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Map')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: StripExpr
+                              CodeReferenceElement: StripExpr
+                                PsiElement(identifier)('StripExpr')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: Expr
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Expr')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Query
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Query')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Query
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Query')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// Extension methods to support for-expression syntax for queries')
+        PsiWhiteSpace('\n  ')
+        Extension on Query[R]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Query[R]
+                    SimpleType: Query
+                      CodeReferenceElement: Query
+                        PsiElement(identifier)('Query')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: map
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('map')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: f
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('f')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: Expr.Ref[R] => Expr.Of[B]
+                        ParametrizedType: Expr.Ref[R]
+                          SimpleType: Expr.Ref
+                            CodeReferenceElement: Expr.Ref
+                              CodeReferenceElement: Expr
+                                PsiElement(identifier)('Expr')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Ref')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Expr.Of[B]
+                          SimpleType: Expr.Of
+                            CodeReferenceElement: Expr.Of
+                              CodeReferenceElement: Expr
+                                PsiElement(identifier)('Expr')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Of')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Query[B]
+                SimpleType: Query
+                  CodeReferenceElement: Query
+                    PsiElement(identifier)('Query')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: City
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('City')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: zipCode
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('zipCode')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: population
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('population')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Expr.StripExpr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+              PsiElement(.)('.')
+              PsiElement(identifier)('StripExpr')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: NamedTuple
+              PsiElement(identifier)('NamedTuple')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                CodeReferenceElement: NamedTuple
+                  PsiElement(identifier)('NamedTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                CodeReferenceElement: AnyNamedTuple
+                  PsiElement(identifier)('AnyNamedTuple')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: cities
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: cities
+              PsiElement(identifier)('cities')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Query[City]
+            SimpleType: Query
+              CodeReferenceElement: Query
+                PsiElement(identifier)('Query')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: City
+                  CodeReferenceElement: City
+                    PsiElement(identifier)('City')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: q6
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: q6
+              PsiElement(identifier)('q6')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: cities.map
+              ReferenceExpression: cities
+                PsiElement(identifier)('cities')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              BlockExpression
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: city
+                        PsiElement(identifier)('city')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n      ')
+                  BlockOfExpressions
+                    ScPatternDefinition: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: x
+                          PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: NamedTuple[
+        ("name", "zipCode"),
+        (Expr.Of[String], Expr.Of[Int])]
+                        SimpleType: NamedTuple
+                          CodeReferenceElement: NamedTuple
+                            PsiElement(identifier)('NamedTuple')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          PsiWhiteSpace('\n        ')
+                          TypeArgument
+                            TupleType: ("name", "zipCode")
+                              PsiElement(()('(')
+                              TypesList
+                                LiteralType: "name"
+                                  StringLiteral
+                                    PsiElement(string content)('"name"')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                LiteralType: "zipCode"
+                                  StringLiteral
+                                    PsiElement(string content)('"zipCode"')
+                              PsiElement())(')')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace('\n        ')
+                          TypeArgument
+                            TupleType: (Expr.Of[String], Expr.Of[Int])
+                              PsiElement(()('(')
+                              TypesList
+                                ParametrizedType: Expr.Of[String]
+                                  SimpleType: Expr.Of
+                                    CodeReferenceElement: Expr.Of
+                                      CodeReferenceElement: Expr
+                                        PsiElement(identifier)('Expr')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Of')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: String
+                                        CodeReferenceElement: String
+                                          PsiElement(identifier)('String')
+                                    PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ParametrizedType: Expr.Of[Int]
+                                  SimpleType: Expr.Of
+                                    CodeReferenceElement: Expr.Of
+                                      CodeReferenceElement: Expr
+                                        PsiElement(identifier)('Expr')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Of')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
+                                    PsiElement(])(']')
+                              PsiElement())(')')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ???
+                        PsiElement(identifier)('???')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: Expr.Join
+                        ReferenceExpression: Expr
+                          PsiElement(identifier)('Expr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Join')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/* Was error:\n\n-- [E007] Type Mismatch Error: bad-footprint.scala:60:16 +\n60 |    cities.map: city =>\n   |                ^\n   |Found:    Expr.Ref[City] =>\n   |  Expr[\n   |    NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (String,\n   |      Int)]\n   |  ]\n   |Required: Expr.Ref[City] =>\n   |  Expr[\n   |    NamedTuple.NamedTuple[\n   |      NamedTupleDecomposition.Names[\n   |        NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (\n   |          Expr[String], Expr[Int])]\n   |      ],\n   |      Tuple.Map[\n   |        NamedTupleDecomposition.DropNames[\n   |          NamedTuple.NamedTuple[(("name" : String), ("zipCode" : String)), (\n   |            Expr[String], Expr[Int])]\n   |        ],\n   |      Expr.StripExpr]\n   |    ]\n   |  ]\n61 |      val x: NamedTuple[\n62 |        ("name", "zipCode"),\n63 |        (Expr.Of[String], Expr.Of[Int])] = ???\n64 |      Expr.Join(x)\n   |\n   | longer explanation available when compiling with `-explain`\n1 error found\n\n*/')

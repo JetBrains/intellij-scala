@@ -8,6 +8,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.testFramework.TestActionEvent
 import com.intellij.ui.UiInterceptors
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeActionTestBase.WaitForCompileServerTimeout
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.{CompilerTreesDialog, TreeDisplayOptions}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
@@ -20,8 +21,6 @@ import scala.concurrent.{Await, Future, Promise}
 
 @Category(Array(classOf[SlowTests]))
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {
-  val WaitForCompileServerTimeout = 30.seconds
-
   override protected def useCompileServer: Boolean = true
 
   override protected def compileServerShutdownTimeout: FiniteDuration = WaitForCompileServerTimeout
@@ -161,6 +160,10 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
 
   protected val CommonScala2AndScala3FileText_EmptyPackage =
     """class MyClass2""".stripMargin.trim
+}
+
+object ShowScalaCompilerTreeActionTestBase {
+  val WaitForCompileServerTimeout: FiniteDuration = 30.seconds
 }
 
 class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTestBase {

@@ -1,0 +1,5 @@
+Document tests/pos/t7315.scala
+(1:9..1:14) scala/
+(3:2..3:23) scala/deprecatedInheritance#
+(4:10..4:21) scala/specialized#
+

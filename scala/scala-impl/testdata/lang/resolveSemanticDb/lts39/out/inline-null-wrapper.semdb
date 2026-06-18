@@ -1,0 +1,29 @@
+Document tests/pos/inline-null-wrapper.scala
+(2:8..2:18) scala/annotation/
+(2:19..2:29) scala/annotation/targetName#
+(5:12..5:13) _empty_/A# -> 4:7
+(8:18..8:19) _empty_/A# -> 4:7
+(8:22..8:23) _empty_/B# -> 5:7
+(8:26..8:27) _empty_/B# -> 5:7
+(8:28..8:29) _empty_/Test.convert().(x) -> 8:15
+(9:4..9:14) scala/annotation/targetName#
+(10:25..10:26) _empty_/A# -> 4:7
+(10:27..10:28) scala/`|`#
+(10:29..10:33) scala/Null#
+(10:36..10:37) _empty_/B# -> 5:7
+(10:38..10:39) scala/`|`#
+(10:40..10:44) scala/Null#
+(11:8..11:9) _empty_/Test.convert(+1).(x) -> 10:22
+(11:10..11:12) scala/Any#`==`().
+(11:33..11:40) _empty_/Test.convert(). -> 8:7
+(11:41..11:42) _empty_/Test.convert(+1).(x) -> 10:22
+(13:11..13:18) _empty_/Test.convert(). -> 8:7
+(13:19..13:20) _empty_/A# -> 4:7
+(14:11..14:12) _empty_/A# -> 4:7
+(14:13..14:14) scala/`|`#
+(14:15..14:19) scala/Null#
+(14:22..14:23) _empty_/A# -> 4:7
+(15:11..15:18) _empty_/Test.convert(+1). -> 10:14
+(16:11..16:18) _empty_/Test.convert(+1). -> 10:14
+(16:19..16:21) _empty_/Test.an. -> 14:7
+

@@ -1,0 +1,18 @@
+Document tests/pos/provably-disjoint-infinite-recursion-2.scala
+(1:19..1:24) scala/Tuple#
+(1:27..1:28) _empty_/`provably-disjoint-infinite-recursion-2$package`.Tupled#[A] -> 1:13
+(2:8..2:13) scala/Tuple#
+(2:17..2:18) _empty_/`provably-disjoint-infinite-recursion-2$package`.Tupled#[A] -> 1:13
+(2:19..2:20) scala/`&`#
+(2:21..2:26) scala/Tuple#
+(3:8..3:9) scala/Any#
+(3:17..3:18) _empty_/`provably-disjoint-infinite-recursion-2$package`.Tupled#[A] -> 1:13
+(3:19..3:21) scala/`*:`#
+(3:22..3:32) scala/Tuple$package.EmptyTuple#
+(8:12..8:18) _empty_/`provably-disjoint-infinite-recursion-2$package`.Tupled# -> 1:6
+(8:19..8:22) _empty_/Day# -> 5:6
+(10:12..10:15) _empty_/`provably-disjoint-infinite-recursion-2$package`.Foo# -> 8:6
+(10:18..10:21) _empty_/Day.
+(10:22..10:30) _empty_/Day.Saturday. -> 6:8
+(10:34..10:44) scala/Tuple$package.EmptyTuple.
+

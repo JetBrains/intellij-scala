@@ -2,13 +2,14 @@ package org.jetbrains.bsp.protocol.session
 
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
 import com.google.gson.{JsonArray, JsonObject}
+import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
 import java.net.URI
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object BspServerConnector {
   sealed abstract class BspConnectionMethod
@@ -34,12 +35,6 @@ abstract class BspServerConnector {
     * Connect to a bsp server with one of the given methods.
     * @return a BspError if no compatible method is found.
     */
-  def connect(using reporter: BuildReporter): Either[BspError, Builder]
+  def connect(using reporter: BuildReporter, indicator: Option[ProgressIndicator]): Either[BspError, Builder]
 }
-
-class DummyConnector(rootUri: URI) extends BspServerConnector() {
-  override def connect(using reporter: BuildReporter): Left[BspErrorMessage, Nothing] =
-    Left(BspErrorMessage(BspBundle.message("bsp.protocol.no.way.to.connect.to.bsp.server", rootUri)))
-}
-
 

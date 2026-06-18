@@ -1,0 +1,7 @@
+Document tests/pos/i15976.scala
+(3:25..3:49) _empty_/ForcedRecompilationToken# -> 1:22
+(6:35..6:59) _empty_/ForcedRecompilationToken# -> 1:22
+(6:60..6:61) _empty_/BadNoParens#[T] -> 6:19
+(14:20..14:23) scala/App#
+(15:3..15:10) scala/Predef.println(+1).
+

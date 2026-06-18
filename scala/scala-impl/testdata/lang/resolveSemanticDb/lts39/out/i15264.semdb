@@ -1,0 +1,87 @@
+Document tests/pos/i15264.scala
+(1:8..1:16) scala/language.
+(1:17..1:22) scala/language.`3.7`.
+(4:25..4:30) _empty_/priority.Prio1# -> 7:11
+(5:26..5:31) _empty_/priority.Prio0# -> 4:11
+(7:25..7:30) _empty_/priority.Prio2# -> 10:11
+(8:26..8:31) _empty_/priority.Prio1# -> 7:11
+(11:26..11:31) _empty_/priority.Prio2# -> 10:11
+(16:24..16:25) _empty_/repro.A# -> 15:11
+(16:26..16:27) _empty_/repro.B#[V] -> 16:13
+(17:24..17:25) _empty_/repro.A# -> 15:11
+(17:26..17:27) _empty_/repro.C#[V] -> 17:13
+(23:24..23:32) _empty_/priority. -> 2:8
+(23:33..23:38) _empty_/priority.Prio0# -> 4:11
+(23:41..23:42) _empty_/repro.C# -> 17:11
+(23:43..23:44) _empty_/repro.context.given_C_V().[V] -> 23:15
+(23:52..23:53) _empty_/repro.C# -> 17:11
+(23:54..23:55) _empty_/repro.context.given_C_V().[V] -> 23:15
+(24:24..24:32) _empty_/priority. -> 2:8
+(24:33..24:38) _empty_/priority.Prio1# -> 7:11
+(24:41..24:42) _empty_/repro.B# -> 16:11
+(24:43..24:44) _empty_/repro.context.given_B_V().[V] -> 24:15
+(24:52..24:53) _empty_/repro.B# -> 16:11
+(24:54..24:55) _empty_/repro.context.given_B_V().[V] -> 24:15
+(25:24..25:32) _empty_/priority. -> 2:8
+(25:33..25:38) _empty_/priority.Prio2# -> 10:11
+(25:41..25:42) _empty_/repro.A# -> 15:11
+(25:43..25:44) _empty_/repro.context.given_A_V().[V] -> 25:15
+(25:52..25:53) _empty_/repro.A# -> 15:11
+(25:54..25:55) _empty_/repro.context.given_A_V().[V] -> 25:15
+(29:16..29:23) _empty_/repro.context. -> 21:12
+(34:19..34:20) _empty_/repro.A# -> 15:11
+(34:21..34:24) scala/Int#
+(34:32..34:33) _empty_/repro.B# -> 16:11
+(34:34..34:37) scala/Int#
+(35:19..35:20) _empty_/repro.B# -> 16:11
+(35:21..35:24) scala/Int#
+(35:32..35:33) _empty_/repro.B# -> 16:11
+(35:34..35:37) scala/Int#
+(36:19..36:20) _empty_/repro.C# -> 17:11
+(36:21..36:24) scala/Int#
+(36:32..36:33) _empty_/repro.C# -> 17:11
+(36:34..36:37) scala/Int#
+(39:27..39:35) _empty_/priority. -> 2:8
+(39:36..39:41) _empty_/priority.Prio0# -> 4:11
+(39:45..39:46) _empty_/repro.C# -> 17:11
+(39:47..39:48) _empty_/repro.qcontext.gcq().[V] -> 39:21
+(39:53..39:54) _empty_/repro.C# -> 17:11
+(39:55..39:56) _empty_/repro.Q# -> 19:11
+(39:57..39:58) _empty_/repro.qcontext.gcq().[V] -> 39:21
+(39:67..39:68) _empty_/repro.C# -> 17:11
+(39:69..39:70) _empty_/repro.Q# -> 19:11
+(39:71..39:72) _empty_/repro.qcontext.gcq().[V] -> 39:21
+(40:27..40:35) _empty_/priority. -> 2:8
+(40:36..40:41) _empty_/priority.Prio1# -> 7:11
+(40:45..40:46) _empty_/repro.B# -> 16:11
+(40:47..40:48) _empty_/repro.qcontext.gbq().[V] -> 40:21
+(40:53..40:54) _empty_/repro.B# -> 16:11
+(40:55..40:56) _empty_/repro.Q# -> 19:11
+(40:57..40:58) _empty_/repro.qcontext.gbq().[V] -> 40:21
+(40:67..40:68) _empty_/repro.B# -> 16:11
+(40:69..40:70) _empty_/repro.Q# -> 19:11
+(40:71..40:72) _empty_/repro.qcontext.gbq().[V] -> 40:21
+(41:27..41:35) _empty_/priority. -> 2:8
+(41:36..41:41) _empty_/priority.Prio2# -> 10:11
+(41:45..41:46) _empty_/repro.A# -> 15:11
+(41:47..41:48) _empty_/repro.qcontext.gaq().[V] -> 41:21
+(41:53..41:54) _empty_/repro.A# -> 15:11
+(41:55..41:56) _empty_/repro.Q# -> 19:11
+(41:57..41:58) _empty_/repro.qcontext.gaq().[V] -> 41:21
+(41:67..41:68) _empty_/repro.A# -> 15:11
+(41:69..41:70) _empty_/repro.Q# -> 19:11
+(41:71..41:72) _empty_/repro.qcontext.gaq().[V] -> 41:21
+(44:12..44:17) _empty_/repro. -> 13:8
+(45:12..45:17) _empty_/repro. -> 13:8
+(45:18..45:25) _empty_/repro.exports. -> 27:12
+(48:13..48:19) scala/Predef.summon().
+(48:20..48:21) _empty_/repro.A# -> 15:11
+(48:22..48:25) scala/Int#
+(52:12..52:17) _empty_/repro. -> 13:8
+(53:12..53:17) _empty_/repro. -> 13:8
+(53:18..53:26) _empty_/repro.qcontext. -> 32:12
+(55:13..55:19) scala/Predef.summon().
+(55:20..55:21) _empty_/repro.A# -> 15:11
+(55:22..55:23) _empty_/repro.Q# -> 19:11
+(55:24..55:27) scala/Int#
+

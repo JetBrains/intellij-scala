@@ -1,0 +1,18 @@
+Document tests/pos/11484/C_1.scala
+(3:24..3:28) scala/package.List#
+(3:29..3:30) _empty_/T# -> 2:14
+(3:31..3:32) _empty_/T#[A] -> 2:16
+(3:37..3:38) _empty_/T# -> 2:14
+(3:39..3:40) _empty_/T#[A] -> 2:16
+(3:44..3:48) _empty_/T#overloaded().(that) -> 3:18
+(3:49..3:53) scala/collection/IterableOps#head().
+(4:24..4:28) scala/package.List#
+(4:29..4:30) _empty_/B# -> 1:7
+(4:31..4:32) _empty_/T#[A] -> 2:16
+(4:37..4:38) _empty_/B# -> 1:7
+(4:39..4:40) _empty_/T#[A] -> 2:16
+(4:44..4:48) _empty_/T#overloaded(+1).(that) -> 4:18
+(4:49..4:53) scala/collection/IterableOps#head().
+(6:29..6:30) _empty_/T# -> 2:14
+(6:31..6:32) _empty_/C#[A] -> 6:18
+

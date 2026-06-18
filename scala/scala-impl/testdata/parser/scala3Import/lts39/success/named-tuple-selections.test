@@ -1,0 +1,162 @@
+
+object Test1:
+  // original code from issue https://github.com/scala/scala3/issues/20439
+  val bar = (a = 1, b = 2)
+
+  type ThatBar = bar.type
+  val thatBar: ThatBar = bar
+  val thatBar2: bar.type = bar
+
+  def test2 = thatBar.a // error
+  def test3 = thatBar2.a // ok
+-----
+ScalaFile
+  ScObject: Test1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test1')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: bar
+          PsiComment(comment)('// original code from issue https://github.com/scala/scala3/issues/20439')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: bar
+              PsiElement(identifier)('bar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NamedTuple
+            PsiElement(()('(')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ThatBar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ThatBar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: bar.type
+            CodeReferenceElement: bar
+              PsiElement(identifier)('bar')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: thatBar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: thatBar
+              PsiElement(identifier)('thatBar')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ThatBar
+            CodeReferenceElement: ThatBar
+              PsiElement(identifier)('ThatBar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: thatBar2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: thatBar2
+              PsiElement(identifier)('thatBar2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: bar.type
+            CodeReferenceElement: bar
+              PsiElement(identifier)('bar')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: thatBar.a
+            ReferenceExpression: thatBar
+              PsiElement(identifier)('thatBar')
+            PsiElement(.)('.')
+            PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// error')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test3')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: thatBar2.a
+            ReferenceExpression: thatBar2
+              PsiElement(identifier)('thatBar2')
+            PsiElement(.)('.')
+            PsiElement(identifier)('a')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// ok')

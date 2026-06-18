@@ -1,0 +1,16 @@
+Document tests/pos/thistype.scala
+(4:31..4:38) scala/Console.
+(4:39..4:46) scala/Console.println(+1).
+(7:26..7:29) _empty_/Test.Ctl# -> 3:9
+(8:22..8:25) scala/Int#
+(8:30..8:33) scala/Int#
+(8:36..8:40) scala/Unit#
+(8:45..8:52) scala/Console.
+(8:53..8:60) scala/Console.println(+1).
+(11:18..11:23) scala/Array#
+(11:24..11:30) scala/Predef.String#
+(11:34..11:38) scala/Unit#
+(12:9..12:17) _empty_/Test.MouseCtl# -> 7:9
+(12:20..12:26) _empty_/Test.Ctl#enable(). -> 4:9
+(12:27..12:36) _empty_/Test.MouseCtl#mouseDown(). -> 8:9
+

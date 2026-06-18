@@ -1,0 +1,5 @@
+Document tests/pos/i18531/Test.scala
+(2:15..2:18) bug/
+(2:19..2:23) bug/code/
+(2:24..2:28) bug/code/Code#
+

@@ -1,0 +1,14 @@
+[0,60]: PackageDef
+[0,0]: Ident
+[0,21]: Import
+[7,15]: Ident
+[23,42]: DefDef
+[31,37]: ValDef
+[34,37]: Ident
+[38,38]: TypeTree
+[41,42]: Ident
+[44,60]: DefDef
+[52,52]: TypeTree
+[55,60]: PostfixOp
+[55,58]: Ident
+[58,58]: Ident

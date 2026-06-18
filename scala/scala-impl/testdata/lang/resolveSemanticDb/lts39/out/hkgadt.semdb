@@ -1,0 +1,8 @@
+Document tests/pos/hkgadt.scala
+(3:34..3:37) _empty_/HKGADT.Foo# -> 2:16
+(3:38..3:42) scala/package.List#
+(5:23..5:26) _empty_/HKGADT.Foo# -> 2:16
+(5:27..5:28) _empty_/HKGADT.frob().[F] -> 5:12
+(6:5..6:8) _empty_/HKGADT.frob().(foo) -> 5:18
+(7:12..7:15) _empty_/HKGADT.Bar.
+

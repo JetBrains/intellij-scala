@@ -1,0 +1,45 @@
+Document tests/pos/i15612.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:30) scala/reflect/TypeTest#
+(1:22..1:30) scala/reflect/TypeTest.
+(3:29..3:37) scala/reflect/TypeTest#
+(3:38..3:39) _empty_/ForSyntax#[E] -> 3:17
+(3:40..3:41) scala/`|`#
+(3:42..3:45) scala/Any#
+(3:47..3:48) _empty_/ForSyntax#[E] -> 3:17
+(4:23..4:24) _empty_/ForSyntax#[E] -> 3:17
+(4:25..4:26) scala/`|`#
+(4:27..4:28) _empty_/ForSyntax#flatMap().[A] -> 4:14
+(5:30..5:31) _empty_/ForSyntax#flatMap().[A] -> 4:14
+(5:35..5:36) _empty_/ForSyntax#[E] -> 3:17
+(5:37..5:38) scala/`|`#
+(5:39..5:40) _empty_/ForSyntax#flatMap().[B] -> 5:24
+(5:43..5:44) _empty_/ForSyntax#[E] -> 3:17
+(5:45..5:46) scala/`|`#
+(5:47..5:48) _empty_/ForSyntax#flatMap().[B] -> 5:24
+(6:7..6:11) _empty_/ForSyntax#flatMap().(aOrE) -> 4:17
+(7:22..7:25) scala/Predef.`???`().
+(8:19..8:22) scala/Predef.`???`().
+(11:31..11:39) scala/reflect/TypeTest#
+(11:40..11:41) _empty_/UnhappyCase#[E] -> 11:19
+(11:42..11:43) scala/`|`#
+(11:44..11:47) scala/Any#
+(11:49..11:50) _empty_/UnhappyCase#[E] -> 11:19
+(11:61..11:70) _empty_/ForSyntax# -> 3:7
+(11:71..11:72) _empty_/UnhappyCase#[E] -> 11:19
+(12:23..12:24) _empty_/UnhappyCase#[E] -> 11:19
+(12:25..12:26) scala/`|`#
+(12:27..12:28) _empty_/UnhappyCase#fold().[A] -> 12:14
+(13:35..13:36) _empty_/UnhappyCase#[E] -> 11:19
+(13:40..13:41) _empty_/UnhappyCase#fold().[B] -> 13:21
+(13:54..13:55) _empty_/UnhappyCase#fold().[A] -> 12:14
+(13:59..13:60) _empty_/UnhappyCase#fold().[B] -> 13:21
+(13:63..13:64) _empty_/UnhappyCase#fold().[B] -> 13:21
+(14:7..14:11) _empty_/UnhappyCase#fold().(aOrE) -> 12:17
+(15:22..15:25) scala/Predef.`???`().
+(16:19..16:22) scala/Predef.`???`().
+(20:22..20:23) _empty_/A#A$$inline$a().
+(21:17..21:18) _empty_/A# -> 18:7
+(23:22..23:23) _empty_/B#B$$inline$a().
+

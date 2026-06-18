@@ -1,0 +1,4 @@
+Document tests/pos/t4402/A.scala
+(3:17..3:22) other/
+(3:23..3:26) other/Bar#
+

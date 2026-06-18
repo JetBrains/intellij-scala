@@ -1,0 +1,31 @@
+Document tests/pos/i16590.scala
+(2:24..2:27) _empty_/Tag# -> 1:6
+(2:29..2:35) scala/Predef.String#
+(2:37..2:43) scala/Predef.String#
+(4:19..4:22) _empty_/Tag# -> 1:6
+(4:23..4:24) _empty_/i16590$package.printIt().[A] -> 4:13
+(4:30..4:31) _empty_/i16590$package.printIt().[A] -> 4:13
+(4:34..4:38) scala/Unit#
+(5:3..5:4) _empty_/i16590$package.printIt().(t) -> 4:16
+(6:10..6:13) _empty_/Tag.
+(6:14..6:21) _empty_/Tag.MyTuple. -> 2:8
+(6:25..6:32) scala/Predef.println(+1).
+(6:33..6:34) _empty_/i16590$package.printIt().(a) -> 4:27
+(6:35..6:37) scala/Tuple2#_1.
+(9:24..9:28) _empty_/Tag2# -> 8:6
+(9:29..9:35) scala/Predef.String#
+(9:36..9:38) scala/`*:`#
+(9:39..9:45) scala/Predef.String#
+(9:46..9:48) scala/`*:`#
+(9:49..9:59) scala/Tuple$package.EmptyTuple#
+(11:20..11:24) _empty_/Tag2# -> 8:6
+(11:25..11:26) _empty_/i16590$package.printIt2().[A] -> 11:14
+(11:32..11:33) _empty_/i16590$package.printIt2().[A] -> 11:14
+(11:36..11:40) scala/Unit#
+(12:3..12:4) _empty_/i16590$package.printIt2().(t) -> 11:17
+(13:10..13:14) _empty_/Tag2.
+(13:15..13:22) _empty_/Tag2.MyTuple. -> 9:8
+(13:26..13:33) scala/Predef.println(+1).
+(13:34..13:35) _empty_/i16590$package.printIt2().(a) -> 11:29
+(13:36..13:38) scala/Tuple2#_1.
+

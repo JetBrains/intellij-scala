@@ -1,0 +1,561 @@
+import java.util.concurrent.CompletionStage
+import scala.concurrent.Future
+
+trait ActorRef[-T]:
+   def ask[Res](replyTo: ActorRef[Res] => T): Future[Res] = ???
+
+implicit final class FutureOps[T](private val f: Future[T]) extends AnyVal:
+  def asJava: CompletionStage[T] = ???
+
+class AskPattern[Req, Res]:
+  val actor: ActorRef[Req] = ???
+  val messageFactory: ActorRef[Res] => Req = ???
+
+  def failing(): CompletionStage[Res] = actor.ask(messageFactory.apply).asJava
+  def workaround1(): CompletionStage[Res] = actor.ask[Res](messageFactory.apply).asJava
+  def workaround2(): CompletionStage[Res] = actor.ask(messageFactory).asJava
+
+  val jMessageFactory: java.util.function.Function[ActorRef[Res], Req] = ???
+  def originalFailingCase(): CompletionStage[Res] = actor.ask(jMessageFactory.apply).asJava
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.CompletionStage
+        CodeReferenceElement: java.util.concurrent
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('CompletionStage')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.concurrent.Future
+        CodeReferenceElement: scala.concurrent
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Future')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ActorRef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActorRef')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScFunctionDefinition: ask
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ask')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Res
+              PsiElement(identifier)('Res')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: replyTo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('replyTo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: ActorRef[Res] => T
+                    ParametrizedType: ActorRef[Res]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Res
+                            CodeReferenceElement: Res
+                              PsiElement(identifier)('Res')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Future[Res]
+            SimpleType: Future
+              CodeReferenceElement: Future
+                PsiElement(identifier)('Future')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Res
+                  CodeReferenceElement: Res
+                    PsiElement(identifier)('Res')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: FutureOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+      PsiWhiteSpace(' ')
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FutureOps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Future[T]
+                SimpleType: Future
+                  CodeReferenceElement: Future
+                    PsiElement(identifier)('Future')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: asJava
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('asJava')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CompletionStage[T]
+            SimpleType: CompletionStage
+              CodeReferenceElement: CompletionStage
+                PsiElement(identifier)('CompletionStage')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: AskPattern
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AskPattern')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Req
+        PsiElement(identifier)('Req')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Res
+        PsiElement(identifier)('Res')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: actor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: actor
+              PsiElement(identifier)('actor')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ActorRef[Req]
+            SimpleType: ActorRef
+              CodeReferenceElement: ActorRef
+                PsiElement(identifier)('ActorRef')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Req
+                  CodeReferenceElement: Req
+                    PsiElement(identifier)('Req')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: messageFactory
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: messageFactory
+              PsiElement(identifier)('messageFactory')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: ActorRef[Res] => Req
+            ParametrizedType: ActorRef[Res]
+              SimpleType: ActorRef
+                CodeReferenceElement: ActorRef
+                  PsiElement(identifier)('ActorRef')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Res
+                    CodeReferenceElement: Res
+                      PsiElement(identifier)('Res')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Req
+              CodeReferenceElement: Req
+                PsiElement(identifier)('Req')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: failing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('failing')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CompletionStage[Res]
+            SimpleType: CompletionStage
+              CodeReferenceElement: CompletionStage
+                PsiElement(identifier)('CompletionStage')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Res
+                  CodeReferenceElement: Res
+                    PsiElement(identifier)('Res')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: actor.ask(messageFactory.apply).asJava
+            MethodCall
+              ReferenceExpression: actor.ask
+                ReferenceExpression: actor
+                  PsiElement(identifier)('actor')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ask')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: messageFactory.apply
+                  ReferenceExpression: messageFactory
+                    PsiElement(identifier)('messageFactory')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asJava')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: workaround1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('workaround1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CompletionStage[Res]
+            SimpleType: CompletionStage
+              CodeReferenceElement: CompletionStage
+                PsiElement(identifier)('CompletionStage')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Res
+                  CodeReferenceElement: Res
+                    PsiElement(identifier)('Res')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: actor.ask[Res](messageFactory.apply).asJava
+            MethodCall
+              GenericCall
+                ReferenceExpression: actor.ask
+                  ReferenceExpression: actor
+                    PsiElement(identifier)('actor')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ask')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Res
+                      CodeReferenceElement: Res
+                        PsiElement(identifier)('Res')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: messageFactory.apply
+                  ReferenceExpression: messageFactory
+                    PsiElement(identifier)('messageFactory')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asJava')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: workaround2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('workaround2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CompletionStage[Res]
+            SimpleType: CompletionStage
+              CodeReferenceElement: CompletionStage
+                PsiElement(identifier)('CompletionStage')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Res
+                  CodeReferenceElement: Res
+                    PsiElement(identifier)('Res')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: actor.ask(messageFactory).asJava
+            MethodCall
+              ReferenceExpression: actor.ask
+                ReferenceExpression: actor
+                  PsiElement(identifier)('actor')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ask')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: messageFactory
+                  PsiElement(identifier)('messageFactory')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asJava')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: jMessageFactory
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: jMessageFactory
+              PsiElement(identifier)('jMessageFactory')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: java.util.function.Function[ActorRef[Res], Req]
+            SimpleType: java.util.function.Function
+              CodeReferenceElement: java.util.function.Function
+                CodeReferenceElement: java.util.function
+                  CodeReferenceElement: java.util
+                    CodeReferenceElement: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('util')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('function')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Function')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: ActorRef[Res]
+                  SimpleType: ActorRef
+                    CodeReferenceElement: ActorRef
+                      PsiElement(identifier)('ActorRef')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Res
+                        CodeReferenceElement: Res
+                          PsiElement(identifier)('Res')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Req
+                  CodeReferenceElement: Req
+                    PsiElement(identifier)('Req')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: originalFailingCase
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('originalFailingCase')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: CompletionStage[Res]
+            SimpleType: CompletionStage
+              CodeReferenceElement: CompletionStage
+                PsiElement(identifier)('CompletionStage')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Res
+                  CodeReferenceElement: Res
+                    PsiElement(identifier)('Res')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: actor.ask(jMessageFactory.apply).asJava
+            MethodCall
+              ReferenceExpression: actor.ask
+                ReferenceExpression: actor
+                  PsiElement(identifier)('actor')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ask')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: jMessageFactory.apply
+                  ReferenceExpression: jMessageFactory
+                    PsiElement(identifier)('jMessageFactory')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asJava')

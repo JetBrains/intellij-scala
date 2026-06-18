@@ -1,0 +1,10 @@
+Document tests/pos/i16994.scala
+(1:11..1:17) scala/Predef.String#
+(1:22..1:25) scala/Int#
+(2:11..2:13) _empty_/i16994$package.ZZ# -> 1:6
+(2:18..2:20) _empty_/i16994$package.f().(xs) -> 2:7
+(2:21..2:33) scala/collection/IterableOps#zipWithIndex().
+(2:34..2:41) scala/collection/IterableOnceOps#foreach().
+(2:46..2:48) _empty_/i16994$package.ZZ# -> 1:6
+(2:56..2:57) local2 -> 2:43
+

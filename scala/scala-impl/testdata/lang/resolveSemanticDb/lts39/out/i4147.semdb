@@ -1,0 +1,14 @@
+Document tests/pos/i4147.scala
+(3:22..3:27) _empty_/Super# -> 2:7
+(3:28..3:29) _empty_/Sub#[A] -> 3:11
+(6:27..6:33) _empty_/Higher# -> 1:7
+(6:41..6:44) scala/Predef.`???`().
+(7:42..7:48) _empty_/Higher# -> 1:7
+(7:49..7:50) _empty_/Test.deriv().[F] -> 7:22
+(7:54..7:55) _empty_/Test.deriv().[F] -> 7:22
+(7:56..7:62) scala/Predef.String#
+(7:66..7:69) scala/Predef.`???`().
+(9:10..9:15) _empty_/Super# -> 2:7
+(9:16..9:22) scala/Predef.String#
+(9:26..9:31) _empty_/Test.deriv(). -> 7:16
+

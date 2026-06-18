@@ -1,0 +1,27 @@
+Document tests/pos/i21300.scala
+(1:17..1:23) scala/Predef.String#
+(1:24..1:25) scala/`&`#
+(1:26..1:35) scala/Singleton#
+(1:43..1:44) _empty_/Test#[S] -> 1:12
+(3:13..3:23) scala/NamedTuple.
+(3:24..3:34) scala/NamedTuple.NamedTuple#
+(3:36..3:37) _empty_/Test#[S] -> 1:12
+(3:48..3:51) scala/Int#
+(3:53..3:57) scala/Long#
+(4:11..4:13) _empty_/Test#NT# -> 3:8
+(4:16..4:19) scala/Predef.`???`().
+(6:15..6:16) _empty_/Test#[S] -> 1:12
+(8:14..8:24) scala/NamedTuple.
+(8:25..8:35) scala/NamedTuple.NamedTuple#
+(8:37..8:41) _empty_/Test#Name# -> 6:8
+(8:52..8:55) scala/Int#
+(8:57..8:61) scala/Long#
+(9:12..9:15) _empty_/Test#NT2# -> 8:8
+(9:18..9:21) scala/Predef.`???`().
+(14:3..14:6) local0 -> 12:7
+(14:3..14:9) scala/NamedTuple.apply(+1).
+(14:7..14:9) _empty_/Test#nt(). -> 4:7
+(15:3..15:6) local0 -> 12:7
+(15:3..15:10) scala/NamedTuple.apply(+1).
+(15:7..15:10) _empty_/Test#nt2(). -> 9:7
+

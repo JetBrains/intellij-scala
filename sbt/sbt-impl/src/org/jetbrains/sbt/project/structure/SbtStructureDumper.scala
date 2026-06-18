@@ -1,6 +1,7 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.sbt.project.structure
 
+import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -12,10 +13,12 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
-import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
+import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
+import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
+import org.jetbrains.sbt.project.settings.SbtExecutionSettings
+import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
@@ -24,11 +27,12 @@ import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.annotation.unused
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.util.Try
 
 sealed trait SbtStructureDumper:
-  protected val processOutputCollector: Option[ProcessOutputCollector] =
-    ProcessOutputCollector.setUpProcessOutputCollection()
+  protected val processOutputCollector: Option[SbtProcessOutputDiagnosticsCollector] =
+    SbtProcessOutputDiagnosticsCollector.createIfEnabled()
 
   final def processOutput: String = processOutputCollector.fold("")(_.processOutput)
 
@@ -59,7 +63,7 @@ object SbtStructureDumper:
 
         context.sbtVersion = currentSbtVersion
 
-        val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${structureFile.normalizedLocalPath}"
+        val dumpStructureToCommand = buildDumpStructureToCommand(structureFile, currentSbtVersion)
 
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
         val ideaPortSetting = ""
@@ -102,21 +106,24 @@ object SbtStructureDumper:
         }
       }
 
-      val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
-      val aggregator = shell.messageAggregatorForSync(
+      val aggregator = SbtShellBuildMessagesEventProcessor.forSync(
+        project,
         reporter,
         EventId(s"dump:${UUID.randomUUID()}"),
-        optProcessOutputBuilder,
+        processOutputCollector,
         startMessage = SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"),
         finishMessage = SbtBundle.message("sbt.project.structure.extracted")
       )
 
       val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
       val terminationMessage = "Sbt shell terminated before sync command is finished"
+      val request = SbtShellCommandRequest(buildCommand, aggregator, Some(terminationMessage))
+        .withQueuedOutputMirroring()
+        .withSbtShellToolWindowActivationOnStartup(enabled = false)
       if isSbtVersionOutdated then
-        shell.commandAfterSoftRestart(buildCommand, BuildMessages.empty, aggregator, terminationMessage)
+        shell.runAfterSoftRestart(request)
       else
-        shell.command(buildCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
+        shell.run(request)
 
   end FromShell
 
@@ -135,7 +142,7 @@ object SbtStructureDumper:
       optString: String,
       vmExecutable: Path,
       vmOptions: Seq[String],
-      sbtOptions: Seq[String],
+      sbtOptions: SbtExecutionSettings.SbtOptions,
       environment: Map[String, String],
       sbtLauncher: Path,
       sbtStructureJar: Path,
@@ -147,7 +154,7 @@ object SbtStructureDumper:
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
-      val dumpStructureCommand = SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
+      val dumpStructureToCommand = buildDumpStructureToCommand(structureFile, sbtVersion)
 
       val sbtTaskTimingOption =
         if (context.timingCollector.nonEmpty) Seq("-Dsbt.task.timings=true")
@@ -155,7 +162,7 @@ object SbtStructureDumper:
 
       /*
        The new import logic:
-       - Passes additional system properties to the `sbt-structure` plugin (e.g., `sbt.structure.outputFile`), which are later used to initialize some settings.
+       - Passes additional system properties to the `sbt-structure` plugin (e.g., `sbt.structure.options`), which are later used to initialize some settings.
          This avoids state transformations by replacing `set` commands.
        - Does not set `historyPath := None` — I don't see any advantage in using this setting.
          Since sbt 1.4.0+, commands prepended with a space are not added to the history, which should be sufficient for this kind of import.
@@ -175,19 +182,18 @@ object SbtStructureDumper:
       val additionalVmOptionsForNewImport =
         if (isNewImportEnabled)
           Seq(
-            s"-Dsbt.structure.outputFile=${structureFile.normalizedLocalPath}",
             s"-Dsbt.structure.options=$optString",
             s"-D$IdeaImportId=$importId"
           )
         else Nil
 
-      val sbtProcessOptions = SbtUtil.collectAllOptions(
+      val sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
         vmOptions ++ additionalVmOptionsForNewImport ++ sbtTaskTimingOption,
-        sbtOptions,
-        passParentEnvironment,
-        environment,
-        additionalLauncherArgs = Nil
+        sbtOptions.options,
+        EnvironmentVariablesData.create(environment.asJava, passParentEnvironment),
+        additionalLauncherArgs = Nil,
+        malformedSbtOptionsFromSettings = sbtOptions.malformedOptions
       )
 
       val dumpProcessArgsMethod =
@@ -201,7 +207,7 @@ object SbtStructureDumper:
           optString,
           sbtStructureJar,
           maybePreferScala2Command,
-          dumpStructureCommand,
+          dumpStructureToCommand,
           sbtVersion,
           sbtProcessOptions,
           project,
@@ -218,7 +224,8 @@ object SbtStructureDumper:
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
         passParentEnvironment,
         context.timingCollector,
-        sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs)
+        sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs),
+        project = project,
       )
 
       extraSbtFileToRemove.foreach { path =>
@@ -246,7 +253,7 @@ object SbtStructureDumper:
 
     /**
      * Builds config for dumping the project structure in the new import way (without state transformations).
-     * 
+     *
      * Due to the sbt issue [[https://github.com/sbt/sbt/issues/8570]] when using `--addPluginSbtFile` in sbt 1.x < 1.12.1
      * and sbt 2.x < 2.0.0-RC9 the new import relies on adding an sbt file to the global plugins directory.
      * The same trick is used in [[SbtProcessManager.createShellProcessHandler]] when an sbt version is lower than 1.2.0.
@@ -262,13 +269,13 @@ object SbtStructureDumper:
       @unused optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
-      dumpStructureCommand: String,
+      dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
       sbtProcessOptions: SbtProcessOptions,
       project: Option[Project],
       importId: String
     )(using context: ImportContext): StructureDumpConfig = {
-      val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
+      val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureToCommand)
 
       val isAddPluginSbtFileEnabled = sbtVersion.isSbt2 || sbtVersion >= SbtVersion("1.12.1")
       if (isAddPluginSbtFileEnabled) {
@@ -278,10 +285,10 @@ object SbtStructureDumper:
 
         val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
           raw"""Compile / unmanagedJars ++= {
-            |$fileConverter
-            |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
-            |}
-            |""".stripMargin,
+               |$fileConverter
+               |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
+               |}
+               |""".stripMargin,
           eelDescriptor,
           project
         )
@@ -321,12 +328,12 @@ object SbtStructureDumper:
       catch case _: IOException => ()
 
     private def getDumpProcessArgsForLegacySbt(
-      structureFilePath: Path,
+      @unused structureFilePath: Path,
       @unused eelDescriptor: EelDescriptor,
       optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
-      dumpStructureCommand: String,
+      dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
       @unused sbtProcessOptions: SbtProcessOptions,
       @unused project: Option[Project],
@@ -336,7 +343,6 @@ object SbtStructureDumper:
       val setCommands = Seq(
         """historyPath := None""",
         s"""shellPrompt := { _ => "" }""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${structureFilePath.normalizedLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
       ).mkString(s"set $SeqFqn(", ",", ")")
 
@@ -346,7 +352,7 @@ object SbtStructureDumper:
         setCommands,
         applyStateTransformersCommand,
         maybePreferScala2Command,
-        dumpStructureCommand
+        dumpStructureToCommand
       )
       StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
     }
@@ -358,7 +364,7 @@ object SbtStructureDumper:
    * Its value (a unique import id) is passed to the sbt import process and checked inside the generated global plugin file
    * to ensure the plugin settings are activated only for the current import.
    *
-   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.SbtProcessManager#IdeaRunIdVmOption]]
+   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.process.utils.SpecialSbtVmOptions.IdeaRunIdVmOption]]
    *
    * @see [[createGuardedPluginContent]]
    */
@@ -380,9 +386,13 @@ object SbtStructureDumper:
   private def buildSbtCompositeCommand(commands: String*): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")
 
+  private def buildDumpStructureToCommand(structureFile: Path, sbtVersion: SbtVersion): String =
+    s"""${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} "${structureFile.normalizedLocalPath}""""
+
   private def scopedSbtSetting(setting: String, scope: String, sbtVersion: SbtVersion): String =
     val supportsSlashSyntax = SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion)
     if supportsSlashSyntax then
       s"($scope / $setting)"
     else
       s"$setting in $scope"
+end SbtStructureDumper

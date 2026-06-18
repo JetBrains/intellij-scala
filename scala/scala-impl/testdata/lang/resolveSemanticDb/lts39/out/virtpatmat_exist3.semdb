@@ -1,0 +1,6 @@
+Document tests/pos/virtpatmat_exist3.scala
+(2:21..2:35) _empty_/ReferenceQueue# -> 1:7
+(2:41..2:55) _empty_/ReferenceQueue# -> 1:7
+(2:56..2:57) _empty_/ReferenceQueue#[T] -> 1:22
+(3:5..3:9) _empty_/ReferenceQueue#wrapper().(jref) -> 2:15
+

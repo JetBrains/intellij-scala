@@ -10,7 +10,9 @@ import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, module, project}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy.CollectErrors
-import org.jetbrains.sbt.project.{CollectingNotificationsListener, ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
+import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
 
 abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
   extends SbtProjectHighlightingLocalProjectsTestBase
@@ -21,7 +23,8 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
 
   override protected val projectFileName = projectName
 
-  override protected def copyTestProjectToTemporaryDir = true
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
@@ -133,7 +136,9 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
     group: Array[String] = Array.empty,
     excludeTargetDir: Boolean = false
   ) extends module(name, group) {
+
     import ProjectStructureDsl.*
+
     locally {
       contentRoots := Seq()
       sources := Seq()

@@ -1,0 +1,434 @@
+
+object Test:
+
+  inline val myInt = 1 << 6
+
+  // toLong
+  inline val char2Long: 99L = 'c'.toLong
+  inline val int2Long: 0L = 0.toLong
+  inline val long2Long: 0L = 0L.toLong
+  inline val int2LongPropagated: 64L = myInt.toLong
+
+  // toInt
+  inline val char2Int: 99 = 'c'.toInt
+  inline val int2Int: 0 = 0.toInt
+  inline val long2Int: 0 = 0L.toInt
+  inline val long2IntWrapped: -2147483648 = 2147483648L.toInt
+  inline val int2IntPropagated: 64 = myInt.toInt
+
+  // toChar
+  inline val char2Char: 'c' = 'c'.toChar
+  inline val int2Char: 'c' = 99.toChar
+  inline val long2Char: 'c' = 99L.toChar
+  inline val int2CharPropagated: '@' = myInt.toChar
+
+  // chain everything
+  inline val wow: 1.0 = 1.toChar.toInt.toLong.toFloat.toDouble
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: myInt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: myInt
+              PsiElement(identifier)('myInt')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: <<
+              PsiElement(identifier)('<<')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('6')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: char2Long
+          PsiComment(comment)('// toLong')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: char2Long
+              PsiElement(identifier)('char2Long')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 99L
+            LongLiteral
+              PsiElement(long)('99L')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 'c'.toLong
+            CharLiteral
+              PsiElement(Character)(''c'')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toLong')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2Long
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2Long
+              PsiElement(identifier)('int2Long')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 0L
+            LongLiteral
+              PsiElement(long)('0L')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 0.toLong
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toLong')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: long2Long
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: long2Long
+              PsiElement(identifier)('long2Long')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 0L
+            LongLiteral
+              PsiElement(long)('0L')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 0L.toLong
+            LongLiteral
+              PsiElement(long)('0L')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toLong')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2LongPropagated
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2LongPropagated
+              PsiElement(identifier)('int2LongPropagated')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 64L
+            LongLiteral
+              PsiElement(long)('64L')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: myInt.toLong
+            ReferenceExpression: myInt
+              PsiElement(identifier)('myInt')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toLong')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: char2Int
+          PsiComment(comment)('// toInt')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: char2Int
+              PsiElement(identifier)('char2Int')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 99
+            IntegerLiteral
+              PsiElement(integer)('99')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 'c'.toInt
+            CharLiteral
+              PsiElement(Character)(''c'')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toInt')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2Int
+              PsiElement(identifier)('int2Int')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 0.toInt
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toInt')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: long2Int
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: long2Int
+              PsiElement(identifier)('long2Int')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 0L.toInt
+            LongLiteral
+              PsiElement(long)('0L')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toInt')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: long2IntWrapped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: long2IntWrapped
+              PsiElement(identifier)('long2IntWrapped')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: -2147483648
+            IntegerLiteral
+              PsiElement(identifier)('-')
+              PsiElement(integer)('2147483648')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 2147483648L.toInt
+            LongLiteral
+              PsiElement(long)('2147483648L')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toInt')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2IntPropagated
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2IntPropagated
+              PsiElement(identifier)('int2IntPropagated')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 64
+            IntegerLiteral
+              PsiElement(integer)('64')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: myInt.toInt
+            ReferenceExpression: myInt
+              PsiElement(identifier)('myInt')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toInt')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: char2Char
+          PsiComment(comment)('// toChar')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: char2Char
+              PsiElement(identifier)('char2Char')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 'c'
+            CharLiteral
+              PsiElement(Character)(''c'')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 'c'.toChar
+            CharLiteral
+              PsiElement(Character)(''c'')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toChar')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2Char
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2Char
+              PsiElement(identifier)('int2Char')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 'c'
+            CharLiteral
+              PsiElement(Character)(''c'')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 99.toChar
+            IntegerLiteral
+              PsiElement(integer)('99')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toChar')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: long2Char
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: long2Char
+              PsiElement(identifier)('long2Char')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 'c'
+            CharLiteral
+              PsiElement(Character)(''c'')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 99L.toChar
+            LongLiteral
+              PsiElement(long)('99L')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toChar')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: int2CharPropagated
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: int2CharPropagated
+              PsiElement(identifier)('int2CharPropagated')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: '@'
+            CharLiteral
+              PsiElement(Character)(''@'')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: myInt.toChar
+            ReferenceExpression: myInt
+              PsiElement(identifier)('myInt')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toChar')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: wow
+          PsiComment(comment)('// chain everything')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: wow
+              PsiElement(identifier)('wow')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          LiteralType: 1.0
+            DoubleLiteral
+              PsiElement(double)('1.0')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 1.toChar.toInt.toLong.toFloat.toDouble
+            ReferenceExpression: 1.toChar.toInt.toLong.toFloat
+              ReferenceExpression: 1.toChar.toInt.toLong
+                ReferenceExpression: 1.toChar.toInt
+                  ReferenceExpression: 1.toChar
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toChar')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toInt')
+                PsiElement(.)('.')
+                PsiElement(identifier)('toLong')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toFloat')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toDouble')

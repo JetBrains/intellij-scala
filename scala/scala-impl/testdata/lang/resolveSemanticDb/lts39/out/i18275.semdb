@@ -1,0 +1,10 @@
+Document tests/pos/i18275.scala
+(8:34..8:39) scala/
+(8:40..8:48) scala/deriving/
+(8:49..8:55) scala/deriving/Mirror.
+(8:56..8:58) scala/deriving/Mirror.Of#
+(8:59..8:60) foo/Eq.derived().[T] -> 8:22
+(8:64..8:66) foo/Eq# -> 6:7
+(8:67..8:68) foo/Eq.derived().[T] -> 8:22
+(8:72..8:75) scala/Predef.`???`().
+

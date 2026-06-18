@@ -1,0 +1,5 @@
+Document tests/pos/i1961.scala
+(3:17..3:20) scala/Int#
+(3:21..3:22) _empty_/InfixType.`*`# -> 2:9
+(3:23..3:26) scala/Int#
+

@@ -22,7 +22,7 @@ import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
 import org.jetbrains.sbt.project.utils.ProjectComparisonOptions
-import org.jetbrains.sbt.project.{ExactMatch, NewScalaProjectWizardTestBase, ProjectStructureTestUtils}
+import org.jetbrains.sbt.project.{NewScalaProjectWizardTestBase, ProjectStructureAssertionsFixture, ProjectStructureTestUtils}
 import org.junit.{Assume, Test}
 import org.junit.runner.RunWith
 
@@ -48,7 +48,7 @@ import scala.util.Try
  * The bsp server should be initialized - BSP sessions are closed after the reload,
  * so the endpoint to download all targets has already been triggered, and the response has been received.
  */
-abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTestBase with ExactMatch {
+abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTestBase {
 
   /**
    * All tests in this class have the same project name.
@@ -113,9 +113,10 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       data.setUseIndentationBasedSyntax(useIndentationBasedSyntax)
     }
 
-    val compareContextNew = compareContext.withOptions(ProjectComparisonOptions(projectName))
     useProject(project, false, (project: Project) => {
-      assertProjectsEqual(expectedProject, project)(using compareContextNew)
+      val assertions = new ProjectStructureAssertionsFixture(project)
+      val compareContextNew = assertions.defaultCompareContext.withOptions(ProjectComparisonOptions(projectName))
+      assertions.assertProjectsEqual(expectedProject)(using compareContextNew)
       junit.framework.TestCase.assertEquals(
         "The 'Use indentation-based syntax' setting was not configured correctly",
         useIndentationBasedSyntax,

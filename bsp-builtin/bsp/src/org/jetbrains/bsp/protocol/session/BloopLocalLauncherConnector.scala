@@ -2,6 +2,7 @@ package org.jetbrains.bsp.protocol.session
 
 import bloop.rifle.{BloopRifleConfig, BloopRifleLogger, BloopThreads}
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
@@ -22,7 +23,7 @@ private[protocol] class BloopLocalLauncherConnector(
   jdk: Sdk
 ) extends BloopLauncherConnectorBase(compilerOutput, capabilities, jdk) {
 
-  override def connect(using reporter: BuildReporter): Either[BspError, Builder] = {
+  override def connect(using reporter: BuildReporter, indicator: Option[ProgressIndicator]): Either[BspError, Builder] = {
     val bloopDataStore = PathManager.getCommonDataPath.resolve("bloop")
 
     val details = BloopRifleConfig.default(

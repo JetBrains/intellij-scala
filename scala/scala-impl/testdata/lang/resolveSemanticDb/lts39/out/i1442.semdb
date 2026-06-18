@@ -1,0 +1,77 @@
+Document tests/pos/i1442.scala
+(2:34..2:41) scala/package.Numeric#
+(2:42..2:43) _empty_/Test1442.sumMinimized().[B] -> 2:26
+(2:47..2:50) scala/Int#
+(3:16..3:21) scala/
+(3:22..3:26) scala/math/
+(3:27..3:34) scala/math/Numeric.
+(3:47..3:59) scala/Any#asInstanceOf().
+(3:60..3:65) scala/
+(3:66..3:70) scala/math/
+(3:71..3:78) scala/math/Numeric.
+(4:9..4:12) local0 -> 3:11
+(4:15..4:20) scala/
+(4:21..4:25) scala/math/
+(4:26..4:33) scala/math/Numeric.
+(4:35..4:38) _empty_/Test1442.sumMinimized().(num) -> 2:29
+(4:39..4:41) java/lang/Object#eq().
+(4:42..4:45) local0 -> 3:11
+(4:46..4:59) scala/math/Numeric.IntIsIntegral.
+(4:61..4:63) scala/Boolean#`||`().
+(5:17..5:20) _empty_/Test1442.sumMinimized().(num) -> 2:29
+(5:21..5:23) java/lang/Object#eq().
+(5:24..5:27) local0 -> 3:11
+(5:28..5:50) scala/math/Numeric.BigDecimalAsIfIntegral.
+(9:34..9:41) scala/package.Numeric#
+(9:42..9:43) _empty_/Test1442.sum().[B] -> 9:17
+(9:47..9:48) _empty_/Test1442.sum().[B] -> 9:17
+(11:17..11:22) scala/
+(11:23..11:27) scala/math/
+(11:28..11:35) scala/math/Numeric.
+(11:48..11:60) scala/Any#asInstanceOf().
+(11:61..11:66) scala/
+(11:67..11:71) scala/math/
+(11:72..11:79) scala/math/Numeric.
+(12:13..12:16) local1 -> 11:12
+(12:19..12:24) scala/
+(12:25..12:29) scala/math/
+(12:30..12:37) scala/math/Numeric.
+(12:39..12:42) _empty_/Test1442.sum().(num) -> 9:29
+(12:43..12:45) java/lang/Object#eq().
+(12:46..12:49) local1 -> 11:12
+(12:50..12:63) scala/math/Numeric.IntIsIntegral.
+(12:64..12:66) scala/Boolean#`||`().
+(13:17..13:20) _empty_/Test1442.sum().(num) -> 9:29
+(13:21..13:23) java/lang/Object#eq().
+(13:24..13:27) local1 -> 11:12
+(13:28..13:44) scala/math/Numeric.BigIntIsIntegral.
+(13:45..13:47) scala/Boolean#`||`().
+(14:17..14:20) _empty_/Test1442.sum().(num) -> 9:29
+(14:21..14:23) java/lang/Object#eq().
+(14:24..14:27) local1 -> 11:12
+(14:28..14:43) scala/math/Numeric.ShortIsIntegral.
+(14:44..14:46) scala/Boolean#`||`().
+(15:17..15:20) _empty_/Test1442.sum().(num) -> 9:29
+(15:21..15:23) java/lang/Object#eq().
+(15:24..15:27) local1 -> 11:12
+(15:28..15:42) scala/math/Numeric.ByteIsIntegral.
+(15:43..15:45) scala/Boolean#`||`().
+(16:17..16:20) _empty_/Test1442.sum().(num) -> 9:29
+(16:21..16:23) java/lang/Object#eq().
+(16:24..16:27) local1 -> 11:12
+(16:28..16:42) scala/math/Numeric.CharIsIntegral.
+(16:43..16:45) scala/Boolean#`||`().
+(17:17..17:20) _empty_/Test1442.sum().(num) -> 9:29
+(17:21..17:23) java/lang/Object#eq().
+(17:24..17:27) local1 -> 11:12
+(17:28..17:42) scala/math/Numeric.LongIsIntegral.
+(17:43..17:45) scala/Boolean#`||`().
+(18:17..18:20) _empty_/Test1442.sum().(num) -> 9:29
+(18:21..18:23) java/lang/Object#eq().
+(18:24..18:27) local1 -> 11:12
+(18:28..18:50) scala/math/Numeric.BigDecimalIsFractional.
+(19:14..19:26) scala/Any#asInstanceOf().
+(19:27..19:28) _empty_/Test1442.sum().[B] -> 9:17
+(20:19..20:31) scala/Any#asInstanceOf().
+(20:32..20:33) _empty_/Test1442.sum().[B] -> 9:17
+

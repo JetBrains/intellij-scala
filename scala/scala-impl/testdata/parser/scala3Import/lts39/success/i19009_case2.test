@@ -1,0 +1,229 @@
+object NodeOrdering:
+  def postOrderNumbering[NodeType](cfgEntry: NodeType, expand: NodeType => Iterator[NodeType]): Map[NodeType, Int]  = ???
+
+trait CfgNode
+trait Method extends CfgNode
+
+def postOrder =
+  def method: Method = ???
+  def expand(x: CfgNode): Iterator[CfgNode] = ???
+  NodeOrdering.postOrderNumbering(method, expand)
+-----
+ScalaFile
+  ScObject: NodeOrdering
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeOrdering')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: postOrderNumbering
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('postOrderNumbering')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: NodeType
+              PsiElement(identifier)('NodeType')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: cfgEntry
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('cfgEntry')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NodeType
+                    CodeReferenceElement: NodeType
+                      PsiElement(identifier)('NodeType')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: expand
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('expand')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: NodeType => Iterator[NodeType]
+                    SimpleType: NodeType
+                      CodeReferenceElement: NodeType
+                        PsiElement(identifier)('NodeType')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Iterator[NodeType]
+                      SimpleType: Iterator
+                        CodeReferenceElement: Iterator
+                          PsiElement(identifier)('Iterator')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: NodeType
+                            CodeReferenceElement: NodeType
+                              PsiElement(identifier)('NodeType')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Map[NodeType, Int]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: NodeType
+                  CodeReferenceElement: NodeType
+                    PsiElement(identifier)('NodeType')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: CfgNode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CfgNode')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Method
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Method')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: CfgNode
+            CodeReferenceElement: CfgNode
+              PsiElement(identifier)('CfgNode')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: postOrder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('postOrder')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: method
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('method')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Method
+          CodeReferenceElement: Method
+            PsiElement(identifier)('Method')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: expand
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('expand')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: x
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('x')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: CfgNode
+                  CodeReferenceElement: CfgNode
+                    PsiElement(identifier)('CfgNode')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Iterator[CfgNode]
+          SimpleType: Iterator
+            CodeReferenceElement: Iterator
+              PsiElement(identifier)('Iterator')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: CfgNode
+                CodeReferenceElement: CfgNode
+                  PsiElement(identifier)('CfgNode')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: NodeOrdering.postOrderNumbering
+          ReferenceExpression: NodeOrdering
+            PsiElement(identifier)('NodeOrdering')
+          PsiElement(.)('.')
+          PsiElement(identifier)('postOrderNumbering')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: method
+            PsiElement(identifier)('method')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: expand
+            PsiElement(identifier)('expand')
+          PsiElement())(')')

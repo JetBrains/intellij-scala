@@ -1,0 +1,16 @@
+Document tests/pos/i12077.scala
+(4:16..4:23) _empty_/Wrapper# -> 1:7
+(4:24..4:28) _empty_/Has0# -> 2:7
+(4:29..4:35) scala/Predef.String#
+(4:42..4:43) _empty_/i12077$package.test().[R] -> 4:10
+(4:46..4:47) _empty_/i12077$package.test().[R] -> 4:10
+(4:50..4:53) scala/Predef.`???`().
+(6:8..6:15) _empty_/Wrapper# -> 1:7
+(6:16..6:20) _empty_/Has0# -> 2:7
+(6:21..6:27) scala/Predef.String#
+(6:34..6:38) _empty_/Has0# -> 2:7
+(6:39..6:42) scala/Int#
+(6:47..6:50) scala/Predef.`???`().
+(7:9..7:13) _empty_/i12077$package.test(). -> 4:5
+(7:14..7:16) _empty_/i12077$package.zz. -> 6:5
+

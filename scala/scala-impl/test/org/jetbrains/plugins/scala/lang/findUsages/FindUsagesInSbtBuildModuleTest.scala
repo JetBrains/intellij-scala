@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, fail}
 import org.junit.experimental.categories.Category
 
@@ -25,7 +25,6 @@ class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike 
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
     importProject(false)
   }
 

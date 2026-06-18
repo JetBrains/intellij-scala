@@ -1,0 +1,9 @@
+Document tests/pos/i2081.scala
+(4:15..4:18) scala/Int#
+(4:21..4:24) scala/Int#
+(6:19..6:22) _empty_/Foo# -> 1:7
+(9:17..9:20) _empty_/Foo# -> 1:7
+(9:26..9:29) _empty_/Bar# -> 6:7
+(10:15..10:18) scala/Int#
+(10:22..10:23) _empty_/C#meth().(x) -> 10:12
+

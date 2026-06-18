@@ -1,0 +1,16 @@
+Document tests/pos/poly-erased-functions.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:47) scala/language.experimental.erasedDefinitions.
+(7:30..7:31) local0 -> 7:13
+(7:36..7:39) scala/Int#
+(7:44..7:45) local2 -> 7:33
+(8:23..8:24) local4 -> 8:13
+(8:36..8:39) scala/Int#
+(8:44..8:45) local5 -> 8:20
+(10:19..10:30) scala/compiletime/
+(10:31..10:37) scala/compiletime/Erased#
+(14:23..14:24) _empty_/Test.A# -> 10:9
+(14:29..14:30) local8 -> 14:13
+(14:35..14:36) local10 -> 14:26
+

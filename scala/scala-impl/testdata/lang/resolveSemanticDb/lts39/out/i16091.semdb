@@ -1,0 +1,8 @@
+Document tests/pos/i16091.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:37) scala/annotation/experimental#
+(6:4..6:16) scala/annotation/experimental#
+(7:22..7:29) _empty_/Macro.inline$fooImpl().
+(9:4..9:16) scala/annotation/experimental#
+

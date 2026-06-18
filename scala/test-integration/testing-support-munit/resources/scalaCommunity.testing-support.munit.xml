@@ -3,6 +3,7 @@
     <dependencies>
         <plugin id="JUnit"/>
         <module name="scalaCommunity.testing-support"/>
+        <module name="intellij.platform.smRunner"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">

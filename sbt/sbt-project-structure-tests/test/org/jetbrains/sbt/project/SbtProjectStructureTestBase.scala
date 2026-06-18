@@ -1,3 +1,0 @@
-package org.jetbrains.sbt.project
-
-abstract class SbtProjectStructureTestBase extends SbtProjectStructureImportingLike

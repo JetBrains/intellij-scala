@@ -1,0 +1,4 @@
+Document tests/pos/cfcrash.scala
+(3:16..3:17) scala/Int#`/`(+3).
+(3:18..3:22) _empty_/cfcrash.zero. -> 2:13
+

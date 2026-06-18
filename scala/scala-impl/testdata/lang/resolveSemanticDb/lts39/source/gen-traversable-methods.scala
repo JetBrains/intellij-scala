@@ -1,0 +1,20 @@
+
+
+
+import collection.*
+
+
+
+object Test {
+
+  def main(args: Array[String]): Unit = {
+    val gen: GenTraversable[Int] = List(1, 2, 3)
+    gen.head
+    gen.headOption
+    gen.tail
+    gen.last
+    gen.lastOption
+    gen.init
+  }
+
+}

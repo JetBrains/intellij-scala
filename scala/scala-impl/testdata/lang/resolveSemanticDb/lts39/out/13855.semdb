@@ -1,0 +1,25 @@
+Document tests/pos/13855.scala
+(1:13..1:14) _empty_/`13855$package`.A#[X] -> 1:8
+(2:8..2:11) scala/Int#
+(2:15..2:18) scala/Int#
+(3:8..3:9) scala/Any#
+(3:15..3:16) _empty_/`13855$package`.B# -> 9:6
+(3:17..3:18) _empty_/`13855$package`.A#[X] -> 1:8
+(5:13..5:14) _empty_/`13855$package`.a().[X] -> 5:7
+(5:17..5:18) _empty_/`13855$package`.A# -> 1:6
+(5:19..5:20) _empty_/`13855$package`.a().[X] -> 5:7
+(5:24..5:25) _empty_/`13855$package`.a().(x) -> 5:10
+(6:11..6:14) scala/Int#
+(6:18..6:19) local0 -> 6:8
+(7:18..7:19) _empty_/`13855$package`.b(). -> 12:5
+(7:20..7:21) _empty_/`13855$package`.a().(x) -> 5:10
+(9:13..9:14) _empty_/`13855$package`.B#[X] -> 9:8
+(10:8..10:14) scala/Predef.String#
+(10:18..10:24) scala/Predef.String#
+(12:13..12:14) _empty_/`13855$package`.b().[X] -> 12:7
+(12:17..12:18) _empty_/`13855$package`.B# -> 9:6
+(12:19..12:20) _empty_/`13855$package`.b().[X] -> 12:7
+(12:24..12:25) _empty_/`13855$package`.b().(x) -> 12:10
+(13:11..13:17) scala/Predef.String#
+(13:21..13:22) local1 -> 13:8
+

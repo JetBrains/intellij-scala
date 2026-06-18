@@ -9,6 +9,7 @@ import org.jetbrains.sbtidea.PluginJars
 import teamcity.TeamCityAPI
 
 import java.nio.file.Path
+import kotlin.Keys.kotlincOptions
 
 // Global build settings
 
@@ -169,9 +170,19 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
-    Compile / unmanagedSourceDirectories ++= Seq(sourceDirectory.value / "gen"),
-    scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions
+    autoScalaLibrary := false,
+    managedScalaInstance := false
+  )
+
+// Register separate module for generated sources to be able to mute ton of warnings in the generated Kotlin sources
+lazy val workspaceEntitiesGen = newProjectWithKotlin("workspace-entities-gen", file("sbt/sbt-impl/workspace-entities/src/gen"))
+  .dependsOn(workspaceEntities)
+  .settings(
+    // The root "gen" directory is used as the root for generated sources for this module
+    Compile / managedSourceDirectories := Seq(baseDirectory.value),
+    Compile / kotlincOptions += "-nowarn",
+    autoScalaLibrary := false,
+    managedScalaInstance := false
   )
 
 lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt-kotlin-utils"))
@@ -180,12 +191,18 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
     autoScalaLibrary := false
   )
 
+// NOTE: this module used to be a `newProjectWithKotlin`. However, it became broken after an update to 262.7966+.
+//       Compilation failed with errors like `Unresolved reference 'facet'`, `Unresolved reference 'KotlinFacet'`.
+//       Even with the workaround below, the unresolved packages and classes should still be on the classpath as a
+//       part of `kotlin-plugin.jar`. It seems like there is a bug in `sbt-kotlin-plugin`. The errors simply look
+//       like a misconfigured classpath. For now, we decided to convert the module to Scala, but if there will be
+//       a need to use Kotlin in the module again, we should be aware of the issue and investigate it first.
 lazy val sbtKotlinIjPluginInterop =
-  newProjectWithKotlin("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
+  newProject("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
     .dependsOn(sbtApi)
     .settings(
-      crossPaths := false,
-      autoScalaLibrary := false,
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.kotlin".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-kotlin-ij-plugin-interop"),
 
@@ -215,6 +232,7 @@ lazy val sbtApi =
       scalaApi,
       compilerShared,
       workspaceEntities,
+      workspaceEntitiesGen,
       testUtilsCommon % "test->test"
     )
     .enablePlugins(BuildInfoPlugin)
@@ -509,6 +527,7 @@ lazy val sbtImpl =
       sbtKotlinUtils,
       sbtKotlinIjPluginInterop % "test->test",
       scalaImpl % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
@@ -525,6 +544,10 @@ lazy val sbtProjectImportingTestFramework =
       compilerIntegrationServerManagement % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
+    )
 
 lazy val sbtProjectStructureTests =
   newProject("sbt-project-structure-tests", file("sbt/sbt-project-structure-tests"))
@@ -533,6 +556,10 @@ lazy val sbtProjectStructureTests =
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtProjectHighlightingTests =
@@ -548,22 +575,64 @@ lazy val sbtProjectHighlightingTests =
       Compile / scalacOptions := globalScala3ScalacOptions
     )
 
+// A tiny JVM program used by sbt shell/runtime tests instead of launching a real sbt process.
+//
+// Keep it in a separate module so the mock process can stay independent of IntelliJ platform classes and from the plugin packaging graph.
+// The sources are compiled in Test configuration because it is only ever launched from tests,
+// while Compile contains only generated BuildInfo with the exact test-classes directory.
+//
+// Related code: MockSbtProcessForTests, MockSbtProcessForTestsSetup
+lazy val sbtMockProcess =
+  newPlainScalaProject("sbt-mock-process", file("sbt/sbt-mock-process"))
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      packageMethod := PackagingMethod.Skip(),
+      Compile / unmanagedSourceDirectories := Nil,
+
+      Test / sourceDirectory := baseDirectory.value / "src",
+      Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
+      Test / javacOptions := outOfIDEAProcessJavacOptions,
+
+      // It looks like, even though there are no regular Scala sources in this module,
+      // the `build-info` plugin generates a Scala file that requires the Scala compiler to be available.
+      // Because of this, uncommenting the lines below is not possible at the moment.
+//      autoScalaLibrary := false,
+//      managedScalaInstance := false,
+//      libraryDependencies := Nil,
+//      intellijExtraJUnitTemplateLibraryDependencies := Nil,
+
+      // Configure build-info plugin
+      buildInfoPackage := "org.jetbrains.sbt.process.mock",
+      buildInfoObject := "MockSbtProcessBuildInfo",
+      buildInfoKeys := Seq("testClassesDirectory" -> (Test / classDirectory).value.getAbsolutePath),
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+    )
+
 lazy val sbtShellRuntimeTests =
   newProject("sbt-shell-runtime-tests", file("sbt/sbt-shell-runtime-tests"))
     .projectWithTestsOnly
     .dependsOn(
+      sbtMockProcess % "compile->compile;test->test",
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val sbtShellBuildDelegationTests =
   newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
     .projectWithTestsOnly
     .dependsOn(
-      sbtProjectImportingTestFramework % "test->test",
+      sbtShellRuntimeTests % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val compilerIntegration =
@@ -1046,24 +1115,7 @@ lazy val intellijBazelIntegration =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += {
-        // TODO: BAZEL-3025
-        //       The Bazel plugin will be fully converted to plugin v2 and we should be able to go back to a simple
-        //       plugin definition: `org.jetbrains.bazel::super-early-bird.toPlugin`.
-        val plugin = "org.jetbrains.bazel::super-early-bird".toPlugin
-        val oldSettings = plugin.resolveSettings
-        plugin.resolveSettings = oldSettings.copy(
-          excludedIds = Set(
-            "intellij.bazel.bazelisk",
-            "intellij.bazel.commons",
-            "intellij.bazel.connector",
-            "intellij.bazel.importer",
-            "intellij.bazel.projectview",
-            "intellij.bazel.protobuf"
-          )
-        )
-        plugin
-      },
+      intellijPlugins += "org.jetbrains.bazel::super-early-bird".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
     )
 

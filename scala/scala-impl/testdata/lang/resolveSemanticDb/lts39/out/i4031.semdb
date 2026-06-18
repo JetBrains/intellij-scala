@@ -1,0 +1,23 @@
+Document tests/pos/i4031.scala
+(2:23..2:26) scala/Any#
+(3:17..3:18) _empty_/App.A# -> 2:9
+(3:23..3:26) scala/Any#
+(3:29..3:30) _empty_/App.upcast().(a) -> 3:14
+(3:31..3:32) _empty_/App.A#L# -> 2:18
+(3:35..3:36) _empty_/App.upcast().(x) -> 3:20
+(4:15..4:16) _empty_/App.A# -> 2:9
+(4:29..4:36) scala/Nothing#
+(4:41..4:42) _empty_/App.p. -> 4:12
+(5:15..5:16) _empty_/App.A# -> 2:9
+(5:28..5:31) scala/Any#
+(6:18..6:21) scala/Any#
+(6:24..6:27) scala/Any#
+(6:30..6:36) _empty_/App.upcast(). -> 3:7
+(6:37..6:38) _empty_/App.q. -> 5:7
+(6:40..6:41) _empty_/App.coerce1().(x) -> 6:15
+(7:18..7:21) scala/Any#
+(7:24..7:27) scala/Any#
+(7:30..7:36) _empty_/App.upcast(). -> 3:7
+(7:37..7:38) _empty_/App.p. -> 4:12
+(7:40..7:41) _empty_/App.coerce3().(x) -> 7:15
+

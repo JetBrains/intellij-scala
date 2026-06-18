@@ -1,0 +1,21 @@
+Document tests/pos/i19009.case2.scala
+(2:46..2:54) _empty_/NodeOrdering.postOrderNumbering().[NodeType] -> 2:26
+(2:64..2:72) _empty_/NodeOrdering.postOrderNumbering().[NodeType] -> 2:26
+(2:76..2:84) scala/package.Iterator#
+(2:85..2:93) _empty_/NodeOrdering.postOrderNumbering().[NodeType] -> 2:26
+(2:97..2:100) scala/Predef.Map#
+(2:101..2:109) _empty_/NodeOrdering.postOrderNumbering().[NodeType] -> 2:26
+(2:111..2:114) scala/Int#
+(2:119..2:122) scala/Predef.`???`().
+(5:22..5:29) _empty_/CfgNode# -> 4:7
+(8:15..8:21) _empty_/Method# -> 5:7
+(8:24..8:27) scala/Predef.`???`().
+(9:17..9:24) _empty_/CfgNode# -> 4:7
+(9:27..9:35) scala/package.Iterator#
+(9:36..9:43) _empty_/CfgNode# -> 4:7
+(9:47..9:50) scala/Predef.`???`().
+(10:3..10:15) _empty_/NodeOrdering. -> 1:8
+(10:16..10:34) _empty_/NodeOrdering.postOrderNumbering(). -> 2:7
+(10:35..10:41) local0 -> 8:7
+(10:43..10:49) local2 -> 9:7
+

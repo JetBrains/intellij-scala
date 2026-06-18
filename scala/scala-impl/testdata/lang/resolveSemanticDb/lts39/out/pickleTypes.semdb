@@ -1,0 +1,37 @@
+Document tests/pos/pickleTypes.scala
+(3:37..3:38) _empty_/pickleTypes.C#T# -> 3:27
+(3:47..3:48) _empty_/pickleTypes.C#T# -> 3:27
+(3:59..3:60) _empty_/pickleTypes.C#T# -> 3:27
+(3:63..3:64) _empty_/pickleTypes.C#T# -> 3:27
+(3:78..3:79) _empty_/pickleTypes.C#h().[U] -> 3:72
+(3:84..3:85) _empty_/pickleTypes.C#T# -> 3:27
+(3:88..3:89) _empty_/pickleTypes.C#h().[U] -> 3:72
+(5:11..5:14) scala/Int#
+(5:17..5:20) scala/Predef.`???`().
+(6:11..6:15) scala/package.List#
+(6:16..6:20) scala/package.List#
+(6:21..6:24) scala/Int#
+(6:29..6:32) scala/Predef.`???`().
+(7:11..7:12) _empty_/pickleTypes.C# -> 3:18
+(7:25..7:26) _empty_/pickleTypes.C# -> 3:18
+(7:31..7:34) scala/Predef.`???`().
+(8:11..8:12) _empty_/pickleTypes.C# -> 3:18
+(8:24..8:27) scala/Int#
+(8:36..8:39) scala/Int#
+(8:44..8:47) scala/Predef.`???`().
+(9:11..9:12) _empty_/pickleTypes.C# -> 3:18
+(9:24..9:30) scala/Predef.String#
+(9:39..9:45) scala/Predef.String#
+(9:56..9:62) scala/Predef.String#
+(9:65..9:71) scala/Predef.String#
+(9:76..9:79) scala/Predef.`???`().
+(10:11..10:12) _empty_/pickleTypes.C# -> 3:18
+(10:24..10:30) scala/Predef.String#
+(10:39..10:45) scala/Predef.String#
+(10:56..10:62) scala/Predef.String#
+(10:65..10:71) scala/Predef.String#
+(10:85..10:86) local11 -> 10:79
+(10:91..10:92) local7 -> 10:20
+(10:95..10:96) local11 -> 10:79
+(10:101..10:104) scala/Predef.`???`().
+

@@ -1,0 +1,55 @@
+Document tests/pos/i22036.scala
+(1:15..1:16) _empty_/i22036$package.Foo#[T] -> 1:10
+(2:8..2:18) scala/NamedTuple.
+(2:19..2:23) scala/NamedTuple.From#
+(2:24..2:29) scala/Tuple.
+(2:30..2:33) scala/Tuple.Map#
+(2:35..2:38) scala/Int#
+(2:40..2:43) scala/Int#
+(2:46..2:49) _empty_/i22036$package.Foo# -> 1:6
+(2:54..2:57) scala/Predef.`???`().
+(3:11..3:12) _empty_/i22036$package.x. -> 2:5
+(3:11..3:12) scala/NamedTuple.apply(+1).
+(5:10..5:20) scala/NamedTuple.
+(5:21..5:25) scala/NamedTuple.From#
+(5:27..5:30) _empty_/i22036$package.Foo# -> 1:6
+(5:31..5:34) scala/Int#
+(5:37..5:40) _empty_/i22036$package.Foo# -> 1:6
+(5:41..5:44) scala/Int#
+(6:9..6:10) _empty_/i22036$package.Z# -> 5:6
+(6:14..6:17) scala/Predef.`???`().
+(7:12..7:14) _empty_/i22036$package.x2. -> 6:5
+(7:12..7:14) scala/NamedTuple.apply(+1).
+(9:9..9:12) _empty_/i22036$package.Foo# -> 1:6
+(9:13..9:23) scala/NamedTuple.
+(9:24..9:28) scala/NamedTuple.From#
+(9:29..9:34) scala/Tuple.
+(9:35..9:38) scala/Tuple.Map#
+(9:40..9:43) scala/Int#
+(9:45..9:48) scala/Int#
+(9:51..9:54) _empty_/i22036$package.Foo# -> 1:6
+(9:61..9:64) scala/Predef.`???`().
+(10:12..10:14) _empty_/i22036$package.x3. -> 9:5
+(10:12..10:14) scala/NamedTuple.apply(+1).
+(12:15..12:18) scala/Int#
+(12:20..12:26) scala/Predef.String#
+(12:34..12:35) _empty_/i22036$package.foo().[T] -> 12:9
+(12:38..12:41) scala/Int#
+(13:3..13:6) _empty_/i22036$package.foo().(tup) -> 12:29
+(13:7..13:9) scala/Tuple2#_1.
+(15:20..15:23) scala/Int#
+(15:25..15:31) scala/Predef.String#
+(16:1..16:2) scala/`|`#
+(16:3..16:6) scala/Int#
+(16:8..16:14) scala/Predef.String#
+(17:4..17:7) scala/Int#
+(18:3..18:6) _empty_/i22036$package.union().(tup) -> 15:14
+(18:7..18:9) scala/Tuple2#_1.
+(20:24..20:27) scala/Int#
+(20:29..20:35) scala/Predef.String#
+(21:1..21:2) scala/`&`#
+(21:3..21:4) _empty_/i22036$package.intersect().[T] -> 20:15
+(22:4..22:7) scala/Int#
+(23:3..23:6) _empty_/i22036$package.intersect().(tup) -> 20:18
+(23:7..23:9) scala/Tuple2#_1.
+

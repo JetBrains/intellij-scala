@@ -306,14 +306,40 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] =
-      e.expectedTypesEx(fromUnderscore).map(pt =>
-        expr match {
-          case fn: ScFunctionExpr if fn.isContext => pt
-          case _                                  =>
-            unwrapContextFunctionType(pt._1) -> None
-        }
-      )
+    val isContextFunctionExpr = expr match {
+      case fn: ScFunctionExpr if fn.isContext => true
+      case _                                  => false
+    }
+
+    /**
+     * Propagates the expected types of the parent expression to one of its nested expressions.
+     *
+     * For ordinary expected-type propagation the source type element is still meaningful:
+     * it is the declared type that, for example, can be changed by ChangeTypeFix.
+     *
+     * When a context-function expected type is unwrapped, the resulting expected type is derived
+     * from the original one and no longer corresponds to the original type element.
+     *
+     * See SCL-24903, SCL-23387
+     */
+    def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] = {
+      val expectedType = e.expectedTypesEx(fromUnderscore)
+      expectedType.map {
+        case pt if isContextFunctionExpr =>
+          // A context function expression is checked against the whole context-function type.
+          // Do not unwrap its own expected type.
+          pt
+        case (expectedType, typeElement) =>
+          val unwrappedExpectedType = unwrapContextFunctionType(expectedType)
+          val unwrappedTypeElement =
+            // Keep the type element only when the propagated expected type is unchanged, see SCL-25481.
+            // Otherwise, the type element still points at the outer declaration, not at the derived result type.
+            if (unwrappedExpectedType == expectedType) typeElement
+            else None
+
+          unwrappedExpectedType -> unwrappedTypeElement
+      }
+    }
 
     def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean, Boolean)] =
       resolves.zip(types).map {
@@ -489,7 +515,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
               case _ => Array.empty
             }
           case _: ScReferenceExpression => expectedExprTypes(a)
-          case _: ScMethodCall =>
+          case _: ScMethodCall | _: ScPrefixExpr =>
             a.mirrorMethodCall match {
               case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(fromUnderscore = fromUnderscore)
               case _ => Array.empty

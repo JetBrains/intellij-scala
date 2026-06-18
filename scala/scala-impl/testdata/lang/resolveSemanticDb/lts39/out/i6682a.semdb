@@ -1,0 +1,6 @@
+Document tests/pos/i6682a.scala
+(2:21..2:22) local0 -> 2:12
+(2:30..2:31) local1 -> 2:19
+(3:11..3:12) _empty_/O.v. -> 2:7
+(3:13..3:14) _empty_/O.v. -> 2:7
+

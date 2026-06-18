@@ -20,11 +20,6 @@ class ResolveReplClasspathTest_Scala_3_8 extends SbtExternalSystemImportingTestL
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
-  override def setUp(): Unit =
-    super.setUp()
-    SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-
   @Test
   def resolveReplClasspath(): Unit =
     importProject(false)

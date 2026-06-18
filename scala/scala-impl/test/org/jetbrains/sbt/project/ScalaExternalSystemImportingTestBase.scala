@@ -1,116 +1,216 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.io.NioFiles
-import org.jetbrains.plugins.scala.base.TestCaseExt
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
 import junit.framework.TestCase.assertNotNull
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
+import org.jetbrains.sbt.project.fixture.{IdeaProjectFixtureFactory, TestProjectJdkHolder, TestProjectRootFixture}
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImportingTestCase {
 
-  private var myProjectJdk: Sdk = _
+  import ScalaExternalSystemImportingTestBase._
 
-  protected def getJdkConfiguredForTestCase: Sdk = myProjectJdk
+  protected lazy val testProjectJdk: TestProjectJdkHolder =
+    new TestProjectJdkHolder(projectJdkLanguageLevel)
 
-  protected def projectJdkLanguageLevel: LanguageLevel = {
-    val requiresJdkAnnotation = this.findTestAnnotation[RequiresJdk]
-    val requiredJdk = requiresJdkAnnotation.map(_.value())
-    requiredJdk.getOrElse(LanguageLevel.JDK_11)
-  }
+  protected def getJdkConfiguredForTestCase: Sdk = testProjectJdk.configuredJdk
+
+  protected def projectJdkLanguageLevel: LanguageLevel =
+    TestProjectJdkHolder.defaultProjectJdkLanguageLevel(this)
+
+  private lazy val testProjectRootFixture: TestProjectRootFixture =
+    new TestProjectRootFixture(
+      originalTestDataProjectDir = Path.of(getTestDataProjectPath),
+      copyOptions = getTestProjectCopyOptions
+    )
+
+  private var isExternalSystemTestProjectRootSetUp: Boolean = false
 
   override protected def getTestsTempDir: String = "" // Use default temp directory
 
   override def setUp(): Unit = {
     super.setUp()
+    setupBeforeProjectImport()
+  }
+
+  override def tearDown(): Unit = {
+    try {
+      // Remove the test JDK before heavy fixture SDK leak checks. Root disposable cleanup runs too late for that.
+      testProjectJdk.tearDown()
+    } finally {
+      super.tearDown()
+    }
+  }
+
+  /**
+   * Runs after the test fixture and project root are created, but before child test setup can import the project.
+   *
+   * Subclasses overriding this hook must call `super.setupBeforeProjectImport()`.
+   */
+  protected def setupBeforeProjectImport(): Unit = {
     setupProjectJdk()
   }
 
   protected def setupProjectJdk(): Unit = {
-    myProjectJdk = SmartJDKLoader.getOrCreateJDK(projectJdkLanguageLevel)
+    testProjectJdk.setUp()
   }
 
   /**
-   * @return path to the project in the test data directory.
-   *         Note, the actual runtime project directory can be changed if [[copyTestProjectToTemporaryDir]] is set to true
+   * @return path to the test project in the test data directory.<br>
+   *         Note, the actual runtime project directory can be changed if [[TestProjectCopyOptions.copyToTemporaryDir]] is set to true.<br>
+   *         If it's set to false, then the test data directory will be used as a project root during test (which can lead to uncommited changes in the VCS)
    * @example `.../testdata/projectsForHighlightingTests/downloaded/scala3-example-project`
    */
   protected def getTestDataProjectPath: String
 
+  // TODO: Make copyTestProjectToTemporaryDir true by default for all tests and run the tests on TC, see if anything fails
+  protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    TestProjectCopyOptions(
+      copyToTemporaryDir = false,
+      deleteTempDirectoryOnTestProcessShutDown = true
+    )
+
+  protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions =
+    IdeaProjectFixtureOptions(
+      useTestProjectAsIdeaProjectRoot = false
+    )
+
+  protected def getExternalSystemImportRootOptions: ExternalSystemImportRootOptions =
+    ExternalSystemImportRootOptions(
+      relativePath = None,
+      setUpDuringSetUp = true
+    )
+
   /**
-   * When set to true:
-   *   - the test will be run on a copy of the project directory from test data
-   *   - the original test data project directory will be untouched,
+   * Holds a path of the actual project that is used in the tests (not just test data).<br>
+   *  - it points to [[getTestDataProjectPath]] when [[TestProjectCopyOptions.copyToTemporaryDir]] is `false`
+   *  - it points to the project copy in a temporary directory when [[TestProjectCopyOptions.copyToTemporaryDir]] is `true`
    *
-   * When set to false:
-   *   - the test will run in the original project directory from test data
-   *   - after test is run, the original test data directory can have modified/deleted/new files
-   *     which can make the next test run invalid
+   * The actual project copying is done in [[TestProjectRootFixture.copyTestDataProjectToTempDirIfNeeded]].
    */
-  protected def copyTestProjectToTemporaryDir: Boolean = false
+  protected final lazy val getTestProjectPath: Path = testProjectRootFixture.testProjectPath
 
-  /**
-   * Same as [[getTestDataProjectPath]] when [[copyTestProjectToTemporaryDir]] is `false`,
-   * temp project directory when [[copyTestProjectToTemporaryDir]] is `true`.
-   */
-  protected final lazy val getTestProjectPath: Path = {
-    val originalTestDataProjectDir = Path.of(getTestDataProjectPath)
-    if (!copyTestProjectToTemporaryDir)
-      originalTestDataProjectDir
-    else {
-      val projectName = originalTestDataProjectDir.getFileName.toString
-      val tmpPath = Files.createTempDirectory(projectName).toRealPath()
-
-      // Delete temporary project location on JVM exit
-      Runtime.getRuntime.addShutdownHook(new Thread(() => {
-        NioFiles.deleteRecursively(tmpPath)
-      }))
-
-      tmpPath / projectName
-    }
+  protected final lazy val getExternalSystemImportRoot: Path = {
+    val options = getExternalSystemImportRootOptions
+    options.relativePath.fold(getTestProjectPath)(getTestProjectPath.resolve)
   }
 
+  override protected def setUpFixtures(): Unit = {
+    if (getIdeaProjectFixtureOptions.useTestProjectAsIdeaProjectRoot)
+      testProjectRootFixture.copyTestDataProjectToTempDirIfNeeded()
+
+    val fixture = createProjectFixture()
+    fixture.setUp()
+
+    setMyTestFixture(fixture)
+  }
+
+  final protected def createProjectFixture(): IdeaProjectTestFixture = {
+    IdeaProjectFixtureFactory.createProjectFixture(
+      testName = getName,
+      testProjectPath = getTestProjectPath,
+      useTestProjectAsIdeaProjectRoot = getIdeaProjectFixtureOptions.useTestProjectAsIdeaProjectRoot
+    )
+  }
+
+  /**
+   * When false, the IDEA project fixture is opened in the default temporary location selected by the
+   * IntelliJ test framework.
+   *
+   * When true, the IDEA project fixture is opened at [[getTestProjectPath]] itself. Use this for tests
+   * whose logic depends on the IDEA project base path being equal to the runtime test project root.
+   * Directory-based project format is enabled automatically in this mode.
+   */
+  final override protected def useDirectoryBasedStorageFormat(): Boolean =
+    getIdeaProjectFixtureOptions.useTestProjectAsIdeaProjectRoot
+
   override protected def setUpInWriteAction(): Unit = {
-    val originalTestDataProjectDir = Path.of(getTestDataProjectPath)
-    val testProjectPath = getTestProjectPath
+    if (getExternalSystemImportRootOptions.setUpDuringSetUp)
+      setUpExternalSystemTestProjectRoot()
+  }
 
-    if (copyTestProjectToTemporaryDir) {
-      println(s"Test project copied to the temporary directory: $testProjectPath")
-      NioFiles.copyRecursively(originalTestDataProjectDir, testProjectPath)
-    }
+  /**
+   * Some tests choose the test-data project dynamically inside the test method.
+   * Those tests can delay root setup until the first import.
+   */
+  private def ensureExternalSystemTestProjectRootIsSetUp(): Unit = {
+    if (!isExternalSystemTestProjectRootSetUp)
+      setUpExternalSystemTestProjectRoot()
+  }
 
-    setProjectRoot(testProjectPath)
+  /**
+   * Sets the external-system project root used by import tests.
+   *
+   * We can't override [[setUpProjectRoot]] because it's a final method.
+   */
+  protected def setUpExternalSystemTestProjectRoot(): Unit = {
+    testProjectRootFixture.copyTestDataProjectToTempDirIfNeeded()
+    setProjectRoot(getExternalSystemImportRoot)
   }
 
   final protected def setProjectRoot(projectRoot: Path): Unit = {
     val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(projectRoot)
     assertNotNull(s"Could not find a virtual file for: $projectRoot", virtualFile)
     setMyProjectRoot(virtualFile)
+    isExternalSystemTestProjectRootSetUp = true
   }
 
-  override def tearDown(): Unit = {
-    //jdk might be null if it was some exception in super.setup()
-    if (myProjectJdk != null) {
-      inWriteAction {
-        val jdkTable = ProjectJdkTable.getInstance()
-        jdkTable.removeJdk(myProjectJdk)
-      }
-    }
+  override protected def importProject(): Unit = {
+    ensureExternalSystemTestProjectRootIsSetUp()
 
-    super.tearDown()
+    ExternalSystemImportingTestCaseProxy.importProject(
+      getMyProject,
+      getExternalSystemId,
+      getCurrentExternalProjectSettings,
+      getProjectPath,
+      createImportSpec(),
+      handleImportFailure(_, _)
+    )
   }
+}
 
-  override protected def importProject(): Unit = ExternalSystemImportingTestCaseProxy.importProject(
-    getMyProject,
-    getExternalSystemId,
-    getCurrentExternalProjectSettings,
-    getProjectPath,
-    createImportSpec(),
-    handleImportFailure(_, _)
+object ScalaExternalSystemImportingTestBase {
+
+  /**
+   * Controls the runtime location of the test project.
+   *
+   * @param copyToTemporaryDir
+   * When true, the runtime project root is a temporary copy of [[ScalaExternalSystemImportingTestBase.getTestDataProjectPath]].
+   * When false, the original test-data directory is used directly.
+   * @param deleteTempDirectoryOnTestProcessShutDown
+   * When true, the temporary parent directory is deleted by a JVM shutdown hook.
+   */
+  final case class TestProjectCopyOptions(
+    copyToTemporaryDir: Boolean,
+    deleteTempDirectoryOnTestProcessShutDown: Boolean,
+  )
+
+  /**
+   * Controls where the IDEA project fixture itself is opened.
+   *
+   * @param useTestProjectAsIdeaProjectRoot
+   * When true, the IDEA project is opened at the runtime test project root.
+   * When false, the IDEA fixture is opened in the default temporary location selected by the IntelliJ test framework.
+   */
+  final case class IdeaProjectFixtureOptions(
+    useTestProjectAsIdeaProjectRoot: Boolean
+  )
+
+  /**
+   * Controls which directory is used as the external-system import root.
+   *
+   * @param relativePath
+   * Optional path relative to the runtime test project root. When empty, the runtime test project root itself is used.
+   * @param setUpDuringSetUp
+   * When true, the external-system project root is set during test setup.
+   * When false, root setup is delayed until the first project import.
+   */
+  final case class ExternalSystemImportRootOptions(
+    relativePath: Option[String],
+    setUpDuringSetUp: Boolean
   )
 }

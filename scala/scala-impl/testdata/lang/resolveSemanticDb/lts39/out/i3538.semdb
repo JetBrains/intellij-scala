@@ -1,0 +1,15 @@
+Document tests/pos/i3538.scala
+(5:30..5:34) _empty_/Test# -> 4:7
+(6:16..6:19) scala/Any#
+(6:22..6:25) scala/Predef.`???`().
+(8:30..8:34) _empty_/Test# -> 4:7
+(9:21..9:24) scala/Any#
+(9:27..9:30) scala/Any#
+(9:33..9:36) scala/Predef.`???`().
+(12:17..12:18) _empty_/Test#inv().[T] -> 12:11
+(12:21..12:24) _empty_/Inv# -> 2:7
+(12:25..12:26) _empty_/Test#inv().[T] -> 12:11
+(12:30..12:33) scala/Predef.`???`().
+(14:10..14:15) _empty_/Test#Right#right(). -> 9:9
+(14:16..14:19) _empty_/Test#inv(). -> 12:7
+

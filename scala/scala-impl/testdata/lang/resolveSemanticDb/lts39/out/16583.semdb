@@ -1,0 +1,50 @@
+Document tests/pos/16583.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:41) scala/compiletime/package$package.constValueTuple().
+(3:10..3:16) scala/Tuple3#
+(3:42..3:57) scala/compiletime/package$package.constValueTuple().
+(4:11..4:26) scala/compiletime/package$package.constValueTuple().
+(4:52..4:58) scala/Tuple#toList().
+(5:10..5:14) scala/package.List#
+(5:21..5:22) scala/`|`#
+(5:30..5:31) scala/`|`#
+(5:41..5:42) scala/`|`#
+(5:43..5:50) scala/Nothing#
+(5:56..5:71) scala/compiletime/package$package.constValueTuple().
+(5:97..5:103) scala/Tuple#toList().
+(6:10..6:14) scala/package.List#
+(6:21..6:22) scala/`|`#
+(6:30..6:31) scala/`|`#
+(6:44..6:59) scala/compiletime/package$package.constValueTuple().
+(6:85..6:91) scala/Tuple#toList().
+(8:29..8:34) scala/Tuple#
+(8:46..8:51) scala/Tuple.
+(8:52..8:57) scala/Tuple.Union#
+(8:58..8:64) _empty_/`16583$package`.labels().[Labels] -> 8:19
+(8:66..8:69) scala/`<:<`#
+(8:70..8:76) scala/Predef.String#
+(8:79..8:83) scala/package.List#
+(8:84..8:90) scala/Predef.String#
+(9:13..9:28) scala/compiletime/package$package.constValueTuple().
+(9:29..9:35) _empty_/`16583$package`.labels().[Labels] -> 8:19
+(9:37..9:43) scala/Tuple#toList().
+(10:3..10:5) _empty_/`16583$package`.labels().(ev) -> 8:42
+(10:6..10:18) scala/`<:<`#substituteCo().
+(10:19..10:22) local0 -> 9:7
+(12:12..12:18) _empty_/`16583$package`.labels(). -> 8:12
+(14:15..14:20) scala/Tuple#
+(14:23..14:27) scala/package.List#
+(14:28..14:33) scala/Tuple.
+(14:34..14:39) scala/Tuple.Union#
+(14:40..14:41) _empty_/`16583$package`.toList().(x) -> 14:12
+(14:51..14:54) scala/Predef.`???`().
+(15:21..15:26) scala/Tuple#
+(15:30..15:36) _empty_/`16583$package`.toList(). -> 14:5
+(15:38..15:41) scala/Predef.`???`().
+(15:44..15:50) _empty_/`16583$package`.test2().[Labels] -> 15:11
+(18:11..18:16) scala/Tuple#
+(18:19..18:29) scala/Tuple$package.EmptyTuple.
+(19:12..19:14) local1 -> 18:7
+(19:15..19:21) scala/Tuple#toList().
+

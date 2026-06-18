@@ -1,0 +1,9 @@
+Document tests/pos/i8284.scala
+(2:16..2:19) _empty_/i8284$package.Foo# -> 1:6
+(2:31..2:34) scala/Int#
+(2:40..2:43) scala/Predef.`???`().
+(4:12..4:15) _empty_/i8284$package.Foo# -> 1:6
+(4:27..4:30) scala/Int#
+(5:15..5:18) _empty_/i8284$package.Bar# -> 4:6
+(5:21..5:24) scala/Predef.`???`().
+

@@ -1,0 +1,15 @@
+Document tests/pos/implicit_cache.scala
+(3:22..3:23) _empty_/A# -> 1:7
+(3:30..3:31) _empty_/A# -> 1:7
+(7:24..7:27) _empty_/Foo# -> 5:7
+(7:28..7:29) _empty_/A# -> 1:7
+(7:37..7:40) _empty_/Foo# -> 5:7
+(7:41..7:42) _empty_/A# -> 1:7
+(11:29..11:32) _empty_/Foo# -> 5:7
+(11:33..11:34) _empty_/A# -> 1:7
+(11:39..11:42) _empty_/Test.getFooA().(foo) -> 11:24
+(12:24..12:25) _empty_/A# -> 1:7
+(12:29..12:30) _empty_/Test.getA().(a) -> 12:21
+(14:3..14:10) _empty_/Test.getFooA(). -> 11:7
+(15:3..15:7) _empty_/Test.getA(). -> 12:7
+

@@ -1,0 +1,4 @@
+Document tests/pos/i17556.scala
+(3:20..3:21) _empty_/A# -> 1:14
+(4:26..4:27) _empty_/A# -> 1:14
+

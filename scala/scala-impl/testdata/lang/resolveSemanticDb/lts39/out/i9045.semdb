@@ -1,0 +1,4 @@
+Document tests/pos/i9045.scala
+(3:46..3:50) _empty_/Test# -> 1:14
+(3:51..3:52) _empty_/Test.Completed#[F] -> 3:30
+

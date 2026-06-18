@@ -1,0 +1,22 @@
+Document tests/pos/i13558.scala
+(8:20..8:21) testcode/A# -> 3:7
+(13:20..13:21) testcode/B# -> 5:7
+(19:19..19:24) scala/Array#
+(19:25..19:31) scala/Predef.String#
+(19:35..19:39) scala/Unit#
+(20:12..20:22) testcode/ExtensionB. -> 12:8
+(21:12..21:22) testcode/ExtensionA. -> 7:8
+(22:13..22:14) testcode/A# -> 3:7
+(23:5..23:12) scala/Predef.println(+1).
+(23:13..23:14) local0 -> 22:9
+(23:15..23:17) testcode/ExtensionA.id(). -> 9:9
+(25:19..25:24) scala/Array#
+(25:25..25:31) scala/Predef.String#
+(25:35..25:39) scala/Unit#
+(26:12..26:22) testcode/ExtensionA. -> 7:8
+(27:12..27:22) testcode/ExtensionB. -> 12:8
+(28:13..28:14) testcode/A# -> 3:7
+(29:5..29:12) scala/Predef.println(+1).
+(29:13..29:14) local1 -> 28:9
+(29:15..29:17) testcode/ExtensionA.id(). -> 9:9
+

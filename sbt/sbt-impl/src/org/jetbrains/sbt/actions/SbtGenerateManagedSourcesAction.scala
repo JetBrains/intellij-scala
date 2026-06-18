@@ -33,7 +33,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
       override def run(indicator: ProgressIndicator): Unit = {
         val viewManager = project.getService(classOf[SyncViewManager])
         val taskId = ExternalSystemTaskId.create(SbtProjectSystem.Id, ExternalSystemTaskType.EXECUTE_TASK, project)
-        val reporter = new GenerateManagedSourcesReporter()
+        val reporter = new GenerateManagedSourcesReporter(viewManager, taskId)
 
         val settings = SbtExternalSystemManager.executionSettingsFor(project)
         val projectBasePath = Path.of(settings.realProjectPath)
@@ -110,7 +110,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             generateCommand,
             SbtBundle.message("sbt.generate.managed.sources.task.progress.title"),
             settings.passParentEnvironment,
-            timingCollector = None
+            timingCollector = None,
+            project = Some(project),
           )(using reporter)
 
           sbtResult match {

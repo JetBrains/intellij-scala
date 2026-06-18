@@ -1,0 +1,41 @@
+Document tests/pos/i3964a/Defs_1.scala
+(3:19..3:25) _empty_/Animal# -> 2:7
+(4:19..4:25) _empty_/Animal# -> 2:7
+(7:28..7:34) _empty_/Animal# -> 2:7
+(8:15..8:18) _empty_/Test2.Bar# -> 7:9
+(8:23..8:26) _empty_/Cat# -> 4:7
+(9:12..9:15) _empty_/Test2.Bar# -> 7:9
+(9:25..9:28) _empty_/Cat# -> 4:7
+(9:37..9:40) _empty_/Test2.Bar# -> 7:9
+(9:45..9:48) _empty_/Cat# -> 4:7
+(11:28..11:34) _empty_/Animal# -> 2:7
+(12:12..12:15) _empty_/Test2.Foo# -> 11:9
+(12:25..12:28) _empty_/Cat# -> 4:7
+(12:37..12:40) _empty_/Test2.Foo# -> 11:9
+(12:45..12:48) _empty_/Cat# -> 4:7
+(15:31..15:34) scala/Int#
+(16:22..16:25) coll/Vec# -> 15:9
+(18:40..18:43) scala/Int#
+
+Document tests/pos/i3964a/Uses_2.scala
+(2:8..2:12) coll/ -> 14:9
+(3:20..3:23) coll/Lst# -> 18:18
+(5:10..5:13) coll/Vec# -> 15:9
+(5:36..5:40) coll/Vec8# -> 16:9
+(6:10..6:13) coll/Vec# -> 15:9
+(6:36..6:39) coll/Vec# -> 15:9
+(8:10..8:13) coll/Lst# -> 18:18
+(8:36..8:40) _empty_/Lst8# -> 3:7
+(9:10..9:13) coll/Lst# -> 18:18
+(9:36..9:39) coll/Lst# -> 18:18
+(11:27..11:30) scala/Int#
+(11:40..11:43) coll/Vec# -> 15:9
+(11:44..11:45) _empty_/VecN#n. -> 11:24
+(12:20..12:24) _empty_/VecN# -> 11:7
+(13:11..13:15) _empty_/VecN# -> 11:7
+(14:8..14:11) coll/Vec# -> 15:9
+(14:30..14:33) _empty_/Uses_2$package.v9a. -> 13:5
+(15:11..15:15) _empty_/Vec9# -> 12:7
+(16:8..16:11) coll/Vec# -> 15:9
+(16:30..16:33) _empty_/Uses_2$package.v9b. -> 15:5
+

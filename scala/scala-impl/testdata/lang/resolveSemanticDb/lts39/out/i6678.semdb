@@ -1,0 +1,5 @@
+Document tests/pos/i6678.scala
+(2:14..2:17) scala/Int#
+(2:32..2:38) scala/Predef.String#
+(3:11..3:12) _empty_/O.f. -> 2:7
+

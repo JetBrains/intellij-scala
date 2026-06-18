@@ -1,0 +1,15 @@
+Document tests/pos/t7233b.scala
+(3:14..3:17) scala/Any#
+(3:30..3:31) _empty_/Test.foo().(a) -> 3:11
+(3:32..3:40) scala/Any#toString().
+(3:49..3:52) scala/Any#toString().
+(6:14..6:20) scala/Predef.String#
+(6:33..6:34) _empty_/Test.ok1().(a) -> 6:11
+(6:35..6:47) scala/Any#isInstanceOf().
+(6:56..6:59) scala/Any#isInstanceOf().
+(6:60..6:66) scala/Predef.String#
+(7:14..7:17) scala/Int#
+(7:30..7:31) _empty_/Test.ok2().(a) -> 7:11
+(7:32..7:37) scala/Int#toInt().
+(7:45..7:47) scala/Int#toInt().
+

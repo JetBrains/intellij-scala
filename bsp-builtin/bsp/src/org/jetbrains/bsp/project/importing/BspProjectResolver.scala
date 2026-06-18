@@ -280,7 +280,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case PreImportTask(preImporter) =>
         doCancel { preImporter.cancel() }
       case BspTask(communication) =>
-        doCancel { communication.cancelConfigGeneration() }
+        doCancel { communication.cancelSessionCreation() }
       case Active =>
         doCancel {}
       case Inactive =>

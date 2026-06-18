@@ -1,0 +1,11 @@
+Document tests/pos/i18623a.scala
+(3:25..3:49) _empty_/ForcedRecompilationToken# -> 1:22
+(7:36..7:60) _empty_/ForcedRecompilationToken# -> 1:22
+(7:61..7:62) _empty_/x.GoodNoParens#[T] -> 7:20
+(9:8..9:9) _empty_/x. -> 6:8
+(12:18..12:29) _empty_/i18623a$package.BadNoParens#
+(15:18..15:29) _empty_/i18623a$package.BadNoParens#
+(16:18..16:19) _empty_/x. -> 6:8
+(18:20..18:23) scala/App#
+(19:3..19:10) scala/Predef.println(+1).
+

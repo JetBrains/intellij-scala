@@ -1,0 +1,5 @@
+Document tests/pos/i5188.scala
+(2:31..2:34) scala/Int#
+(2:38..2:41) scala/Int#
+(3:3..3:6) _empty_/Test.sum(). -> 2:14
+

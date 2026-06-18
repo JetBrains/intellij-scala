@@ -1,0 +1,21 @@
+Document tests/pos/i17222.8.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(5:12..5:13) _empty_/A#F# -> 4:8
+(9:14..9:20) _empty_/Reader# -> 7:7
+(9:21..9:22) _empty_/A# -> 3:7
+(9:34..9:35) _empty_/Reader.given_Reader_A_X#[X] -> 9:10
+(9:39..9:40) _empty_/Reader.given_Reader_A_X#[X] -> 9:10
+(13:13..13:14) _empty_/A# -> 3:7
+(13:15..13:16) scala/`&`#
+(13:17..13:18) _empty_/A# -> 3:7
+(13:30..13:33) scala/Int#
+(15:25..15:29) scala/Unit#
+(15:32..15:44) scala/compiletime/package$package.summonInline().
+(15:45..15:51) _empty_/Reader# -> 7:7
+(15:52..15:54) _empty_/Test#BC# -> 13:8
+(15:56..15:59) scala/Int#
+(17:13..17:17) scala/Unit#
+(18:13..18:17) scala/Unit#
+(18:20..18:29) _empty_/Test#summonOne(). -> 15:14
+

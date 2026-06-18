@@ -7,7 +7,7 @@ import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.ImportOptimizer.CollectingInfoRunnable
 import com.intellij.lang.{ASTNode, ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{EmptyRunnable, TextRange}
@@ -98,27 +98,24 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       RedundantImportUtils.collectPotentiallyRedundantImports(scalaFile)
 
     val progressManager: ProgressManager = ProgressManager.getInstance()
+    //noinspection UsagesOfObsoleteApi
     val indicator: ProgressIndicator =
       if (progressIndicator != null) progressIndicator
       else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
-      else null
+      else new EmptyProgressIndicator()
 
-    if (indicator != null) {
-      indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.name))
-    }
+    indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.name))
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
-      if (indicator != null) {
-        indicator.setIndeterminate(false)
-      }
+      indicator.setIndeterminate(false)
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
         ProgressManager.checkCanceled()
 
         val count: Int = counter.getAndIncrement
-        if (count <= size && indicator != null) {
+        if (count <= size) {
           indicator.setFraction(count.toDouble / size)
         }
 
@@ -132,9 +129,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
-    if (indicator != null) {
-      indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
-    }
+    indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[ImportRangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[ImportRangeInfo]()
@@ -162,15 +157,11 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val rangeInfos = collectRanges(ImportInfo.createInfos(_, isImportUsed))
 
-    if (indicator != null) {
-      indicator.setText2(ScalaEditorBundle.message("imports.optimizing", file.name))
-    }
+    indicator.setText2(ScalaEditorBundle.message("imports.optimizing", file.name))
 
     val rangeInfosTotal = rangeInfos.size
     val optimized = rangeInfos.zipWithIndex.map { case (range, idx) =>
-      if (indicator != null) {
-        indicator.setFraction(idx.toDouble / rangeInfosTotal)
-      }
+      indicator.setFraction(idx.toDouble / rangeInfosTotal)
 
       (range, optimizedImportInfos(range, importsSettings))
     }
