@@ -371,7 +371,10 @@ object SourceCode {
 
       case tree: Ident =>
         splicedName(tree.symbol) match {
-          case Some(name) => this += highlightTypeDef(name)
+          case Some(name) => this += (name match {
+            case WildcardName() => "_"
+            case s => s
+          })
           case _ => printType(tree.tpe)
         }
 
@@ -498,8 +501,12 @@ object SourceCode {
         printTree(rhs)
 
       case tree @ Lambda(params, body) =>  // must come before `Block`
-        printLambdaArgsDefs(params)
-        this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
+        params match {
+          case List(ValDef(name, _, _)) if WildcardName.matches(name) =>
+          case _ =>
+            printLambdaArgsDefs(params)
+            this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
+        }
         printTree(body)
 
       case Block(stats0, expr) => stats0 match {
