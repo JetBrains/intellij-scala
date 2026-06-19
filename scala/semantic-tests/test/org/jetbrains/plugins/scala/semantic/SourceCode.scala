@@ -498,11 +498,9 @@ object SourceCode {
         printTree(rhs)
 
       case tree @ Lambda(params, body) =>  // must come before `Block`
-        inParens {
-          printLambdaArgsDefs(params)
-          this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
-          printTree(body)
-        }
+        printLambdaArgsDefs(params)
+        this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
+        printTree(body)
 
       case Block(stats0, expr) => stats0 match {
         case List(td @ ClassDef("$anon", _, _, _, _)) =>
