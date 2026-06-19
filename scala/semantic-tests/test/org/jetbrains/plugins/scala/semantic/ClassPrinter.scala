@@ -245,6 +245,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         } + "}"
     case e: ScFunctionExpr =>
       "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
+    case e: ScTuple =>
+      "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => textOf(e.`type`().get)).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
     case e => "<expr>"
   }
 
