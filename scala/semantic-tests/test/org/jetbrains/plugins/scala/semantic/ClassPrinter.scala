@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtens
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
@@ -256,7 +256,15 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause]): String = args
-    .map(clause => clause.args.map(arg => arg.element.asInstanceOf[ScNamedElement].name + textOfImplicitArguments(arg.implicitArguments)).mkString(", "))
+    .map { clause =>
+      clause.args.map(arg =>
+        val typeArgText = arg.element match {
+          case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+            owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
+          case _ => ""
+        }
+        arg.element.asInstanceOf[ScNamedElement].name + typeArgText + textOfImplicitArguments(arg.implicitArguments)).mkString(", ")
+    }
     .map("(using " + _ + ")").mkString
 
   // Add standard API, SCL-25529
