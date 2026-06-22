@@ -45,7 +45,8 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
       val moduleJdkVersion = moduleJdk.map(_.getVersionString)
 
       Option(data.languageLevel)
-        .orElse(moduleJdkVersion.map(LanguageLevel.parse))
+        .orElse(Option(data.javaVersion).map(LanguageLevel.parse)) // Fallback to javaVersion
+        .orElse(moduleJdkVersion.map(LanguageLevel.parse)) // Fallback to the version of javaHome
         .flatMap(versionString => Option(versionString))
         .foreach(setLanguageLevel(model, _))
     }
