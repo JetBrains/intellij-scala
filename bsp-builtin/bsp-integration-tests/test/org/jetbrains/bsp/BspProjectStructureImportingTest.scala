@@ -1,9 +1,7 @@
 package org.jetbrains.bsp
 
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, excluded, libraries, libraryDependencies, module, modules, project, resources, sources, testResources, testSources}
@@ -26,14 +24,6 @@ abstract class BspProjectStructureImportingTestBase
 
   protected implicit lazy val defaultCompareContext: ProjectStructureComparisonContext =
     ProjectStructureComparisonContext.Implicit.default(using getMyProject)
-
-  override def tearDown(): Unit = {
-    inWriteAction {
-      val table = ProjectJdkTable.getInstance
-      table.getAllJdks.foreach(table.removeJdk)
-    }
-    super.tearDown()
-  }
 }
 
 @Category(Array(classOf[SlowTests2]))

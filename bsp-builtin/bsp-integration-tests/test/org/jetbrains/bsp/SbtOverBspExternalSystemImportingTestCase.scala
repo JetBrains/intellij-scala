@@ -2,11 +2,12 @@ package org.jetbrains.bsp
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.jetbrains.sbt.project.{SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
@@ -24,7 +25,8 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
 
   override protected def getTestsTempDir: String = "" // Use default temp directory
 
-  override protected def getCurrentExternalProjectSettings: BspProjectSettings = new BspProjectSettings
+  final override protected lazy val getCurrentExternalProjectSettings: BspProjectSettings =
+    new BspProjectSettings
 
   protected def reuseExistingConnectionFile: Boolean = true
 
@@ -102,5 +104,13 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
     }
     task.queue()
     PlatformTestUtil.waitForFuture(future)
+  }
+
+  override def tearDown(): Unit = {
+    inWriteAction {
+      val table = ProjectJdkTable.getInstance
+      table.getAllJdks.foreach(table.removeJdk)
+    }
+    super.tearDown()
   }
 }

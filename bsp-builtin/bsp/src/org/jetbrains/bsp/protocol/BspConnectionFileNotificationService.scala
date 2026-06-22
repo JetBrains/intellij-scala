@@ -11,10 +11,12 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.project.BspExternalSystemConfigurable
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig
+import org.jetbrains.bsp.protocol.BspConfigRegeneration.RegenerationReason
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.ref.WeakReference
 
 /**
@@ -68,7 +70,7 @@ final class BspConnectionFileNotificationService(project: Project) {
     registerNotification(RegenerateBspConnectionFileNotificationId, notification)
   }
 
-  def showConfigChangedNotification(workspace: Path): Unit = {
+  def showConfigChangedNotification(workspace: Path, reason: RegenerationReason): Unit = {
     if (!canShow(ConfigChangedNotificationId)) return
 
     val settingsAction = new NotificationAction(BspBundle.message("bsp.protocol.disable.in.settings")) {
@@ -93,15 +95,28 @@ final class BspConnectionFileNotificationService(project: Project) {
       if (configFiles.size == 1) workspace.relativize(configFiles.head).toString
       else ".bsp/*.json"
 
+    val contentMessage = reason match {
+      case RegenerationReason.BeforeServerStartup =>
+        BspBundle.message("bsp.protocol.config.file.changed.content", changedFileNames)
+      case RegenerationReason.ServerFailure =>
+        BspBundle.message("bsp.protocol.config.file.changed.content.server.failure", changedFileNames)
+    }
+
+    val actions = reason match {
+      case RegenerationReason.BeforeServerStartup =>
+        Seq(settingsAction, dontAskAction)
+      case RegenerationReason.ServerFailure =>
+        Seq(dontAskAction)
+    }
+
     val notification = BSP.NotificationGroup
       .createNotification(
         BspBundle.message("bsp.protocol.config.file.regenerated"),
-        BspBundle.message("bsp.protocol.config.file.changed.content", changedFileNames),
+        contentMessage,
         NotificationType.INFORMATION
       )
-      .addAction(settingsAction)
       .setDisplayId(ConfigChangedNotificationId)
-      .addAction(dontAskAction)
+      .addActions(actions.asJava)
 
     notification.notify(project)
     registerNotification(ConfigChangedNotificationId, notification)
