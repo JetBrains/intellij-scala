@@ -266,7 +266,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
         typeParams.map(tp => typeParamSubst(tp).removeAbstracts)
       }
-    }
+    } filter (_.nonEmpty)
   }
 
   private def normalized(e: ScExpression): ScExpression = e match {
