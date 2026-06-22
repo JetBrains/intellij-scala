@@ -41,14 +41,22 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
   protected def serverName: String
 
   /**
-   * Subclass-specific type representing the resolved connection target.
-   * Effectively works only in the Scala CLI config.
+   * Type representing the preferred tool to use during BSP config regeneration.
+   *
+   * Effectively works only for Scala CLI, which has two installation kinds (Bundled and Standalone)
+   * that produce different connection files (`scala.json` and `scala-cli.json` respectively).
+   * During regeneration, the existing connection file name is resolved to a [[ConnectionTarget]], so that [[installCommand]]
+   * tries to use the same tool to avoid creating an additional file e.g., `scala.json`, when `scala-cli.json` is already present.
+   * If the preferred tool is not available (e.g., the `scala.json` file is present but `scala` command is missing),
+   * the installation falls back to any available tool, which may produce a different connection file.
    */
   protected type ConnectionTarget
 
   /**
-   * Maps a target connection file name to a typed [[ConnectionTarget]].
-   * Returns `None` if this setup doesn't handle the given file, causing the setup to be skipped.
+   * Maps a BSP connection file name (e.g., `scala.json`) to the corresponding [[ConnectionTarget]]
+   * that produces it.
+   *
+   * @return the resolved target, or `None` if the file name is not recognized.
    */
   protected def resolveConnectionTarget(fileName: String): Option[ConnectionTarget] = None
 
@@ -63,21 +71,14 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
     currentIndicator = None
   }
 
-  override def run(indicator: ProgressIndicator, targetConnectionFileName: Option[String])(implicit reporter: BuildReporter): Try[BuildMessages] = {
-    val target = targetConnectionFileName.flatMap { name =>
-      resolveConnectionTarget(name) match {
-        case resolved @ Some(_) => resolved
-        case None => return Try(BuildMessages.empty.status(BuildMessages.OK))
-      }
-    }
-
-    currentIndicator = Some(indicator)
+  override def run(indicator: ProgressIndicator, targetConnectionFileName: Option[String])(implicit reporter: BuildReporter): Try[BuildMessages] =
     try {
+      currentIndicator = Some(indicator)
+      val target = targetConnectionFileName.flatMap(resolveConnectionTarget)
       bspInstall(workspace, indicator, target)
     } finally {
       currentIndicator = None
     }
-  }
 
   override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] =
     run(indicator, targetConnectionFileName = None)
@@ -95,7 +96,9 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
     def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
       val buildMessages = BuildMessages.empty.status(status)
       errorMsg.filter(_.nonEmpty).foreach { msg =>
-        reporter.logErr(msg)
+        val warningId = EventId(s"warning:${UUID.randomUUID()}")
+        reporter.startTask(warningId, Some(dumpTaskId), msg)
+        reporter.finishTask(warningId, msg, new FailureResultImpl())
         buildMessages.addError(msg)
       }
       reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.configuration", serverName), result)
@@ -107,7 +110,7 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
         case _: ProcessCanceledException =>
           (None, new SkippedResultImpl(), BuildMessages.Canceled)
         case exc =>
-          (Some(exc.getMessage), new FailureResultImpl(), BuildMessages.Error)
+          (Some(exc.getMessage), new SkippedResultImpl(), BuildMessages.Error)
       },
       _ => (None, new SuccessResultImpl(true), BuildMessages.OK)
     )

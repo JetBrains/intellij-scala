@@ -22,31 +22,10 @@ final class ScalaCliConfigSetup(workspace: Path) extends CommandBasedBspConfigSe
   }
 
   override protected def installCommand(workspace: Path, indicator: ProgressIndicator, target: Option[ScalaCliInstallKind]): Try[Seq[String]] =
-    detectInstallKind(workspace, indicator, target) match {
-      case Right(Some(scalaCliInstallKind)) =>
+    ScalaCliUtils.detectScalaCliInstallKind(workspace, indicator, target) match {
+      case Some(scalaCliInstallKind) =>
         Success(getScalaCliCommand(scalaCliInstallKind, workspace) ++ Seq("setup-ide", "."))
-      case Right(None) =>
-        Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
-      case Left(exc) =>
-        Failure(exc)
+      case None =>
+        Failure(new IllegalStateException("Unable to generate BSP connection file, because Scala CLI is not installed"))
     }
-
-  /**
-   * Detects which Scala CLI installation is available.
-   *
-   * If the `targetInstallKind` is specified, it validates that the corresponding installation exists.
-   * Returns an error if the requested kind is unavailable.
-   */
-  private def detectInstallKind(workspace: Path, indicator: ProgressIndicator, targetInstallKind: Option[ScalaCliInstallKind]): Either[Exception, Option[ScalaCliInstallKind]] = {
-    val detectedInstallKind = ScalaCliUtils.detectScalaCliInstallKind(workspace, indicator, targetInstallKind)
-    (detectedInstallKind, targetInstallKind) match {
-      case (None, Some(kind)) =>
-        val (toolName, fileName) = kind match {
-          case ScalaCliInstallKind.Bundled => ("Scala", ScalaCliConfigSetupProvider.BundledConfigFileName)
-          case ScalaCliInstallKind.Standalone => ("Scala CLI", ScalaCliConfigSetupProvider.StandaloneConfigFileName)
-        }
-        Left(new Exception(s"Unable to detect $toolName installation on machine to generate $fileName BSP connection file"))
-      case (result, _) => Right(result)
-    }
-  }
 }
