@@ -62,11 +62,12 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, _, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
-        val virtualFile = findVirtualFile(source).get
-        val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
-        val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
-        val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
-        CompilerGeneratedStateManager.update(project, newState)
+        findVirtualFile(source).foreach { virtualFile =>
+          val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
+          val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
+          val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
+          CompilerGeneratedStateManager.update(project, newState)
+        }
       case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
           text <- Option(msg.text)
