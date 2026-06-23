@@ -35,6 +35,7 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
 
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
+    logTimestamps = true,
     content =
       """object WrongReturnType {
         |  def fn1(n: Int): String = fn2(n)
@@ -372,7 +373,10 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
           |class AutomaticUnusedImports {
           |  val long = new AtomicLong()
           |}""".stripMargin,
-      expectedResult = expectedResult(highlighting(0, 27), highlighting(64, 77), highlighting(91, 126))
+      expectedResult = expectedResult(highlighting(0, 27), highlighting(64, 77), highlighting(91, 126)),
+      // Unused imports are reported only by the document compilation (-Wunused:imports), which is the second
+      // cycle after the incremental compilation, so we must wait for two highlighting cycles.
+      compileCycles = 2,
     )
   }
 
