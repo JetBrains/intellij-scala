@@ -216,9 +216,14 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
       case mi: MethodInvocation =>
         val targs = typeArgumentsOf(mi).map("[" + _.map(textOf(_)).mkString(", ") + "]").getOrElse("")
+        val explicitImplicitArguments = mi.matchedParameters.headOption.exists {
+          case (_, param) => param.psiParam.exists {
+            case p: ScParameter => p.isInClauseWithImplicit || p.isInClauseWithUsing
+          }
+        }
         val invokedExpr = mi.getEffectiveInvokedExpr
         mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
-          textOfExpression(invokedExpr, indent) + targs + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+          textOfExpression(invokedExpr, indent) + targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
       case sc: ScAssignment =>
