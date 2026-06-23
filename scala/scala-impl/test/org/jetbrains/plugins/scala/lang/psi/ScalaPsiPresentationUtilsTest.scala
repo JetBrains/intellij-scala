@@ -21,4 +21,30 @@ class ScalaPsiPresentationUtilsTest extends ScalaLightCodeInsightFixtureTestCase
 
     assertEquals("foo[T](x: T)[U](u: U): U", text)
   }
+
+  def testMethodPresentableTextWithMultipleInterleavedClauses(): Unit = {
+    configureScalaFromFileText(
+      """class A:
+        |  def foo[A](a: A)[B](b: B)[C](c: C): C = c
+        |""".stripMargin
+    )
+
+    val function = getFile.elements.findByType[ScFunction].get
+    val text = ScalaPsiPresentationUtils.methodPresentableText(function)
+
+    assertEquals("foo[A](a: A)[B](b: B)[C](c: C): C", text)
+  }
+
+  def testMethodPresentableTextWithInterleavedClauseAfterUsingClause(): Unit = {
+    configureScalaFromFileText(
+      """class A:
+        |  def foo(first: Int)(using Int)[A](second: A): A = second
+        |""".stripMargin
+    )
+
+    val function = getFile.elements.findByType[ScFunction].get
+    val text = ScalaPsiPresentationUtils.methodPresentableText(function)
+
+    assertEquals("foo(first: Int)(using Int)[A](second: A): A", text)
+  }
 }

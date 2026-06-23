@@ -392,8 +392,8 @@ object ScExpression {
       }
     }
 
-    //has side effect!
-    private[ScExpression] def updateWithImplicitParameters(
+    //has side effects!
+    def updateWithImplicitParameters(
       tpe:               ScType,
       checkExpectedType: Boolean,
       fromUnderscore:    Boolean,
@@ -415,7 +415,7 @@ object ScExpression {
       updateDeep:        Boolean,
       isLeadingClause:   Boolean = false
     ): (ScType, Seq[ImplicitArgumentsClause]) =  {
-      val shouldUpdate = expr.is[MethodInvocation] || ScalaPsiUtil.isEtaExpandedExpression(expr)
+      val shouldUpdate = expr.is[MethodInvocation, ScGenericCall] || ScalaPsiUtil.isEtaExpandedExpression(expr)
 
       if (shouldUpdate) {
         val (updatedType, implicits) =
@@ -454,6 +454,8 @@ object ScExpression {
   private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
     //true if it wasn't updated in MethodInvocation method
     expr match {
+      case prefix: ScPrefixExpr if ScPrefixExpr.isAssignmentLhs(prefix)                                      => false
+      case ChildOf(prefix: ScPrefixExpr) if prefix.operation == expr && ScPrefixExpr.isAssignmentLhs(prefix) => false
       case _: ScLiteral                       => false
       case _: ScPrefixExpr                    => true
       case _: ScPostfixExpr                   => true
@@ -464,7 +466,16 @@ object ScExpression {
       case _: MethodInvocation                => false
       case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
       case fn: ScFunctionExpr if fn.isContext => false
-      case _                                  => true
+      case gen: ScGenericCall                 =>
+        gen.getParent match {
+          //`foo[Bar](baz)` or `foo bar[Baz] Qux` case
+          //trailing implicits belong to the invocation
+          case MethodInvocation(`gen`, _) => false
+          //Standalone gen. call `foo[Bar]` -> trailing implicits belong
+          //to the call itself
+          case _                          => true
+        }
+      case _ => true
     }
   }
 

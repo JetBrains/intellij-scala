@@ -249,7 +249,8 @@ object MethodResolveProcessor {
         element,
         clauseIdx,
         srr.isExtensionCall,
-        srr.exportedInExtension
+        srr.exportedInExtension,
+        effectiveArgs
       ).getOrElse(Seq.empty)
 
     val typeParamsSize = typeParametersForIdx.size
@@ -610,30 +611,40 @@ object MethodResolveProcessor {
     checkedCandidate
   }
 
-  private def typeParametersForArgClause(
+  private[lang] def typeParametersForArgClause(
     element:             PsiElement,
     argClauseIdx:        Int,
     isExtension:         Boolean,
-    exportedInExtension: Option[ScExtension]
+    exportedInExtension: Option[ScExtension],
+    argClauses:          Seq[Seq[Expression]] = Seq.empty
   ): Option[Seq[TypeParameter]] = {
     @tailrec
-    def byArgClauseIndex(clauses: Seq[ScSignatureClause], idx: Int): Option[Seq[TypeParameter]] = {
-      if (clauses.isEmpty) None
-      else if (idx == 0)
-        clauses.headOption.collect {
-          case ScSignatureClause.TypeClause(clause) =>
+    def byArgClauseIndex(
+      clauses:             Seq[ScSignatureClause],
+      targetArgClauseIdx:  Int,
+      currentArgClauseIdx: Int
+    ): Option[Seq[TypeParameter]] =
+      clauses match {
+        case Seq() => None
+        case ScSignatureClause.TypeClause(clause) +: _ if currentArgClauseIdx == targetArgClauseIdx =>
+          Option(
             clause.typeParameters.map(TypeParameter(_))
-        }
-      else {
-        clauses match {
-          case Seq(ScSignatureClause.TypeClause(_), tail @ _*) =>
-            byArgClauseIndex(tail, idx)
-          case _ =>
-            //skip one value parameters clause, recur
-            byArgClauseIndex(clauses.tail, idx - 1)
-        }
+          )
+        case ScSignatureClause.TypeClause(_) +: tail =>
+          byArgClauseIndex(tail, targetArgClauseIdx, currentArgClauseIdx)
+        case ScSignatureClause.TermClause(clause) +: tail =>
+          val explicitArgs = argClauses.lift(currentArgClauseIdx)
+
+          val omittedUsingClause = clause.hasUsingKeyword &&
+            !explicitArgs.exists(Compatibility.isExplicitUsingArgClause)
+
+          if (omittedUsingClause)
+            byArgClauseIndex(tail, targetArgClauseIdx, currentArgClauseIdx)
+          else if (currentArgClauseIdx >= targetArgClauseIdx)
+            None
+          else
+            byArgClauseIndex(tail, targetArgClauseIdx, currentArgClauseIdx + 1)
       }
-    }
 
     element match {
       case ScalaConstructor(cons) =>
@@ -658,11 +669,11 @@ object MethodResolveProcessor {
           if (extensionTypeParameters.nonEmpty) {
             if (argClauseIdx == 0) extensionTypeParameters
             else
-              byArgClauseIndex(fun.signatureClauses, argClauseIdx - 1).getOrElse(Seq.empty)
+              byArgClauseIndex(fun.signatureClauses, argClauseIdx - 1, 0).getOrElse(Seq.empty)
           } else {
             val allClauses = fun.signatureClauses
 
-            byArgClauseIndex(allClauses, argClauseIdx).getOrElse(Seq.empty)
+            byArgClauseIndex(allClauses, argClauseIdx, 0).getOrElse(Seq.empty)
           }
 
         Option(clauseTypeParameters)
@@ -746,7 +757,8 @@ object MethodResolveProcessor {
                   r.element,
                   clauseIdx - shift,
                   r.isExtensionCall,
-                  r.exportedInExtension
+                  r.exportedInExtension,
+                  argumentClauses.drop(shift)
                 ).getOrElse(Seq.empty)
 
               typeParamsForArgClause.isEmpty && typeArgsForArgClause(clauseIdx - shift).nonEmpty // 2.
@@ -1095,7 +1107,7 @@ object MethodResolveProcessor {
     val r                  = cand.resolveResult
     val typeArgs           = typeArgsForArgClause(0)
     val args               = valueArgsForArgClause(0)
-    val typeParams         = typeParametersForArgClause(r.element, 0, r.isExtensionCall, r.exportedInExtension).getOrElse(Seq.empty)
+    val typeParams         = typeParametersForArgClause(r.element, 0, r.isExtensionCall, r.exportedInExtension, args.toSeq).getOrElse(Seq.empty)
     val typeArgsSubst      = ScSubstitutor.bind(typeParams, typeArgs)
     val subst              = r.substitutor.followed(typeArgsSubst)
     val mismatchedTypeArgs = typeParams.isEmpty && typeArgs.nonEmpty

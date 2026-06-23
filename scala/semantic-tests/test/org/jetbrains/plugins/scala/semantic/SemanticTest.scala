@@ -36,10 +36,14 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
 
     classes.take(50).foreach { cls =>
       println(cls.qualifiedName)
-      val (decompiledText, sourceText) = textOf(cls.qualifiedName)
-      Files.write(directory.resolve(cls.name + ".scala"), cls.getSourceMirrorClass.getText.getBytes)
+      val (decompiledText, psiText) = textOf(cls.qualifiedName)
+      val sourceText = {
+        val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
+        sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
+      }
+      Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
       Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
-      Files.write(directory.resolve(cls.name + "2.scala"), sourceText.getBytes)
+      Files.write(directory.resolve(cls.name + "2.scala"), psiText.getBytes)
     }
   }
 
@@ -64,7 +68,7 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
 
     sourceCls.getText // Necessary to load right-hand sides
 
-    val sourceText = try {
+    val psiText = try {
       ScalaApplicationSettings.PRECISE_TEXT = true
       ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
       textOfCompilationUnit(sourceCls, withPrivate = true, normalize = true)
@@ -79,7 +83,7 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
     val decompiler = new Decompiler(classpath)
     val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
 
-    (decompiledText, sourceText)
+    (decompiledText, psiText)
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit

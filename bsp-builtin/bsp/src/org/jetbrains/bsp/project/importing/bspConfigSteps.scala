@@ -8,6 +8,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.{Condition, NlsContexts}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.ui.TitledSeparator
@@ -189,7 +190,8 @@ object bspConfigSteps {
       val sbtVersion = detectSbtVersion(workspace, SbtUtil.defaultLauncherPath)
       if (sbtVersion >= SbtVersion("1.4")) {
         // sbt >= 1.4 : user choose: bloop or sbt
-        List(SbtSetup, BloopSbtSetup)
+        if (ApplicationManager.getApplication.isUnitTestMode) List(SbtSetup)
+        else List(SbtSetup, BloopSbtSetup)
       } else {
         List(BloopSbtSetup)
       }

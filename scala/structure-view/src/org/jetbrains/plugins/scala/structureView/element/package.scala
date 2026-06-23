@@ -1,9 +1,21 @@
 package org.jetbrains.plugins.scala.structureView
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClausesOwner, ScParameterOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ParameterRendererLike, ParametersRenderer}
 
 package object element {
+
+  private[structureView]
+  def renderSignatureClauses(owner: ScParameterOwner): String = owner match {
+    case owner: ScInterleavedClausesOwner =>
+      owner.signatureClauses.map {
+        case ScSignatureClause.TypeClause(clause) => clause.getTextByStub
+        case ScSignatureClause.TermClause(clause) => FromStubsParameterRenderer.renderClause(clause)
+      }.mkString
+    case _ =>
+      FromStubsParameterRenderer.renderClauses(owner)
+  }
 
   private[structureView]
   object FromStubsParameterRenderer extends ParametersRenderer(RenderParameterTypeAndDefaultValuePlaceholderFromStub, shouldRenderImplicitModifier = true) {

@@ -187,4 +187,28 @@ final class ChangeSignatureInScalaTest_Scala3 extends ChangeSignatureInScalaTest
         }
       })
   }
+
+  @Test
+  def testInterleavedClauseRenameParameter(): Unit =
+    doInterleavedClauseRenameParameterTest()
+
+  @Test
+  def testInterleavedClauseRenameParameterWithoutLeadingTypeClause(): Unit =
+    doInterleavedClauseRenameParameterTest()
+
+  private def doInterleavedClauseRenameParameterTest(): Unit = {
+    isAddDefaultValue = false
+    doTest(newVisibility = null, newName = "combine", newReturnType = null,
+      newParams = {
+        targetMethod match {
+          case fun: ScFunction =>
+            fun.parameterList.clauses.map(_.parameters.map { parameter =>
+              val info = new ScalaParameterInfo(parameter)
+              if (parameter.name == "second") info.name = "renamedSecond"
+              info
+            })
+          case _ => fail("Expected a function").asInstanceOf[Nothing]
+        }
+      })
+  }
 }

@@ -622,6 +622,69 @@ object InferUtil {
 
   class SafeCheckException extends ControlThrowable
 
+  private[psi] def constraintsWithTypeParameterBounds(
+    constraints: ConstraintSystem,
+    bounds:      SubstitutionBounds,
+    typeParams:  Seq[TypeParameter]
+  )(implicit context: Context): ConstraintSystem = {
+    val substitutor  = bounds.substitutor
+    val typeParamIds = typeParams.map(_.typeParamId).toSet
+
+    def hasRecursiveTypeParams(tpe: ScType): Boolean =
+      tpe.hasRecursiveTypeParameters(typeParamIds)
+
+    typeParams.foldLeft(constraints) { (un, typeParameter) =>
+      val typeParamId  = typeParameter.typeParamId
+      val substedLower = substitutor(typeParameter.lowerType)
+      val substedUpper = substitutor(typeParameter.upperType)
+
+      var result = un
+
+      if (un.isApplicable(typeParamId) || !substedLower.isNothing) {
+        if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
+          result = result
+            .withLower(typeParamId, substedLower)
+            .withTypeParamId(typeParamId)
+        }
+        if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
+          result = result
+            .withUpper(typeParamId, substedUpper)
+            .withTypeParamId(typeParamId)
+        }
+
+        val lowerTypeParamId =
+          substedLower
+            .asOptionOf[TypeParameterType]
+            .map(_.typeParamId)
+            .filter(typeParamIds.contains)
+
+        val upperTypeParamId =
+          substedUpper
+            .asOptionOf[TypeParameterType]
+            .map(_.typeParamId)
+            .filter(typeParamIds.contains)
+
+        val substedTypeParameter = substitutor(TypeParameterType(typeParameter))
+
+        if (!hasRecursiveTypeParams(substedTypeParameter)) {
+          upperTypeParamId.foreach { id =>
+            result = result
+              .withLower(id, substedTypeParameter)
+              .withTypeParamId(id)
+          }
+
+          lowerTypeParamId.foreach { id =>
+            result = result
+              .withUpper(id, substedTypeParameter)
+              .withTypeParamId(id)
+          }
+        }
+      }
+
+      result
+    }
+  }
+
   def localTypeInferenceWithApplicabilityExt(
     retType:                  ScType,
     params:                   Seq[Parameter],
@@ -635,7 +698,6 @@ object InferUtil {
     implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet
-    def hasRecursiveTypeParams(tpe: ScType): Boolean = tpe.hasRecursiveTypeParameters(typeParamIds)
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -712,49 +774,8 @@ object InferUtil {
               )
             })
           } else {
-
-            def addConstraints(un: ConstraintSystem, tp: TypeParameter): ConstraintSystem = {
-              val typeParamId  = tp.typeParamId
-              val substedLower = unSubst(tp.lowerType)
-              val substedUpper = unSubst(tp.upperType)
-
-              var result = un
-
-              if (un.isApplicable(typeParamId) || substedLower != Nothing) {
-                //todo: add only one of them according to variance
-
-                //add constraints for tp from its bounds
-                if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
-                  result = result.withLower(typeParamId, substedLower)
-                    .withTypeParamId(typeParamId)
-                }
-                if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
-                  result = result.withUpper(typeParamId, substedUpper)
-                    .withTypeParamId(typeParamId)
-                }
-
-                val lowerTpId = substedLower.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
-                val upperTpId = substedUpper.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
-
-                val substedTp = unSubst(TypeParameterType(tp))
-
-                //add constraints for tp bounds from tp substitution
-                if (!hasRecursiveTypeParams(substedTp)) {
-                  upperTpId.foreach { id =>
-                    result = result.withLower(id, substedTp)
-                      .withTypeParamId(id)
-                  }
-                  lowerTpId.foreach { id =>
-                    result = result.withUpper(id, substedTp)
-                      .withTypeParamId(id)
-                  }
-                }
-              }
-
-              result
-            }
-
-            val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
+            val newConstraints =
+              constraintsWithTypeParameterBounds(constraints, bounds, typeParams)
 
             val notInferred =
               if (!retType.isValue) Seq.empty

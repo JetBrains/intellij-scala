@@ -165,34 +165,49 @@ object MethodTypeProvider {
             ext.effectiveParameterClauses -> ext.typeParameters
           ).getOrElse(Seq.empty, Seq.empty)
 
-//      @TODO: I'm not entirely convinced if def foo[A](a: A)[B](b: B): Int should have .polymorphicType
-//             [A, B] A => B => Int or [A] A => [B] B => Int, so for now I'll leave it as 1, because it's
-//             conceptually simpler and requires less changes.
-//      val regularMethodResult = {
-//        val allClauses = element.signatureClauses
-//        val rtpe       = s(returnType.getOrElse(element.returnType.getOrAny))
-//
-//        if (allClauses.nonEmpty)
-//          allClauses.foldRight[ScType](rtpe) { (clause: ScSignatureClause, tp: ScType) =>
-//            clause match {
-//              case ScSignatureClause.TypeClause(typeParamClause) =>
-//                ScTypePolymorphicType(
-//                  tp,
-//                  typeParamClause.typeParameters.map(TypeParameter(_))
-//                )
-//              case ScSignatureClause.TermClause(paramClause) =>
-//                ScMethodType(
-//                  tp,
-//                  paramClause.getSmartParameters,
-//                  hasImplicitKW = paramClause.hasImplicitKeyword,
-//                  hasUsingKW    = paramClause.hasUsingKeyword || paramClause.isGivenConditionalClause
-//                )
-//            }
-//          }
-//        else ScMethodType(rtpe, Seq.empty)
-//      }
+      def interleavedPolymorphicType(signatureClauses: Seq[ScSignatureClause]): ScType = {
+        val clausesTypeParameters =
+          signatureClauses.collect {
+            case ScSignatureClause.TypeClause(typeParamClause) => typeParamClause.typeParameters
+          }.flatten
 
-      val regularMethodResult = super.polymorphicType(s, returnType)
+        val rtpe = returnType.getOrElse(element.returnType.getOrAny)
+
+        val result =
+          signatureClauses.foldRight[ScType](rtpe) { (clause: ScSignatureClause, tp: ScType) =>
+            clause match {
+              case ScSignatureClause.TypeClause(typeParamClause) =>
+                ScTypePolymorphicType(
+                  tp,
+                  typeParamClause.typeParameters.map(TypeParameter(_))
+                )
+              case ScSignatureClause.TermClause(paramClause) =>
+                ScMethodType(
+                  tp,
+                  paramClause.getSmartParameters,
+                  hasImplicitKW = paramClause.hasImplicitKeyword,
+                  hasUsingKW    = paramClause.hasUsingKeyword || paramClause.isGivenConditionalClause,
+                )
+            }
+          }
+
+        val nonLocalTypeParameters = typeParameters.filterNot(clausesTypeParameters.contains)
+
+        val tpe =
+          if (nonLocalTypeParameters.nonEmpty)
+            ScTypePolymorphicType(result, nonLocalTypeParameters.map(TypeParameter(_)))
+          else
+            result
+
+        s(tpe)
+      }
+
+      val regularMethodResult = {
+        val allClauses = element.effectiveSignatureClauses
+
+        if (allClauses.nonEmpty) interleavedPolymorphicType(allClauses)
+        else                     super.polymorphicType(s, returnType)
+      }
 
       if (dropExtensionClauses || extensionClauses.isEmpty) regularMethodResult
       else {

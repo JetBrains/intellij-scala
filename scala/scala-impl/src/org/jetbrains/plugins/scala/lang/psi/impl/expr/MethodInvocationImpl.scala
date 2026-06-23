@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -39,17 +39,23 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   override def target: Option[ScalaResolveResult] = innerTypeExt.target
 
   override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
-    case RegularCase(_, _, problems, _)                        => problems
-    case SyntheticCase(RegularCase(_, _, problems, _), _, _)   => problems
+    case regularCase: RegularCase                              => regularCase.problems
+    case SyntheticCase(regularCase, _, _)                      => regularCase.problems
     case FailureCase(_, problems) if problems.nonEmpty         => problems
     case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters)
     case _                                                     => Seq.empty
   }
 
   override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
-    case RegularCase(_, _, _, matched)                      => matched
-    case SyntheticCase(RegularCase(_, _, _, matched), _, _) => matched
-    case _                                                  => Seq.empty
+    case regularCase: RegularCase             => regularCase.matchedParameters
+    case SyntheticCase(regularCase, _, _)     => regularCase.matchedParameters
+    case _                                    => Seq.empty
+  }
+
+  override def matchedTypeParameters: Seq[(ScType, TypeParameter)] = innerTypeExt match {
+    case regularCase: RegularCase         => regularCase.matchedTypeParameters
+    case SyntheticCase(regularCase, _, _) => regularCase.matchedTypeParameters
+    case _                                => Seq.empty
   }
 
   override final def getImplicitFunction: Option[ScalaResolveResult] =
@@ -113,6 +119,12 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         case _                           => None
       }
 
+      def isUnaryAssignmentLhs: Boolean =
+        this match {
+          case prefix: ScPrefixExpr => ScPrefixExpr.isAssignmentLhs(prefix)
+          case _                    => false
+        }
+
       val context = methodInvocationContext(this)
 
       val shouldUpdate = argKind match {
@@ -138,7 +150,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           !isExplicit
       }
 
-      if (shouldUpdate) {
+      if (shouldUpdate && !isUnaryAssignmentLhs) {
         val isLeadingClause = argKind == ImplicitClausePosition.Leading
 
         val updateDeep =
@@ -264,17 +276,51 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   private def tuplizyCase(
     expressions:        Seq[Expression],
     maybeResolveResult: Option[ScalaResolveResult],
+    typeParameters:     Seq[TypeParameter],
+    useExpectedType:    Boolean,
   )(function:           Seq[Expression] => (ScType, ApplicabilityCheckResult)
   ): RegularCase = {
+    def matchedTypeParameters(applicability: ApplicabilityCheckResult): Seq[(ScType, TypeParameter)] = {
+      val inferredConstraints = applicability.constraints
+
+      inferredConstraints
+        .substitutionBounds(canThrowSCE = useExpectedType)
+        .toSeq
+        .flatMap { initialBounds =>
+          val constraintsWithBounds =
+            constraintsWithTypeParameterBounds(inferredConstraints, initialBounds, typeParameters)
+
+          constraintsWithBounds
+            .substitutionBounds(canThrowSCE = useExpectedType)
+            .toSeq
+            .flatMap { bounds =>
+              typeParameters.collect {
+                case typeParameter =>
+                  bounds
+                    .substitutor(TypeParameterType(typeParameter))
+                    .removeAbstracts -> typeParameter
+              }
+            }
+        }
+    }
+
     def asRegularCase(expressions: Seq[Expression]): RegularCase = {
-      val (tp, ApplicabilityCheckResult(problems, _, _, matched)) = function(expressions)
+      val (tp, applicability @ ApplicabilityCheckResult(problems, _, _, matched)) = function(expressions)
 
       val sanitizedTp = tp match {
         case ScTypePolymorphicType(internal, Seq()) => internal
         case _                                      => tp
       }
 
-      RegularCase(sanitizedTp, maybeResolveResult, problems, matched.map(m => (m.parameter, m.argument, m.tpe)))
+      val matchedTParams = matchedTypeParameters(applicability)
+
+      RegularCase(
+        sanitizedTp,
+        maybeResolveResult,
+        problems,
+        matched.map(m => (m.parameter, m.argument, m.tpe)),
+        matchedTParams
+      )
     }
 
     def tupledWithSubstitutedType =
@@ -403,7 +449,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         }
 
         val args = maybeResolveResult.fold(argumentExpressions: Seq[Expression])(arguments)
-        tuplizyCase(args, maybeResolveResult)(function)
+        val typeParameters = maybePolymorphicType.fold(Seq.empty[TypeParameter])(_.typeParameters)
+        tuplizyCase(args, maybeResolveResult, typeParameters, useExpectedType)(function)
     }
   }
 
@@ -527,20 +574,21 @@ object MethodInvocationImpl {
   }
 
   private case class RegularCase(
-    inferredType:        ScType,
-    override val target: Option[ScalaResolveResult],
-    problems:            Seq[ApplicabilityProblem]              = Seq.empty,
-    matched:             Seq[(Parameter, ScExpression, ScType)] = Seq.empty
+    inferredType:          ScType,
+    override val target:   Option[ScalaResolveResult],
+    problems:              Seq[ApplicabilityProblem]              = Seq.empty,
+    matchedParameters:     Seq[(Parameter, ScExpression, ScType)] = Seq.empty,
+    matchedTypeParameters: Seq[(ScType, TypeParameter)]           = Seq.empty
   ) extends InvocationData {
 
     override def typeResult: TypeResult = Right(inferredType)
 
-    def withSubstitutedType: Option[RegularCase] = (problems, matched) match {
+    def withSubstitutedType: Option[RegularCase] = (problems, matchedParameters) match {
       case (Seq(), Seq()) => Some(this)
       case (Seq(), matchedParams) =>
         val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
         val `type`           = paramSubstitutor(inferredType)
-        Some(RegularCase(`type`, target, Seq.empty, matched))
+        Some(RegularCase(`type`, target, Seq.empty, matchedParameters, matchedTypeParameters))
       case _ => None
     }
   }

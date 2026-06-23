@@ -33,11 +33,14 @@ class CollectingNotificationsListener(types: Set[NotificationType]) extends Noti
 
 object CollectingNotificationsListener {
 
-  def subscribeOnWarningsAndErrors(project: Project): CollectingNotificationsListener = {
-    val notificationsCollector = new CollectingNotificationsListener(Set(
-      NotificationType.WARNING,
-      NotificationType.ERROR
-    ))
+  def subscribeOnWarningsAndErrors(project: Project): CollectingNotificationsListener =
+    subscribe(project, NotificationType.WARNING, NotificationType.ERROR)
+
+  def subscribeOnAllTypes(project: Project): CollectingNotificationsListener =
+    subscribe(project, NotificationType.INFORMATION, NotificationType.WARNING, NotificationType.ERROR)
+
+  private def subscribe(project: Project, notificationTypes: NotificationType*): CollectingNotificationsListener = {
+    val notificationsCollector = new CollectingNotificationsListener(notificationTypes.toSet)
     project.getMessageBus.connect(project).subscribe(Notifications.TOPIC, notificationsCollector)
     ApplicationManager.getApplication.getMessageBus.connect(project).subscribe(Notifications.TOPIC, notificationsCollector)
     notificationsCollector

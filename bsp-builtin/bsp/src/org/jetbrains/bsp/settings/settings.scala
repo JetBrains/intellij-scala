@@ -59,7 +59,7 @@ class BspProjectSettings extends ExternalProjectSettings {
    * This is only applied to Scala CLI or Mill projects.
    */
   @BeanProperty
-  var autoRegenerateBspConfigOnServerStartup = true
+  var autoRegenerateBspConfigOnServerStartup = false
 
   override def setExternalProjectPath(externalProjectPath: String): Unit = {
     super.setExternalProjectPath(ExternalSystemApiUtil.toCanonicalPath(externalProjectPath))

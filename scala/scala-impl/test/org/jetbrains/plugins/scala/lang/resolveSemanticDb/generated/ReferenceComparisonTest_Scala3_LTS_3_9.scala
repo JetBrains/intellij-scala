@@ -2438,7 +2438,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part24 extends ReferenceCompa
   def test_named_typeargs(): Unit = doTest("named-typeargs", true)
   def test_nameddefaults(): Unit = doTest("nameddefaults", false)
   def test_namedtuple_src_incompat(): Unit = doTest("namedtuple-src-incompat", false)
-  def test_namedTypeParams(): Unit = doTest("namedTypeParams", false)
+  def test_namedTypeParams(): Unit = doTest("namedTypeParams", true)
   def test_native_warning(): Unit = doTest("native-warning", true)
   def test_needstypeearly(): Unit = doTest("needstypeearly", true)
   def test_nested(): Unit = doTest("nested", true)

@@ -12,7 +12,7 @@ object Versions {
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch won't be fetched on refresh.
   // run runtimeDependencies/update manually
-  val sbtVersion: String = "1.12.11"
+  val sbtVersion: String = "1.12.13"
   val bloopVersion = "2.1.0"
   val zincVersion = "1.12.0"
 
@@ -22,7 +22,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "262.8117.2"
+  val intellijVersion = "262.8376"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 

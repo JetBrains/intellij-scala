@@ -31,6 +31,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   override def annotate(element: MethodInvocation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
+      if (ScPrefixExpr.isAssignmentLhs(element)) return
+
       annotateMethodInvocation(element)
     }
   }

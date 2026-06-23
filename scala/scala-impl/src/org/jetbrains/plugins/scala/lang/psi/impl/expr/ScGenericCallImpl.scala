@@ -8,10 +8,11 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.Ext
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
@@ -65,6 +66,21 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
     typeResult
+      .map {
+        //e.g. def foo(using A)[B]: Int = 1; foo[Int]
+        case mt: ScMethodType if mt.isImplicit && !isShape =>
+          val (updated, implicits) =
+            this.updatedWithImplicitArguments(
+              mt,
+              checkExpectedType = false,
+              updateDeep = false,
+              isLeadingClause = true
+            )
+
+          setImplicitArguments(implicits)
+          updated
+        case tpe => tpe
+      }
       .map(processNonPolymorphic(isShape))
       .map(substPolymorphicType)
       .map(tpe =>

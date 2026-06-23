@@ -17,7 +17,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -416,15 +416,50 @@ object IntroduceExpressions {
             extBl.addEarlyDefinitions()
           case _ =>
             val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParentInFile)
+
+            // note: some blocks are not parsed as blocks when there are no braces. E.g.: {{{
+            //   for (i <- 1 to 10) do
+            //     // comment 1
+            //     // comment 2
+            //     println(i)
+            // }}}. Because of this, let's create the braced block anyway and remove the braces later if needed.
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
               val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}", features))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") =>
-                  firstRange = firstRange.shiftLeft(ws.getTextLength)
-                  ws.delete()
+                  if (!ws.getPrevSibling.is[PsiComment]) {
+                    firstRange = firstRange.shiftLeft(ws.getTextLength)
+                    ws.delete()
+                  }
+                  else {
+                    // move comments and whitespaces inside the block
+                    val toMove = replaced.prevSiblings.takeWhile(_.isWhitespaceOrComment).toList
+                    val anchor = replaced.getFirstChild
+                    if (toMove.nonEmpty && anchor != null) {
+                      // use copies to avoid illegal access errors after deletion
+                      val copies = toMove.map(_.copy())
+                      // note: the list is backwards (bottom to top)
+                      replaced.getParent.deleteChildRange(toMove.last, toMove.head)
+                      copies.foreach { copy =>
+                        replaced.addAfter(copy, anchor)
+                      }
+                      // add a single space between the block and the previous element
+                      replaced.getParent.addBefore(createWhitespace, replaced)
+                      firstRange = firstRange.shiftRight(1)
+                    }
+                  }
                 case _ =>
               }
+
+              if (file.useIndentationBasedSyntax) {
+                replaced.lastChild.foreach(_.delete()) // }
+                replaced.firstChild.foreach { child => // {
+                  firstRange = firstRange.shiftLeft(child.getTextLength)
+                  child.delete()
+                }
+              }
+
               replaced
             } else {
               container(commonParent).getOrElse(file)

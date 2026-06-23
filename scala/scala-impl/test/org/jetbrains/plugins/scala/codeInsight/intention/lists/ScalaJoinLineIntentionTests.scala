@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
 import com.intellij.codeInsight.CodeInsightBundle
+import org.junit.Test
 
 sealed trait ScalaJoinLineIntentionTestBase {
   self: ScalaSplitJoinLineIntentionTestBase =>
@@ -42,4 +43,17 @@ final class ScalaJoinTypeParametersIntentionTest
   extends ScalaSplitJoinTypeParametersIntentionTestBase
     with ScalaJoinLineIntentionTestBase {
   override protected val intentionText: String = "Put type parameters on one line"
+
+  @Test
+  def testInterleavedMethodTypeParameters(): Unit =
+    doTest(
+      singleLineText =
+        """def foo[A](a: A)[B, C](b: B, c: C): Unit = {}""",
+      multiLineText =
+        """def foo[A](a: A)[
+          |  B,
+          |  C
+          |](b: B, c: C): Unit = {}""".stripMargin,
+      listStartChar = '['
+    )
 }

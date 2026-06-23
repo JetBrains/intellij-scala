@@ -232,6 +232,8 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo
           case (scRef: ScReference) childOf(_: ScImportSelector | _: ScImportExpr) => results += ImportUsageInfo(scRef)
           case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, fullCall(mc))
+          case (refExpr: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (mc: ScMethodCall)) =>
+            results += MethodCallUsageInfo(refExpr, fullCall(mc))
           case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
           case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
           case ref @ ScConstructorInvocation.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
@@ -253,6 +255,11 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   private def fullCall(mc: ScMethodCall): ScMethodCall = {
     mc.getParent match {
       case p: ScMethodCall if !mc.isApplyOrUpdateCall => fullCall(p)
+      case p: ScGenericCall if !mc.isApplyOrUpdateCall =>
+        p.getParent match {
+          case call: ScMethodCall => fullCall(call)
+          case _                  => mc
+        }
       case _ => mc
     }
   }

@@ -43,13 +43,12 @@ private[scalaCli] object ScalaCliUtils {
   }
   
   /**
-   * Detects or verifies Scala CLI installation based on the provided `targetInstallKind`:
-   *   - when `targetInstallKind` is specified: verifies if the specific installation kind is available
-   *   - when `targetInstallKind` is empty: detects which installation kind is available,
-   *     checking bundled first, then standalone
+   * Detects Scala CLI installation based on the provided `targetInstallKind`:
+   *   - when `targetInstallKind` is specified: checks the target kind first, then falls back to other available kinds
+   *   - when `targetInstallKind` is empty: detects the installation type, checking the bundled installation first and then the standalone one.
    *
    * @param workspace directory in which the installation is checked
-   * @param targetInstallKind optional install kind to verify; when `None`, detects any available kind
+   * @param targetInstallKind preferred install kind; when `None`, detects any available kind
    * @return `Some` if the requested or detected installation is available, or `None` otherwise.
    */
   @RequiresBackgroundThread
@@ -58,9 +57,10 @@ private[scalaCli] object ScalaCliUtils {
     indicator: ProgressIndicator,
     targetInstallKind: Option[ScalaCliInstallKind] = None
   ): Option[ScalaCliInstallKind] = {
+    val allKinds = Seq(ScalaCliInstallKind.Bundled, ScalaCliInstallKind.Standalone)
     val candidates = targetInstallKind match {
-      case Some(value) => Seq(value)
-      case None => Seq(ScalaCliInstallKind.Bundled, ScalaCliInstallKind.Standalone)
+      case Some(value) => value +: allKinds.filterNot(_ == value)
+      case None => allKinds
     }
     candidates.find {
       case ScalaCliInstallKind.Bundled => isBundledScalaCliInstalled(workspace, indicator)

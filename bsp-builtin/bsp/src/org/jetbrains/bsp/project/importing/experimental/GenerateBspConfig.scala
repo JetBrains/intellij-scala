@@ -8,13 +8,14 @@ import com.intellij.openapi.ui.{DialogWrapper, Messages, ValidationInfo}
 import com.intellij.platform.eel.provider.EelProviderUtil
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps.*
-import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.{ConnectionFileChanges, GenerateBspConfigDialog}
+import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.{ConnectionFileSnapshot, GenerateBspConfigDialog}
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
-import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, BspConfigFile, BspServerConfig}
-import org.jetbrains.bsp.settings.{BspProjectSettings, PreImportConfig}
+import org.jetbrains.bsp.settings.BspProjectSettings
+import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, BspConfigFile}
+import org.jetbrains.bsp.settings.PreImportConfig
 import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils
@@ -71,10 +72,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
   //TODO: make it cancellable for both: SBT and Bloop
   //TODO: it duplicates some code with BspProjectResolver.installBSPs
   private def runConfigSetupSynchronously(setup: ConfigSetup, sdk: Sdk): Unit = {
-    val filesBefore = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
-    // Calculating modified times is required to know which file was overwritten during regeneration, if a new file was not created.
-    val filesBeforeModTimes = filesBefore.map: f =>
-      (f, Files.getLastModifiedTime(f))
+    val snapshot = ConnectionFileSnapshot(workspace)
 
     val (bspConfigSetup, preImportConfig) = bspConfigSteps.getBspConfigurationForRegeneration(sdk, workspace, setup)
     bspConfigSetup match {
@@ -93,29 +91,13 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
         runSetupTask.queue()
     }
 
-    val filesAfter = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
-    val fileChanges = ConnectionFileChanges(filesBeforeModTimes, filesAfter)
-    if fileChanges.hasChanges then
-      updateStaleServerConfig(fileChanges)
+    val changes = snapshot.complete()
+    val settings = BspUtil.getBspProjectSettings(project, workspace)
+    settings.foreach(GenerateBspConfig.adjustServerConfigAfterRegeneration(_, changes))
   }
+}
 
-  /**
-   * Clears the connection file hash to prevent regeneration on the next BSP server startup.
-   *
-   * @see [[org.jetbrains.bsp.protocol.BspCommunication.prepareSession]]
-   */
-  private def clearConnectionFileHash(settings: BspProjectSettings): Unit =
-    settings.connectionFileHash = null
-
-  /**
-   * Updates [[BspProjectSettings.serverConfig]] and clears the connection file hash.
-   *
-   * @see [[clearConnectionFileHash]]
-   */
-  private def updateServerConfigAndClear(settings: BspProjectSettings, serverConfigToSet: BspServerConfig): Unit = {
-    settings.serverConfig = serverConfigToSet
-    clearConnectionFileHash(settings)
-  }
+private[bsp] object GenerateBspConfig {
 
   /**
    * Aligns [[BspProjectSettings.serverConfig]] with connection files after regeneration.
@@ -129,26 +111,47 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
    * On the other hand, with [[AutoConfig]], when multiple files are present in the `.bsp` directory, it is not predictable which file
    * will be used for the import, so the generated file is set explicitly.
    */
-  private def updateStaleServerConfig(changes: ConnectionFileChanges): Unit =
-    for {
-      settings <- BspUtil.getBspProjectSettings(project, workspace)
-      generatedFile <- changes.generatedFile
-    } {
+  def adjustServerConfigAfterRegeneration(settings: BspProjectSettings, changes: ConnectionFileChanges): Unit =
+    changes.generatedFile.foreach { generatedFile =>
       settings.serverConfig match
         case BspConfigFile(path) if generatedFile == path =>
-          clearConnectionFileHash(settings)
-
+          settings.connectionFileHash = null
         case BspConfigFile(_) | AutoConfig if changes.filesAfter.size == 1 =>
-          updateServerConfigAndClear(settings, AutoConfig)
-
+          settings.serverConfig = AutoConfig
+          settings.connectionFileHash = null
         case BspConfigFile(_) | AutoConfig if changes.filesAfter.size > 1 =>
-          updateServerConfigAndClear(settings, BspConfigFile(generatedFile))
-
+          settings.serverConfig = BspConfigFile(generatedFile)
+          settings.connectionFileHash = null
         case _ =>
     }
-}
 
-private[bsp] object GenerateBspConfig {
+  /**
+   * Snapshot of BSP connection files taken before generation.
+   * Call [[complete]] after the generation step to produce a [[ConnectionFileChanges]] summary.
+   *
+   * @param filesBeforeModTimes files that existed before regeneration with their last modification timestamps
+   */
+  case class ConnectionFileSnapshot(
+    workspace: Path,
+    filesBeforeModTimes: Set[(Path, FileTime)]
+  ) {
+    /** Files that existed before regeneration. */
+    val filesBefore: Set[Path] = filesBeforeModTimes.map(_._1)
+
+    /** Produces a [[ConnectionFileChanges]] summary after regeneration. */
+    def complete(): ConnectionFileChanges = {
+      val filesAfter = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
+      ConnectionFileChanges(filesBeforeModTimes, filesAfter)
+    }
+  }
+
+  object ConnectionFileSnapshot {
+    def apply(workspace: Path): ConnectionFileSnapshot = {
+      val files = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
+      val modTimes = files.map(f => (f, Files.getLastModifiedTime(f)))
+      ConnectionFileSnapshot(workspace, modTimes)
+    }
+  }
 
   /**
    * Summary of the BSP connection file changes after generation.
@@ -170,8 +173,6 @@ private[bsp] object GenerateBspConfig {
 
     /** Returns the BSP connection file generated during regeneration - either an existing file that was overwritten or a newly created file. */
     val generatedFile: Option[Path] = created.headOption.orElse(overwritten.headOption)
-
-    val hasChanges: Boolean = generatedFile.nonEmpty
   }
 
   final class GenerateBspConfigDialog(

@@ -167,7 +167,7 @@ object ConverterUtil {
     TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(topElements)
   }
 
-  def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
+  private def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
     def handleOneProblem(problem: ProblemDescriptor): Unit = {
       val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
       fixes.foreach(_.applyFix)

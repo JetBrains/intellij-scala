@@ -25,8 +25,7 @@ class Scala3TypeInheritance extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-  // TODO[SCL]: enable as a regular `test*` once interleaved super-call synthesis is implemented.
-  def pendingInterleavedClausesInOverrideReturnTypeInference(): Unit = {
+  def testInterleavedClausesInOverrideReturnTypeInference(): Unit = {
     checkTextHasNoErrors(
       """
         |trait Base:
