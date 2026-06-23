@@ -5,6 +5,7 @@ package org.jetbrains.plugins.scala.semantic
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
@@ -15,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtens
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
@@ -193,58 +194,83 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case _ => "<stmt>"
   }
 
-  private def textOfExpression(e: ScExpression, indent: String): String = e match {
-    case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
-    case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
-    case u: ScUnitExpr => "()"
-    case u: ScThisReference => "this"
-    case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
-    case e: ScUnderscoreSection => "_"
-    case e: ScIf =>
-      "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
-        case Some(e) => " else " + textOfExpression(normalized(e), indent)
-        case None => ""
-      })
-    case e: ScTry =>
-      "try " + e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") +
-        e.catchBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" catch " + _).getOrElse("") +
-        e.finallyBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" finally " + _).getOrElse("")
-    case e: ScWhile =>
-      "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
-        e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
-    case mi: MethodInvocation =>
-      val targs = typeArgumentsOf(mi).map("[" + _.map(textOf(_)).mkString(", ") + "]").getOrElse("")
-      val invokedExpr = mi.getEffectiveInvokedExpr
-      mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
-        textOfExpression(invokedExpr, indent) + targs + "(" + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
-    case gc: ScGenericCall =>
-      textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
-    case sc: ScAssignment =>
-      textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
-    case r: ScReferenceExpression => r.qualifier match {
-      case Some(q) => textOfExpression(q, indent) + "." + r.refName
-      case None => r.resolve match {
-        case e: ScSelfTypeElement => e.name
-        case e: ScNamedElement => e.nameContext match {
-          case m: ScMember if !m.isLocal && !m.isTopLevel =>
-            if (e.getContainingFile == r.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
-            else m.qualifiedNameOpt.getOrElse(r.refName)
+  private def textOfExpression(e: ScExpression, indent: String): String = {
+    val text = e match {
+      case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
+      case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
+      case u: ScUnitExpr => "()"
+      case u: ScThisReference => "this"
+      case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
+      case e: ScUnderscoreSection => "_"
+      case e: ScIf =>
+        "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
+          case Some(e) => " else " + textOfExpression(normalized(e), indent)
+          case None => ""
+        })
+      case e: ScTry =>
+        "try " + e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") +
+          e.catchBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" catch " + _).getOrElse("") +
+          e.finallyBlock.flatMap(_.expression).map(e => textOfExpression(normalized(e), indent)).map(" finally " + _).getOrElse("")
+      case e: ScWhile =>
+        "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
+          e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
+      case mi: MethodInvocation =>
+        val targs = typeArgumentsOf(mi).map("[" + _.map(textOf(_)).mkString(", ") + "]").getOrElse("")
+        val explicitImplicitArguments = mi.matchedParameters.headOption.exists {
+          case (_, param) => param.psiParam.exists {
+            case p: ScParameter => p.isInClauseWithImplicit || p.isInClauseWithUsing
+          }
+        }
+        val invokedExpr = mi.getEffectiveInvokedExpr
+        mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
+          textOfExpression(invokedExpr, indent) + targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+      case gc: ScGenericCall =>
+        textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
+      case sc: ScAssignment =>
+        textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+      case r: ScReferenceExpression => r.qualifier match {
+        case Some(q) => textOfExpression(q, indent) + "." + r.refName
+        case None => r.resolve match {
+          case e: ScSelfTypeElement => e.name
+          case e: ScNamedElement => e.nameContext match {
+            case m: ScMember if !m.isLocal && !m.isTopLevel =>
+              if (e.getContainingFile == r.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
+              else m.qualifiedNameOpt.getOrElse(r.refName)
+            case _ => r.refName
+          }
           case _ => r.refName
         }
-        case _ => r.refName
       }
+      case e: ScNewTemplateDefinition =>
+        "new " + e.firstConstructorInvocation
+          .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
+          .getOrElse("") + " {" + {
+            val sb = new StringBuilder()
+            printTo(sb, e.extendsBlock, indent + "  ")
+            if (sb.nonEmpty) sb ++= indent + "  "
+            sb.toString
+          } + "}"
+      case e: ScFunctionExpr =>
+        "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
+      case e: ScTuple =>
+        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => textOf(e.`type`().get)).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
+      case e => "<expr>"
     }
-    case e: ScNewTemplateDefinition =>
-      "new " + e.firstConstructorInvocation
-        .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
-        .getOrElse("") + " {" + {
-          val sb = new StringBuilder()
-          printTo(sb, e.extendsBlock, indent + "  ")
-          if (sb.nonEmpty) sb ++= indent + "  "
-          sb.toString
-        } + "}"
-    case e => "<expr>"
+
+    text + textOfImplicitArguments(e.findImplicitArguments)
   }
+
+  private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause]): String = args
+    .map { clause =>
+      clause.args.map(arg =>
+        val typeArgText = arg.element match {
+          case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+            owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
+          case _ => ""
+        }
+        arg.element.asInstanceOf[ScNamedElement].name + typeArgText + textOfImplicitArguments(arg.implicitArguments)).mkString(", ")
+    }
+    .map("(using " + _ + ")").mkString
 
   // Add standard API, SCL-25529
   // Fix Nothing, SCL-25526
@@ -262,7 +288,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
         typeParams.map(tp => typeParamSubst(tp).removeAbstracts)
       }
-    }
+    } filter (_.nonEmpty)
   }
 
   private def normalized(e: ScExpression): ScExpression = e match {

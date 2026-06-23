@@ -371,7 +371,10 @@ object SourceCode {
 
       case tree: Ident =>
         splicedName(tree.symbol) match {
-          case Some(name) => this += highlightTypeDef(name)
+          case Some(name) => this += (name match {
+            case WildcardName() => "_"
+            case s => s
+          })
           case _ => printType(tree.tpe)
         }
 
@@ -436,6 +439,11 @@ object SourceCode {
             printQualTree(fn)
           case _ => printQualTree(fn)
         }
+        fn.tpe match {
+          case mt: MethodType if mt.isImplicit =>
+            argsPrefix += "using "
+          case _ =>
+        }
         val args1 = args match {
           case init :+ Typed(Repeated(Nil, _), _) => init // drop empty var args at the end
           case _ => args
@@ -498,11 +506,13 @@ object SourceCode {
         printTree(rhs)
 
       case tree @ Lambda(params, body) =>  // must come before `Block`
-        inParens {
-          printLambdaArgsDefs(params)
-          this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
-          printTree(body)
+        params match {
+          case List(ValDef(name, _, _)) if WildcardName.matches(name) =>
+          case _ =>
+            printLambdaArgsDefs(params)
+            this += (if tree.tpe.isContextFunctionType then " ?=> " else  " => ")
         }
+        printTree(body)
 
       case Block(stats0, expr) => stats0 match {
         case List(td @ ClassDef("$anon", _, _, _, _)) =>
