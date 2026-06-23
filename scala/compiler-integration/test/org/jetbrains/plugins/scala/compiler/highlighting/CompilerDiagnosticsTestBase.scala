@@ -15,11 +15,7 @@ trait CompilerDiagnosticsTestBase { self: ScalaCompilerHighlightingTestBase =>
     expectedResult: ExpectedResult,
     expectedContent: String
   ): Unit = runWithErrorsFromCompiler(getProject) {
-    val virtualFile = addFileToProjectSources(fileName, content)
-
-    waitUntilFileIsHighlighted(virtualFile)
-
-    doAssertion(virtualFile, expectedResult)
+    val virtualFile = waitAndAssert(fileName, content, expectedResult)
 
     val highlightInfos = fetchHighlightInfos(virtualFile)
     val quickFixes = allQuickFixes(highlightInfos)
