@@ -13,7 +13,7 @@ import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
 import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.find.{EditorSearchSession, FindManager, FindModel, FindUtil}
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
@@ -25,7 +25,7 @@ import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShe
 
 import java.awt.event.{InputEvent, KeyEvent}
 import javax.swing.KeyStroke
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 //TODO: Split this file into multiple files
 
@@ -102,9 +102,10 @@ final class EOFAction(project: Project) extends DumbAwareAction {
   private val shortcuts = new CustomShortcutSet(ctrlD)
   setShortcutSet(shortcuts)
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    SbtShellCommunication.forProject(project).send("\u0004")
-  }
+  override def actionPerformed(e: AnActionEvent): Unit =
+    executeOnPooledThread {
+      SbtShellCommunication.forProject(project).send("\u0004")
+    }
 }
 
 final class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
