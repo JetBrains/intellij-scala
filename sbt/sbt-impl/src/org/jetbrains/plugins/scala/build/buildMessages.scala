@@ -102,7 +102,8 @@ case object BuildMessages {
           .build()
       case Some(filePosition) =>
         BuildEvents.getInstance()
-          .fileMessage(stripAnsiCodes(message), kind, filePosition)
+          .message(stripAnsiCodes(message), kind)
+          .withFilePosition(filePosition)
           .withParentId(parentId)
           .withTime(eventTime)
           .withGroup(kindGroup)

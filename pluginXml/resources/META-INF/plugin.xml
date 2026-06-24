@@ -38,7 +38,7 @@
         For a sneak peek at what's in store, check our EAP and nightly build
     </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="262.7574" until-build="262.*"/>
+    <idea-version since-build="263.525" until-build="263.*"/>
 
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
@@ -51,6 +51,7 @@
         <module name="intellij.java.backend"/>
         <module name="intellij.java.execution.impl"/>
         <module name="intellij.libraries.commons.text"/>
+        <module name="intellij.platform.vcs.impl"/> <!-- IJPL-247623. Ideally, it should be registered as a dependency of corresponding V2 modules -->
     </dependencies>
 
     <content namespace="jetbrains">

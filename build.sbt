@@ -429,7 +429,10 @@ lazy val scalaImpl: sbt.Project =
       //Add kotlin analysis Api only for the compilation stage mostly to attach sources to the project for debugging purposes
       //libraryDependencies ++= Common.KotlinAnalysisApiIdeSourcesDependencies_ProvidedScope,
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
-      intellijPlugins += "JUnit".toPlugin,
+      intellijPlugins ++= Seq(
+        "JUnit".toPlugin,
+        "intellij.vcs.plugin".toPlugin,
+      ),
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
       },
@@ -532,6 +535,7 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "intellij.vcs.plugin".toPlugin,
 //      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
