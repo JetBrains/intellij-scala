@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.path.{EelPath, EelPathException}
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -32,10 +32,25 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
   private val eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
-  private def sourceToPath(source: SerializablePath): Path = {
-    val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
-    val eel = EelPath.parse(pathString, eelDescriptor)
-    EelNioBridgeServiceKt.asNioPath(eel)
+  private def parseEelPath(source: SerializablePath): Option[Path] =
+    try {
+      val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
+      val eel = EelPath.parse(pathString, eelDescriptor)
+      val nio = EelNioBridgeServiceKt.asNioPath(eel)
+      Some(nio)
+    } catch {
+      case _: EelPathException => None
+    }
+
+  private def findVirtualFile(source: SerializablePath): Option[VirtualFile] = {
+    val fromEel = parseEelPath(source).flatMap(_.toVirtualFile)
+    fromEel.orElse {
+      // Parsing the source file path did not succeed using eel machinery.
+      // Fall back to treating the path as a local path. This is the case for scratch worksheets which
+      // are always created in the local filesystem.
+      val rawPath = Path.of(SerializablePath.unsafePathAsString(source))
+      rawPath.toVirtualFile
+    }
   }
 
   override def eventReceived(event: CompilerEvent): Unit = {
@@ -47,16 +62,17 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, _, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
-        val virtualFile = sourceToPath(source).toVirtualFile.get
-        val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
-        val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
-        val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
-        CompilerGeneratedStateManager.update(project, newState)
+        findVirtualFile(source).foreach { virtualFile =>
+          val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
+          val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
+          val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
+          CompilerGeneratedStateManager.update(project, newState)
+        }
       case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
           text <- Option(msg.text)
           source <- msg.source
-          virtualFile <- sourceToPath(source).toVirtualFile
+          virtualFile <- findVirtualFile(source)
         } {
           def calculateRangeInfo(startInfo: Option[PosInfo], endInfo: Option[PosInfo], debugTag: String): Option[RangeInfo] =
             for {
@@ -111,7 +127,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
         val vFiles = for {
           source <- sources
-          virtualFile <- sourceToPath(source).toVirtualFile
+          virtualFile <- findVirtualFile(source)
         } yield virtualFile
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
         val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>
