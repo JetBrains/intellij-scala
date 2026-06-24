@@ -36,7 +36,7 @@ import javax.swing.JComponent
  */
 @ApiStatus.Internal
 @ApiStatus.Experimental
-final class GenerateBspConfig(project: Project, workspace: Path) {
+private[bsp] final class GenerateBspConfig(project: Project, workspace: Path) {
 
   def runSynchronously(): Unit = {
     val configSetups: Seq[ConfigSetup] = workspaceSetupChoices(workspace)
