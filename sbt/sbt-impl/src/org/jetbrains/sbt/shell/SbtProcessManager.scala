@@ -19,6 +19,7 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.ui.TerminalWidget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
+import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
@@ -407,6 +408,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
   @RequiresBackgroundThread
   def acquireShellProcessHandler(activateSbtShellToolWindowOnStartup: Boolean = true): OSProcessHandler = {
     log.debug("acquireShellProcessHandler start...")
+    if isUnitTestMode then
+      ThreadingAssertions.assertBackgroundThread()
 
     existingAliveProcessData match {
       case Some(pd) if isAlive(pd) =>

@@ -95,6 +95,7 @@ private[shell] object SbtShellLifecycle {
       def isIdle: Boolean = state == ShellState.Idle
       def isQueued: Boolean = state == ShellState.Queued
       def isShuttingDown: Boolean = state == ShellState.ShuttingDown
+      def isOff: Boolean = state == ShellState.Off
       def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
     }
   }
