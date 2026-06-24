@@ -4,7 +4,6 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -19,10 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
@@ -215,7 +213,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
           e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
       case mi: MethodInvocation =>
-        val targs = typeArgumentsOf(mi).map("[" + _.map(textOf(_)).mkString(", ") + "]").getOrElse("")
+        val targs = mi match {
+          case TypeArgumentOwner.CallWithInferredTypeArguments(hints) => hints match {
+            case Seq(TypeArgumentOwner.TypeArgumentHint.Bracketed(anchor, typeArguments)) => "[" + typeArguments.map(textOf(_)).mkString(", ") + "]"
+            case _ => ""
+          }
+          case _ => ""
+        }
         val explicitImplicitArguments = mi.matchedParameters.headOption.exists {
           case (_, param) => param.psiParam.exists {
             case p: ScParameter => p.isInClauseWithImplicit || p.isInClauseWithUsing
@@ -271,25 +275,6 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         arg.element.asInstanceOf[ScNamedElement].name + typeArgText + textOfImplicitArguments(arg.implicitArguments)).mkString(", ")
     }
     .map("(using " + _ + ")").mkString
-
-  // Add standard API, SCL-25529
-  // Fix Nothing, SCL-25526
-  private def typeArgumentsOf(mi: MethodInvocation): Option[Seq[ScType]] = {
-    val typeParams = mi.target.flatMap(_.element.asOptionOf[ScFunction].map(_.typeParameters)).getOrElse(Seq.empty)
-    val invokedExpr = mi.getEffectiveInvokedExpr
-    val cso = for {
-      tpe <- invokedExpr.getNonValueType(fromUnderscore = true).toOption
-      typePoly <- tpe.asOptionOf[ScTypePolymorphicType]
-      matchedParameters = mi.matchedParameters
-      inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(typePoly.internalType, matchedParameters.map(_._2), matchedParameters.map(_._1), typePoly.typeParameters)
-    } yield inferRes._2.constraints
-    cso.flatMap { cs =>
-      cs.substitutionBounds(canThrowSCE = false)(using invokedExpr, Context(invokedExpr)).map { bounds =>
-        def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
-        typeParams.map(tp => typeParamSubst(tp).removeAbstracts)
-      }
-    } filter (_.nonEmpty)
-  }
 
   private def normalized(e: ScExpression): ScExpression = e match {
     case b: ScBlock if normalize => b.statements match {

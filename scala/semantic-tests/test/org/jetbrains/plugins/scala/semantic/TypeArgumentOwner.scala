@@ -1,0 +1,177 @@
+package org.jetbrains.plugins.scala.semantic
+
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScSignatureClause}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+// Add standard API, SCL-25529
+// See ScalaTypeArgumentHintsPass
+private object TypeArgumentOwner {
+  sealed trait TypeArgumentHint {
+    def anchor: PsiElement
+  }
+
+  object TypeArgumentHint {
+    final case class NamedPart(name: String, tpe: ScType)
+
+    final case class Bracketed(
+      anchor: PsiElement,
+      typeArguments: Seq[ScType]
+    ) extends TypeArgumentHint
+
+    final case class NamedSuffix(
+      anchor: PsiElement,
+      parts: Seq[NamedPart]
+    ) extends TypeArgumentHint
+  }
+
+  object CallWithInferredTypeArguments {
+    def unapply(call: MethodInvocation): Option[Seq[TypeArgumentHint]] =
+      InferredMethodTypeArguments
+        .methodCallsFor(call)
+        .map { case (function, methodCalls) =>
+          InferredMethodTypeArguments.inferTypeArgumentsByDeclaredTypeClause(function, methodCalls)
+        }.filter(_.nonEmpty)
+  }
+
+  private object InferredMethodTypeArguments {
+    private def collectNestedMethodCalls(element: PsiElement): List[MethodInvocation] =
+      element match {
+        case parenthesised: ScParenthesisedExpr => collectNestedMethodCalls(parenthesised.getParent)
+        case gen: ScGenericCall => collectNestedMethodCalls(gen.getParent)
+        case invocation: MethodInvocation if invocation.target.isEmpty =>
+          invocation :: collectNestedMethodCalls(invocation.getParent)
+        case _ => Nil
+      }
+
+    def methodCallsFor(call: MethodInvocation): Option[(ScFunction, List[MethodInvocation])] =
+      call.getInvokedExpr match {
+        case genCall: ScGenericCall =>
+          methodCallsFor(genCall)
+        case _ =>
+          call.target.map(_.element).collect {
+            case function: ScFunction if !function.isConstructor =>
+              function -> (call :: collectNestedMethodCalls(call.getParent))
+          }
+      }
+
+    def methodCallsFor(genCall: ScGenericCall): Option[(ScFunction, List[MethodInvocation])] = {
+      def nestedInvocation(element: PsiElement): Option[MethodInvocation] =
+        element match {
+          case invocation: MethodInvocation => Option(invocation)
+          case parenthesised: ScParenthesisedExpr => parenthesised.innerElement.flatMap(nestedInvocation)
+          case gen: ScGenericCall => nestedInvocation(gen.referencedExpr)
+          case _ => None
+        }
+
+      val targetCall =
+        nestedInvocation(genCall.referencedExpr).orElse {
+          genCall.getParent.asOptionOf[MethodInvocation].filter(_.getInvokedExpr == genCall)
+        }
+
+      for {
+        call <- targetCall
+        function <- functionFor(call)
+      } yield function -> (call :: collectNestedMethodCalls(call.getParent))
+    }
+
+    private def functionFor(expr: ScExpression): Option[ScFunction] =
+      expr match {
+        case ref: ScReferenceExpression =>
+          ref.bind().map(_.element).collect {
+            case function: ScFunction if !function.isConstructor => function
+          }
+        case gen: ScGenericCall => functionFor(gen.referencedExpr)
+        case invocation: MethodInvocation => functionFor(invocation.getEffectiveInvokedExpr)
+        case parenthesised: ScParenthesisedExpr => parenthesised.innerElement.flatMap(functionFor)
+        case _ => None
+      }
+
+    def inferredTypeArgumentsFor(
+      function: ScFunction,
+      methodCalls: List[MethodInvocation],
+      genCall: ScGenericCall
+    ): Option[TypeArgumentHint] = {
+      val inferredByTypeParamId = inferredTypeArgumentsById(methodCalls)
+      val explicitNames = genCall.typeArgs.namedTypeArgs.flatMap(_.name)
+
+      def isExplicit(typeParam: ScTypeParam): Boolean =
+        explicitNames.exists(name => ScalaNamesUtil.equivalent(typeParam.name, name))
+
+      typeClauseFor(function, methodCalls, genCall).flatMap { clause =>
+        val parts = clause.typeParameters.flatMap { typeParam =>
+          Option.when(!isExplicit(typeParam)) {
+            inferredByTypeParamId
+              .get(typeParam.typeParamId)
+              .map(TypeArgumentHint.NamedPart(typeParam.name, _))
+          }.flatten
+        }
+
+        genCall.typeArguments.lastOption
+          .filter(_ => parts.nonEmpty)
+          .map(TypeArgumentHint.NamedSuffix(_, parts))
+      }
+    }
+
+    def inferTypeArgumentsByDeclaredTypeClause(
+      function: ScFunction,
+      methodCalls: List[MethodInvocation]
+    ): Seq[TypeArgumentHint] = {
+      val inferredByTypeParamId = inferredTypeArgumentsById(methodCalls)
+
+      typeClausesWithAnchors(function, methodCalls).flatMap { case (clause, anchor) =>
+        val typeArguments = clause.typeParameters.flatMap { typeParam =>
+          inferredByTypeParamId.get(typeParam.typeParamId)
+        }
+
+        val isExistingNamedClause = anchor match {
+          case gen: ScGenericCall => gen.typeArgs.hasNamedTypeArgs
+          case _ => false
+        }
+
+        Option.when(typeArguments.nonEmpty && !isExistingNamedClause)(
+          TypeArgumentHint.Bracketed(anchor, typeArguments)
+        )
+      }
+    }
+
+    private def inferredTypeArgumentsById(methodCalls: List[MethodInvocation]): Map[Long, ScType] =
+      methodCalls
+        .flatMap(_.matchedTypeParameters)
+        .map { case (tpe, typeParameter) => typeParameter.typeParamId -> tpe }
+        .toMap
+
+    private def typeClauseFor(
+      function: ScFunction,
+      methodCalls: List[MethodInvocation],
+      genCall: ScGenericCall
+    ): Option[ScTypeParamClause] =
+      typeClausesWithAnchors(function, methodCalls)
+        .collectFirst { case (clause, `genCall`) => clause }
+
+    private def typeClausesWithAnchors(
+      function: ScFunction,
+      methodCalls: List[MethodInvocation]
+    ): Seq[(ScTypeParamClause, PsiElement)] = {
+      def anchorAfterExplicitTermClauses(count: Int): PsiElement =
+        methodCalls.lift(count).map(_.getInvokedExpr).getOrElse(methodCalls.last)
+
+      var explicitTermClauseCount = 0
+
+      function.signatureClauses.flatMap {
+        case ScSignatureClause.TypeClause(clause) =>
+          Option(clause -> anchorAfterExplicitTermClauses(explicitTermClauseCount))
+        case ScSignatureClause.TermClause(clause) =>
+          val explicitArgs = methodCalls.lift(explicitTermClauseCount).map(_.argumentExpressions)
+          val omittedUsingClause = clause.hasUsingKeyword && !explicitArgs.exists(Compatibility.isExplicitUsingArgClause)
+
+          if (!omittedUsingClause) explicitTermClauseCount += 1
+          None
+      }
+    }
+  }
+}
