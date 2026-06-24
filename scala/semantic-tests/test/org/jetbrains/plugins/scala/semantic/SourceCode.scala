@@ -1248,8 +1248,20 @@ object SourceCode {
               printType(rhs)
               this += ")"
             else
-              printType(tp)
-              inSquare(printTypesOrBounds(args, ", "))
+              tp match {
+                case tr: TypeRef if tr.qualifier.typeSymbol.companionModule == Symbol.requiredModule("scala") && tr.name.startsWith("Tuple") =>
+                  inParens(printTypesOrBounds(args, ", "))
+                case tr: TypeRef if tr.qualifier.typeSymbol.companionModule == Symbol.requiredModule("scala") && tr.name.startsWith("Function") =>
+                  if (tr.name.endsWith("Function1"))
+                    printType(args.head)
+                  else
+                    inParens(printTypesOrBounds(args.init, ", "))
+                  this += " => "
+                  printType(args.last)
+                case _ =>
+                  printType(tp)
+                  inSquare(printTypesOrBounds(args, ", "))
+              }
         }
 
       case AnnotatedType(tp, annot) =>
