@@ -50,6 +50,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    */
   override def setUpProject(): Unit = {
     super.setUpProject()
+    inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getTestProjectJdk))
 
     scalaCompileServerTester = new ScalaCompileServerTester(
       reuseCompileServerProcessBetweenTests = reuseCompileServerProcessBetweenTests,

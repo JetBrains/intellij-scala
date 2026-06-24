@@ -5,6 +5,7 @@ import com.intellij.execution.ExecutionTestCase
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
@@ -13,7 +14,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -82,6 +83,11 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
 
   protected def reuseCompileServerProcessBetweenTests: Boolean = true
+
+  override protected def setUpProject(): Unit = {
+    super.setUpProject()
+    inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getTestProjectJdk))
+  }
 
   override protected def setUpModule(): Unit = {
     super.setUpModule()
