@@ -29,6 +29,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <enabled value="false"/>
               <text resource-bundle="messages/CompilerIntegrationBundle" key="scala.compiler.indices.settings.invalidate.button"/>
             </properties>
           </component>
