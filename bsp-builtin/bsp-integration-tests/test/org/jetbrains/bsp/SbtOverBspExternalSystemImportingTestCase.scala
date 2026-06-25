@@ -47,7 +47,7 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
     generateSbtBspConfigurationFileIfNeeded()
   }
 
-  private def injectSbtVersion(): Unit =
+  protected def injectSbtVersion(): Unit =
     sbtVersionToInject.foreach { version =>
       SbtProjectImportTestUtils.injectVariable(
         getTestProjectPath / "project" / "build.properties",
