@@ -45,19 +45,21 @@ object CompilerTestUtil {
       applyEnabledCompileServerSettings(settings, enable)
     }
 
-  def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
+  def withForcedJdkForBuildProcess(optJdk: Option[Sdk]): RevertableChange = new RevertableChange {
     private var jdkBefore: Option[String] = None
 
     override def applyChange(): Unit = {
-      jdk.getHomeDirectory match {
-        case null =>
-          throw new RuntimeException(s"Failed to set up JDK, got: $jdk")
-        case homeDirectory =>
-          val jdkHome = homeDirectory.getCanonicalPath
-          //see com.intellij.compiler.server.BuildManager.COMPILER_PROCESS_JDK_PROPERTY
-          val registry = Registry.get("compiler.process.jdk")
-          jdkBefore = Try(registry.asString).toOption
-          registry.setValue(jdkHome)
+      optJdk.foreach { jdk =>
+        jdk.getHomeDirectory match {
+          case null =>
+            throw new RuntimeException(s"Failed to set up JDK, got: $jdk")
+          case homeDirectory =>
+            val jdkHome = homeDirectory.getCanonicalPath
+            //see com.intellij.compiler.server.BuildManager.COMPILER_PROCESS_JDK_PROPERTY
+            val registry = Registry.get("compiler.process.jdk")
+            jdkBefore = Try(registry.asString).toOption
+            registry.setValue(jdkHome)
+        }
       }
     }
 

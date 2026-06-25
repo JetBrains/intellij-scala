@@ -140,7 +140,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def compileServerJdk: Sdk = getTestProjectJdk
 
-  protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
+  /**
+   * Forces a specific JDK to be used as the runtime JDK of the platform JPS build process.
+   *
+   * @return When `None`, the default build process JDK is chosen by the platform. Otherwise, the provided
+   *         JDK is used for the build process.
+   */
+  protected def buildProcessJdk: Option[Sdk] = None
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 

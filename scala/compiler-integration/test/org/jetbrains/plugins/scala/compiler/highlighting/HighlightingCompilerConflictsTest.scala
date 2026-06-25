@@ -41,7 +41,7 @@ abstract class HighlightingCompilerConflictsBase(
 
   override protected lazy val compileServerJdk: Sdk = createDisposableJdk(compileServerLanguageLevel)
 
-  override protected lazy val buildProcessJdk: Sdk = createDisposableJdk(buildProcessLanguageLevel)
+  override protected lazy val buildProcessJdk: Option[Sdk] = Some(createDisposableJdk(buildProcessLanguageLevel))
 
   override def runInDispatchThread: Boolean = false
 
