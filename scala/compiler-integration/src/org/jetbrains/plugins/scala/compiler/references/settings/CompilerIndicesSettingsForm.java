@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.references.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBCheckBox;
@@ -32,7 +33,16 @@ public class CompilerIndicesSettingsForm {
     public CompilerIndicesSettingsForm(Project project) {
         this.myProject = project;
         enableIndexingCB.addItemListener(changeEvent -> updateAllPanels());
-        deleteButton.setEnabled(package$.MODULE$.upToDateCompilerIndexExists(project, ScalaCompilerIndices.version()));
+
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            // Call upToDateCompilerIndexExists on a background thread to avoid freezing the UI in eel projects.
+            final var enabled = package$.MODULE$.upToDateCompilerIndexExists(project, ScalaCompilerIndices.version());
+            ApplicationManager.getApplication().invokeLater(() -> {
+                // Modify the UI on the UI thread.
+                deleteButton.setEnabled(enabled);
+            });
+        });
+
         deleteButton.addActionListener(e -> {
             final int answer = Messages.showYesNoDialog(project, CompilerIntegrationBundle.message("are.you.sure.you.want.to.delete.the.bytecode.indices"),
                     CompilerIntegrationBundle.message("delete.bytecode.indices"), Messages.getQuestionIcon());
@@ -124,6 +134,7 @@ public class CompilerIndicesSettingsForm {
         this.$$$loadButtonText$$$(enableIndexingCB, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "scala.compiler.indices.settings.enable.cb"));
         panel1.add(enableIndexingCB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         deleteButton = new JButton();
+        deleteButton.setEnabled(false);
         this.$$$loadButtonText$$$(deleteButton, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "scala.compiler.indices.settings.invalidate.button"));
         panel1.add(deleteButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
