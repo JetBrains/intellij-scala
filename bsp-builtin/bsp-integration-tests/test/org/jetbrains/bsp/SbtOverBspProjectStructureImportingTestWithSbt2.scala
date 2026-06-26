@@ -13,6 +13,9 @@ class SbtOverBspProjectStructureImportingTestWithSbt2 extends SbtOverBspProjectS
 
   override def sbtVersionToInject = Some(SbtVersion.Latest.Sbt_2)
 
+  override protected def jdkForBspConnectionFile =
+    Some(getJdkConfiguredForTestCase)
+
   def testSimpleSbt2Latest(): Unit = {
     importProject(false)
 
