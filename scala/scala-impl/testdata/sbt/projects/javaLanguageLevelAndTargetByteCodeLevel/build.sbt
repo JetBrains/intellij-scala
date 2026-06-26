@@ -1,6 +1,8 @@
-name := "java-language-level-and-target-byte-code-level"
-version := "0.1"
-scalaVersion := "2.13.4"
+lazy val `java-language-level-and-target-byte-code-level` = project.in(file("."))
+  .settings(
+    version := "0.1",
+    scalaVersion := "2.13.4"
+  )
 
 // Module naming: `source_target_release`
 // `x` means option is missing

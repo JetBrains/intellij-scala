@@ -123,6 +123,15 @@ trait ProjectStructureMatcher {
     assertEquals("Project SDK", expectedSdk, actualSdk)
   }
 
+  private def assertModuleSdkEqual(module: Module)(expectedSdkRef: SdkReference)
+                                  (implicit compareContext: ProjectStructureComparisonContext): Unit = {
+    val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef, module.getProject).getOrElse {
+      fail(s"Sdk $expectedSdkRef not found").asInstanceOf[Nothing]
+    }
+    val actualSdk = roots.ModuleRootManager.getInstance(module).getSdk
+    assertEquals(s"Module SDK (${module.getName})", expectedSdk, actualSdk)
+  }
+
   private def assertProjectModulesEqual(project: Project, singleContentRootModules: Boolean)
                                        (expectedModules: Seq[module])(mt: Option[MatchType])
                                        (implicit compareContext: ProjectStructureComparisonContext): Unit = {
@@ -155,6 +164,7 @@ trait ProjectStructureMatcher {
 
     expected.foreach0(javaLanguageLevel)(assertModuleJavaLanguageLevel(actual))
     expected.foreach0(javaTargetBytecodeLevel)(assertModuleJavaTargetBytecodeLevel(actual))
+    expected.foreach0(sdk)(assertModuleSdkEqual(actual))
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
     expected.foreach(kotlincOptions)(assertModuleKotlincOptions(actual))
     expected.foreach0(compileOrder)(assertModuleCompileOrder(actual))
