@@ -70,6 +70,8 @@ class TryCatchInLazyValTest_3_LTS_RC extends TryCatchInLazyValTest_3 {
 
 class TryCatchInLazyValTest_3_Next_RC extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
 }
 
 abstract class TryCatchInLazyValTestBase extends BreakpointsTestBase {
