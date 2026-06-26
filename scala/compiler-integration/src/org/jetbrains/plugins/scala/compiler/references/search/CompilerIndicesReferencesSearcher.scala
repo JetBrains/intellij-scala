@@ -31,9 +31,7 @@ import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.project.settings.CompilerMode
 
-import java.awt.{List => _}
 import java.util.concurrent.locks.ReentrantLock
-import javax.swing._
 import scala.jdk.CollectionConverters._
 
 private class CompilerIndicesReferencesSearcher
@@ -151,6 +149,31 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     ProgressManager.getInstance().run(awaitIndexing)
   }
 
+  /**
+    * Launches Find Usages for `target` through the compiler-indices machinery, bypassing
+    * [[org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory]] (and hence the
+    * scope check in [[checkSearchScopeIsSufficient]]), so it does not recurse. Must be called on the EDT.
+    */
+  private[this] def runFindUsages(project: Project, target: PsiElement): Unit = {
+    val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
+    val config      = ScalaFindUsagesConfiguration.getInstance(project)
+
+    val handler = inReadAction(target match {
+      case SAMType(_) => new ScalaFindUsagesHandler(target, config)
+      case _          => new CompilerIndicesFindUsagesHandler(target, config)
+    })
+
+    invokeWhenSmart(project) {
+      findManager.getFindUsagesManager.findUsages(
+        handler.getPrimaryElements,
+        handler.getSecondaryElements,
+        handler,
+        handler.getFindUsagesOptions(),
+        false
+      )
+    }
+  }
+
   private[this] def runSearchAfterIndexingFinishedAsync(
     targetModules: Iterable[Module],
     project:       Project,
@@ -177,48 +200,34 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
 
       override def onIndexingPhaseFinished(success: Boolean): Unit = {
         lock.withLock(indexingFinishedCondition.signal())
+        pendingConnection.disconnect()
         if (success && modulesInCurrentBuild.isEmpty) {
-          val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-          val config      = ScalaFindUsagesConfiguration.getInstance(project)
-
-          val handler = inReadAction(target match {
-            case SAMType(_) => new ScalaFindUsagesHandler(target, config)
-            case _          => new CompilerIndicesFindUsagesHandler(target, config)
-          })
-
-          pendingConnection.disconnect()
-          invokeWhenSmart(project) {
-            findManager.getFindUsagesManager.findUsages(
-              handler.getPrimaryElements,
-              handler.getSecondaryElements,
-              handler,
-              handler.getFindUsagesOptions(),
-              false
-            )
-          }
-        } else {
-          pendingConnection.disconnect()
+          runFindUsages(project, target)
         }
       }
     })
   }
 
-  override def checkSearchScopeIsSufficient(target: PsiNamedElement, usageType: UsageType): Boolean =
-    assertSearchScopeIsSufficient(target, usageType).forall(_.runAction())
-
-  private def assertSearchScopeIsSufficient(
-    target:    PsiNamedElement,
-    usageType: UsageType
-  ): Option[BeforeIndicesSearchAction] = {
+  /**
+    * Called by the platform on a background thread while holding a read action (since IDEA 2026.2).
+    * Must never block the EDT: any UI (dialogs) is scheduled asynchronously via `invokeLater`, and in
+    * those cases we return `false` so the originating Find Usages action ends without blocking
+    * (`false` ⇒ `NULL_HANDLER` ⇒ the platform silently aborts the search). The real search, if any, is
+    * re-launched from the EDT via [[runFindUsages]] / [[runSearchAfterIndexingFinishedAsync]], bypassing
+    * the factory (and hence this check), so it does not recurse.
+    *
+    * Only the fast path (indices up to date, no UI needed) returns `true` and proceeds synchronously.
+    */
+  override def checkSearchScopeIsSufficient(target: PsiNamedElement, usageType: UsageType): Boolean = {
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
 
     if (!CompilerIndicesSettings(project).isIndexingEnabled) {
-      inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false, usageType).show())
-      Option(CancelSearch)
+      invokeLater(new EnableCompilerIndicesDialog(project, canBeParent = false, usageType).show())
+      false
     } else if (service.isIndexingInProgress) {
-      inEventDispatchThread(showIndexingInProgressDialog(project))
-      Option(CancelSearch)
+      invokeLater(showIndexingInProgressDialog(project))
+      false
     } else {
       val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
       val validIndexExists                = upToDateCompilerIndexExists(project, ScalaCompilerIndices.version)
@@ -229,28 +238,16 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
       }
 
       if (shouldShowDialog && (dirtyModules.nonEmpty || !validIndexExists)) {
-        var action: Option[BeforeIndicesSearchAction] = None
-
-        val dialogAction =
-          () =>
-            action = showRebuildSuggestionDialog(
-              project,
-              dirtyModules,
-              upToDateModules,
-              validIndexExists,
-              target,
-              usageType
-          )
-
-        inEventDispatchThread(dialogAction())
-        action
-      } else None
+        invokeLater {
+          showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target, usageType) match {
+            case Some(action) => action.runAction() // CancelSearch ⇒ no-op; Build*/Rebuild ⇒ build + async re-trigger
+            case None         => runFindUsages(project, target) // user chose to search anyway with the current index
+          }
+        }
+        false
+      } else true
     }
   }
-
-  private[this] def inEventDispatchThread[T](body: => T): Unit =
-    if (SwingUtilities.isEventDispatchThread) body
-    else                                      invokeAndWait(body)
 
   private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
     val project          = element.getProject
