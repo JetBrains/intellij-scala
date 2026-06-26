@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
@@ -268,10 +268,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case e => "<expr>"
     }
 
-    text + textOfImplicitArguments(e.findImplicitArguments)
+    text + textOfImplicitArguments(e.findImplicitArguments, e)
   }
 
-  private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause]): String = args
+  private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
     .map { clause =>
       clause.args.map(arg =>
         val typeArgText = arg.element match {
@@ -279,7 +279,20 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
             owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
           case _ => ""
         }
-        arg.element.asInstanceOf[ScNamedElement].name + typeArgText + textOfImplicitArguments(arg.implicitArguments)).mkString(", ")
+        val prefix = arg.fromType match {
+          case Some(tpe) =>
+            tpe.canonicalText(TypePresentationContext(place))(using Context(place)).stripPrefix("_root_.").stripSuffix(".type") + "." + arg.element.asInstanceOf[ScNamedElement].name
+          case _ =>
+            arg.element match {
+              case e: ScNamedElement => e.nameContext match {
+                case m: ScMember if !m.isLocal && !m.isTopLevel =>
+                  if (e.getContainingFile == place.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + e.name else m.containingClass.name + ".this." + e.name)
+                  else m.qualifiedNameOpt.getOrElse(e.name)
+                case _ => e.name
+              }
+            }
+        }
+        prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place)).mkString(", ")
     }
     .map("(using " + _ + ")").mkString
 

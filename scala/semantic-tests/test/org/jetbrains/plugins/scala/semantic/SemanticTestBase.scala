@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.semantic
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.corpus.ProjectCorpusTestBase
-import org.jetbrains.plugins.scala.corpus.scala3.CatsTest
+import org.jetbrains.plugins.scala.corpus.scala3.{AkkaTest, CatsTest, ScalatestTest, ZioTest}
+import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -14,19 +14,8 @@ import org.junit.{Assert, Test}
 import java.nio.file.{Files, Path}
 import java.util.Comparator
 
-class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
-
-//  @Test def align(): Unit = doTest("cats.Align")
-
-//  @Test def applicative(): Unit = doTest("cats.Applicative")
-
-//  @Test def arrayStack(): Unit = doTest("cats.effect.ArrayStack")
-
-//  @Test def callbackStack(): Unit = doTest("cats.effect.CallbackStack")
-
-  @Test def foo(): Unit = Assert.assertTrue(true)
-
-//  @Test
+abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
+//  @Test // Uncomment to print data to files
   def compare(): Unit = {
     val classes = allClasses(excludePackages = Set.empty)
 
@@ -47,7 +36,8 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
     }
   }
 
-  private def doTest(fqn: String): Unit = {
+  protected def doTest(fqn: String): Unit = {
+    return // Comment to enable the tests cases
     val (decompiledText, sourceText) = textOf(fqn)
     Assert.assertEquals(decompiledText, sourceText)
   }
@@ -106,5 +96,91 @@ class SemanticTest extends ProjectCorpusTestBase(CatsTest) {
     sb.setLength(sb.length - 1)
 
     sb.toString
+  }
+}
+
+object SemanticTestBase {
+  class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
+    @Test def akkaActorActor(): Unit = doTest("akka.actor.Actor")
+
+    @Test def akkaActorActorPath(): Unit = doTest("akka.actor.ActorPath")
+
+    @Test def akkaActorTypedActor(): Unit = doTest("akka.actor.TypedActor")
+
+    @Test def akkaStreamAttributes(): Unit = doTest("akka.stream.Attributes")
+
+    @Test def akkaStreamFanInShape(): Unit = doTest("akka.stream.FanInShape")
+
+    @Test def akkaStreamRestartSettings(): Unit = doTest("akka.stream.RestartSettings")
+
+    @Test def akkaStreamSystemMaterializer(): Unit = doTest("akka.stream.SystemMaterializer")
+  }
+
+  class CatsSemanticTest extends SemanticTestBase(CatsTest) {
+    @Test def align(): Unit = doTest("cats.Align")
+
+    @Test def applicative(): Unit = doTest("cats.Applicative")
+
+    @Test def catsBifoldable(): Unit = doTest("cats.Bifoldable")
+
+    @Test def arrayStack(): Unit = doTest("cats.effect.ArrayStack")
+
+    @Test def callbackStack(): Unit = doTest("cats.effect.CallbackStack")
+
+    @Test def catsEffectIO(): Unit = doTest("cats.effect.IO")
+
+    @Test def catsEffectIOFiber(): Unit = doTest("cats.effect.IOFiber")
+
+    @Test def catsEffectLiftIO(): Unit = doTest("cats.effect.LiftIO")
+
+    @Test def catsEffectSyncIO(): Unit = doTest("cats.effect.SyncIO")
+
+    @Test def catsEffectTrace(): Unit = doTest("cats.effect.Trace")
+
+    @Test def catsKernelEq(): Unit = doTest("cats.kernel.Eq")
+
+    @Test def catsKernelMonoid(): Unit = doTest("cats.kernel.Monoid")
+
+    @Test def catsKernelSemigroup(): Unit = doTest("cats.kernel.Semigroup")
+  }
+
+  class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
+    @Test def orgScalatestAsyncSuperEngine(): Unit = doTest("org.scalatest.AsyncSuperEngine")
+
+    @Test def orgScalatestAsyncTestSuite(): Unit = doTest("org.scalatest.AsyncTestSuite")
+
+    @Test def orgScalatestDoc(): Unit = doTest("org.scalatest.Doc")
+
+    @Test def orgScalatestSuperEngine(): Unit = doTest("org.scalatest.SuperEngine")
+  }
+
+  class ZioSemanticTest extends SemanticTestBase(ZioTest) {
+    @Test def zioChunk(): Unit = doTest("zio.Chunk")
+
+    @Test def zioClock(): Unit = doTest("zio.Clock")
+
+    @Test def zioConfig(): Unit = doTest("zio.Config")
+
+    @Test def zioConsole(): Unit = doTest("zio.Console")
+
+    @Test def zioFiber(): Unit = doTest("zio.Fiber")
+
+    @Test def zioFiberRef(): Unit = doTest("zio.FiberRef")
+
+    @Test def zioQueue(): Unit = doTest("zio.Queue")
+
+    @Test def zioRuntime(): Unit = doTest("zio.Runtime")
+
+    @Test def zioSemaphore(): Unit = doTest("zio.Semaphore")
+
+    @Test def zioSystem(): Unit = doTest("zio.System")
+
+    @Test def zioZIO(): Unit = doTest("zio.ZIO")
+
+    @Test def zioZIOApp(): Unit = doTest("zio.ZIOApp")
+
+    @Test def zioZLayer(): Unit = doTest("zio.ZLayer")
+
+    @Test def zioZPool(): Unit = doTest("zio.ZPool")
   }
 }
