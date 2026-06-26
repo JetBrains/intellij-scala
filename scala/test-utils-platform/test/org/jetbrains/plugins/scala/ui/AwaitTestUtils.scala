@@ -94,6 +94,18 @@ object AwaitTestUtils {
     }
   }
 
+  @RequiresEdt
+  def waitForConditionDispatchingEdtEventsOrFail(
+    duration: Duration,
+    failMessageBase: String,
+    attempts: Int = DefaultAttempts,
+  )(condition: () => Boolean): Unit = {
+    waitConditionedDispatchingAllEdtEvents(duration, attempts)(condition)
+    if (!condition()) {
+      Assert.fail(failMessageBase + s" (in a $duration time frame)")
+    }
+  }
+
   def waitFutureOrFail[T](
     future: Future[T],
     duration: Duration,

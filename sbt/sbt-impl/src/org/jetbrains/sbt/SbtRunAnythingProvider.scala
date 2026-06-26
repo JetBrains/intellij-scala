@@ -1,11 +1,12 @@
 package org.jetbrains.sbt
 
-import com.intellij.ide.actions.runAnything.RunAnythingUtil._
+import com.intellij.ide.actions.runAnything.RunAnythingUtil.*
 import com.intellij.ide.actions.runAnything.activity.RunAnythingProviderBase
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.sbt.SbtRunAnythingProvider._
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.sbt.SbtRunAnythingProvider.*
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -14,7 +15,7 @@ import org.jetbrains.sbt.shell.communication.SbtShellCommandSubmitter
 
 import java.util
 import javax.swing.Icon
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 //TODO: consider extending com.intellij.ide.actions.runAnything.activity.RunAnythingCommandLineProvider
 // like in Maven and Gradle? Is it applicable to us?
@@ -68,8 +69,10 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
   override def execute(dataContext: DataContext, value: SbtRunItem): Unit = {
     val project = fetchProject(dataContext)
-    val com = SbtShellCommandSubmitter.instance(project)
-    com.runAndCollectOutput(value.command)
+    executeOnPooledThread {
+      val com = SbtShellCommandSubmitter.instance(project)
+      com.runAndCollectOutput(value.command)
+    }
   }
 
   override def getCommand(value: SbtRunItem): String = {
