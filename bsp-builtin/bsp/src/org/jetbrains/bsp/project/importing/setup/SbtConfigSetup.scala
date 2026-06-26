@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project.importing.setup
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -25,8 +26,20 @@ class SbtConfigSetup(runInit: (SbtRunner, ProgressIndicator, BuildReporter) => T
 
 object SbtConfigSetup {
 
-  /** Runs sbt with a dummy command so that the project is initialized and .bsp/sbt.json is created. */
-  def apply(baseDir: Path, jdk: Sdk): SbtConfigSetup = {
+  def apply(baseDir: Path, jdk: Sdk): SbtConfigSetup =
+    createSbtConfigSetup(baseDir, jdk, environment = Map.empty)
+
+  @TestOnly
+  def apply(baseDir: Path, jdk: Sdk, environment: Map[String, String]): SbtConfigSetup =
+    createSbtConfigSetup(baseDir, jdk, environment)
+
+  /** Runs sbt with a dummy command so that the project is initialized and .bsp/sbt.json is created.
+   *
+   * @param baseDir     the project base directory
+   * @param jdk         the JDK to use for running sbt
+   * @param environment additional environment variables to pass to sbt process (e.g., JAVA_HOME for tests)
+   */
+  private def createSbtConfigSetup(baseDir: Path, jdk: Sdk, environment: Map[String, String]): SbtConfigSetup = {
     invokeAndWait {
       ProjectJdkTable.getInstance.preconfigure()
     }
@@ -53,7 +66,7 @@ object SbtConfigSetup {
       baseDir,
       jdkExe,
       vmArgs,
-      Map.empty,
+      environment,
       sbtLauncher,
       SbtExecutionSettings.SbtOptions.empty,
       sbtLauncherArgs,

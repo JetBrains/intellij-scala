@@ -2,8 +2,9 @@ package org.jetbrains.bsp
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.ProjectStructureDsl.{javaLanguageLevel, javaTargetBytecodeLevel, javacOptions, module, modules, project}
+import org.jetbrains.sbt.project.ProjectStructureDsl.{javaLanguageLevel, javaTargetBytecodeLevel, javacOptions, module, modules, project, sdk}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk, SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
@@ -68,8 +69,7 @@ abstract class SbtOverBspProjectStructureImportingTestBase
       javaLanguageLevel := source
       javaTargetBytecodeLevel := null
       javacOptions := Nil
-      // In BSP custom JDKs (with the BSP_ prefix) can be created during import, so it's not straightforward to test SDK equality
-      // sdk := JdkByName(getJdkConfiguredForTestCase.getName)
+      sdk := JdkByName(getJdkConfiguredForTestCase.getName)
     }
 
     val root = moduleX("java-language-level-and-target-byte-code-level", sdkLanguageLevel)
