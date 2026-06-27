@@ -19,6 +19,7 @@ object TckCorpus {
 
   final case class TypeDecl(name: String, expr: String, anchor: Option[String])
   final case class ConformanceQuery(lhs: String, rhs: String, expect: Boolean)
+  final case class BaseTypeQuery(name: String, prefix: String, clazz: String)
 
   final case class Entry(
     id: String,
@@ -33,7 +34,10 @@ object TckCorpus {
     goldenBaseClasses: Map[String, Seq[String]],
     // term probes (`val __t_<name> = <expr>`) and their golden inferred types
     termTypeQueries: Seq[TypeDecl],
-    goldenTermTypes: Map[String, String]
+    goldenTermTypes: Map[String, String],
+    // `prefix baseType clazz` queries and their golden merged base types
+    baseTypeQueries: Seq[BaseTypeQuery],
+    goldenBaseTypes: Map[String, String]
   )
 
   def root(): Path = {
@@ -79,6 +83,11 @@ object TckCorpus {
         TypeDecl(o.get("name").getAsString, o.get("expr").getAsString,
           if (o.has("anchor")) Some(o.get("anchor").getAsString) else None)
       } else Seq.empty
+    val baseTypes =
+      if (tck.has("baseTypes")) tck.getAsJsonArray("baseTypes").asScala.toSeq.map { e =>
+        val o = e.getAsJsonObject
+        BaseTypeQuery(o.get("name").getAsString, o.get("prefix").getAsString, o.get("clazz").getAsString)
+      } else Seq.empty
 
     val goldenObj = if (Files.exists(dir.resolve("expected.json"))) Some(parseObject(dir.resolve("expected.json"))) else None
     def goldenMap(field: String): Map[String, Seq[String]] =
@@ -93,7 +102,8 @@ object TckCorpus {
       }.getOrElse(Map.empty)
 
     Entry(id, descriptionOf(tck), source, types, conformance, btsQueries,
-      goldenMap("baseTypeSeq"), goldenMap("baseClasses"), termTypes, goldenStringMap("termTypes"))
+      goldenMap("baseTypeSeq"), goldenMap("baseClasses"), termTypes, goldenStringMap("termTypes"),
+      baseTypes, goldenStringMap("baseTypes"))
   }
 
   private def descriptionOf(tck: JsonObject): String =
