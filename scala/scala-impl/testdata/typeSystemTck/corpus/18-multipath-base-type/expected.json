@@ -1,0 +1,49 @@
+{
+  "conformance": [
+    {
+      "lhs": "LR",
+      "rhs": "BoxAnimal",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "LR": [
+      "LR",
+      "L",
+      "R",
+      "Box[Cat with Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "LRS": [
+      "LRS",
+      "LS",
+      "RS",
+      "Sink[Cat] with Sink[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "LR": [
+      "LR",
+      "R",
+      "L",
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "LRS": [
+      "LRS",
+      "RS",
+      "LS",
+      "Sink",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseTypes": {
+    "LRatBox": "Box[Cat with Dog]",
+    "LRSatSink": "Sink[Animal]"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Higher-kinded types: F[_] parameters, HK bounds, type-constructor substitution into a base.",
+  "concepts": ["higher-kinded", "type-constructor", "hk-bound"],
+  "types": [
+    { "name": "FunctorM", "expr": "Functor[M]" },
+    { "name": "MonadM", "expr": "Monad[M]" },
+    { "name": "BoundedHolder", "expr": "Bounded[Holder]" }
+  ],
+  "conformance": [
+    { "lhs": "MonadM", "rhs": "FunctorM", "expect": true },
+    { "lhs": "FunctorM", "rhs": "MonadM", "expect": false },
+    { "lhs": "MonadM", "rhs": "MonadM", "expect": true }
+  ],
+  "baseTypeSeq": ["MonadM", "FunctorM", "BoundedHolder"]
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Member type / asSeenFrom through a self type (SCL-21947): Impl.this.Tree vs Api#Tree.",
+  "concepts": ["member-type", "asSeenFrom", "self-type", "this-type-substitution"],
+  "types": [
+    { "name": "ImplThis", "expr": "this.type", "anchor": "inImpl" },
+    { "name": "Api", "expr": "Api" }
+  ],
+  "conformance": [
+    { "lhs": "ImplThis", "rhs": "Api", "expect": true }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "root", "expr": "root", "anchor": "inImpl" },
+    { "name": "rootViaThis", "expr": "this.root", "anchor": "inImpl" }
+  ]
+}

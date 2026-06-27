@@ -1,0 +1,15 @@
+{
+  "conformance": [
+    {
+      "lhs": "CompThis",
+      "rhs": "Outer",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "root": "Comp.this.Tree",
+    "inner": "Comp.this.Inner",
+    "innerGet": "Comp.this.Tree"
+  }
+}

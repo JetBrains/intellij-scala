@@ -1,0 +1,14 @@
+{
+  "conformance": [
+    {
+      "lhs": "ImplThis",
+      "rhs": "Api",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "root": "Impl.this.Tree",
+    "rootViaThis": "Impl.this.Tree"
+  }
+}
