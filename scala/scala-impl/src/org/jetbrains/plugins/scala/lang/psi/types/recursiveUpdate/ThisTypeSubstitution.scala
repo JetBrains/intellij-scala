@@ -37,7 +37,10 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
     if (clazz == null || clazz == thisTp.element || clazz.containingClass == null)
       doUpdateThisType(thisTp, target)
     else {
-      BaseTypes.iterator(target).find(_.extractClass.contains(clazz)).flatMap(containingClassType) match {
+      // Use the merged `baseType` (scalac's `pre baseType clazz`) rather than the
+      // first iterator hit, so multiple/merged same-class contributions resolve to
+      // one deterministic base type and we take its prefix — cf. AsSeenFromMap.thisTypeAsSeen.
+      BaseTypes.baseType(target, clazz).flatMap(containingClassType) match {
         case Some(targetContext) => doUpdateThisTypeFromClass(thisTp, targetContext, clazz.containingClass)
         case _                   => thisTp
       }
