@@ -34,6 +34,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
   private val strictBts: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBts")
   private val strictBc: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBc")
   private val strictTt: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictTt")
+  private val strictBf: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBf")
 
   def testCorpus(): Unit = {
     val entries = TckCorpus.load()
@@ -44,6 +45,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     val btsFailures = new ArrayBuffer[String]()
     val bcFailures = new ArrayBuffer[String]()
     val ttFailures = new ArrayBuffer[String]()
+    val bfFailures = new ArrayBuffer[String]()
 
     entries.foreach { entry =>
       report += s"\n## ${entry.id} — ${entry.description}"
@@ -123,12 +125,30 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
           }
         }
       }
+
+      // --- baseType(prefix, clazz) — the merge primitive (glb), directly ---
+      entry.baseTypeQueries.foreach { q =>
+        val golden = entry.goldenBaseTypes.getOrElse(q.name, "")
+        if (golden.nonEmpty) {
+          val pre = resolved(q.prefix)
+          val actual = resolved(q.clazz).extractClass
+            .flatMap(c => BaseTypes.baseType(pre, c)).map(render).getOrElse("<none>")
+          if (withKey(actual) == withKey(golden)) {
+            report += s"  ok   baseType(${q.name}) = $actual"
+          } else {
+            report += s"  DIFF baseType(${q.name}):"
+            report += s"         golden: $golden"
+            report += s"         actual: $actual"
+            bfFailures += s"[${entry.id}] baseType(${q.name}): golden=$golden actual=$actual"
+          }
+        }
+      }
     }
 
     println(report.mkString("\n"))
     println(s"\n=== TCK: ${conformanceFailures.size} conformance failure(s), " +
       s"${btsFailures.size} baseTypeSeq diff(s), ${bcFailures.size} baseClasses diff(s), " +
-      s"${ttFailures.size} termType diff(s) ===")
+      s"${ttFailures.size} termType diff(s), ${bfFailures.size} baseType diff(s) ===")
 
     if (conformanceFailures.nonEmpty)
       Assert.fail("Conformance divergences from scalac:\n" + conformanceFailures.mkString("\n"))
@@ -138,6 +158,9 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       Assert.fail("baseClasses (linearization) divergences from scalac:\n" + bcFailures.mkString("\n"))
     if (strictTt && ttFailures.nonEmpty)
       Assert.fail("termType divergences from scalac:\n" + ttFailures.mkString("\n"))
+    // baseType is the direct merge primitive — make it a HARD assertion.
+    if (bfFailures.nonEmpty)
+      Assert.fail("baseType (merge) divergences from scalac:\n" + bfFailures.mkString("\n"))
   }
 
   /** IntelliJ's linearization (`MixinNodes.linearization`) as ordered class names. */
@@ -201,4 +224,11 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
 
   /** Whitespace-insensitive key so formatting differences don't mask membership. */
   private def normalizeKey(s: String): String = normalize(s).replaceAll("\\s+", "")
+
+  /** Order-insensitive atom key for baseType comparison: drops bracket/`with`
+   *  structure and sorts the identifier atoms, so commutative-intersection order
+   *  (`Box[Cat with Dog]` vs `Box[Dog with Cat]`) doesn't mask a missing merge
+   *  component (which still changes the atom set). */
+  private def withKey(s: String): String =
+    normalize(s).replaceAll("[\\[\\],{}]", " ").split("(?i)\\bwith\\b|\\s+").filter(_.nonEmpty).sorted.mkString(" ")
 }
