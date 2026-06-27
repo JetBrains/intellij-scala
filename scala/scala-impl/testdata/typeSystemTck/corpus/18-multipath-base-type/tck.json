@@ -1,0 +1,19 @@
+{
+  "description": "baseType merge across multiple inheritance paths (covariant glb, contravariant lub).",
+  "concepts": ["base-type-merge", "multi-path", "glb", "lub", "diamond"],
+  "types": [
+    { "name": "LR", "expr": "LR" },
+    { "name": "LRS", "expr": "LRS" },
+    { "name": "BoxDog", "expr": "Box[Dog]" },
+    { "name": "SinkDog", "expr": "Sink[Dog]" },
+    { "name": "BoxAnimal", "expr": "Box[Animal]" }
+  ],
+  "conformance": [
+    { "lhs": "LR", "rhs": "BoxAnimal", "expect": true }
+  ],
+  "baseTypeSeq": ["LR", "LRS"],
+  "baseTypes": [
+    { "name": "LRatBox", "prefix": "LR", "clazz": "BoxDog" },
+    { "name": "LRSatSink", "prefix": "LRS", "clazz": "SinkDog" }
+  ]
+}

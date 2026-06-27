@@ -1,0 +1,25 @@
+{
+  "description": "Same-symbol base-type argument merge by variance (covariant glb, contravariant lub).",
+  "concepts": ["base-type-merge", "glb", "lub", "variance"],
+  "types": [
+    { "name": "BoxMerge", "expr": "Box[Animal] with Box[Dog]" },
+    { "name": "SinkMerge", "expr": "Sink[Animal] with Sink[Dog]" },
+    { "name": "BoxDog", "expr": "Box[Dog]" },
+    { "name": "BoxAnimal", "expr": "Box[Animal]" },
+    { "name": "SinkDog", "expr": "Sink[Dog]" },
+    { "name": "SinkAnimal", "expr": "Sink[Animal]" }
+  ],
+  "conformance": [
+    { "lhs": "BoxMerge", "rhs": "BoxDog", "expect": true },
+    { "lhs": "BoxMerge", "rhs": "BoxAnimal", "expect": true },
+    { "lhs": "BoxDog", "rhs": "BoxMerge", "expect": true },
+    { "lhs": "SinkMerge", "rhs": "SinkDog", "expect": true },
+    { "lhs": "SinkMerge", "rhs": "SinkAnimal", "expect": true },
+    { "lhs": "SinkDog", "rhs": "SinkMerge", "expect": false }
+  ],
+  "baseTypeSeq": ["BoxMerge", "SinkMerge"],
+  "baseTypes": [
+    { "name": "BoxMergeAtBox", "prefix": "BoxMerge", "clazz": "BoxDog" },
+    { "name": "SinkMergeAtSink", "prefix": "SinkMerge", "clazz": "SinkDog" }
+  ]
+}

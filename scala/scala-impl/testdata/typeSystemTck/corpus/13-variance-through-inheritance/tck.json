@@ -1,0 +1,18 @@
+{
+  "description": "Variance through inheritance: type argument substituted into a base; covariant param propagated to a parent.",
+  "concepts": ["variance", "asSeenFrom", "inheritance"],
+  "types": [
+    { "name": "DogProducer", "expr": "DogProducer" },
+    { "name": "MyCollDog", "expr": "MyColl[Dog]" },
+    { "name": "ProducerDog", "expr": "Producer[Dog]" },
+    { "name": "ProducerAnimal", "expr": "Producer[Animal]" }
+  ],
+  "conformance": [
+    { "lhs": "DogProducer", "rhs": "ProducerDog", "expect": true },
+    { "lhs": "DogProducer", "rhs": "ProducerAnimal", "expect": true },
+    { "lhs": "MyCollDog", "rhs": "ProducerDog", "expect": true },
+    { "lhs": "MyCollDog", "rhs": "ProducerAnimal", "expect": true },
+    { "lhs": "ProducerAnimal", "rhs": "MyCollDog", "expect": false }
+  ],
+  "baseTypeSeq": ["DogProducer", "MyCollDog"]
+}

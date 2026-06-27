@@ -1,0 +1,58 @@
+{
+  "conformance": [
+    {
+      "lhs": "BoxDog",
+      "rhs": "BoxWild",
+      "holds": true
+    },
+    {
+      "lhs": "BoxWild",
+      "rhs": "BoxDog",
+      "holds": false
+    },
+    {
+      "lhs": "BoxDog",
+      "rhs": "BoxAnimalWild",
+      "holds": true
+    },
+    {
+      "lhs": "BoxAnimalWild",
+      "rhs": "BoxWild",
+      "holds": true
+    },
+    {
+      "lhs": "BoxForSome",
+      "rhs": "BoxAnimalWild",
+      "holds": true
+    },
+    {
+      "lhs": "BoxAnimalWild",
+      "rhs": "BoxForSome",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "BoxWild": [
+      "__tck.Corpus.Box[_]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxAnimalWild": [
+      "__tck.Corpus.Box[_ <: __tck.Corpus.Animal]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "BoxWild": [
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxAnimalWild": [
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

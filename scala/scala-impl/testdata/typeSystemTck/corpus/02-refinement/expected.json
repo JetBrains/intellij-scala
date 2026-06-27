@@ -1,0 +1,50 @@
+{
+  "conformance": [
+    {
+      "lhs": "ContainerOfDog",
+      "rhs": "Container",
+      "holds": true
+    },
+    {
+      "lhs": "ContainerOfDog",
+      "rhs": "ContainerBounded",
+      "holds": true
+    },
+    {
+      "lhs": "Container",
+      "rhs": "ContainerOfDog",
+      "holds": false
+    },
+    {
+      "lhs": "ContainerBounded",
+      "rhs": "ContainerOfDog",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "ContainerOfDog": [
+      "Container { type Elem = Dog }",
+      "Container",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Container": [
+      "Container",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "ContainerOfDog": [
+      "<refinement>",
+      "Container",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Container": [
+      "Container",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

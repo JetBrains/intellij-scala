@@ -1,16 +1,21 @@
 package org.jetbrains.plugins.scala.lang.typeSystemTck
 
 import com.google.gson.{JsonObject, JsonParser}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.CollectionConverters._
 
 /**
- * Loader for the scala-type-system-tck corpus (see ~/code/scala-type-system-tck).
+ * Loader for the scala-type-system-tck corpus.
  *
- * For now the corpus is referenced directly from a sibling checkout; later it may
- * be consumed as a build dependency and unpacked. Override the location with the
- * `SCALA_TCK_CORPUS` env var or `-Dscala.tck.corpus=...` system property.
+ * The corpus (`source.scala` + `tck.json` + scalac-generated `expected.json`
+ * goldens) is vendored under `testdata/typeSystemTck/corpus`, copied from the
+ * upstream project where it is authored and the goldens are regenerated:
+ *   https://github.com/retronym/scala-type-system-tck
+ * Refresh it by re-copying `corpus/` from a checkout of that repo (after running
+ * its `generate`). Override the location with the `SCALA_TCK_CORPUS` env var or
+ * `-Dscala.tck.corpus=...` system property.
  *
  * The data model mirrors the TCK's `tck.json` / `expected.json`. We parse with
  * Gson (bundled with the platform) rather than introduce a Scala JSON dep.
@@ -45,7 +50,7 @@ object TckCorpus {
       Option(System.getProperty("scala.tck.corpus"))
         .orElse(Option(System.getenv("SCALA_TCK_CORPUS")))
     val base = configured.map(Paths.get(_)).getOrElse {
-      Paths.get(System.getProperty("user.home"), "code", "scala-type-system-tck", "corpus")
+      Paths.get(TestUtils.getTestDataPath, "typeSystemTck", "corpus")
     }
     require(Files.isDirectory(base), s"TCK corpus not found at $base (set -Dscala.tck.corpus=...)")
     base
