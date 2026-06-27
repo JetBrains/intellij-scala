@@ -1,0 +1,20 @@
+{
+  "description": "Singleton types of terms, literal types, and path-dependent selection through a term path.",
+  "concepts": ["singleton-type", "literal-type", "path-dependent"],
+  "types": [
+    { "name": "Dog", "expr": "Dog" },
+    { "name": "DogSingleton", "expr": "Registry.dog.type" },
+    { "name": "BoxedT", "expr": "Registry.boxOfDog.T" },
+    { "name": "Lit", "expr": "42" },
+    { "name": "IntT", "expr": "Int" }
+  ],
+  "conformance": [
+    { "lhs": "DogSingleton", "rhs": "Dog", "expect": true },
+    { "lhs": "Dog", "rhs": "DogSingleton", "expect": false },
+    { "lhs": "BoxedT", "rhs": "Dog", "expect": true },
+    { "lhs": "Dog", "rhs": "BoxedT", "expect": true },
+    { "lhs": "Lit", "rhs": "IntT", "expect": true },
+    { "lhs": "IntT", "rhs": "Lit", "expect": false }
+  ],
+  "baseTypeSeq": ["DogSingleton", "BoxedT", "Lit"]
+}

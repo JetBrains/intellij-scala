@@ -1,0 +1,68 @@
+{
+  "conformance": [
+    {
+      "lhs": "BoxDog",
+      "rhs": "BoxAnimal",
+      "holds": true
+    },
+    {
+      "lhs": "BoxAnimal",
+      "rhs": "BoxDog",
+      "holds": false
+    },
+    {
+      "lhs": "InvDog",
+      "rhs": "InvAnimal",
+      "holds": false
+    },
+    {
+      "lhs": "InvDog",
+      "rhs": "InvDog",
+      "holds": true
+    },
+    {
+      "lhs": "SinkAnimal",
+      "rhs": "SinkDog",
+      "holds": true
+    },
+    {
+      "lhs": "SinkDog",
+      "rhs": "SinkAnimal",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "BoxDog": [
+      "Box[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "InvDog": [
+      "Inv[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "SinkDog": [
+      "Sink[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "BoxDog": [
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "InvDog": [
+      "Inv",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "SinkDog": [
+      "Sink",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

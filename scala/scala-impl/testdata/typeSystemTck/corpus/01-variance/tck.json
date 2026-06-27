@@ -1,0 +1,21 @@
+{
+  "description": "Variance of type constructors: covariant, invariant, contravariant.",
+  "concepts": ["variance", "type-application"],
+  "types": [
+    { "name": "BoxDog", "expr": "Box[Dog]" },
+    { "name": "BoxAnimal", "expr": "Box[Animal]" },
+    { "name": "InvDog", "expr": "Inv[Dog]" },
+    { "name": "InvAnimal", "expr": "Inv[Animal]" },
+    { "name": "SinkDog", "expr": "Sink[Dog]" },
+    { "name": "SinkAnimal", "expr": "Sink[Animal]" }
+  ],
+  "conformance": [
+    { "lhs": "BoxDog", "rhs": "BoxAnimal", "expect": true },
+    { "lhs": "BoxAnimal", "rhs": "BoxDog", "expect": false },
+    { "lhs": "InvDog", "rhs": "InvAnimal", "expect": false },
+    { "lhs": "InvDog", "rhs": "InvDog", "expect": true },
+    { "lhs": "SinkAnimal", "rhs": "SinkDog", "expect": true },
+    { "lhs": "SinkDog", "rhs": "SinkAnimal", "expect": false }
+  ],
+  "baseTypeSeq": ["BoxDog", "InvDog", "SinkDog"]
+}

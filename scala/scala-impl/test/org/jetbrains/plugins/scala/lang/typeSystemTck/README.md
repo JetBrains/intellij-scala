@@ -1,9 +1,12 @@
 # IntelliJ PSI engine for scala-type-system-tck
 
-This package runs the [scala-type-system-tck](../../../../../../../../../../../../../../..)
-corpus (currently referenced directly from `~/code/scala-type-system-tck`) against
-the IntelliJ Scala plugin's PSI type system, comparing conformance and base type
-sequences against the scalac-generated goldens.
+This package runs the [scala-type-system-tck](https://github.com/retronym/scala-type-system-tck)
+corpus against the IntelliJ Scala plugin's PSI type system, comparing conformance
+and base type sequences against the scalac-generated goldens.
+
+The corpus is vendored under `testdata/typeSystemTck/corpus` (copied from the
+upstream repo, where it is authored and the goldens are regenerated). Override the
+location with `-Dscala.tck.corpus=...` or the `SCALA_TCK_CORPUS` env var.
 
 It is the "system under test" counterpart to that repo's `ScalacEngine` (the
 oracle). See the corpus repo's `SPEC.md` for the type-system spec and `§4` for the
@@ -112,7 +115,7 @@ sbt
 Useful flags (JVM system properties), e.g. via `-D` in the sbt invocation:
 
 - `-Dscala.tck.corpus=/path/to/corpus` — override the corpus location
-  (default `~/code/scala-type-system-tck/corpus`).
+  (default: vendored `testdata/typeSystemTck/corpus`).
 - `-Dscala.tck.strictBts=true` — also fail the test on baseTypeSeq membership
   diffs (default: report only; conformance always hard).
 
@@ -128,4 +131,5 @@ sbt "scala-impl/Test/compile"
 - TODO: order-preserving base-type comparison once an ordered API exists.
 - TODO: tighten the renderer (currently a normalization of `canonicalText`) to
   fully match SPEC §4 for refinements / existentials.
-- TODO: consume the corpus as a build dependency instead of a sibling checkout.
+- Corpus is vendored from https://github.com/retronym/scala-type-system-tck;
+  refresh by re-copying `corpus/` after regenerating its goldens.

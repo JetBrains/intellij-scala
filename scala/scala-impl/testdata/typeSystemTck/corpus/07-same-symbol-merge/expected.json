@@ -1,0 +1,66 @@
+{
+  "conformance": [
+    {
+      "lhs": "BoxMerge",
+      "rhs": "BoxDog",
+      "holds": true
+    },
+    {
+      "lhs": "BoxMerge",
+      "rhs": "BoxAnimal",
+      "holds": true
+    },
+    {
+      "lhs": "BoxDog",
+      "rhs": "BoxMerge",
+      "holds": true
+    },
+    {
+      "lhs": "SinkMerge",
+      "rhs": "SinkDog",
+      "holds": true
+    },
+    {
+      "lhs": "SinkMerge",
+      "rhs": "SinkAnimal",
+      "holds": true
+    },
+    {
+      "lhs": "SinkDog",
+      "rhs": "SinkMerge",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "BoxMerge": [
+      "Box[Animal] with Box[Dog]",
+      "Box[Dog] with Box[Animal]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "SinkMerge": [
+      "Sink[Animal] with Sink[Dog]",
+      "Sink[Dog] with Sink[Animal]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "BoxMerge": [
+      "<refinement>",
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "SinkMerge": [
+      "<refinement>",
+      "Sink",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseTypes": {
+    "BoxMergeAtBox": "Box[Dog]",
+    "SinkMergeAtSink": "Sink[Animal]"
+  }
+}

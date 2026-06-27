@@ -1,0 +1,17 @@
+{
+  "description": "asSeenFrom of a nested member's outer this, through a self type (hits BaseTypes walk).",
+  "concepts": ["member-type", "nested-member", "self-type", "this-type-substitution", "baseTypes"],
+  "types": [
+    { "name": "CompThis", "expr": "this.type", "anchor": "inComp" },
+    { "name": "Outer", "expr": "Outer" }
+  ],
+  "conformance": [
+    { "lhs": "CompThis", "rhs": "Outer", "expect": true }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "root", "expr": "root", "anchor": "inComp" },
+    { "name": "inner", "expr": "inner", "anchor": "inComp" },
+    { "name": "innerGet", "expr": "inner.get", "anchor": "inComp" }
+  ]
+}
