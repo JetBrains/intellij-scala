@@ -514,11 +514,24 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
   }
 
-  override def superSignatures: Seq[TermSignature] =
-    TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
-      case Some(x) => x.supers.map { _.info }
-      case None    => Seq.empty
+  override def superSignatures: Seq[TermSignature] = {
+    val forName = TypeDefinitionMembers.getSignatures(containingClass).forName(name)
+    forName.findNode(this) match {
+      case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+      case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+      case None =>
+        // `this` may not be the slot's primary node — e.g. an abstract member
+        // re-abstracting a concrete inherited one keeps the concrete member as the
+        // node's info. Look the slot up by signature and return its supers (+ info),
+        // mirroring `superSignaturesIncludingSelfType`. Otherwise the override is
+        // wrongly reported as "overrides nothing".
+        forName.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
+          case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+          case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+          case None                                   => Seq.empty
+        }
     }
+  }
 
   override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass

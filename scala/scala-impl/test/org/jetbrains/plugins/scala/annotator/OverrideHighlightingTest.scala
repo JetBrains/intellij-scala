@@ -32,6 +32,46 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // SCL-21947, second shape (scala/scala internal.Types LazyType.complete): the
+  // overridden member's path-dependent param `Symbol` comes from a SIBLING trait
+  // reached via the self type. `complete` is concrete in `Type` and abstract-
+  // overridden in `LazyType extends Type`; both params are `SymbolTable.this.Symbol`.
+  // scalac accepts it; IntelliJ reported "complete overrides nothing".
+  def testSCL21947Complete(): Unit = {
+    val code =
+      """
+        |package internal {
+        |  trait Symbols { self: SymbolTable => type Symbol }
+        |  trait Types { self: SymbolTable =>
+        |    abstract class Type {
+        |      def complete(sym: Symbol): Unit = ()
+        |    }
+        |    abstract class LazyType extends Type {
+        |      override def complete(sym: Symbol): Unit
+        |    }
+        |  }
+        |  abstract class SymbolTable extends Symbols with Types
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // An abstract member re-abstracting a CONCRETE inherited member in a nested
+  // class. scalac accepts it; IntelliJ reported "f overrides nothing" because the
+  // member table keeps the concrete super as the slot's primary node, and plain
+  // superSignatures (unlike superSignaturesIncludingSelfType) lacked the by-signature
+  // fallback. Not path-dependent — the root of the LazyType.complete report above.
+  def testReabstractNested(): Unit = {
+    val code =
+      """
+        |trait Holder {
+        |  abstract class A { def f(x: Int): Unit = () }
+        |  abstract class B extends A { override def f(x: Int): Unit }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   def testScl13051_2(): Unit = {
     val code =
       s"""
