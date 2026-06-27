@@ -1,0 +1,16 @@
+{
+  "description": "Inner-class prefix substitution: path-dependent inner classes distinguished by stable prefix.",
+  "concepts": ["path-dependent", "prefix-asSeenFrom", "inner-class"],
+  "types": [
+    { "name": "O1Inner", "expr": "O1.Inner" },
+    { "name": "O2Inner", "expr": "O2.Inner" },
+    { "name": "OuterInner", "expr": "Outer#Inner" }
+  ],
+  "conformance": [
+    { "lhs": "O1Inner", "rhs": "O1Inner", "expect": true },
+    { "lhs": "O1Inner", "rhs": "O2Inner", "expect": false },
+    { "lhs": "O1Inner", "rhs": "OuterInner", "expect": true },
+    { "lhs": "OuterInner", "rhs": "O1Inner", "expect": false }
+  ],
+  "baseTypeSeq": ["O1Inner"]
+}
