@@ -22,19 +22,56 @@ import scala.collection.mutable.ArrayBuffer
  * Iterate with (in the sbt shell, after `packageArtifact` once):
  *   testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest
  *
- * Scaffold status:
- *  - Conformance is a HARD assertion against the corpus's human ground truth.
- *  - baseTypeSeq is compared as a SET of rendered types (IntelliJ's
- *    `BaseTypes.get` is unordered — `res.values.toList` off a HashMap — so order
- *    cannot yet be checked; that is the residual SCL issue). Membership diffs are
- *    reported, and fail the test only when `-Dscala.tck.strictBts=true`.
+ * Mode: STRICT by default — every dimension (conformance, baseTypeSeq, baseClasses,
+ * termType, baseType) fails the test on divergence from scalac, EXCEPT the small set
+ * of known representation seams registered in [[Deferred]]. The deferred set is a
+ * two-way pin: a NEW diff outside it fails (regression), and a deferred case that
+ * stops diverging ALSO fails (progression) — forcing it to be un-deferred so we never
+ * silently lose ground. Pass `-Dscala.tck.lenient=true` to downgrade the soft
+ * dimensions to report-only while iterating locally.
+ *
+ * Iterate: `testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest`
  */
 class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  private val strictBts: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBts")
-  private val strictBc: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBc")
-  private val strictTt: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictTt")
-  private val strictBf: Boolean = java.lang.Boolean.getBoolean("scala.tck.strictBf")
+  // Local-iteration escape hatch: report diffs without failing on the soft dimensions
+  // (baseTypeSeq / baseClasses / termType). Conformance and baseType stay hard always.
+  private val lenient: Boolean = java.lang.Boolean.getBoolean("scala.tck.lenient")
+
+  /**
+   * Known, deferred scalac-vs-PSI divergences, keyed `"<entryId>/<queryName>"`.
+   * These are representation/convention seams in `baseTypeSeq` / `baseClasses`, NOT
+   * conformance bugs (every `<:<` row passes; `baseType`, the merge primitive, also
+   * passes). They are pinned so the suite is otherwise strict. If you make one of
+   * these pass, the test will fail with a "progression" message — delete it from here.
+   *
+   * Groups (see PR #5):
+   *  A. Empty `baseTypeSeq` for non-class type forms (existential / singleton /
+   *     literal / primitive): the PSI probe doesn't widen to the underlying before
+   *     reading supers. Conformance over these forms is correct.
+   *  B. Same-symbol merge stored as an INTERSECTION in scalac's seq (`Box[Dog] with
+   *     Box[Animal]`) but as the reduced/merged form in PSI; plus `Dog with Cat` vs
+   *     `Cat with Dog` arg-order convention. `baseType` (the glb) matches.
+   *  C. Refinement dropped from a base in the seq (`B{type T = Repro}` -> `B`).
+   *  D. Self-type contribution missing from `baseClasses` linearization order.
+   */
+  private object Deferred {
+    val baseTypeSeq: Set[String] = Set(
+      "05-refinement-through-projection/Combined", // C: refinement base dropped
+      "07-same-symbol-merge/BoxMerge",             // B: intersection-vs-merge
+      "07-same-symbol-merge/SinkMerge",            // B
+      "10-existentials/BoxWild",                   // A: existential, empty actual
+      "10-existentials/BoxAnimalWild",             // A
+      "12-singleton-literal-path/DogSingleton",    // A: singleton, empty actual
+      "12-singleton-literal-path/Lit",             // A: literal, empty actual
+      "15-top-bottom-valueclass/Int",              // A: primitive, empty actual
+      "18-multipath-base-type/LR",                 // B: arg-order / merge
+      "18-multipath-base-type/LRS",                // B
+    )
+    val baseClasses: Set[String] = Set(
+      "04-self-type-path-dependent/AnimalBoxThis", // D: self-type base order
+    )
+  }
 
   def testCorpus(): Unit = {
     val entries = TckCorpus.load()
@@ -46,6 +83,11 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     val bcFailures = new ArrayBuffer[String]()
     val ttFailures = new ArrayBuffer[String]()
     val bfFailures = new ArrayBuffer[String]()
+    // `<entryId>/<queryName>` keys of the cases that diverged this run, for the
+    // strict + progression check against [[Deferred]].
+    val btsDiffKeys = scala.collection.mutable.Set.empty[String]
+    val bcDiffKeys = scala.collection.mutable.Set.empty[String]
+    val ttDiffKeys = scala.collection.mutable.Set.empty[String]
 
     entries.foreach { entry =>
       report += s"\n## ${entry.id} — ${entry.description}"
@@ -84,6 +126,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
           if (missing.nonEmpty) report += s"         missing: ${missing.toList.sorted.mkString(", ")}"
           if (extra.nonEmpty) report += s"         extra:   ${extra.toList.sorted.mkString(", ")}"
           btsFailures += s"[${entry.id}] baseTypeSeq($name): missing=$missing extra=$extra"
+          btsDiffKeys += s"${entry.id}/$name"
         }
       }
 
@@ -104,6 +147,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
             report += s"         golden: ${golden.mkString(", ")}"
             report += s"         actual: ${actual.mkString(", ")}"
             bcFailures += s"[${entry.id}] baseClasses($name): golden=$golden actual=$actual"
+            bcDiffKeys += s"${entry.id}/$name"
           }
         }
       }
@@ -122,6 +166,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
             report += s"         golden: $golden"
             report += s"         actual: $actual"
             ttFailures += s"[${entry.id}] termType(${d.name}): golden=$golden actual=$actual"
+            ttDiffKeys += s"${entry.id}/${d.name}"
           }
         }
       }
@@ -150,17 +195,41 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       s"${btsFailures.size} baseTypeSeq diff(s), ${bcFailures.size} baseClasses diff(s), " +
       s"${ttFailures.size} termType diff(s), ${bfFailures.size} baseType diff(s) ===")
 
+    // --- conformance & baseType: HARD, no deferrals (the merge primitive and the
+    //     human ground truth must never diverge) ---
     if (conformanceFailures.nonEmpty)
       Assert.fail("Conformance divergences from scalac:\n" + conformanceFailures.mkString("\n"))
-    if (strictBts && btsFailures.nonEmpty)
-      Assert.fail("baseTypeSeq divergences from scalac:\n" + btsFailures.mkString("\n"))
-    if (strictBc && bcFailures.nonEmpty)
-      Assert.fail("baseClasses (linearization) divergences from scalac:\n" + bcFailures.mkString("\n"))
-    if (strictTt && ttFailures.nonEmpty)
-      Assert.fail("termType divergences from scalac:\n" + ttFailures.mkString("\n"))
-    // baseType is the direct merge primitive — make it a HARD assertion.
     if (bfFailures.nonEmpty)
       Assert.fail("baseType (merge) divergences from scalac:\n" + bfFailures.mkString("\n"))
+
+    // --- baseTypeSeq / baseClasses / termType: STRICT by default, two-way against
+    //     the deferred registry. Lenient mode reports only. ---
+    val problems = new ArrayBuffer[String]()
+
+    def strictDimension(dim: String, actualDiffs: Set[String],
+                        deferred: Set[String], details: Iterable[String]): Unit = {
+      val regressions = (actualDiffs -- deferred).toList.sorted   // new, un-pinned diffs
+      val progressions = (deferred -- actualDiffs).toList.sorted  // pinned but now passing
+      if (regressions.nonEmpty)
+        problems += s"$dim: NEW divergence(s) from scalac (regression) — fix, or add to Deferred:\n" +
+          regressions.map("  " + _).mkString("\n") +
+          "\n  details:\n" + details.map("    " + _).mkString("\n")
+      if (progressions.nonEmpty)
+        problems += s"$dim: deferred case(s) no longer diverge (progression!) — remove from Deferred:\n" +
+          progressions.map("  " + _).mkString("\n")
+    }
+
+    if (lenient) {
+      if (btsFailures.nonEmpty) println(s"[lenient] baseTypeSeq diffs:\n${btsFailures.mkString("\n")}")
+      if (bcFailures.nonEmpty) println(s"[lenient] baseClasses diffs:\n${bcFailures.mkString("\n")}")
+      if (ttFailures.nonEmpty) println(s"[lenient] termType diffs:\n${ttFailures.mkString("\n")}")
+    } else {
+      strictDimension("baseTypeSeq", btsDiffKeys.toSet, Deferred.baseTypeSeq, btsFailures)
+      strictDimension("baseClasses", bcDiffKeys.toSet, Deferred.baseClasses, bcFailures)
+      strictDimension("termType", ttDiffKeys.toSet, Set.empty, ttFailures)
+      if (problems.nonEmpty)
+        Assert.fail(problems.mkString("\n\n"))
+    }
   }
 
   /** IntelliJ's linearization (`MixinNodes.linearization`) as ordered class names. */
