@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -197,22 +196,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       case _                  => false
     }
 
-    /**
-     * Singleton type of the stable val-path projection `proj`. Prefer its own
-     * `designatorSingletonType`; if that is not a singleton (the member resolved to
-     * an abstract declaration, e.g. `Analyzer#global: Global`), consult the prefix's
-     * refinement: when the prefix value-type is a compound `… { val m: S }`, use the
-     * refined `S` (substituted through the projection). This recovers the narrower
-     * singleton type contributed by an anonymous-class override such as
-     * `new { val global: Global.this.type = Global.this } with Analyzer`.
-     */
-    /** Singleton type of member `e` projected through `prefix`, if it is one. */
-    private def memberSingletonThrough(prefix: ScType, e: ScTypedDefinition): Option[ScType] =
-      ScProjectionType(prefix, e) match {
-        case p: ScProjectionType => p.designatorSingletonType.filter(isSingletonType)
-        case _                   => None
-      }
-
     /** A compound prefix carries the override directly in its refinement. */
     private def compoundRefinementSingleton(proj: ScProjectionType): Option[ScType] =
       proj.projected match {
@@ -228,26 +211,18 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
     /**
-     * A class/object prefix: re-resolve the member override-aware (scalac's
-     * `pre.memberType(sym)`) and take the member whose type, projected through the
-     * prefix, is itself a singleton — the `this.type` override (anonymous-class /
-     * object early-init, or a plain override) rather than the abstract declaration.
-     * Covers `override object gen { val global = … }`, whose `designatorSingletonType`
-     * is `None`.
+     * Singleton type of the stable val-path projection `proj`. Prefer its own
+     * `designatorSingletonType` (which is itself override-aware, scalac's
+     * `pre.memberType`); if that is not a singleton (the member resolved to an
+     * abstract declaration, e.g. `Analyzer#global: Global`), consult the prefix's
+     * refinement: when the prefix value-type is a compound `… { val m: S }`, use the
+     * refined `S` (substituted through the projection). This recovers the narrower
+     * singleton type contributed by an anonymous-class override such as
+     * `new { val global: Global.this.type = Global.this } with Analyzer`.
      */
-    private def memberOverrideSingleton(proj: ScProjectionType): Option[ScType] =
-      proj.projected.extractClass.flatMap { cls =>
-        TypeDefinitionMembers.getSignatures(cls).forName(proj.element.name).iterator
-          .map(_.namedElement)
-          .collect { case td: ScTypedDefinition if td.isStable => td }
-          .flatMap(e => memberSingletonThrough(proj.projected, e).iterator)
-          .nextOption()
-      }
-
     private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
       proj.designatorSingletonType.filter(isSingletonType)
         .orElse(compoundRefinementSingleton(proj))
-        .orElse(memberOverrideSingleton(proj))
 
     /**
      * Collapse a stable singleton val-path projection to its underlying singleton
@@ -272,20 +247,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           case _                                    => tp
         }
       case _ => tp
-    }
-
-    /** Prefix conformance for two same-named projections; if a direct comparison
-     *  fails, retry after collapsing singleton val-paths on both prefixes. Additive:
-     *  never turns a passing comparison into a failure. */
-    private def conformsProjectedPrefix(projected1: ScType, projected2: ScType): ConstraintsResult = {
-      val direct = conformsInner(projected1, projected2, visited, constraints)
-      if (direct.isRight) direct
-      else {
-        val c1 = collapseSingletonPath(projected1, 8)
-        val c2 = collapseSingletonPath(projected2, 8)
-        if ((c1 ne projected1) || (c2 ne projected2)) conformsInner(c1, c2, visited, constraints)
-        else direct
-      }
     }
 
     private def addBounds(typeParameter: TypeParameter, `type`: ScType): Unit =
@@ -647,7 +608,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           case _ =>
             l match {
               case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
-                result = conformsProjectedPrefix(proj1.projected, proj2.projected)
+                result = conformsInner(proj1.projected, proj2.projected, visited, constraints)
               case _ =>
                 val res = proj2.actualElement match {
                   case syntheticClass: ScSyntheticClass =>
@@ -895,8 +856,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       // (e.g. `gen.global` -> `global`, via an anonymous-class refinement override),
       // try with the collapsed prefix(es) first. The collapsed path is an equivalent
       // type, so a success here is sound; on failure we fall through to the normal
-      // logic unchanged. Unlike `conformsProjectedPrefix` (same-member prefix only)
-      // this also covers conformance that crosses inheritance, e.g.
+      // logic unchanged. Collapsing both prefixes here (rather than only same-element
+      // prefixes) covers conformance that crosses inheritance, e.g.
       // `gen.global.Block <:< global.Tree` (`Block extends Tree`).
       val cL = collapseSingletonPath(proj.projected, 8)
       val lCollapsed = if (cL ne proj.projected) ScProjectionType(cL, proj.element) else proj
@@ -948,10 +909,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r match {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
-          result = conformsProjectedPrefix(proj.projected, proj1.projected)
+          result = conformsInner(proj.projected, proj1.projected, visited, constraints)
           if (result != null) return
         case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
-          val t = conformsProjectedPrefix(proj.projected, proj1.projected)
+          val t = conformsInner(proj.projected, proj1.projected, visited, constraints)
           if (t.isRight) {
             result = t
             return
