@@ -48,8 +48,22 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
   private def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
     tp.subtypeExists {
-      case tpe: ScThisType => isSameOrInheritor(clazz, tpe)
-      case _               => false
+      // Genuine recursion: the target already mentions `clazz`'s own this-type.
+      // Substituting would nest the target inside itself, so always guard this.
+      case ScThisType(`clazz`)                   => true
+      // Object this-types are terminal: an `object`'s linearization is fixed and its
+      // `this` re-anchors to a concrete path exactly once (e.g. `gen.this` ->
+      // `pre.gen`), leaving only the prefix's (super-)trait this-types, which are
+      // handled by their own substitution. So the inheritor-direction suppression
+      // below (added for SCL-18532, a runaway-recursion *perf* fix on the nsc cake
+      // `Typers.scala`) is unnecessary for objects and wrongly blocks re-anchoring
+      // an object member reached through a path (SCL-21947 shape 7).
+      // TODO revisit: the broader trait self-type tension (SCL-18532 <-> SCL-3654)
+      //   is still resolved coarsely by `isSameOrInheritor` below; a principled fix
+      //   would make this direction-aware rather than object-scoped.
+      case _: ScThisType if clazz.is[ScObject]   => false
+      case tpe: ScThisType                       => isSameOrInheritor(clazz, tpe)
+      case _                                     => false
     }
 
   private def containingClassType(tp: ScType): Option[ScType] = tp match {
