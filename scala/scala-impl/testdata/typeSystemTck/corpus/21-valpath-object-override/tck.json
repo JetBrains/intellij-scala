@@ -1,0 +1,13 @@
+{
+  "description": "Singleton val-path collapse where the prefix is an override object (SCL-21947): gen.global.Block conforms to Tree, gen being `override object gen { val global: Global.this.type }`.",
+  "concepts": ["singleton-type", "path-dependent", "object-override", "inheritance", "conformance"],
+  "types": [
+    { "name": "Tree",         "expr": "Tree",             "anchor": "inTypers" },
+    { "name": "ChainedBlock", "expr": "gen.global.Block", "anchor": "inTypers" }
+  ],
+  "conformance": [
+    { "lhs": "ChainedBlock", "rhs": "Tree", "expect": true },
+    { "lhs": "Tree", "rhs": "ChainedBlock", "expect": false }
+  ],
+  "baseTypeSeq": []
+}
