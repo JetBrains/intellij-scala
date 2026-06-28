@@ -72,6 +72,127 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // SCL-21947, third shape (scala/scala Infer.inferTypedPattern). The receiver
+  // `typer` is the global `object typer extends analyzer.Typer`, reached via the
+  // abstract `val global: Global`. Calling `typer.applyTypeToWildcards(pattp)`,
+  // IntelliJ computes the param type as seen through that singleton receiver as
+  // `global.analyzer.global.analyzer.global.Type` (never collapsing the
+  // `analyzer.global: Global.this.type` singleton path back to `global`, and
+  // re-applying the rewrite twice), then reports a false type mismatch against the
+  // argument `global.Type`. scalac accepts it.
+  def testSCL21947Inferencer(): Unit = {
+    val code =
+      """
+        |trait Typers { self: Analyzer =>
+        |  import global._
+        |  abstract class Typer {
+        |    def applyTypeToWildcards(tp: Type): Type = tp
+        |  }
+        |}
+        |trait Infer { self: Analyzer =>
+        |  import global._
+        |  class Inferencer {
+        |    def inferTypedPattern(pattp: Type): Type =
+        |      typer.applyTypeToWildcards(pattp)
+        |  }
+        |}
+        |trait Analyzer extends Typers with Infer {
+        |  val global: Global
+        |}
+        |class Global {
+        |  type Type
+        |  lazy val analyzer = new { val global: Global.this.type = Global.this } with Analyzer
+        |  object typer extends analyzer.Typer
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // SCL-21947, fourth shape: the singleton val-path `gen.global` (refined to
+  // `Global.this.type`) again fails to collapse to `global`, but this time the
+  // conformance crosses inheritance: `gen.global.Block <: Tree` (= `global.Tree`)
+  // because `Block extends Tree`. The same-member case (`gen.global.Tree`) is fine;
+  // the across-inheritance case was a false "type mismatch". scalac accepts it.
+  def testSCL21947GenBlock(): Unit = {
+    val code =
+      """
+        |trait Gen { val global: Global }
+        |trait Typers { self: Analyzer =>
+        |  import global._
+        |  def x: Tree = (null: gen.global.Tree)
+        |  def y: Tree = (null: gen.global.Block)
+        |}
+        |trait Analyzer extends Typers { val global: Global }
+        |class Global {
+        |  class Tree
+        |  class Block extends Tree
+        |  lazy val gen = new { val global: Global.this.type = Global.this } with Gen
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // SCL-21947, fifth shape: like GenBlock, but the Block-typed value comes from a
+  // METHOD return (`gen.blk: Block`, as-seen-from `gen`) via an intermediate val,
+  // not a written `gen.global.Block`. The asSeenFrom-computed type must still
+  // collapse `gen.global` to `global` for `temp <: Tree` to hold. scalac accepts it.
+  def testSCL21947GenBlkMethod(): Unit = {
+    System.setProperty("scala.tck.trace", "1")
+    val code =
+      """
+        |abstract class TreeGen {
+        |  val global: SymbolTable
+        |  import global._
+        |  def blk: Block = null
+        |}
+        |abstract class SymbolTable {
+        |  class Tree
+        |  class Block extends Tree
+        |  val gen = new TreeGen { val global: SymbolTable.this.type = SymbolTable.this }
+        |}
+        |trait Analyzer { val global: SymbolTable }
+        |trait Typers { self: Analyzer =>
+        |  import global._
+        |  val temp = gen.blk
+        |  val tree: Tree = temp
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // SCL-21947, sixth shape (scala/scala Typers + Global's `override object gen`):
+  // `gen` is a `val` in SymbolTable, overridden as an `object` in Global with the
+  // early-init `val global: Global.this.type`. Reaching `gen.blk` via `import
+  // global._` binds `gen` to the SymbolTable val (whose refinement is relative to
+  // SymbolTable), so the prefix `gen.global` does not collapse to `global` and
+  // `temp <: Tree` was a false mismatch. scalac accepts it.
+  def testSCL21947GenObject(): Unit = {
+    val code =
+      """
+        |trait IGen {
+        |  val global: SymbolTable
+        |  import global._
+        |  def blk: Block = null
+        |}
+        |trait NscGen extends IGen { val global: Global }
+        |class SymbolTable {
+        |  class Tree
+        |  class Block extends Tree
+        |  val gen = new IGen { val global: SymbolTable.this.type = SymbolTable.this }
+        |}
+        |class Global extends SymbolTable {
+        |  override object gen extends { val global: Global.this.type = Global.this } with NscGen
+        |}
+        |trait Analyzer { val global: Global }
+        |trait Typers { self: Analyzer =>
+        |  import global._
+        |  val temp = gen.blk
+        |  val tree: Tree = temp
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   def testScl13051_2(): Unit = {
     val code =
       s"""

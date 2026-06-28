@@ -1,0 +1,15 @@
+{
+  "conformance": [
+    {
+      "lhs": "ChainedType",
+      "rhs": "DirectType",
+      "holds": true
+    },
+    {
+      "lhs": "DirectType",
+      "rhs": "ChainedType",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {}
+}

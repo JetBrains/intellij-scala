@@ -1,0 +1,15 @@
+{
+  "conformance": [
+    {
+      "lhs": "ChainedBlock",
+      "rhs": "Tree",
+      "holds": true
+    },
+    {
+      "lhs": "Tree",
+      "rhs": "ChainedBlock",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {}
+}
