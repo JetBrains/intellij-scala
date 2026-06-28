@@ -1,0 +1,13 @@
+{
+  "description": "Singleton val-path collapse through a compound refinement (SCL-21947, Infer.inferTypedPattern): global.analyzer.global.Type is the same type as global.Type.",
+  "concepts": ["singleton-type", "path-dependent", "refinement", "conformance", "this-type-substitution"],
+  "types": [
+    { "name": "DirectType",  "expr": "global.Type",                       "anchor": "inInfer" },
+    { "name": "ChainedType", "expr": "global.analyzer.global.Type",       "anchor": "inInfer" }
+  ],
+  "conformance": [
+    { "lhs": "ChainedType", "rhs": "DirectType",  "expect": true },
+    { "lhs": "DirectType",  "rhs": "ChainedType", "expect": true }
+  ],
+  "baseTypeSeq": []
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Singleton val-path collapse through a compound refinement, across inheritance (SCL-21947): gen.global.Block conforms to Tree because Block extends Tree and gen.global aliases global.",
+  "concepts": ["singleton-type", "path-dependent", "refinement", "inheritance", "conformance"],
+  "types": [
+    { "name": "Tree",        "expr": "Tree",               "anchor": "inTypers" },
+    { "name": "ChainedTree", "expr": "gen.global.Tree",    "anchor": "inTypers" },
+    { "name": "ChainedBlock","expr": "gen.global.Block",   "anchor": "inTypers" }
+  ],
+  "conformance": [
+    { "lhs": "ChainedTree",  "rhs": "Tree", "expect": true },
+    { "lhs": "ChainedBlock", "rhs": "Tree", "expect": true },
+    { "lhs": "Tree", "rhs": "ChainedBlock", "expect": false }
+  ],
+  "baseTypeSeq": []
+}
