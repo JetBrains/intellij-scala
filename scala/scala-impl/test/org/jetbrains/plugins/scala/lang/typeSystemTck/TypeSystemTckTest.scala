@@ -221,6 +221,9 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     s.replace("_root_.", "")
       .replace(s"${TckCorpus.WrapperPkg}.${TckCorpus.WrapperObj}.", "")
       .replace("scala.AnyRef", "java.lang.Object")
+      // scalac renders `scala.AnyVal`; IntelliJ's canonicalText renders the short
+      // `AnyVal` — canonicalize both to the short form.
+      .replace("scala.AnyVal", "AnyVal")
 
   /** Whitespace-insensitive key so formatting differences don't mask membership. */
   private def normalizeKey(s: String): String = normalize(s).replaceAll("\\s+", "")
