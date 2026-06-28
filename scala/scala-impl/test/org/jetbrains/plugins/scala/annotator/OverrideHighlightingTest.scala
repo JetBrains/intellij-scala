@@ -137,7 +137,6 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
   // not a written `gen.global.Block`. The asSeenFrom-computed type must still
   // collapse `gen.global` to `global` for `temp <: Tree` to hold. scalac accepts it.
   def testSCL21947GenBlkMethod(): Unit = {
-    System.setProperty("scala.tck.trace", "1")
     val code =
       """
         |abstract class TreeGen {
@@ -191,6 +190,56 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
         |}
       """.stripMargin
     assertNothing(errorsFromScalaCode(code))
+  }
+
+  // SCL-21947, seventh shape (scala/scala nsc ast/TreeGen): the failing conformance
+  // sits INSIDE the nsc `TreeGen` itself (which extends `reflect.internal.TreeGen`),
+  // so `this` is a TreeGen and `gen` (= `global.gen`, an override-object TreeGen),
+  // `Tree`, and `mkAttributedIdent` all come through that TreeGen's `import global._`.
+  // `gen.mkAttributedIdent(null): gen.global.RefTree` must conform to substituteThis's
+  // `to: Tree` (RefTree extends SymTree extends Tree). IntelliJ reported "Required:
+  // Tree, Found: RefTree". scalac accepts it. (The same call in a non-TreeGen context
+  // is already green — this context computes the arg type differently.)
+  //
+  // KNOWN-FAILING (tracked, retronym/wip#15): the root is upstream of conformance —
+  // an imported OBJECT member (`gen`, via `import global._`) is typed as a prefix-less
+  // designator (ScReferenceExpressionImpl.scala:419, `fromType` is None for imports),
+  // so `gen.mkAttributedIdent`'s member-type asSeenFrom doubles and bottoms out at the
+  // abstract `Global.this` instead of `NscGen.this.global`. The override-aware
+  // `designatorSingletonType` (this branch) is necessary but not sufficient here.
+  // This test pins the CURRENT (wrong) behaviour; flip it to `assertNothing` when fixed.
+  def testSCL21947TreeGen(): Unit = {
+    val code =
+      """
+        |trait Trees { self: SymbolTable =>
+        |  abstract class Tree { def substituteThis(clazz: AnyRef, to: Tree): Tree = null }
+        |  abstract class SymTree extends Tree
+        |  trait NameTree
+        |  trait RefTree extends SymTree with NameTree
+        |}
+        |class SymbolTable extends Trees {
+        |  val gen = new IGen { val global: SymbolTable.this.type = SymbolTable.this }
+        |}
+        |trait IGen {
+        |  val global: SymbolTable
+        |  import global._
+        |  def mkAttributedIdent(sym: AnyRef): RefTree = null
+        |}
+        |trait NscGen extends IGen {
+        |  val global: Global
+        |  import global._
+        |  def test(tree: Tree): Unit = {
+        |    tree.substituteThis(null, gen.mkAttributedIdent(null))
+        |  }
+        |}
+        |class Global extends SymbolTable {
+        |  override object gen extends { val global: Global.this.type = Global.this } with NscGen
+        |}
+      """.stripMargin
+    // scalac accepts this; IntelliJ still reports a false mismatch (see comment above).
+    assertMatches(errorsFromScalaCode(code)) {
+      case errors if errors.exists { case Error(_, msg) => msg.contains("RefTree"); case _ => false } =>
+    }
   }
 
   def testScl13051_2(): Unit = {
