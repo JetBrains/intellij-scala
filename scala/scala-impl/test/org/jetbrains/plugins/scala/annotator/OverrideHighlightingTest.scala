@@ -200,14 +200,6 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
   // `to: Tree` (RefTree extends SymTree extends Tree). IntelliJ reported "Required:
   // Tree, Found: RefTree". scalac accepts it. (The same call in a non-TreeGen context
   // is already green — this context computes the arg type differently.)
-  //
-  // KNOWN-FAILING (tracked, retronym/wip#15): the root is upstream of conformance —
-  // an imported OBJECT member (`gen`, via `import global._`) is typed as a prefix-less
-  // designator (ScReferenceExpressionImpl.scala:419, `fromType` is None for imports),
-  // so `gen.mkAttributedIdent`'s member-type asSeenFrom doubles and bottoms out at the
-  // abstract `Global.this` instead of `NscGen.this.global`. The override-aware
-  // `designatorSingletonType` (this branch) is necessary but not sufficient here.
-  // This test pins the CURRENT (wrong) behaviour; flip it to `assertNothing` when fixed.
   def testSCL21947TreeGen(): Unit = {
     val code =
       """
@@ -236,10 +228,7 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
         |  override object gen extends { val global: Global.this.type = Global.this } with NscGen
         |}
       """.stripMargin
-    // scalac accepts this; IntelliJ still reports a false mismatch (see comment above).
-    assertMatches(errorsFromScalaCode(code)) {
-      case errors if errors.exists { case Error(_, msg) => msg.contains("RefTree"); case _ => false } =>
-    }
+    assertNothing(errorsFromScalaCode(code))
   }
 
   def testScl13051_2(): Unit = {
