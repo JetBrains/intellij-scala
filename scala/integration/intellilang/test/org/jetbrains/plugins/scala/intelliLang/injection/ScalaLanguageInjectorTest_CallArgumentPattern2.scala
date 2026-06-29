@@ -54,6 +54,12 @@ class ScalaLanguageInjectorTest_CallArgumentPattern2 extends ScalaLanguageInject
   def testPatternInjection_CallArgument_TicketExample_GenericCallWithoutApply_TwoArguments(): Unit =
     doTicketExampleTest("""MyUpdate[PersonInfo]("insert into person (name, age) values (?, ?)", 42)""")
 
+  def testPatternInjection_CallArgument_TicketExample_GenericCallWithoutApply_NamedArgument_OriginalOrder(): Unit =
+    doTicketExampleTest("""MyUpdate[PersonInfo](sql = "insert into person (name, age) values (?, ?)", pos = 42)""")
+
+  def testPatternInjection_CallArgument_TicketExample_GenericCallWithoutApply_NamedArgument_ChangedOrder(): Unit =
+    doTicketExampleTest("""MyUpdate[PersonInfo](pos = 42, sql = "insert into person (name, age) values (?, ?)")""")
+
   def testPatternInjection_CallArgument_TicketExample_GenericCallWithApply_OneArgument(): Unit =
     doTicketExampleTest("""MyUpdate.apply[PersonInfo]("insert into person (name, age) values (?, ?)")""")
 
