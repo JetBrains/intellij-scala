@@ -559,11 +559,21 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
         typeFromMacro.foreach(processor.processType(_, qualifier))
-      case ScalaResolveResult((_: ScTypedDefinition) & Typeable(tp), s) =>
-        val fromType = s(tp)
+      case r @ ScalaResolveResult((td: ScTypedDefinition) & Typeable(tp), s) =>
+        val lookupType = s(tp)
+        // For a STABLE qualifier (a path `pre.v`) record its SINGLETON type as the
+        // `fromType`, not the widened declared type. Member lookup still runs over the
+        // widened type, but the recorded prefix keeps the path so a downstream object
+        // selection builds `pre.v.obj` rather than `Decl#obj` — the latter drops the
+        // instance prefix and breaks asSeenFrom (SCL-21947, the nsc `global.explicitOuter`
+        // shape: param `ExplicitOuter.this.global…` was re-anchored onto `Global#explicitOuter`
+        // instead of `…global.explicitOuter`, so the path never collapsed to `global`).
+        val fromType =
+          if (td.isStable) r.fromType.map(ScProjectionType(_, td)).getOrElse(ScDesignatorType(td))
+          else lookupType
         val state = ScalaResolveState.withFromType(fromType)
-        processor.processType(fromType, this, state)
-        withDynamicResult = withDynamic(fromType, state, processor)
+        processor.processType(lookupType, this, state)
+        withDynamicResult = withDynamic(lookupType, state, processor)
         processor match {
           case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {
