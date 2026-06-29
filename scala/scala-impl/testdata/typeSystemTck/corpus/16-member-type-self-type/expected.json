@@ -6,6 +6,13 @@
       "holds": true
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "ImplThis",
+      "rhs": "Api",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {},
   "termTypes": {
     "root": "Impl.this.Tree",

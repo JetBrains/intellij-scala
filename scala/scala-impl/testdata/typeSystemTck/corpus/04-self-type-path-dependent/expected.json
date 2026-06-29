@@ -26,6 +26,23 @@
       "holds": false
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "BoxThis",
+      "rhs": "Box",
+      "holds": false
+    },
+    {
+      "lhs": "AnimalBoxThis",
+      "rhs": "AnimalBox",
+      "holds": false
+    },
+    {
+      "lhs": "BoxThisT",
+      "rhs": "BoxThisT",
+      "holds": true
+    }
+  ],
   "baseTypeSeq": {
     "AnimalBoxThis": [
       "AnimalBox with Animal",

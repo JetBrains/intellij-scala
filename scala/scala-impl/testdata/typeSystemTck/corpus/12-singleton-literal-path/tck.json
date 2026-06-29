@@ -16,5 +16,10 @@
     { "lhs": "Lit", "rhs": "IntT", "expect": true },
     { "lhs": "IntT", "rhs": "Lit", "expect": false }
   ],
+  "equivalence": [
+    { "lhs": "DogSingleton", "rhs": "Dog", "expect": false },
+    { "lhs": "BoxedT", "rhs": "Dog", "expect": true },
+    { "lhs": "Lit", "rhs": "IntT", "expect": false }
+  ],
   "baseTypeSeq": ["DogSingleton", "BoxedT", "Lit"]
 }

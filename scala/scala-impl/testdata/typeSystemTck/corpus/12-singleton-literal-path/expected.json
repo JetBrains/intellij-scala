@@ -31,6 +31,23 @@
       "holds": false
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "DogSingleton",
+      "rhs": "Dog",
+      "holds": false
+    },
+    {
+      "lhs": "BoxedT",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Lit",
+      "rhs": "IntT",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {
     "DogSingleton": [
       "Dog",

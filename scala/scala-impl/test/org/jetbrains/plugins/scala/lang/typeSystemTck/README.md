@@ -22,7 +22,41 @@ scalac engine does. `TypeSystemTckTest` configures that text into a light PSI
 fixture, reads each alias's `aliasedType` (an `ScType`), and runs:
 
 - `a.conforms(b)` — checked against the corpus's human ground truth (hard).
+- `a.equiv(b)` — type equivalence (`=:=`), checked against ground truth (hard).
 - `BaseTypes.get(tp)` — rendered and compared **as a set** against the golden.
+
+### Equivalence (`=:=`) — strictly more discriminating than conformance
+
+The `equivalence` dimension mirrors `conformance`: each entry's `equivalence`
+queries (`{lhs, rhs, expect}`) are run through IntelliJ's `ScType.equiv` and
+checked against the human ground truth (which scalac's `=:=` agrees with by
+construction — the oracle regenerates the golden `equivalence` array). It is a hard
+assertion, like conformance.
+
+`=:=` is the right guard for the SCL-21947 fixes, which were all about *equivalence*
+of singleton / path-dependent types (`ScThisType.equivInner`, override-aware
+`designatorSingletonType`, `ConstraintSystem` equiv). It is strictly more
+discriminating than `<:<`: a row can pass `<:<` while `=:=` is wrong. The corpus
+exercises exactly these discriminating cases, e.g. (all green on this branch):
+
+- `12 DogSingleton =:= Dog` → **false** (singleton narrower; `<:<` holds one way).
+- `12 BoxedT =:= Dog` → **true** (both `<:<` directions hold).
+- `14 O1Inner =:= Outer#Inner` → **false** (`<:<` holds upward only).
+- `16/17 ImplThis =:= Api` / `CompThis =:= Outer` → **false** (self-type `<:<`).
+- `19 ChainedType =:= DirectType` → **true** (val-path collapse through refinement).
+- `20 ChainedBlock =:= Tree` → **false** (`Block` ≠ `Tree`, though `<:<` holds).
+
+**Known divergence (not in the corpus).** A literal cake `this`-pair —
+`SymbolTable.this.T` vs `Types.this.T` with `trait Types { self: SymbolTable => }`
+and `class SymbolTable extends Types` — is **not** equal under scalac (it only
+canonicalizes cake this-types within one instance, via asSeenFrom / override
+matching), yet IntelliJ returns `true` for both `<:<` and `=:=`. The SCL-21947 cake
+handling (`ScThisType.equivInner`'s self-type tie + the conformance side) is an
+*over-approximation* on directly-written this-types. It is correct where it matters
+(override matching — guarded by `OverrideHighlightingTest.testSCL21947Cake`), so this
+shape is intentionally **not** committed as a corpus entry (it would be a hard red);
+it is recorded here as the one place the equivalence dimension found IntelliJ more
+lenient than scalac.
 
 ### baseClasses (linearization) — checked ORDER-sensitively
 

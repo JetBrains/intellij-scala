@@ -6,6 +6,13 @@
       "holds": true
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "CompThis",
+      "rhs": "Outer",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {},
   "termTypes": {
     "root": "Comp.this.Tree",

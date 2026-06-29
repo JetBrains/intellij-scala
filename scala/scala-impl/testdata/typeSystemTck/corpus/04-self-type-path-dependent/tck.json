@@ -16,5 +16,10 @@
     { "lhs": "AnimalBoxThis", "rhs": "Animal", "expect": true },
     { "lhs": "AnimalBox", "rhs": "Animal", "expect": false }
   ],
+  "equivalence": [
+    { "lhs": "BoxThis", "rhs": "Box", "expect": false },
+    { "lhs": "AnimalBoxThis", "rhs": "AnimalBox", "expect": false },
+    { "lhs": "BoxThisT", "rhs": "BoxThisT", "expect": true }
+  ],
   "baseTypeSeq": ["AnimalBoxThis", "BoxThis"]
 }
