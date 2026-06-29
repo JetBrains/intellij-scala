@@ -21,6 +21,23 @@
       "holds": false
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "O1Inner",
+      "rhs": "O1Inner",
+      "holds": true
+    },
+    {
+      "lhs": "O1Inner",
+      "rhs": "O2Inner",
+      "holds": false
+    },
+    {
+      "lhs": "O1Inner",
+      "rhs": "OuterInner",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {
     "O1Inner": [
       "O1.Inner",

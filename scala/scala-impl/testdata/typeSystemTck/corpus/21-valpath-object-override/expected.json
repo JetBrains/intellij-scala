@@ -11,5 +11,12 @@
       "holds": false
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "ChainedBlock",
+      "rhs": "Tree",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {}
 }

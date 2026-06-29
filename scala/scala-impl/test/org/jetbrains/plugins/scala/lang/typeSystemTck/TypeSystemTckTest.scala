@@ -22,9 +22,9 @@ import scala.collection.mutable.ArrayBuffer
  * Iterate with (in the sbt shell, after `packageArtifact` once):
  *   testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest
  *
- * Mode: STRICT by default — every dimension (conformance, baseTypeSeq, baseClasses,
- * termType, baseType) fails the test on divergence from scalac, EXCEPT the small set
- * of known representation seams registered in [[Deferred]]. The deferred set is a
+ * Mode: STRICT by default — every dimension (conformance, equivalence, baseTypeSeq,
+ * baseClasses, termType, baseType) fails the test on divergence from scalac, EXCEPT
+ * the small set of known representation seams registered in [[Deferred]]. The deferred set is a
  * two-way pin: a NEW diff outside it fails (regression), and a deferred case that
  * stops diverging ALSO fails (progression) — forcing it to be un-deferred so we never
  * silently lose ground. Pass `-Dscala.tck.lenient=true` to downgrade the soft
@@ -35,7 +35,8 @@ import scala.collection.mutable.ArrayBuffer
 class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
 
   // Local-iteration escape hatch: report diffs without failing on the soft dimensions
-  // (baseTypeSeq / baseClasses / termType). Conformance and baseType stay hard always.
+  // (baseTypeSeq / baseClasses / termType). Conformance, equivalence and baseType stay
+  // hard always.
   private val lenient: Boolean = java.lang.Boolean.getBoolean("scala.tck.lenient")
 
   /**
@@ -79,6 +80,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
 
     val report = new ArrayBuffer[String]()
     val conformanceFailures = new ArrayBuffer[String]()
+    val equivalenceFailures = new ArrayBuffer[String]()
     val btsFailures = new ArrayBuffer[String]()
     val bcFailures = new ArrayBuffer[String]()
     val ttFailures = new ArrayBuffer[String]()
@@ -102,6 +104,17 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
         report += f"  ${if (ok) "ok  " else "FAIL"} ${q.lhs} <:< ${q.rhs} = $holds (expected ${q.expect})"
         if (!ok)
           conformanceFailures += s"[${entry.id}] ${q.lhs} <:< ${q.rhs}: expected ${q.expect}, PSI says $holds"
+      }
+
+      // --- equivalence (hard) — `=:=`, strictly more discriminating than `<:<` ---
+      entry.equivalence.foreach { q =>
+        val a = resolved(q.lhs)
+        val b = resolved(q.rhs)
+        val holds = a.equiv(b)
+        val ok = holds == q.expect
+        report += f"  ${if (ok) "ok  " else "FAIL"} ${q.lhs} =:= ${q.rhs} = $holds (expected ${q.expect})"
+        if (!ok)
+          equivalenceFailures += s"[${entry.id}] ${q.lhs} =:= ${q.rhs}: expected ${q.expect}, PSI says $holds"
       }
 
       // --- base type sequence (set comparison vs golden) ---
@@ -192,13 +205,16 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
 
     println(report.mkString("\n"))
     println(s"\n=== TCK: ${conformanceFailures.size} conformance failure(s), " +
+      s"${equivalenceFailures.size} equivalence failure(s), " +
       s"${btsFailures.size} baseTypeSeq diff(s), ${bcFailures.size} baseClasses diff(s), " +
       s"${ttFailures.size} termType diff(s), ${bfFailures.size} baseType diff(s) ===")
 
-    // --- conformance & baseType: HARD, no deferrals (the merge primitive and the
-    //     human ground truth must never diverge) ---
+    // --- conformance, equivalence & baseType: HARD, no deferrals (the merge
+    //     primitive and the human ground truth must never diverge) ---
     if (conformanceFailures.nonEmpty)
       Assert.fail("Conformance divergences from scalac:\n" + conformanceFailures.mkString("\n"))
+    if (equivalenceFailures.nonEmpty)
+      Assert.fail("Equivalence divergences from scalac:\n" + equivalenceFailures.mkString("\n"))
     if (bfFailures.nonEmpty)
       Assert.fail("baseType (merge) divergences from scalac:\n" + bfFailures.mkString("\n"))
 
