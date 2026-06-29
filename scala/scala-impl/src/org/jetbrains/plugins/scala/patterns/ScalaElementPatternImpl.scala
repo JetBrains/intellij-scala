@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScGenericCall, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScGenericCall, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 
 private[scala]
 object ScalaElementPatternImpl {
@@ -30,17 +30,18 @@ object ScalaElementPatternImpl {
         if (!hostIsTheArgument(host, index, argsList))
           return false
 
-        argsList.getParent match {
-          case call: ScMethodCall =>
-            call.getEffectiveInvokedExpr match {
-              case ref: ScReference =>
-                return resolvesAndMatchesPattern(ref, methodPattern, context)
-              case generic: ScGenericCall =>
-                generic.referencedExpr match {
-                  case ref: ScReference =>
-                    return resolvesAndMatchesPattern(ref, methodPattern, context)
-                  case _ =>
-                }
+        return argsListResolvesToMatchingMethod(argsList, methodPattern, context)
+
+      // Handle named arguments which are expressed via "ScAssignment"
+      case assignment: ScAssignment =>
+        assignment.rightExpression match {
+          case Some(`host`) =>
+            assignment.getParent match {
+              case argsList: ScArgumentExprList =>
+                if (hostIsNamedArgumentForParameterIndex(assignment, index, argsList))
+                  return argsListResolvesToMatchingMethod(argsList, methodPattern, context)
+                else
+                  return false
               case _ =>
             }
           case _ =>
@@ -91,6 +92,36 @@ object ScalaElementPatternImpl {
     val args = argsList.exprs
     val hostIsTheArgument = index < args.length && (args(index) eq host)
     hostIsTheArgument
+  }
+
+  private def hostIsNamedArgumentForParameterIndex(assignment: ScAssignment, index: Int, argsList: ScArgumentExprList): Boolean =
+    argsList.matchedParameters.exists { case (expr, parameter) =>
+      parameter.index == index &&
+        ((expr eq assignment) || assignment.rightExpression.contains(expr))
+    }
+
+  private def argsListResolvesToMatchingMethod(
+    argsList: ScArgumentExprList,
+    methodPattern: ElementPattern[_ <: PsiMethod],
+    context: ProcessingContext
+  ): Boolean = {
+    argsList.getParent match {
+      case call: ScMethodCall =>
+        call.getEffectiveInvokedExpr match {
+          case ref: ScReference =>
+            return resolvesAndMatchesPattern(ref, methodPattern, context)
+          case generic: ScGenericCall =>
+            generic.referencedExpr match {
+              case ref: ScReference =>
+                return resolvesAndMatchesPattern(ref, methodPattern, context)
+              case _ =>
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+
+    false
   }
 
   private def resolvesAndMatchesPattern(
