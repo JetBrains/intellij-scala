@@ -231,6 +231,37 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // SCL-21947, eighth shape (scala/scala nsc BrowsingLoaders.enterIfNew): the
+  // path-dependent param `Symbol` is bound through a SINGLETON ALIAS, not a self type.
+  // `SymbolLoaders` declares `val symbolTable: SymbolTable` and `import symbolTable._`,
+  // so the inherited abstract member's param is `symbolTable.Symbol`. The override (via
+  // `import global._`) writes `global.Symbol`. They are the same type only because the
+  // intermediate `GlobalSymbolLoaders` aliases `val symbolTable: global.type = global`,
+  // which scalac collapses (`symbolTable.Symbol =:= global.Symbol`). scalac accepts it.
+  def testSCL21947BrowsingLoaders(): Unit = {
+    val code =
+      """
+        |trait SymbolTable {
+        |  type Symbol <: Null
+        |}
+        |abstract class SymbolLoaders {
+        |  val symbolTable: SymbolTable
+        |  import symbolTable._
+        |  protected def useSymbol(sym: Symbol): Unit
+        |}
+        |abstract class GlobalSymbolLoaders extends SymbolLoaders {
+        |  val global: SymbolTable
+        |  val symbolTable: global.type = global
+        |}
+        |abstract class BrowsingLoaders extends GlobalSymbolLoaders {
+        |  val global: SymbolTable
+        |  import global._
+        |  override protected def useSymbol(sym: Symbol): Unit
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   def testScl13051_2(): Unit = {
     val code =
       s"""
