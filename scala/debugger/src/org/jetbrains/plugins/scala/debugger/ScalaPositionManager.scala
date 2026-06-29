@@ -124,10 +124,19 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
       val nonLambdaParent =
         if (isCompiledWithIndyLambdas(file)) {
-          val nonStrictParents = onTheLine.head.withParentsInFile
-          nonStrictParents.find { p =>
+          // `nonLambdaParent` is the single enclosing non-lambda class (or, for a top level definition, its
+          // `filename$package$` class) whose synthetic method an indy lambda compiles into. A source line lives
+          // in one lexical scope, so every element on it shares that same enclosing class - the first one is a
+          // representative, and computing it for the rest would only produce duplicates.
+          val firstOnTheLine = onTheLine.head
+          firstOnTheLine.withParentsInFile.find { p =>
             ProgressManager.checkCanceled()
             isGenerateNonAnonfunClass(p)
+          }.orElse {
+            // A top level definition has no enclosing class/object/trait - the synthetic `filename$package$`
+            // class (represented by the enclosing packaging/file) plays that role. Mirror the "before start"
+            // path in `computeClassPattern` so lambdas in top level definitions are matched after start (SCL-25415).
+            findEnclosingPackageOrFile(firstOnTheLine).map(_.merge)
           }
         } else None
 
