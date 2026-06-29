@@ -1,0 +1,17 @@
+{
+  "description": "Member type through a refinement on an abstract type's BOUND, refined member inherited transitively (SCL-21947, scalac MutableSettings shape): (x: BooleanSetting).value must be Boolean whether SettingValue is reached via Setting's bound or named directly in the compound.",
+  "concepts": ["member-type", "refinement", "bound", "inheritance", "asSeenFrom"],
+  "types": [
+    { "name": "BooleanSetting",  "expr": "BooleanSetting",  "anchor": "inSettings" },
+    { "name": "BooleanSetting1", "expr": "BooleanSetting1", "anchor": "inSettings" }
+  ],
+  "conformance": [
+    { "lhs": "BooleanSetting",  "rhs": "BooleanSetting1", "expect": false },
+    { "lhs": "BooleanSetting1", "rhs": "BooleanSetting",  "expect": false }
+  ],
+  "termTypes": [
+    { "name": "valViaBound",    "expr": "(??? : BooleanSetting).value",  "anchor": "inSettings" },
+    { "name": "valViaCompound", "expr": "(??? : BooleanSetting1).value", "anchor": "inSettings" }
+  ],
+  "baseTypeSeq": []
+}
