@@ -11,5 +11,9 @@
     { "lhs": "ChainedBlock", "rhs": "Tree", "expect": true },
     { "lhs": "Tree", "rhs": "ChainedBlock", "expect": false }
   ],
+  "equivalence": [
+    { "lhs": "ChainedTree",  "rhs": "Tree", "expect": true },
+    { "lhs": "ChainedBlock", "rhs": "Tree", "expect": false }
+  ],
   "baseTypeSeq": []
 }

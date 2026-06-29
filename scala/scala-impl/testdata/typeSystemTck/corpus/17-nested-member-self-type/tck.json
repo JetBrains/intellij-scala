@@ -8,6 +8,9 @@
   "conformance": [
     { "lhs": "CompThis", "rhs": "Outer", "expect": true }
   ],
+  "equivalence": [
+    { "lhs": "CompThis", "rhs": "Outer", "expect": false }
+  ],
   "baseTypeSeq": [],
   "termTypes": [
     { "name": "root", "expr": "root", "anchor": "inComp" },

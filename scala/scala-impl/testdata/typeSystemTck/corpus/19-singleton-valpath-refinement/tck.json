@@ -9,5 +9,8 @@
     { "lhs": "ChainedType", "rhs": "DirectType",  "expect": true },
     { "lhs": "DirectType",  "rhs": "ChainedType", "expect": true }
   ],
+  "equivalence": [
+    { "lhs": "ChainedType", "rhs": "DirectType", "expect": true }
+  ],
   "baseTypeSeq": []
 }

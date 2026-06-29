@@ -11,5 +11,12 @@
       "holds": true
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "ChainedType",
+      "rhs": "DirectType",
+      "holds": true
+    }
+  ],
   "baseTypeSeq": {}
 }
