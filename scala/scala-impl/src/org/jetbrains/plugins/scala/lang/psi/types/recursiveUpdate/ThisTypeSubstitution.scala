@@ -91,6 +91,13 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
                 upper <- tp.upperBound.toOption
                 cls   <- upper.extractClass
               } yield isSameOrInheritor(cls, thisTp)).getOrElse(false)
+            // An abstract type member (`type Setting <: SettingValue`) reaches its
+            // base classes only through its upper bound. Widen to it, mirroring the
+            // `ScTypeParam` branch above and the top-level `isMoreNarrow` alias case,
+            // so a `this`-type whose class sits under such a bound still re-anchors
+            // (SCL-21947, the `MutableSettings` `BooleanSetting <: Setting {type T = ...}`
+            // shape — without this the prefix is left as the raw `SettingValue.this`).
+            case ta: ScTypeAlias => isMoreNarrow(ta.upperBound.getOrAny, thisTp, Set.empty)
             case cls: PsiClass => isSameOrInheritor(cls, thisTp)
             case _             => false
           }
