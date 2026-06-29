@@ -317,6 +317,21 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
     ))
   }
 
+  def testAbstractTypeMemberAsTypeArgWithLowerBound(): Unit = {
+    assertNothing(messages(
+      """
+        |abstract class Attachments {
+        |  self =>
+        |
+        |  type Pos >: Null
+        |  new NonemptyAttachments[Pos]
+        |}
+        |
+        |private final class NonemptyAttachments[P >: Null]
+        |""".stripMargin
+    ))
+  }
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """
