@@ -459,7 +459,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           return
         }
 
-        result = t.element.getTypeWithProjections() match {
+        // Widen with `thisProjections = true` so a member projected off `this`
+        // keeps a `this`-type prefix (`Symbols.this.Symbol`) rather than a plain
+        // designator (`Symbols#Symbol`). That preserves the prefix's identity so a
+        // subsequent same-element projection comparison can equate cake-tied
+        // `this`-prefixes via `ScThisType.sameThisInstance` (SCL-21947: matching
+        // `Symbol.this.type` against an inherited `: Self` across the reflect cake).
+        result = t.element.getTypeWithProjections(thisProjections = true) match {
           case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
           case _            => ConstraintsResult.Left
         }
