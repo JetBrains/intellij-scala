@@ -72,6 +72,17 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     val baseClasses: Set[String] = Set(
       "04-self-type-path-dependent/AnimalBoxThis", // D: self-type base order
     )
+    /**
+     * E. Member type left as the un-reduced path-dependent projection (`BooleanSetting#T`)
+     *    where scalac eagerly normalizes to the alias' RHS (`Boolean`). The PSI type is
+     *    correct up to `=:=` (`BooleanSetting#T =:= Boolean`, so the access conforms — see
+     *    `OverrideHighlightingTest.testSCL21947MutableSettings`); only the literal render
+     *    differs, so this is a representation seam, not a conformance bug.
+     */
+    val termType: Set[String] = Set(
+      "22-bound-refinement-member/valViaBound",
+      "22-bound-refinement-member/valViaCompound",
+    )
   }
 
   def testCorpus(): Unit = {
@@ -242,7 +253,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     } else {
       strictDimension("baseTypeSeq", btsDiffKeys.toSet, Deferred.baseTypeSeq, btsFailures)
       strictDimension("baseClasses", bcDiffKeys.toSet, Deferred.baseClasses, bcFailures)
-      strictDimension("termType", ttDiffKeys.toSet, Set.empty, ttFailures)
+      strictDimension("termType", ttDiffKeys.toSet, Deferred.termType, ttFailures)
       if (problems.nonEmpty)
         Assert.fail(problems.mkString("\n\n"))
     }
