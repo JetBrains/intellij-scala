@@ -348,6 +348,67 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // SCL-21947, twelfth shape: abstract type member `type Symbol >: Null` overridden
+  // by `class Symbol { def foo = 42 }`. Selecting `.foo` on `currentClass` (whose
+  // result type is the abstract `Symbol`) must resolve through the overriding class
+  // member, mirroring scalac's `pre.memberType(sym)`.
+  def testSCL21947AbstractTypeMemberOverriddenByClass(): Unit = {
+    val code =
+      """
+        |trait Symbols { self: SymbolTable =>
+        |  class Symbol { def foo = 42 }
+        |}
+        |trait ApiUniverse extends ApiTrees {
+        |  type Symbol >: Null
+        |}
+        |trait ApiTrees { self: ApiUniverse =>
+        |  abstract class ApiTransformer {
+        |    def currentClass: Symbol = ???
+        |  }
+        |}
+        |trait Trees { self: SymbolTable =>
+        |  abstract class AstTransformer extends ApiTransformer
+        |}
+        |abstract class SymbolTable extends Symbols with Trees with ApiUniverse
+        |trait Typers { self: Analyzer =>
+        |  class Typer
+        |}
+        |trait Analyzer extends Typers {
+        |  val global: Global
+        |}
+        |trait TypingTransformers {
+        |  val global: Global
+        |  import global._
+        |  protected def newRootLocalTyper(unit: CompilationUnit): global.analyzer.Typer = ???
+        |  abstract class TypingTransformer(initLocalTyper: global.analyzer.Typer) extends global.AstTransformer {
+        |    def this(unit: CompilationUnit) = this(newRootLocalTyper(unit))
+        |  }
+        |}
+        |trait ExplicitOuter extends TypingTransformers {
+        |  import global._
+        |  abstract class OuterPathTransformer(initLocalTyper: analyzer.Typer) extends TypingTransformer(initLocalTyper)
+        |}
+        |abstract class Global extends SymbolTable {
+        |  class CompilationUnit
+        |  lazy val analyzer = new { val global: Global.this.type = Global.this } with Analyzer
+        |  object explicitOuter extends { val global: Global.this.type = Global.this } with ExplicitOuter
+        |}
+        |abstract class SubComponent {
+        |  val global: Global
+        |}
+        |abstract class Repro extends SubComponent with TypingTransformers {
+        |  import global._
+        |  abstract class C2
+        |    extends global.explicitOuter.OuterPathTransformer(null: global.analyzer.Typer) {
+        |    val x: Symbol = currentClass
+        |    x.foo
+        |    currentClass.foo
+        |  }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   def testScl13051_2(): Unit = {
     val code =
       s"""
