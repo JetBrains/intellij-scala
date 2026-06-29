@@ -415,34 +415,40 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
+      /**
+       * Whether `null` is a legal value of `l` — i.e. `Null <: l` — for the right-hand
+       * `Null` (and null-wide literal) cases. `null` checks `val x: T = null`: good when
+       * `T` is a reference type (`T <: AnyRef`) not tagged `scala.NotNull`, OR when `T`
+       * is an abstract type/alias whose explicit lower bound already admits null (e.g.
+       * `type Pos >: Null`): `Lo <: T` and `Null <: Lo`, so `Null <: T` — even when `T`'s
+       * upper bound is only `Any` (so `T </: AnyRef`), where the reference-type heuristic
+       * alone spuriously rejects it (SCL-21947: `val x: Pos = null`,
+       * `new NonemptyAttachments[Pos]`). The same blind spot lived in both this `Null`
+       * std-type case and the null-wide [[visitLiteralType]] arm — hence one shared rule.
+       */
+      private def admitsNull: Boolean = {
+        val admittedByLowerBound = l match {
+          case AliasType(_, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque => Null.conforms(lower)
+          case _                                                                      => false
+        }
+        admittedByLowerBound || l.conforms(AnyRef) && {
+          l.extractDesignated(expandAliases = false) match {
+            case Some(el) =>
+              !el.elementScope.getCachedClass("scala.NotNull")
+                .map(ScDesignatorType(_))
+                .exists(l.conforms(_)) // todo: think about constraints
+            case _ => true
+          }
+        }
+      }
+
       override def visitLiteralType(lt: ScLiteralType): Unit = {
-        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = constraints
+        if (lt.wideType.eq(Null) && admitsNull) result = constraints
       }
 
       override def visitStdType(x: StdType): Unit = {
         if (x eq Nothing) result = constraints
-        else if (x eq Null) {
-          /*
-            this case for checking: val x: T = null
-            This is good if T class type: T <: AnyRef and !(T <: NotNull)
-           */
-          if (!l.conforms(AnyRef)) {
-            result = ConstraintsResult.Left
-            return
-          }
-          l.extractDesignated(expandAliases = false) match {
-            case Some(el) =>
-              val flag =
-                el.elementScope.getCachedClass("scala.NotNull")
-                  .map(ScDesignatorType(_))
-                  .exists(l.conforms(_))
-
-              result = // todo: think about constraints
-                if (!flag) constraints
-                else ConstraintsResult.Left
-            case _ => result = constraints
-          }
-        }
+        else if (x eq Null) result = if (admitsNull) constraints else ConstraintsResult.Left
       }
     }
 
