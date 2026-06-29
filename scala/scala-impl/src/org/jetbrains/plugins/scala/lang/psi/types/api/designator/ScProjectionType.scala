@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, RecursionMa
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -231,6 +231,15 @@ final class ScProjectionType private(val projected: ScType,
         val sameElements = ScEquivalenceUtil.smartEquivalence(lElement, rElement) || {
           lElement.name == rElement.name &&
             (isEligibleForPrefixUnification(projected) || isEligibleForPrefixUnification(p1))
+        } || {
+          // A class realizing an abstract type member (e.g. `class Symbol` overriding
+          // `type Symbol >: Null`) — different PSI elements with the same name in the
+          // same linearization. Treat as equivalent when one is an abstract type alias
+          // and the other is a class, mirroring scalac's memberType. (SCL-21947)
+          lElement.name == rElement.name && (
+            (lElement.is[ScTypeAliasDeclaration] && rElement.is[PsiClass]) ||
+            (lElement.is[PsiClass] && rElement.is[ScTypeAliasDeclaration])
+          )
         }
 
         if (sameElements) projected.equiv(p1, constraints, falseUndef)
