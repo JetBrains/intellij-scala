@@ -16,5 +16,17 @@
       "holds": false
     }
   ],
+  "equivalence": [
+    {
+      "lhs": "ChainedTree",
+      "rhs": "Tree",
+      "holds": true
+    },
+    {
+      "lhs": "ChainedBlock",
+      "rhs": "Tree",
+      "holds": false
+    }
+  ],
   "baseTypeSeq": {}
 }

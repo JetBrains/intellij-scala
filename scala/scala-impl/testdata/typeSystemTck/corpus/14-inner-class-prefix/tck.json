@@ -12,5 +12,10 @@
     { "lhs": "O1Inner", "rhs": "OuterInner", "expect": true },
     { "lhs": "OuterInner", "rhs": "O1Inner", "expect": false }
   ],
+  "equivalence": [
+    { "lhs": "O1Inner", "rhs": "O1Inner", "expect": true },
+    { "lhs": "O1Inner", "rhs": "O2Inner", "expect": false },
+    { "lhs": "O1Inner", "rhs": "OuterInner", "expect": false }
+  ],
   "baseTypeSeq": ["O1Inner"]
 }

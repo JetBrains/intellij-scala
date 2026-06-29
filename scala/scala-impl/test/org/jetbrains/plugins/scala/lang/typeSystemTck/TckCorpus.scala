@@ -24,6 +24,7 @@ object TckCorpus {
 
   final case class TypeDecl(name: String, expr: String, anchor: Option[String])
   final case class ConformanceQuery(lhs: String, rhs: String, expect: Boolean)
+  final case class EquivalenceQuery(lhs: String, rhs: String, expect: Boolean)
   final case class BaseTypeQuery(name: String, prefix: String, clazz: String)
 
   final case class Entry(
@@ -32,6 +33,10 @@ object TckCorpus {
     source: String,
     types: Seq[TypeDecl],
     conformance: Seq[ConformanceQuery],
+    // type-equivalence (`=:=`) queries, checked against the human ground truth
+    // `expect` exactly as conformance is (the golden's `equivalence` holds-array
+    // agrees with it by construction, so we don't re-read it).
+    equivalence: Seq[EquivalenceQuery],
     baseTypeSeqQueries: Seq[String],
     // golden: query name -> ordered rendered base types (from the scalac oracle)
     goldenBaseTypeSeq: Map[String, Seq[String]],
@@ -81,6 +86,11 @@ object TckCorpus {
       val o = e.getAsJsonObject
       ConformanceQuery(o.get("lhs").getAsString, o.get("rhs").getAsString, o.get("expect").getAsBoolean)
     }
+    val equivalence =
+      if (tck.has("equivalence")) tck.getAsJsonArray("equivalence").asScala.toSeq.map { e =>
+        val o = e.getAsJsonObject
+        EquivalenceQuery(o.get("lhs").getAsString, o.get("rhs").getAsString, o.get("expect").getAsBoolean)
+      } else Seq.empty
     val btsQueries = tck.getAsJsonArray("baseTypeSeq").asScala.toSeq.map(_.getAsString)
     val termTypes =
       if (tck.has("termTypes")) tck.getAsJsonArray("termTypes").asScala.toSeq.map { e =>
@@ -106,7 +116,7 @@ object TckCorpus {
         o.getAsJsonObject(field).entrySet().asScala.map(en => en.getKey -> en.getValue.getAsString).toMap
       }.getOrElse(Map.empty)
 
-    Entry(id, descriptionOf(tck), source, types, conformance, btsQueries,
+    Entry(id, descriptionOf(tck), source, types, conformance, equivalence, btsQueries,
       goldenMap("baseTypeSeq"), goldenMap("baseClasses"), termTypes, goldenStringMap("termTypes"),
       baseTypes, goldenStringMap("baseTypes"))
   }

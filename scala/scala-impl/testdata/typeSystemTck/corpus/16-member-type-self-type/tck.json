@@ -8,6 +8,9 @@
   "conformance": [
     { "lhs": "ImplThis", "rhs": "Api", "expect": true }
   ],
+  "equivalence": [
+    { "lhs": "ImplThis", "rhs": "Api", "expect": false }
+  ],
   "baseTypeSeq": [],
   "termTypes": [
     { "name": "root", "expr": "root", "anchor": "inImpl" },
