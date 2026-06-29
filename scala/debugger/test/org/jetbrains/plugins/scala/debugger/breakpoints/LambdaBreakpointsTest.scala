@@ -235,6 +235,47 @@ class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
     )
   }
 
+  addSourceFile("BreakpointAddedAfterStartTopLevel.scala",
+    s"""
+       |@main
+       |def breakpointAddedAfterStartTopLevel(): Unit = {
+       |  println("start") $breakpoint
+       |  for (i <- 1 to 5) {
+       |    println(s"i = $$i") $breakpointAfterStart
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testBreakpointAddedAfterStartTopLevel(): Unit = {
+    breakpointsTestAddingAfterStart("breakpointAddedAfterStartTopLevel")(
+      (5, "breakpointAddedAfterStartTopLevel$$anonfun$1"),
+      (5, "breakpointAddedAfterStartTopLevel$$anonfun$1"),
+      (5, "breakpointAddedAfterStartTopLevel$$anonfun$1"),
+      (5, "breakpointAddedAfterStartTopLevel$$anonfun$1"),
+      (5, "breakpointAddedAfterStartTopLevel$$anonfun$1")
+    )
+  }
+
+  addSourceFile("BreakpointAddedAfterStartInObject.scala",
+    s"""
+       |object BreakpointAddedAfterStartInObject {
+       |  def main(args: Array[String]): Unit = {
+       |    println("start") $breakpoint
+       |    List("a", "b", "c").foreach { s =>
+       |      println(s.toUpperCase) $breakpointAfterStart
+       |    }
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testBreakpointAddedAfterStartInObject(): Unit = {
+    breakpointsTestAddingAfterStart("BreakpointAddedAfterStartInObject")(
+      (5, "main$$anonfun$1"),
+      (5, "main$$anonfun$1"),
+      (5, "main$$anonfun$1")
+    )
+  }
+
   override def testVariousLambdas(): Unit = {
     breakpointsTest()(
       (3, "<clinit>"),
@@ -367,6 +408,16 @@ class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
       (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
       (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
       (8, "fooInTrait")
+    )
+  }
+
+  override def testBreakpointAddedAfterStartInObject(): Unit = {
+    // 3.4 additionally stops in the enclosing `main` frame on the lambda line before the lambda body
+    breakpointsTestAddingAfterStart("BreakpointAddedAfterStartInObject")(
+      (5, "main"),
+      (5, "main$$anonfun$1"),
+      (5, "main$$anonfun$1"),
+      (5, "main$$anonfun$1")
     )
   }
 }

@@ -64,6 +64,15 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
       org.junit.Assert.fail(s"Could not find compiled class $className")
     }
 
+    addBreakpointsForMarker(className, breakpoint)
+  }
+
+  /**
+   * Adds a line breakpoint for every occurrence of `marker` in the source file that declares `className`.
+   * Used both before the session starts (via [[createBreakpoints]] with the [[breakpoint]] marker) and,
+   * with a distinct marker, after it has started (via [[addBreakpointsAfterStart]]).
+   */
+  private def addBreakpointsForMarker(className: String, marker: String): Unit = {
     val manager = ScalaPsiManager.instance(getProject)
     val psiClass = inReadAction(manager.getCachedClass(GlobalSearchScope.allScope(getProject), className))
     val psiFile = psiClass.map(_.getContainingFile).getOrElse(throw new AssertionError(s"Could not find class $className"))
@@ -79,7 +88,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
       var cont = true
 
       while (cont) {
-        offset = text.indexOf(breakpoint, offset + 1)
+        offset = text.indexOf(marker, offset + 1)
         if (offset == -1) {
           cont = false
         } else {
@@ -110,6 +119,14 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
       runnable.run()
     }
   }
+
+  /**
+   * Adds the breakpoints marked with [[breakpointAfterStart]] while the debugger is already running
+   * (e.g. from within an `onBreakpoint`/`onEveryBreakpoint` callback). Reproduces breakpoints added
+   * mid-session, which exercise the "class already loaded" code path (SCL-25415).
+   */
+  protected def addBreakpointsAfterStart(className: String): Unit =
+    addBreakpointsForMarker(className, breakpointAfterStart)
 
   protected def addJavaSourceFile(path: String, className: String, contents: String): Unit = {
     addSourceFile(path, contents)
@@ -155,6 +172,9 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
   }
 
   protected val breakpoint: String = "// Breakpoint!"
+
+  /** Marker for breakpoints that should be added after the session starts, not before (see [[addBreakpointsAfterStart]]). */
+  protected val breakpointAfterStart: String = "// BreakpointAfterStart!"
 
   private val lambdaOrdinalString: String = "LambdaOrdinal"
 
