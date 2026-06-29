@@ -42,7 +42,14 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       // one deterministic base type and we take its prefix — cf. AsSeenFromMap.thisTypeAsSeen.
       BaseTypes.baseType(target, clazz).flatMap(containingClassType) match {
         case Some(targetContext) => doUpdateThisTypeFromClass(thisTp, targetContext, clazz.containingClass)
-        case _                   => thisTp
+        // `clazz` is not a base type of `target` — e.g. `clazz` is an INNER CLASS reached
+        // via a prefixed projection base (`global.AstTransformer`), so an inherited member's
+        // ENCLOSING-universe this-type (`SymbolTable.this`/`ApiUniverse.this`, surfacing as
+        // `Trees.this`) must re-anchor onto `target` directly. scalac's `thisTypeAsSeen` keeps
+        // walking until the prefix is empty rather than bailing on `pre baseType clazz`; mirror
+        // that by narrowing against `target` (guarded by `isMoreNarrow`, so unrelated this-types
+        // stay put). SCL-21947, the OuterPathTransformer `currentClass` shape.
+        case _                   => doUpdateThisType(thisTp, target)
       }
     }
 
