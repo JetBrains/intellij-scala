@@ -142,7 +142,18 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
           }
       case Some(td: ScTypeAliasDeclaration) => isMoreNarrow(td.upperBound.getOrAny, thisTp, visited)
       case Some(cl: PsiClass)               => isSameOrInheritor(cl, thisTp)
-      case Some(named: ScTypedDefinition)   => isMoreNarrow(named.`type`().getOrAny, thisTp, visited)
+      case Some(named: ScTypedDefinition)   =>
+        named.`type`().getOrAny match {
+          // A stable path whose declared type IS `thisTp` itself (`val global: Global.this.type`)
+          // cannot narrow `thisTp`: collapsing `Global.this := <path>` where `<path>: Global.this.type`
+          // is circular and, when this path is reached as a projection prefix
+          // (`pre.genBCode.global`), folds `Global.this` onto the whole projection — a self-referential
+          // type the resolver's recursion guard then prunes, dropping all members. Refuse the collapse
+          // so `doUpdateThisType` keeps walking the prefix chain to a concrete outer prefix
+          // (`pre.global`). (nsc `Global { val genBCode: SubComponent { val global: Global.this.type } }` shape)
+          case ScThisType(c) if c == thisTp.element => false
+          case nt                                   => isMoreNarrow(nt, thisTp, visited)
+        }
       case Some(compound: ScCompoundType)   => hasSameOrInheritor(compound, thisTp)
       case _                                => false
     }
