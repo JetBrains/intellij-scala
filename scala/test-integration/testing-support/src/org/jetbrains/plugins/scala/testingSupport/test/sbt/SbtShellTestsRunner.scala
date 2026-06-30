@@ -16,7 +16,7 @@ object SbtShellTestsRunner {
     sbtSupport: SbtTestRunningSupport,
     module: Module,
     suitesToTestsMap: Map[String, Set[String]],
-    sbtEventsHandler: ReportingSbtTestEventHandler,
+    shellEventProcessor: SbtShellCommandEventProcessor[Unit],
     useSbtUi: Boolean // TODO: fix "sbt Test framework quits unexpectedly" when using UI SCL-16240
   ): Future[Boolean] = {
     val testRunCommands: Seq[String] = {
@@ -41,7 +41,7 @@ object SbtShellTestsRunner {
         Future.successful(None)
 
     def evaluateCommand(command: String): Future[Unit] = {
-      val request = SbtShellCommandRequest(command, new SbtShellCommandEventProcessor.ShellEventListener(sbtEventsHandler.processEvent))
+      val request = SbtShellCommandRequest(command, shellEventProcessor)
       communication.run(request)
     }
 
