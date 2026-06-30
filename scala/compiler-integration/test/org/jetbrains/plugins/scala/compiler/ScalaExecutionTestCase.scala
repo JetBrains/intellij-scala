@@ -82,6 +82,12 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
 
+  /**
+   * When `true`, #setUp will generate source files, start the compile server, and compile the project.
+   * Override to `false` for tests that use a static, pre-built test project (e.g., run via sbt shell).
+   */
+  protected def usesManagedSourcesAndCompilation: Boolean = true
+
   protected def reuseCompileServerProcessBetweenTests: Boolean = true
 
   override protected def setUpProject(): Unit = {
@@ -98,33 +104,37 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   }
 
   override protected def setUp(): Unit = {
-    // Make sure that the src and output dirs are clean before run, to avoid and collisions between previous test data state
-    // Note, we could do that in the end of the test in "tearDown",
-    // but it might just be helpful to leave them in place to inspect the created sources after local test execution
-    NioFiles.deleteRecursively(srcPath)
-    NioFiles.deleteRecursively(appOutputPath)
+    if (usesManagedSourcesAndCompilation) {
+      // Make sure that the src and output dirs are clean before run, to avoid and collisions between previous test data state
+      // Note, we could do that in the end of the test in "tearDown",
+      // but it might just be helpful to leave them in place to inspect the created sources after local test execution
+      NioFiles.deleteRecursively(srcPath)
+      NioFiles.deleteRecursively(appOutputPath)
 
-    Files.createDirectories(srcPath)
-    Files.createDirectories(classFilesOutputPath)
-    Files.createDirectories(checksumsPath)
+      Files.createDirectories(srcPath)
+      Files.createDirectories(classFilesOutputPath)
+      Files.createDirectories(checksumsPath)
 
-    sourceFiles.foreach { case (filePath, fileContents) =>
-      ensureFileExistsAndHasContent(filePath, fileContents)
+      sourceFiles.foreach { case (filePath, fileContents) =>
+        ensureFileExistsAndHasContent(filePath, fileContents)
+      }
     }
 
     super.setUp()
 
-    if (reuseCompileServerProcessBetweenTests) {
-      //noinspection ApiStatus,UnstableApiUsage
-      CompileServerTestUtil.registerLongRunningThreads()
-    } else {
-      // We don't want to reuse the compile server in this test class, but it may have already been started.
-      // We should shut it down first.
-      CompileServerLauncher.stopServerAndWait()
-    }
+    if (usesManagedSourcesAndCompilation) {
+      if (reuseCompileServerProcessBetweenTests) {
+        //noinspection ApiStatus,UnstableApiUsage
+        CompileServerTestUtil.registerLongRunningThreads()
+      } else {
+        // We don't want to reuse the compile server in this test class, but it may have already been started.
+        // We should shut it down first.
+        CompileServerLauncher.stopServerAndWait()
+      }
 
-    LocalFileSystem.getInstance().refreshNioFiles(srcPath.children().asJava)
-    compileProject()
+      LocalFileSystem.getInstance().refreshNioFiles(srcPath.children().asJava)
+      compileProject()
+    }
   }
 
   private def ensureFileExistsAndHasContent(relativePath: String, fileContent: String): Unit = {

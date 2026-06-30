@@ -5,7 +5,7 @@ import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandEventProcessor, ShellEvent}
 
-private[runner] final class RunContentConsoleOutputProcessor(processHandler: ProcessHandler)
+private[jetbrains] final class RunContentConsoleOutputProcessor(processHandler: ProcessHandler)
   extends SbtShellCommandEventProcessor.ListenerLike {
 
   private val ansiEscapeDecoder = new AnsiEscapeDecoder
