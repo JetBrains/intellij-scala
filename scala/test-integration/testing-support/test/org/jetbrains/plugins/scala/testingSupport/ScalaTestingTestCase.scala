@@ -159,6 +159,7 @@ abstract class ScalaTestingTestCase
   ): TestRunResult = {
     val testResultListener = new TestRunnerOutputListener(debugProcessOutput)
     val testStatusListener = new TestStatusListener
+    val exitCodeListener = new ProcessFinishedListener
     var testTreeRoot: Option[AbstractTestProxy] = None
 
     runConfig.getConfiguration.getProject
@@ -168,7 +169,7 @@ abstract class ScalaTestingTestCase
 
     val (handler, _) = EdtTestUtil.runInEdtAndGet(() => {
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
-      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener))
+      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener, exitCodeListener))
 
       runContentDescriptor.getExecutionConsole match {
         case widget if isJavaConsoleWithProfilerWidget(widget) =>
@@ -189,7 +190,7 @@ abstract class ScalaTestingTestCase
       (handler, runContentDescriptor)
     })
 
-    val exitCode = waitForTestEnd(handler, duration)
+    val exitCode = waitForTestEnd(handler, exitCodeListener, duration)
 
     val result = TestRunResult(
       runConfig,
@@ -215,13 +216,13 @@ abstract class ScalaTestingTestCase
 
   private def waitForTestEnd(
     handler: ProcessHandler,
+    exitCodeListener: ProcessFinishedListener,
     duration: FiniteDuration
   ): Try[Int] = {
-    val exitCodeListener = new ProcessFinishedListener
-    handler.addProcessListener(exitCodeListener)
     val exitCode = Try(Await.result(exitCodeListener.exitCodeFuture, duration))
     // in case of unprocessed output we want to wait for the process end until the project is disposed
-    handler.getProcessInput.flush()
+    val processInput = handler.getProcessInput
+    if (processInput != null) processInput.flush()
 
     if (!handler.isProcessTerminated) {
       ScalaExecutionTestUtils.printThreadDumpAfterTimeout(handler)
