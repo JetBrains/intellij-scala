@@ -471,6 +471,78 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // One cake path-dependent type through every dimension: the singleton `gen.global` is refined to
+  // `SymbolTable.this.type`, so `gen.blk: gen.global.Block` must collapse to `Block`
+  // (= `global.Block`, `Block <: Tree`) for each dimension below to type-check. scalac accepts
+  // all. Exercises one tricky path-dependent type through: (A) conformance, (B) parameter
+  // applicability, (C) type-parameter inference, (D) implicit-parameter resolution,
+  // (E) implicit conversion / extension method, (F) override matching.
+  def testCakePathDependentAllDimensions(): Unit = {
+    val code =
+      """
+        |trait Trees { self: SymbolTable =>
+        |  class Tree
+        |  class Block extends Tree
+        |}
+        |abstract class SymbolTable extends Trees {
+        |  val gen = new IGen { val global: SymbolTable.this.type = SymbolTable.this }
+        |}
+        |trait IGen {
+        |  val global: SymbolTable
+        |  import global._
+        |  def blk: Block = null
+        |}
+        |trait Analyzer { val global: SymbolTable }
+        |trait Typers { self: Analyzer =>
+        |  import global._
+        |
+        |  // (A) conformance — gen.blk (: gen.global.Block) assigned to Tree
+        |  val a: Tree = gen.blk
+        |
+        |  // (B) parameter applicability — gen.blk as an argument to a Tree parameter
+        |  def takeTree(t: Tree): Unit = ()
+        |  takeTree(gen.blk)
+        |
+        |  // (C) type-parameter inference — A inferred from gen.blk, result required as Tree
+        |  def id[A](x: A): A = x
+        |  val c: Tree = id(gen.blk)
+        |
+        |  // (D) implicit parameter — Show[Tree] satisfied from cake scope
+        |  trait Show[T] { def show(t: T): String }
+        |  implicit val showTree: Show[Tree] = new Show[Tree] { def show(t: Tree) = "" }
+        |  def render[T](t: T)(implicit s: Show[T]): String = s.show(t)
+        |  val d: String = render[Tree](gen.blk)
+        |
+        |  // (E) implicit conversion / extension method — gen.blk.pretty via treeOps: Tree => TreeOps
+        |  class TreeOps(t: Tree) { def pretty: String = "" }
+        |  implicit def treeOps(t: Tree): TreeOps = new TreeOps(t)
+        |  val e: String = gen.blk.pretty
+        |
+        |  // (F) override matching — Tree-typed signature overridden through an anonymous class
+        |  trait Transformer { def transform(t: Tree): Tree }
+        |  val f: Transformer = new Transformer { override def transform(t: Tree): Tree = t }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // Self-type this.type, implicit dimension: implicit search keys off the base types
+  // of the target. `render(this)` infers T = AnimalBox.this.type, whose self-type contributes
+  // base `Animal`; the needed `Pretty[Animal]` lives in `Animal`'s companion. scalac accepts.
+  def testSelfTypeThisImplicit(): Unit = {
+    val code =
+      """
+        |trait Pretty[-T] { def s(t: T): String }
+        |class Animal
+        |object Animal { implicit val p: Pretty[Animal] = new Pretty[Animal] { def s(t: Animal) = "" } }
+        |trait AnimalBox { self: Animal =>
+        |  def render[T](t: T)(implicit p: Pretty[T]): String = p.s(t)
+        |  val r: String = render(this)
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   // Whittled from the scala/scala reflect cake (internal.Scopes#Scope +
   // runtime.SynchronizedOps#newScope): `class Scope protected[Scopes] ()` is instantiated as
   // `new Scope with SynchronizedScope` from `SynchronizedOps`, which is NOT a subclass of the
