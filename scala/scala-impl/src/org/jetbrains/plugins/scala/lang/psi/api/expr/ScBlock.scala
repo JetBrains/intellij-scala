@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 
@@ -79,9 +80,41 @@ trait ScBlock extends ScExpression
           case scalaFile: ScalaFile if scalaFile.isCompiled => Nothing
           case _ => Unit
         }
-      case Some(e) => e.`type`().getOrAny
+      case Some(e) => avoidLocalSingletons(e.`type`().getOrAny)
     }
     Right(inner)
+  }
+
+  /**
+   * Type avoidance at the block boundary (scalac's `packedType`): a symbol owned by
+   * this block must not appear in the block's type. A block-local stable `val`'s
+   * singleton type (`X.type`, e.g. from a `this.type`-returning member) would
+   * otherwise escape its defining scope into the enclosing definition's inferred
+   * type. Widen any such local singleton to its underlying declared type, iterating
+   * because the widened type may itself mention another block-local singleton.
+   */
+  private def avoidLocalSingletons(tpe: ScType): ScType = {
+    def isLocalSingleton(t: ScType): Boolean = t match {
+      case owner: DesignatorOwner if owner.isSingleton =>
+        PsiTreeUtil.isAncestor(this, owner.element, /*strict*/ true)
+      case _ => false
+    }
+
+    if (!tpe.subtypeExists(isLocalSingleton)) tpe
+    else {
+      var current  = tpe
+      var continue = true
+      var guard    = 0
+      while (continue && guard < 8) {
+        guard += 1
+        val updated = current.updateRecursively {
+          case t if isLocalSingleton(t) => t.widen
+        }
+        continue = updated != current
+        current = updated
+      }
+      current
+    }
   }
 
   @tailrec
