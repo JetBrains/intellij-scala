@@ -471,6 +471,48 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // Whittled from the scala/scala reflect cake (internal.Scopes#Scope +
+  // runtime.SynchronizedOps#newScope): `class Scope protected[Scopes] ()` is instantiated as
+  // `new Scope with SynchronizedScope` from `SynchronizedOps`, which is NOT a subclass of the
+  // nested `Scope`. scalac accepts it because `new Scope with SynchronizedScope` defines an
+  // anonymous SUBCLASS of `Scope`, and a protected constructor is reachable as the super-ctor
+  // call from a subclass. IntelliJ reported a false "No constructor accessible from here".
+  def testProtectedCtorAnonClass(): Unit = {
+    val code =
+      """
+        |trait Scopes { self: SymbolTable =>
+        |  class Scope protected[Scopes] ()
+        |}
+        |trait SymbolTable extends Scopes
+        |trait T
+        |trait SynchronizedOps extends SymbolTable {
+        |  trait SynchronizedScope extends Scope
+        |  def newScope:   Scope = new Scope() with SynchronizedScope // the original cake shape
+        |  def viaMixin:   Scope = new Scope() with T                 // unrelated mixin is enough
+        |  def viaBody:    Scope = new Scope() {}                     // body form (already green)
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // Regression guard for the fix above: a *direct* `new Scope()` (single parent, no body) from a
+  // non-subclass is genuinely inaccessible and must still be reported. scalac rejects it too.
+  def testProtectedCtorDirectInstantiation(): Unit = {
+    val code =
+      """
+        |trait Scopes { self: SymbolTable =>
+        |  class Scope protected[Scopes] ()
+        |}
+        |trait SymbolTable extends Scopes
+        |trait SynchronizedOps extends SymbolTable {
+        |  def bad: Scope = new Scope()
+        |}
+      """.stripMargin
+    assertMatches(errorsFromScalaCode(code)) {
+      case Error(_, "No constructor accessible from here") :: Nil =>
+    }
+  }
+
   def testScl13051_2(): Unit = {
     val code =
       s"""
