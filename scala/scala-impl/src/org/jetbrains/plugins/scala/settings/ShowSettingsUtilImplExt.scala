@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.settings
 
+import com.intellij.ide.actions.ShowSettingsUtilImpl
 import com.intellij.openapi.options.ex.{ConfigurableExtensionPointUtil, ConfigurableVisitor, ConfigurableWrapper}
-import com.intellij.openapi.options.newEditor.SettingsDialogFactory
 import com.intellij.openapi.options.{Configurable, SearchableConfigurable}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import org.jetbrains.annotations.Nullable
@@ -33,8 +33,7 @@ object ShowSettingsUtilImplExt {
   private def showSettingsDialogImpl(@Nullable project: Project, visitor: ConfigurableVisitor, filter: String): Unit = {
     val group = ConfigurableExtensionPointUtil.getConfigurableGroup(project, true)
     val config = ConfigurableVisitor.find(visitor, java.util.List.of(group))
-    val dialog = SettingsDialogFactory.getInstance.create(getProject(project), Collections.singletonList(group), config, filter)
-    dialog.show()
+    ShowSettingsUtilImpl.showSettingsDialog(getProject(project), ConfigurableVisitor.getId(config), filter)
   }
 
   private def getProject(project: Project): Project =
