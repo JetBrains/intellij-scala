@@ -115,7 +115,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     val updatedType = substitutor.recursiveUpdateImpl(projected, Covariant)
 
     if (!needUpdate || (updatedType eq projected)) pt
-    else ScProjectionType(updatedType, pt.element)
+    else ThisTypeSubstitution.canonicalizeTarget(ScProjectionType(updatedType, pt.element))
   }
 
   private def updateMethodType(mt: ScMethodType,
