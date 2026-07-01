@@ -201,10 +201,10 @@ object ScSubstitutor {
   }
 
   def apply(updateThisType: ScType): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(updateThisType, null))
+    ScSubstitutor(ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), null))
 
   def apply(updateThisType: ScType, seenFromClass: PsiClass): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(updateThisType, seenFromClass))
+    ScSubstitutor(ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass))
 
   /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
    *  scalac's `sym.owner` in `sym.info.asSeenFrom(pre, sym.owner)`. `null` when there is
