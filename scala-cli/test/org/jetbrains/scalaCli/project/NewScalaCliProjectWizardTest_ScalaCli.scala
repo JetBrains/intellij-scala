@@ -50,6 +50,8 @@ import scala.util.Try
  */
 abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTestBase {
 
+  protected final val SupportedScala3Version = "3.3.3"
+
   /**
    * All tests in this class have the same project name.
    * This is just a simplification, so that in the #setUp method, the Scala CLI run script can be placed in the right place.
@@ -124,6 +126,13 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       )
     })
   }
+
+  protected final def availableScalaVersionsFromScalaCliWizard: Seq[String] =
+    availableScalaVersionsFromWizard(NewProjectWizardConstants.Language.SCALA, projectName, checkJDK = false) { step =>
+      scalaBuildSystemData(step).setBuildSystem("Scala CLI")
+
+      scalaData(step).availableScalaVersions
+    }
 
   // The test framework's getContentRoot and scala.sys.process APIs only provide/accept java.io.File; there is no nio.Path-based alternative.
   //noinspection SSBasedInspection
@@ -231,11 +240,17 @@ class NewScalaCliProjectWizardTest_ScalaCli extends NewScalaCliProjectWizardTest
   def testCreateSimpleProjectScala2(): Unit =
     runSimpleCreateProjectTest("2.13.14", shouldExcludeScalaBuild = false)
 
+  def testScala3VersionsOlderThan3_3_0AreHidden(): Unit = {
+    val versions = availableScalaVersionsFromScalaCliWizard
+
+    assertUnsupportedScala3VersionsAreHidden(versions, ScalaVersion.Latest.Scala_3_3.withMinor(0))
+  }
+
   def testCreateSimpleProjectScala3(): Unit =
-    runSimpleCreateProjectTest("3.0.2", shouldExcludeScalaBuild = false)
+    runSimpleCreateProjectTest(SupportedScala3Version, shouldExcludeScalaBuild = false)
 
   def testCreateSimpleProjectScala3AndUseIndentationBasedSyntax(): Unit =
-    runSimpleCreateProjectTest( "3.3.3", useIndentationBasedSyntax = true, shouldExcludeScalaBuild = false)
+    runSimpleCreateProjectTest(SupportedScala3Version, useIndentationBasedSyntax = true, shouldExcludeScalaBuild = false)
 }
 
 /**
@@ -267,7 +282,7 @@ class NewScalaCliProjectWizard_ScalaWithoutScalaCLI extends NewScalaCliProjectWi
     UsefulTestCase.assertThrows(
       classOf[Exception],
       expectedErrorMessage,
-      () => runSimpleCreateProjectTest("3.0.2")
+      () => runSimpleCreateProjectTest(SupportedScala3Version)
     )
   }
 }
@@ -302,6 +317,6 @@ class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizar
       if (scalaVersion == Scala_3_5 || scalaVersion == Scala_3_6) false
       else true
 
-    runSimpleCreateProjectTest("3.0.2", useIndentationBasedSyntax = false, shouldExcludeScalaBuild)
+    runSimpleCreateProjectTest(SupportedScala3Version, useIndentationBasedSyntax = false, shouldExcludeScalaBuild)
   }
 }

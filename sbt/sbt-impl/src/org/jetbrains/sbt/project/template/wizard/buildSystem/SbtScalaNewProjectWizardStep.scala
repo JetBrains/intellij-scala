@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.project.template.PackagePrefixStepLike
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.SbtVersion
+import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.{MinSupportedScala3Version, filterScala2OrSupportedScala3Versions}
 import org.jetbrains.sbt.project.template.wizard.{SbtNewProjectWizardStep, ScalaNewProjectWizardMultiStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
@@ -44,7 +45,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   private val availableSbtVersions: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
   private val availableSbtVersionsForScala3: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
 
-  override protected lazy val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
+  override protected lazy val defaultAvailableScalaVersions: Seq[String] =
+    filterAvailableScalaVersions(Versions.Scala.allHardcodedVersions.map(_.presentation))
+
+  override protected def filterAvailableScalaVersions(scalaVersions: Seq[String]): Seq[String] =
+    filterScala2OrSupportedScala3Versions(scalaVersions, MinSupportedScala3Version)
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
@@ -60,6 +65,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override def setUseIndentationBasedSyntax(use: Boolean): Unit = setUseIndentationBasedSyntaxProperty(use)
+  @TestOnly override def availableScalaVersions: Seq[String] = availableScalaVersionsForTests
+
   @TestOnly override private[project] def setSbtVersion(version: String): Unit = sbtVersionComboBox.setSelectedItemEnsuring(SbtVersion(version))
   @TestOnly override private[project] def setPackagePrefix(prefix: String): Unit = packagePrefixTextField.setText(prefix)
 

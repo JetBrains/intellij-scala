@@ -16,6 +16,20 @@ import java.nio.file.{Files, Path}
 abstract class NewSbtProjectWizardTestBase extends NewScalaProjectWizardTestBase {
   import NewSbtProjectWizardTestBase.SbtWizardProjectConfig
 
+  protected final def availableScalaVersionsFromSbtWizard: Seq[String] =
+    availableScalaVersionsFromWizard(
+      NewProjectWizardConstants.Language.SCALA,
+      "sbt_project_template_versions",
+      checkJDK = false
+    ) { step =>
+      scalaBuildSystemData(step).setBuildSystem(NewProjectWizardConstants.BuildSystem.SBT)
+
+      val sbtData = scalaSbtData(step)
+      sbtData.setRunImportAfterProjectCreation(false)
+      scalaSampleCodeData(step).setAddSampleCode(false)
+      sbtData.availableScalaVersions
+    }
+
   protected final case class GeneratedProjectFilesExpectation(
     buildSbt: String,
     buildProperties: String,

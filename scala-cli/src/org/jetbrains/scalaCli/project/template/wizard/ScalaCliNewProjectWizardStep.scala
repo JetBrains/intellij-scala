@@ -16,6 +16,7 @@ import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
+import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.{MinSupportedScala3Version, filterScala2OrSupportedScala3Versions}
 import org.jetbrains.sbt.project.template.wizard.{ScalaNewProjectWizardMultiStep, ScalaVersionStepLike}
 import org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetup
 import org.jetbrains.scalaCli.{ScalaCliBundle, ScalaCliUtils}
@@ -31,7 +32,11 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     with ScalaSampleCodeNewProjectWizardData
     with ScalaVersionStepLike {
 
-  override protected val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
+  override protected val defaultAvailableScalaVersions: Seq[String] =
+    filterAvailableScalaVersions(Versions.Scala.allHardcodedVersions.map(_.presentation))
+
+  override protected def filterAvailableScalaVersions(scalaVersions: Seq[String]): Seq[String] =
+    filterScala2OrSupportedScala3Versions(scalaVersions, MinSupportedScala3Version)
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
@@ -44,6 +49,7 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override def setUseIndentationBasedSyntax(use: Boolean): Unit = setUseIndentationBasedSyntaxProperty(use)
+  @TestOnly override def availableScalaVersions: Seq[String] = availableScalaVersionsForTests
   @TestOnly override def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
 
   locally {
