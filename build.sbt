@@ -394,6 +394,7 @@ lazy val scalaImpl: sbt.Project =
       runners,
       testRunners,
       testUtilsCommon % "test->test",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       ideExcludedDirectories := Seq(

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
-import org.jetbrains.plugins.scala.util.RevertableChange
+import org.jetbrains.plugins.scala.util.CommonScalaRevertableChanges
 import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.nio.file.Path
@@ -80,7 +80,7 @@ final class OptimizeImportsWithScalafmtFormatterWithLibraries extends OptimizeIm
     IvyManagedLoader("com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"),
   )
 
-  def testSCL23213(): Unit = RevertableChange.withCompilerSettingsModified(
+  def testSCL23213(): Unit = CommonScalaRevertableChanges.withCompilerSettingsModified(
     getModule,
     s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-Xsource:3-cross")
   ) {
@@ -99,7 +99,7 @@ class OptimizeImportsWithScalafmtFormatterRenamedImportsSource3 extends Optimize
 
   def testSCL23689_Optimize(): Unit = runSCL23689Test()
 
-  private def runSCL23689Test(): Unit = RevertableChange.withCompilerSettingsModified(
+  private def runSCL23689Test(): Unit = CommonScalaRevertableChanges.withCompilerSettingsModified(
     getModule,
     s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-Xsource:3")
   ) {
