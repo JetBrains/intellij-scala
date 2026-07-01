@@ -1,15 +1,15 @@
-import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import Common.*
 import CompilationCache.compilationCacheSettings
 import Dependencies.provided
 import DynamicDependenciesFetcher.*
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
+import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
+import org.jetbrains.sbt.kotlin.Keys.kotlincOptions
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
 import teamcity.TeamCityAPI
 
 import java.nio.file.Path
-import kotlin.Keys.kotlincOptions
 
 // Global build settings
 
