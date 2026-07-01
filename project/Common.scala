@@ -1,15 +1,15 @@
 import AttributedClasspathUtils.buildIntellijSdkSubsetAttributedClasspath
 import CompilationCache.compilationCacheSettings
 import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
+import org.jetbrains.sbt.kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
+import org.jetbrains.sbt.kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
+import sbt.*
 import sbt.Keys.*
 import sbt.Project.projectToRef
-import sbt.{Def, *}
 
 import java.nio.file.Path
-import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
-import kotlin.KotlinPlugin
 
 object Common {
   final val JetBrains = "JetBrains"
