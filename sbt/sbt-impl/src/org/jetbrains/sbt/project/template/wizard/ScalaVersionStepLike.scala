@@ -11,7 +11,7 @@ import com.intellij.openapi.ui.validation.RequestorsKt
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.{ComboBoxKt, Panel, Row, RowLayout}
 import com.intellij.util.lang.JavaVersion
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUtils
 import org.jetbrains.plugins.scala.extensions.applyTo
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
@@ -33,6 +33,12 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
 
   protected def defaultAvailableScalaVersions: Seq[String]
 
+  protected def filterAvailableScalaVersions(scalaVersions: Seq[String]): Seq[String] = scalaVersions
+
+  @TestOnly
+  protected final def availableScalaVersionsForTests: Seq[String] =
+    (0 until scalaVersionComboBox.getItemCount).map(scalaVersionComboBox.getItemAt)
+
   protected val isScalaVersionManuallySelected: AtomicBoolean = AtomicBoolean(false)
 
   protected val isScalaLoading = AtomicBoolean(false)
@@ -51,7 +57,7 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
       Versions.Scala.loadVersionsWithProgress(indicator)
     }
     downloadVersionsAsynchronously(isScalaLoading, disposable, scalaDownloadVersions, Versions.Scala.toString) { versions =>
-      val stringRepresentation = versions.map(_.presentation)
+      val stringRepresentation = filterAvailableScalaVersions(versions.map(_.presentation))
       updateSelectionsAndElementsModelForScala(stringRepresentation)
     }
   }
@@ -194,6 +200,20 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
 }
 
 object ScalaVersionStepLike {
+  // See SCL-22032
+  val MinSupportedScala3Version: ScalaVersion = ScalaVersion.Latest.Scala_3_3.withMinor(0)
+
+  def filterScala2OrSupportedScala3Versions(scalaVersions: Seq[String], minSupportedScala3Version: ScalaVersion): Seq[String] =
+    scalaVersions.filter { scalaVersion =>
+      ScalaVersion.fromString(scalaVersion).forall(isScala2OrSupportedScala3Version(_, minSupportedScala3Version))
+    }
+
+  private def isScala2OrSupportedScala3Version(scalaVersion: ScalaVersion, minSupportedScala3Version: ScalaVersion): Boolean =
+    scalaVersion.isScala2 || scalaVersion >= minSupportedScala3Version
+
+  def isSupportedScala3Version(scalaVersion: ScalaVersion, minSupportedScala3Version: ScalaVersion): Boolean =
+    scalaVersion.isScala3 && scalaVersion >= minSupportedScala3Version
+
   /**
    * Context required to perform Scala/JDK compatibility validation for the Scala version field.
    *

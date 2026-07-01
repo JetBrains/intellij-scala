@@ -6,6 +6,9 @@ import org.jetbrains.annotations.{Nullable, TestOnly}
 
 trait ScalaNewProjectWizardData {
   @TestOnly
+  def availableScalaVersions: Seq[String]
+
+  @TestOnly
   def setScalaVersion(version: String): Unit
 
   @TestOnly
