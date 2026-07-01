@@ -18,6 +18,7 @@
   <dependencies>
     <plugin id="org.jetbrains.idea.maven"/>
     <module name="scalaCommunity.compiler-integration"/>
+    <module name="scalaCommunity.testing-support"/>
   </dependencies>
 
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
