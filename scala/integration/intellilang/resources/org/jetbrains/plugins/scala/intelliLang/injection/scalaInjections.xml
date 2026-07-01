@@ -10,6 +10,13 @@
     <display-name>Regex (scala.util.matching)</display-name>
     <place><![CDATA[scalaLiteral().constructorCallArgument("scala.util.matching.Regex", 0, "java.lang.String", "java.lang.String*")]]></place>
   </injection>
+  <injection language="SQL" injector-id="scala">
+    <display-name>Doobie SQL constructors</display-name>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String", "org.typelevel.doobie.util.Write").definedInClass("org.typelevel.doobie.util.update.Update$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option").definedInClass("org.typelevel.doobie.util.update.Update0$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String", "org.typelevel.doobie.util.Write", "org.typelevel.doobie.util.Read").definedInClass("org.typelevel.doobie.util.query.Query$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String").definedInClass("org.typelevel.doobie.util.query.Query0$"))]]></place>
+  </injection>
 
 <!--
 NOTE: this single injection is left commented just to show an example of how you can write patterns for Scala code
