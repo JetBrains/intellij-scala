@@ -17,9 +17,10 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.ui.{Gray, JBColor}
 import com.intellij.util.ui.StartupUiUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.awt.Color
 import java.util
@@ -89,7 +90,7 @@ object Tracing {
     val containingFile = e.getContainingFile
     if (containingFile == null) return
 
-    VisibleRange.editorsFor(containingFile).foreach { editor =>
+    editorsFor(containingFile).foreach { editor =>
       if (isHighlightingTracingInEditorEnabled) {
         reason match {
           case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)
@@ -117,6 +118,14 @@ object Tracing {
 //        println(text)
       }
     }
+  }
+
+  private def editorsFor(psiFile: PsiFile): Iterable[Editor] = if (ScalaProjectSettings.in(psiFile.getProject).isIncrementalHighlighting) {
+    VisibleRange.editorsFor(psiFile) // Use cached editors when possible
+  } else {
+    val document = psiFile.getViewProvider.getDocument
+    if (document == null) Seq.empty
+    else EditorFactory.getInstance.getEditors(document).toSeq
   }
 
   private def highlightElement(editor: Editor, e: PsiElement, start: Boolean, key: Key[Either[RangeHighlighter, Unit]], color: Color): Unit = e.synchronized {
