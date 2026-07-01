@@ -108,6 +108,7 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       i18nIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
+      languageInjectionTests % "test->teste some",
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
@@ -1124,9 +1125,28 @@ lazy val intelliLangIntegration = newProject(
 ).settings(
   scalaVersion := Versions.scala3Version,
   Compile / scalacOptions := globalScala3ScalacOptions,
-  intellijPlugins += "com.intellij.modules.json".toPlugin,
-  packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang")
+  packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang"),
 )
+
+lazy val languageInjectionTests =
+  newProject("language-injection-tests", file("scala/integration/language-injection-tests"))
+    .dependsOn(
+      intelliLangIntegration % "test->test;compile->compile"
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      // Note: these plugins are added to access JSON and SQL languages in tests.
+      // Without them being available in the classpath, the language injection logic won't find the languages.
+      // Database plugin descriptors also require Navbar and Grid plugin content modules to load SQL parser definitions.
+      intellijPlugins ++= Seq(
+        "com.intellij.modules.json".toPlugin,
+        "intellij.navbar.plugin".toPlugin,
+        "intellij.grid.core.plugin".toPlugin,
+        "intellij.grid.plugin".toPlugin,
+        "com.intellij.database".toPlugin,
+      ),
+    )
 
 lazy val markdownIntegration =
   newProject("markdown", file("scala/integration/markdown"))

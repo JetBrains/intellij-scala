@@ -333,22 +333,22 @@ final class ScalaLanguageInjector extends MultiHostInjector {
      * Optimization against freeze (see SCL-16749):<br>
      * acceptsPsiElement under the hood does many resolving
      *
-     * @see [[org.jetbrains.plugins.scala.patterns.ScalaElementPattern]]
-     *      [[org.intellij.plugins.intelliLang.inject.config.BaseInjection#acceptsPsiElement(com.intellij.psi.PsiElement)]]
-     *      [[./scalaInjections.xml]]
+     * @see [[org.jetbrains.plugins.scala.patterns.ScalaElementPattern]]<br>
+     *      [[org.intellij.plugins.intelliLang.inject.config.BaseInjection#acceptsPsiElement(com.intellij.psi.PsiElement)]]<br>
+     *      `scala/integration/intellilang/resources/org/jetbrains/plugins/scala/intelliLang/injection/scalaInjections.xml`
      */
     if (shouldAvoidResolve)
       return false
 
-    val baseInjection = injections.iterator.asScala.find(_.acceptsPsiElement(elementToAccept)).orNull
-    if (baseInjection == null)
+    val matchedInjection = injections.iterator.asScala.find(_.acceptsPsiElement(elementToAccept)).orNull
+    if (matchedInjection == null)
       return false
 
-    val language = baseInjection.getInjectedLanguage
+    val language = matchedInjection.getInjectedLanguage
     if (language == null)
       return false
 
-    inject(host, literals, language, baseInjection.getPrefix, baseInjection.getSuffix)
+    inject(host, literals, language, matchedInjection.getPrefix, matchedInjection.getSuffix)
 
     true
   }
