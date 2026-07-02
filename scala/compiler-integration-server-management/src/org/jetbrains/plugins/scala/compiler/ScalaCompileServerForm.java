@@ -173,19 +173,31 @@ public class ScalaCompileServerForm implements Configurable {
 
     @Override
     public boolean isModified() {
-        Sdk sdk = myCompilationServerSdk.getSelectedJdk();
-        String sdkName = sdk == null ? null : sdk.getName();
+        final var sdk = myCompilationServerSdk.getSelectedJdk();
+        final var sdkName = sdk == null ? null : sdk.getName();
 
-        return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
-                sdkModel.isDefault(sdk) == mySettings.USE_DEFAULT_SDK &&
-                ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
-                heapSizeAsString().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
-                myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
-                myProjectHomeChb.isSelected() == mySettings.USE_PROJECT_HOME_AS_WORKING_DIR &&
-                myShutdownServerCheckBox.isSelected() == mySettings.COMPILE_SERVER_SHUTDOWN_IDLE &&
-                (Integer) (myShutdownDelay.getModel().getValue()) == mySettings.COMPILE_SERVER_SHUTDOWN_DELAY &&
-                (Integer) (myParallelism.getModel().getValue()) == mySettings.COMPILE_SERVER_PARALLELISM &&
-                myParallelCompilation.isSelected() == mySettings.COMPILE_SERVER_PARALLEL_COMPILATION
+        final var compileServerEnabledMatches = myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED;
+        final var sdkSettingsMatch = sdkModel.isDefault(sdk)
+                ? mySettings.USE_DEFAULT_SDK
+                : ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK);
+        final var heapSizeMatches = heapSizeAsString().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE);
+        final var serverParamsMatch = myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS);
+        final var useProjectDirMatches = myProjectHomeChb.isSelected() == mySettings.USE_PROJECT_HOME_AS_WORKING_DIR;
+        final var shutdownIdleMatches = myShutdownServerCheckBox.isSelected() == mySettings.COMPILE_SERVER_SHUTDOWN_IDLE;
+        final var shutdownDelayMatches = (Integer) (myShutdownDelay.getModel().getValue()) == mySettings.COMPILE_SERVER_SHUTDOWN_DELAY;
+        final var parallelismMatches = (Integer) (myParallelism.getModel().getValue()) == mySettings.COMPILE_SERVER_PARALLELISM;
+        final var parallelCompilationMatches = myParallelCompilation.isSelected() == mySettings.COMPILE_SERVER_PARALLEL_COMPILATION;
+
+        return !(
+                compileServerEnabledMatches &&
+                sdkSettingsMatch &&
+                heapSizeMatches &&
+                serverParamsMatch &&
+                useProjectDirMatches &&
+                shutdownIdleMatches &&
+                shutdownDelayMatches &&
+                parallelismMatches &&
+                parallelCompilationMatches
         );
     }
 
