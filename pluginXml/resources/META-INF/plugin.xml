@@ -80,8 +80,6 @@
         <module name="scalaCommunity.junit"/>
         <module name="scalaCommunity.markdown"/>
         <module name="scalaCommunity.maven"/>
-        <module name="scalaCommunity.mlCompletion"/>
-        <module name="scalaCommunity.mlCompletion.properties"/>
         <module name="scalaCommunity.properties"/>
         <module name="scalaCommunity.textAnalysis"/>
         <module name="scalaCommunity.intelliLang"/>
