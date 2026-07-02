@@ -16,7 +16,7 @@ import java.nio.file.Path
 
 (ThisBuild / intellijBuild) := Versions.intellijVersion
 
-(ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
+(ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.Idea).value
 
 (ThisBuild / autoRemoveOldCachedIntelliJSDK) := true
 (ThisBuild / autoRemoveOldCachedDownloads) := true
