@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 
-import java.lang.System.identityHashCode
 import java.util.concurrent.ConcurrentHashMap
 
 class ImplicitCollectorCache(project: Project) {
@@ -93,13 +92,13 @@ class ImplicitCollectorCache(project: Project) {
   ) {
     override def hashCode(): Int =
       fun.hashCode() #+
-        identityHashCode(substitutor) #+
+        substitutor.hashCode() #+
         exportedInExtension #+
         typeFromMacro
 
     override def equals(obj: Any): Boolean = obj match {
       case NonValueTypesKey(otherFun, otherSubst, otherExportedInExtension, otherType) =>
-        otherFun == fun && (substitutor eq otherSubst) &&
+        otherFun == fun && substitutor == otherSubst &&
           exportedInExtension == otherExportedInExtension &&
           typeFromMacro == otherType
       case _ =>
