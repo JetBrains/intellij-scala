@@ -50,7 +50,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   private lazy val collectDiagnostics: Boolean =
     isInternalMode || isUnitTestMode
 
-  private val diagnosticEvents = new ConcurrentLinkedQueue[String]()
+  private case class RecordedDiagnosticEvent(timestampMs: Long, event: SbtShellDiagnosticEvent)
+
+  private val diagnosticEvents = new ConcurrentLinkedQueue[RecordedDiagnosticEvent]()
 
   @TestOnly
   private[shell] def diagnosticsSnapshot: String = {
@@ -58,6 +60,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val emptyingQueue = Option(emptyingQueueFuture.get())
     val transitionHistory = lifecycle.transitionHistorySnapshot.takeRight(MaxDiagnosticEvents)
     val events = diagnosticEvents.iterator.asScala.toSeq.takeRight(MaxDiagnosticEvents)
+      .map(r => s"${r.timestampMs} ${SbtShellDiagnosticEvent.render(r.event)}")
 
     s"""SbtShellCommunication diagnostics:
        |currentState=$currentState
@@ -133,11 +136,11 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   override def run[A](request: SbtShellCommandRequest[A]): Future[A] = {
     val requestId = request.requestId
     Log.debug(s"command start: requestId=$requestId, state=$currentState...")
-    recordDiagnosticEvent(s"run start: requestId=$requestId, state=$currentState")
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.RunStart(requestId, currentState))
 
     val requestNew = request.withProcessorModified(_.tap {
       case ErrorWaitForInput =>
-        recordDiagnosticEvent(s"ErrorWaitForInput detected: requestId=$requestId, state=$currentState")
+        recordDiagnosticEvent(SbtShellDiagnosticEvent.ErrorWaitForInputDetected(requestId, currentState))
         // When sbt displays an interactive error prompt, automatically send "i" (ignore) to continue
         sendIgnore()
       case _ =>
@@ -149,9 +152,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     if (isDestroyingOrEmptyingQueueInProgress) {
       Log.debug(s"command: enqueue to afterRestartCommands: requestId=$requestId...")
-      recordDiagnosticEvent(
-        s"enqueue afterRestartCommands: requestId=$requestId, shellWasReadyForImmediateSubmission=$shellWasReadyForImmediateSubmission, state=$currentState"
-      )
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueAfterRestartCommands(requestId, shellWasReadyForImmediateSubmission, currentState))
 
       afterRestartCommands.put(qc)
       notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
@@ -162,9 +163,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       // Introducing an explicit "Start" state would likely be a solution.
 
       Log.debug(s"command: enqueue to commands: requestId=$requestId...")
-      recordDiagnosticEvent(
-        s"enqueue commands: requestId=$requestId, shellWasReadyForImmediateSubmission=$shellWasReadyForImmediateSubmission, state=$currentState"
-      )
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueCommands(requestId, shellWasReadyForImmediateSubmission, currentState))
 
       commands.put(qc)
       notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
@@ -173,9 +172,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     }
 
     Log.debug(s"### command finish: requestId=$requestId, commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}, state=$currentState")
-    recordDiagnosticEvent(
-      s"run finish: requestId=$requestId, commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}, state=$currentState"
-    )
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.RunFinish(requestId, commands.size(), afterRestartCommands.size(), currentState))
 
     listener.future
   }
@@ -205,7 +202,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   private def terminatePendingCommands(commandsQueue: LinkedBlockingQueue[QueuedCommand]): Unit = {
     commandsQueue.forEach { case QueuedCommand(request, listener) =>
       Log.warn(s"Sbt shell is terminated, skipping command: requestId=${request.requestId}")
-      recordDiagnosticEvent(s"terminate pending command: requestId=${request.requestId}, state=$currentState")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.TerminatePendingCommand(request.requestId, currentState))
       queuedStartupOutputMirroring.remove(Some(request.requestId))
       listener.processTerminated()
     }
@@ -220,7 +217,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    */
   private def sendIgnore(): Unit = {
     if currentState.isShuttingDownOrOff then
-      recordDiagnosticEvent(s"sendIgnore skipped: state=$currentState")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.SendIgnoreSkipped(currentState))
       return
 
     val sbtVersion = getRunningOrDetectedSbtVersion
@@ -228,9 +225,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val isLinux = SystemInfo.isLinux
     val requiresNewLine = isLoadFailureIgnoreNewlineRequired(sbtVersion, isNewShell, isLinux)
     val command = loadFailureIgnoreCommand(sbtVersion, isNewShell, isLinux)
-    recordDiagnosticEvent(
-      s"sendIgnore: sbtVersion=$sbtVersion, isNewShell=$isNewShell, isLinux=$isLinux, requiresNewLine=$requiresNewLine, command=${oneLine(command)}, state=$currentState"
-    )
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.SendIgnore(sbtVersion, isNewShell, isLinux, requiresNewLine, command, currentState))
 
     send(command)
   }
@@ -275,12 +270,12 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     if (removedElement != null) {
       Log.debug(s"removeCommandFromQueueOrCancel removed from queue: requestId=$requestId")
-      recordDiagnosticEvent(s"removeCommandFromQueueOrCancel removed from queue: requestId=$requestId")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.RemoveFromQueue(requestId))
       queuedStartupOutputMirroring.remove(Some(requestId))
       removedElement.listener.processTerminated()
     } else {
       Log.debug(s"removeCommandFromQueueOrCancel not found in queue, requesting process cancellation: requestId=$requestId...")
-      recordDiagnosticEvent(s"removeCommandFromQueueOrCancel not found, requesting cancellation: requestId=$requestId")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.CancelRequested(requestId))
       process.requestTaskCancellation()
     }
 
@@ -308,9 +303,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
         }
 
         Log.info(s"startQueueProcessing stop loop: handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState")
-        recordDiagnosticEvent(
+        recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(
           s"startQueueProcessing stop loop: handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState"
-        )
+        ))
 
         // If the current state is not shutting down or off, it means the process was terminated externally (e.g., from Activity Monitor),
         // not via `SbtProcessManager.destroyProcess`. In this case, explicitly call `SbtProcessManager.destroyProcess` to properly execute the chain of
@@ -433,7 +428,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val requestId = request.requestId
 
     Log.debug(s"processCommand start: requestId=$requestId...")
-    recordDiagnosticEvent(s"processCommand start: requestId=$requestId, state=$currentState")
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.ProcessCommandStart(requestId, currentState))
 
     listener.started()
 
@@ -450,7 +445,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       // Consider - maybe not all commands should be escaped e.g. tasks from the sbt tool window.
       // But this is how it used to work in the "old shell".
       val commandText = request.sbtCommandText
-      recordDiagnosticEvent(s"processCommand command text: requestId=$requestId, command=${oneLine(commandText)}")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"processCommand command text: requestId=$requestId, command=${oneLine(commandText)}"))
       shell.print(s" $commandText")
       // note: the reason why instead of simply doing "shell.println", it was split into command execution and "\n" is Windows
       // and how com.pty4j.windows.winpty.WinPTYOutputStream works
@@ -463,12 +458,16 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     }
 
     Log.debug(s"processCommand command sent: requestId=$requestId")
-    recordDiagnosticEvent(s"processCommand command sent: requestId=$requestId, state=$currentState")
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"processCommand command sent: requestId=$requestId, state=$currentState"))
 
     listener.future.onComplete { result =>
       handler.removeProcessListener(listener)
       Log.debug(s"processCommand finish: requestId=$requestId")
-      recordDiagnosticEvent(s"processCommand finish: requestId=$requestId, result=${result.fold(error => s"failure=${error.getClass.getName}: ${oneLine(error.getMessage)}", _ => "success")}, state=$currentState")
+      val resultString = result.fold(
+        error => s"failure=${error.getClass.getName}: ${error.getMessage}",
+        _ => "success"
+      )
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.ProcessCommandFinish(requestId, resultString, currentState))
     }
   }
 
@@ -499,9 +498,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
             shellQueueReady.release()
             emitShellStateEvent(shellEventBasedOnCommandsQueue())
           }
-          recordDiagnosticEvent(
+          recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(
             s"ready prompt callback: canHandle=$canHandle, handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState"
-          )
+          ))
         },
         whenWorking = {
           // Ignore late non-prompt output from the terminating process for the same reason.
@@ -509,9 +508,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
           if (canHandle) {
             onShellStartedWorking()
           }
-          recordDiagnosticEvent(
+          recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(
             s"working output callback: canHandle=$canHandle, handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState"
-          )
+          ))
         },
         project
       )
@@ -547,7 +546,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val previous = currentState
     val next = SbtShellLifecycle.getInstance(project).transition(currentState, event)
     stateRef.set(next)
-    recordDiagnosticEvent(s"emitShellStateEvent: $previous --$event--> $next")
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"emitShellStateEvent: $previous --$event--> $next"))
     testStateListener.foreach(_(next))
   }
 
@@ -565,17 +564,17 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     override def onLine(line: String): Unit =
       if (SbtShellOutputRecognizer.isPromptReady(line, isNewSbtShell)) {
-        recordDiagnosticEvent(s"initial listener ready prompt: line=${oneLine(line)}")
+        recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"initial listener ready prompt: line=${oneLine(line)}"))
         isReadyState = true
       } else if (!isReadyState && SbtShellOutputRecognizer.isProjectLoadingPromptError(line)) {
-        recordDiagnosticEvent(s"initial listener project loading prompt: line=${oneLine(line)}")
+        recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"initial listener project loading prompt: line=${oneLine(line)}"))
         sendIgnore()
       }
   }
 
-  private def recordDiagnosticEvent(event: String): Unit =
+  private def recordDiagnosticEvent(event: SbtShellDiagnosticEvent): Unit =
     if (collectDiagnostics) {
-      diagnosticEvents.add(s"${System.currentTimeMillis()} $event")
+      diagnosticEvents.add(RecordedDiagnosticEvent(System.currentTimeMillis(), event))
     }
 
   private def oneLine(text: String): String = {
