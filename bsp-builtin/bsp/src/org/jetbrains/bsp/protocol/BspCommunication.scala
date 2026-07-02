@@ -194,9 +194,9 @@ class BspCommunication private[protocol](base: Path, initialServerConfig: BspSer
       case Some(jdk) =>
         val connector =
           if eelDescriptor == LocalEelDescriptor.INSTANCE then
-            new BloopLocalLauncherConnector(base, compilerOutputDir, capabilities, jdk)
+            BloopLocalLauncherConnector(base, compilerOutputDir, capabilities, jdk)
           else
-            new BloopRemoteLauncherConnector(base, compilerOutputDir, capabilities, jdk, eelDescriptor)
+            BloopRemoteLauncherConnector(base, compilerOutputDir, capabilities, jdk, eelDescriptor)
         Right(connector)
       case None => Left(BspNoJdkConfiguredError)
     }
