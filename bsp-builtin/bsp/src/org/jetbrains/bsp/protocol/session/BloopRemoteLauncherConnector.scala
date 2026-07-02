@@ -248,6 +248,8 @@ private[protocol] class BloopRemoteLauncherConnector(
       }
 
   /** Finds a free port on a remote machine to start the Bloop server or open a BSP socket connection. */
+  // There is a very small chance that the port returned by this method will no longer
+  // be available when Bloop tries to use it. For now, let's see how this works in practice and fix it in the future if needed.
   private def findAvailablePort(): Integer =
     runBlockingCancellable { (_, continuation) =>
       IjentTunnelsUtil.findAvailablePort(eelTunnels, continuation)
@@ -275,7 +277,8 @@ private[protocol] class BloopRemoteLauncherConnector(
   )(using reporter: BuildReporter, indicator: Option[ProgressIndicator]): Either[BspError, Socket] = {
     def isReady(socket: Socket): Boolean =
       try {
-        socket.connect(InetSocketAddress(LocalHost, localPort))
+        val connectTimeoutMs = 30000
+        socket.connect(InetSocketAddress(LocalHost, localPort), connectTimeoutMs)
         socket.setSoTimeout(500) // Set short read timeout to not block indefinitely
         val byte = socket.getInputStream.read()
         byte != -1 // -1 = EOF means remote closed connection
@@ -285,13 +288,13 @@ private[protocol] class BloopRemoteLauncherConnector(
       }
 
     val timeout = 35.seconds
-    val deadline = System.currentTimeMillis() + timeout.toMillis
+    val deadline = System.nanoTime() + timeout.toNanos
 
     @tailrec
     def pollUntilReady(): Either[BspError, Socket] =
       if indicator.exists(_.isCanceled) then
         Left(BspTaskCancelled)
-      else if System.currentTimeMillis() >= deadline then
+      else if System.nanoTime() >= deadline then
         val msg = BspBundle.message("bsp.protocol.bloop.remote.not.ready", description, timeout.toString)
         Left(BspSessionCreationError(msg, Exception(msg)))
       else
@@ -310,7 +313,7 @@ private[protocol] class BloopRemoteLauncherConnector(
   }
 }
 
-private object BloopRemoteLauncherConnector {
+private[protocol] object BloopRemoteLauncherConnector {
   /** File name used to persist the remote Bloop server between IDE sessions. */
   private val PortFileName = "bloop-container-port.txt"
 
