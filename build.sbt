@@ -7,7 +7,6 @@ import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import org.jetbrains.sbt.kotlin.Keys.kotlincOptions
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
-import teamcity.TeamCityAPI
 
 import java.nio.file.Path
 
@@ -112,7 +111,6 @@ lazy val scalaCommunity: sbt.Project =
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
-      mlCompletionIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
       kotlinUtils % "test->test;compile->compile",
       structuralSearch % "test->test;compile->compile",
@@ -139,7 +137,6 @@ lazy val scalaCommunity: sbt.Project =
         devKitIntegration,
         featuresTrainerIntegration,
         junitIntegration,
-        mlCompletionPropertiesIntegration,
         runtimeDependencies,
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -1208,46 +1205,6 @@ lazy val javaDecompilerIntegration =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.javaDecompiler")
-    )
-
-lazy val mlCompletionIntegration =
-  newProject("ml-completion", file("scala/integration/ml-completion"))
-    .dependsOn(scalaImpl, sbtImpl)
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += TeamCityAPI.getDownloadablePluginOrUseCached(
-        pluginBaseDirName = "completionMlRanking",
-        pluginId = "com.intellij.completion.ml.ranking",
-        intellijVersion = Versions.intellijVersion,
-        isUltimatePlugin = false,
-        isAutoUploading = true
-      ),
-      resolvers += DependencyResolvers.IntelliJDependencies,
-      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1",
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion")
-    )
-
-lazy val mlCompletionPropertiesIntegration =
-  newProject("ml-completion-properties", file("scala/integration/ml-completion-properties"))
-    .dependsOn(
-      mlCompletionIntegration,
-      propertiesIntegration
-    )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins ++= Seq(
-        TeamCityAPI.getDownloadablePluginOrUseCached(
-          pluginBaseDirName = "completionMlRanking",
-          pluginId = "com.intellij.completion.ml.ranking",
-          intellijVersion = Versions.intellijVersion,
-          isUltimatePlugin = false,
-          isAutoUploading = true
-        ),
-        "com.intellij.properties".toPlugin
-      ),
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion.properties")
     )
 
 lazy val scalastyleIntegration = newProject("scalastyle", file("scala/integration/scalastyle"))
