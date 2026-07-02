@@ -14,6 +14,16 @@ import java.nio.file.Path
 object Common {
   final val JetBrains = "JetBrains"
 
+  /**
+   * Tells the IntelliJ test framework to write per-test log dumps to separate files instead of printing the
+   * full Debug/Trace log dump into the test process output before failure details.
+   *
+   * This keeps IDEA and agent-driven test output more focused on failures. IDEA console output can otherwise
+   * be truncated before its "DEBUG Log" folding helps, and large inline log dumps can consume agent context quickly.
+   * The context-saving effect is based on local experiments rather than a dedicated evaluation.
+   */
+  final val SplitTestLogsVmOption = "-Didea.split.test.logs=true"
+
   private val globalJavacOptionsCommon = Seq(
     "-Xlint:unchecked",
     "-Xlint:deprecation"
@@ -183,7 +193,8 @@ object Common {
     Test / javaOptions += "-Didea.log.leaked.projects.in.tests=false",
     Test / customIntellijVMOptions ~= { opts =>
       opts.withExtraOptions(Seq(
-        "-Dintellij.testFramework.junit5.skip.test.application.dispose=true"
+        "-Dintellij.testFramework.junit5.skip.test.application.dispose=true",
+        SplitTestLogsVmOption,
       ))
     }
   )
