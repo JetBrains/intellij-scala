@@ -5,6 +5,7 @@ import org.jetbrains.sbt.process.options.parsing.model.{MalformedSbtOption, SbtO
 import org.jetbrains.sbt.process.options.reporting.SbtOptionsDiagnosticsReporter
 import org.jetbrains.sbt.process.options.utils.MessagesCollectingBuildReporter
 import org.jetbrains.sbt.process.options.utils.SbtOptionsWarningAssertions.{AllAvailableOptionsText, WarningData, assertWarnings}
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 import java.nio.file.Path
@@ -24,6 +25,7 @@ import java.nio.file.Path
  * - [[parsing.model.SbtOptionsSource]]
  */
 class SbtOptionsDiagnosticsReporterTest {
+  import SbtOptionsDiagnosticsReporterTest.OpenSbtSettingsQuickFixId
 
   @Test
   def reportsWarningWithSuggestion(): Unit =
@@ -72,6 +74,51 @@ class SbtOptionsDiagnosticsReporterTest {
         )
       )
     )
+
+  @Test
+  def attachesOpenSettingsQuickFixForIdeSettingsDiagnostics(): Unit = {
+    val buildReporter = new MessagesCollectingBuildReporter
+    val reporter = new SbtOptionsDiagnosticsReporter(buildReporter)
+    val diagnostics = Seq(
+      Unrecognized(
+        SbtOptionsSource.IdeSettings,
+        Seq(UnrecognizedSbtOption("-unknown-from-settings", None))
+      ),
+      Malformed(
+        SbtOptionsSource.IdeSettings,
+        Seq(MalformedSbtOption(lineNumber = 1, unclosedQuote = '"', lineContent = """-sbt-dir "/settings/sbt"""))
+      )
+    )
+
+    reporter.reportDiagnostics(diagnostics)
+
+    assertEquals(
+      Seq(Seq(OpenSbtSettingsQuickFixId), Seq(OpenSbtSettingsQuickFixId)),
+      buildReporter.getWarnings.map(_.quickFixIds)
+    )
+  }
+
+  @Test
+  def doesNotAttachOpenSettingsQuickFixForNonIdeSettingsDiagnostics(): Unit = {
+    val buildReporter = new MessagesCollectingBuildReporter
+    val reporter = new SbtOptionsDiagnosticsReporter(buildReporter)
+    val optionsFile = Path.of("/tmp/project/.sbtopts")
+    val diagnostics = Seq(
+      Unrecognized(
+        SbtOptionsSource.EnvironmentVariable,
+        Seq(UnrecognizedSbtOption("-unknown-from-env", None))
+      ),
+      Malformed(
+        SbtOptionsSource.OptionsFile,
+        Seq(MalformedSbtOption(lineNumber = 1, unclosedQuote = '"', lineContent = """-sbt-dir "/file/sbt""")),
+        optionsFile = Some(optionsFile)
+      )
+    )
+
+    reporter.reportDiagnostics(diagnostics)
+
+    assertEquals(Seq(Seq.empty, Seq.empty), buildReporter.getWarnings.map(_.quickFixIds))
+  }
 
   @Test
   def reportsWarningSourceFromEverySupportedSource(): Unit = {
@@ -272,4 +319,8 @@ class SbtOptionsDiagnosticsReporterTest {
 
     assertWarnings(buildReporter, expected)
   }
+}
+
+private object SbtOptionsDiagnosticsReporterTest {
+  private val OpenSbtSettingsQuickFixId = "open_sbt_settings"
 }

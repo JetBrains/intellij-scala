@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.NoOpBuildReporter
 
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters.*
 
 private[sbt] final class WarningsCollectingBuildReporter extends NoOpBuildReporter {
 
@@ -21,7 +22,7 @@ private[sbt] final class WarningsCollectingBuildReporter extends NoOpBuildReport
     warnings += SbtOptionsWarningData(message, details)
 
   override def warning(issue: BuildIssue): Unit =
-    warnings += SbtOptionsWarningData(issue.getTitle, issue.getDescription)
+    warnings += SbtOptionsWarningData(issue.getTitle, issue.getDescription, issue.getQuickFixes.asScala.toSeq)
 
   override def warning(
     @Nls message: String,
