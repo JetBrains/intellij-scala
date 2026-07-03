@@ -44,6 +44,7 @@ case class BuildMessages(
   }
 }
 
+//noinspection ApiStatus,UnstableApiUsage
 case object BuildMessages {
 
   sealed abstract class BuildStatus {
@@ -126,6 +127,7 @@ case class TaskManagerResult(
 
   override def getContext: ProjectTaskContext = context
 
+  //noinspection ApiStatus,UnstableApiUsage
   override def anyTaskMatches(predicate: BiPredicate[? >: ProjectTask, ? >: ProjectTaskState]): Boolean =
     false // TODO figure out what this is supposed to do?
 }
