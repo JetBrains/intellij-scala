@@ -35,21 +35,26 @@ object Common {
     "-feature",
     "-Xlint:serial",
     "-Xlint:nullary-unit",
-    "-Xfatal-warnings",
     "-language:existentials",
     "-Ytasty-reader",
-    "-Wunused:nowarn"
+    "-Wunused:nowarn",
+    // NOTE: we agreed to disable "fatal warnings" in Scala Plugin repo after an exhaustive discussion in the team.
+    // They are useful as code-quality signal, but treating them as compilation errors is not convenient in practice.
+    // It hurts iterative local development and can block TeamCity from running tests.
+    // Instead, we make warnings visible (IDEA-391176) and track/report them on CI in a separate view.
+    //"-Xfatal-warnings",
   )
   private val globalScala3ScalacOptionsCommon = Seq(
     "-deprecation",
     "-explain",
     "-feature",
     "-unchecked",
-    "-Werror",
     "-Wunused:implicits,imports",
     "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
     "-Wconf:msg=Alphanumeric method isInstance is not declared infix:s", // and everyone loves infix notation!
     "-Wconf:msg=method .* is eta-expanded even though .* does not have the @FunctionalInterface annotation:s", // bullshit warning
+    // NOTE: The same comment as for "-Xfatal-warnings" in Scala 2 (see above)
+    //"-Werror",
   )
 
   // options for modules which classes can only be used in IDEA process (uses JDK 25)
