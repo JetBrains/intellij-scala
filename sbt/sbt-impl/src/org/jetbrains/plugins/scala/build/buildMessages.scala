@@ -44,6 +44,7 @@ case class BuildMessages(
   }
 }
 
+//noinspection ApiStatus,UnstableApiUsage
 case object BuildMessages {
 
   sealed abstract class BuildStatus {
@@ -102,7 +103,8 @@ case object BuildMessages {
           .build()
       case Some(filePosition) =>
         BuildEvents.getInstance()
-          .fileMessage(stripAnsiCodes(message), kind, filePosition)
+          .message(stripAnsiCodes(message), kind)
+          .withFilePosition(filePosition)
           .withParentId(parentId)
           .withTime(eventTime)
           .withGroup(kindGroup)
@@ -125,6 +127,7 @@ case class TaskManagerResult(
 
   override def getContext: ProjectTaskContext = context
 
+  //noinspection ApiStatus,UnstableApiUsage
   override def anyTaskMatches(predicate: BiPredicate[? >: ProjectTask, ? >: ProjectTaskState]): Boolean =
     false // TODO figure out what this is supposed to do?
 }
