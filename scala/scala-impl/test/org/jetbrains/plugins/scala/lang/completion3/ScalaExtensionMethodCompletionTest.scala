@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
@@ -76,4 +77,17 @@ class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
       |  MyList(MyList(1, 2), MyList(3, 4)).flatten
       |}""".stripMargin,
   "flatten")
+
+  @Test
+  def testOnlyApplicableExtensionMethodIsSuggested_SCL_25583(): Unit = {
+    val (_, items) = activeLookupWithItems(
+      s"""import scala.quoted.*
+         |
+         |def test(using quotes: Quotes)(tp: quotes.reflect.TypeRef): Unit =
+         |  import quotes.reflect.*
+         |  tp.na$CARET""".stripMargin
+    )
+
+    assertEquals(1, items.count(_.getLookupString == "name"))
+  }
 }

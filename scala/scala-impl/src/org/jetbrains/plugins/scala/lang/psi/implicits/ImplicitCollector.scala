@@ -363,8 +363,13 @@ class ImplicitCollector(
     for (c <- candidates) {
       val compatible = checkCompatible(c, withLocalTypeInference = false) ++ checkCompatible(c, withLocalTypeInference = true)
       filteredCandidates ++= compatible.filter(isValidImplicitResult)
-      if (withExtensions) {
-        filteredCandidates ++= collectExtensionsFromImplicitResult(c, extensionData)
+      if (compatible.nonEmpty && canContainTargetMethod(c)) {
+        val extensionCandidates = collectExtensionsFromImplicitResult(c, extensionData)
+
+        val applicableExtensions = extensionCandidates.flatMap(
+          ext => checkCompatible(ext, withLocalTypeInference = false) ++ checkCompatible(ext, withLocalTypeInference = true))
+
+        filteredCandidates ++= applicableExtensions
       }
     }
     filteredCandidates.toSeq
@@ -663,7 +668,9 @@ class ImplicitCollector(
     def noImplicitParametersResult(nonValueType: ScType): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(nonValueType, !isLeadingImplicitsCase)
 
-      val subst = conformanceConstraints.substOrEmpty
+      val subst =
+        if (c.isExtensionCall) ScSubstitutor.empty
+        else conformanceConstraints.substOrEmpty
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
@@ -683,7 +690,9 @@ class ImplicitCollector(
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(resType, inferValueType = !isLeadingImplicitsCase)
       val allConstraints          = constraints + conformanceConstraints
 
-      val constraintSubst = allConstraints.toSubst
+      val constraintSubst =
+        if (c.isExtensionCall) Option(ScSubstitutor.empty)
+        else                   allConstraints.toSubst
 
       constraintSubst.fold(reportWrong(c, CantInferTypeParameterResult)) { subst =>
         val allImportsUsed =
