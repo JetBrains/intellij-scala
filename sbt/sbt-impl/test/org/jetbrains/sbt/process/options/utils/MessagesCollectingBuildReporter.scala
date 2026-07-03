@@ -10,7 +10,7 @@ import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.*
 
 private[options] final class MessagesCollectingBuildReporter extends NoOpBuildReporter {
-  final case class Message(message: String, details: String)
+  final case class Message(message: String, details: String, quickFixIds: Seq[String] = Seq.empty)
 
   private val warnings = new ConcurrentLinkedQueue[Message]
   private val infos = new ConcurrentLinkedQueue[Message]
@@ -46,8 +46,10 @@ private[options] final class MessagesCollectingBuildReporter extends NoOpBuildRe
   private def collect(queue: ConcurrentLinkedQueue[Message], message: String, details: String = ""): Unit =
     queue.add(Message(textOrEmpty(message), textOrEmpty(details)))
 
-  private def collect(queue: ConcurrentLinkedQueue[Message], issue: BuildIssue): Unit =
-    collect(queue, issue.getTitle, issue.getDescription)
+  private def collect(queue: ConcurrentLinkedQueue[Message], issue: BuildIssue): Unit = {
+    val quickFixIds = issue.getQuickFixes.asScala.toSeq.map(_.getId)
+    queue.add(Message(textOrEmpty(issue.getTitle), textOrEmpty(issue.getDescription), quickFixIds))
+  }
 
   private def snapshot(queue: ConcurrentLinkedQueue[Message]): Seq[Message] =
     queue.asScala.to(ArraySeq)
