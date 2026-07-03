@@ -50,7 +50,11 @@ private[sbt] object SbtOptionsDiagnosticsReporter {
 
   def reportWarnings(reporter: BuildReporter, warnings: Seq[SbtOptionsWarningData]): Unit =
     warnings.foreach { warning =>
-      reporter.warning(warning.title, None, warning.details)
+      if (warning.quickFixes.isEmpty) {
+        reporter.warning(warning.title, None, warning.details)
+      } else {
+        reporter.warning(new SbtOptionsBuildIssue(warning))
+      }
     }
 
   private def collectUnrecognizedWarningData(unrecognized: Unrecognized): SbtOptionsWarningData = {
@@ -63,17 +67,24 @@ private[sbt] object SbtOptionsDiagnosticsReporter {
     val detailsLines =
       renderUnrecognizedSourceDetails(unrecognizedOpts, unrecognized.source, unrecognized.optionsFile) +:
         Seq(SbtBundle.message("sbt.available.opts", allOptionsHelpersText))
-    SbtOptionsWarningData(message, detailsLines.mkString("\n"))
+    SbtOptionsWarningData(message, detailsLines.mkString("\n"), quickFixesFor(unrecognized.source))
   }
 
   private def collectMalformedWarningData(malformed: Malformed): Seq[SbtOptionsWarningData] = {
     val sourceName = renderSourceName(malformed.source)
+    val quickFixes = quickFixesFor(malformed.source)
     malformed.malformedOptions.map { malformedOption =>
       val message = SbtBundle.message("sbt.malformed.opt.source", renderMalformedOptionKey(malformedOption), sourceName)
       val details = renderMalformedOption(malformedOption, malformed)
-      SbtOptionsWarningData(message, renderSourceDetails(details, malformed.source, optionsFile = None))
+      SbtOptionsWarningData(message, renderSourceDetails(details, malformed.source, optionsFile = None), quickFixes)
     }
   }
+
+  private def quickFixesFor(source: SbtOptionsSource): Seq[BuildIssueQuickFix] =
+    source match {
+      case SbtOptionsSource.IdeSettings => Seq(OpenSbtSettingsQuickFix.quickFix)
+      case _ => Seq.empty
+    }
 
   @Nls
   private def renderUnrecognizedSourceDetails(
@@ -217,7 +228,10 @@ private object OpenSbtSettingsQuickFix {
 
     override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[?] = {
       // TODO: Open the concrete source-specific settings in the future, e.g. an sbt run configuration when options come from there.
-      ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[SbtExternalSystemConfigurable], SbtBundle.message("sbt.settings.sbtOptions"))
+      //NOTE: trimming as "Sbt options" UI value has leading `&` mnemonic marker.
+      // It's automatically replaces with space. It's not a big issue, but visually it looks a little strange why the search text has a leading space
+      val searchText = SbtBundle.message("sbt.settings.sbtOptions").trim
+      ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[SbtExternalSystemConfigurable], searchText)
       CompletableFuture.completedFuture(null)
     }
   }
