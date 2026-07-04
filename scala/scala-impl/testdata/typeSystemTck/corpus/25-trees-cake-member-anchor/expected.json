@@ -1,0 +1,16 @@
+{
+  "conformance": [
+    {
+      "lhs": "XType",
+      "rhs": "GlobalTree",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "xSymbol": "HasGlobal.this.global.Symbol"
+  },
+  "baseTypes": {
+    "xAtTree": "HasGlobal.this.global.Tree"
+  }
+}
