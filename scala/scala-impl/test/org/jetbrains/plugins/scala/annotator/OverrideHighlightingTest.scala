@@ -32,6 +32,38 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  // SCL-21947 (whittled from the scala/scala reflect Universe cake): the override's
+  // param/return is `SymbolTable.this.RefinedType` (internal.Types is self: SymbolTable,
+  // so `this` is the self type), while the inherited abstract member's, substituted,
+  // is `Types.this.RefinedType`. scalac accepts the code: seen from the subclass, the
+  // inherited signature is rewritten onto `SymbolTable.this`, so the two match. IntelliJ
+  // reported "unapply overrides nothing".
+  def testSCL21947Cake(): Unit = {
+    val code =
+      """
+        |package api {
+        |  trait Types { self: Universe =>
+        |    type Type
+        |    type RefinedType
+        |    abstract class RefinedTypeExtractor {
+        |      def unapply(tpe: RefinedType): Type
+        |    }
+        |  }
+        |  abstract class Universe extends Types
+        |}
+        |package internal {
+        |  trait Types extends api.Types { self: SymbolTable =>
+        |    abstract class Type
+        |    abstract class RefinedType extends RefinedTypeExtractor {
+        |      override def unapply(tpe: RefinedType): Type
+        |    }
+        |  }
+        |  abstract class SymbolTable extends api.Universe with Types
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
   // SCL-21947, second shape (scala/scala internal.Types LazyType.complete): the
   // overridden member's path-dependent param `Symbol` comes from a SIBLING trait
   // reached via the self type. `complete` is concrete in `Type` and abstract-
@@ -258,6 +290,31 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
         |  import global._
         |  override protected def useSymbol(sym: Symbol): Unit
         |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  // SCL-21947, ninth shape (scala/scala reflect AnnotationInfos.Annotatable /
+  // Symbols.Symbol). A generic cake trait `Annotatable[Self] { self: Self => def
+  // foo(): Self }` lives in component `AnnotationInfos` (self: SymbolTable); the
+  // sibling component `Symbols` declares `Symbol extends Annotatable[Symbol]`, which
+  // overrides `foo` returning `this.type` (covariant over `Self` = `Symbol`, since
+  // `Symbol.this.type <:< Symbol`). IntelliJ reported "foo overrides nothing".
+  // scalac accepts it.
+  def testSCL21947Annotatable(): Unit = {
+    val code =
+      """
+        |trait AnnotationInfos { self: SymbolTable =>
+        |  trait Annotatable[Self] { self: Self =>
+        |    def foo(): Self
+        |  }
+        |}
+        |trait Symbols { self: SymbolTable =>
+        |  abstract class Symbol extends Annotatable[Symbol] {
+        |    override def foo(): this.type = this
+        |  }
+        |}
+        |trait SymbolTable extends AnnotationInfos with Symbols
       """.stripMargin
     assertNothing(errorsFromScalaCode(code))
   }
@@ -826,4 +883,30 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       Error("value", "Overriding type Int does not conform to base type String"),
     )*)
   }
+
+  // A member of a cake class selected through a singleton path: `x.symbol` with `x: global.ValDef`
+  def testSCL21947ValDefSymbol(): Unit = {
+    val errors = errorsFromScalaCode(
+      """
+        |trait Symbols { self: SymbolTable =>
+        |  class Symbol
+        |}
+        |trait Trees { self: SymbolTable =>
+        |  abstract class Tree { def symbol: Symbol = ??? }
+        |  class ValOrDefDef extends Tree
+        |  class ValDef extends ValOrDefDef
+        |}
+        |abstract class SymbolTable extends Symbols with Trees
+        |class Global extends SymbolTable
+        |
+        |trait HasGlobal {
+        |  val global: Global
+        |  import global._
+        |  val x: global.ValDef = ???
+        |  def foo: Symbol = x.symbol
+        |}
+      """.stripMargin)
+    assertNothing(errors)
+  }
+
 }

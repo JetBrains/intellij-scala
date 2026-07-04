@@ -654,6 +654,9 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
 
   def testSCL7008(): Unit = doTest()
 
+  // SCL7008 seen from the object rather than from inside `Z`: scalac types `nme.one(name)` as `SN.this.Name`
+  def testSCL7008b(): Unit = doTest()
+
   def testSCL7031(): Unit = doTest()
 
   def testSCL7036(): Unit = doTest()
