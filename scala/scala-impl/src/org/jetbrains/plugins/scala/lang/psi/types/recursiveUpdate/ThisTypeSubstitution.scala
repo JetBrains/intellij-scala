@@ -11,6 +11,21 @@ import org.jetbrains.plugins.scala.lang.psi.types._, api._, designator._, nonval
 
 import scala.annotation.tailrec
 
+/**
+ * Re-anchors `C.this` leaves onto the prefix `target`, the analogue of scalac's
+ * `AsSeenFromMap.thisTypeAsSeen`. `seenFromClass` is the class the type was declared in
+ * (scalac's `clazz` in `tp.asSeenFrom(pre, clazz)`); `null` selects the legacy anchorless
+ * walk, which narrows by inheritance alone.
+ *
+ * Unlike scalac, whose walk only ever strips prefixes off `pre`, this substitution runs
+ * inside the generic `recursiveUpdate` engine, is fused with other updates into one
+ * chain, and its output is fed back into resolution. One rule keeps that sound and
+ * terminating (it replaces the former `hasRecursiveThisType` guard, which scanned the
+ * whole target, blocking legitimate re-anchors and missing a cross-symbol case):
+ *
+ *  - No self-embedding: refuse a rewrite whose result is a path still rooted in (an inheritor of)
+ *    the this-type being rewritten; see [[embedsRewrittenThis]].
+ */
 private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass: PsiClass) extends LeafSubstitution {
 
   override def toString: String = seenFromClass match {
@@ -19,9 +34,37 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   }
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
-    case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisTypeFromClass(th, target, seenFromClass)
+    case th: ScThisType =>
+      val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
+      if ((res ne th) && embedsRewrittenThis(res, th)) th
+      else res
   }
 
+  @tailrec
+  private def spineRootThis(tp: ScType): Option[ScThisType] = tp match {
+    case th: ScThisType                                 => Some(th)
+    case ScProjectionType(pre, _)                       => spineRootThis(pre)
+    case ParameterizedType(ScProjectionType(pre, _), _) => spineRootThis(pre)
+    case _                                              => None
+  }
+
+  /**
+   * No self-embedding: a rewrite of `th` to a path whose root is still `th`'s class (or an
+   * inheritor of it) hasn't eliminated `th`, it has embedded it. Fed back through
+   * resolution, such a result is re-substituted and grows without bound. scalac's walk
+   * can't produce this shape, since it only strips prefixes off `pre`.
+   *
+   * A bare this-type result (`Types.this -> Global.this`) is always progress: it is the
+   * ordinary cake re-anchor onto an inheritor, and has no structure to recirculate.
+   * SCL-7043's `Enumeration.this -> CE.this.enum.type` is admitted too: `CE` aggregates an
+   * `Enumeration` rather than inheriting one.
+   */
+  private def embedsRewrittenThis(res: ScType, th: ScThisType): Boolean = res match {
+    case _: ScThisType => false
+    case _             => spineRootThis(res).exists(rootTh => isSameOrInheritor(rootTh.element, th))
+  }
+
+  /** Narrows `thisTp` against `target`, climbing `target`'s prefix while it doesn't. */
   @tailrec
   private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType =
     if (isMoreNarrow(target, thisTp, Set.empty)) target
@@ -32,45 +75,25 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       }
     }
 
+  /** The anchored walk: scalac's `thisTypeAsSeen`, climbing `clazz`'s owner chain in step with `target`. */
   @tailrec
   private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
     if (clazz == null || clazz == thisTp.element || clazz.containingClass == null)
       doUpdateThisType(thisTp, target)
     else {
-      // Use the merged `baseType` (scalac's `pre baseType clazz`) rather than the
-      // first iterator hit, so multiple/merged same-class contributions resolve to
-      // one deterministic base type and we take its prefix — cf. AsSeenFromMap.thisTypeAsSeen.
+      // The merged base type (scalac's `pre baseType clazz`), so that several contributions
+      // of the same class resolve to one deterministic prefix.
       BaseTypes.baseType(target, clazz).flatMap(containingClassType) match {
-        case Some(targetContext) => doUpdateThisTypeFromClass(thisTp, targetContext, clazz.containingClass)
-        // `clazz` is not a base type of `target` — e.g. `clazz` is an INNER CLASS reached
-        // via a prefixed projection base (`global.AstTransformer`), so an inherited member's
-        // ENCLOSING-universe this-type (`SymbolTable.this`/`ApiUniverse.this`, surfacing as
-        // `Trees.this`) must re-anchor onto `target` directly. scalac's `thisTypeAsSeen` keeps
-        // walking until the prefix is empty rather than bailing on `pre baseType clazz`; mirror
-        // that by narrowing against `target` (guarded by `isMoreNarrow`, so unrelated this-types
-        // stay put). SCL-21947, the OuterPathTransformer `currentClass` shape.
-        case _                   => doUpdateThisType(thisTp, target)
+        case Some(targetContext) =>
+          doUpdateThisTypeFromClass(thisTp, targetContext, clazz.containingClass)
+        case _ =>
+          // `clazz` isn't a base class of `target`, e.g. it is an inner class reached through
+          // a path (`global.AstTransformer`), and an inherited member mentions the enclosing
+          // universe's this-type (`Trees.this`). scalac keeps walking until `pre` is exhausted
+          // instead of giving up, so narrow against `target` directly (SCL-21947, the
+          // `OuterPathTransformer` shape).
+          doUpdateThisType(thisTp, target)
       }
-    }
-
-  private def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
-    tp.subtypeExists {
-      // Genuine recursion: the target already mentions `clazz`'s own this-type.
-      // Substituting would nest the target inside itself, so always guard this.
-      case ScThisType(`clazz`)                   => true
-      // Object this-types are terminal: an `object`'s linearization is fixed and its
-      // `this` re-anchors to a concrete path exactly once (e.g. `gen.this` ->
-      // `pre.gen`), leaving only the prefix's (super-)trait this-types, which are
-      // handled by their own substitution. So the inheritor-direction suppression
-      // below (added for SCL-18532, a runaway-recursion *perf* fix on the nsc cake
-      // `Typers.scala`) is unnecessary for objects and wrongly blocks re-anchoring
-      // an object member reached through a path (SCL-21947 shape 7).
-      // TODO revisit: the broader trait self-type tension (SCL-18532 <-> SCL-3654)
-      //   is still resolved coarsely by `isSameOrInheritor` below; a principled fix
-      //   would make this direction-aware rather than object-scoped.
-      case _: ScThisType if clazz.is[ScObject]   => false
-      case tpe: ScThisType                       => isSameOrInheritor(clazz, tpe)
-      case _                                     => false
     }
 
   private def containingClassType(tp: ScType): Option[ScType] = tp match {
@@ -98,12 +121,9 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
                 upper <- tp.upperBound.toOption
                 cls   <- upper.extractClass
               } yield isSameOrInheritor(cls, thisTp)).getOrElse(false)
-            // An abstract type member (`type Setting <: SettingValue`) reaches its
-            // base classes only through its upper bound. Widen to it, mirroring the
-            // `ScTypeParam` branch above and the top-level `isMoreNarrow` alias case,
-            // so a `this`-type whose class sits under such a bound still re-anchors
-            // (SCL-21947, the `MutableSettings` `BooleanSetting <: Setting {type T = ...}`
-            // shape — without this the prefix is left as the raw `SettingValue.this`).
+            // An abstract type member (`type Setting <: SettingValue`) reaches its base
+            // classes only through its upper bound, as for type parameters above
+            // (SCL-21947, `MutableSettings`: `BooleanSetting <: Setting { type T = ... }`).
             case ta: ScTypeAlias => isMoreNarrow(ta.upperBound.getOrAny, thisTp, Set.empty)
             case cls: PsiClass => isSameOrInheritor(cls, thisTp)
             case _             => false
@@ -197,7 +217,7 @@ private object ThisTypeSubstitution {
    * `global`) where it is minted: when a substitutor is built, and when a substitution
    * rebuilds a projection over a rewritten prefix. Otherwise resolution feeds fresh
    * spellings back in as substitution targets and the paths compound
-   * (`analyzer.global.analyzer.global...`).
+   * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
    */
   def canonicalizeTarget(tp: ScType): ScType =
     if (inCanonicalize.get) tp
