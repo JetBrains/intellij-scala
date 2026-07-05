@@ -78,17 +78,17 @@ final class ScProjectionType private(val projected: ScType,
       projected match {
         case ScDesignatorType(clazz: PsiClass)
           if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
-          return Some(element, ScSubstitutor(projected))
+          return Some(element, ScSubstitutor(projected, clazz))
         case p @ ParameterizedType(ScDesignatorType(clazz: PsiClass), _)
           if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
-          return Some(element, ScSubstitutor(projected).followed(p.substitutor))
+          return Some(element, ScSubstitutor(projected, clazz).followed(p.substitutor))
         case p: ScProjectionType =>
           p.actualElement match {
             case `element` if element.is[ScTypeAlias] => //rare case of recursive projection, see SCL-15345
               return Some(element, p.actualSubst)
             case clazz: PsiClass
               if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
-              return Some(element, ScSubstitutor(projected).followed(p.actualSubst))
+              return Some(element, ScSubstitutor(projected, clazz).followed(p.actualSubst))
             case _ => //continue with processor :(
           }
         case ScThisType(clazz)
@@ -255,7 +255,7 @@ final class ScProjectionType private(val projected: ScType,
           case t: ScTypedDefinition if t.isStable =>
             t.`type`() match {
               case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
-                val newSubst = actualSubst.followed(ScSubstitutor(projected))
+                val newSubst = actualSubst.followed(ScSubstitutor(projected, ScSubstitutor.declarationAnchor(t)))
                 r.equiv(newSubst(singleton), constraints, falseUndef)
               case _ => ConstraintsResult.Left
             }
@@ -329,8 +329,7 @@ object ScProjectionType {
             TypeDefinitionMembers.getSignatures(cls).forName(named.name).iterator
               .map(_.namedElement)
               .collect { case td: ScTypedDefinition if td.isStable => td }
-              .flatMap(e => e.`type`().toOption.iterator)
-              .map(ScSubstitutor(proj.projected).apply)
+              .flatMap(e => e.`type`().toOption.iterator.map(ScSubstitutor(proj.projected, ScSubstitutor.declarationAnchor(e)).apply))
               .collectFirst { case t if isSingletonLike(t) => t }
           }
         }.flatten

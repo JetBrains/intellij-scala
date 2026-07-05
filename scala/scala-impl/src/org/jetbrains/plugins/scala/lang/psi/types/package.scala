@@ -458,7 +458,7 @@ package object types {
       scType match {
         case nonValueType: NonValueType =>
           extractFrom(nonValueType.inferValueType, visitedAliases)
-        case thisType: ScThisType => filter(thisType.element, ScSubstitutor(thisType))
+        case thisType: ScThisType => filter(thisType.element, ScSubstitutor(thisType, thisType.element))
         case projType: ScProjectionType =>
           val actualSubst = projType.actualSubst
           val actualElement = projType.actualElement
