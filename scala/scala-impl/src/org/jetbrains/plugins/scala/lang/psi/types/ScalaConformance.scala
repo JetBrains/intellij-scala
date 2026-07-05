@@ -837,7 +837,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
         val singletonSubst = r match {
-          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r)
+          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r, ScSubstitutor.declarationAnchor(sign.typeAlias))
           case _                                                                     => ScSubstitutor.empty
         }
 

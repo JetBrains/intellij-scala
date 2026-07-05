@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.ArrayExt
+import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -205,6 +205,14 @@ object ScSubstitutor {
 
   def apply(updateThisType: ScType, seenFromClass: PsiClass): ScSubstitutor =
     ScSubstitutor(ThisTypeSubstitution(updateThisType, seenFromClass))
+
+  /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
+   *  scalac's `sym.owner` in `sym.info.asSeenFrom(pre, sym.owner)`. `null` when there is
+   *  none (top-level, local or synthetic members), which selects the anchorless walk. */
+  def declarationAnchor(member: PsiNamedElement): PsiClass = member.nameContext match {
+    case m: PsiMember => m.getContainingClass
+    case _            => null
+  }
 
   def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
     ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))
