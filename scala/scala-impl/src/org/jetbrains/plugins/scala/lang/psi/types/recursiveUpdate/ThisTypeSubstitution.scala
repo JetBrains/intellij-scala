@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._, params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._, typedef._
 import org.jetbrains.plugins.scala.lang.psi.types._, api._, designator._, nonvalue._
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 
@@ -19,12 +20,15 @@ import scala.annotation.tailrec
  *
  * Unlike scalac, whose walk only ever strips prefixes off `pre`, this substitution runs
  * inside the generic `recursiveUpdate` engine, is fused with other updates into one
- * chain, and its output is fed back into resolution. One rule keeps that sound and
- * terminating (it replaces the former `hasRecursiveThisType` guard, which scanned the
- * whole target, blocking legitimate re-anchors and missing a cross-symbol case):
+ * chain, and its output is fed back into resolution. Two rules keep that sound and
+ * terminating (they replace the former `hasRecursiveThisType` guard, which scanned the
+ * whole target and still missed the cross-symbol case):
  *
  *  - No self-embedding: refuse a rewrite whose result is a path still rooted in (an inheritor of)
  *    the this-type being rewritten; see [[embedsRewrittenThis]].
+ *  - Owner-chain matching: an anchored walk that never reaches the this-type's class leaves
+ *    it alone, rather than falling back to the anchorless heuristic; see
+ *    [[ownerChainMatches]].
  */
 private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass: PsiClass) extends LeafSubstitution {
 
@@ -78,8 +82,11 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   /** The anchored walk: scalac's `thisTypeAsSeen`, climbing `clazz`'s owner chain in step with `target`. */
   @tailrec
   private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
-    if (clazz == null || clazz == thisTp.element || clazz.containingClass == null)
-      doUpdateThisType(thisTp, target)
+    if (clazz == null) doUpdateThisType(thisTp, target)
+    else if (clazz == thisTp.element || clazz.containingClass == null) {
+      if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
+      else thisTp
+    }
     else {
       // The merged base type (scalac's `pre baseType clazz`), so that several contributions
       // of the same class resolve to one deterministic prefix.
@@ -91,8 +98,9 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
           // a path (`global.AstTransformer`), and an inherited member mentions the enclosing
           // universe's this-type (`Trees.this`). scalac keeps walking until `pre` is exhausted
           // instead of giving up, so narrow against `target` directly (SCL-21947, the
-          // `OuterPathTransformer` shape).
-          doUpdateThisType(thisTp, target)
+          // `OuterPathTransformer` shape), subject to owner-chain matching.
+          if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
+          else thisTp
       }
     }
 
@@ -109,6 +117,48 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
   private def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
     clazz == thisTp.element || isInheritorDeep(clazz, thisTp.element)
+
+  /**
+   * Owner-chain matching: scalac's `matchesPrefixAndClass` rewrites a this-type only when
+   * the owner-chain cursor reaches its class. An anchored walk whose cursor never does is
+   * scalac's unmatched case: the this-type is left for another, correctly anchored hop.
+   * Falling back to the anchorless inheritance heuristic instead is unsound: firing
+   * `[target = typer.this.type, seenFromClass = Typer]` on `Infer.this` climbs
+   * `Typer -> Typers`, never `Infer`, yet narrowed `Infer.this` to
+   * `Global.this.analyzer.type` because `Analyzer` inherits `Infer`. That embeds a fresh
+   * `Global.this` root, which the rest of the chain re-anchors, growing the type on every
+   * re-derivation (the cross-symbol pump in the scala/scala compiler cake).
+   *
+   * Two admissions:
+   *  - the cursor's containing chain reaches the this-type's class. Same-or-inheritor
+   *    rather than scalac's `==`, since IntelliJ spells cake self-types through the
+   *    declaring trait; `areClassesEquivalent` since an object member's anchor is a
+   *    different PSI handle than the `ScObject` (SCL-6549);
+   *  - `target` denotes exactly the this-type's own class, i.e. it re-spells the same
+   *    instance as a path (`implicitInstance.this` against `SCL6549.implicitInstance.type`).
+   *    `target` is widened first, as scalac does with `pre.widen`, since a val path
+   *    (`quotes.reflect.type`) only reveals its class once widened. A strict inheritor
+   *    (`Global.this.analyzer.type` for `Infer.this`) is the case above and stays blocked.
+   */
+  private def ownerChainMatches(clazz: PsiClass, target: ScType, thisTp: ScThisType): Boolean =
+    ownerChainReaches(clazz, thisTp) || targetDenotesLeafClass(target, thisTp)
+
+  @tailrec
+  private def ownerChainReaches(clazz: PsiClass, thisTp: ScThisType): Boolean =
+    if (clazz == null) false
+    else if (isSameOrInheritor(clazz, thisTp) || ScEquivalenceUtil.areClassesEquivalent(clazz, thisTp.element)) true
+    else ownerChainReaches(clazz.containingClass, thisTp)
+
+  private def targetDenotesLeafClass(target: ScType, thisTp: ScThisType)(implicit context: Context): Boolean = {
+    def denotesLeaf(tp: ScType): Boolean = extractAll(tp) match {
+      case Some(cls: PsiClass) => cls == thisTp.element || ScEquivalenceUtil.areClassesEquivalent(cls, thisTp.element)
+      case _                   => false
+    }
+    denotesLeaf(target) || {
+      val widened = target.widen
+      (widened ne target) && denotesLeaf(widened)
+    }
+  }
 
   private def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType)(implicit context: Context): Boolean = {
     compound.components
