@@ -909,4 +909,45 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errors)
   }
 
+  // `global.definitions.AnyTpe: global.Type` was a false "Cannot upcast SymbolTable.this.Type to
+  // Typers.this.global.Type" in scala/scala's Typers.scala. The fixture is a compilable skeleton
+  // extracted from the scala/scala compiler cake; only errors unrelated to the ascription remain
+  // (missing project settings, stubbed library classes), so only upcast/mismatch errors are checked.
+  def testSkeletorDefinitionsAnyTpeAscription(): Unit = {
+    val path = java.nio.file.Paths.get(org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath, "annotator", "anyTpeSkeletonCake", "skeleton.scala")
+    val source = java.nio.file.Files.readString(path)
+    val errors = errorsFromScalaCode(source)
+    val upcastOrMismatch = errors.filter(e => e.message.contains("upcast") || e.message.contains("Type mismatch"))
+    assertMatches(upcastOrMismatch) {
+      case Nil =>
+    }
+  }
+
+  // The minimized AnyTpe case: `foo`'s inferred result type is `SymbolTable.this.Type`, and `foo`
+  // is a member of `Definitions`, a proper superclass of `SymbolTable`. Seen from `g: Global`, it
+  // must become `g.Type`, as scalac's `toPrefix` returns `pre` once `SymbolTable <: Definitions`
+  // and `Global <: SymbolTable`.
+  def testInferredMemberTypeAnchor(): Unit = {
+    val source =
+      """object repro {
+        |  trait Definitions {
+        |    self: SymbolTable =>
+        |    def foo = NoSymbol.tpe
+        |  }
+        |  trait SymbolTable extends Definitions {
+        |    abstract class Symbol { def tpe: Type = ??? }
+        |    object NoSymbol extends Symbol
+        |    abstract class Type
+        |  }
+        |  trait Global extends SymbolTable
+        |
+        |  val g: Global = ???
+        |  g.foo: g.Type
+        |}
+        |""".stripMargin
+    val errors = errorsFromScalaCode(source)
+    assertMatches(errors) {
+      case Nil =>
+    }
+  }
 }
