@@ -188,7 +188,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               val newState =
                 state
                   .withCompoundOrSelfType(t)
-                  .withSubstitutor(ScSubstitutor(ScThisType(clazz)))
+                  .withSubstitutor(ScSubstitutor(ScThisType(clazz), clazz))
 
               processTypeImpl(selfType, place, newState)
             } else if (clazzType.conforms(selfType)) {
@@ -302,7 +302,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                 overridingElem match {
                   case Some(overrider) =>
                     val subst =
-                      if (updateWithProjectionSubst) ScSubstitutor(proj).followed(s)
+                      if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(overrider)).followed(s)
                       else                           s
                     processElement(overrider, subst, place, state)(using recState.add(alias))
                   case None =>
@@ -311,7 +311,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                 }
               case elem =>
                 val subst =
-                  if (updateWithProjectionSubst) ScSubstitutor(proj).followed(s)
+                  if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(elem)).followed(s)
                   else                           s
 
                 processElement(elem, subst, place, state)(using recState.add(elem))
