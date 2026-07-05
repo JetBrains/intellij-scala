@@ -909,4 +909,32 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errors)
   }
 
+  // `global.definitions.AnyTpe: global.Type` was a false "Cannot upcast SymbolTable.this.Type to
+  // Typers.this.global.Type" in scala/scala's Typers.scala. Minimized: `foo`'s inferred result type
+  // is `SymbolTable.this.Type`, and `foo` is a member of `Definitions`, a proper superclass of
+  // `SymbolTable`. Seen from `g: Global`, it must become `g.Type`, as scalac's `toPrefix` returns
+  // `pre` once `SymbolTable <: Definitions` and `Global <: SymbolTable`.
+  def testInferredMemberTypeAnchor(): Unit = {
+    val source =
+      """object repro {
+        |  trait Definitions {
+        |    self: SymbolTable =>
+        |    def foo = NoSymbol.tpe
+        |  }
+        |  trait SymbolTable extends Definitions {
+        |    abstract class Symbol { def tpe: Type = ??? }
+        |    object NoSymbol extends Symbol
+        |    abstract class Type
+        |  }
+        |  trait Global extends SymbolTable
+        |
+        |  val g: Global = ???
+        |  g.foo: g.Type
+        |}
+        |""".stripMargin
+    val errors = errorsFromScalaCode(source)
+    assertMatches(errors) {
+      case Nil =>
+    }
+  }
 }
