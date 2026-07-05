@@ -62,7 +62,7 @@ object PatternTypeInference {
         unapplySrr match {
           case Some(ScalaResolveResult(fun: ScFunctionDefinition, subst)) =>
             val clsParent     = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition]).toOption
-            val withThisType  = clsParent.fold(ScSubstitutor.empty)(cls => ScSubstitutor(ScThisType(cls)))
+            val withThisType  = clsParent.fold(ScSubstitutor.empty)(cls => ScSubstitutor(ScThisType(cls), ScSubstitutor.declarationAnchor(fun)))
             val combinedSubst = subst.followed(withThisType)
             val maybeTpe      = fun.parameters.head.`type`().map(combinedSubst)
 
