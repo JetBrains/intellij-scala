@@ -332,6 +332,15 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       // scalac renders `scala.AnyVal`; IntelliJ's canonicalText renders the short
       // `AnyVal` — canonicalize both to the short form.
       .replace("scala.AnyVal", "AnyVal")
+      // Same seam for the built-in value classes: scalac fully-qualifies them
+      // (`scala.Int`), IntelliJ's canonicalText renders them short (`Int`).
+      // Canonicalize to the short form. Value classes only — NOT `scala.Any`, which
+      // is a load-bearing sentinel filtered out of the baseClasses/baseTypeSeq
+      // comparisons by literal string match. Keeping this a normalization (not a
+      // Deferred pin) leaves the termType check ACTIVE — e.g. 26-cake-self-type-cycle's
+      // `useGlobalCall` must resolve to `Int`, so a re-emerging cross-symbol pump
+      // (which would grow the type) still fails the suite.
+      .replaceAll("\\bscala\\.(Int|Long|Short|Byte|Char|Float|Double|Boolean|Unit)\\b", "$1")
 
   /** Whitespace-insensitive key so formatting differences don't mask membership. */
   private def normalizeKey(s: String): String = normalize(s).replaceAll("\\s+", "")

@@ -83,6 +83,15 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   @tailrec
   private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
     if (clazz == null) doUpdateThisType(thisTp, target)
+    // scalac's `toPrefix` returns `pre` as soon as the this-type's class is a subclass of
+    // the cursor and `pre` widens to that class, before consulting `pre baseType clazz`.
+    // Without this, a this-type declared in a proper superclass of the cursor is walked
+    // past and lost: `SymbolTable.this.Type`, the inferred result type of a member of
+    // `Definitions` (`SymbolTable <: Definitions`), seen from `g: Global`, must become
+    // `g.Type`. The subclass test keeps the cross-symbol case out (there, `Infer` is not a
+    // subclass of the cursor `Typer`), so owner-chain matching below still applies to it.
+    else if (isInheritorDeep(thisTp.element, clazz) && isMoreNarrow(target, thisTp, Set.empty))
+      doUpdateThisType(thisTp, target)
     else if (clazz == thisTp.element || clazz.containingClass == null) {
       if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
       else thisTp
