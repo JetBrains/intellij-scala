@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 import scala.annotation.tailrec
@@ -201,30 +201,39 @@ object BaseTypes {
    */
   private def supersOf(tp: ScType, seenAliases: mutable.Set[ScTypeAlias])
                       (implicit context: Context): Seq[ScType] = {
+    // `seen` breaks singleton-widening cycles (e.g. an object whose
+    // designatorSingletonType is its own type): a repeat falls back to ClassType.
     @tailrec
-    def go(t: ScType): Seq[ScType] = t match {
+    def go(t: ScType, seen: Set[ScType]): Seq[ScType] = t match {
       case IsTypeAlias(ta, s) if !ta.isEffectivelyOpaque && !seenAliases.contains(ta) =>
         seenAliases += ta.physical
         ta.aliasedType match {
-          case Right(aliased) => go(s(aliased))
+          case Right(aliased) => go(s(aliased), seen)
           case _              => Seq.empty
         }
       case ScThisType(clazz)                       =>
         // `X.this` also conforms to `X`'s self type, so the self type's bases are
         // bases of it too (needed by the anchored walk in ThisTypeSubstitution).
         (clazz.`type`().toOption, clazz.selfType) match {
-          case (Some(ct), Some(st)) => go(ScCompoundType(Seq(ct, st))(tp.projectContext))
-          case (Some(ct), None)     => go(ct)
-          case (None, Some(st))     => go(st)
+          case (Some(ct), Some(st)) => go(ScCompoundType(Seq(ct, st))(using tp.projectContext), seen)
+          case (Some(ct), None)     => go(ct, seen)
+          case (None, Some(st))     => go(st, seen)
           case (None, None)         => Seq.empty
         }
       case JavaArrayType(_)                        => Seq(tp.projectContext.stdTypes.Any)
       case ScCompoundType(comps, _, _)             => comps
       case ScAndType(lhs, rhs)                     => Seq(lhs, rhs)
+      case SingletonUnderlying(underlying) if !seen.contains(underlying) =>
+        // A singleton path type (e.g. `x.type` for `x: ValDef`) is not itself a
+        // class/object designator, so ClassType never fires for it. Widen to the
+        // declared/resolved type of the underlying value (scalac's `underlying`,
+        // used by SingleType.baseTypeSeq) so its base classes (e.g. ValDef ->
+        // ValOrDefDef -> Tree) are reachable through the singleton prefix.
+        go(underlying, seen + t)
       case ClassType(c, subst)                     => declaredSuperTypes(c, subst)
       case _                                       => Seq.empty
     }
-    go(tp)
+    go(tp, Set.empty)
   }
 
   private def declaredSuperTypes(c: PsiClass, subst: ScSubstitutor): Seq[ScType] = c match {
@@ -259,6 +268,13 @@ object BaseTypes {
       .iterator
       .map { case (clazz, ps) => mergeSameClass(ps.map(_._2), clazz) }
       .toList
+
+  private object SingletonUnderlying {
+    def unapply(tp: ScType): Option[ScType] = tp match {
+      case owner: DesignatorOwner => owner.designatorSingletonType
+      case _                      => None
+    }
+  }
 
   private object IsTypeAlias {
     def unapply(tp: ScType): Option[(ScTypeAliasDefinition, ScSubstitutor)] = tp match {

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -164,7 +164,15 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case _ =>
     }
 
-    if (place.isInScala3File && kinds.contains(ResolveTargets.METHOD)) {
+    // A singleton path `x.type` is processed again via its underlying type below, which handles
+    // `Selectable` there; handling it here too (its base types include `Selectable` since `BaseTypes`
+    // widens singletons) would contribute every field twice, making the selection ambiguous.
+    // (Objects are never dereferenced, so only singletons with an underlying type are skipped.)
+    val isSingletonPath = t match {
+      case des: DesignatorOwner => des.isSingleton && des.extractDesignatorSingleton.isDefined
+      case _                    => false
+    }
+    if (place.isInScala3File && kinds.contains(ResolveTargets.METHOD) && !isSingletonPath) {
       if (!processSelectable(t, place, state, execute)) {
         return false
       }
