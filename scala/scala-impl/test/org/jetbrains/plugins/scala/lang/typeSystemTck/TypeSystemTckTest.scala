@@ -63,7 +63,6 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       "07-same-symbol-merge/SinkMerge",            // B
       "10-existentials/BoxWild",                   // A: existential, empty actual
       "10-existentials/BoxAnimalWild",             // A
-      "12-singleton-literal-path/DogSingleton",    // A: singleton, empty actual
       "12-singleton-literal-path/Lit",             // A: literal, empty actual
       "15-top-bottom-valueclass/Int",              // A: primitive, empty actual
       "18-multipath-base-type/LR",                 // B: arg-order / merge
@@ -86,15 +85,12 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     /**
      * F. `BaseTypes.baseType` MISSES entirely (returns None) for an inherited inner
      *    class reached through a val path (`x.type baseType Tree` where
-     *    `x: global.ValDef`, ValDef -> ValOrDefDef -> Tree inside the Trees cake) —
-     *    scalac returns `HasGlobal.this.global.Tree`. A miss, not a wrong MERGE:
-     *    same-symbol merge divergences stay hard-asserted (never defer those).
-     *    Pre-existing gap; the member-type route around it works (the entry's
-     *    `xSymbol` termType passes). Tracked for a separate fix.
+     *    `x: global.ValDef`, ValDef -> ValOrDefDef -> Tree inside the Trees cake).
+     *    Fixed: BaseTypesIterator now widens a singleton path's `designatorSingletonType`
+     *    (the same widen also fixed group A's `12-singleton-literal-path/DogSingleton`
+     *    for baseTypeSeq). Empty on purpose — kept for the two-way pin structure.
      */
-    val baseType: Set[String] = Set(
-      "25-trees-cake-member-anchor/xAtTree",
-    )
+    val baseType: Set[String] = Set.empty
   }
 
   def testCorpus(): Unit = {
