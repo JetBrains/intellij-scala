@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
-import org.jetbrains.annotations.{ApiStatus, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, TestOnly, VisibleForTesting}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.{isInternalMode, isUnitTestMode}
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
@@ -36,15 +36,19 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    * @see [[org.jetbrains.sbt.shell.SbtShellStateIntegrationTest.StateSequenceChecker]]
    */
   @TestOnly
-  private[shell] var testStateListener: Option[ShellState => Unit] = None
+  private[shell] var testStateListeners: Seq[ShellState => Unit] = Seq.empty
 
   @TestOnly
-  private[shell] def setTestStateListener(listener: ShellState => Unit): Unit =
-    testStateListener = Some(listener)
+  private[shell] def addTestStateListener(listener: ShellState => Unit): Unit =
+    testStateListeners :+= listener
 
   @TestOnly
-  private[shell] def clearTestStateListener(): Unit =
-    testStateListener = None
+  private[shell] def removeTestStateListener(listener: ShellState => Unit): Unit =
+    testStateListeners = testStateListeners.filterNot(_ eq listener)
+
+  @TestOnly
+  private[shell] def clearTestStateListeners(): Unit =
+    testStateListeners = Seq.empty
 
   // The diagnostics are collected to simplify debugging of test failures
   private lazy val collectDiagnostics: Boolean =
@@ -55,9 +59,12 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   private val diagnosticEvents = new ConcurrentLinkedQueue[RecordedDiagnosticEvent]()
 
   @TestOnly
+  private[shell] def diagnosticEventsSnapshot: Seq[SbtShellDiagnosticEvent] =
+    diagnosticEvents.iterator.asScala.map(_.event).toSeq
+
+  @TestOnly
   private[shell] def diagnosticsSnapshot: String = {
     val lifecycle = SbtShellLifecycle.getInstance(project)
-    val emptyingQueue = Option(emptyingQueueFuture.get())
     val transitionHistory = lifecycle.transitionHistorySnapshot.takeRight(MaxDiagnosticEvents)
     val events = diagnosticEvents.iterator.asScala.toSeq.takeRight(MaxDiagnosticEvents)
       .map(r => s"${r.timestampMs} ${SbtShellDiagnosticEvent.render(r.event)}")
@@ -69,8 +76,6 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
        |shellWorkingSinceLastReadyPrompt=${shellWorkingSinceLastReadyPrompt.get()}
        |shellQueueReadyPermits=${shellQueueReady.availablePermits()}
        |communicationActivePermits=${communicationActive.availablePermits()}
-       |isEmptyingQueueRunning=$isEmptyingQueueRunning
-       |emptyingQueueFuture=${emptyingQueue.fold("<null>")(future => s"isDone=${future.isDone}, isCancelled=${future.isCancelled}, isCompletedExceptionally=${future.isCompletedExceptionally}")}
        |
        |Lifecycle transitions:
        |${if (transitionHistory.nonEmpty) transitionHistory.mkString("\n") else "<empty>"}
@@ -93,33 +98,28 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    */
   private val shellWorkingSinceLastReadyPrompt = new AtomicBoolean(true)
 
-  private case class QueuedCommand(
+  private[shell] case class QueuedCommand(
     request: SbtShellCommandRequest[?],
     listener: SbtShellCommandExecutionOutputListener[?]
   )
 
   //TODO: rename to commandsQueue
-  private val commands = new LinkedBlockingQueue[QueuedCommand]()
+  @VisibleForTesting
+  private[shell] val commands = new LinkedBlockingQueue[QueuedCommand]()
 
   private val queuedStartupOutputMirroring = new SbtShellQueuedStartupOutputMirroring(project)
 
   /**
-   * The queue for commands accumulated when the shell is in the process of emptying standard queue commands before the "soft" restart or destroying.
+   * Buffers commands arriving during soft restart or hard kill.
+   *
    * Currently, the concept of a "soft" restart is used only when, during a project reload, it's discovered that the sbt version has changed.
    * In such cases, the shell is restarted in a "soft" way - only after processing all already queued commands.
    *
-   * If, during emptying the queue, the sbt shell is manually killed by the user or via the dispose method,
-   * all commands accumulated in this queue are moved to the standard [[commands]] queue
-   * and are terminated in queue processing method ([[startQueueProcessing]]).
+   * @see [[AfterRestartCommandsGate]]
+   * @see [[routeCommandDuringShutdownOrRestart]]
    */
-  private val afterRestartCommands = new LinkedBlockingQueue[QueuedCommand]()
-
-  /**
-   * Contains an atomic reference to a `Future` responsible for emptying [[commands]] queue.
-   *
-   * @todo extract to a separate state SCL-24338
-   */
-  private val emptyingQueueFuture = new AtomicReference[CompletableFuture[Unit]](null)
+  @VisibleForTesting
+  private[shell] val afterRestartCommands = new AfterRestartCommandsGate[QueuedCommand]()
 
   /**
    * @return sbt version of the running sbt shell (if it's already running)<br>
@@ -150,14 +150,18 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val qc = QueuedCommand(request, listener)
     val shellWasReadyForImmediateSubmission = isRunningAndIdle
 
-    if (isDestroyingOrEmptyingQueueInProgress) {
-      Log.debug(s"command: enqueue to afterRestartCommands: requestId=$requestId...")
-      recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueAfterRestartCommands(requestId, shellWasReadyForImmediateSubmission, currentState))
-
-      afterRestartCommands.put(qc)
-      notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
+    // NOTE:
+    // Commands arriving during a soft restart or while the shell is shutting down are routed
+    // to the AfterRestartCommandsGate or, if the gate is already closed, to the standard command queue.
+    //
+    // Once the shell enters `ShuttingDown`, a modal progress window is displayed, so it is
+    // unlikely that a new command will be submitted through the UI. An alternative design would
+    // be to reject all new commands in the `ShuttingDown` state instead of routing them to a queue.
+    // I decided to keep this behavior because it was implemented this way in the past.
+    // However, I'm not saying it is the best approach; it can be reviewed in the future if new issues arise.
+    if (currentState.isShuttingDown || currentState.isSoftRestarting) {
+      routeCommandDuringShutdownOrRestart(qc, request, requestId, shellWasReadyForImmediateSubmission)
     } else {
-      // TODO it's some imperfection at this place to address in SCL-24338
       // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted here
       // and may be emitted again when the shell becomes ready and the prompt listener observes pending work.
       // Introducing an explicit "Start" state would likely be a solution.
@@ -177,6 +181,34 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     listener.future
   }
 
+  /**
+   * Routes a command when the shell is in [[ShellState.SoftRestarting]] or [[ShellState.ShuttingDown]] state.
+   * Both states use the same routing logic:
+   *
+   * - If the [[AfterRestartCommandsGate]] is open, the command is buffered for execution after the shell restarts.
+   * - If the gate is already closed (buffer was flushed), the command is routed to the standard commands queue,
+   *   where it will survive the restart and be processed by the new shell.
+   */
+  private def routeCommandDuringShutdownOrRestart(
+    qc: QueuedCommand,
+    request: SbtShellCommandRequest[?],
+    requestId: SbtShellCommandRequestId,
+    shellWasReadyForImmediateSubmission: Boolean,
+  ): Unit =
+    if (afterRestartCommands.enqueue(qc)) {
+      Log.debug(s"command: enqueue to afterRestartCommands: requestId=$requestId...")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueAfterRestartCommands(requestId, shellWasReadyForImmediateSubmission, currentState))
+      notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
+    } else {
+      // Gate closed — route to standard commands queue
+      Log.debug(s"command: gate closed, enqueue to commands: requestId=$requestId...")
+      recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueCommandsAfterGateClosed(requestId, shellWasReadyForImmediateSubmission, currentState))
+      commands.put(qc)
+      notifyQueuedWhileShellBusyIfNeeded(request, shellWasReadyForImmediateSubmission)
+      process.acquireShellProcessHandler(request.activateSbtShellToolWindowOnStartup)
+      emitShellStateEvent(ShellStateEvent.EnqueueCommand)
+    }
+
   private def notifyQueuedWhileShellBusyIfNeeded(request: SbtShellCommandRequest[?], shellWasReadyForImmediateSubmission: Boolean): Unit =
     if (!shellWasReadyForImmediateSubmission) {
       try {
@@ -190,23 +222,34 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   override def cancel(requestId: SbtShellCommandRequestId): Unit =
     removeCommandFromQueueOrCancel(requestId)
 
+  /** Transitions the shell state to [[ShellState.ShuttingDown]]. */
+  private[shell] def enterShuttingDownState(): Unit =
+    emitShellStateEvent(ShellStateEvent.ShutdownRequested)
+
   /**
-   * Cancels the upcoming soft restart by interrupting the queue-emptying future
-   * and terminating all commands accumulated in [[afterRestartCommands]].
+   * Initiates a hard kill: terminates all commands currently buffered in [[afterRestartCommands]]
+   * and transitions the shell to [[ShellState.ShuttingDown]] state.
+   *
+   * The gate is left open so that commands arriving during the [[ShellState.ShuttingDown]] state
+   * are buffered in [[afterRestartCommands]] and later flushed to the standard [[commands]] queue.
    */
-  private[shell] def cancelSoftRestartProcess(): Unit = {
-    Option(emptyingQueueFuture.get()).foreach(_.cancel(true))
-    terminatePendingCommands(afterRestartCommands)
+  private[shell] def initiateHardKill(): Unit = {
+    afterRestartCommands.terminateAllAndClear(terminateQueuedCommand)
+    enterShuttingDownState()
   }
 
-  private def terminatePendingCommands(commandsQueue: LinkedBlockingQueue[QueuedCommand]): Unit = {
-    commandsQueue.forEach { case QueuedCommand(request, listener) =>
-      Log.warn(s"Sbt shell is terminated, skipping command: requestId=${request.requestId}")
-      recordDiagnosticEvent(SbtShellDiagnosticEvent.TerminatePendingCommand(request.requestId, currentState))
-      queuedStartupOutputMirroring.remove(Some(request.requestId))
-      listener.processTerminated()
-    }
-    commandsQueue.clear()
+  /** Terminates and removes all commands currently waiting in the [[commands]] queue. */
+  private def terminatePendingCommands(): Unit = {
+    commands.forEach(terminateQueuedCommand(_))
+    commands.clear()
+  }
+
+  private def terminateQueuedCommand(queuedCommand: QueuedCommand): Unit = {
+    val QueuedCommand(request, listener) = queuedCommand
+    Log.warn(s"Sbt shell is terminated, skipping command: requestId=${request.requestId}")
+    recordDiagnosticEvent(SbtShellDiagnosticEvent.TerminatePendingCommand(request.requestId, currentState))
+    queuedStartupOutputMirroring.remove(Some(request.requestId))
+    listener.processTerminated()
   }
 
   /**
@@ -265,7 +308,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     var removedElement = removeFrom(commands)
     if (removedElement == null) {
-      removedElement = removeFrom(afterRestartCommands)
+      removedElement = afterRestartCommands.tryRemove(_.request.requestId == requestId).orNull
     }
 
     if (removedElement != null) {
@@ -281,12 +324,6 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     Log.debug(s"removeCommandFromQueueOrCancel finish: requestId=$requestId, commandsSize=${commands.size()}, afterRestartSize=${afterRestartCommands.size()}")
   }
-
-  private def isDestroyingOrEmptyingQueueInProgress: Boolean =
-    currentState.isShuttingDown || isEmptyingQueueRunning
-
-  private def isEmptyingQueueRunning: Boolean =
-    Option(emptyingQueueFuture.get()).exists(!_.isDone)
 
   /** Start processing the command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
@@ -316,15 +353,16 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
         // Process terminated, notify remaining commands in the queue
         // otherwise, there might be some stuck processes
-        terminatePendingCommands(commands)
+        terminatePendingCommands()
 
         // release the communicationActive semaphore, before (maybe) acquiring the new shell
         communicationActive.release()
 
-        if (!afterRestartCommands.isEmpty) {
+        val pendingCommands = afterRestartCommands.flushAndClose()
+        if (!pendingCommands.isEmpty) {
           // Move commands accumulated in `afterRestartCommands` queue to the standard queue (they will be processed when the new shell starts)
-          val activateSbtShellToolWindowOnStartup = afterRestartCommands.iterator().asScala.exists(_.request.activateSbtShellToolWindowOnStartup)
-          afterRestartCommands.drainTo(commands)
+          val activateSbtShellToolWindowOnStartup = pendingCommands.asScala.exists(_.request.activateSbtShellToolWindowOnStartup)
+          commands.addAll(pendingCommands)
           process.acquireShellProcessHandler(activateSbtShellToolWindowOnStartup)
         }
 
@@ -363,7 +401,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     var isCommandProcessed = false
     try {
       isCommandProcessed = if (currentState.isShuttingDownOrOff)
-        false // The new commands will be added to another queue `afterRestartCommands` and processed after the sbt shell is restarted
+        false // The new commands will be added to `afterRestartCommands` and processed after the sbt shell is restarted
       else
         waitAndProcessNextCommand(timeout)
     } finally {
@@ -395,32 +433,41 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    */
   @RequiresBackgroundThread
   def runAfterSoftRestart[A](request: SbtShellCommandRequest[A]): Future[A] = {
-    if (isEmptyingQueueRunning)
+    if (!initiateSoftRestart())
       return run(request)
 
-    val emptyingQueue = new CompletableFuture[Unit]()
+    // Whether the command queue is empty and the shell is ready
+    def allCommandsProcessed: Boolean =
+      commands.isEmpty && !shellWorkingSinceLastReadyPrompt.get()
 
     def waitForAllCommandsInQueueToFinish(): Unit =
-      while (currentState.isQueued && !currentState.isShuttingDownOrOff) {
+      while (!allCommandsProcessed && !currentState.isShuttingDownOrOff) {
         Thread.sleep(1000)
       }
 
-    emptyingQueueFuture.set(emptyingQueue)
-
     // The command is put on the `afterRestartCommands` queue
     val commandResultFuture = run(request)
-    try {
-      waitForAllCommandsInQueueToFinish()
 
-      if (!emptyingQueue.isCompletedExceptionally) {
-        emptyingQueue.complete(())
-        SbtProcessManager.forProject(project).softDestroyProcess()
-      }
+    waitForAllCommandsInQueueToFinish()
 
-      commandResultFuture
-    } finally {
-      emptyingQueueFuture.set(null)
-    }
+    if !currentState.isShuttingDownOrOff then
+      SbtProcessManager.forProject(project).softDestroyProcess()
+
+    commandResultFuture
+  }
+
+  /**
+   * Attempts to initiate a soft restart by emitting [[ShellStateEvent.SoftRestartInitiated]].
+   *
+   * @return `true` if the soft restart was initiated, `false` if the shell is already shutdown/restart/off.
+   */
+  private def initiateSoftRestart(): Boolean = {
+    val state = currentState
+    if state.isSoftRestarting || state.isShuttingDown || state.isOff then
+      false
+    else
+      emitShellStateEvent(ShellStateEvent.SoftRestartInitiated)
+      true
   }
 
   private def processCommand(qc: QueuedCommand): Unit = {
@@ -435,6 +482,11 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val handler = process.acquireShellProcessHandler(request.activateSbtShellToolWindowOnStartup)
     handler.addProcessListener(listener)
     queuedStartupOutputMirroring.remove()
+
+    // Set the flag early, before the command text reaches the shell via stdin.
+    // Otherwise `runAfterSoftRestart` may see an empty queue and the flag still false
+    // (before the shell echoes output back) and destroy the process while this command is still running.
+    shellWorkingSinceLastReadyPrompt.set(true)
 
     process.usingWriter { shell =>
       // Prefix the command with a leading space.
@@ -482,6 +534,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
     if (lockAcquired) {
+      afterRestartCommands.reopen()
       queuedStartupOutputMirroring.registerIfNeeded(handler, queuedStartupOutputOwner)
 
       // Reset only after communication is acquired: from here on, the ready listener owns the prompt permit for this process.
@@ -547,7 +600,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val next = SbtShellLifecycle.getInstance(project).transition(currentState, event)
     stateRef.set(next)
     recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"emitShellStateEvent: $previous --$event--> $next"))
-    testStateListener.foreach(_(next))
+    testStateListeners.foreach(_(next))
   }
 
   /**

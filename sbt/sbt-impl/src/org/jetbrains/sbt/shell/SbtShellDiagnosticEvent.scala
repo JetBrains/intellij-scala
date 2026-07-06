@@ -9,23 +9,32 @@ import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
  *
  * Some internal sbt shell operations are captured in a non-structured way as [[Trace]] events with arbitrary content.
  */
-private[shell] enum SbtShellDiagnosticEvent {
-  case RunStart(requestId: SbtShellCommandRequestId, state: ShellState)
-  case RunFinish(requestId: SbtShellCommandRequestId, commandsSize: Int, afterRestartSize: Int, state: ShellState)
-  case EnqueueCommands(requestId: SbtShellCommandRequestId, shellWasReadyForImmediateSubmission: Boolean, state: ShellState)
-  case EnqueueAfterRestartCommands(requestId: SbtShellCommandRequestId, shellWasReadyForImmediateSubmission: Boolean, state: ShellState)
-  case TerminatePendingCommand(requestId: SbtShellCommandRequestId, state: ShellState)
-  case RemoveFromQueue(requestId: SbtShellCommandRequestId)
-  case CancelRequested(requestId: SbtShellCommandRequestId)
-  case ProcessCommandStart(requestId: SbtShellCommandRequestId, state: ShellState)
-  case ProcessCommandFinish(requestId: SbtShellCommandRequestId, result: String, state: ShellState)
-  case ErrorWaitForInputDetected(requestId: SbtShellCommandRequestId, state: ShellState)
-  case SendIgnore(sbtVersion: SbtVersion, isNewShell: Boolean, isLinux: Boolean, requiresNewLine: Boolean, command: String, state: ShellState)
-  case SendIgnoreSkipped(state: ShellState)
-  case Trace(message: String)
+private[shell] sealed trait SbtShellDiagnosticEvent {
+  def requestIdOpt: Option[SbtShellCommandRequestId] = None
 }
 
 private[shell] object SbtShellDiagnosticEvent {
+
+  sealed trait CommandEvent extends SbtShellDiagnosticEvent {
+    def requestId: SbtShellCommandRequestId
+    override def requestIdOpt: Option[SbtShellCommandRequestId] = Some(requestId)
+  }
+
+  case class RunStart(requestId: SbtShellCommandRequestId, state: ShellState) extends CommandEvent
+  case class RunFinish(requestId: SbtShellCommandRequestId, commandsSize: Int, afterRestartSize: Int, state: ShellState) extends CommandEvent
+  case class EnqueueCommands(requestId: SbtShellCommandRequestId, shellWasReadyForImmediateSubmission: Boolean, state: ShellState) extends CommandEvent
+  case class EnqueueAfterRestartCommands(requestId: SbtShellCommandRequestId, shellWasReadyForImmediateSubmission: Boolean, state: ShellState) extends CommandEvent
+  case class TerminatePendingCommand(requestId: SbtShellCommandRequestId, state: ShellState) extends CommandEvent
+  case class RemoveFromQueue(requestId: SbtShellCommandRequestId) extends CommandEvent
+  case class CancelRequested(requestId: SbtShellCommandRequestId) extends CommandEvent
+  case class ProcessCommandStart(requestId: SbtShellCommandRequestId, state: ShellState) extends CommandEvent
+  case class ProcessCommandFinish(requestId: SbtShellCommandRequestId, result: String, state: ShellState) extends CommandEvent
+  case class ErrorWaitForInputDetected(requestId: SbtShellCommandRequestId, state: ShellState) extends CommandEvent
+  case class EnqueueCommandsAfterGateClosed(requestId: SbtShellCommandRequestId, shellWasReadyForImmediateSubmission: Boolean, state: ShellState) extends CommandEvent
+  case class SendIgnore(sbtVersion: SbtVersion, isNewShell: Boolean, isLinux: Boolean, requiresNewLine: Boolean, command: String, state: ShellState) extends SbtShellDiagnosticEvent
+  case class SendIgnoreSkipped(state: ShellState) extends SbtShellDiagnosticEvent
+  case class Trace(message: String) extends SbtShellDiagnosticEvent
+
   def render(event: SbtShellDiagnosticEvent): String = event match {
     case RunStart(requestId, state) =>
       s"run start: requestId=$requestId, state=$state"
@@ -47,6 +56,8 @@ private[shell] object SbtShellDiagnosticEvent {
       s"processCommand finish: requestId=$requestId, result=$result, state=$state"
     case ErrorWaitForInputDetected(requestId, state) =>
       s"ErrorWaitForInput detected: requestId=$requestId, state=$state"
+    case EnqueueCommandsAfterGateClosed(requestId, ready, state) =>
+      s"enqueue commands (gate closed): requestId=$requestId, shellWasReadyForImmediateSubmission=$ready, state=$state"
     case SendIgnore(sbtVersion, isNewShell, isLinux, requiresNewLine, command, state) =>
       s"sendIgnore: sbtVersion=$sbtVersion, isNewShell=$isNewShell, isLinux=$isLinux, requiresNewLine=$requiresNewLine, command=$command, state=$state"
     case SendIgnoreSkipped(state) =>
