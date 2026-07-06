@@ -67,6 +67,7 @@ object SbtShellTestUtil {
   final class ShellStateAwaiter(
     shellCommunication: SbtShellCommunication,
     latch: CountDownLatch,
+    listener: ShellState => Unit,
   ) {
     def await(timeout: FiniteDuration, timeoutMessage: String): Unit =
       try {
@@ -76,7 +77,7 @@ object SbtShellTestUtil {
       }
 
     def dispose(): Unit = {
-      shellCommunication.clearTestStateListener()
+      shellCommunication.removeTestStateListener(listener)
     }
   }
 
@@ -86,11 +87,12 @@ object SbtShellTestUtil {
   def observeNextQueuedState(project: Project): ShellStateAwaiter = {
     val shellCommunication = SbtShellCommunication.forProject(project)
     val latch = new CountDownLatch(1)
-    shellCommunication.setTestStateListener {
+    val listener: ShellState => Unit = {
       case ShellState.Queued => latch.countDown()
       case _ =>
     }
-    new ShellStateAwaiter(shellCommunication, latch)
+    shellCommunication.addTestStateListener(listener)
+    new ShellStateAwaiter(shellCommunication, latch, listener)
   }
 
   def awaitFutureWithShellLog[T](

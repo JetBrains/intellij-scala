@@ -525,10 +525,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     destroyProcess(isSoft = true)
 
   /**
-   * @param isSoft when `true`, the emptying queue process is not canceled, and post-restart commands are preserved.
-   *
-   *               When `false`, the emptying queue process is canceled if it is running.
-   * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelSoftRestartProcess]]
+   * @param isSoft when `true`, the after-restart commands buffer is preserved.
+   *               When `false`, the soft-restart is canceled if it is running.
    */
   private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess start...")
@@ -539,17 +537,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
         val shellStateBeforeDestroy = shell.currentState
         // Startup may fail before the communication layer observes a ready prompt.
         // In that case the process still needs disposal, but the shell lifecycle is already Off.
-        val shouldEmitShutdownRequested = shellStateBeforeDestroy != ShellState.Off && shellStateBeforeDestroy != ShellState.ShuttingDown
+        val shouldEmitShutdownRequested = !shellStateBeforeDestroy.isShuttingDownOrOff
         // If shutdown was already requested elsewhere, only the terminal event is still needed.
-        val shouldEmitProcessTerminated = shellStateBeforeDestroy != ShellState.Off
-        // Cancel the soft restart process before emitting `ShutdownRequested`, as it will cause the command loop inside
-        // `SbtShellCommunication.startQueueProcessing` to exit, and there should be no commands in the `afterRestartCommands` queue afterward.
-        if (!isSoft)
-          shell.cancelSoftRestartProcess()
+        val shouldEmitProcessTerminated = !shellStateBeforeDestroy.isOff
 
+        // For hard kill: terminate after-restart commands buffer and transition to ShuttingDown
+        // For soft restart: transition to ShuttingDown
         if (shouldEmitShutdownRequested) {
-          log.trace("destroyProcess: emit ShutdownRequested...")
-          shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
+          if (!isSoft)
+            shell.initiateHardKill()
+          else
+            shell.enterShuttingDownState()
         }
 
         val runnable: Runnable = () => terminateProcessGracefully(pd.processHandler.getProcess)

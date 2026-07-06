@@ -47,10 +47,14 @@ final class SbtShellTestFixture(project: Project) extends Disposable {
       "Timed out waiting for sbt shell to initialize before reading quoted path options"
     )
 
-  override def dispose(): Unit =
+  override def dispose(): Unit = {
+    if (myCommunication != null) {
+      myCommunication.clearTestStateListeners()
+    }
     if (myProcessHandler != null && myProcessListener != null) {
       myProcessHandler.removeProcessListener(myProcessListener)
     }
+  }
 }
 
 object SbtShellTestFixture {
