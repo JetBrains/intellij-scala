@@ -4,10 +4,13 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.SbtRuntimeTestBase
+import org.jetbrains.sbt.shell.communication.SbtShellCommandRequestId
+import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
 
 import scala.compiletime.uninitialized
 import scala.concurrent.duration.FiniteDuration
+import scala.reflect.ClassTag
 
 @Category(Array(classOf[SlowTests2]))
 abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
@@ -49,4 +52,32 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
     Disposer.register(getTestRootDisposable, sbtShellFixture)
     sbtShellFixture.setUp()
   }
+
+  /** Asserts that at least one diagnostic event of type `T` with the given `expectedRequestId` exists. */
+  def assertDiagnosticEventExists[T <: SbtShellDiagnosticEvent.CommandEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    expectedRequestId: SbtShellCommandRequestId,
+    snapshot: String
+  )(using ct: ClassTag[T]): Unit =
+    assertTrue(
+      s"Missing ${ct.runtimeClass.getSimpleName} event with requestId=${expectedRequestId.value}. Snapshot: $snapshot",
+      hasDiagnosticEvent[T](events, expectedRequestId)
+    )
+
+  /** Asserts that no diagnostic event of type `T` with the given `expectedRequestId` exists. */
+  protected def assertDiagnosticEventNotExists[T <: SbtShellDiagnosticEvent.CommandEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    expectedRequestId: SbtShellCommandRequestId,
+    snapshot: String
+  )(using ct: ClassTag[T]): Unit =
+    assertFalse(
+      s"Unexpected ${ct.runtimeClass.getSimpleName} event with requestId=${expectedRequestId.value} was found. Snapshot: $snapshot",
+      hasDiagnosticEvent[T](events, expectedRequestId)
+    )
+
+  private def hasDiagnosticEvent[T <: SbtShellDiagnosticEvent.CommandEvent : ClassTag](
+    events: Seq[SbtShellDiagnosticEvent],
+    expectedRequestId: SbtShellCommandRequestId,
+  ): Boolean =
+    events.exists { case x: T => x.requestId == expectedRequestId; case _ => false }
 }

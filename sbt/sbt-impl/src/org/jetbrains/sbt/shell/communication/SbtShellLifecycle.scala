@@ -74,8 +74,6 @@ private[shell] object SbtShellLifecycle {
 
   /**
    * Shell states
-   *
-   * @todo introduce more with SCL-24338 (most likely some "On" state and another one for emptying queue (before "soft restart"))
    */
   sealed trait ShellState
   object ShellState {
@@ -86,6 +84,11 @@ private[shell] object SbtShellLifecycle {
      * or the queue is empty but the last command is still running.
      */
     private[shell] case object Queued extends ShellState
+    /**
+     * A soft restart has been initiated. Commands from the standard queue may continue to be processed.
+     * New commands arriving during this state are buffered in [[AfterRestartCommandsGate]] for execution after the shell restarts.
+     */
+    private[shell] case object SoftRestarting extends ShellState
     /** The shell is in the process of shutting down, but the process has not terminated yet. */
     private[shell] case object ShuttingDown extends ShellState
     /** The shell process is not running. */
@@ -94,9 +97,10 @@ private[shell] object SbtShellLifecycle {
     implicit class RichShellState(state: ShellState) {
       def isIdle: Boolean = state == ShellState.Idle
       def isQueued: Boolean = state == ShellState.Queued
+      def isSoftRestarting: Boolean = state == ShellState.SoftRestarting
       def isShuttingDown: Boolean = state == ShellState.ShuttingDown
       def isOff: Boolean = state == ShellState.Off
-      def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
+      def isShuttingDownOrOff: Boolean = isShuttingDown || isOff
     }
   }
 
@@ -119,6 +123,7 @@ private[shell] object SbtShellLifecycle {
      */
     case object ShellBecameBusy extends ShellStateEvent
     case object QueueDrained extends ShellStateEvent
+    case object SoftRestartInitiated extends ShellStateEvent
     case object ShutdownRequested extends ShellStateEvent
     case object ProcessTerminated extends ShellStateEvent
   }
@@ -139,16 +144,25 @@ private[shell] object SbtShellLifecycle {
 
       case (Idle, EnqueueCommand)         => Some(Queued)
       case (Idle, ShellBecameBusy)        => Some(Queued)
+      case (Idle, SoftRestartInitiated)   => Some(SoftRestarting)
       case (Idle, ShutdownRequested)      => Some(ShuttingDown)
       case (Idle, QueueDrained)           => Some(Idle) // The self-transition Idle -> Idle is allowed for now. It can happen when a ready prompt is observed while no command is queued or running.
       case (Idle, _)                      => None
 
       case (Queued, QueueDrained)           => Some(Idle)
+      case (Queued, SoftRestartInitiated)   => Some(SoftRestarting)
       case (Queued, ShutdownRequested)      => Some(ShuttingDown)
       case (Queued, EnqueueCommand)         => Some(Queued)  // This occurs when the shell is in the Queued state and another command is added, triggering another EnqueueCommand event.
       case (Queued, ShellBecameBusy)        => Some(Queued)
       // Another scenario is a ready prompt observed while command work is still queued or running.
       case (Queued, _)                      => None
+
+      case (SoftRestarting, ShutdownRequested)    => Some(ShuttingDown) // Hard kill overrides soft restart, or soft restart enters process destruction phase
+      case (SoftRestarting, ProcessTerminated)    => Some(Off)
+      case (SoftRestarting, QueueDrained)         => Some(SoftRestarting)
+      case (SoftRestarting, EnqueueCommand)       => Some(SoftRestarting) // New commands may be submitted during soft restart and are routed to the after-restart buffer (same as ShuttingDown state).
+      case (SoftRestarting, ShellBecameBusy)      => Some(SoftRestarting)
+      case (SoftRestarting, _)                    => None
 
       case (ShuttingDown, ProcessTerminated) => Some(Off)
       case (ShuttingDown, QueueDrained)      => Some(ShuttingDown) // QueueDrained & EnqueueCommand events may still be emitted after shutdown has started,

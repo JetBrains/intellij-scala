@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.SbtProjectResolver
-import org.jetbrains.sbt.shell.communication.SbtShellCommandRequest
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
+import org.jetbrains.sbt.shell.communication.SbtShellCommandRequest
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
@@ -139,6 +139,7 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
     // a real ready prompt. `initCommunication` must not emit a synthetic queue state before that prompt.
     val checker = StateSequenceChecker.start(
       ShellState.Idle,
+      ShellState.SoftRestarting,
       ShellState.ShuttingDown,
       ShellState.Off,
       ShellState.Queued,
@@ -185,11 +186,7 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
     private val promise = Promise[Either[AssertionError, Unit]]()
     @volatile private var index = 0
 
-    // Replay the current state so the checker observes the initial Idle state that happened before listener registration.
-    listener(shellCommunication.currentState)
-    shellCommunication.setTestStateListener(listener)
-
-    private def listener(state: ShellState): Unit = {
+    private val listenerFn: ShellState => Unit = { state =>
       if (!promise.isCompleted) {
         val isUnexpectedState = index >= expectedStates.length || expectedStates(index) != state
         if (isUnexpectedState) {
@@ -206,6 +203,10 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
       }
     }
 
+    // Replay the current state so the checker observes the initial Idle state that happened before listener registration.
+    listenerFn(shellCommunication.currentState)
+    shellCommunication.addTestStateListener(listenerFn)
+
     /**
      * Blocks the thread until the expected state sequence is fully observed, an unexpected state is encountered, or the timeout expires.
      */
@@ -216,7 +217,7 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
           case Left(ex) => throw ex
         }
       } finally {
-        shellCommunication.clearTestStateListener()
+        shellCommunication.removeTestStateListener(listenerFn)
       }
   }
 
