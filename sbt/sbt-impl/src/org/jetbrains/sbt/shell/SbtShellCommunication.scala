@@ -133,6 +133,9 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   def isRunningAndIdle: Boolean =
     process.isAlive && currentState == SbtShellLifecycle.ShellState.Idle
 
+  def isShuttingDownOrOff: Boolean =
+    currentState.isShuttingDownOrOff
+
   override def run[A](request: SbtShellCommandRequest[A]): Future[A] = {
     val requestId = request.requestId
     Log.debug(s"command start: requestId=$requestId, state=$currentState...")
