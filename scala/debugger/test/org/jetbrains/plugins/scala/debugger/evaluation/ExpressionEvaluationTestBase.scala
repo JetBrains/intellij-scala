@@ -62,6 +62,20 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
     }
   }
 
+  /**
+   * Asserts that evaluating `expression` terminates: it either produces a value or reports a
+   * clean [[EvaluateException]]. Use for regressions where the concern is that evaluator
+   * construction might not terminate (hang or crash) rather than the exact result, which may
+   * differ across Scala versions.
+   */
+  protected def evalCompletes(expression: String)(implicit context: SuspendContextImpl): Unit = {
+    try {
+      evaluateExpressionToString(expression)
+    } catch {
+      case _: EvaluateException => // evaluation completed with a clean error, which is fine here
+    }
+  }
+
   protected def evalFailsWith(expression: String, message: String)(implicit context: SuspendContextImpl): Unit = {
     assertEvalFailsWith(expression, message)(assertStartsWith)
   }

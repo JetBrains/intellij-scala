@@ -24,10 +24,30 @@ class MethodEvaluationTest_2_11 extends MethodEvaluationTestBase {
       }
     )
   }
+
+  // SCL-25655: on Scala 2.11 name resolution does not re-report the implicit conversion on the
+  // already-converted receiver, so the guard never fires and the debugger resolves these to a
+  // value rather than stopping. Assert only that evaluation terminates (no hang), not the message.
+  override def testUnresolvedCallWithImplicitConversion(): Unit = {
+    expressionEvaluationTest("ImplicitConversion") { implicit ctx =>
+      evalCompletes("\"42\".toString(\"42\")")
+      evalCompletes("1.toString(\"42\")")
+      evalCompletes("args.toString(\"42\")")
+    }
+  }
 }
 
 class MethodEvaluationTest_2_12 extends MethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
+
+  // SCL-25655: see MethodEvaluationTest_2_11 — 2.12 also resolves these to a value; assert termination only.
+  override def testUnresolvedCallWithImplicitConversion(): Unit = {
+    expressionEvaluationTest("ImplicitConversion") { implicit ctx =>
+      evalCompletes("\"42\".toString(\"42\")")
+      evalCompletes("1.toString(\"42\")")
+      evalCompletes("args.toString(\"42\")")
+    }
+  }
 }
 
 class MethodEvaluationTest_2_13 extends MethodEvaluationTestBase {
@@ -346,6 +366,19 @@ abstract class MethodEvaluationTestBase extends ExpressionEvaluationTestBase {
       evalEquals("\"test\".dropRight(2)", "te")
       evalEquals("\"3\" -> \"3\"", "(3,3)")
       evalEquals("(1 - 3).abs", "2")
+    }
+  }
+
+  def testUnresolvedCallWithImplicitConversion(): Unit = {
+    // SCL-25655: an unresolvable call on a receiver with an implicit conversion in scope
+    // (`toString` takes no arguments) must fail cleanly at the point the implicit search stops,
+    // naming the method, instead of hanging while wrapping the receiver in an implicit
+    // conversion endlessly and then failing with a confusing NoSuchMethodException/ClassCastException.
+    expressionEvaluationTest("ImplicitConversion") { implicit ctx =>
+      val notResolved = DebuggerBundle.message("no.applicable.method.found", "toString")
+      evalFailsWith("\"42\".toString(\"42\")", notResolved) // String -> augmentString
+      evalFailsWith("1.toString(\"42\")", notResolved)      // Int -> intWrapper
+      evalFailsWith("args.toString(\"42\")", notResolved)   // Array[String]
     }
   }
 
