@@ -551,8 +551,10 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
           val canHandle = canHandlePromptStateChange(handler)
           if (canHandle) {
             shellWorkingSinceLastReadyPrompt.set(false)
-            shellQueueReady.release()
+            // Emit the event before releasing the permit. Releasing first lets the queue-processing loop poll the next command,
+            // so the queue could look empty and emit QueueDrained (-> Idle) instead of EnqueueCommand (-> Queued).
             emitShellStateEvent(shellEventBasedOnCommandsQueue())
+            shellQueueReady.release()
           }
           recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(
             s"ready prompt callback: canHandle=$canHandle, handlerTerminating=${handler.isProcessTerminating}, handlerTerminated=${handler.isProcessTerminated}, state=$currentState"
