@@ -1609,17 +1609,40 @@ object ScalaEvaluatorBuilderUtil {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       expr.implicitElement(fromUnderscore = true).collect {
         case function: ScFunction => function
-      }.map { fun =>
-        val callText = s"${fun.name}(${expr.getText})"
-        val newExprText = fun.containingClass match {
-          case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
-          case _: ScObject => //todo: It can cover many cases!
-            throw EvaluationException(DebuggerBundle.message("implicit.conversions.from.dependent.objects"))
-          case _ => callText //from scope
-        }
-        createExpressionWithContextFromText(newExprText, expr.getContext, expr)
+      }.map {
+        case fun if isApplicationOfConversion(expr, fun) =>
+          // `expr` is already the result of applying `fun`, yet the member still does not
+          // resolve, so name resolution reports the same conversion again. Wrapping once more
+          // would recurse forever (SCL-25655); report a clear error naming the method instead
+          // of falling through to an evaluator that fails later with a confusing runtime error.
+          val name = expr.getParent match {
+            case ref: ScReferenceExpression => ref.refName
+            case _                          => expr.getText
+          }
+          throw EvaluationException(DebuggerBundle.message("no.applicable.method.found", name))
+        case fun =>
+          val callText = s"${fun.name}(${expr.getText})"
+          val newExprText = fun.containingClass match {
+            case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
+            case _: ScObject => //todo: It can cover many cases!
+              throw EvaluationException(DebuggerBundle.message("implicit.conversions.from.dependent.objects"))
+            case _ => callText //from scope
+          }
+          createExpressionWithContextFromText(newExprText, expr.getContext, expr)
       }
     }
+
+    // Detects the non-terminating implicit-conversion recursion (SCL-25655): when a call cannot
+    // be resolved (e.g. `"42".toString("42")`), name resolution keeps reporting the same
+    // conversion on the receiver, so each call site wraps it and re-runs `evaluatorFor`, which
+    // re-detects it: `augmentString(augmentString(...augmentString("42")...))`. `expr` being
+    // already an application of `conversion` means re-applying it makes no progress; `unapply`
+    // uses this to stop and report a clean error.
+    private def isApplicationOfConversion(expr: ScExpression, conversion: ScFunction): Boolean =
+      expr match {
+        case ScMethodCall(hasDeepestInvokedReference(ref), _) => ref.isReferenceTo(conversion)
+        case _ => false
+      }
   }
 
   @tailrec
