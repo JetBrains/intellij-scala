@@ -59,7 +59,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       |""".stripMargin.withNormalizedSeparator.trim
   }
 
-  override def collectAndApply(editor: Editor, psiFile: PsiFile): Unit = {
+  override def collectData(editor: Editor, psiFile: PsiFile): Runnable = {
     val settings = new ScalaHintsSettings.Defaults {
       override def showMethodResultType: Boolean = ShowMethodResultTypeCase.currentValue
       override def showMemberVariableType: Boolean = ShowMemberVariableTypeCase.currentValue
@@ -70,7 +70,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
     }
     val previewPass = new ImplicitHintsPass(editor, psiFile.asInstanceOf[ScalaFile], settings, isPreviewPass = true)
     previewPass.doCollectInformation(DumbProgressIndicator.INSTANCE)
-    previewPass.doApplyInformationToEditor()
+    () => previewPass.doApplyInformationToEditor()
   }
 
 
