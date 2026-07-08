@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.testFramework.{JavaModuleTestCase, PlatformTestUtil}
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.SbtRunAnythingProvider.SbtShellCommandString
@@ -18,6 +19,8 @@ import scala.concurrent.duration.*
 class SbtRunAnythingProviderExecutionTest extends JavaModuleTestCase {
 
   private lazy val testProjectJdk = new TestProjectJdkHolder(LanguageLevel.JDK_11)
+
+  override def runInDispatchThread() = true
 
   override def setUp(): Unit = {
     super.setUp()
@@ -37,6 +40,8 @@ class SbtRunAnythingProviderExecutionTest extends JavaModuleTestCase {
     }
 
   def testExecute_ShouldRunAndProduceOutput(): Unit = {
+    ThreadingAssertions.assertEventDispatchThread()
+
     val command = "help"
 
     val provider = new SbtRunAnythingProvider()
