@@ -13,6 +13,8 @@ private[shell] class AfterRestartCommandsGate[T] {
 
   private val lock = new Object
   private var closed: Boolean = false
+  // In practice a LinkedBlockingQueue is not necessary here: every access to `queue` goes through
+  // the explicit `lock`, so a plain non-concurrent collection would be enough. It's left as is because it doesn't hurt.
   private val queue = new LinkedBlockingQueue[T]()
 
   /**
