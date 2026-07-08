@@ -132,61 +132,64 @@ class SbtRunConfigurationMigrationReversibilityTest:
 
 object SbtRunConfigurationMigrationReversibilityTest:
 
+  /** Wraps `s` in double quotes, so the test data are easier to read. */
+  private def quoted(s: String): String = "\"" + s + "\""
+
   // Original commands | Expected after round-trip (commands -> tasks -> commands) | Test name
   def commandsReversibilityOldIdeDropsCommandsData(): Stream[Array[String]] = Stream.of(
     // fully reversible cases (originalCommands == expectedAfterRoundTrip)
-    Array("task1",                  "task1",                 "single task"),
-    Array("task1 task1",            "task1 task1",           "two space-separated tasks"),
-    Array("task1;task1",            "task1;task1",           "two tasks with semicolon (no space)"),
-    Array("task1; task1",           "task1; task1",          "two tasks with semicolon and space"),
-    Array("add 1 2",                "add 1 2",               "task with two arguments"),
-    Array("task1; add 1 2",         "task1; add 1 2",        "task semicolon task with arguments"),
-    Array("",                       "",                      "empty string"),
-    Array("  ",                     "  ",                    "white spaces"),
-    Array("  task1  ",              "  task1  ",             "task with whitespaces"),
+    Array("task1",                    "task1",                 "single task"),
+    Array("task1 task1",              "task1 task1",           "two space-separated tasks"),
+    Array("task1;task1",              "task1;task1",           "two tasks with semicolon (no space)"),
+    Array("task1; task1",             "task1; task1",          "two tasks with semicolon and space"),
+    Array("add 1 2",                  "add 1 2",               "task with two arguments"),
+    Array("task1; add 1 2",           "task1; add 1 2",        "task semicolon task with arguments"),
+    Array("",                         "",                      "empty string"),
+    Array("  ",                       "  ",                    "white spaces"),
+    Array("  task1  ",                "  task1  ",             "task with whitespaces"),
     // non-reversible (originalCommands != expectedAfterRoundTrip)
-    Array("\"task1\"",              "task1",                 "quoted single task"),
-    Array("\"task1 task1\"",        "task1 task1",           "quoted two space-separated tasks"),
-    Array("\"task1;task1\"",        "task1;task1",           "quoted two tasks with semicolon (no space)"),
-    Array("\"task1; task1\"",       "task1; task1",          "quoted two tasks with semicolon and space"),
-    Array("\"add 1 2\"",            "add 1 2",               "quoted task with two arguments"),
-    Array("\"task1; add 1 2\"",     "task1; add 1 2",        "quoted task semicolon task with arguments")
+    Array(quoted("task1"),            "task1",                 "quoted single task"),
+    Array(quoted("task1 task1"),      "task1 task1",           "quoted two space-separated tasks"),
+    Array(quoted("task1;task1"),      "task1;task1",           "quoted two tasks with semicolon (no space)"),
+    Array(quoted("task1; task1"),     "task1; task1",          "quoted two tasks with semicolon and space"),
+    Array(quoted("add 1 2"),          "add 1 2",               "quoted task with two arguments"),
+    Array(quoted("task1; add 1 2"),   "task1; add 1 2",        "quoted task semicolon task with arguments")
   )
 
   // Original commands | Test name
   def commandsReversibilityData(): Stream[Array[String]] = Stream.of(
-    Array("task1",                  "single task"),
-    Array("task1 task1",            "two space-separated tasks"),
-    Array("task1;task1",            "two tasks with semicolon (no space)"),
-    Array("task1; task1",           "two tasks with semicolon and space"),
-    Array("add 1 2",                "task with two arguments"),
-    Array("task1; add 1 2",         "task semicolon task with arguments"),
-    Array("",                       "empty string"),
-    Array("  ",                     "white spaces"),
-    Array("  task1  ",              "task with whitespaces"),
-    Array("\"task1\"",              "quoted single task"),
-    Array("\"task1 task1\"",        "quoted two space-separated tasks"),
-    Array("\"task1;task1\"",        "quoted two tasks with semicolon (no space)"),
-    Array("\"task1; task1\"",       "quoted two tasks with semicolon and space"),
-    Array("\"add 1 2\"",            "quoted task with two arguments"),
-    Array("\"task1; add 1 2\"",     "quoted task semicolon task with arguments")
+    Array("task1",                    "single task"),
+    Array("task1 task1",              "two space-separated tasks"),
+    Array("task1;task1",              "two tasks with semicolon (no space)"),
+    Array("task1; task1",             "two tasks with semicolon and space"),
+    Array("add 1 2",                  "task with two arguments"),
+    Array("task1; add 1 2",           "task semicolon task with arguments"),
+    Array("",                         "empty string"),
+    Array("  ",                       "white spaces"),
+    Array("  task1  ",                "task with whitespaces"),
+    Array(quoted("task1"),            "quoted single task"),
+    Array(quoted("task1 task1"),      "quoted two space-separated tasks"),
+    Array(quoted("task1;task1"),      "quoted two tasks with semicolon (no space)"),
+    Array(quoted("task1; task1"),     "quoted two tasks with semicolon and space"),
+    Array(quoted("add 1 2"),          "quoted task with two arguments"),
+    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments")
   )
 
   // Original & expected after round-trip commands | Test name
   def tasksReversibilityData(): Stream[Array[String]] = Stream.of(
-    Array("task1",                  "single task"),
-    Array("task1 task1",            "two space-separated tasks"),
-    Array("task1;task1",            "two tasks with semicolon (no space)"),
-    Array("task1; task1",           "two tasks with semicolon and space"),
-    Array("add 1 2",                "task with two arguments"),
-    Array("task1; add 1 2",         "task semicolon task with arguments"),
-    Array("",                       "empty string"),
-    Array("  ",                     "white spaces"),
-    Array("  task1  ",              "task with whitespaces"),
-    Array("\"task1\"",              "quoted single task"),
-    Array("\"task1 task1\"",        "quoted two space-separated tasks"),
-    Array("\"task1;task1\"",        "quoted two tasks with semicolon (no space)"),
-    Array("\"task1; task1\"",       "quoted two tasks with semicolon and space"),
-    Array("\"add 1 2\"",            "quoted task with two arguments"),
-    Array("\"task1; add 1 2\"",     "quoted task semicolon task with arguments")
+    Array("task1",                    "single task"),
+    Array("task1 task1",              "two space-separated tasks"),
+    Array("task1;task1",              "two tasks with semicolon (no space)"),
+    Array("task1; task1",             "two tasks with semicolon and space"),
+    Array("add 1 2",                  "task with two arguments"),
+    Array("task1; add 1 2",           "task semicolon task with arguments"),
+    Array("",                         "empty string"),
+    Array("  ",                       "white spaces"),
+    Array("  task1  ",                "task with whitespaces"),
+    Array(quoted("task1"),            "quoted single task"),
+    Array(quoted("task1 task1"),      "quoted two space-separated tasks"),
+    Array(quoted("task1;task1"),      "quoted two tasks with semicolon (no space)"),
+    Array(quoted("task1; task1"),     "quoted two tasks with semicolon and space"),
+    Array(quoted("add 1 2"),          "quoted task with two arguments"),
+    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments")
   )
