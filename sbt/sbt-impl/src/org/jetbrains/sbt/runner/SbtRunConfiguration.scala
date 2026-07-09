@@ -151,12 +151,17 @@ private object SbtRunConfiguration {
    *
    * How migration works:
    *
-   * The old `tasks` string is split on unquoted whitespace with `ParametersListUtil.parse` (the same as it was done in the past),
+   * An input whose trimmed form starts with `;` is returned as-is. The old runtime skipped
+   * all processing for such inputs (https://github.com/JetBrains/intellij-scala/commit/45f24a440b9a10bd1a8c1ff49616647e3513f93a),
+   * and the current runtime passes `commands` to sbt unchanged, so no migration is needed.
+   *
+   * Otherwise, the old `tasks` string is split on unquoted whitespace with `ParametersListUtil.parse` (the same as it was done in the past),
    * which also drops real quotes and unescapes inner `\"`. The resulting tokens are then re-joined, and the separator
    * is chosen based on whether the original `tasks` string contains an unquoted `;`. If it does, the user already used
    * the proper `;`-separated format, so we join the tokens with a space; otherwise we join them with `;`, as in the past.
    *
    * Examples (tasks -> commands):
+   *  - `;echo "foo"` → `;echo "foo"` (leading `;`, returned as-is)
    *  - `clean compile` → `clean; compile` (no `;`: joined with `;`)
    *  - `"clean; compile"` → `clean; compile` (outer quotes stripped)
    *  - `"echo \"fo;o\""` → `echo "fo;o"` (outer quotes stripped, inner escaped quotes unescaped)
@@ -166,7 +171,7 @@ private object SbtRunConfiguration {
    * @see [[org.jetbrains.sbt.runner.SbtRunConfigurationMigrationTest#testMigrateTasksToCommands]]
    */
   def migrateTasksToCommands(tasks: String): String =
-    if (tasks.isBlank) tasks
+    if (tasks.isBlank || tasks.trim.startsWith(";")) tasks
     else {
       // `splitHonorQuotes` honors single quotes, so for an input whose only semicolons are
       // inside single quotes, it returns a single element and `;` is chosen as the separator.

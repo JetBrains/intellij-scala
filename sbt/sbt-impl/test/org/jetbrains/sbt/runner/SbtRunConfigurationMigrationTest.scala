@@ -80,6 +80,13 @@ object SbtRunConfigurationMigrationTest:
     Array("task1 \"echo \\\"a;b\\\"\"",        "task1; echo \"a;b\"",        "quoted semicolon, space separators"),
     Array("task1 \"echo \\\"a;b\\\"\" task2",  "task1; echo \"a;b\"; task2", "quoted semicolon between two tasks"),
 
+    Array(";echo \"a b\"",           ";echo \"a b\"",           "leading semicolon with quoted arg"),
+    Array(";task1 ;echo \"a b\"",    ";task1 ;echo \"a b\"",    "leading semicolon, two commands, quoted arg"),
+    Array(";echo \\\"a b\\\"",       ";echo \\\"a b\\\"",       "leading semicolon with escaped quotes"),
+    Array(";task1 ;task2",           ";task1 ;task2",           "leading semicolon without quotes"),
+    Array("  ;task1",                "  ;task1",                "leading whitespace before semicolon"),
+    Array(quoted(";task1 ;task2"),   ";task1 ;task2",           "quoted content starting with semicolon"),
+
     Array("",                         "",                      "empty string"),
     Array("  ",                       "  ",                    "white spaces"),
     Array("  task1  ",                "task1",                 "task with whitespaces") // trimming happens in ParametersListUtil.parse in SbtRunConfiguration.migrateTasksToCommands
@@ -129,6 +136,10 @@ object SbtRunConfigurationMigrationTest:
     Array("task1;\\\"task2\\\";task3",       "task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
     // "task1;\"task2\";task3" (invalid) -> unchanged (invalid)
     Array(quoted("task1;\\\"task2\\\";task3"), quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)"),
+
+    Array(";task1 ;task2",            quoted(";task1 ;task2"),     "leading semicolon, two commands"),
+    Array(";echo \"a b\"",            quoted(";echo \\\"a b\\\""), "leading semicolon with quoted arg"),
+    Array(";task1",                   ";task1",                    "leading semicolon, single command (no spaces, kept as-is)"),
 
     Array("",                         "",                          "empty string"),
     Array("  ",                       "  ",                        "white spaces"),

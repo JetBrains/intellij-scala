@@ -155,6 +155,12 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array("task1;echo \"fo; o\"",     "task1;echo \"fo; o\"",  "task then task with quoted arg containing semicolon"),
     Array("task1;echo \\\"fo; o\\\"",      "task1;echo \\\"fo; o\\\"",      "task then task with escaped quoted arg containing semicolon"),
     Array("task1; \"echo \\\"fo; o\\\"\"", "task1; \"echo \\\"fo; o\\\"\"", "task then quoted task with arg containing semicolon"),
+    // Leading`;`- commands -> tasks migration wraps them in quotes (when they contain an unquoted space),
+    // and the tasks -> commands migration parses the wrapped value back to the original, so they are reversible.
+    Array(";task1 ;task2",            ";task1 ;task2",         "leading semicolon, two commands"),
+    Array(";echo \"a b\"",            ";echo \"a b\"",         "leading semicolon with quoted arg"),
+    Array(";echo \\\"a b\\\"",        ";echo \\\"a b\\\"",     "leading semicolon with escaped quotes"),
+    Array(";task1",                   ";task1",                "leading semicolon, single command"),
 
     // non-reversible (originalCommands != expectedAfterRoundTrip)
     // Even though the cases below are not reversible, it's fine because after the round trip,
@@ -183,7 +189,9 @@ object SbtRunConfigurationMigrationReversibilityTest:
     // task1;\"task2\";task3 (invalid) -> task1;\"task2\";task3 -> task1;"task2";task3 (invalid)
     Array("task1;\\\"task2\\\";task3",         "task1;\"task2\";task3", "escaped quoted task between plain tasks"),
     // "task1;\"task2\";task3" (invalid) -> "task1;\"task2\";task3" -> task1;"task2";task3 (invalid)
-    Array(quoted("task1;\\\"task2\\\";task3"), "task1;\"task2\";task3", "escaped quoted task between plain tasks (quoted)")
+    Array(quoted("task1;\\\"task2\\\";task3"), "task1;\"task2\";task3", "escaped quoted task between plain tasks (quoted)"),
+    // ";task1 ;task2" (invalid) -> ";task1 ;task2" -> ;task1 ;task2 (valid)
+    Array(quoted(";task1 ;task2"),             ";task1 ;task2",         "quoted content starting with semicolon")
   )
 
   // Original commands | Test name
@@ -214,7 +222,11 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array(quoted("task1;echo \\\"fo; o\\\""),  "task then task with escaped quoted arg containing semicolon (quoted)"),
     Array("task1;\"task2\";task3",             "quoted task between plain tasks"),
     Array("task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
-    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)")
+    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)"),
+    Array(";task1 ;task2",                     "leading semicolon, two commands"),
+    Array(";echo \"a b\"",                     "leading semicolon with quoted arg"),
+    Array(";echo \\\"a b\\\"",                 "leading semicolon with escaped quotes"),
+    Array(";task1",                            "leading semicolon, single command")
   )
 
   // Original & expected after round-trip commands | Test name
@@ -245,5 +257,10 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array(quoted("task1;echo \\\"fo; o\\\""),  "task then task with escaped quoted arg containing semicolon (quoted)"),
     Array("task1;\"task2\";task3",             "quoted task between plain tasks"),
     Array("task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
-    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)")
+    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)"),
+    Array(";task1 ;task2",                     "leading semicolon, two commands"),
+    Array(";echo \"a b\"",                     "leading semicolon with quoted arg"),
+    Array(";echo \\\"a b\\\"",                 "leading semicolon with escaped quotes"),
+    Array("  ;task1",                          "leading whitespace before semicolon"),
+    Array(quoted(";task1 ;task2"),             "quoted content starting with semicolon")
   )
