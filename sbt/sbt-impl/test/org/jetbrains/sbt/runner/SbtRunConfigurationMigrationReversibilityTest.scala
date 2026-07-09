@@ -147,13 +147,43 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array("",                         "",                      "empty string"),
     Array("  ",                       "  ",                    "white spaces"),
     Array("  task1  ",                "  task1  ",             "task with whitespaces"),
+    // When the commands contain an unquoted space, the commands -> tasks migration wraps them in quotes,
+    // and the tasks -> commands migration unwraps them again, so they are reversible.
+    Array("echo \"fo; o\"",           "echo \"fo; o\"",        "task with quoted arg containing semicolon"),
+    Array("echo \\\"fo; o\\\"",       "echo \\\"fo; o\\\"",    "task with escaped quoted arg containing semicolon"),
+    Array("task1;\\\"add 1 2\\\"",    "task1;\\\"add 1 2\\\"", "task then escaped quoted task with arguments"),
+    Array("task1;echo \"fo; o\"",     "task1;echo \"fo; o\"",  "task then task with quoted arg containing semicolon"),
+    Array("task1;echo \\\"fo; o\\\"",      "task1;echo \\\"fo; o\\\"",      "task then task with escaped quoted arg containing semicolon"),
+    Array("task1; \"echo \\\"fo; o\\\"\"", "task1; \"echo \\\"fo; o\\\"\"", "task then quoted task with arg containing semicolon"),
+
     // non-reversible (originalCommands != expectedAfterRoundTrip)
+    // Even though the cases below are not reversible, it's fine because after the round trip,
+    // the command is either still broken, as it was originally, or becomes valid.
     Array(quoted("task1"),            "task1",                 "quoted single task"),
     Array(quoted("task1 task1"),      "task1 task1",           "quoted two space-separated tasks"),
     Array(quoted("task1;task1"),      "task1;task1",           "quoted two tasks with semicolon (no space)"),
     Array(quoted("task1; task1"),     "task1; task1",          "quoted two tasks with semicolon and space"),
     Array(quoted("add 1 2"),          "add 1 2",               "quoted task with two arguments"),
-    Array(quoted("task1; add 1 2"),   "task1; add 1 2",        "quoted task semicolon task with arguments")
+    Array(quoted("task1; add 1 2"),   "task1; add 1 2",        "quoted task semicolon task with arguments"),
+    // In cases below the commands -> tasks migration keeps commands unchanged (they are already a quoted string, or have no unquoted space),
+    // and then the tasks -> commands migration drops or unescapes their quotes.
+    // Each comment above a test case shows: commands -> tasks -> commands
+    // (Valid/invalid means whether the given command works in the corresponding plugin version - tasks in the old one and commands in the new one)
+
+    // "echo \"fo; o\"" (invalid) -> "echo \"fo; o\"" -> echo "fo; o" (valid)
+    Array(quoted("echo \\\"fo; o\\\""),        "echo \"fo; o\"",        "task with escaped quoted arg containing semicolon (quoted)"),
+    // task1;"add 1 2" (invalid) -> task1;"add 1 2" -> task1;add 1 2 (valid)
+    Array("task1;\"add 1 2\"",                 "task1;add 1 2",         "task then quoted task with arguments"),
+    // "task1;\"add 1 2\"" (invalid) -> "task1;\"add 1 2\"" -> task1;"add 1 2" (invalid)
+    Array(quoted("task1;\\\"add 1 2\\\""),     "task1;\"add 1 2\"",     "task then escaped quoted task with arguments (quoted)"),
+    // "task1;echo \"fo; o\"" (invalid) -> "task1;echo \"fo; o\"" -> task1;echo "fo; o" (valid)
+    Array(quoted("task1;echo \\\"fo; o\\\""),  "task1;echo \"fo; o\"",  "task then task with escaped quoted arg containing semicolon (quoted)"),
+    // task1;"task2";task3 (invalid) -> task1;"task2";task3 -> task1;task2;task3 (valid)
+    Array("task1;\"task2\";task3",             "task1;task2;task3",     "quoted task between plain tasks"),
+    // task1;\"task2\";task3 (invalid) -> task1;\"task2\";task3 -> task1;"task2";task3 (invalid)
+    Array("task1;\\\"task2\\\";task3",         "task1;\"task2\";task3", "escaped quoted task between plain tasks"),
+    // "task1;\"task2\";task3" (invalid) -> "task1;\"task2\";task3" -> task1;"task2";task3 (invalid)
+    Array(quoted("task1;\\\"task2\\\";task3"), "task1;\"task2\";task3", "escaped quoted task between plain tasks (quoted)")
   )
 
   // Original commands | Test name
@@ -172,7 +202,19 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array(quoted("task1;task1"),      "quoted two tasks with semicolon (no space)"),
     Array(quoted("task1; task1"),     "quoted two tasks with semicolon and space"),
     Array(quoted("add 1 2"),          "quoted task with two arguments"),
-    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments")
+    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments"),
+    Array("echo \"fo; o\"",                    "task with quoted arg containing semicolon"),
+    Array("echo \\\"fo; o\\\"",                "task with escaped quoted arg containing semicolon"),
+    Array(quoted("echo \\\"fo; o\\\""),        "task with escaped quoted arg containing semicolon (quoted)"),
+    Array("task1;\"add 1 2\"",                 "task then quoted task with arguments"),
+    Array("task1;\\\"add 1 2\\\"",             "task then escaped quoted task with arguments"),
+    Array(quoted("task1;\\\"add 1 2\\\""),     "task then escaped quoted task with arguments (quoted)"),
+    Array("task1;echo \"fo; o\"",              "task then task with quoted arg containing semicolon"),
+    Array("task1;echo \\\"fo; o\\\"",          "task then task with escaped quoted arg containing semicolon"),
+    Array(quoted("task1;echo \\\"fo; o\\\""),  "task then task with escaped quoted arg containing semicolon (quoted)"),
+    Array("task1;\"task2\";task3",             "quoted task between plain tasks"),
+    Array("task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
+    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)")
   )
 
   // Original & expected after round-trip commands | Test name
@@ -191,5 +233,17 @@ object SbtRunConfigurationMigrationReversibilityTest:
     Array(quoted("task1;task1"),      "quoted two tasks with semicolon (no space)"),
     Array(quoted("task1; task1"),     "quoted two tasks with semicolon and space"),
     Array(quoted("add 1 2"),          "quoted task with two arguments"),
-    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments")
+    Array(quoted("task1; add 1 2"),   "quoted task semicolon task with arguments"),
+    Array("echo \"fo; o\"",                    "task with quoted arg containing semicolon"),
+    Array("echo \\\"fo; o\\\"",                "task with escaped quoted arg containing semicolon"),
+    Array(quoted("echo \\\"fo; o\\\""),        "task with escaped quoted arg containing semicolon (quoted)"),
+    Array("task1;\"add 1 2\"",                 "task then quoted task with arguments"),
+    Array("task1;\\\"add 1 2\\\"",             "task then escaped quoted task with arguments"),
+    Array(quoted("task1;\\\"add 1 2\\\""),     "task then escaped quoted task with arguments (quoted)"),
+    Array("task1;echo \"fo; o\"",              "task then task with quoted arg containing semicolon"),
+    Array("task1;echo \\\"fo; o\\\"",          "task then task with escaped quoted arg containing semicolon"),
+    Array(quoted("task1;echo \\\"fo; o\\\""),  "task then task with escaped quoted arg containing semicolon (quoted)"),
+    Array("task1;\"task2\";task3",             "quoted task between plain tasks"),
+    Array("task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
+    Array(quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)")
   )
