@@ -83,10 +83,14 @@ trait ScalaDependencyCompletionProvider[Params <: BaseDependencyCompletionParame
   )(
     createLookupText: DependencyCompletionEvent[T] => Option[(LookupText, DependencyCompletionContributionSource)],
   ): Unit = if (itemFlow != null) {
+    val loadingAdvertiser = new ScalaDependencyCompletionLoadingAdvertiser()
+    loadingAdvertiser.showSearchingStatus()
+
     val seenLookupStrings = mutable.HashSet.empty[String]
     runBlockingCancellable { (_, continuation) =>
       itemFlow.collect({
         case (event, cont) =>
+          loadingAdvertiser.onEvent(event)
           createLookupText(event).foreach { (lookupText, source) =>
             if (seenLookupStrings.add(lookupText.lookupString)) {
               val icon = source match {
@@ -100,6 +104,8 @@ trait ScalaDependencyCompletionProvider[Params <: BaseDependencyCompletionParame
           cont
       }, continuation)
     }
+    loadingAdvertiser.onComplete()
+    loadingAdvertiser.addServerErrorPlaceholderIfNeeded(params.resultSet, params.completionParams.isAutoPopup, hadResults = seenLookupStrings.nonEmpty)
     finishDependencySuggestions(params)
   }
 }

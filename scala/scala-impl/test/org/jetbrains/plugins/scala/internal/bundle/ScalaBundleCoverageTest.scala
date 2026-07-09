@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
-import com.intellij.testFramework.UsefulTestCase
 import junit.framework.TestCase.fail
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Test
@@ -57,6 +56,12 @@ trait ScalaBundleCoverageTestBase  {
 
 final class ScalaBundleCoverageTest extends ScalaBundleCoverageTestBase {
   override val root: Path = ScalaBundleSorting.communityDir
-  override val ignoreRoots: Seq[Path] = Seq(ScalaBundleSorting.integrationDir / "packagesearch")
+  override val ignoreRoots: Seq[Path] = Seq(
+    ScalaBundleSorting.integrationDir / "packagesearch",
+
+    // TODO: support root files in usages.
+    //  E.g.: the module has an `idePackagePrefix` and the usage is inside this package, not in a subpackage
+    ScalaBundleSorting.integrationDir / "repository-search" / "common",
+  )
   override val definedModuleInfos: Seq[ScalaBundleSorting.ModuleWithBundleInfo] = ScalaBundleSorting.allModuleInfos
 }
