@@ -252,6 +252,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
             case _ => prefix
           }
       }
+      case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
           .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
