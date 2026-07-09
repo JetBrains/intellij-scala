@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown
@@ -504,7 +505,9 @@ object ScaladocMarkdownParsing {
     val original = psiBuilder.getOriginalText
     val (content, lineOffsetMapping) = splitContext(original)
     val builder = new MkBuilder(psiBuilder, content, lineOffsetMapping)
-    val mkRootNode = new MarkdownParser(new ScalaDocMarkdownFlavour).parse(MarkdownElementTypes.MARKDOWN_FILE, content, true)
+    // TODO(SCL-25669): pass a CharSequence to `parse` instead of a String
+    val mkRootNode = new MarkdownParser(new ScalaDocMarkdownFlavour, true, () => ProgressManager.checkCanceled())
+      .parse(MarkdownElementTypes.MARKDOWN_FILE, content, true)
 
     // Place data needed for HTML in the builder for fetch after parsing
     builder.putUserData(MARKDOWN_DATA, (content, mkRootNode))
