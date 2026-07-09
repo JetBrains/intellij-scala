@@ -89,9 +89,10 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     sb ++= "package " + packageName + "\n"
 
     val printer = new ClassPrinter(version.isScala3, withPrivate = withPrivate, normalize = normalize)
-    companionTypeAlias.foreach(printer.printTo(sb, _))
-    printer.printTo(sb, cls)
-    cls.baseCompanionTypeDefinition.foreach(printer.printTo(sb, _))
+    ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
+      case td: ScTypeDefinition => printer.printTo(sb, td)
+      case ta: ScTypeAlias => printer.printTo(sb, ta)
+    }
 
     sb.setLength(sb.length - 1)
 
