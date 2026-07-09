@@ -2,7 +2,7 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
+
+import scala.annotation.tailrec
 
 class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false) {
   def textOf(e: PsiElement): String = e match {
@@ -232,8 +234,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           textOfExpression(invokedExpr, indent) + targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
-      case sc: ScAssignment =>
-        textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+      case sc: ScAssignment => sc.mirrorMethodCall match {
+        case Some(mc) if !(mc.getEffectiveInvokedExpr.getText.endsWith("_=") && (sc.assignNavigationElement match { case v: ScVariable => true; case p: ScClassParameter => p.isVar; case _ => false })) =>
+          textOfExpression(mc, indent)
+        case _ =>
+          textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+      }
       case r: ScReferenceExpression => r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
         case None =>
@@ -241,7 +247,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
             case e: ScSelfTypeElement => e.name
             case e: ScNamedElement => e.nameContext match {
               case m: ScMember if !m.isLocal && !m.isTopLevel =>
-                if (e.getContainingFile == r.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
+                if (containingFileOf(e) == containingFileOf(r)) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
                 else m.qualifiedNameOpt.getOrElse(r.refName)
               case _ => r.refName
             }
@@ -272,6 +278,14 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     }
 
     text + textOfImplicitArguments(e.findImplicitArguments, e)
+  }
+
+  @tailrec
+  private def containingFileOf(e: PsiElement): PsiFile = {
+    val file = e.getContainingFile
+    if (file == null) return null
+    val fileContext = file.getContext
+    if (fileContext == null) file else containingFileOf(fileContext)
   }
 
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
