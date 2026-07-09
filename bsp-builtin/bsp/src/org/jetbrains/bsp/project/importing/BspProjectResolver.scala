@@ -174,7 +174,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             data
           case Failure(BspTaskCancelled) =>
             reporter.finishCanceled()
-            throw BspErrorMessage(BspBundle.message("bsp.resolver.refresh.canceled"))
+            throw BspTaskCancelled
           case Failure(Bsp4JJobFailure(err, messages: BuildMessages)) =>
             if (err == BspTaskCancelled) {
               Log.error("BspTaskCancelled should not be wrapped in Bsp4JJobFailure")

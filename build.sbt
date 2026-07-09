@@ -1026,6 +1026,7 @@ lazy val bsp =
       sbtImpl % "test->test;compile->compile",
       eelTunnelsUtil,
       compilerIntegrationServerManagement % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
     )
     .settings(
       scalaVersion := Versions.scala3Version,
