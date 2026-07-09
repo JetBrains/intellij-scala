@@ -5,7 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
-import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelProjectUtils
 import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
@@ -50,7 +50,7 @@ final class WorksheetCache(project: Project) extends Disposable {
       case _ =>
         val prefix = tempDirName.getOrElse("")
         //noinspection ApiStatus,UnstableApiUsage
-        val tempDir = EelPathUtils.createTemporaryDirectory(project, prefix, "", true)
+        val tempDir = EelProjectUtils.createTemporaryDirectory(project, prefix, "", true)
         val src = tempDir / fileName
         val out = tempDir / "out"
         Files.createDirectories(out)

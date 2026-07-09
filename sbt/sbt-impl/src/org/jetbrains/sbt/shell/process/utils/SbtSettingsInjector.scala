@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
-import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelProjectUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.project.Version
@@ -99,7 +99,7 @@ private[shell] class SbtSettingsInjector(project: Project) {
     }
 
     if (addPluginCommandSupported)
-      EelPathUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
+      EelProjectUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
     else
       globalPluginsDir / "idea.sbt"
   }

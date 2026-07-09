@@ -12,8 +12,8 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.NioFiles
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
+import com.intellij.platform.eel.provider.utils.{EelPathUtils, EelProjectUtils}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.SystemProperties
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -388,7 +388,7 @@ object SbtUtil {
   def createTemporarySbtFile(content: String, eelDescriptor: EelDescriptor, projectOpt: Option[Project]): Path = {
     val tmpPluginsSbtFile = projectOpt match
       case Some(project) =>
-        EelPathUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
+        EelProjectUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
       case None =>
         val tmpPluginsSbtFile = Files.createTempFile("idea", Sbt.Extension).toRealPath()
         EelPathUtils.transferLocalContentToRemote(tmpPluginsSbtFile, TransferTarget.Temporary(eelDescriptor))

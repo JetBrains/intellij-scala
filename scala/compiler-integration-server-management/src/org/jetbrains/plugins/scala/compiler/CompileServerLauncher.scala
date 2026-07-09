@@ -15,7 +15,7 @@ import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.eel.path.EelPath
-import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.{EelPathUtils, EelProjectUtils, EelSystemFolderUtils}
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
 import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -25,8 +25,8 @@ import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.eel.tunnels.EelTunnels
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
@@ -246,7 +246,7 @@ object CompileServerLauncher {
           .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
-            val local = EelPathUtils.isProjectLocal(project)
+            val local = EelProjectUtils.isProjectLocal(project)
             val port = {
               val portReportedByServer = waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
                 case Some(p) => p
@@ -803,7 +803,7 @@ object CompileServerLauncher {
       case LocalEelDescriptor.INSTANCE =>
         buildManagerLogDirectory()
       case remote =>
-        EelPathUtils.getSystemFolder(remote) / "logs" / "build-log"
+        EelSystemFolderUtils.getSystemFolder(remote) / "logs" / "build-log"
     }
 
   private def buildManagerLogDirectory(): Path =
@@ -852,7 +852,7 @@ object CompileServerLauncher {
     eelDescriptor match {
       case LocalEelDescriptor.INSTANCE => None
       case remote =>
-        val systemDir = EelPathUtils.getSystemFolder(remote)
+        val systemDir = EelSystemFolderUtils.getSystemFolder(remote)
         val buildId = ApplicationInfo.getInstance().getBuild.toString
         val projectSpecific = ProjectUtil.getProjectCacheFileName(project)
         val path = systemDir / s"jps-$buildId" / projectSpecific

@@ -4,10 +4,11 @@ package util
 import com.intellij.openapi.application.PathManager
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
-import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelSystemFolderUtils
 
 import java.nio.file.Path
 
+//noinspection ApiStatus,UnstableApiUsage
 object PathUtil {
   def getSystemDirectory(eelDescriptor: EelDescriptor): Path =
     eelDescriptor match {
@@ -16,6 +17,6 @@ object PathUtil {
         // `PathManager.getSystemDir`, which respects the `-Didea.system.path` VM option.
         PathManager.getSystemDir
       case remote =>
-        EelPathUtils.getSystemFolder(remote)
+        EelSystemFolderUtils.getSystemFolder(remote)
     }
 }
