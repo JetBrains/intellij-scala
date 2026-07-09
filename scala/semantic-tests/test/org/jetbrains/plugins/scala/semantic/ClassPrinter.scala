@@ -257,12 +257,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
           .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
-          .getOrElse("") + " {" + {
+          .getOrElse("") + (if (!e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))) "" else
+          " {" + {
             val sb = new StringBuilder()
             printTo(sb, e.extendsBlock, indent + "  ")
             if (sb.nonEmpty) sb ++= indent + "  "
             sb.toString
-          } + "}"
+          } + "}")
       case e: ScFunctionExpr =>
         "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
       case e: ScTuple =>
