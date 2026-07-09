@@ -38,7 +38,9 @@ object WorksheetDefaultSourcePreprocessor {
   import ServiceMarkers._
 
   private val GenericPrintMethodName = "println"
-  private val ArrayPrintMethodName = "print$$$Worksheet$$$Array$$$"
+  // NOTE: generated identifiers must not contain '$' — it is reserved for the compiler
+  // and Scala 3.9+ warns on definitions whose name contains it (SCL-25659).
+  private val ArrayPrintMethodName = "print___Worksheet___Array___"
 
   private def printArrayText(scalaLanguageLevel: ScalaLanguageLevel): String = {
     val arrayWrapperClass =
@@ -168,12 +170,16 @@ object WorksheetDefaultSourcePreprocessor {
                                                 document: Document,
                                                 packageOpt: Option[String]) {
 
-    protected val className   = s"A$$A$iterNumber"
-    protected val instanceName = s"inst$$A$$A"
+    // Names must not contain '$' (reserved for the compiler; Scala 3.9+ warns, SCL-25659).
+    // Kept deliberately cryptic so the stripPrefix/replace cleanup below can't match user content.
+    protected val className   = s"A_A$iterNumber"
+    protected val instanceName = "inst_A_A"
 
-    protected val tempVarName = "$$temp$$"
+    protected val tempVarName = "__temp__"
 
     protected def replaceStr(s: String): String = s"""replace("$s", "")"""
+    // The '$' here are the JVM inner-class separators in a string literal (not an identifier);
+    // the nested class `className` inside object `className` compiles to `<className>$<className>`.
     protected val erasePrefixName: String = s""".stripPrefix("$className$$$className$$")"""
 
     protected var assignCount = 0
@@ -406,7 +412,7 @@ object WorksheetDefaultSourcePreprocessor {
     protected def processAssign(assign: ScAssignment): Unit = {
       val pName = assign.leftExpression.getText
       val lineNums = psiToLineNumbers(assign)
-      val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
+      val defName = s"`get__instance_${assignCount}__$pName`"
 
       appendStartPsiLineInfo(lineNums)
 
@@ -482,7 +488,7 @@ object WorksheetDefaultSourcePreprocessor {
 
     protected def processOtherExpr(expr: ScExpression): Unit = {
       val resName = s"res$resCount"
-      val resMethodName = s"get$$$$instance$$$$$resName"
+      val resMethodName = s"get__instance__$resName"
       val lineNums = psiToLineNumbers(expr)
 
       // TODO: looks like this resN are not used anywhere and can be dropped (just print the value, except Unit type)
@@ -510,9 +516,9 @@ object WorksheetDefaultSourcePreprocessor {
 
     @inline final def variableInstanceName(name: String): String =
       if (name.startsWith("`")) {
-        s"`get$$$$instance$$$$${name.stripPrefix("`")}"
+        s"`get__instance__${name.stripPrefix("`")}"
       } else {
-        s"get$$$$instance$$$$$name"
+        s"get__instance__$name"
       }
 
     @inline final def countNewLines(str: String): Int = str.count(_ == '\n')

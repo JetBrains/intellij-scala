@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.junit.Ignore
 
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest
   extends CompileOnServerRunLocallyTestBase
@@ -55,12 +53,7 @@ class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_LTS_AllInOn
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_Next_RC_AllInOne
   extends CompileOnServerRunLocallyTestBase
-    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne {
-
-  override def allowedCompilerMessage(message: CompilerMessage): Boolean =
-    message.getCategory == CompilerMessageCategory.WARNING &&
-      message.getMessage.contains("should not contain `$`, which is reserved for internal compiler use.")
-}
+    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_0,
