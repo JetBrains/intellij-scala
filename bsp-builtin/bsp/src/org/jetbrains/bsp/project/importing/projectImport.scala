@@ -230,14 +230,15 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
   }
 
   // TODO duplicated with org.jetbrains.sbt.project.SbtOpenProjectProvider.FinalImportCallback
-  private class FinalImportCallback(project: Project, projectSettings: BspProjectSettings)
+  private[importing] class FinalImportCallback(project: Project, projectSettings: BspProjectSettings)
   extends ExternalProjectRefreshCallback {
 
     override def onSuccess(externalProject: DataNode[ProjectData]): Unit = {
+      if (externalProject == null || project.isDisposed)
+        return
 
-      if (externalProject == null) return
-
-      def selectDataTask = {
+      def selectDataTask(): Unit = {
+        if (project.isDisposed) return
         val projectInfo =
           new InternalExternalProjectInfo(BSP.ProjectSystemId, projectSettings.getExternalProjectPath, externalProject)
         val dialog = new ExternalProjectDataSelectorDialog(project, projectInfo)
@@ -248,6 +249,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       }
 
       def importTask(): Unit = {
+        if (project.isDisposed) return
         ProjectDataManager.getInstance().importData(externalProject, project)
       }
 
@@ -255,12 +257,14 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       val application = ApplicationManager.getApplication
 
       if (showSelectiveImportDialog && !application.isHeadlessEnvironment) {
-        application.invokeLater { () =>
-          selectDataTask
-          application.executeOnPooledThread { (() => importTask()): Runnable }
+        val runnable: Runnable = () => {
+          selectDataTask()
+          application.executeOnPooledThread {
+            (() => importTask()): Runnable
+          }
         }
-      }
-      else {
+        application.invokeLater(runnable, project.getDisposed)
+      } else {
         importTask()
       }
     }

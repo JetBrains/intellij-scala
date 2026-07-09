@@ -72,15 +72,16 @@ class BspSession private(bspPID: Long,
     notificationCallbacks.foreach(_.apply(notification))
 
   private def nextQueuedCommand(): Unit = {
-    val initResultTry: Try[InitializeBuildResult] = try {
-      Success(waitForSessionInitialized(sessionTimeout))
-    } catch {
-      case to : TimeoutException =>
-        val error = BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
+    val initialisationResult = waitForSessionInitialization(sessionTimeout)
+    initialisationResult match {
+      case Success(initResult) =>
+        runCurrentJobAndPollNext(initResult)
+      case Failure(BspTaskCancelled) =>
+        shutdown()
+      case Failure(error: BspConnectionError) =>
         logger.warn(error)
         shutdown(Some(error))
-        Failure(error)
-      case NonFatal(error) =>
+      case Failure(error) =>
         val msg = BspBundle.message("bsp.protocol.problem.connecting.to.bsp.server", error.getMessage)
         val bspError = BspException(msg, error)
         logger.warn(bspError)
@@ -88,12 +89,13 @@ class BspSession private(bspPID: Long,
           //the session could be explicitly shutdown already (e.g. via "Stop" action in BSP Connection widget)
           shutdown(Some(bspError))
         }
-        Failure(error)
     }
+  }
 
+  private def runCurrentJobAndPollNext(initResult: InitializeBuildResult): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
+
     try {
-      val initResult = initResultTry.get// throw will be handled
       val buildServerInfo = BuildServerInfo(initResult.getDisplayName, initResult.getCapabilities)
       currentJob.run(serverConnection.server, buildServerInfo) // in case not yet running
       val currentIgnoringErrors = currentJob.future
@@ -120,7 +122,7 @@ class BspSession private(bspPID: Long,
 
     lazy val writer: Writer = {
       logger.debug(s"Writing BSP trace log to file ${file.getFileName.toString}")
-      import StandardOpenOption._
+      import StandardOpenOption.*
       Files.newBufferedWriter(file, Charset.defaultCharset(), WRITE, CREATE, APPEND)
     }
 
@@ -232,21 +234,24 @@ class BspSession private(bspPID: Long,
         result
       }
       .exceptionally {
-        case NonFatal(error) => throw BspConnectionError(error.getMessage, error)
+        case NonFatal(error) =>
+          throw BspSessionInitializationErrorNormalizer.fromBuildInitializeFailure(error)
       }
   }
 
   @tailrec
-  private def waitForSessionInitialized(timeout: Duration): bsp4j.InitializeBuildResult = try {
-    sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
+  private def waitForSessionInitialization(timeout: Duration): Try[bsp4j.InitializeBuildResult] = try {
+    Success(sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS))
   } catch {
     case to: TimeoutException =>
       val now = System.currentTimeMillis()
       val waited = now - lastProcessOutput
       if (waited > timeout.toMillis)
-        throw BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
+        Failure(BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to))
       else
-        waitForSessionInitialized(timeout)
+        waitForSessionInitialization(timeout)
+    case NonFatal(error) =>
+      Failure(BspSessionInitializationErrorNormalizer.fromSessionInitializationAwaitFailure(error))
   }
 
   /** Run a task with client in this session.
@@ -311,11 +316,11 @@ class BspSession private(bspPID: Long,
 
     error match {
       case None =>
-        sessionShutdown.success(())
+        sessionShutdown.trySuccess(())
         currentJob.cancel()
         jobs.forEach(_.cancel())
       case Some(err) =>
-        sessionShutdown.failure(err)
+        sessionShutdown.tryFailure(err)
         currentJob.cancelWithError(err)
         jobs.forEach(_.cancelWithError(err))
     }

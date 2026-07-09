@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.testFramework.LoggedErrorProcessor
 
 import java.util
-import java.util.EnumSet
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-final class CollectingLoggedMessagesProcessor private(
-  errorActions: util.Set[LoggedErrorProcessor.Action],
+final class CollectingLoggedMessagesProcessor private[util](
+  matchesError: CollectingLoggedMessagesProcessor.LoggedError => Boolean,
+  matchedErrorActions: util.Set[LoggedErrorProcessor.Action],
 ) extends LoggedErrorProcessor {
+
   import CollectingLoggedMessagesProcessor._
 
   private val loggedErrors: ConcurrentLinkedQueue[LoggedError] =
@@ -39,8 +40,14 @@ final class CollectingLoggedMessagesProcessor private(
     details: Array[String],
     t: Throwable
   ): util.Set[LoggedErrorProcessor.Action] = {
-    loggedErrors.add(LoggedError(category, message, details.toIndexedSeq, Option(t)))
-    errorActions
+    val loggedError = LoggedError(category, message, details.toIndexedSeq, Option(t))
+    if (matchesError(loggedError)) {
+      loggedErrors.add(loggedError)
+      matchedErrorActions
+    }
+    else {
+      super.processError(category, message, details, t)
+    }
   }
 }
 
@@ -50,7 +57,17 @@ object CollectingLoggedMessagesProcessor {
     message: String,
     details: Seq[String],
     throwable: Option[Throwable],
-  )
+  ) {
+    /**
+     * This can be useful to test that the error contains some text in it but we don't care in the test where exactly
+     */
+    lazy val allPartsConcatenatedText: String = {
+      val parts = Option(message).toSeq ++
+        details.flatMap(Option(_)) ++
+        Seq(throwable.flatMap(t => Option(t.getMessage)), throwable.map(_.toString))
+      parts.mkString("\n")
+    }
+  }
 
   final case class LoggedWarning(
     category: String,
@@ -64,7 +81,7 @@ object CollectingLoggedMessagesProcessor {
   )
 
   def collectErrors[T](body: => T): (T, Seq[LoggedError]) = {
-    val processor = collectingWith(errorActions = EnumSet.of(LoggedErrorProcessor.Action.LOG))
+    val processor = collectingWith(errorActions = util.EnumSet.of(LoggedErrorProcessor.Action.LOG))
     val result = executeWithProcessor(processor)(body)
     (result, processor.errors)
   }
@@ -80,8 +97,17 @@ object CollectingLoggedMessagesProcessor {
     (result, errors.flatMap(_.throwable))
   }
 
+  def collectMatchingErrors[T](matches: LoggedError => Boolean)(body: => T): (T, Seq[LoggedError]) = {
+    val processor = new CollectingLoggedMessagesProcessor(
+      matchesError = matches,
+      matchedErrorActions = LoggedErrorProcessor.Action.NONE,
+    )
+    val result = executeWithProcessor(processor)(body)
+    (result, processor.errors)
+  }
+
   private def collectingWith(errorActions: util.Set[LoggedErrorProcessor.Action]): CollectingLoggedMessagesProcessor =
-    new CollectingLoggedMessagesProcessor(errorActions)
+    new CollectingLoggedMessagesProcessor(_ => true, errorActions)
 
   private def executeWithProcessor[T](processor: CollectingLoggedMessagesProcessor)(body: => T): T = {
     var result: T = null.asInstanceOf[T]
