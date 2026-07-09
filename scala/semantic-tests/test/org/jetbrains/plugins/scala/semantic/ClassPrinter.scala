@@ -198,6 +198,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case u: ScUnitExpr => "()"
       case u: ScThisReference => "this"
+      case s: ScSuperReference => "super" + (s.staticSuper.map("[" + textOf(_) + "]").getOrElse(""))
       case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
       case e: ScUnderscoreSection => "_"
       case e: ScIf =>
