@@ -12,7 +12,7 @@ package object dependencies {
     "compileOnly.dep", "compileOnly.deps", "compileOnly.dependencies",
   )
 
-  private[scalaDirective] val ScalaDirectiveDependencyPattern = psiElement()
+  private[plugins] val ScalaDirectiveDependencyPattern = psiElement()
     .withElementType(ScalaDirectiveTokenTypes.tDIRECTIVE_VALUE)
     .inside(
       psiElement(classOf[ScDirective])

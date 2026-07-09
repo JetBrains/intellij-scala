@@ -22,7 +22,7 @@ final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionCo
 
       val onlyStableVersions = !params.isExtendedCompletion
       val versions = fetchVersions(onlyStableVersions)
-      val lookupElements = versions.map(version => ScalaDirectiveDependencyVersionLookupItem(version, valueKind))
+      val lookupElements = versions.map(version => ScalaDirectiveDependencyVersionLookupItem(version, valueKind, icon = None))
 
       val sorter = CompletionSorter.emptySorter()
         .weigh(new RealPrefixMatchingWeigher)

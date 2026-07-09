@@ -3,16 +3,14 @@ package org.jetbrains.plugins.scalaDirective.codeInspection.dependencies
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveBundle
 
+//noinspection ApiStatus
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
-abstract class ScalaDirectiveDependencyVersionInspectionTestBase
-  extends ScalaInspectionTestBase
-    with PackageSearchClientTesting {
+abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaInspectionTestBase {
   private val groupId = "org.fancyname"
   private val artifactId = "cool-lib"
 
@@ -49,19 +47,19 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
-  protected def preparePackageSearchCache(artifactId: String, availableVersions: Seq[String]): Unit =
+  protected def prepareLocalCompletionCache(artifactId: String, availableVersions: Seq[String]): Unit =
     DependencyUtil.updateMockVersionCompletionCache((groupId, artifactId) -> availableVersions)
 
   protected def doTest(text: String, expected: String,
                        artifactId: String = this.artifactId,
                        hint: String = quickFixHint(latestStableVersion)): Unit = {
-    preparePackageSearchCache(artifactId, versions)
+    prepareLocalCompletionCache(artifactId, versions)
     checkTextHasError(text)
     testQuickFix(text, expected, hint)
   }
 
   protected def doCheckNoErrors(text: String, availableVersions: Seq[String] = versions): Unit = {
-    preparePackageSearchCache(artifactId, availableVersions)
+    prepareLocalCompletionCache(artifactId, availableVersions)
     checkTextHasNoErrors(text)
   }
 
@@ -141,7 +139,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
   )
 
   def testOutdatedDependenciesInMultipleDependencyList(): Unit = {
-    preparePackageSearchCache(artifactId, versions)
+    prepareLocalCompletionCache(artifactId, versions)
 
     val text = s"//> using deps $START$groupId:$artifactId:$outdatedStableVersion$END $START$groupId:$artifactId:$outdatedUnstableVersion$END"
     checkTextHasError(text)

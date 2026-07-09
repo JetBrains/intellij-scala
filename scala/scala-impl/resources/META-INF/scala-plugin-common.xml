@@ -424,8 +424,8 @@
         <completion.contributor language="Scala" id="scalaDirectiveCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveCompletionContributor"/>
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.EnableAutoPopupInScalaDirectiveComment"/>
-        <completion.contributor language="ScalaDirective" id="scalaDirectiveDependencyCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionContributor"/>
+        <completion.contributor language="ScalaDirective" id="scalaDirectiveDependencyVersionCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyVersionCompletionContributor"/>
         <completion.contributor language="ScalaDirective" id="scalaDirectiveScalaVersionCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveScalaVersionCompletionContributor"/>
         <completion.contributor language="ScalaDirective" id="scalaDirectiveKeyCompletionContributor"

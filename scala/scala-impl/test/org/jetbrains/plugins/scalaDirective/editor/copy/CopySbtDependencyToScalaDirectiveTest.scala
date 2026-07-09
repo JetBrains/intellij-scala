@@ -9,10 +9,9 @@ import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.actions.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 
-final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase with PackageSearchClientTesting {
+final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //region Completion auto popups after paste test configuration
   private[this] var completionAutoPopupTester: CompletionAutoPopupTester = _
   private[this] var scalaCompletionTestFixture: ScalaCompletionTestFixture = _

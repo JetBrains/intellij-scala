@@ -7,10 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
+import javax.swing.Icon
+
 object ScalaDirectiveDependencyLookupItem {
   def apply(text: String, obj: AnyRef, valueKind: ScalaDirectiveValueKind,
-            scheduleAutoPopupAfterInsert: Boolean = false): LookupElement =
-    LookupElementBuilder
+            scheduleAutoPopupAfterInsert: Boolean = false,
+            icon: Option[Icon] = None): LookupElement = {
+    val builder = LookupElementBuilder
       .create(obj, text)
       .withInsertHandler { (context, item) =>
         context.getFile.findElementAt(context.getStartOffset) match {
@@ -24,7 +27,9 @@ object ScalaDirectiveDependencyLookupItem {
           case _ =>
         }
       }
+    icon.fold(builder)(builder.withIcon)
+  }
 
-  def apply(text: String, valueKind: ScalaDirectiveValueKind, scheduleAutoPopupAfterInsert: Boolean): LookupElement =
-    apply(text, text, valueKind, scheduleAutoPopupAfterInsert)
+  def apply(text: String, valueKind: ScalaDirectiveValueKind, scheduleAutoPopupAfterInsert: Boolean, icon: Option[Icon]): LookupElement =
+    apply(text, text, valueKind, scheduleAutoPopupAfterInsert, icon)
 }

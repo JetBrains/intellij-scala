@@ -4,6 +4,8 @@ import com.intellij.codeInsight.completion.{CompletionContributor, CompletionTyp
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyPattern
 
-final class ScalaDirectiveDependencyCompletionContributor extends CompletionContributor with DumbAware {
-  extend(CompletionType.BASIC, ScalaDirectiveDependencyPattern, new ScalaDirectiveDependencyCompletionProvider)
+abstract class ScalaDirectiveDependencyCompletionContributorBase extends CompletionContributor with DumbAware {
+  protected def provider: ScalaDirectiveDependencyCompletionProviderBase
+
+  extend(CompletionType.BASIC, ScalaDirectiveDependencyPattern, provider)
 }

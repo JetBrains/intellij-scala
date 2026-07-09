@@ -4,7 +4,6 @@ import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.Assert.assertNull
@@ -17,9 +16,7 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_3_Latest
 ))
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
-final class ScalaDirectiveAutoPopupTest
-  extends ScalaCompletionAutoPopupTestCase
-    with PackageSearchClientTesting {
+abstract class ScalaDirectiveAutoPopupTestBase extends ScalaCompletionAutoPopupTestCase {
   override def setUp(): Unit = {
     super.setUp()
     TestModeFlags.set[java.lang.Boolean](
@@ -27,7 +24,7 @@ final class ScalaDirectiveAutoPopupTest
     )
   }
 
-  private def doTest(textToType: String, expectedLookupItems: Seq[String])(src: String): Unit = {
+  protected def doTest(textToType: String, expectedLookupItems: Seq[String])(src: String): Unit = {
     configureByText(src)
     doType(textToType)
 
@@ -36,12 +33,16 @@ final class ScalaDirectiveAutoPopupTest
     UsefulTestCase.assertContainsElements[String](actualLookupItems, expectedLookupItems: _*)
   }
 
-  private def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {
+  protected def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {
     configureByText(src)
     doType(textToType)
 
     assertNull("Lookup shouldn't be shown", getLookup)
   }
+}
+
+//noinspection ApiStatus
+final class ScalaDirectiveAutoPopupTest extends ScalaDirectiveAutoPopupTestBase {
 
   @Test
   def testAutoPopupInScalaDirective(): Unit = doTest(">", UsingDirective :: Nil) {
@@ -72,16 +73,6 @@ final class ScalaDirectiveAutoPopupTest
     s"//>$CARET"
   }
 
-  // TODO: SCL-23246 Reimplement using new maven search api.
-//  @Test
-//  def testAutoPopupInDependencyAfterGroupId(): Unit = {
-//    PackageSearchClient.instance()
-//      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
-//    doTest(":", "foo:bar:" :: Nil) {
-//      s"//> using dep foo$CARET"
-//    }
-//  }
-
   @Test
   def testAutoPopupInDependencyAfterArtifactId(): Unit = {
     DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
@@ -89,16 +80,6 @@ final class ScalaDirectiveAutoPopupTest
       s"//> using dep foo:bar$CARET"
     }
   }
-
-  // TODO: SCL-23246 Reimplement using new maven search api.
-//  @Test
-//  def testNoAutoPopupInDependencyWithWrongKey(): Unit = {
-//    PackageSearchClient.instance()
-//      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
-//    doTestNoAutoCompletion(":") {
-//      s"//> using something foo$CARET"
-//    }
-//  }
 
   @Test
   def testAutoPopupInDependencyKeyOnDot_test(): Unit = doTest(".", "test.dep" :: "test.deps" :: "test.dependencies" :: Nil) {

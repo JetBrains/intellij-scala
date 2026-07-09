@@ -115,8 +115,8 @@
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala"
-                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
-                                order="first" id="sbtPackageSearchDependencyCompletionContributor"/>
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtDependencyVersionCompletionContributor"
+                                order="first" id="sbtDependencyVersionCompletionContributor"/>
         <completion.contributor language="any"
                                 implementationClass="org.jetbrains.sbt.language.completion.ScalaVersionCompletionContributor"
                                 order="first, after ml_context" id="scalaVersionCompletionContributor"/>

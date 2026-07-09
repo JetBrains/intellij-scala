@@ -2,17 +2,16 @@ package org.jetbrains.sbt.codeInspection.dependency
 
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, SbtBundle, SbtHighlightingUtil}
 
+//noinspection ApiStatus
 class SbtDependencyVersionInspectionTest
   extends ScalaInspectionTestBase
     with MockSbt_1_0
-    with MockSbtBuildModule
-    with PackageSearchClientTesting {
+    with MockSbtBuildModule {
   
   override protected val classOfInspection = classOf[SbtDependencyVersionInspection]
   override protected val description: String = ""
