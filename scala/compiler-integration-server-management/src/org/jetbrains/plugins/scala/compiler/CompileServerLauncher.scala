@@ -791,8 +791,14 @@ object CompileServerLauncher {
     scalaCompileServerSystemDir(eelDescriptor)
   }
 
+  // Own subdirectory under the IDEA log dir. Deliberately NOT `build-log`: the platform's
+  // CompilerTester clears `build-log` during tests, but the long-running compile server keeps the
+  // log file open, which fails on Windows where an open file cannot be deleted by another process.
+  // SCL-19104
+  private final val ScalaCompileServerLogDirName = "scala-compile-server-log"
+
   def logDirectory(@Nullable project: Project): Path = project match {
-    case null => buildManagerLogDirectory()
+    case null => localLogDirectory()
     case p =>
       val descriptor = EelProviderUtil.getEelDescriptor(p)
       logDirectory(descriptor)
@@ -801,13 +807,17 @@ object CompileServerLauncher {
   private def logDirectory(eelDescriptor: EelDescriptor): Path =
     eelDescriptor match {
       case LocalEelDescriptor.INSTANCE =>
-        buildManagerLogDirectory()
+        localLogDirectory()
       case remote =>
-        EelSystemFolderUtils.getSystemFolder(remote) / "logs" / "build-log"
+        // Remote keeps the platform's `"logs"` convention: BuildManager uses
+        // getSystemFolder(project).resolve("logs") for remote build logs.
+        EelSystemFolderUtils.getSystemFolder(remote) / "logs" / ScalaCompileServerLogDirName
     }
 
-  private def buildManagerLogDirectory(): Path =
-    BuildManager.getBuildLogDirectory.toCanonicalPath
+  // `PathManager.getLogDir` is the IDEA log dir; PathManager.LOG_DIRECTORY ("log") is private,
+  // so it cannot be referenced directly.
+  private def localLogDirectory(): Path =
+    PathManager.getLogDir.resolve(ScalaCompileServerLogDirName).toCanonicalPath
 
   private def scalaCompileServerSystemDir(eelDescriptor: EelDescriptor): Path = {
     val systemDir = PathUtil.getSystemDirectory(eelDescriptor)
