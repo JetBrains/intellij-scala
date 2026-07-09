@@ -14,6 +14,12 @@ import org.jetbrains.sbt.project.template.SbtModuleBuilder.IdeSettingsPluginVers
 class NewSbtProjectWizardGeneratedFilesTest extends NewSbtProjectWizardTestBase {
   import NewSbtProjectWizardGeneratedFilesTest.TestData.*
 
+  def testScala3VersionsOlderThan3_3_0AreHidden(): Unit = {
+    val versions = availableScalaVersionsFromSbtWizard
+
+    assertUnsupportedScala3VersionsAreHidden(versions, ScalaVersion.Latest.Scala_3_3.withMinor(0))
+  }
+
   def testCreateSbt_0_13_Project(): Unit = {
     runFileGenerationOnlyTest(
       config = sbt013ProjectConfig,

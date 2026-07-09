@@ -11,7 +11,7 @@ import org.jetbrains.bsp.{BspError, BspTaskCancelled}
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{CancellationException, Future, Promise}
+import scala.concurrent.{Future, Promise}
 
 object jobs {
 
@@ -82,11 +82,13 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
   private def doRun(bspServer: BspServer, serverInfo: BuildServerInfo): CompletableFuture[(T,A)] = {
     task(bspServer, serverInfo).thenApply[(T,A)]((t:T) => (t,a))
       .whenComplete((result: (T,A), error: Throwable) => {
-        if (error != null) error match {
-          case cancel: CancellationException =>
+        if (error != null) {
+          if (BspJavaFutureFailure.isCancellation(error)) {
             promise.failure(BspTaskCancelled)
             throw BspTaskCancelled
-          case otherError => promise.failure(otherError)
+          } else {
+            promise.failure(error)
+          }
         } else {
           promise.success(result)
         }
