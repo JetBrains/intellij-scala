@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.actions.internal
 
 import com.intellij.ide.util.PsiNavigationSupport
-import com.intellij.idea.LoggerFactory
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
@@ -52,7 +51,7 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
         }
       }
     } else {
-      @NlsSafe val title = "Cannot find '" + LoggerFactory.getLogFilePath + "'"
+      @NlsSafe val title = s"Cannot find '$logFilePath'"
       @NlsSafe val empty = ""
       Notifications.Bus.notify(
         new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, title, empty, NotificationType.INFORMATION): @nowarn("cat=deprecation"),
