@@ -230,8 +230,11 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           }
         }
         val invokedExpr = mi.getEffectiveInvokedExpr
-        mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("") +
-          textOfExpression(invokedExpr, indent) + targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        val s1 = mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("")
+        val s2 = textOfExpression(invokedExpr, indent)
+        val s3 = targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        if (mi.is[ScInfixExpr] && s2.endsWith("=") && !mi.target.exists(_.name.endsWith("="))) s1.dropRight(1) + " = " + s1 + s2.dropRight(1) + s3
+        else s1 + s2 + s3
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
       case sc: ScAssignment => sc.mirrorMethodCall match {
