@@ -45,6 +45,41 @@ object SbtRunConfigurationMigrationTest:
     Array(quoted("add 1 2"),          "add 1 2",               "quoted task with two arguments"),
     Array("task1; add 1 2",           "task1; add 1 2",        "task semicolon task with arguments"),
     Array(quoted("task1; add 1 2"),   "task1; add 1 2",        "quoted task semicolon task with arguments"),
+    // Valid/invalid in the comments below refer to whether the given command works in the corresponding plugin version
+    // (tasks in the old one and commands in the new one).
+
+    // echo "fo; o" (invalid) -> echo; fo; o (invalid)
+    Array("echo \"fo; o\"",           "echo; fo; o",           "task with quoted arg containing semicolon"),
+    // echo \"fo; o\" (invalid) -> echo "fo; o" (valid)
+    Array("echo \\\"fo; o\\\"",       "echo \"fo; o\"",        "task with escaped quoted arg containing semicolon"),
+    // "echo \"fo; o\"" (valid) -> echo "fo; o" (valid)
+    Array(quoted("echo \\\"fo; o\\\""), "echo \"fo; o\"",      "task with escaped quoted arg containing semicolon (quoted)"),
+
+    // task1;"add 1 2" (valid) -> task1;add 1 2 (valid)
+    Array("task1;\"add 1 2\"",        "task1;add 1 2",         "task then quoted task with arguments"),
+    // task1;\"add 1 2\" (invalid) -> task1;"add 1 2" (invalid)
+    Array("task1;\\\"add 1 2\\\"",    "task1;\"add 1 2\"",     "task then escaped quoted task with arguments"),
+    // "task1;\"add 1 2\"" (invalid) -> task1;"add 1 2" (invalid)
+    Array(quoted("task1;\\\"add 1 2\\\""), "task1;\"add 1 2\"", "task then escaped quoted task with arguments (quoted)"),
+
+    // task1;echo "fo; o" (invalid) -> task1;echo fo; o (invalid)
+    Array("task1;echo \"fo; o\"",     "task1;echo fo; o",      "task then task with quoted arg containing semicolon"),
+    // task1;echo \"fo; o\" (invalid) -> task1;echo "fo; o" (valid)
+    Array("task1;echo \\\"fo; o\\\"", "task1;echo \"fo; o\"",  "task then task with escaped quoted arg containing semicolon"),
+    // "task1;echo \"fo; o\"" (valid) -> task1;echo "fo; o" (valid)
+    Array(quoted("task1;echo \\\"fo; o\\\""), "task1;echo \"fo; o\"", "task then task with escaped quoted arg containing semicolon (quoted)"),
+
+    // task1;"task2";task3 (valid) -> task1;task2;task3 (valid)
+    Array("task1;\"task2\";task3",    "task1;task2;task3",     "quoted task between plain tasks"),
+    // task1;\"task2\";task3 (invalid) -> task1;"task2";task3 (invalid)
+    Array("task1;\\\"task2\\\";task3", "task1;\"task2\";task3", "escaped quoted task between plain tasks"),
+    // "task1;\"task2\";task3" (invalid) -> task1;"task2";task3 (invalid)
+    Array(quoted("task1;\\\"task2\\\";task3"), "task1;\"task2\";task3", "escaped quoted task between plain tasks (quoted)"),
+
+    // When there is no unquoted ;, an explicit ; is used as the separator, just as it was in the past.
+    Array("task1 \"echo \\\"a;b\\\"\"",        "task1; echo \"a;b\"",        "quoted semicolon, space separators"),
+    Array("task1 \"echo \\\"a;b\\\"\" task2",  "task1; echo \"a;b\"; task2", "quoted semicolon between two tasks"),
+
     Array("",                         "",                      "empty string"),
     Array("  ",                       "  ",                    "white spaces"),
     Array("  task1  ",                "task1",                 "task with whitespaces") // trimming happens in ParametersListUtil.parse in SbtRunConfiguration.migrateTasksToCommands
@@ -64,6 +99,37 @@ object SbtRunConfigurationMigrationTest:
     Array(quoted("add 1 2"),          quoted("add 1 2"),           "quoted task with two arguments"),
     Array("task1; add 1 2",           quoted("task1; add 1 2"),    "task semicolon task with arguments"),
     Array(quoted("task1; add 1 2"),   quoted("task1; add 1 2"),    "quoted task semicolon task with arguments"),
+    // Valid/invalid in the comments below refer to whether the given command works in the corresponding plugin version
+    // (tasks in the old one and commands in the new one).
+
+    // echo "fo; o" (valid) -> "echo \"fo; o\"" (valid)
+    Array("echo \"fo; o\"",                  quoted("echo \\\"fo; o\\\""),        "task with quoted arg containing semicolon"),
+    // echo \"fo; o\" (valid) -> "echo \\"fo; o\\"" (valid)
+    Array("echo \\\"fo; o\\\"",              quoted("echo \\\\\"fo; o\\\\\""),    "task with escaped quoted arg containing semicolon"),
+    // "echo \"fo; o\"" (invalid) -> unchanged (valid)
+    Array(quoted("echo \\\"fo; o\\\""),      quoted("echo \\\"fo; o\\\""),        "task with escaped quoted arg containing semicolon (quoted)"),
+
+    // task1;"add 1 2" (invalid) -> unchanged (valid)
+    Array("task1;\"add 1 2\"",               "task1;\"add 1 2\"",                 "task then quoted task with arguments"),
+    // task1;\"add 1 2\" (invalid) -> "task1;\\"add 1 2\\"" (invalid)
+    Array("task1;\\\"add 1 2\\\"",           quoted("task1;\\\\\"add 1 2\\\\\""), "task then escaped quoted task with arguments"),
+    // "task1;\"add 1 2\""(invalid)  -> unchanged (invalid)
+    Array(quoted("task1;\\\"add 1 2\\\""),   quoted("task1;\\\"add 1 2\\\""),     "task then escaped quoted task with arguments (quoted)"),
+
+    // task1;echo "fo; o" (valid) -> "task1;echo \"fo; o\"" (valid)
+    Array("task1;echo \"fo; o\"",            quoted("task1;echo \\\"fo; o\\\""),  "task then task with quoted arg containing semicolon"),
+    // task1;echo \"fo; o\" (Valid or invalid, depending on whether the old or the new shell is used)-> "task1;echo \\"fo; o\\"" (the same as before)
+    Array("task1;echo \\\"fo; o\\\"",        quoted("task1;echo \\\\\"fo; o\\\\\""), "task then task with escaped quoted arg containing semicolon"),
+    // "task1;echo \"fo; o\"" (invalid) -> unchanged (valid)
+    Array(quoted("task1;echo \\\"fo; o\\\""), quoted("task1;echo \\\"fo; o\\\""), "task then task with escaped quoted arg containing semicolon (quoted)"),
+
+    // task1;"task2";task3 (invalid) -> unchanged (valid)
+    Array("task1;\"task2\";task3",           "task1;\"task2\";task3",             "quoted task between plain tasks"),
+    // task1;\"task2\";task3 (invalid) -> unchanged (invalid)
+    Array("task1;\\\"task2\\\";task3",       "task1;\\\"task2\\\";task3",         "escaped quoted task between plain tasks"),
+    // "task1;\"task2\";task3" (invalid) -> unchanged (invalid)
+    Array(quoted("task1;\\\"task2\\\";task3"), quoted("task1;\\\"task2\\\";task3"), "escaped quoted task between plain tasks (quoted)"),
+
     Array("",                         "",                          "empty string"),
     Array("  ",                       "  ",                        "white spaces"),
     Array("  task1  ",                quoted("  task1  "),         "task with whitespaces")

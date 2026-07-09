@@ -149,47 +149,72 @@ private object SbtRunConfiguration {
    * migrating from the old `tasks` format to the new `commands` format, `task1 task2` would not work in the current plugin version
    * because we no longer join the string with semicolons at runtime — we require semicolons explicitly. That is why the migration is needed.
    *
-   * Examples (tasks -> commands):
-   *  - `clean compile` → `clean; compile` (space-separated string joined with `;`)
-   *  - `"clean; compile"` → `clean; compile` (outer quotes stripped)
-   *  - `""` → `""`
+   * How migration works:
    *
-   * Rules:
-   *  - Blank → returned as-is.
-   *  - Contains `;` → the user already used the semicolon style, so only outer quotes are stripped if they are present
-   *    (quotes are not allowed in the new format and break both shell and non-shell execution).
-   *  - No `;` → join a space-separated string with `;`. The same happened at runtime in older plugin versions.
+   * The old `tasks` string is split on unquoted whitespace with `ParametersListUtil.parse` (the same as it was done in the past),
+   * which also drops real quotes and unescapes inner `\"`. The resulting tokens are then re-joined, and the separator
+   * is chosen based on whether the original `tasks` string contains an unquoted `;`. If it does, the user already used
+   * the proper `;`-separated format, so we join the tokens with a space; otherwise we join them with `;`, as in the past.
+   *
+   * Examples (tasks -> commands):
+   *  - `clean compile` → `clean; compile` (no `;`: joined with `;`)
+   *  - `"clean; compile"` → `clean; compile` (outer quotes stripped)
+   *  - `"echo \"fo;o\""` → `echo "fo;o"` (outer quotes stripped, inner escaped quotes unescaped)
+   *  - `clean "echo \"a;b\""` → `clean; echo "a;b"` (the only `;` is quoted, so we join pieces with `;`)
+   *  - `""` → `""`
    *
    * @see [[org.jetbrains.sbt.runner.SbtRunConfigurationMigrationTest#testMigrateTasksToCommands]]
    */
   def migrateTasksToCommands(tasks: String): String =
     if (tasks.isBlank) tasks
-    else if (tasks.contains(";")) StringUtil.unquoteString(tasks)
-    else ParametersListUtil.parse(tasks).asScala.mkString("; ")
+    else {
+      // `splitHonorQuotes` honors single quotes, so for an input whose only semicolons are
+      // inside single quotes, it returns a single element and `;` is chosen as the separator.
+      // This should not be harmful:
+      // - `;` is the separator used by the old `tasks` processing, so the migrated string matches the previous behavior
+      // - sbt does not honor single quotes, so a command like this is most likely invalid anyway
+      val containsUnquotedSemicolon = StringUtil.splitHonorQuotes(tasks, ';').size() > 1
+      val sep = if containsUnquotedSemicolon then " " else "; "
+      ParametersListUtil.parse(tasks).asScala.mkString(sep)
+    }
 
   /**
    * Converts the new `commands` format back to the old `tasks` format.
    *
    * This is the reverse of [[migrateTasksToCommands]] and is needed to keep the persisted `tasks` field
-   * in sync when the user edits the current `commands` field. To make the current `commands` value work
-   * in older plugin versions, we wrap it in quotes whenever it contains spaces. This prevents the logic in older plugin versions from
-   * splitting the string on spaces and joining with semicolons, which would cause problems when executing such a command.
-   * For example, if the current commands value is `task1; task2` and we do not quote it, older plugin versions would turn it into `;task1; ;task2`
-   * at runtime (in the sbt shell), breaking execution.
+   * in sync when the user edits the current `commands` field. Older plugin versions preprocessed the `tasks`
+   * value at runtime with `ParametersListUtil.parse`, which splits on unquoted spaces (dropping quotes) and then
+   * force-joins the resulting parts with semicolons. So a value with an unquoted space (e.g. `task1; task2`) was turned
+   * at runtime into `;task1; ;task2` (unless it was wrapped in quotes).
+   *
+   * The goal of this migration is to wrap in quotes any `commands` value that contains an unquoted space, so it
+   * keeps behaving the same under the old plugin versions. A value whose spaces are already inside quotes (e.g.
+   * `task1;"add 1 2"`), or that is a single word without any spaces (e.g. `task1`), is kept as-is, because the old
+   * runtime's `parse` already treats it as a single command.
    *
    * Examples (commands → tasks):
    *  - `task1` → `task1` (returned as-is)
-   *  - `task1; task1` → `"task1; task1"` (contains a space, so wrapped in quotes)
-   *  - `add 1 2` → `"add 1 2"` (contains spaces, so wrapped in quotes)
-   *  - `"task1; task1"` → `"task1; task1"` (already quoted, left unchanged)
+   *  - `task1; task1` → `"task1; task1"` (unquoted space, so wrapped in quotes)
+   *  - `add 1 2` → `"add 1 2"` (unquoted spaces, so wrapped in quotes)
+   *  - `task1;"add 1 2"` → `task1;"add 1 2"` (spaces only inside quotes, returned as-is)
+   *  - `"task1; task1"` → `"task1; task1"` (already quoted, returned as-is)
    *
    * Rules:
    *  - Blank or already quoted → returned as-is.
-   *  - Otherwise → wraps the string in quotes when it contains spaces.
+   *  - Contains an unquoted space → wrapped in quotes via `ParametersListUtil.join`.
+   *  - Otherwise → returned as-is.
    *
    * @see [[org.jetbrains.sbt.runner.SbtRunConfigurationMigrationTest#testMigrateCommandsToTasks]]
    */
   def migrateCommandsToTasks(commands: String): String =
     if (commands.isBlank || StringUtil.isQuotedString(commands)) commands
-    else ParametersListUtil.join(commands)
+    else {
+      // `keepEmptyParameters = true` keeps the input untrimmed so edge whitespace (e.g. `  task1  `) also
+      // counts as an unquoted space and gets wrapped.
+      val shouldJoin = ParametersListUtil.parse(commands, /*keepQuotes*/ false, /*supportSingleQuotes*/ false, /*keepEmptyParameters*/ true).size > 1
+      if (shouldJoin)
+        ParametersListUtil.join(commands)
+      else
+        commands
+    }
 }
