@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest
@@ -54,12 +53,7 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_LTS_AllInO
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_Next_RC_AllInOne
   extends CompileOnServerRunOnServerTestBase
-    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne {
-
-  override def allowedCompilerMessage(message: CompilerMessage): Boolean =
-    message.getCategory == CompilerMessageCategory.WARNING &&
-      message.getMessage.contains("should not contain `$`, which is reserved for internal compiler use.")
-}
+    with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_0,
@@ -75,9 +69,4 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessS
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax_Next_RC
-  extends WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax {
-
-  override def allowedCompilerMessage(message: CompilerMessage): Boolean =
-    message.getCategory == CompilerMessageCategory.WARNING &&
-      message.getMessage.contains("should not contain `$`, which is reserved for internal compiler use.")
-}
+  extends WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax
