@@ -1,0 +1,46 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly_check_changes:
+    name: Check for changes in the last 24h
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: check
+        run: |
+          if [ -n "$(git log --since='24 hours ago' --oneline)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  nightly_build_and_test:
+    name: Nightly Build & Inspection Sanity Test
+    needs: nightly_check_changes
+    if: needs.nightly_check_changes.outputs.has_changes == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: -Xmx8192m -XX:ReservedCodeCacheSize=512m
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+      - uses: sbt/setup-sbt@v1
+      - uses: coursier/cache-action@v6
+      - name: Compile and package
+        run: sbt clean packageArtifact Test/compile
+      - name: Run GeneralInspectionSanityTest
+        run: sbt "testOnly org.jetbrains.plugins.scala.codeInspection.GeneralInspectionSanityTest"
