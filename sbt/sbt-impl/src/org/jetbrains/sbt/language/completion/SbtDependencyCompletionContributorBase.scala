@@ -235,15 +235,9 @@ final class SbtDependencyVersionCompletionProvider extends SbtDependencyCompleti
 }
 
 object SbtDependencyCompletionProviderBase {
-  final class DependencyCompletionParameters(
-    val marker: RangeMarker,
-    val withGroupId: Boolean = false,
-    val withEmptyVersion: Boolean = false,
-  )(
-    using place: ScExpression,
-  )(
-    using completionParams: CompletionParameters, resultSet: CompletionResultSet,
-  ) extends BaseDependencyCompletionParameters(completionParams, resultSet, place) {
+  final class DependencyCompletionParameters(val marker: RangeMarker, val withGroupId: Boolean = false, val withEmptyVersion: Boolean = false)
+                                            (using place: ScExpression, completionParams: CompletionParameters, resultSet: CompletionResultSet)
+    extends BaseDependencyCompletionParameters(completionParams, resultSet, place) {
     def copy(withGroupId: Boolean = false, withEmptyVersion: Boolean = false): DependencyCompletionParameters =
       new DependencyCompletionParameters(marker, withGroupId, withEmptyVersion)
   }
