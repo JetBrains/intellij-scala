@@ -505,9 +505,8 @@ object ScaladocMarkdownParsing {
     val original = psiBuilder.getOriginalText
     val (content, lineOffsetMapping) = splitContext(original)
     val builder = new MkBuilder(psiBuilder, content, lineOffsetMapping)
-    // TODO(SCL-25669): pass a CharSequence to `parse` instead of a String
     val mkRootNode = new MarkdownParser(new ScalaDocMarkdownFlavour, true, () => ProgressManager.checkCanceled())
-      .parse(MarkdownElementTypes.MARKDOWN_FILE, content, true)
+      .parse(MarkdownElementTypes.MARKDOWN_FILE, content: CharSequence, true)
 
     // Place data needed for HTML in the builder for fetch after parsing
     builder.putUserData(MARKDOWN_DATA, (content, mkRootNode))
