@@ -335,7 +335,10 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    intellijPlugins += "intellij.structureView.plugin".toPlugin
+    intellijPlugins ++= Seq(
+      "intellij.structureView.plugin".toPlugin,
+      "intellij.navbar.plugin".toPlugin
+    )
   )
 
 lazy val repl = newProject("repl", file("scala/repl"))
