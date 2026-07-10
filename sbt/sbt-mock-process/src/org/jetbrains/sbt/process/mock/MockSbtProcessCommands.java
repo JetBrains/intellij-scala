@@ -6,6 +6,8 @@ import java.nio.file.Path;
 public final class MockSbtProcessCommands {
     public static final String Exit = "exit";
     public static final String WaitForFilePrefix = "mockWaitForFile ";
+    public static final String SlowShutdownReleaseFileProperty = "org.jetbrains.sbt.mock.process.slowShutdownReleaseFile";
+    public static final String SlowShutdownStartedFileProperty = "org.jetbrains.sbt.mock.process.slowShutdownStartedFile";
     public static final String WaitForFileMarkerPrefix = "[mock-sbt-marker]";
     public static final String JdwpListeningBeforePrompt = "mockJdwpListeningBeforePrompt";
     public static final String JdwpListeningAfterPrompt = "mockJdwpListeningAfterPrompt";

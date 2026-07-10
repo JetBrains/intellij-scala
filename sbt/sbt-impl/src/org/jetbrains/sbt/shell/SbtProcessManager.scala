@@ -70,10 +70,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private val log = Logger.getInstance(getClass)
 
   @volatile private var processData: Option[ProcessData] = None
+  private var processDestroyInProgress: Option[ProcessData] = None
   private val processDataMutex = new Object
   private val processStartupMutex = new Object
 
   private val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+
+  private case class ProcessDestroyRequest(
+    pd: ProcessData,
+    shell: SbtShellCommunication,
+    shouldEmitProcessTerminated: Boolean,
+  )
 
   /**
    * @return A tuple containing:
@@ -417,6 +424,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
         pd.processHandler
       case _ =>
         processStartupMutex.synchronized {
+          waitForProcessDestroyToFinish()
           existingAliveProcessData match {
             case Some(pd) if isAlive(pd) =>
               log.debug("acquireShellProcessHandler finish: reusing existing alive process handler")
@@ -433,7 +441,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def existingAliveProcessData: Option[ProcessData] =
     processDataMutex.synchronized {
-      processData.filter(isAlive)
+      if (processDestroyInProgress.nonEmpty) None
+      else processData.filter(isAlive)
     }
 
   @TestOnly
@@ -476,6 +485,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private def doRestartProcess(): Unit = processStartupMutex.synchronized {
     log.debug("restartProcess")
     destroyProcess()
+    waitForProcessDestroyToFinish()
     updateProcessData(activateSbtShellToolWindowOnStartup = true)
   }
 
@@ -528,57 +538,133 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * @param isSoft when `true`, the after-restart commands buffer is preserved.
    *               When `false`, the soft-restart is canceled if it is running.
    */
-  private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
+  private def destroyProcess(isSoft: Boolean): Unit =
+    prepareDestroyProcess(isSoft).foreach { request =>
+      try {
+        runProcessTermination(request.pd)
+        finishDestroyProcess(request)
+      } catch {
+        case ex: Throwable =>
+          clearProcessDestroyInProgress(request.pd)
+          throw ex
+      }
+    }
+
+  private def prepareDestroyProcess(isSoft: Boolean): Option[ProcessDestroyRequest] = processDataMutex.synchronized {
     log.debug("destroyProcess start...")
+
+    if (processDestroyInProgress.isDefined) {
+      log.debug("destroyProcess finish: destroy is already in progress")
+      return None
+    }
 
     processData match {
       case Some(pd) =>
-        val shell = SbtShellCommunication.forProject(project)
-        val shellStateBeforeDestroy = shell.currentState
-        // Startup may fail before the communication layer observes a ready prompt.
-        // In that case the process still needs disposal, but the shell lifecycle is already Off.
-        val shouldEmitShutdownRequested = !shellStateBeforeDestroy.isShuttingDownOrOff
-        // If shutdown was already requested elsewhere, only the terminal event is still needed.
-        val shouldEmitProcessTerminated = !shellStateBeforeDestroy.isOff
+        processDestroyInProgress = Some(pd)
 
-        // For hard kill: terminate after-restart commands buffer and transition to ShuttingDown
-        // For soft restart: transition to ShuttingDown
-        if (shouldEmitShutdownRequested) {
-          if (!isSoft)
-            shell.initiateHardKill()
-          else
-            shell.enterShuttingDownState()
-        }
-
-        val runnable: Runnable = () => terminateProcessGracefully(pd.processHandler.getProcess)
-        if (isUnitTestMode)
-          runnable.run()
-        else
-          ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
-
-        if (shouldEmitProcessTerminated) {
-          log.trace("destroyProcess: emit ProcessTerminated...")
-          shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
-        }
-        uninstallTerminalWarningsHost(pd)
-        processData = None
-
-        log.debug("destroyProcess finish: processData cleared")
+        prepareDestroyProcessInner(isSoft, pd)
       case None => // nothing to do
         log.debug("destroyProcess finish: no processData")
+        None
+    }
+
+  }
+
+  private def prepareDestroyProcessInner(isSoft: Boolean, pd: ProcessData): Option[ProcessDestroyRequest] = {
+    try {
+      val shell = SbtShellCommunication.forProject(project)
+      val shellStateBeforeDestroy = shell.currentState
+      // Startup may fail before the communication layer observes a ready prompt.
+      // In that case the process still needs disposal, but the shell lifecycle is already Off.
+      val shouldEmitShutdownRequested = !shellStateBeforeDestroy.isShuttingDownOrOff
+      // If shutdown was already requested elsewhere, only the terminal event is still needed.
+      val shouldEmitProcessTerminated = !shellStateBeforeDestroy.isOff
+
+      // For hard kill: terminate after-restart commands buffer and transition to ShuttingDown
+      // For soft restart: transition to ShuttingDown
+      if (shouldEmitShutdownRequested) {
+        if (!isSoft)
+          shell.initiateHardKill()
+        else
+          shell.enterShuttingDownState()
+      }
+
+      Some(ProcessDestroyRequest(pd, shell, shouldEmitProcessTerminated))
+    } catch {
+      case ex: Throwable =>
+        clearProcessDestroyInProgressLocked(pd)
+        throw ex
+    }
+  }
+
+  private def runProcessTermination(pd: ProcessData): Unit = {
+    val runnable: Runnable = () => terminateProcessGracefully(pd.processHandler.getProcess)
+    if (isUnitTestMode)
+      runnable.run()
+    else
+      ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
+  }
+
+  private def finishDestroyProcess(request: ProcessDestroyRequest): Unit = processDataMutex.synchronized {
+    try {
+      if (request.shouldEmitProcessTerminated) {
+        log.trace("destroyProcess: emit ProcessTerminated...")
+        request.shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
+      }
+      uninstallTerminalWarningsHost(request.pd)
+
+      processData match {
+        case Some(currentPd) if currentPd eq request.pd =>
+          processData = None
+          log.debug("destroyProcess finish: processData cleared")
+        case Some(_) =>
+          log.debug("destroyProcess finish: processData already replaced")
+        case None =>
+          log.debug("destroyProcess finish: processData already cleared")
+      }
+    } finally {
+      clearProcessDestroyInProgressLocked(request.pd)
+    }
+  }
+
+  private def waitForProcessDestroyToFinish(): Unit = processDataMutex.synchronized {
+    if (processDestroyInProgress.nonEmpty)
+      log.debug("waiting for destroyProcess to finish...")
+    while (processDestroyInProgress.nonEmpty) {
+      processDataMutex.wait()
+    }
+  }
+
+  private def clearProcessDestroyInProgress(pd: ProcessData): Unit = processDataMutex.synchronized {
+    clearProcessDestroyInProgressLocked(pd)
+  }
+
+  private def clearProcessDestroyInProgressLocked(pd: ProcessData): Unit = {
+    processDestroyInProgress match {
+      case Some(currentPd) if currentPd eq pd =>
+        processDestroyInProgress = None
+        processDataMutex.notifyAll()
+      case _ =>
     }
   }
 
   def sendSigInt(): Unit = processData.foreach(_.processHandler.destroyProcess())
 
   override def dispose(): Unit = {
+    // Intentionally do NOT waitForProcessDestroyToFinish() here: if a destroy is already in progress,
+    // destroyProcess() returns immediately and we let it complete on its owning thread.
+    // dispose() runs on the EDT during project close, and the in-progress termination needs the EDT to
+    // pump its modal progress, so waiting here would re-freeze the EDT and reintroduce the deadlock
+    // this class is designed to avoid (see prepareDestroyProcess / runProcessTermination, SCL-25654).
     destroyProcess()
     ConsoleViewsRegistry.disposeLast(project)
   }
 
   /** Report if shell process is alive. Should only be used for UI/informational purposes. */
   private[shell] def isAlive: Boolean =
-    processData.exists(isAlive)
+    processDataMutex.synchronized {
+      processDestroyInProgress.isEmpty && processData.exists(isAlive)
+    }
 
   private def isAlive(processData: ProcessData): Boolean = {
     // processData.processHandler.getProcess.isAlive // TODO: I am not sure which is the best
