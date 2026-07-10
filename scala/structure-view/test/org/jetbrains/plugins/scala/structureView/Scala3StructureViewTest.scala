@@ -305,6 +305,54 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     )
   }
 
+  def testNestedValDefinitions(): Unit = {
+    check(
+      """class MyClass {
+        |  val myVal1 = {
+        |    val myVal2 = {
+        |      class MyClassInner {
+        |        val myVal3 = {
+        |          val myVal4 = {
+        |
+        |          }
+        |        }
+        |      }
+        |    }
+        |  }
+        |}
+        |""".stripMargin,
+      Node(CLASS, "MyClass",
+        Node(FIELD_VAL, "myVal1",
+          Node(VAL, "myVal2",
+            Node(CLASS, "MyClassInner",
+              Node(FIELD_VAL, "myVal3",
+                Node(VAL, "myVal4")
+              )
+            )
+          )
+        )
+      )
+    )
+  }
+
+  def testNavigationFromSourceLocalTypeDefinitionsInMethodBody(): Unit = checkNavigationFromSource(
+    s"""object Wrapper:
+       |  def outer(): Unit =
+       |    class Local${CARET}Class
+       |    object Local${CARET}Object:
+       |      def in${CARET}ner: Int = 1
+       |    trait Local${CARET}Trait
+       |    enum Local${CARET}Enum:
+       |      case Local${CARET}Case
+       |""".stripMargin,
+    Node(CLASS, "LocalClass"),
+    Node(OBJECT, "LocalObject"),
+    Node(MethodIcon, "inner: Int"),
+    Node(TRAIT, "LocalTrait"),
+    Node(ENUM, "LocalEnum"),
+    Node(EnumCaseIcon, "LocalCase"),
+  )
+
   // FIXME: org.jetbrains.plugins.scala.structureView.ScalaInheritedMembersNodeProvider.nodesOf
   //  currently all inherited extension methods are shown as plain methods
 //  def testExtension_Inherited(): Unit = {

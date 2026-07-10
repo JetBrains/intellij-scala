@@ -33,7 +33,7 @@ abstract class ValOrVar(element: ScNamedElement, private[element] val parent: Sc
       case _                                      => None
     }
     definition match {
-      case Some(block: ScBlockExpr) => Block.childrenOf(block)
+      case Some(block: ScBlockExpr) => Block.childrenOf(block, includeLocalValOrVarDefinitions = true)
       case _                        => Seq.empty
     }
   }
