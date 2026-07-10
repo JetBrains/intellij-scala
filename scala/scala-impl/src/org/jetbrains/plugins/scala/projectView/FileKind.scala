@@ -14,6 +14,8 @@ sealed trait FileKind {
 
   final type MyIconableNode = Node with IconableNode
 
+  private[scala] final def representative: ScTypeDefinitionLike = delegate
+
   def node(implicit project: Project, settings: ViewSettings): Option[MyIconableNode]
 }
 

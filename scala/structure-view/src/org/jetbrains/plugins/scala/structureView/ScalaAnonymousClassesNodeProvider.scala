@@ -61,7 +61,7 @@ object ScalaAnonymousClassesNodeProvider {
 
   /**
    * Note regarding val/var definitions:
-   *  1. val/var definitions nodes are only created for fields, but not for local definitions: {{{
+   *  1. val/var definitions nodes are usually only created for fields, but not for local definitions: {{{
    *       class A {
    *         val value1 = 1 //has a node in structure view
    *         def foo = {
@@ -69,6 +69,7 @@ object ScalaAnonymousClassesNodeProvider {
    *         }
    *       }
    *     }}}
+   *     Nested local val/var definitions with block bodies are also shown inside val/var initializer nodes.
    *     See [[org.jetbrains.plugins.scala.structureView.element.TypeDefinition.childrenOf]]
    *     and [[org.jetbrains.plugins.scala.structureView.element.Block.childrenOf]]
    *

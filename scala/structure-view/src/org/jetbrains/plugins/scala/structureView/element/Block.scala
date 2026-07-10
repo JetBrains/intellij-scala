@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.structureView.element
 
 import com.intellij.psi.PsiElement
 import com.intellij.ui.{IconManager, PlatformIcons}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
@@ -20,10 +21,17 @@ private class Block(block: ScBlock) extends AbstractTreeElementDelegatingChildre
 }
 
 private object Block {
-  def childrenOf(block: ScBlock): Seq[PsiElement] = {
+  def childrenOf(block: ScBlock): Seq[PsiElement] =
+    childrenOf(block, includeLocalValOrVarDefinitions = false)
+
+  def childrenOf(block: ScBlock, includeLocalValOrVarDefinitions: Boolean): Seq[PsiElement] = {
     val blockChildren = block.getChildren
     blockChildren.collect {
       case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr | _: ScExtension) => element
+      case valOrVarDef: ScValueOrVariableDefinition
+        if includeLocalValOrVarDefinitions &&
+          valOrVarDef.expr.exists(_.is[ScBlockExpr]) =>
+        valOrVarDef
     }.toSeq
   }
 }

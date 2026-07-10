@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScExtensionBody, ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScExtensionBody, ScFunction, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -98,6 +98,9 @@ class ScalaStructureViewModel(myRootElement: ScalaFile)
         case (_: ScExtensionBody) & Parent(ext: ScExtension) =>
           isSuitable(ext)
         case _ => isToplevelOrInsideSuitableTypeDef(function)
+    case valOrVar: ScValueOrVariable =>
+      isToplevelOrInsideSuitableTypeDef(valOrVar) ||
+        isLocalValOrVarWithBlockBodyInsideValOrVar(valOrVar)
     case member: ScMember =>
       isToplevelOrInsideSuitableTypeDef(member)
     case _ => false
@@ -112,7 +115,29 @@ class ScalaStructureViewModel(myRootElement: ScalaFile)
   private def isToplevelOrInsideSuitableTypeDef(member: ScMember): Boolean =
     member.getParent match
       case _: ScalaFile | _: ScPackaging => true
+      case (_: ScBlockExpr) & Parent(_: ScFunction) if member.is[ScTypeDefinition] => true
+      case (_: ScBlockExpr) & Parent(v: ScValueOrVariable) if member.is[ScTypeDefinition] =>
+        isSuitable(v)
       case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
         isToplevelOrInsideSuitableTypeDef(td)
       case _ => false
+
+  private def isLocalValOrVarWithBlockBodyInsideValOrVar(valueOrVariable: ScValueOrVariable): Boolean =
+    valueOrVariable match {
+      case valOrVarDef: ScValueOrVariableDefinition if valOrVarDef.expr.exists(_.is[ScBlockExpr]) =>
+        isInsideValOrVarBlock(valOrVarDef.getParent)
+      case _ =>
+        false
+    }
+
+  @tailrec
+  private def isInsideValOrVarBlock(element: PsiElement): Boolean =
+    element match {
+      case null | _: ScalaFile | _: ScFunction | _: ScTypeDefinition =>
+        false
+      case _: ScValueOrVariable =>
+        true
+      case _ =>
+        isInsideValOrVarBlock(element.getParent)
+    }
 }
