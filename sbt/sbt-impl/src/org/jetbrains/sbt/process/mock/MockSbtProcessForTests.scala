@@ -24,20 +24,29 @@ private[sbt] object MockSbtProcessForTests {
     val NoShellStdinMode = "no-shell-stdin"
     val OldShellMode = "old-shell"
     val NewShellMode = "new-shell"
+    val SlowShutdownReleaseFileProperty = "org.jetbrains.sbt.mock.process.slowShutdownReleaseFile"
+    val SlowShutdownStartedFileProperty = "org.jetbrains.sbt.mock.process.slowShutdownStartedFile"
   }
 
   final class MockProcessData private[sbt](
     private val classpath: Path,
     private val mainClass: String,
+    private val slowShutdownReleaseFile: Option[Path] = None,
+    private val slowShutdownStartedFile: Option[Path] = None,
   ) {
     def configureJavaParameters(params: JavaParameters): Unit = {
       params.getClassPath.clear()
       params.getClassPath.add(classpath.toString)
       params.setMainClass(mainClass)
+      slowShutdownVmOptions.foreach(params.getVMParametersList.add)
     }
 
     def mainClassCommandLineTail: Seq[String] =
-      Seq("-cp", classpath.toString, mainClass)
+      slowShutdownVmOptions ++ Seq("-cp", classpath.toString, mainClass)
+
+    private def slowShutdownVmOptions: Seq[String] =
+      slowShutdownReleaseFile.toSeq.map(path => s"-D${VmOptions.SlowShutdownReleaseFileProperty}=$path") ++
+        slowShutdownStartedFile.toSeq.map(path => s"-D${VmOptions.SlowShutdownStartedFileProperty}=$path")
   }
 
   def isEnabled(project: Project): Boolean =

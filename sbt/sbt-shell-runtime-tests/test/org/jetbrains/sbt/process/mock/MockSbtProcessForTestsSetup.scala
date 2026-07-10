@@ -25,6 +25,8 @@ private[sbt] object MockSbtProcessForTestsSetup {
   def enableMockSbtProcess(
     project: Project,
     parentDisposable: Disposable,
+    slowShutdownReleaseFile: Option[Path] = None,
+    slowShutdownStartedFile: Option[Path] = None,
   ): Unit = {
     assertUnitTestMode()
 
@@ -33,6 +35,8 @@ private[sbt] object MockSbtProcessForTestsSetup {
     val mockProcessData = new MockSbtProcessForTests.MockProcessData(
       classesPath,
       DefaultMainClass,
+      slowShutdownReleaseFile,
+      slowShutdownStartedFile,
     )
     project.putUserData(MockSbtProcessForTests.MockProcessDataProjectStateKey, mockProcessData)
     Disposer.register(parentDisposable, () => project.putUserData(MockSbtProcessForTests.MockProcessDataProjectStateKey, null))

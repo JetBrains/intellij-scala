@@ -39,7 +39,16 @@ public final class MockSbtProcess {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(
-                () -> Log.debugFinal("shutdown hook"),
+                () -> {
+                    try {
+                        waitForSlowShutdownReleaseFileIfConfigured();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } catch (IOException e) {
+                        Log.error("exception while waiting for slow shutdown release file: " + e);
+                    }
+                    Log.debugFinal("shutdown hook");
+                },
                 "MockSbtProcess-shutdown"
         ));
 
@@ -175,6 +184,34 @@ public final class MockSbtProcess {
         }
 
         Log.info(MockSbtProcessCommands.resumedAfterWaitingForFileOutput(file));
+    }
+
+    private static void waitForSlowShutdownReleaseFileIfConfigured() throws IOException, InterruptedException {
+        String releaseFileText = System.getProperty(MockSbtProcessCommands.SlowShutdownReleaseFileProperty);
+        if (releaseFileText == null || releaseFileText.trim().isEmpty()) {
+            return;
+        }
+
+        createMarkerFileIfConfigured(MockSbtProcessCommands.SlowShutdownStartedFileProperty);
+
+        Path releaseFile = Paths.get(releaseFileText);
+        while (!Files.exists(releaseFile)) {
+            Thread.sleep(50);
+        }
+    }
+
+    private static void createMarkerFileIfConfigured(String propertyName) throws IOException {
+        String fileText = System.getProperty(propertyName);
+        if (fileText == null || fileText.trim().isEmpty()) {
+            return;
+        }
+
+        Path file = Paths.get(fileText);
+        Path parent = file.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        Files.write(file, "started".getBytes(StandardCharsets.UTF_8));
     }
 
     private static Path extractStructureFile(String command) {
