@@ -70,6 +70,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
   def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
+    ProgressManager.checkCanceled()
     val tpe = treeIt.currentNodeType
 
     if (tpe == MarkdownTokenTypes.EOL) {
@@ -542,6 +543,7 @@ object ScaladocMarkdownParsing {
     var isInCodeBlock: Boolean = false
     val processedLines = Seq.newBuilder[(String, Int)]
     content.linesWithSeparators.foreach(line => {
+      ProgressManager.checkCanceled()
       val initialLength = line.length
       val trimmed = line.stripLeading
 
