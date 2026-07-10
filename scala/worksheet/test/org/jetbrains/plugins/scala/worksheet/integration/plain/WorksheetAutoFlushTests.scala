@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.junit.experimental.categories.Category
 import org.junit.{ComparisonFailure, Test}
 
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
@@ -23,7 +22,6 @@ class WorksheetPlainCompileLocallyRunLocallyAutoFlushTest extends WorksheetPlain
   override def runInCompileServerProcess = false
 }
 
-@Category(Array(classOf[FlakyTests]))
 abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
   @Test
   def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =
@@ -114,7 +112,7 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
 
     val rightExpectedStates = (states1 ++ states2).map(_.withNormalizedSeparator)
 
-    val viewerStates: Seq[ViewerEditorData] = runLongEvaluation(leftText).distinct
+    val viewerStates: Seq[ViewerEditorData] = runLongEvaluation(leftText, rightExpectedStates.last).distinct
 
     // Example:
     // ##### State #0:
@@ -180,7 +178,7 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
     builder.toString
   }
 
-  private def runLongEvaluation(leftText: String): Seq[ViewerEditorData] = {
+  private def runLongEvaluation(leftText: String, expectedFinalState: String): Seq[ViewerEditorData] = {
     val editorAndFile = prepareWorksheetEditor(leftText)
 
     val evaluationResult = waitForEvaluationEnd(runWorksheetEvaluation(editorAndFile))
@@ -190,7 +188,7 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
       .getOrElse(fail("no printer found").asInstanceOf[Nothing]).asInstanceOf[WorksheetEditorPrinterPlain]
     val viewer = WorksheetCache.getInstance(project).getViewer(editorAndFile.editor)
 
-    val viewerStates: Seq[ViewerEditorData] =
+    def collectViewerStates(): Seq[ViewerEditorData] =
       printer.viewerEditorStates.map { case ViewerEditorState(text, foldings) =>
         val foldingsConverted = foldings.map { case FoldingDataForTests(start, end, _, expanded) =>
           Folding(start, end, expanded)
@@ -198,6 +196,17 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
         ViewerEditorData(viewer, text, foldingsConverted)
       }.toSeq
 
-    viewerStates
+    // The evaluation Future is completed from `processTerminated` (see WorksheetCompilerLocalEvaluator),
+    // which can win a race against the terminal flush triggered by the EVALUATION_END marker line.
+    // On slower CI agents the last recorded viewer state can therefore still be an intermediate one
+    // (missing the final `resN: ...` line) at the instant the Future completes; the worksheet document
+    // is completed correctly a moment later. Wait for that final flush to be recorded before capturing
+    // the states, instead of snapshotting them the instant evaluation "ends".
+    AwaitTestUtils.waitForConditionDispatchingEdtEventsOrFail(
+      10.seconds,
+      "worksheet viewer did not reach the expected final evaluation state"
+    )(() => collectViewerStates().lastOption.map(renderViewerData).contains(expectedFinalState))
+
+    collectViewerStates()
   }
 }
