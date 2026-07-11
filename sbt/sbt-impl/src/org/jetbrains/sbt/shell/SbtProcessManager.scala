@@ -554,7 +554,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
     log.debug("destroyProcess start...")
 
     if (processDestroyInProgress.isDefined) {
-      log.debug("destroyProcess finish: destroy is already in progress")
+      // Destruction is already running (possibly on another thread).
+      // Do not block waiting for it to finish (that would refreeze the EDT and reintroduce the SCL-25654 deadlock).
+      // But a hard kill must still take effect:
+      // cancel the commands buffered for an in-progress soft restart so the shell does not come back after the current shutdown completes.
+      if (isSoft) {
+        log.debug("destroyProcess finish: destroy is already in progress")
+      } else {
+        log.debug("destroyProcess: hard kill while a shutdown is in progress, cancelling after-restart commands")
+        SbtShellCommunication.forProject(project).escalateShutdownToHardKill()
+      }
       return None
     }
 
