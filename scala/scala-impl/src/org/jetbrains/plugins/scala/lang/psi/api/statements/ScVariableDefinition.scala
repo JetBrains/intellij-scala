@@ -9,8 +9,6 @@ trait ScVariableDefinition extends ScVariable with ScValueOrVariableDefinition {
 
   override def declaredElements: Seq[ScBindingPattern] = bindings
 
-  override def isAbstract: Boolean = false
-
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitVariableDefinition(this)
   }
