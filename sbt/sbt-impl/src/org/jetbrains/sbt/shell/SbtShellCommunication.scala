@@ -237,9 +237,22 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    * are buffered in [[afterRestartCommands]] and later flushed to the standard [[commands]] queue.
    */
   private[shell] def initiateHardKill(): Unit = {
-    afterRestartCommands.terminateAllAndClear(terminateQueuedCommand)
+    escalateShutdownToHardKill()
     enterShuttingDownState()
   }
+
+  /**
+   * Escalates an already in-progress shutdown to a hard kill: terminates the commands currently buffered
+   * in [[afterRestartCommands]] so the shell does not restart after the shutdown completes.
+   *
+   * This is the buffer-cancelling half of [[initiateHardKill]] without the state transition: it is used
+   * when a hard `destroyProcess()` coalesces with a shutdown that is already running (typically a soft
+   * restart). The shell is already in [[ShellState.ShuttingDown]], so re-emitting
+   * [[ShellStateEvent.ShutdownRequested]] would be a prohibited transition. The gate is left open, matching
+   * [[initiateHardKill]], so commands submitted later during shutdown are still handled consistently.
+   */
+  private[shell] def escalateShutdownToHardKill(): Unit =
+    afterRestartCommands.terminateAllAndClear(terminateQueuedCommand)
 
   /** Terminates and removes all commands currently waiting in the [[commands]] queue. */
   private def terminatePendingCommands(): Unit = {
