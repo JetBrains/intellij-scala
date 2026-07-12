@@ -18,7 +18,9 @@ import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -67,13 +69,13 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
-        
+
     val changeInfo =
       ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, Some(mySpecifyTypeChb.isSelected))
 
     new ScalaChangeSignatureProcessor(changeInfo)
   }
-  
+
   override def createNorthPanel(): JComponent = {
     val panel = super.createNorthPanel()
     getMethodName match {
@@ -90,27 +92,27 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     val optionsPanel = new JPanel(new BorderLayout())
     val label = new JLabel(ScalaBundle.message("parameter.label.default.value"))
     defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
-  
+
     val holder = new JPanel()
     holder.add(label)
     holder.add(defaultValuesUsagePanel)
-  
+
     optionsPanel.add(holder)
     optionsPanel
   }
-  
+
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel() //to initialize fields in base class
-    
+
     val holder: JPanel = new JPanel
     holder.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0))
-    
+
     val specifyTypePanel = createTypePanel()
     panel.add(specifyTypePanel)
-    
+
     panel.setVisible(needSpecifyTypeChb)
     myPropagateParamChangesButton.setVisible(false)
-    
+
     panel
   }
 
@@ -183,7 +185,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   override def createReturnTypeCodeFragment(): PsiCodeFragment = {
     val text = method.returnTypeText
     val child = method.fun
-    val fragment = ScalaCodeFragment(text, child.getParent, child)
+    val fragment = ScalaCodeFragment(text, child)
     HighlightLevelUtil.forceRootHighlighting(fragment, FileHighlightingSetting.SKIP_HIGHLIGHTING)
     fragment
   }
@@ -227,12 +229,12 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     val paramsText = splittedItems.map(_.map(itemText).mkString("(", ", ", ")")).mkString
 
     val retTypeText = returnTypeText
-  
+
     val needType =
       if (!needSpecifyTypeChb) true
       else if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
       else needsTypeAnnotation(method, visibility)
-    
+
     val typeAnnot =
       if (retTypeText.isEmpty || !needType) ""
       else s": $retTypeText"
@@ -323,6 +325,20 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   def parametersTable: JBTable = Option(myParametersList).map(_.getTable).orNull
 
+  @TestOnly
+  def setReturnType(text: String): Unit =
+    inWriteAction {
+      myReturnTypeField.getDocument.setText(text)
+      myReturnTypeField.getDocument.commit(project)
+    }
+
+  @TestOnly
+  def setParameter(idx: Int, name: String, `type`: String): Unit = {
+    val row = myParametersTableModel.getRowValue(idx)
+    row.parameter.name = name
+    row.typeText = `type`
+  }
+
   protected def getDefaultValuesPanel: DefaultValuesUsagePanel = defaultValuesUsagePanel
 
   protected def isAddDefaultArgs: Boolean = getDefaultValuesPanel.isAddDefaultArgs
@@ -331,7 +347,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   protected def returnType: ScType =
     Option(myReturnTypeCodeFragment).flatMap { fragment =>
-      createTypeFromText(fragment.getText, fragment.getContext, fragment)
+      createTypeFromText(fragment.getText, fragment, fragment)
     }.getOrElse(api.Any)
 
   protected def splittedItems: Seq[Seq[ScalaParameterTableModelItem]] = {
@@ -345,6 +361,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         firstClause +: inner(rest)
       }
     }
+
     inner(parameterItems)
   }
 
@@ -466,10 +483,10 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     @nowarn("cat=deprecation")
     val buttonsPanel: JPanel =
       ToolbarDecorator.createDecorator(table)
-              .setMoveUpAction(upAction)
-              .setMoveDownAction(downAction)
-              .addExtraActions(createAddClauseButton(), createRemoveClauseButton())
-              .createPanel
+        .setMoveUpAction(upAction)
+        .setMoveDownAction(downAction)
+        .addExtraActions(createAddClauseButton(), createRemoveClauseButton())
+        .createPanel
     myParametersTableModel.addTableModelListener(mySignatureUpdater)
     buttonsPanel
   }
@@ -491,29 +508,29 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
-  
+
   private def createTypePanel(): JPanel = {
     val typePanel = new JPanel
     typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    
+
     mySpecifyTypeChb = new JCheckBox
     mySpecifyTypeChb.setText(ScalaBundle.message("specify.result.type"))
     mySpecifyTypeChb.setDisplayedMnemonicIndex(15)
 
     typePanel.add(mySpecifyTypeChb)
-    
+
     val myLinkContainer = new JPanel
     myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     typePanel.add(myLinkContainer)
-    
+
     myLinkContainer.add(setUpHyperLink())
-    
+
     setUpSpecifyTypeChb()
     setUpVisibilityListener()
-    
+
     typePanel
   }
-  
+
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
 
@@ -523,23 +540,23 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         updateSignatureAlarmFired()
       }
     })
-    
+
     link
   }
-  
+
   private def setUpVisibilityListener(): Unit = {
     myVisibilityPanel.addListener((_: ChangeEvent) => {
       mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
       updateSignatureAlarmFired()
     })
   }
-  
-  private def setUpSpecifyTypeChb(): Unit ={
+
+  private def setUpSpecifyTypeChb(): Unit = {
     mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
-    
+
     mySpecifyTypeChb.addActionListener((_: ActionEvent) => updateSignatureAlarmFired())
   }
-  
+
   class ScalaParametersListTable extends ParametersListTable {
     override protected def getRowRenderer(row: Int): JBTableRowRenderer = {
       (_: JTable, row: Int, selected: Boolean, focused: Boolean) => {
@@ -577,7 +594,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     }
 
     protected def typeText(item: ScalaParameterTableModelItem): String = {
-      val maxLength =parameterItems.map(_.typeText.length)
+      val maxLength = parameterItems.map(_.typeText.length)
         .maxOption.getOrElse(0)
       val typeText = item.typeText
       typeText + StringUtil.repeat(" ", maxLength - typeText.length)

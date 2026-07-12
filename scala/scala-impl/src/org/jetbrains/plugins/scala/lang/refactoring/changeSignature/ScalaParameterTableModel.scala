@@ -34,8 +34,8 @@ class ScalaParameterTableModel(typeContext: PsiElement,
   override def createRowItem(parameterInfo: ScalaParameterInfo): ScalaParameterTableModelItem = {
     val info = Option(parameterInfo).getOrElse(ScalaParameterInfo(project))
 
-    val paramTypeCodeFragment = ScalaCodeFragment(info.typeText(typeContext), typeContext.getParent, typeContext)
-    val defaultValueCodeFragment = ScalaCodeFragment(info.getDefaultValue, defaultValueContext.getParent, defaultValueContext)
+    val paramTypeCodeFragment = ScalaCodeFragment(info.typeText(typeContext), typeContext)
+    val defaultValueCodeFragment = ScalaCodeFragment(info.getDefaultValue, defaultValueContext)
 
     val fragments = Seq(paramTypeCodeFragment, defaultValueCodeFragment)
     codeFragments ++= fragments
