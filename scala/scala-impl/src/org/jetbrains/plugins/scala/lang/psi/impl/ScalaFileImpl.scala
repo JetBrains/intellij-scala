@@ -187,18 +187,9 @@ class ScalaFileImpl(
     ArraySeq.unsafeWrapArray(stub.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory))
   }
 
-  override def getPackageName: String = {
-    val name = packageName match {
-      case null => ""
-      case name => name
-    }
-
-    //related: https://youtrack.jetbrains.com/issue/SCL-20012/Scala3-Java-interop-add-static-forwarders-for-Scala-3-enums
-    //When we resolve reference to an enum to synthetic class (from Java code),
-    //annotator is unhappy that aforementioned class is "in an empty package".
-    if (name.isEmpty && ScalaPsiElementFactory.SyntheticFileKey.isIn(this))
-      "scala.synthetic.package"
-    else name
+  override def getPackageName: String = packageName match {
+    case null => ""
+    case name => name
   }
 
   private def packageName: String = {
