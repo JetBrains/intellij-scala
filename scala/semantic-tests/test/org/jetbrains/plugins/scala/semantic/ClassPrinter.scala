@@ -2,7 +2,7 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -254,6 +254,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
                 else m.qualifiedNameOpt.getOrElse(r.refName)
               case _ => r.refName
             }
+            case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
             case _ => r.refName
           }
           r.bind() match {
