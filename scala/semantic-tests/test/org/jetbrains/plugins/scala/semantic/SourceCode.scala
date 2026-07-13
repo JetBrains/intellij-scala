@@ -355,6 +355,10 @@ object SourceCode {
               printTree(tree)
             else
               tree match {
+                case Block(init :+ (last: Term), Literal(UnitConstant())) if isConstructor => indented {
+                  this += lineBreak()
+                  printTree(Block(init, last))
+                }
                 case Block(statements, _) if statements.nonEmpty && (statements match { case List(ClassDef("$anon", _, _, _, _)) => false; case _ => true }) && !statements.forall { case Import(_, _) => true; case _ => false } =>
                   printTree(tree)
                 case _ => indented {
