@@ -343,7 +343,7 @@ object SourceCode {
         for clause <-  paramss do
           clause match
             case TermParamClause(params) => printMethdArgsDefs(params)
-            case TypeParamClause(params) => printTargsDefs(params.zip(params))
+            case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params))
         if (!isConstructor) {
           this += ": "
           printTypeTree(tpt)
@@ -434,7 +434,7 @@ object SourceCode {
       case Apply(fn, args) =>
         var argsPrefix = ""
         fn match {
-          case Select(This(_), "<init>") => this += "this" // call to constructor inside a constructor
+          case Select(This(_), "<init>") | TypeApply(Select(This(_), "<init>"), _) => this += "this" // call to constructor inside a constructor
           case Select(qual, "apply") =>
             if qual.tpe.isContextFunctionType then
               argsPrefix += "using "
