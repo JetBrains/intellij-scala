@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -33,6 +33,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
  *                 (calculated in [[PsiClassExt.processWrappersForSignature]] in `concreteClassFor`)
  *               - Secondary scala constructors
  *
+ * @param substitutor member type substitution as seen from the class where this method is materialized
+ *
  */
 class ScFunctionWrapper(
   override val delegate:     ScFunction,
@@ -40,6 +42,7 @@ class ScFunctionWrapper(
   isAbstract:                Boolean,
   val isExportForwarder:     Boolean,
   private[scala] val cClass: Option[PsiClass],
+  substitutor:               ScSubstitutor,
   isJavaVarargs:             Boolean = false
 ) extends PsiMethodWrapper(
   delegate,
@@ -76,27 +79,23 @@ class ScFunctionWrapper(
   override protected def parameters: Seq[PsiParameter] =
     delegate.parameterClausesWithExtension()
       .flatMap(_.effectiveParameters)
-      .map(ScLightParameter.from(_, superSubstitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))
+      .map(ScLightParameter.from(_, substitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))
 
   override protected def typeParameters: Seq[PsiTypeParameter] =
-    delegate.typeParameters.map(new ScLightTypeParam(_, superSubstitutor))
+    delegate.typeParameters.map(new ScLightTypeParam(_, substitutor))
 
   override protected def returnScType: ScType = {
     val isConstructor = delegate.isConstructor
     if (isConstructor) null
     else {
       val originalReturnType = delegate.returnType.getOrAny
-      superSubstitutor.followed(methodTypeParamsSubstitutor)(originalReturnType)
+      val inheritedReturnType = PsiMethodWrapper.substituteReturnType(
+        originalReturnType,
+        substitutor,
+        isInheritedStaticForwarder = isStatic && cClass.nonEmpty
+      )
+      methodTypeParamsSubstitutor(inheritedReturnType)
     }
-  }
-
-  private def superSubstitutor: ScSubstitutor = cClass match {
-    case Some(td: ScTypeDefinition) =>
-      td.methodsByName(delegate.name).find(_.method == delegate) match {
-        case Some(sign) => sign.substitutor
-        case _ => ScSubstitutor.empty
-      }
-    case _ => ScSubstitutor.empty
   }
 
   private def methodTypeParamsSubstitutor: ScSubstitutor =
@@ -125,6 +124,7 @@ class ScFunctionWrapper(
           isAbstract = f.isAbstractMember,
           isExportForwarder = superSig.exportedInfo.isDefined,
           cClass = None,
+          substitutor = superSig.substitutor,
           isJavaVarargs = isJavaVarargs
         )
       case m => m
@@ -146,6 +146,7 @@ class ScFunctionWrapper(
       isAbstract = isAbstract,
       isExportForwarder = isExportForwarder,
       cClass = cClass,
+      substitutor = substitutor,
       isJavaVarargs = isJavaVarargs
     )
 }

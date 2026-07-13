@@ -1205,7 +1205,8 @@ package object extensions {
             isStatic          = isStatic,
             isAbstract        = fun.isAbstractMember,
             isExportForwarder = signature.exportedInfo.isDefined,
-            cClass            = concreteClassFor(fun)
+            cClass            = concreteClassFor(fun),
+            substitutor       = signature.substitutor
           )
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
@@ -1235,7 +1236,8 @@ package object extensions {
             isStatic,
             isInterface,
             processMethod,
-            processName
+            processName,
+            substitutor = signature.substitutor
           )
         case _ =>
       }
