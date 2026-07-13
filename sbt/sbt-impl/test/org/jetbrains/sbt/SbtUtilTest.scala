@@ -106,8 +106,8 @@ class SbtUtilTest extends UsefulTestCase {
     assertEquals(SbtVersion.Latest.Sbt_LatestIncludingUnreleased, upgradeSbtVersionToTheLatestCompatible(SbtVersion.Latest.Sbt_LatestIncludingUnreleased))
 
     assertEquals(SbtVersion("1.9001.1"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("1.9001.1")))
-    assertEquals(SbtVersion("2.0.0"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
-    assertEquals(SbtVersion("2.0.0"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0")))
+    assertEquals(SbtVersion.Latest.Sbt_2, upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
+    assertEquals(SbtVersion.Latest.Sbt_2, upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0")))
   }
 
   @Test
