@@ -98,6 +98,37 @@ class ScalaOverridingMemberSearcherTest extends ScalaOverridingMemberSearcherTes
     )
   )
 
+  //SCL-19720
+  def test_mixed_in_method_is_not_an_implementation(): Unit = check(
+    """
+      |trait Base {
+      |  def test(): Unit
+      |}
+      |
+      |trait Mixin {
+      |  def test(): Unit = ()
+      |}
+      |
+      |class Impl extends Base with Mixin
+    """.stripMargin,
+    path("Base", "test"),
+    Seq.empty
+  )
+
+  def test_selftype_refinement_is_not_an_implementation(): Unit = check(
+    """
+      |trait Base {
+      |  def test(): Unit
+      |}
+      |
+      |trait Impl {
+      |  this: Base { def test(): Unit } =>
+      |}
+    """.stripMargin,
+    path("Base", "test"),
+    Seq.empty
+  )
+
   def test_selftype_override(): Unit = check(
     """
       |trait Trait {

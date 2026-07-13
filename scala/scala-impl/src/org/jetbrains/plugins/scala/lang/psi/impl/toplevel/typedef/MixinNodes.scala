@@ -4,6 +4,7 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.{MapImpl, SuperTypesData, extractClassOrUpperBoundClass}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.{MapImpl, SourceKind, SuperTypesData, extractClassOrUpperBoundClass}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, TypeParameterType}
@@ -61,13 +62,14 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     if (!clazz.isValid) MixinNodes.emptyMap[T]
     else {
       def build0: MapImpl[T] = {
-        val map = new MapImpl[T]
+        val templateDefinitionOpt = Option(clazz).collect { case td: ScTemplateDefinition => td }
+        val map = new MapImpl[T](templateDefinitionOpt)
 
         if (withSupers) {
-          addSuperSignatures(SuperTypesData(clazz), map)
+          addSuperSignatures(SuperTypesData(clazz), map, SourceKind.NominalSuper)
         }
 
-        map.supersFinished()
+        map.supersFinished(templateDefinitionOpt)
 
         signatureCollector.processPsiClass(clazz, subst, map)
         map.sigsFinished()
@@ -99,22 +101,28 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
   }
 
   def build(cp: ScCompoundType, compoundThisType: Option[ScType]): Map = {
-    val map = new MapImpl[T]
+    val map = new MapImpl[T](None)
 
+    // Keep the refinement in both halves of the member graph, as before signature-origin tracking was added.
+    // Refinement members are type-level requirements, not implementation sources.
+    map.useSource(SourceKind.RefinementSuper)
     cp match {
       case comp: ScCompoundType => signatureCollector.processRefinement(comp, map)
       case _                    => ()
     }
 
-    addSuperSignatures(SuperTypesData(cp, compoundThisType), map)
+    // Compound/self-type expansion contributes inherited members applicable via self-type constraints.
+    addSuperSignatures(SuperTypesData(cp, compoundThisType), map, SourceKind.SelfTypeSuper)
     map.supersFinished()
 
+    map.useSource(SourceKind.Refinement)
     signatureCollector.processRefinement(cp, map)
     map.sigsFinished()
     map
   }
 
-  private def addSuperSignatures(superTypesData: SuperTypesData, map: Map): Unit = {
+  private def addSuperSignatures(superTypesData: SuperTypesData, map: MapImpl[T], sourceKind: SourceKind): Unit = {
+    map.useSource(sourceKind)
 
     for ((superClass, subst) <- superTypesData.substitutors) {
       signatureCollector.processPsiClass(superClass, subst, map)
@@ -126,7 +134,73 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
   }
 }
 
+/**
+ * Companion internals for [[MixinNodes]]:
+ *   - signature-origin model ([[SourceKind]])
+ *   - node/map containers and merge utilities
+ *   - type linearization and "as seen from" substitution helpers
+ *
+ * This object centralizes algorithms that transform raw collected signatures into inheritance-aware lookup structures.
+ */
 object MixinNodes {
+  /**
+   * Describes how a signature node entered the merged signatures map.
+   *
+   * The signature origin distinguishes source-level implementation members from inherited or type-level members.
+   * In particular, a member supplied through a satisfied self-type is a valid implementation source, while a
+   * nominally inherited, refinement, or refinement-super member is not.
+   */
+  sealed trait SourceKind {
+    /**
+     * Whether the signature was collected while processing a supertype or a refinement-super pass.
+     */
+    final def fromSuper: Boolean = this match {
+      case SourceKind.NominalSuper | SourceKind.SelfTypeSuper | SourceKind.RefinementSuper => true
+      case SourceKind.Declared | SourceKind.Exported | SourceKind.Refinement => false
+    }
+
+    /**
+     * Whether the signature may be reported as a source-level implementation by the overriding-member search.
+     */
+    final def isAllowedImplementationSource: Boolean = this match {
+      case SourceKind.Declared | SourceKind.Exported | SourceKind.SelfTypeSuper => true
+      case SourceKind.NominalSuper | SourceKind.RefinementSuper | SourceKind.Refinement => false
+    }
+  }
+
+  object SourceKind {
+    /** Members declared directly in the current class or template. */
+    case object Declared extends SourceKind
+
+    /** Members exposed by an export clause declared in the current class or template. */
+    case object Exported extends SourceKind
+
+    /** Members inherited through the nominal parent-type linearization. */
+    case object NominalSuper extends SourceKind
+
+    /** Members supplied by a template whose self-type is satisfied by the current class. */
+    case object SelfTypeSuper extends SourceKind
+
+    /** Members collected from a refinement during the super-signature pass. */
+    case object RefinementSuper extends SourceKind
+
+    /** Members declared by the final refinement pass of a compound type. */
+    case object Refinement extends SourceKind
+
+    /**
+     * Combines signature origins when conflicting inherited signatures are represented by one intersected node.
+     *
+     * [[AllNodes.merge]] can combine signatures from different branches of a compound or intersection type.
+     * The resulting node must retain [[SelfTypeSuper]] if either contribution came through a satisfied self-type,
+     * because that origin makes the member eligible for implementation search. If neither contribution has
+     * that origin, the combined signature is treated as an ordinary inherited member and remains ineligible.
+     * The self-type signature origin therefore takes precedence; otherwise the result is [[NominalSuper]].
+     */
+    def mergedSuperKind(left: SourceKind, right: SourceKind): SourceKind =
+      if (left == SelfTypeSuper || right == SelfTypeSuper) SelfTypeSuper
+      else NominalSuper
+  }
+
   val currentlyProcessedSigs: UnloadableThreadLocal[JMap[PsiClass, Map[TermSignature]]] =
     new UnloadableThreadLocal(new JMap)
 
@@ -227,7 +301,7 @@ object MixinNodes {
    * @param info collected signature info ([[types.Signature]])
    * @param sourceKind how the signature was collected ([[SourceKind]])
    */
-  class Node[T](val info: T, val fromSuper: Boolean) {
+  class Node[T](val info: T, val sourceKind: SourceKind) {
     private[this] var _concreteSuper: Node[T] = _
     private[this] var _supers: Seq[Node[T]] = Vector.empty
 
@@ -240,6 +314,21 @@ object MixinNodes {
     }
 
     private[MixinNodes] def concreteSuper: Option[Node[T]] = Option(_concreteSuper)
+
+    /**
+     * Whether this node was collected from a supertype or refinement-super pass.
+     *
+     * This controls whether [[Map.nodesIterator]] exposes the node itself or follows its primary super node.
+     */
+    def fromSuper: Boolean = sourceKind.fromSuper
+
+    /**
+     * Whether this node represents an allowed source-level implementation for overriding-member search.
+     *
+     * Direct declarations, exports, and satisfied-self-type members are allowed; nominally inherited and
+     * refinement-only members are filtered out.
+     */
+    def isAllowedImplementationSource: Boolean = sourceKind.isAllowedImplementationSource
 
     def supers: Seq[Node[T]] = _supers
     def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
@@ -288,26 +377,143 @@ object MixinNodes {
     def implicitNames: SmartHashSet[String]
   }
 
-  class MapImpl[T <: Signature] extends Map[T] {
+  /**
+   * Mutable [[Map]] implementation used while a [[MixinNodes]] builder collects signatures.
+   *
+   * Signature processors add members through [[SignatureSink.put]] while the map tracks the current [[SourceKind]].
+   * Supertype and direct-signature buckets are merged by [[forName]] into the inheritance graph, preserving the
+   * signature origin on each [[Node]].
+   * Callers should finish the collection with [[sigsFinished]] so completed name lookups can be cached.
+   */
+  class MapImpl[T <: Signature](private val currentClass: Option[ScTemplateDefinition]) extends Map[T] {
     override val allNames: util.HashSet[String] = new util.HashSet[String]
     override val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
 
-    private val thisSignaturesByName: JMap[String, JList[T]] = new JMap()
-    private val supersSignaturesByName: JMap[String, JList[T]] = new JMap()
+    private case class StoredSignature(signature: T, sourceKind: SourceKind)
 
-    private var fromSuper: Boolean                  = true
+    private val thisSignaturesByName: JMap[String, JList[StoredSignature]] = new JMap()
+    private val supersSignaturesByName: JMap[String, JList[StoredSignature]] = new JMap()
+
+    // The fields below are mutable because one map is populated across source phases;
+    // they track the current phase, declared owner, completion state, and cache state.
+    private var currentSourceKind: SourceKind = SourceKind.NominalSuper
+    private var declaredOwnerClass: Option[ScTemplateDefinition] = None
     private var finishedBuildingSignatures: Boolean = false
 
-    def supersFinished(): Unit = fromSuper                = false
+    private val selfTypeOwnerMatchCache = mutable.HashMap.empty[PsiClass, Boolean]
+
+    // Declared source is used after super signatures are collected.
+    // Optional owner class lets us classify export-origin signatures precisely for the current class only.
+    def supersFinished(ownerClass: Option[ScTemplateDefinition] = None): Unit =
+      useDeclaredSource(ownerClass)
+
+    def useSource(sourceKind: SourceKind): Unit = {
+      currentSourceKind = sourceKind
+      if (sourceKind != SourceKind.Declared) {
+        declaredOwnerClass = None
+      }
+    }
+
+    def useDeclaredSource(ownerClass: Option[ScTemplateDefinition] = None): Unit = {
+      currentSourceKind = SourceKind.Declared
+      declaredOwnerClass = ownerClass
+    }
+
     def sigsFinished(): Unit = finishedBuildingSignatures = true
+
+    private def classifySource(signature: T): SourceKind =
+      currentSourceKind match {
+        // Self-typed templates mixed into this class are semantically implementation sources for this inheritor.
+        // Classify them during signature collection, so searchers can avoid per-inheritor reverse index lookups.
+        case SourceKind.NominalSuper if isSatisfiedSelfTypeSuper(signature) =>
+          SourceKind.SelfTypeSuper
+        // Exported signatures should be treated as source-level implementation members when their export clause
+        // belongs to the current class, not to an ancestor export.
+        case SourceKind.Declared if declaredOwnerClass.exists { owner =>
+          signature.exportedInCls.exists(ScEquivalenceUtil.areClassesEquivalent(_, owner))
+        } =>
+          SourceKind.Exported
+        case other =>
+          other
+      }
+
+    private def isSatisfiedSelfTypeSuper(signature: T): Boolean =
+      currentClass.exists(isSatisfiedSelfTypeSuper(signature, _))
+
+    /**
+     * Checks whether `signature` belongs to a template whose self-type is satisfied by `inheritor`.
+     *
+     * Signatures from nominal supers are normally classified as [[SourceKind.NominalSuper]].
+     * However, a template can contribute an implementation through a self-type without being a nominal parent of the inheritor.
+     * This method:
+     *  1. finds the signature owner
+     *  1. recursively checks all components of its self-type against `inheritor`,
+     *  1. and lets [[classifySource]] reclassify a match as [[SourceKind.SelfTypeSuper]].
+     *
+     * That distinction is needed by implementation search: self-type implementations are valid targets,
+     * while ordinary inherited and Scala 2 mixed-in members copied into the inheritor must remain filtered out.
+     *
+     * Results are cached per owner because many signatures can come from the same self-typed template.
+     */
+    private def isSatisfiedSelfTypeSuper(signature: T, currentClass: ScTemplateDefinition): Boolean = {
+      def selfTypeIsSatisfiedByCurrentClass(tp: ScType): Boolean = tp match {
+        case compound: ScCompoundType =>
+          compound.components.forall(selfTypeIsSatisfiedByCurrentClass)
+        case _ =>
+          tp.extractClass.exists { clazz =>
+            val areEquivalent = ScEquivalenceUtil.areClassesEquivalent(clazz, currentClass)
+            areEquivalent || currentClass.isInheritor(clazz, true)
+          }
+      }
+
+      val containingClass = signatureContainingClass(signature)
+      containingClass.exists { ownerClass =>
+        selfTypeOwnerMatchCache.getOrElseUpdate(ownerClass, ownerClass match {
+          case ownerTemplate: ScTemplateDefinition if ownerTemplate.selfTypeElement.nonEmpty =>
+            ownerTemplate.selfType.exists(selfTypeIsSatisfiedByCurrentClass)
+          case _ =>
+            false
+        })
+      }
+    }
+
+    private def signatureContainingClass(signature: T): Option[PsiClass] = {
+      val namedElement = signature.namedElement
+
+      // There is no single containing-class API for all signatures: namedElement is deliberately only a
+      // PsiNamedElement and may be a Java member, a Scala member, or a named PSI element nested in another node.
+      // A PsiMethod's direct owner is the most reliable source for Java methods and Scala light methods.
+      val methodContainingClass = namedElement match {
+        case method: PsiMethod => Option(method.containingClass)
+        case _                 => None
+      }
+
+      val ownerClassOpt = methodContainingClass
+        .orElse {
+          // For a Scala source member, `nameContext` points to the ScMember that owns the declaration,
+          // which is not necessarily exposed through the PsiMethod API. For example, for `def test` in
+          // `trait Impl { this: Trait => def test(): Unit = () }`, `nameContext` identifies the `ScFunction`
+          // declared in `Impl`, and this call returns `Some(Impl)`. The result is then used to inspect
+          // `Impl.selfType` and decide whether its implementation is applicable to the current class.
+          namedElement.containingClassOfNameContext
+        }
+        .orElse {
+          // nameContext is not always a PsiMember (for example, a named element can be nested in a refinement or another PSI wrapper).
+          // In those cases the enclosing PsiClass is available only through the parent chain.
+          Option(PsiTreeUtil.getParentOfType(namedElement, classOf[PsiClass], false))
+        }
+
+      ownerClassOpt
+    }
 
     override def put(signature: T): Unit = {
       val name = signature.name
+      val sourceKind = classifySource(signature)
       val buffer =
-        if (fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
-        else           thisSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
+        if (sourceKind.fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[StoredSignature])
+        else                      thisSignaturesByName.computeIfAbsent(name, _ => new SmartList[StoredSignature])
 
-      buffer.add(signature)
+      buffer.add(StoredSignature(signature, sourceKind))
 
       allNames.add(name)
 
@@ -318,8 +524,8 @@ object MixinNodes {
     override def forName(name: String): AllNodes[T] = {
       val cleanName = ScalaNamesUtil.clean(name)
       def calculate: AllNodes[T] = {
-        val thisSignatures  = thisSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
-        val superSignatures = supersSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
+        val thisSignatures  = thisSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[StoredSignature])
+        val superSignatures = supersSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[StoredSignature])
         merge(thisSignatures, superSignatures)
       }
 
@@ -330,13 +536,14 @@ object MixinNodes {
       } else calculate
     }
 
-    private def merge(thisSignatures: JList[T], superSignatures: JList[T]): AllNodes[T] = {
+    private def merge(thisSignatures: JList[StoredSignature], superSignatures: JList[StoredSignature]): AllNodes[T] = {
       val nodesMap = NodesMap.empty[T]
       val privates = PrivateNodes.empty[T]
 
-      thisSignatures.forEach { thisSig =>
+      thisSignatures.forEach { storedSig =>
+        val thisSig = storedSig.signature
 
-        val node = new Node(thisSig, fromSuper = false)
+        val node = new Node(thisSig, storedSig.sourceKind)
 
         if (thisSig.isPrivate) {
           privates.add(node)
@@ -353,8 +560,9 @@ object MixinNodes {
         }
       }
 
-      superSignatures.forEach { superSig =>
-        val superNode = new Node(superSig, fromSuper = true)
+      superSignatures.forEach { storedSig =>
+        val superSig = storedSig.signature
+        val superNode = new Node(superSig, storedSig.sourceKind)
         if (superSig.isPrivate) {
           privates.add(superNode)
         }
@@ -406,7 +614,7 @@ object MixinNodes {
     override def put(signature: T): Unit = ()
   }
 
-  def emptyMap[T <: Signature]: MixinNodes.Map[T] = new MixinNodes.MapImpl[T]
+  def emptyMap[T <: Signature]: MixinNodes.Map[T] = new MixinNodes.MapImpl[T](None)
 
   class AllNodes[T <: Signature](private val publics: NodesMap[T], private val privates: PrivateNodes[T]) {
 
@@ -459,7 +667,10 @@ object MixinNodes {
                     val intersectedSig =
                       sig.copy(substitutor = combinedSubst, intersectedReturnType = intersectedReturnType.toOption)
 
-                    new Node(intersectedSig, fromSuper = true).asInstanceOf[Node[T]]
+                    // Intersected signatures are inherited combinations; they remain "super" entries.
+                    // Preserve the self-type signature origin so navigation can treat self-type-derived implementations as valid.
+                    val mergedSourceKind = SourceKind.mergedSuperKind(oldNode.sourceKind, node.sourceKind)
+                    new Node(intersectedSig, mergedSourceKind).asInstanceOf[Node[T]]
                   }
                 case _ => oldNode
               }

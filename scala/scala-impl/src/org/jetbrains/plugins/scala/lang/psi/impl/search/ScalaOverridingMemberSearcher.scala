@@ -103,6 +103,9 @@ object ScalaOverridingMemberSearcher {
     }
 
     val buffer = mutable.Set.empty[PsiNamedElement]
+    // The same class may be observed more than once across different inheritor sources
+    // (e.g. normal inheritors + self-type inheritors branch). Process each class once per search call.
+    val processedInheritors = mutable.HashSet.empty[PsiClass]
 
     def process(inheritor: PsiClass): Boolean = {
       inReadAction {
@@ -110,10 +113,15 @@ object ScalaOverridingMemberSearcher {
       }
     }
 
+    def processOnce(inheritor: PsiClass): Boolean = {
+      if (processedInheritors.add(inheritor)) process(inheritor)
+      else true
+    }
+
     var break = false
     for (inheritor <- inheritors if !break) {
       ProgressManager.checkCanceled()
-      break = !process(inheritor)
+      break = !processOnce(inheritor)
     }
 
     if (withSelfType) {
@@ -121,7 +129,7 @@ object ScalaOverridingMemberSearcher {
       break = false
       for (inheritor <- inheritors if !break) {
         ProgressManager.checkCanceled()
-        break = !process(inheritor)
+        break = !processOnce(inheritor)
       }
     }
 
@@ -153,6 +161,42 @@ object ScalaOverridingMemberSearcher {
     }
   }
 
+  /**
+   * Collects overriding members of `originalMember` for a single `inheritor`.
+   *
+   * For term members, only members with a source-level implementation origin are collected:
+   *  - members defined directly in `inheritor`,
+   *  - exported members physically declared in `inheritor`,
+   *  - members defined in templates that are applicable through inheritor self-type constraints.
+   *
+   * Members copied into an inheritor by Scala 2 mixin composition, including self-type mixins, are excluded
+   * unless the inheritor has its own source-level declaration. The Scala 2 compiler physically copies
+   * implementations from mixed-in definitions, so those copied members must not be mistaken for declarations
+   * owned by the inheritor.
+   *
+   * For example, when searching for implementations of `Base.run`, the marked members are handled as follows:
+   * {{{
+   * trait Base { def run(): Unit }
+   *
+   * class Direct extends Base {
+   *   override def run(): Unit = () // included: declared directly in Direct
+   * }
+   *
+   * trait SelfTyped { this: Base =>
+   *   override def run(): Unit = () // included: SelfTyped's self-type is satisfied by DirectSelfType
+   * }
+   * class DirectSelfType extends Base with SelfTyped
+   *
+   * trait Mixin { def run(): Unit = () }
+   * class Exported extends Base {
+   *   val delegate: Mixin = new Mixin {}
+   *   export delegate.run // included: export declared in Exported
+   * }
+   * class MixedInOnly extends Base with Mixin // excluded: inherited mixed-in member
+   * }}}
+   *
+   * @return `false` when search should stop early (`deep = false` and a match was found), otherwise `true`.
+   */
   private def processImpl(
     inheritor: PsiClass,
     originalMember: PsiNamedElement,
@@ -190,21 +234,26 @@ object ScalaOverridingMemberSearcher {
         if (!continue)
           return false
       case _: PsiNamedElement =>
-        val signatures =
+        val signatures: TypeDefinitionMembers.TermNodes.Map =
           if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(inheritor)
           else TypeDefinitionMembers.getSignatures(inheritor)
-        val signsIterator = signatures.forName(originalMember.name).nodesIterator
+        val originalMemberName = Option(originalMember.name) match {
+          case Some(value) => value
+          case _ =>
+            return true
+        }
+        val signsIterator = signatures.forName(originalMemberName).nodesIterator
         while (signsIterator.hasNext) {
           val node = signsIterator.next()
-          val parentClass = PsiTreeUtil.getParentOfType(node.info.namedElement, classOf[PsiClass])
 
-          // Treat the signature as overriding only if the member is syntactically defined in the class we are processing ("inheritor")
-          // Inherited/mixed-in methods are filtered out.
-          // Exported members are considered as implementations as they have physical export statement in the code
+          // Keep only source-level implementation origins: Declared, Exported, and SelfTypeSuper.
+          // Reject NominalSuper to avoid mixed-in fallback targets.
+          // This shifts filtering from reverse self-type index lookups on each inheritor to the already-computed
+          // signature origin of each node.
           //
           // NOTE: For a java version of the searcher a similar filtering is done in `ScTypeDefinitionImpl.psiMethods`
           // It's not a direct alternative, but still it's related.
-          if (parentClass == inheritor || node.info.exportedInCls.contains(inheritor)) {
+          if (node.isAllowedImplementationSource) {
             val supersIterator = node.supers.iterator
             while (supersIterator.hasNext) {
               val s = supersIterator.next()

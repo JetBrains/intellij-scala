@@ -219,4 +219,41 @@ class GoToImplementationTest extends GoToTestBase {
        |}
       """.stripMargin
   )
+
+  //SCL-25367
+  def testSCL25367_SelfTypeOverride_ConcreteClass(): Unit = doTest(
+    s"""
+       |abstract class AbstractBaseClass {
+       |  def submitBtn$CARET: Option[String]
+       |}
+       |
+       |final class ConcreteClass extends AbstractBaseClass with ConcreteClass.Elements
+       |
+       |object ConcreteClass {
+       |  sealed trait Elements {
+       |    this: ConcreteClass =>
+       |
+       |    ${START}override def submitBtn: Option[String] = Some("Submit")$END
+       |  }
+       |}
+      """.stripMargin
+  )
+
+  def testSCL25367_SelfTypeOverride_BaseClass(): Unit = doTest(
+    s"""
+       |abstract class AbstractBaseClass {
+       |  def submitBtn$CARET: Option[String]
+       |}
+       |
+       |final class ConcreteClass extends AbstractBaseClass with ConcreteClass.Elements
+       |
+       |object ConcreteClass {
+       |  sealed trait Elements {
+       |    this: AbstractBaseClass =>
+       |
+       |    ${START}override def submitBtn: Option[String] = Some("Submit")$END
+       |  }
+       |}
+      """.stripMargin
+  )
 }
