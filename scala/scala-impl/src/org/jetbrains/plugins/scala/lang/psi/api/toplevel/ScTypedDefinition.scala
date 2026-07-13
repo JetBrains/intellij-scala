@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
@@ -31,11 +32,23 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     case _ => true
   }
 
-  def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = _getTypedDefinitionWrapper(isStatic, isAbstract, role, cClass)
+  def getTypedDefinitionWrapper(
+    isStatic: Boolean,
+    isAbstract: Boolean,
+    role: DefinitionRole,
+    cClass: Option[PsiClass] = None,
+    substitutor: ScSubstitutor = ScSubstitutor.empty
+  ): PsiTypedDefinitionWrapper =
+    _getTypedDefinitionWrapper(isStatic, isAbstract, role, (cClass, substitutor))
 
-  private val _getTypedDefinitionWrapper = cached("getTypedDefinitionWrapper", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass]) => {
-    new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
-  })
+  private val _getTypedDefinitionWrapper = cached(
+    "getTypedDefinitionWrapper",
+    BlockModificationTracker(this),
+    (isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, context: (Option[PsiClass], ScSubstitutor)) => {
+      val (cClass, substitutor) = context
+      new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass, substitutor)
+    }
+  )
 
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = _getStaticTypedDefinitionWrapper(role, cClass)
 
