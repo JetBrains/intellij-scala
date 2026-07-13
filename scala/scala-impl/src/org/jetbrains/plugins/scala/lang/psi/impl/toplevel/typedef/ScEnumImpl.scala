@@ -2,16 +2,19 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum}
+import org.jetbrains.plugins.scala.lang.psi.light.ScLightEnumConstant
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 
@@ -23,6 +26,23 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override def cases: Seq[ScEnumCase] =
     extendsBlock.cases.flatMap(_.declaredElements)
+
+  override def isEnum: Boolean = ScEnum.isJavaCompatible(this)
+
+  private val getJavaEnumConstants: () => Array[PsiField] =
+    cached("getJavaEnumConstants", BlockModificationTracker(this), () => {
+      if (isEnum) {
+        val singletons = cases.collect {
+          case singletonCase: ScEnumSingletonCase => new ScLightEnumConstant(singletonCase, this)
+        }
+        singletons.toArray
+      } else {
+        PsiField.EMPTY_ARRAY
+      }
+    })
+
+  override def psiFields: Array[PsiField] =
+    super.psiFields ++ getJavaEnumConstants()
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, oldState: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     val continue = cases.forall { aCase =>
