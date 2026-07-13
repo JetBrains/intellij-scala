@@ -83,10 +83,6 @@
         <module name="scalaCommunity.properties"/>
         <module name="scalaCommunity.textAnalysis"/>
         <module name="scalaCommunity.intelliLang"/>
-        <module name="scalaCommunity.repository-search.common"/>
-        <module name="scalaCommunity.repository-search.kt"/>
-        <module name="scalaCommunity.repository-search.sbt"/>
-        <module name="scalaCommunity.repository-search.scalaDirective"/>
     </content>
 
     <xi:include href="/META-INF/sbt-api.xml"/>

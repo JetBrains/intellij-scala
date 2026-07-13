@@ -56,12 +56,6 @@ trait ScalaBundleCoverageTestBase  {
 
 final class ScalaBundleCoverageTest extends ScalaBundleCoverageTestBase {
   override val root: Path = ScalaBundleSorting.communityDir
-  override val ignoreRoots: Seq[Path] = Seq(
-    ScalaBundleSorting.integrationDir / "packagesearch",
-
-    // TODO: support root files in usages.
-    //  E.g.: the module has an `idePackagePrefix` and the usage is inside this package, not in a subpackage
-    ScalaBundleSorting.integrationDir / "repository-search" / "common",
-  )
+  override val ignoreRoots: Seq[Path] = Seq(ScalaBundleSorting.integrationDir / "packagesearch")
   override val definedModuleInfos: Seq[ScalaBundleSorting.ModuleWithBundleInfo] = ScalaBundleSorting.allModuleInfos
 }

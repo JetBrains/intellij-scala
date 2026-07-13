@@ -113,10 +113,6 @@ lazy val scalaCommunity: sbt.Project =
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
-      repositorySearchIntegrationCommon % "test->test;compile->compile",
-      repositorySearchIntegrationKt % "test->test;compile->compile",
-      repositorySearchIntegrationSbt % "test->test;compile->compile",
-      repositorySearchIntegrationScalaDirective % "test->test;compile->compile",
       kotlinUtils % "test->test;compile->compile",
       structuralSearch % "test->test;compile->compile",
       scalaLanguageUtils % "test->test;compile->compile",
@@ -1314,62 +1310,6 @@ lazy val featuresTrainerIntegration =
 //      resolvers += MavenRepository("intellij-repository-snapshots", "https://www.jetbrains.com/intellij-repository/snapshots"),
 //      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
 //    )
-
-lazy val reposearchPlugin: Setting[?] = intellijPlugins += "org.jetbrains.idea.reposearch".toPlugin
-
-lazy val commonRepositorySearchSettings: Seq[Setting[?]] = Seq(
-  scalaVersion := Versions.scala3Version,
-  Compile / scalacOptions := globalScala3ScalacOptions,
-  reposearchPlugin,
-)
-
-lazy val repositorySearchIntegrationCommon =
-  newProject("repository-search-common", file("scala/integration/repository-search/common"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
-    .settings(commonRepositorySearchSettings)
-    .settings(
-      idePackagePrefix := Some("org.jetbrains.plugins.scala.reposearch.common"),
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.repository-search.common"),
-    )
-
-lazy val repositorySearchIntegrationKt =
-  newProjectWithKotlin("repository-search-kt", file("scala/integration/repository-search/kt"))
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      repositorySearchIntegrationCommon % "test->test;compile->compile",
-      kotlinUtils % "test->test;compile->compile",
-    )
-    .settings(
-      reposearchPlugin,
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      idePackagePrefix := Some("org.jetbrains.plugins.scala.reposearch"),
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.repository-search.kt"),
-    )
-
-lazy val repositorySearchIntegrationSbt =
-  newProject("repository-search-sbt", file("scala/integration/repository-search/sbt"))
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile",
-      repositorySearchIntegrationCommon % "test->test;compile->compile",
-    )
-    .settings(commonRepositorySearchSettings)
-    .settings(
-      idePackagePrefix := Some("org.jetbrains.plugins.scala.reposearch.sbt"),
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.repository-search.sbt"),
-    )
-
-lazy val repositorySearchIntegrationScalaDirective =
-  newProject("repository-search-scalaDirective", file("scala/integration/repository-search/scalaDirective"))
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      repositorySearchIntegrationCommon % "test->test;compile->compile",
-    )
-    .settings(commonRepositorySearchSettings)
-    .settings(
-      idePackagePrefix := Some("org.jetbrains.plugins.scala.reposearch.scalaDirective"),
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.repository-search.scalaDirective"),
-    )
 
 // Utility projects
 
