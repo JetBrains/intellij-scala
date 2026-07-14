@@ -104,9 +104,9 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     val expectedStructureWithAnonymousEnabled =
       s"""-AnonymousClasses_InsideValAndVarBody.scala
          | -MyClass
-         |  value1: Runnable
-         |  -$$1
-         |   run(): Unit
+         |  -value1: Runnable
+         |   -$$1
+         |    run(): Unit
          |  -value2: Runnable
          |   -$$2
          |    run(): Unit
