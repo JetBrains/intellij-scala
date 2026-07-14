@@ -26,10 +26,11 @@ import scala.annotation.tailrec
  */
 trait Context {
   def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean
+  def isScala3: Boolean
 }
 
 object Context {
-  def apply(place: PsiElement): Context = new Context() {
+  def apply(place: PsiElement): Context = new Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = {
       if (!opaqueTypeAlias.isOpaque)
         throw new IllegalArgumentException("Opaque type alias expected")
@@ -43,7 +44,7 @@ object Context {
       containingFileOf(opaqueTypeAlias).getOriginalFile == containingFileOf(place).getOriginalFile &&
         place.contexts.takeWhile(p).contains(opaqueTypeAlias.getContext)
     }
-
+    override lazy val isScala3: Boolean = place.isInScala3File
     override def toString: String = place.toString
   }
 
@@ -69,6 +70,8 @@ object Context {
   object Empty extends Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
+    override def isScala3: Boolean = false
+
     override def toString: String = "<empty>"
   }
 
@@ -88,6 +91,8 @@ object Context {
 //  @deprecated("Provide Context(element) or use EmptyContext")
   implicit val Default: Context = new Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
+
+    override def isScala3: Boolean = false
 
     override def toString: String = "<default>"
   }

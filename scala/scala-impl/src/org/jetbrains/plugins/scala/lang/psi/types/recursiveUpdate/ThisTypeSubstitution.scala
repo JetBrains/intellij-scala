@@ -32,6 +32,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       }
     }
 
+  @tailrec
   private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
     if (clazz == null || clazz == thisTp.element || clazz.containingClass == null)
       doUpdateThisType(thisTp, target)

@@ -21,6 +21,8 @@ private class ContextDependent[A] private (stateToValue: Map[SeqMap[ScTypeAliasD
         isInScope
       }
 
+      override def isScala3: Boolean = context.isScala3
+
       override def toString: String = context.toString
     })
 
