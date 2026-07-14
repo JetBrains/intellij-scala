@@ -4,70 +4,24 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.xmlb.XmlSerializerUtil
+import org.jetbrains.plugins.scala.compiler.testUtils.CompilerTestUtil2
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode, ScalaProjectSettings}
 
 import scala.util.Try
 
 object CompilerTestUtil {
 
-  private def compileServerSettings: ScalaCompileServerSettings =
-    ScalaCompileServerSettings.getInstance().ensuring(
-      _ != null,
-      "could not get instance of compileServerSettings. Was plugin artifact built before running test?"
-    )
+  def withModifiedCompileServerSettings(body: ScalaCompileServerSettings => Unit): RevertableChange =
+    CompilerTestUtil2.withModifiedCompileServerSettings(body)
 
-  def withModifiedCompileServerSettings(body: ScalaCompileServerSettings => Unit): RevertableChange = new RevertableChange {
-    private var settingsBefore: ScalaCompileServerSettings = _
-    private lazy val settings: ScalaCompileServerSettings = compileServerSettings
-
-    import com.intellij.java.testFramework.backend.{CompilerTestUtil => BackendCompilerTestUtil}
-
-    override def applyChange(): Unit = {
-      settingsBefore = XmlSerializerUtil.createCopy(settings)
-      body(settings)
-      BackendCompilerTestUtil.saveApplicationComponent(settings)
-    }
-
-    override def revertChange(): Unit = {
-      XmlSerializerUtil.copyBean(settingsBefore, settings)
-      BackendCompilerTestUtil.saveApplicationComponent(settings)
-    }
-  }
-
-  def applyEnabledCompileServerSettings(settings: ScalaCompileServerSettings, enable: Boolean): Unit = {
-    settings.COMPILE_SERVER_ENABLED = enable
-    settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
-    settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
-  }
+  def applyEnabledCompileServerSettings(settings: ScalaCompileServerSettings, enable: Boolean): Unit =
+    CompilerTestUtil2.applyEnabledCompileServerSettings(settings, enable)
 
   def withEnabledCompileServer(enable: Boolean): RevertableChange =
-    withModifiedCompileServerSettings { settings =>
-      applyEnabledCompileServerSettings(settings, enable)
-    }
+    CompilerTestUtil2.withEnabledCompileServer(enable)
 
-  def withForcedJdkForBuildProcess(optJdk: Option[Sdk]): RevertableChange = new RevertableChange {
-    private var jdkBefore: Option[String] = None
-
-    override def applyChange(): Unit = {
-      optJdk.foreach { jdk =>
-        jdk.getHomeDirectory match {
-          case null =>
-            throw new RuntimeException(s"Failed to set up JDK, got: $jdk")
-          case homeDirectory =>
-            val jdkHome = homeDirectory.getCanonicalPath
-            //see com.intellij.compiler.server.BuildManager.COMPILER_PROCESS_JDK_PROPERTY
-            val registry = Registry.get("compiler.process.jdk")
-            jdkBefore = Try(registry.asString).toOption
-            registry.setValue(jdkHome)
-        }
-      }
-    }
-
-    override def revertChange(): Unit =
-      jdkBefore.foreach { jdk =>
-        Registry.get("compiler.process.jdk").setValue(jdk)
-      }
-  }
+  def withForcedJdkForBuildProcess(optJdk: Option[Sdk]): RevertableChange =
+    CompilerTestUtil2.withForcedJdkForBuildProcess(optJdk)
 
   private def withErrorsFromCompiler(project: Project, enabled: Boolean): RevertableChange = {
     val revertible1 = RevertableChange.withModifiedSetting(
