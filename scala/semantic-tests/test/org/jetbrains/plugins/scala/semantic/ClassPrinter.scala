@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Paren
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
@@ -201,6 +201,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case u: ScUnitExpr => "()"
       case u: ScThisReference => "this"
       case s: ScSuperReference => "super" + (s.staticSuper.map("[" + textOf(_) + "]").getOrElse(""))
+      case l: ScInterpolatedStringLiteral => l.desugaredExpression.map(p => textOfExpression(p._2, indent)).getOrElse("")
       case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
       case e: ScUnderscoreSection => "_"
       case e: ScIf =>

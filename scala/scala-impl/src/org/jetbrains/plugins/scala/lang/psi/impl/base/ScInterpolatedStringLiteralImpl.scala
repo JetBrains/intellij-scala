@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScInterpolatedStringLiteralImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil.{getMetaQQExprType, isMetaQQ}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical
 
 import scala.util.control.NonFatal
@@ -65,7 +66,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
         // NOTE: we don't need to actually extract all the string parts content during resolve,
         // some dummy placeholders is enough
-        val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
+        val constructorParameters = (if (ScalaApplicationSettings.PRECISE_TEXT) getStringParts else getStringPartsDummies).map(quote + _ + quote)
           .commaSeparated(Model.Parentheses)
 
         val injectionsValues = getInjections.map { injection =>
