@@ -61,7 +61,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
   }
 
   protected def assertNoErrorsInJava(
-    @Language("Scala") scalaFileText: String,
+    @Language("Scala 3") scalaFileText: String,
     @Language("JAVA") javaFileText: String,
     javaClassName: String
   ): Unit = {
@@ -83,7 +83,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
   }
 
   protected def assertErrorsTextInJava(
-    @Language("Scala") scalaCode: String,
+    @Language("Scala 3") scalaCode: String,
     @Language("JAVA") javaCode: String,
     javaClassName: String,
     messagesConcatenated: String,
