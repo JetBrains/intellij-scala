@@ -98,6 +98,7 @@ lazy val scalaCommunity: sbt.Project =
       sbtShellBuildDelegationTests % "test->test",
       bspIntegrationTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
+      compilerTestUtils % "test->test",
       compilerIntegrationServerManagement % "test->test;compile->compile",
       compilerIntegrationServerManagementTests % "test->test",
       scalaCompilerPluginTests % "test->test;compile->compile",
@@ -278,6 +279,7 @@ lazy val worksheet =
     .dependsOn(
       bsp,
       compilerIntegration % "test->test;compile->compile",
+      compilerTestUtils % "test->test",
       testUtilsPlatform % "test->test",
       worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
@@ -384,6 +386,7 @@ lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
       compilerShared,
+      compilerSettingsDefinition,
       scalaApi,
       scalaLanguageUtils,
       sbtApi,
@@ -394,6 +397,7 @@ lazy val scalaImpl: sbt.Project =
       testRunners,
       testUtilsCommon % "test->test",
       testUtilsPlatform % "test->test",
+      compilerTestUtils % "test->test",
     )
     .settings(
       ideExcludedDirectories := Seq(
@@ -521,6 +525,25 @@ lazy val testUtilsPlatform: sbt.Project =
       ),
     )
 
+lazy val compilerTestUtils: sbt.Project =
+  newProject("compiler-test-utils", file("scala/compiler-test-utils"))
+    .projectWithTestsOnly
+    .dependsOn(
+      compilerSettingsDefinition,
+      testUtilsPlatform % "test->test",
+    )
+    .settings(
+      resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
+      libraryDependencies ++= Seq(
+        Dependencies.intellijJavaTestFrameworkShared % Test,
+        Dependencies.intellijJavaTestFrameworkBackend % Test,
+        Dependencies.intellijJavaTestFramework % Test,
+      )
+    )
+
+lazy val compilerSettingsDefinition: sbt.Project =
+  newProject("compiler-settings-definition", file("scala/compiler-settings-definition"))
+
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
     .dependsOn(
@@ -641,6 +664,7 @@ lazy val compilerIntegration =
     .dependsOn(
       compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      compilerTestUtils % "test->test",
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectHighlightingTests % "test->test",
@@ -663,7 +687,8 @@ lazy val compilerIntegrationServerManagement =
   newProject("compiler-integration-server-management", file("scala/compiler-integration-server-management"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      eelTunnelsUtil
+      eelTunnelsUtil,
+      compilerSettingsDefinition,
     )
     .settings(
       // It's fine to merge it into the same module
@@ -1096,6 +1121,7 @@ lazy val gradleIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      compilerTestUtils % "test->test",
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
