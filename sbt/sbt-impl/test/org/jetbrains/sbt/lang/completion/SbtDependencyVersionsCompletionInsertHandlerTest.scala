@@ -16,15 +16,7 @@ abstract class SbtDependencyCompletionInsertHandlerTestBase
   protected val LOOKUP_ITEM = s"$GROUP_ID:$ARTIFACT_ID"
   protected val RESULT_DEPENDENCY = s""""$GROUP_ID" % "$ARTIFACT_ID" % "$CARET""""
 
-  protected def setupCaches(): Unit = {
-    DependencyUtil.updateMockGroupIdCompletionCache(GROUP_ID)
-    DependencyUtil.updateMockArtifactIdCompletionCache(GROUP_ID -> Seq(ARTIFACT_ID))
-
-    DependencyUtil.updateMockVersionCompletionCache(
-      (GROUP_ID, ARTIFACT_ID + "_2.13") -> VERSIONS,
-      (GROUP_ID, ARTIFACT_ID + "_3") -> VERSIONS,
-    )
-  }
+  protected def setupCaches(): Unit
 
   protected def doTest(fileText: String, resultText: String, item: String, setupCaches: () => Unit = setupCaches): Unit = {
     setupCaches()
@@ -39,6 +31,12 @@ abstract class SbtDependencyCompletionInsertHandlerTestBase
 }
 
 final class SbtDependencyVersionsCompletionInsertHandlerTest extends SbtDependencyCompletionInsertHandlerTestBase {
+
+  override protected def setupCaches(): Unit =
+    DependencyUtil.updateMockVersionCompletionCache(
+      (GROUP_ID, ARTIFACT_ID + "_2.13") -> VERSIONS,
+      (GROUP_ID, ARTIFACT_ID + "_3") -> VERSIONS,
+    )
 
   @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral(): Unit = doTest(
