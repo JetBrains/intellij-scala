@@ -5,12 +5,14 @@ import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.{IconManager, PlatformIcons}
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
 import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaVisibilitySorter}
+import org.junit.Assert.assertTrue
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
 
@@ -976,6 +978,31 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       PlatformTestUtil.expandAll(tree)
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
     })
+  }
+
+  def testAnonymousClassMemberIsSuitable(): Unit = {
+    val code =
+      """class Wrapper {
+        |  val value = new Object() {
+        |    val innerValue = ???
+        |    var innerVariable = ???
+        |  }
+        |}
+        |""".stripMargin
+
+    val file = createScalaFile(code)(getProject)
+    val model = new ScalaStructureViewModel(file)
+    val expectedNames = Set("innerValue", "innerVariable")
+    val innerMembers = file.depthFirst().collect {
+      case value: ScValueOrVariable if value.declaredElements.exists(
+        element => expectedNames.contains(element.name)
+      ) => value
+    }.toSeq
+
+    assertTrue(
+      "Expected anonymous class members to be suitable for the structure view",
+      innerMembers.size == expectedNames.size && innerMembers.forall(model.isSuitable)
+    )
   }
 
   def testAnonymousClass_ShowWithInheritedMembers(): Unit = {
