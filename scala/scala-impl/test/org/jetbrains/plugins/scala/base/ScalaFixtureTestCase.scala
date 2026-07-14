@@ -23,9 +23,11 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFix
 
   protected lazy val jdk: Sdk = IdeaTestUtil.getMockJdk(JavaVersion.compose(17))
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    scalaSdkAndLibraryLoaders :+  new PlatformSdkJdkLoader(jdk)
+
+  protected def scalaSdkAndLibraryLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaCompilerIntoLibraryClasspath = includeCompilerAsLibrary, includeScalaLibrarySources = includeScalaLibrarySources),
-    new PlatformSdkJdkLoader(jdk)
   )
 
   //start section: indexing mode setup
