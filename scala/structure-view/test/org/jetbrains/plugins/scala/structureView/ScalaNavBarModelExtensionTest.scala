@@ -567,4 +567,14 @@ class ScalaNavBarModelExtensionTest extends ScalaNavBarModelExtensionTestBase {
        |""".stripMargin,
     Seq("aaa.scala", "Wrapper", "outer")
   )
+
+  def testPresentableText_AnonymousClass(): Unit = assertNavBarPathAtCaret(
+    s"""class Wrapper {
+       |  val value = new Object() {
+       |     val innerValue = $CARET???
+       |  }
+       |}
+       |""".stripMargin,
+    Seq("aaa.scala", "Wrapper", "value", "anonymous Object", "innerValue")
+  )
 }

@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScTypeDefinition, ScTypeDefinitionLike}
@@ -58,8 +59,9 @@ final class ScalaNavBarModelExtension extends StructureAwareNavBarModelExtension
         case _: ScExtension       => Some("extension")
         case td: ScTypeDefinition => getPresentableText_ForTypeDefinition(td)
         case ga: ScGivenAlias     => getPresentableText_ForGivenAlias(ga)
-        case n: ScNamedElement    => Option(n.name)
-        case _                    => Element.forPsiElement(element).map(_.getPresentableText)
+        case ntd: ScNewTemplateDefinition if ntd.isAnonymous => getPresentableText_ForAnonymousClass(ntd)
+        case n: ScNamedElement      => Option(n.name)
+        case _                      => Element.forPsiElement(element).map(_.getPresentableText)
       }
       resultText.orNull
     case _ =>
@@ -82,6 +84,11 @@ final class ScalaNavBarModelExtension extends StructureAwareNavBarModelExtension
   private def getPresentableText_ForGivenAlias(givenAlias: ScGivenAlias): Option[String] =
     Option(givenAlias.name)
 
+  private def getPresentableText_ForAnonymousClass(definition: ScNewTemplateDefinition): Option[String] = {
+    val baseTypeName = definition.firstConstructorInvocation.flatMap(_.simpleTypeElement).map(_.getText)
+    baseTypeName.map(typeName => s"anonymous $typeName")
+  }
+
   @Nullable
   override def getParent(psiElement: PsiElement): PsiElement = psiElement match {
     case v: ScValueOrVariable =>
@@ -92,17 +99,20 @@ final class ScalaNavBarModelExtension extends StructureAwareNavBarModelExtension
       // `val Some(_) = { ... }`
       // In this case structure view won't contain any elements for it as it doesn't have a name definition
       // But in Nav Bar we want to still show it as is `Some(_)` (we couldn't see which better alternative to display in this case
-      getParent_ForValOrVar(v).orNull
+      getParent_FromPsiParents(v).orNull
+    case definition: ScNewTemplateDefinition =>
+      getParent_FromPsiParents(definition).orNull
     case _ =>
       super.getParent(psiElement)
   }
 
-  private def getParent_ForValOrVar(valOrVar: ScValueOrVariable): Option[PsiElement] = {
-    valOrVar.parents.collectFirst {
+  private def getParent_FromPsiParents(element: PsiElement): Option[PsiElement] = {
+    element.parents.collectFirst {
       case p: ScValueOrVariable => p
-      case p: ScFunction        => p
-      case p: ScTypeDefinition  => p
-      case p: ScalaFile         => p
+      case p: ScFunction => p
+      case p: ScNewTemplateDefinition => p
+      case p: ScTypeDefinition => p
+      case p: ScalaFile => p
     }
   }
 }
