@@ -9,9 +9,11 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.platform.bazel.runfiles.BazelRunfiles
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
+import com.intellij.util.PathUtil
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
@@ -173,7 +175,11 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
       assertNotNull("Could not find the Groovy plugin descriptor", groovyPlugin)
       val groovyLibDir = groovyPlugin.getPluginPath.resolve("lib")
       val groovyBuilders = Seq("groovy-jps.jar", "groovy-constants-rt.jar").map(groovyLibDir.resolve(_).toString)
-      val newClasspath = originalClasspath ++ groovyBuilders
+      // GroovyRtJarPaths in the Groovy JPS builder loads ArchivedCompilationContextUtil (packaged in util-8.jar),
+      // which since 263 references BazelRunfiles, located in a separate jar that is not on the compile server
+      // classpath. Add it as well to avoid a NoClassDefFoundError in the build process.
+      val bazelRunfilesJar = PathUtil.getJarPathForClass(classOf[BazelRunfiles])
+      val newClasspath = originalClasspath ++ groovyBuilders :+ bazelRunfilesJar
       field.set(classpathManager, newClasspath.asJava)
     }
 
