@@ -872,6 +872,117 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       new Node(BlockIcon, ""))
   }
 
+  def testAnonymousClasses_InTopLevelDefinitions(): Unit = {
+    val code =
+      """class MyBaseClass {
+         |  def fooFromBaseClass: String = ???
+         |}
+         |
+         |def defWithBraces: Unit = {
+         |  new MyBaseClass() {
+         |    def foo: String = ???
+         |  }
+         |}
+         |
+         |def defWithoutBraces: Unit = new MyBaseClass() {
+         |  def foo: String = ???
+         |}
+         |
+         |val valueWithBraces = {
+         |  new MyBaseClass() {
+         |    def foo: String = ???
+         |  }
+         |}
+         |
+         |val valueNoBraces = new MyBaseClass() {
+         |  def foo: String = ???
+         |}
+         |""".stripMargin
+
+    val expectedStructureWithAnonymousEnabled =
+      """-ScalaStructureTest.scala
+         | -MyBaseClass
+         |  fooFromBaseClass: String
+         | -defWithBraces: Unit
+         |  -Anonymous
+         |   foo: String
+         | -defWithoutBraces: Unit
+         |  -Anonymous
+         |   foo: String
+         | -valueWithBraces
+         |  -Anonymous
+         |   foo: String
+         | -valueNoBraces
+         |  -Anonymous
+         |   foo: String
+         |""".stripMargin.trim
+
+    checkAnonymousClassesInDefinitions(code, expectedStructureWithAnonymousEnabled)
+  }
+
+  def testAnonymousClasses_InClassDefinitions(): Unit = {
+    val code =
+      """class MyBaseClass {
+         |  def fooFromBaseClass: String = ???
+         |}
+         |
+         |class Wrapper {
+         |  def defWithBraces: Unit = {
+         |    new MyBaseClass() {
+         |      def foo: String = ???
+         |    }
+         |  }
+         |
+         |  def defWithoutBraces: Unit = new MyBaseClass() {
+         |    def foo: String = ???
+         |  }
+         |
+         |  val valueWithBraces = {
+         |    new MyBaseClass() {
+         |      def foo: String = ???
+         |    }
+         |  }
+         |
+         |  val valueNoBraces = new MyBaseClass() {
+         |    def foo: String = ???
+         |  }
+         |}
+         |""".stripMargin
+
+    val expectedStructureWithAnonymousEnabled =
+      """-ScalaStructureTest.scala
+         | -MyBaseClass
+         |  fooFromBaseClass: String
+         | -Wrapper
+         |  -defWithBraces: Unit
+         |   -$1
+         |    foo: String
+         |  -defWithoutBraces: Unit
+         |   -$2
+         |    foo: String
+         |  -valueWithBraces
+         |   -$3
+         |    foo: String
+         |  -valueNoBraces
+         |   -$4
+         |    foo: String
+         |""".stripMargin.trim
+
+    checkAnonymousClassesInDefinitions(code, expectedStructureWithAnonymousEnabled)
+  }
+
+  private def checkAnonymousClassesInDefinitions(code: String, expectedStructure: String): Unit = {
+    myFixture.configureByText("ScalaStructureTest.scala", code)
+    myFixture.testStructureView { svc =>
+      val tree = svc.getTree
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructure)
+    }
+  }
+
   def testAnonymousClasses(): Unit = {
     val code =
       """class ScalaStructureTest {
