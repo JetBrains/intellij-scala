@@ -6,14 +6,15 @@ import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 
-import scala.annotation.nowarn
 import java.nio.file.Path
 import java.{util => ju}
 import javax.swing.{Icon, JComponent}
+import scala.annotation.nowarn
 
 final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryType.Kind) {
 
@@ -90,7 +91,8 @@ object ScalaLibraryType {
 
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
-    private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
+    @VisibleForTesting
+    private[scala] def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
       val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles, compilerBridgeJar, optReplClasspath, _) = descriptor
 
       val compilerBridge = compilerBridgeJar.orElse {
