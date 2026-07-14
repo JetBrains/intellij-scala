@@ -1231,7 +1231,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case etpe: ScExistentialType =>
           val designatedClass                     = etpe.extractDesignated(expandAliases = false)
           val isDesignatedToJavaClass             = designatedClass.exists(des => des.is[PsiClass] && !des.is[PsiClassAdapter])
-          val shouldPropagateDefinitionSiteBounds = isDesignatedToJavaClass /*|| context.isScala3 @TODO*/
+          val shouldPropagateDefinitionSiteBounds = isDesignatedToJavaClass || context.isScala3
 
           val withPropagatedBounds =
             if (!shouldPropagateDefinitionSiteBounds) etpe
