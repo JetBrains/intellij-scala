@@ -245,26 +245,24 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case _ =>
           textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
       }
-      case r: ScReferenceExpression => r.qualifier match {
+      case r: ScReferenceExpression => (r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
-        case None =>
-          val prefix = r.bind().map(_.getActualElement).orNull match {
-            case e: ScSelfTypeElement => e.name
-            case e: ScNamedElement => e.nameContext match {
-              case m: ScMember if !m.isLocal && !m.isTopLevel =>
-                if (containingFileOf(e) == containingFileOf(r)) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
-                else m.qualifiedNameOpt.getOrElse(r.refName)
-              case _ => r.refName
-            }
-            case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
+        case None => r.bind().map(_.getActualElement).orNull match {
+          case e: ScSelfTypeElement => e.name
+          case e: ScNamedElement => e.nameContext match {
+            case m: ScMember if !m.isLocal && !m.isTopLevel =>
+              if (containingFileOf(e) == containingFileOf(r)) (if (m.containingClass.name == "<anonymous>") "this." + r.refName else m.containingClass.name + ".this." + r.refName)
+              else m.qualifiedNameOpt.getOrElse(r.refName)
             case _ => r.refName
           }
-          r.bind() match {
-            case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
-              prefix + ".apply"
-            case _ => prefix
-          }
-      }
+          case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
+          case _ => r.refName
+        }
+      }) + (r.bind() match {
+        case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
+          ".apply"
+        case _ => ""
+      })
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
