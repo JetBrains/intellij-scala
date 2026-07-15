@@ -658,12 +658,16 @@ object SourceCode {
         case tree: TypeDef => !tree.symbol.hasAnnotation(splicedTypeAnnot)
         case _ => true
       }
+      val expr2 = expr1 match {
+        case Typed(expr, _) => expr
+        case expr => expr
+      }
       if (stats2.isEmpty) {
-        printTree(expr1)
+        printTree(expr2)
       } else {
         this += "{"
         indented {
-          printStats(stats2, expr1)
+          printStats(stats2, expr2)
         }
         this += lineBreak() += "}"
       }
