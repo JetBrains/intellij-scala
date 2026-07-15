@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -72,7 +73,28 @@ sealed trait SignatureProcessor[T <: Signature] {
   @tailrec
   protected final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
     case null                                           => ()
-    case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
+    case tdef @ ScGivenDefinition.DesugaredTypeDefinition(gvn) =>
+      /**
+       * We should be careful around these synthetic definitions. They introduce their own
+       * synthetic type parameters and if those get mixed with original non-synthetic ones,
+       * we will have very tricky-to-find errors.
+       * e.g.
+       * {{{
+       *   given foo[A#1]: Functor[B =>> Bar[A#1, B]] with
+       *     extension (a: A) def bar: Int = 123
+       *   //generates
+       *   class foo[A#2] extends Functor[B =>> Bar[A#2, B]]
+       *   implicit def foo[A#3]: foo[A#3] = new foo[A#3]
+       * }}}
+       * When implicit collector then searches for extensions inside givens,
+       * we eventually trigger `processAll(foo, A#2 := A#3)`
+       * and IF WE DO NOT unify type parameters here, we simply get resolve result
+       * defined in terms of non-synthetic given type parameters.
+       */
+      val givenTypeParameters         = gvn.typeParameters.map(TypeParameter(_))
+      val syntheticTdefTypeParameters = tdef.typeParameters.map(TypeParameter(_))
+      val unifyTypeParams = substitutor.withBindings(givenTypeParameters, syntheticTdefTypeParameters)
+      processAll(gvn, unifyTypeParams, sink)
     case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
     case td: ScTemplateDefinition =>
       processScala(td, substitutor, sink)

@@ -27,12 +27,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.{MethodResolveProcessor, MostSpecificUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.{View, mutable}
 import scala.util.Using
 
 object ImplicitCollector {
@@ -439,11 +439,58 @@ class ImplicitCollector(
     }
   }
 
+  /**
+   * Extensions methods are tricky. We do the regular overloading resolution/applicability checks on
+   * extension candidates in [[MethodResolveProcessor]], however, at that point they are already
+   * applied to the receiver expression and so,
+   * {{{
+   *   extension [A](a: A) def foo(a: A): Int = 123
+   *   123.foo(456)
+   * }}}
+   * is typed as `Int => Int` (and not `[A] A => A => Int`).
+   *
+   * This is fine for the most part, but is causing errors, when we have
+   * multiple extensions definining a method with the same name (overloading happens
+   * via the first "receiver" clause), e.g.
+   * {{{
+   *   extension [A](a: A) def foo: Int = 123
+   *   extension [A](a: List[A]) def foo: Int = 456
+   *   List(1, 2, 3).foo
+   * }}}
+   *
+   * We could, of course, pass this constraint informantion in a separate substitutor,
+   * but that would force us to update all the consumers, which naturally expect that for an expression
+   * of shape `foo.bar(baz)` substitutor for the resolve result of `bar` contains all the type information
+   * from its qualifier.
+   *
+   * The other option is to pre-select most specific candidates here.
+   */
+  private def pickMostSpecificExtensions(
+    cands: mutable.HashSet[ScalaResolveResult]
+  ): mutable.HashSet[ScalaResolveResult] =
+    if (withExtensions)
+      cands
+        .view
+        .groupBy(_.name)
+        .flatMap {
+          case (_, sameNameCands) =>
+            if (!sameNameCands.forall(_.isExtensionCall))
+              sameNameCands
+            else {
+              val mostSpecific = mostSpecificUtil.mostSpecificForResolveResult(sameNameCands)
+              mostSpecific.fold(sameNameCands)(srr => View(srr))
+            }
+        }
+        .to(mutable.HashSet)
+    else
+      cands
+
   private def collectCompatibleCandidates(
     candidates:             collection.Set[ScalaResolveResult],
     withLocalTypeInference: Boolean,
   ): Set[ScalaResolveResult] = {
-    val filteredCandidates = mutable.HashSet.empty[ScalaResolveResult]
+    val filteredCandidatesRaw = mutable.HashSet.empty[ScalaResolveResult]
+    val extensionsFromGivens  = mutable.HashSet.empty[ScalaResolveResult]
 
     val iterator = candidates.iterator
     while (iterator.hasNext) {
@@ -452,10 +499,11 @@ class ImplicitCollector(
       if (canContainTargetMethod(c)) {
         //no point in filtering candidates by type if they are potentially holding
         //extensions, that we are looking for
-        filteredCandidates += c
-      } else filteredCandidates ++= checkCompatible(c, withLocalTypeInference, checkFast = true)
+        filteredCandidatesRaw += c
+      } else filteredCandidatesRaw ++= checkCompatible(c, withLocalTypeInference, checkFast = true)
     }
 
+    val filteredCandidates = pickMostSpecificExtensions(filteredCandidatesRaw)
     var results = Set.empty[ScalaResolveResult]
 
     while (filteredCandidates.nonEmpty) {
@@ -466,13 +514,13 @@ class ImplicitCollector(
 
           val compatible = checkCompatible(c, withLocalTypeInference)
 
-          if (withExtensions) {
+          if (withExtensions && !c.isExtensionCall) {
             //process return types of all candidates to search for extensions
             for {
               result <- compatible
             } {
               val extensions = collectExtensionsFromImplicitResult(result, extensionData)
-              filteredCandidates ++= extensions
+              extensionsFromGivens ++= extensions
             }
           }
 
@@ -490,6 +538,18 @@ class ImplicitCollector(
             case _ =>
           }
         case None => ()
+      }
+    }
+
+    val extensionsToCheck = pickMostSpecificExtensions(extensionsFromGivens)
+
+    extensionsToCheck.foreach { extension =>
+      val compatible = checkCompatible(extension, withLocalTypeInference)
+      val applicable = compatible.flatMap(applyExtensionPredicate)
+
+      applicable.foreach { current =>
+        results = results.filter(noLessSpecificThan(current))
+        results += current
       }
     }
 
@@ -668,9 +728,7 @@ class ImplicitCollector(
     def noImplicitParametersResult(nonValueType: ScType): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(nonValueType, !isLeadingImplicitsCase)
 
-      val subst =
-        if (c.isExtensionCall) ScSubstitutor.empty
-        else conformanceConstraints.substOrEmpty
+      val subst = conformanceConstraints.substOrEmpty
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
@@ -690,9 +748,7 @@ class ImplicitCollector(
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(resType, inferValueType = !isLeadingImplicitsCase)
       val allConstraints          = constraints + conformanceConstraints
 
-      val constraintSubst =
-        if (c.isExtensionCall) Option(ScSubstitutor.empty)
-        else                   allConstraints.toSubst
+      val constraintSubst = allConstraints.toSubst
 
       constraintSubst.fold(reportWrong(c, CantInferTypeParameterResult)) { subst =>
         val allImportsUsed =
