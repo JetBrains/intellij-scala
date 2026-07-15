@@ -1085,6 +1085,8 @@ object SourceCode {
             printTypeAndAnnots(tp)
             this += " "
             printAnnotation(annot)
+          case tpe: TypeRef if tpe.typeSymbol == Symbol.requiredClass("java.lang.Object") =>
+            this += "scala.AnyRef"
           case tpe: TypeRef if tpe.typeSymbol == Symbol.requiredClass("scala.runtime.Null$") || tpe.typeSymbol == Symbol.requiredClass("scala.runtime.Nothing$") =>
             // scala.runtime.Null$ and scala.runtime.Nothing$ are not modules, those are their actual names
             printType(tpe)
