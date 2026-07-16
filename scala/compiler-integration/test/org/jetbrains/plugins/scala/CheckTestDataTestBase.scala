@@ -33,12 +33,19 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
       .map(wrapIntoObject)
       .mkString("\n\n")
 
-  def test(): Unit = runWithErrorsFromCompiler(getProject) {
-    addFileToProjectSources("test.scala", buildCompleteSucceedingTestCode())
-    compiler.make().assertNoProblems(allowWarnings = true)
+  def test(): Unit = {
+    assert(testData.nonEmpty)
+    if (testData.forall(_.isFailing))
+      return
+
+    runWithErrorsFromCompiler(getProject) {
+      addFileToProjectSources("test.scala", buildCompleteSucceedingTestCode())
+      compiler.make().assertNoProblems(allowWarnings = true)
+    }
   }
 
   def test_failing(): Unit = {
+    assert(testData.nonEmpty)
     val tests = testData.filter(_.isFailing)
     if (tests.isEmpty)
       return // quick return before doing any unnecessary work

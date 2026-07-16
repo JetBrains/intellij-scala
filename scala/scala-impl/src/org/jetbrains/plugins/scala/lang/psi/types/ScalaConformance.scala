@@ -1056,6 +1056,51 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      // SCL-22562. When `p` is a higher-kinded type variable applied to
+      // arguments (its designator is an [[UndefinedType]]) and `r` is a plain
+      // class type, mirror dotc's `TypeComparer#canInstantiate`: walk `r`'s
+      // base types (linearization for Scala 3; BFS in declaration order for
+      // Scala 2) and unify with the first parameterized supertype that both
+      // (a) satisfies `p`'s type-parameter upper bound (if any) and (b)
+      // unifies via [[unifyHK]] (direct or partial unification, as configured
+      // for the current Scala version).
+      p.designator match {
+        case UndefinedType(tp, _) if !r.is[ScParameterizedType] && r.extractClass.isDefined =>
+          val upperBoundClass: Option[PsiClass] = tp.upperType.extractClass.filter { cls =>
+            cls.qualifiedName != "scala.Any" && cls.qualifiedName != "java.lang.Object"
+          }
+
+          def passesUpperBound(sup: ScType): Boolean = upperBoundClass match {
+            case None        => true
+            case Some(bound) => sup.extractClass.exists(c => c == bound || c.isInheritor(bound, true))
+          }
+
+          // `r` may itself be the parameterized type we need to unify with,
+          // once aliases/singletons are stripped (e.g. `type Points =
+          // IndexedSeq[Point]`). The base-type iterators only yield `r`'s
+          // *supers*, so consider the dealiased `r` first.
+          val supers =
+            if (context.isScala3) BaseTypes.linearize(r)
+            else                  BaseTypes.bfs(r)
+          val candidates = Iterator(r) ++ supers
+
+          while (candidates.hasNext) {
+            ProgressManager.checkCanceled()
+            candidates.next().removeAliasDefinitions() match {
+              case sup: ScParameterizedType if passesUpperBound(sup) =>
+                val t = unifyHK(p, sup, constraints, Bound.Lower, visited, checkWeak)
+                if (t.isRight) {
+                  result = t
+                  return
+                }
+              case _ =>
+            }
+          }
+          result = ConstraintsResult.Left
+          return
+        case _ =>
+      }
+
       r match {
         case ScalaArrayType(rightArg) =>
           p match {
