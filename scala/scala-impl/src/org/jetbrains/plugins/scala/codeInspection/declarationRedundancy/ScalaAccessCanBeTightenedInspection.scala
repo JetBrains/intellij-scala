@@ -85,9 +85,7 @@ private object ScalaAccessCanBeTightenedInspection {
     extends LocalQuickFixAndIntentionActionOnPsiElement(element)
       with PriorityAction {
 
-    private lazy val priority = quickFixPriority(element)
-
-    override def getPriority: PriorityAction.Priority = priority
+    override val getPriority: PriorityAction.Priority = quickFixPriority(element)
 
     override def getText: String = ScalaInspectionBundle.message("make.private")
 
