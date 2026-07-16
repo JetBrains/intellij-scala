@@ -501,4 +501,162 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_multi_ids_in_param(): Unit = checkTree(
+    """
+      |def foo(id id): Unit = 0
+      |def foo(id id id: Int): Unit = 0
+      |
+      |class Foo(id id)
+      |class Foo(id id id: Int)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: id
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('id')
+      |          PsiWhiteSpace(' ')
+      |          PsiErrorElement:':' expected
+      |            PsiElement(identifier)('id')
+      |          PsiErrorElement:':' expected
+      |            <empty list>
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: id
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('id')
+      |          PsiWhiteSpace(' ')
+      |          PsiErrorElement:':' expected
+      |            PsiElement(identifier)('id')
+      |          PsiWhiteSpace(' ')
+      |          PsiErrorElement:':' expected
+      |            PsiElement(identifier)('id')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n\n')
+      |  ScClass: Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Foo')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          ClassParameter: id
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(identifier)('id')
+      |            PsiWhiteSpace(' ')
+      |            PsiErrorElement:':' expected
+      |              PsiElement(identifier)('id')
+      |            PsiErrorElement:':' expected
+      |              <empty list>
+      |          PsiElement())(')')
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Foo')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          ClassParameter: id
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(identifier)('id')
+      |            PsiWhiteSpace(' ')
+      |            PsiErrorElement:':' expected
+      |              PsiElement(identifier)('id')
+      |            PsiWhiteSpace(' ')
+      |            PsiErrorElement:':' expected
+      |              PsiElement(identifier)('id')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |          PsiElement())(')')
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

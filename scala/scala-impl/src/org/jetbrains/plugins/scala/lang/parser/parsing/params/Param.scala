@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
@@ -33,6 +34,13 @@ object Param extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate id
+
+        // eat additional erroneous identifiers
+        while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+          val errorMarker = builder.mark()
+          builder.advanceLexer()
+          errorMarker.error(ErrMsg("colon.expected"))
+        }
       case _ =>
         paramMarker.rollbackTo()
         return false
