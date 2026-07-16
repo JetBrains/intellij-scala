@@ -267,7 +267,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
-          .map(ci => textOf(ci.typeElement.`type`().get) + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
+          .map(ci => ci.typeElement.`type`().map(textOf(_)).getOrElse("NotInferred") + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
           .getOrElse("") + (if (!e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))) "" else
           " {" + {
             val sb = new StringBuilder()
@@ -278,7 +278,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case e: ScFunctionExpr =>
         "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
       case e: ScTuple =>
-        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => textOf(e.`type`().get)).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(textOf(_)).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
       case e => "<expr>"
     }
 
