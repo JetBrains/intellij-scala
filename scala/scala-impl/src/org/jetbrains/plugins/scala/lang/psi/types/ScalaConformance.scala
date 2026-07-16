@@ -74,7 +74,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             }
           case _ =>
         }
-        val iterator = BaseTypes.iterator(right)
+        val iterator = BaseTypes.direct(right)
         while (iterator.hasNext) {
           ProgressManager.checkCanceled()
           val tp = iterator.next()
