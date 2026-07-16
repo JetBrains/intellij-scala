@@ -1223,7 +1223,7 @@ object SourceCode {
           prefix match {
             case NoPrefix() =>
                 this += highlightTypeDef(name)
-            case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
+            case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass || elideThis.contains(tp.typeSymbol) =>
                 this += highlightTypeDef(name)
             case _ =>
               printType(prefix)
