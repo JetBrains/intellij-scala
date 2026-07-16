@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.semantic
 
 import dotty.tools.dotc
+import dotty.tools.dotc.ast.Positioned
 import dotty.tools.dotc.core.*
+import dotty.tools.dotc.core.Comments.{ContextDoc, ContextDocstrings}
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.decompiler.PartialTASTYDecompiler
 import dotty.tools.dotc.quoted.MacroExpansion
@@ -23,9 +25,26 @@ class Decompiler(classpath: Seq[String]) extends dotc.Driver {
     rootCtx.setSetting(rootCtx.settings.YretainTrees, true)
     rootCtx.setSetting(rootCtx.settings.fromTasty, true)
     rootCtx.setSetting(rootCtx.settings.classpath, classpath.mkString(File.pathSeparator))
-    val ctx = setup(Array("dummy.scala"), rootCtx).get._2
+    val ctx = setup(rootCtx)
     ctx.initialize()(using ctx)
     ctx
+  }
+
+  /**
+   * @see dotty.tools.dotc.Driver.setup
+   */
+  private def setup(rootCtx: Context): Context = {
+    val ictx = rootCtx.fresh
+    val summary = command.distill(Array.empty, ictx.settings)(ictx.settingsState)(using ictx)
+    ictx.setSettings(summary.sstate)
+    MacroClassLoader.init(ictx)
+    Positioned.init(using ictx)
+
+    inContext(ictx) {
+      if !ctx.settings.XdropComments.value || ctx.settings.XreadComments.value then
+        ictx.setProperty(ContextDoc, new ContextDocstrings)
+      fromTastySetup(List.empty)
+    }
   }
 
   private val decompiler = new PartialTASTYDecompiler()
