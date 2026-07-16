@@ -657,7 +657,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.server.HttpServerBluePrint
     akka.http.impl.engine.server.InternalCustomHeader
     //akka.http.impl.engine.server.MasterServerTerminator
-    //akka.http.impl.engine.server.ServerTerminationDeadlineReached
+    akka.http.impl.engine.server.ServerTerminationDeadlineReached
     akka.http.impl.engine.server.ServerTerminator
     //akka.http.impl.engine.server.UpgradeToOtherProtocolResponseHeader
     //akka.http.impl.engine.ws.FrameData
@@ -790,6 +790,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.javadsl.model.ws.WebSocketRequest
     //akka.http.javadsl.model.ws.WebSocketUpgrade
     //akka.http.javadsl.model.ws.WebSocketUpgradeResponse
+    akka.http.javadsl.server.AllDirectives
     akka.http.javadsl.server.AuthenticationFailedRejection
     //akka.http.javadsl.server.AuthorizationFailedRejection
     akka.http.javadsl.server.CircuitBreakerOpenRejection
@@ -1442,6 +1443,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.parboiled2.Parser
     //akka.parboiled2.ParserInput
     //akka.parboiled2.ParserMacroMethods
+    //akka.parboiled2.Position
     akka.parboiled2.Repeated
     //akka.parboiled2.Rule
     akka.parboiled2.RuleDSL
@@ -1462,6 +1464,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.parboiled2.support.Join
     //akka.parboiled2.support.LowPrioJoin
     //akka.parboiled2.support.LowerPriorityLifter
+    //akka.parboiled2.support.RunResult
     //akka.parboiled2.support.TailSwitch
     //akka.parboiled2.support.Unpack
     //akka.parboiled2.support.hlist.::
@@ -1696,7 +1699,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.MessageDispatcher
     //akka.remote.artery.NoOpRemotingFlightRecorder
     //akka.remote.artery.ObjectPool
-    //akka.remote.artery.OutOfBuffersException
+    akka.remote.artery.OutOfBuffersException
     akka.remote.artery.OutboundContext
     //akka.remote.artery.OutboundControlJunction
     //akka.remote.artery.OutboundEnvelope
@@ -1720,7 +1723,6 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.TestManagementCommands
     //akka.remote.artery.TestState
     //akka.remote.artery.ThisActorSystemQuarantinedEvent
-    //akka.remote.artery.aeron.AeronSource
     //akka.remote.artery.aeron.TaskRunner
     //akka.remote.artery.compress.CompressionProtocol
     //akka.remote.artery.compress.CompressionTable
@@ -1972,7 +1974,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.SourceShape
     //akka.stream.StreamDetachedException
     //akka.stream.StreamIdleTimeoutException
-    //akka.stream.StreamLimitReachedException
+    akka.stream.StreamLimitReachedException
     //akka.stream.StreamRefAttributes
     akka.stream.StreamRefResolver
     //akka.stream.StreamRefSettings
@@ -1993,11 +1995,11 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.TargetRefNotInitializedYetException
     //akka.stream.TerminationSignal
     //akka.stream.ThrottleMode
-    //akka.stream.TooManySubstreamsOpenException
+    akka.stream.TooManySubstreamsOpenException
     //akka.stream.UniformFanInShape
     //akka.stream.UniformFanOutShape
     //akka.stream.UniqueKillSwitch
-    //akka.stream.WatchedActorTerminatedException
+    akka.stream.WatchedActorTerminatedException
     //akka.stream.impl.ActorProcessor
     //akka.stream.impl.ActorProcessorImpl
     //akka.stream.impl.ActorPublisher

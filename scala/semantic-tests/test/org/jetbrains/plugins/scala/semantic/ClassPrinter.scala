@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Paren
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
@@ -71,13 +71,15 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val ps = cls.constructors.filterByType[ScPrimaryConstructor].map(textOf(_, inCaseClass = modifiers.contains("case")).replace(name + ".this.", "")).mkString
 
     val parents = {
-      val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
+      val parentClauses = cls.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
       val classParent =
         if (normalize && isScala3 && !cls.isInterface && cls.superClass.isEmpty) cls.allSupers.find(!_.isInterface).filter(_.qualifiedName != "java.lang.Object").map(ScDesignatorType(_)).toList
         else Seq.empty
+      def asString(ci: ScConstructorInvocation) =
+        textOf(ci.typeElement.`type`().get, parens = 1) + (if (ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "")
       // TODO Don't add "Foo.this." in class parents, see ScalaTypePresentation.innerTypeText, SCL-25555
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") +
-        (classParent ++ superTypes).map(textOf(_, parens = 1).replace(name + ".this.", "")).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
+      if (parentClauses.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") +
+        (classParent.map(textOf(_, parens = 1)) ++ parentClauses.map(asString)).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ").replace(name + ".this.", "")
     }
 
     val derivations = {

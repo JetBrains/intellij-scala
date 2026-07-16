@@ -473,16 +473,16 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.propspec.FixtureAnyPropSpecLike
     //org.scalatest.refspec.RefSpec
     //org.scalatest.refspec.RefSpecLike
-    //org.scalatest.tagobjects.CPU
-    //org.scalatest.tagobjects.ChromeBrowser
-    //org.scalatest.tagobjects.Disk
-    //org.scalatest.tagobjects.FirefoxBrowser
-    //org.scalatest.tagobjects.HtmlUnitBrowser
-    //org.scalatest.tagobjects.InternetExplorerBrowser
-    //org.scalatest.tagobjects.Network
-    //org.scalatest.tagobjects.Retryable
-    //org.scalatest.tagobjects.SafariBrowser
-    //org.scalatest.tagobjects.Slow
+    org.scalatest.tagobjects.CPU
+    org.scalatest.tagobjects.ChromeBrowser
+    org.scalatest.tagobjects.Disk
+    org.scalatest.tagobjects.FirefoxBrowser
+    org.scalatest.tagobjects.HtmlUnitBrowser
+    org.scalatest.tagobjects.InternetExplorerBrowser
+    org.scalatest.tagobjects.Network
+    org.scalatest.tagobjects.Retryable
+    org.scalatest.tagobjects.SafariBrowser
+    org.scalatest.tagobjects.Slow
     //org.scalatest.time.Day
     //org.scalatest.time.Days
     //org.scalatest.time.Hour
