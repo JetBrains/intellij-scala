@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
@@ -366,8 +367,8 @@ trait ScalaTypePresentation extends TypePresentation {
           case Some(clazz) => nameRenderer.renderName(clazz)
           case _           => nameRenderer.escapeName(stdType.name)
         }
-      case t @ TypeParameterType(tp) if ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS // SCL-25555
-        && tp.psiTypeParameter.is[ScTypeParam] && tp.psiTypeParameter.getOwner.is[ScTypeDefinition] =>
+      case t @ TypeParameterType(tp) if ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS && // SCL-25555
+        tp.psiTypeParameter.is[ScTypeParam] && !tp.psiTypeParameter.is[DummyLightTypeParam] && tp.psiTypeParameter.getOwner.is[ScTypeDefinition] =>
         // TODO Detect Scala 3 and don't add "Foo.this." in class parents and primary constructors, #SCL-25555
         // We should be able to use `nameResolvesTo` for both once the syntax is resolved correctly, SCL-25553
         tp.psiTypeParameter.getOwner.asInstanceOf[ScTypeDefinition].name + ".this." + t.name
