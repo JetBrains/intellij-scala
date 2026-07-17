@@ -1019,7 +1019,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.BooleanOrder
     //cats.kernel.instances.ByteBounded
     //cats.kernel.instances.ByteEnumerable
-    //cats.kernel.instances.ByteGroup
+    cats.kernel.instances.ByteGroup
     //cats.kernel.instances.ByteInstances
     //cats.kernel.instances.ByteOrder
     //cats.kernel.instances.CharBounded
@@ -1031,7 +1031,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.DeadlineBounded
     //cats.kernel.instances.DeadlineInstances
     //cats.kernel.instances.DeadlineOrder
-    //cats.kernel.instances.DoubleGroup
+    cats.kernel.instances.DoubleGroup
     //cats.kernel.instances.DoubleInstances
     cats.kernel.instances.DoubleOrder
     //cats.kernel.instances.DurationBounded
@@ -1048,7 +1048,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.FiniteDurationGroup
     //cats.kernel.instances.FiniteDurationInstances
     //cats.kernel.instances.FiniteDurationOrder
-    //cats.kernel.instances.FloatGroup
+    cats.kernel.instances.FloatGroup
     //cats.kernel.instances.FloatInstances
     cats.kernel.instances.FloatOrder
     //cats.kernel.instances.Function0Group
@@ -1066,7 +1066,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.HashInstances
     //cats.kernel.instances.IntBounded
     //cats.kernel.instances.IntEnumerable
-    //cats.kernel.instances.IntGroup
+    cats.kernel.instances.IntGroup
     //cats.kernel.instances.IntInstances
     //cats.kernel.instances.IntOrder
     //cats.kernel.instances.LazyListEq
@@ -1087,7 +1087,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.ListPartialOrder
     //cats.kernel.instances.LongBounded
     //cats.kernel.instances.LongEnumerable
-    //cats.kernel.instances.LongGroup
+    cats.kernel.instances.LongGroup
     //cats.kernel.instances.LongInstances
     //cats.kernel.instances.LongOrder
     //cats.kernel.instances.MapEq
@@ -1130,7 +1130,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.SetSemilattice
     //cats.kernel.instances.ShortBounded
     //cats.kernel.instances.ShortEnumerable
-    //cats.kernel.instances.ShortGroup
+    cats.kernel.instances.ShortGroup
     //cats.kernel.instances.ShortInstances
     //cats.kernel.instances.ShortOrder
     //cats.kernel.instances.SortedMapCommutativeMonoid

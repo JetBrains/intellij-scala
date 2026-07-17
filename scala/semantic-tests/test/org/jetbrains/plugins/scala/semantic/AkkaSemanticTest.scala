@@ -2059,7 +2059,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.GraphStageIsland
     akka.stream.impl.GraphStageTag
     //akka.stream.impl.HeadOptionStage
-    //akka.stream.impl.Inputs
+    akka.stream.impl.Inputs
     akka.stream.impl.IslandTag
     //akka.stream.impl.IslandTracking
     //akka.stream.impl.JavaStreamSource
@@ -2074,7 +2074,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.impl.MutableCollectorState
     akka.stream.impl.MutableReducerState
     akka.stream.impl.NotInitialized
-    //akka.stream.impl.Outputs
+    akka.stream.impl.Outputs
     //akka.stream.impl.PartitionedBuffer
     akka.stream.impl.Phase
     akka.stream.impl.PhaseIsland
