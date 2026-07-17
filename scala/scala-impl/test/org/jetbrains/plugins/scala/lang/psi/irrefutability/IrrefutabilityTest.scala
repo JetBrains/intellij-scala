@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.irrefutability
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaStandardLibraryLoaders}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
@@ -272,6 +273,9 @@ abstract class IrrefutabilityTestBase extends ScalaLightCodeInsightFixtureTestCa
 
 class IrrefutabilityTest_Scala2 extends IrrefutabilityTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2
+
+  // `scala.xml` is a separate module since Scala 2.11
+  override protected def additionalLibraries: Seq[LibraryLoader] = ScalaStandardLibraryLoaders.scalaXmlLoaders
 
   def testXmlPattern(): Unit = {
     assertIsNotIrrefutable("<b>0</b> match { case <a>x</a> => }")
