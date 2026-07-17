@@ -3,7 +3,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -422,7 +422,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(p: ScParameter, inCaseClass: Boolean): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val modifiers = {
-      val s = textOf(p.getModifierList)
+      val s = {
+        val s0 = textOf(p.getModifierList)
+        p.owner match {
+          case _: ScPrimaryConstructor if normalize && !(inCaseClass || p.isVal || p.isVar) && isField(p) => "private[this] " + (if (s0.isEmpty) "" else s0 + " ") + "val "
+          case _ => s0
+        }
+      }
       if (withPrivate) s else s.replace("private[this] ", "").replace("private ", "")
     }
     val keyword =
@@ -435,6 +441,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val repeated = if (p.isRepeatedParameter) "*" else ""
     val default = if (p.baseDefaultParam) " = ???" else ""
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default
+  }
+
+  private def isField(p: ScParameter): Boolean = {
+    val containingClass = p.parents.findByType[ScTypeDefinition].get
+    val parentClauses = containingClass.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
+    (parentClauses ++ containingClass.members.filterNot(_.names.contains("this"))).exists(_.elements.exists { case ReferenceTarget(e) if e == p => true; case _ => false } )
   }
 
   private def textOf(annotation: ScAnnotation): String =

@@ -11,8 +11,8 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Args
     //org.scalatest.Assertions
     //org.scalatest.AssertionsMacro
-    //org.scalatest.AsyncEngine
-    //org.scalatest.AsyncFixtureEngine
+    org.scalatest.AsyncEngine
+    org.scalatest.AsyncFixtureEngine
     org.scalatest.AsyncOutcome
     //org.scalatest.AsyncSuperEngine
     org.scalatest.AsyncTestHolder
@@ -51,7 +51,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.DynaTags
     //org.scalatest.EitherValues
     //org.scalatest.EncodedOrdering
-    //org.scalatest.Engine
+    org.scalatest.Engine
     //org.scalatest.Entry
     //org.scalatest.Exceptional
     //org.scalatest.Fact
@@ -62,7 +62,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.FixtureAsyncTestRegistration
     //org.scalatest.FixtureAsyncTestSuite
     org.scalatest.FixtureContext
-    //org.scalatest.FixtureEngine
+    org.scalatest.FixtureEngine
     //org.scalatest.FixtureSuite
     org.scalatest.FixtureTestRegistration
     //org.scalatest.FixtureTestSuite
@@ -174,7 +174,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.concurrent.Signaler
     //org.scalatest.concurrent.SignalerTimeoutTask
     org.scalatest.concurrent.SleepHelper
-    //org.scalatest.concurrent.SocketSignaler
+    org.scalatest.concurrent.SocketSignaler
     //org.scalatest.concurrent.TestThreadsStartingCounter
     org.scalatest.concurrent.ThreadSignaler
     //org.scalatest.concurrent.TimeLimitedTests
@@ -401,7 +401,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.dsl.ResultOfBeThrownBy
     //org.scalatest.matchers.dsl.ResultOfBeWordForAType
     //org.scalatest.matchers.dsl.ResultOfBeWordForAnType
-    //org.scalatest.matchers.dsl.ResultOfBeWordForNoException
+    org.scalatest.matchers.dsl.ResultOfBeWordForNoException
     //org.scalatest.matchers.dsl.ResultOfContainWord
     //org.scalatest.matchers.dsl.ResultOfDefinedAt
     //org.scalatest.matchers.dsl.ResultOfGreaterThanComparison
@@ -428,7 +428,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.dsl.ResultOfTheSameElementsInOrderAsApplication
     //org.scalatest.matchers.dsl.ResultOfTheSameInstanceAsApplication
     //org.scalatest.matchers.dsl.ResultOfTheTypeInvocation
-    //org.scalatest.matchers.dsl.ResultOfThrownByApplication
+    org.scalatest.matchers.dsl.ResultOfThrownByApplication
     //org.scalatest.matchers.dsl.ResultOfValueWordApplication
     org.scalatest.matchers.dsl.SizeWord
     org.scalatest.matchers.dsl.SortedWord
@@ -524,7 +524,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.EventHolderJList
     //org.scalatest.tools.EventHolderListCellRenderer
     //org.scalatest.tools.EventToPresent
-    //org.scalatest.tools.FileReporter
+    org.scalatest.tools.FileReporter
     //org.scalatest.tools.FileReporterConfiguration
     //org.scalatest.tools.FilterAlertProvided
     //org.scalatest.tools.FilterInfoProvided
@@ -552,7 +552,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.MemoryReporter
     //org.scalatest.tools.MemoryReporterConfiguration
     //org.scalatest.tools.NameValuePair
-    //org.scalatest.tools.NarrowJOptionPane
+    org.scalatest.tools.NarrowJOptionPane
     //org.scalatest.tools.NestedSuiteElement
     //org.scalatest.tools.NestedSuiteParam
     //org.scalatest.tools.PackageElement
@@ -608,7 +608,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.RunnerJFrame
     //org.scalatest.tools.RunningState
     //org.scalatest.tools.RunpathUrl
-    //org.scalatest.tools.SbtDispatchReporter
+    org.scalatest.tools.SbtDispatchReporter
     //org.scalatest.tools.SlowpokeConfig
     //org.scalatest.tools.SocketReporter
     //org.scalatest.tools.SocketReporterConfiguration
@@ -631,7 +631,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.TestElement
     //org.scalatest.tools.TestSortingReporter
     //org.scalatest.tools.TestSpec
-    //org.scalatest.tools.TestSpecificReporter
+    org.scalatest.tools.TestSpecificReporter
     //org.scalatest.tools.TestsfileElement
     //org.scalatest.tools.TextElement
     //org.scalatest.tools.Utils

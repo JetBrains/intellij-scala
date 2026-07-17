@@ -7,7 +7,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
   @Test def test(): Unit = doTest("""
     //cats.Align
     //cats.Alternative
-    //cats.Always
+    cats.Always
     //cats.Applicative
     //cats.ApplicativeError
     //cats.ApplicativeMonoid
@@ -732,7 +732,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.implicits
     //cats.effect.unsafe.metrics.ComputePoolSampler
     cats.effect.unsafe.metrics.ComputePoolSamplerMBean
-    //cats.effect.unsafe.metrics.CpuStarvation
+    cats.effect.unsafe.metrics.CpuStarvation
     cats.effect.unsafe.metrics.CpuStarvationMBean
     //cats.effect.unsafe.metrics.CpuStarvationMetrics
     //cats.effect.unsafe.metrics.CpuStarvationSampler
@@ -742,17 +742,17 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.metrics.LiveFiberSnapshotTrigger
     cats.effect.unsafe.metrics.LiveFiberSnapshotTriggerMBean
     cats.effect.unsafe.metrics.LocalQueueMetrics
-    //cats.effect.unsafe.metrics.LocalQueueSampler
+    cats.effect.unsafe.metrics.LocalQueueSampler
     cats.effect.unsafe.metrics.LocalQueueSamplerMBean
     //cats.effect.unsafe.metrics.PollerMetrics
-    //cats.effect.unsafe.metrics.PollerSampler
+    cats.effect.unsafe.metrics.PollerSampler
     cats.effect.unsafe.metrics.PollerSamplerMBean
     cats.effect.unsafe.metrics.TimerHeapMetrics
-    //cats.effect.unsafe.metrics.TimerHeapSampler
+    cats.effect.unsafe.metrics.TimerHeapSampler
     cats.effect.unsafe.metrics.TimerHeapSamplerMBean
     //cats.effect.unsafe.metrics.WorkStealingThreadPoolMetrics
     cats.effect.unsafe.metrics.WorkerThreadMetrics
-    //cats.effect.unsafe.metrics.WorkerThreadSampler
+    cats.effect.unsafe.metrics.WorkerThreadSampler
     cats.effect.unsafe.metrics.WorkerThreadSamplerMBean
     //cats.evidence.As
     //cats.evidence.AsInstances
@@ -945,7 +945,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.EqInstances0
     //cats.kernel.EqToEquivConversion
     //cats.kernel.FutureMonoid
-    //cats.kernel.FutureSemigroup
+    cats.kernel.FutureSemigroup
     //cats.kernel.Group
     //cats.kernel.GroupFunctions
     //cats.kernel.GroupInstances
@@ -1095,7 +1095,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.MapInstances
     //cats.kernel.instances.MapInstances1
     //cats.kernel.instances.MapMonoid
-    //cats.kernel.instances.OptionCommutativeMonoid
+    cats.kernel.instances.OptionCommutativeMonoid
     //cats.kernel.instances.OptionEq
     //cats.kernel.instances.OptionHash
     //cats.kernel.instances.OptionInstances
@@ -1447,7 +1447,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.syntax.ApplicativeByNameOps
     //cats.syntax.ApplicativeByValueOps
     cats.syntax.ApplicativeErrorExtension
-    //cats.syntax.ApplicativeErrorExtensionOps
+    cats.syntax.ApplicativeErrorExtensionOps
     //cats.syntax.ApplicativeErrorFUnitOps
     //cats.syntax.ApplicativeErrorIdOps
     //cats.syntax.ApplicativeErrorOps
@@ -1606,7 +1606,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.syntax.ParallelUnorderedSequenceOps
     //cats.syntax.ParallelUnorderedTraverseOps
     cats.syntax.ParallelUnorderedTraverseSyntax
-    //cats.syntax.PartialOrderOps
+    cats.syntax.PartialOrderOps
     //cats.syntax.PartialOrderSyntax
     cats.syntax.ProfunctorSyntax
     //cats.syntax.ReducibleOps0
