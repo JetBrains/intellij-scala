@@ -17,19 +17,18 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 //    true // Print actual cases and save contents to target/comparison/
     false // Test expected cases
 
-  private lazy val decompiler: Decompiler = {
-    val classpath =
-      ModuleRootManager.getInstance(getMyFixture.getModule)
-        .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
-        .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
+  protected def doTest(classes: String): Unit = {
+    val decompiler: Decompiler = {
+      val classpath =
+        ModuleRootManager.getInstance(getMyFixture.getModule)
+          .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
+          .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
+      new Decompiler(classpath)
+    }
 
-    new Decompiler(classpath)
-  }
-
-  protected def doTest(classes: String*): Unit = {
     val classNames =
       if (Print) allClasses(excludePackages = Set.empty).map(_.qualifiedName)
-      else classes.flatMap(_.split('\n')).map(_.trim).filterNot(_.isEmpty)
+      else classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq
 
     classNames.foreach { name =>
       val isCommented = name.startsWith("//")

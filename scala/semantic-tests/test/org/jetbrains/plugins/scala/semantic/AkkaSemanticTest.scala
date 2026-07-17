@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.corpus.scala3.AkkaTest
 import org.junit.Test
 
 class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
-  @Test def test(): Unit = doTest("""
+  @Test def test1(): Unit = doTest("""
     akka.AkkaException
     //akka.AkkaVersion
     akka.ConfigurationException
@@ -1145,7 +1145,9 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.sse.ServerSentEvent
     //akka.http.scaladsl.model.ws.BinaryMessage
     //akka.http.scaladsl.model.ws.InvalidUpgradeResponse
-    """, """
+    """)
+
+  @Test def test2(): Unit = doTest("""
     akka.http.scaladsl.model.ws.Message
     //akka.http.scaladsl.model.ws.PeerClosedConnectionException
     //akka.http.scaladsl.model.ws.TextMessage
