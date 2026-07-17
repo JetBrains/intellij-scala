@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.refactoring.rename2
 
 class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameBeanProperty(): Unit = doRenameTest("y",
-    """import reflect.BeanProperty
+    """import scala.beans.BeanProperty
       |object X {
       |  @BeanProperty
       |  val x<caret> = 1
@@ -11,7 +11,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |}
       |""".stripMargin,
     """
-      |import reflect.BeanProperty
+      |import scala.beans.BeanProperty
       |object X {
       |  @BeanProperty
       |  val y<caret> = 1
@@ -23,7 +23,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testRenameBooleanBeanProperty(): Unit = doRenameTest("y",
     """
-      |import reflect.BooleanBeanProperty
+      |import scala.beans.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  val x<caret> = 1
@@ -31,7 +31,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  isX()
       |}""".stripMargin,
     """
-      |import reflect.BooleanBeanProperty
+      |import scala.beans.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  val y<caret> = 1
@@ -42,7 +42,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testRenameBeanVarProperty(): Unit = doRenameTest("y",
     """
-      |import reflect.BeanProperty
+      |import scala.beans.BeanProperty
       |object X {
       |  @BeanProperty
       |  var x<caret> = 1
@@ -51,7 +51,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  setX(2)
       |}""".stripMargin,
     """
-      |import reflect.BeanProperty
+      |import scala.beans.BeanProperty
       |object X {
       |  @BeanProperty
       |  var y<caret> = 1
@@ -64,7 +64,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testRenameBooleanBeanVarProperty(): Unit = doRenameTest("y",
     """
-      |import reflect.BooleanBeanProperty
+      |import scala.beans.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  var x<caret> = 1
@@ -74,7 +74,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |}
       """.stripMargin,
     """
-      |import reflect.BooleanBeanProperty
+      |import scala.beans.BooleanBeanProperty
       |object X {
       |  @BooleanBeanProperty
       |  var y<caret> = 1
