@@ -93,7 +93,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.InternalActorRef
     //akka.actor.InvalidActorNameException
     //akka.actor.InvalidMessageException
-    //akka.actor.JVMShutdownHooks
+    akka.actor.JVMShutdownHooks
     //akka.actor.Kill
     //akka.actor.LightArrayRevolverScheduler
     //akka.actor.LocalActorRef
@@ -473,7 +473,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.dispatch.QueueBasedMessageQueue
     //akka.dispatch.Recover
     akka.dispatch.RequiresMessageQueue
-    //akka.dispatch.SaneRejectedExecutionHandler
+    akka.dispatch.SaneRejectedExecutionHandler
     //akka.dispatch.SingleConsumerOnlyUnboundedMailbox
     akka.dispatch.SystemMessageQueue
     //akka.dispatch.TaskInvocation
@@ -747,7 +747,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.util.StageLoggingWithOverride
     //akka.http.impl.util.StreamUtils
     //akka.http.impl.util.StringRendering
-    //akka.http.impl.util.StringTools
+    akka.http.impl.util.StringTools
     //akka.http.impl.util.Timestamp
     //akka.http.impl.util.ToStrict
     //akka.http.impl.util.ToStringRenderable

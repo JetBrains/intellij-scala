@@ -2,7 +2,7 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -270,7 +270,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
           ".apply"
         case _ => ""
-      })
+      }) + (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
