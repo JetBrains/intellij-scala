@@ -16,7 +16,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.Version
     //akka.actor.AbstractActor
     akka.actor.AbstractActorWithStash
-    //akka.actor.AbstractActorWithTimers
+    akka.actor.AbstractActorWithTimers
     akka.actor.AbstractActorWithUnboundedStash
     akka.actor.AbstractActorWithUnrestrictedStash
     akka.actor.AbstractExtensionId
@@ -398,7 +398,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.cluster.sbr.SplitBrainResolverBase
     //akka.cluster.sbr.SplitBrainResolverProvider
     //akka.cluster.sbr.SplitBrainResolverSettings
-    //akka.cluster.sbr.StaticQuorum
+    akka.cluster.sbr.StaticQuorum
     //akka.cluster.sbr.StaticQuorumSettings
     //akka.compat.Future
     akka.compat.PartialFunction
@@ -751,7 +751,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.util.Timestamp
     //akka.http.impl.util.ToStrict
     //akka.http.impl.util.ToStringRenderable
-    //akka.http.impl.util.ValueRenderable
+    akka.http.impl.util.ValueRenderable
     //akka.http.javadsl.ClientTransport
     //akka.http.javadsl.ConnectHttp
     //akka.http.javadsl.ConnectHttpImpl
@@ -1311,7 +1311,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.TcpManager
     //akka.io.TcpMessage
     //akka.io.TcpOutgoingConnection
-    //akka.io.TcpSO
+    akka.io.TcpSO
     //akka.io.Udp
     //akka.io.UdpConnected
     //akka.io.UdpConnectedExt
@@ -1322,7 +1322,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.UdpListener
     //akka.io.UdpManager
     //akka.io.UdpMessage
-    //akka.io.UdpSO
+    akka.io.UdpSO
     //akka.io.UdpSender
     //akka.io.WithUdpSend
     //akka.io.dns.AAAARecord
@@ -1541,7 +1541,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.PersistenceRecovery
     //akka.persistence.PersistenceSettings
     //akka.persistence.PersistenceStash
-    //akka.persistence.PersistentActor
+    akka.persistence.PersistentActor
     akka.persistence.PersistentEnvelope
     //akka.persistence.PersistentImpl
     //akka.persistence.PersistentRepr
@@ -2032,8 +2032,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.ContextPropagation
     akka.stream.impl.ContextPropagationImpl
     //akka.stream.impl.CoupledTerminationBidi
-    //akka.stream.impl.DefaultInputTransferStates
-    //akka.stream.impl.DefaultOutputTransferStates
+    akka.stream.impl.DefaultInputTransferStates
+    akka.stream.impl.DefaultOutputTransferStates
     //akka.stream.impl.EmptyPublisher
     //akka.stream.impl.EmptySource
     akka.stream.impl.EmptyTraversal

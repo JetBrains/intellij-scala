@@ -176,7 +176,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.CokleisliProfunctor
     //cats.data.CommonIRWSTConstructors
     //cats.data.CommonStateTConstructors
-    //cats.data.CommonStateTConstructors0
+    cats.data.CommonStateTConstructors0
     //cats.data.Const
     //cats.data.ConstApplicative
     //cats.data.ConstApply
