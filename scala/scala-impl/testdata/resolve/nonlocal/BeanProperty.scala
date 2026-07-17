@@ -1,6 +1,6 @@
 package test
 
-import reflect.BeanProperty
+import scala.beans.BeanProperty
 
 class A {
   @<ref>BeanProperty
