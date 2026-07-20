@@ -57,7 +57,7 @@ object Versions {
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
-
+  
   /**
    * For `"org.jetbrains.intellij.deps.languagetool" % "language-*"` dependencies
    *
@@ -72,6 +72,8 @@ object Versions {
    * Potentially automate the updating of this version in the future.
    */
   val HunspellDictionaryVersion = "0.2.359"
+
+  val otelVersion = "1.63.0" 
 
   object Sbt {
     val binary_0_13 = "0.13"

@@ -8,14 +8,19 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 import org.jetbrains.plugins.scala.build.BuildMessages.stripAnsiCodes
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, EelPathTranslator}
+import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent, CompilerEventListener, EelPathTranslator}
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.nio.file.Path
 import scala.collection.mutable
 
 class CompilerEventReporter(project: Project,
-                            compilationId: CompilationId)
+                            compilationId: CompilationId,
+                            // Surfaced on the "External build" tracing span. BSP runs one compilation for
+                            // all targets, so `module` is a combined label (e.g. "root, root-test") and
+                            // `buildReason` is "Rebuild" (clean) vs "Incremental".
+                            buildReason: Option[String] = None,
+                            module: Option[String] = None)
   extends BuildReporter {
 
   private val pathTranslator = EelPathTranslator
@@ -60,7 +65,9 @@ class CompilerEventReporter(project: Project,
 
 
   override def start(): Unit = {
-    val event = CompilerEvent.CompilationStarted(compilationId, None)
+    val compilationUnitId = module.map(CompilationUnitId(_, testScope = false))
+    // No IDE JPS build session on the BSP path.
+    val event = CompilerEvent.CompilationStarted(compilationId, compilationUnitId, buildReason, None)
     publisher.eventReceived(event)
   }
 

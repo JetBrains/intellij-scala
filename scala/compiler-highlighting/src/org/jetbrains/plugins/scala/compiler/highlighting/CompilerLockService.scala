@@ -6,6 +6,8 @@ import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilerLockWaitPhaseEvent, LockWaitKind, RequestId}
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{Semaphore, TimeUnit}
@@ -28,12 +30,12 @@ private final class CompilerLockService(project: Project) {
 
   private val ready: AtomicBoolean = new AtomicBoolean(false)
 
-  def withCompilerLock(indicator: ProgressIndicator)(body: => Unit): Unit = {
-    withPermit(projectReadySemaphore, indicator) {
+  def withCompilerLock(indicator: ProgressIndicator, requestId: RequestId)(body: => Unit): Unit = {
+    withPermit(projectReadySemaphore, indicator, LockWaitKind.ProjectReady, requestId) {
       if (!project.isDisposed) {
-        val compilationSemaphore =
+        val jpsBuildSemaphore =
           CompilerManager.getInstance(project).asInstanceOf[CompilerManagerImpl].getCompilationSemaphore
-        withPermit(compilationSemaphore, indicator) {
+        withPermit(jpsBuildSemaphore, indicator, LockWaitKind.JpsBuild, requestId) {
           body
         }
       }
@@ -48,18 +50,21 @@ private final class CompilerLockService(project: Project) {
 
   def isReady: Boolean = ready.get()
 
-  private def withPermit(semaphore: Semaphore, indicator: ProgressIndicator)(body: => Unit): Unit = {
+  private def withPermit(semaphore: Semaphore, indicator: ProgressIndicator, lockName: LockWaitKind,
+                         requestId: RequestId)(body: => Unit): Unit = {
     var acquired = false
+    val span = Tracing(project).begin(CompilerLockWaitPhaseEvent(lockName, requestId))
     try {
-      while (!acquired) {
-        acquired = semaphore.tryAcquire(300L, TimeUnit.MILLISECONDS)
-        indicator.checkCanceled()
-      }
-      body
+        while (!acquired) {
+          acquired = semaphore.tryAcquire(300L, TimeUnit.MILLISECONDS)
+          indicator.checkCanceled()
+        }
+        body
     } finally {
       if (acquired) {
         semaphore.release()
       }
+      Tracing(project).end(span)
     }
   }
 }

@@ -50,7 +50,7 @@ private final class DocumentCompiler(project: Project) {
     virtualFile: VirtualFile,
     client: Client
   ): Unit = {
-    val useInMemoryFile = Registry.is("scala.compiler.highlighting.document.use.in.memory.file")
+    val useInMemoryFile = DocumentCompiler.useInMemoryFile
     val originalSourceFile = virtualFile.toPath
     val sourceContent = document.textWithConvertedSeparators(virtualFile)
 
@@ -244,6 +244,16 @@ private final class DocumentCompiler(project: Project) {
 }
 
 private object DocumentCompiler {
+
+  /**
+   * When set, a document compilation sends the edited buffer to the compile server as an in-memory
+   * file (`CompileDocument`) instead of writing a temporary physical file. Read at the dispatch site
+   * too, to label the tracing span (`"Document (in-memory)"` vs `"Document"`).
+   */
+  final val UseInMemoryFileRegistryKey = "scala.compiler.highlighting.document.use.in.memory.file"
+
+  def useInMemoryFile: Boolean = Registry.is(UseInMemoryFileRegistryKey)
+
   def get(project: Project): DocumentCompiler =
     project.getService(classOf[DocumentCompiler])
 }

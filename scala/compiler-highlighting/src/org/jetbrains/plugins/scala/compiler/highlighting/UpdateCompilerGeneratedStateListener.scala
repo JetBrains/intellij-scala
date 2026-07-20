@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -16,6 +17,10 @@ import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{CompilationDurationEvent, ExternalBuildEvent}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionPhaseEvent, CompilationKind, CompilationRequestPhaseEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -31,6 +36,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
   private final val CompilerPluginTypeSuffix = "</type>" // CompilerPlugin.TypeSuffix
 
   private val eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(project)
+
+  private val Log: Logger = Logger.getInstance(classOf[UpdateCompilerGeneratedStateListener])
+
+  private val TERMINATING_COMPILATION_KINDS:Set[CompilationKind] = Set(CompilationKind.Document,
+    CompilationKind.InMemoryDocument, CompilationKind.Worksheet)
 
   private def parseEelPath(source: SerializablePath): Option[Path] =
     try {
@@ -57,11 +67,33 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
     val oldState = CompilerGeneratedStateManager.get(project)
 
     event match {
-      case CompilerEvent.CompilationStarted(_, _) =>
+      case CompilerEvent.CompilationStarted(compilationId, compilationUnitId, buildReason, jpsSessionId) =>
+        Log.info(s"[tracing] CompilationStarted received: id=$compilationId module=${compilationUnitId.map(_.moduleId)} " +
+          s"reason=$buildReason session=$jpsSessionId")
+        val externalBuild = ExternalBuildEvent(
+          buildReason.getOrElse("unknown"),
+          compilationUnitId.map(_.moduleId).getOrElse("unknown"),
+          compilationId,
+          jpsSessionId,
+        )
+        Tracing(project).handoff(compilationId, compilationId, externalBuild) { // with  externalBuild fallback
+          case CompilationRequestPhaseEvent(kind, file, reason, _, compilationId, _, closeOnEnd) =>
+            CompilationDurationEvent(kind, file, reason, compilationId, closeOnEnd)
+          case other => other
+        }
+        // Record this external build span on its open BuildManagerSession, so the session end can close
+        // any that were left open (a cancelled build may never emit CompilationFinished for its modules).
+        jpsSessionId.foreach { sid =>
+          Tracing(project).map(sid) {
+            case session: BuildManagerSessionPhaseEvent =>
+              Some(session.copy(compilationIds = compilationId :: session.compilationIds))
+            case other => Some(other)
+          }
+        }
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
-      case CompilerEvent.MessageEmitted(compilationId, _, _, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
+      case CompilerEvent.MessageEmitted(compilationId, _, uuid, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
         findVirtualFile(source).foreach { virtualFile =>
           val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
           val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
@@ -125,6 +157,14 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newState = oldState.copy(progress = progress)
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
+        Log.info(s"[tracing] CompilationFinished received: $compilationId")
+        Tracing(project).mapAndEnd(compilationId) {
+          // A compilation cancelled before it started still emits CompilationFinished (the JPS `finally`), so its
+          // request span was never handed off. It self-removes its own compilationId context key here.
+          case req: CompilationRequestPhaseEvent => Some(req.closed())
+          // duration / external build must not self-remove here.
+          case other => Some(other)
+        }
         val vFiles = for {
           source <- sources
           virtualFile <- findVirtualFile(source)
@@ -155,13 +195,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
                 // ignore
             }
           }
+        } else {
+          Tracing(project).instant(EndEvent(CompilationDurationEvent.key(compilationId), "No file to highlight"))
         }
       case _ =>
     }
   }
 
   private def kindToHighlightInfoType(kind: MessageKind, text: String, virtualFile: VirtualFile): HighlightInfoType = {
-    import org.jetbrains.plugins.scala.compiler.highlighting.{HighlightInfoType => HIT}
+    import org.jetbrains.plugins.scala.compiler.highlighting.HighlightInfoType as HIT
     val scalacOptions = scalacOptionsForFile(virtualFile)
     CompilerMessageKinds.highlightInfoType(
       kind = kind,

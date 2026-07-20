@@ -14,7 +14,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.xml.util.XmlStringUtil
@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOpt
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlightersService.HighlightInfoData
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{FindUnresolvedReferenceEvent, HighlightingEvent, RegisterQuickFixes}
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, Parent, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -46,7 +48,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 import java.util.Collections
 import java.util.concurrent.Callable
 import scala.annotation.{nowarn, tailrec}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service(Array(Service.Level.PROJECT))
 private final class ExternalHighlightersService(project: Project) {
@@ -66,6 +68,7 @@ private final class ExternalHighlightersService(project: Project) {
 
   def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
+    val span = Tracing(project).begin(HighlightingEvent(compilationId))
 
     val readActionCallable: Callable[HighlightInfoData] = { () =>
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
@@ -78,7 +81,7 @@ private final class ExternalHighlightersService(project: Project) {
         psiFile <- Option(psiManager.findFile(virtualFile)) if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
       } yield {
         val externalHighlights = state.externalHighlightings(virtualFile)
-        val highlightInfos = calculateHighlightInfos(externalHighlights, document, psiFile)
+        val highlightInfos = calculateHighlightInfos(externalHighlights, document, psiFile, compilationId)
         HighlightingData(editor, document, psiFile, virtualFile, highlightInfos)
       }
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
@@ -158,24 +161,36 @@ private final class ExternalHighlightersService(project: Project) {
       }
     }
 
+    var completedSuccessfully = false
+
+    def endAction(files: Set[VirtualFile]): Unit = {
+      Tracing(project).mapAndEnd(span) {
+        case event@HighlightingEvent(_, _) => Some(event.copy(files = files.map(_.toString).toSet).closed())
+        case e => Some(e.closed())
+      }
+      if (isUnitTestMode) {
+        notifyHighlightingApplied(files)
+      }
+    }
+
     val action = ReadAction
       .nonBlocking(readActionCallable)
       .inSmartMode(project)
       .expireWhen(() => project.isDisposed || !DocumentUtil.stillValid(compilationId.documentVersions))
       .coalesceBy(compilationId)
       .finishOnUiThread(ModalityState.nonModal(), { data =>
+        completedSuccessfully = true
         val modifiedFiles = applyHighlightingInfo(data)
-        if (isUnitTestMode) {
-          notifyHighlightingApplied(modifiedFiles)
-        }
+        endAction(modifiedFiles)
       })
       .submit(BackgroundExecutorService.instance(project).executor)
-    if (isUnitTestMode) {
-      action.onError { _ =>
-        // We still notify that this cycle finished with no files touched, so that waiters never hang.
-        notifyHighlightingApplied(Set.empty)
+      .onProcessed { _ =>
+      if (!completedSuccessfully) {
+        endAction(Set())
       }
-    }
+      }.onError(_ => {
+        endAction(Set())
+    })
   }
 
 
@@ -272,14 +287,16 @@ private final class ExternalHighlightersService(project: Project) {
     externalHighlights: Set[ExternalHighlighting],
     document: Document,
     psiFile: PsiFile,
+    compilationId: CompilationId
   ): Set[HighlightInfo] =
     externalHighlights.flatMap { highlighting =>
       ProgressManager.checkCanceled()
-      toHighlightInfo(highlighting, document, psiFile)
+      toHighlightInfo(highlighting, document, psiFile, compilationId)
     }
 
   @RequiresReadLock
-  private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
+  private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile,
+                              compilationId: CompilationId): Option[HighlightInfo] = {
     //NOTE: in case there is no location in the file, do not ignore/lose messages
     //instead report them in the beginning of the file
     val range = highlighting.rangeInfo.getOrElse {
@@ -350,15 +367,23 @@ private final class ExternalHighlightersService(project: Project) {
 
         val argList = findArgumentList(psiFile.findElementAt(highlightRange.getStartOffset))
 
+        Tracing(project).begin("Quickfixes", RegisterQuickFixes(compilationId))
+        var fixes = Set.empty[String]
         for (argList <- argList) {
           val quickfix = new AddParametersQuickfix(argList.createSmartPointer)
           highlightInfo.registerFix(quickfix, null, null, argList.getTextRange, null)
+          fixes = fixes + quickfix.getText
+        }
+        Tracing(project).mapAndEnd("Quickfixes") {
+          case RegisterQuickFixes(_,_) => Some(RegisterQuickFixes(compilationId, fixes))
         }
       }
 
       registerImportFixesFromMessage(highlighting.message, highlightRange, psiFile, highlightInfo)
 
-      val fixes = findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
+      val fixes = Tracing(project).trace(FindUnresolvedReferenceEvent(compilationId, psiFile.toString)) {
+        findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
+      }
       fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
       highlightInfo.create()
     }
@@ -390,7 +415,7 @@ private final class ExternalHighlightersService(project: Project) {
   }
 
   private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
-    import scala.util.chaining._
+    import scala.util.chaining.*
     unescapedTooltip
       .pipe(XmlStringUtil.escapeString)
       .pipe(_.replace("\n", "<br>"))

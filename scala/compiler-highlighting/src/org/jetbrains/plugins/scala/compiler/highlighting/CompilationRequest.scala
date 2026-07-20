@@ -3,13 +3,15 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.RequestId
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import scala.concurrent.duration.Deadline
 
-private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val deadline: Deadline) {
+private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val deadline: Deadline,
+                                                 val id: RequestId) {
   protected val priority: Int
 
   final val documentVersions: Map[VirtualFile, DocumentVersion] =
@@ -30,8 +32,9 @@ private object CompilationRequest {
     document: Document,
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
-    override val deadline: Deadline
-  ) extends CompilationRequest(Map(virtualFile -> document), deadline) {
+    override val deadline: Deadline,
+    requestId: RequestId
+  ) extends CompilationRequest(Map(virtualFile -> document), deadline, requestId) {
     override protected val priority: Int = 1
 
     override def delayed(deadline: Deadline): WorksheetRequest = copy(deadline = deadline)
@@ -40,10 +43,12 @@ private object CompilationRequest {
   final case class IncrementalRequest(
     fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
     debugReason: String,
-    override val deadline: Deadline
+    override val deadline: Deadline,
+    requestId: RequestId
   ) extends CompilationRequest(
     fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document },
-    deadline
+    deadline,
+    requestId
   ) {
     override protected val priority: Int = 1
 
@@ -53,8 +58,9 @@ private object CompilationRequest {
   final case class DocumentRequest(
     scope: FileCompilationScope,
     debugReason: String,
-    override val deadline: Deadline
-  ) extends CompilationRequest(Map(scope.virtualFile -> scope.document), deadline) {
+    override val deadline: Deadline,
+    requestId: RequestId
+  ) extends CompilationRequest(Map(scope.virtualFile -> scope.document), deadline, requestId) {
     override protected val priority: Int = 2
 
     override def delayed(deadline: Deadline): DocumentRequest = copy(deadline = deadline)

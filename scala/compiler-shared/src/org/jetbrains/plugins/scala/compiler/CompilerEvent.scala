@@ -20,9 +20,11 @@ object CompilerEvent {
 
   // can be sent multiple times for different modules by jps compiler
   case class CompilationStarted(compilationId: CompilationId,
-                                compilationUnitId: Option[CompilationUnitId])
+                                compilationUnitId: Option[CompilationUnitId],
+                                buildReason: Option[String],
+                                jpsSessionId: Option[UUID])
     extends CompilerEvent {
-    
+
     override def eventType: CompilerEventType = CompilerEventType.CompilationStarted
   }
 

@@ -10,6 +10,7 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, Fi
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.model.{JpsSbtExtensionService, JpsScalaProjectMetadataExtensionService}
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerMetrics, SerializablePath}
+import org.jetbrains.jps.incremental.scala.tracing.BuildReason
 import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
@@ -19,6 +20,7 @@ import java.nio.file.Path
 import java.util
 import java.util.UUID
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 abstract class IdeClient(compilerName: String,
@@ -28,6 +30,25 @@ abstract class IdeClient(compilerName: String,
   private var hasErrors = false
   private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)
   private val compilationUnitId = Some(IdeClient.getCompilationUnitId(context, chunk))
+  
+  private val buildReason: Option[String] = {
+    val forced = chunk.getTargets.asScala.exists(context.getScope.isBuildForced)
+    Some((if (forced) BuildReason.Compile else BuildReason.Rebuild).toString)
+  }
+
+  /**
+   * The IDE JPS build session id. The platform's `BuildSession` is the `CanceledStatus` returned by
+   * `context.getCancelStatus` and holds the same `UUID` that `BuildManager` minted and passed to
+   * `BuildManagerListener.buildStarted`. We read its private `mySessionId` field via reflection so that
+   * events emitted from this external build can be correlated back to the IDE-side build session span.
+   * Falls back to `None` if the platform ever renames/reshapes the field.
+   */
+  private lazy val jpsSessionId: Option[UUID] = Try {
+    val cancelStatus = context.getCancelStatus
+    val mySessionIdField = cancelStatus.getClass.getDeclaredField("mySessionId")
+    mySessionIdField.setAccessible(true)
+    mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
+  }.toOption
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, pointer, _, _, _) = msg
@@ -58,17 +79,10 @@ abstract class IdeClient(compilerName: String,
       case MessageKind.Other => BuildMessage.Kind.OTHER
     }
 
-    val uuid = Try {
-      val cancelStatus = context.getCancelStatus
-      val mySessionIdField = cancelStatus.getClass.getDeclaredField("mySessionId")
-      mySessionIdField.setAccessible(true)
-      mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
-    }.toOption
-
     // CompilerMessage expects 1-based line and column indices.
     context.processMessage(new CompilerMessage(name, jpsKind, textWithOptionalJdkWarning, sourcePath.orNull,
       -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-    context.processMessage(new Base64BuilderMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg)))
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, jpsSessionId, msg)))
   }
 
   private def getJdkFeatureVersion: Option[Int] = {
@@ -79,7 +93,7 @@ abstract class IdeClient(compilerName: String,
 
   override def compilationStart(): Unit = {
     context.processMessage(new ProgressMessage(JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName)))
-    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId)))
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId, buildReason, jpsSessionId)))
   }
 
   override def worksheetOutput(text: String): Unit = ()

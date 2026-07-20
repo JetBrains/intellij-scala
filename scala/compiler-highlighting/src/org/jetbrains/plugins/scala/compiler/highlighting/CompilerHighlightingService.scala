@@ -27,19 +27,21 @@ import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationKind, CompilationRequestPhaseEvent, EnsureServerRunningPhaseEvent, QueueRescheduledPhaseEvent, QueueWaitKind, QueueWaitOutcome, QueueWaitPhaseEvent, RequestId}
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, DocumentVersion}
-import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 import java.io.EOFException
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture, TimeUnit}
 import kotlinx.coroutines.{BuildersKt, CoroutineScope}
 import scala.collection.immutable
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, Promise}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.math.Ordering.Implicits.infixOrderingOps
@@ -48,7 +50,7 @@ import scala.util.control.NonFatal
 @Service(Array(Service.Level.PROJECT))
 private final class CompilerHighlightingService(project: Project, coroutineScope: CoroutineScope) extends Disposable {
 
-  import CompilerHighlightingService._
+  import CompilerHighlightingService.*
 
   private val executor: ScheduledExecutorService =
     AppExecutorUtil.createBoundedScheduledExecutorService(getClass.getSimpleName, 1)
@@ -92,6 +94,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     debug("dispose")
     executor.shutdown()
     indicatorExecutor.shutdown()
+    // Close any queue-wait spans still open for requests left in the queue.
+    priorityQueue.forEach(request => Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Disposed)))
     priorityQueue.clear()
     val task = compilationTask.getAndSet(null)
     if (task ne null) {
@@ -108,18 +112,20 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     module: Module,
     document: Document,
     psiFile: PsiFile,
-    debugReason: String
+    debugReason: String,
+    request: RequestId
   ): Unit = {
     if (platformAutomakeEnabled(project)) {
       invokeLater {
         //we need to save documents right away or automake won't happen
-        TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+        TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation(request)
         BuildManager.getInstance().scheduleAutoMake()
       }
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline(project)))
+      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason,
+        CompilationRequest.compilationDeadline(project), request))
     }
   }
 
@@ -128,11 +134,12 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     module: Module,
     document: Document,
     psiFile: PsiFile,
-    debugReason: String
+    debugReason: String,
+    request: RequestId
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
     val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-    schedule(CompilationRequest.DocumentRequest(scope, debugReason, CompilationRequest.compilationDeadline(project)))
+    schedule(CompilationRequest.DocumentRequest(scope, debugReason, CompilationRequest.compilationDeadline(project), request))
   }
 
   def triggerWorksheetCompilation(
@@ -140,9 +147,11 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     psiFile: ScalaFile,
     document: Document,
     isFirstTimeHighlighting: Boolean,
-    debugReason: String
+    debugReason: String,
+    request: RequestId
   ): Unit =
-    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, CompilationRequest.compilationDeadline(project)))
+    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason,
+      CompilationRequest.compilationDeadline(project), request))
 
   private[highlighting] def saveProjectOnNextCompilation(): Unit = {
     projectSaveTracker.set(true)
@@ -153,8 +162,27 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     else SourceScope.Production
 
   private def schedule(request: CompilationRequest): Unit = {
+    Tracing(project).begin(request.id, queueEventFor(request))
     priorityQueue.add(request)
     scheduleCompilationTask(request.deadline)
+  }
+
+  private def documentCompilationKind: CompilationKind =
+    if (DocumentCompiler.useInMemoryFile) CompilationKind.InMemoryDocument else CompilationKind.Document
+
+  private def queueEventFor(request: CompilationRequest): QueueWaitPhaseEvent = {
+    val kind = request match {
+      case _: CompilationRequest.WorksheetRequest => QueueWaitKind.Worksheet
+      case _: CompilationRequest.IncrementalRequest => QueueWaitKind.Incremental
+      case _: CompilationRequest.DocumentRequest => QueueWaitKind.Document
+    }
+    QueueWaitPhaseEvent(kind, request.id, request.debugReason, request.originFiles.keys.map(_.getName).mkString(", "))
+  }
+
+  /** Transform that records the `outcome` on a [[QueueWaitPhaseEvent]] as its span is closed. */
+  private def withOutcome(outcome: QueueWaitOutcome): ContextTraceEvent => Option[ContextTraceEvent] = {
+    case e: QueueWaitPhaseEvent => Some(e.copy(outcome = Some(outcome)))
+    case other => Some(other)
   }
 
   private def execute(request: CompilationRequest): Unit = request match {
@@ -167,7 +195,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
-    val CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, _) = request
+    val CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, _, id) = request
     debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: $isFirstTimeHighlighting)")
 
     //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
@@ -184,12 +212,16 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       //Otherwise if you open non-compiled project and open worksheet it will contain red code
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, file)
-      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline(project))
-      executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason,
+        CompilationRequest.compilationDeadline(project), id)
+      executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false, closeRequest = true)
     }
 
-    prepareCompilation(await = true) {
-      performCompilation(documentVersionsFor(request), delayIndicator = true, refreshVfs = false) { client =>
+    prepareCompilation(await = true, request.id) {
+      performCompilation(documentVersionsFor(request), delayIndicator = true, refreshVfs = false, request.id) { client =>
+        Tracing(project).begin(client.compilationId,
+          CompilationRequestPhaseEvent(CompilationKind.Worksheet, virtualFile.getPath, debugReason, request.requestId,
+            client.compilationId))
         WorksheetHighlightingCompiler.compile(file, document, module, client)
       }
     }
@@ -200,23 +232,44 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       path -> version
     }.to(immutable.HashMap.mapFactory[CanonicalPath, Long])
 
-  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
+  private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest,
+                                                   runDocumentCompiler: Boolean,
+                                                   closeRequest: Boolean = false): Unit = {
     debug(s"incrementalCompilation: ${request.debugReason}")
-    prepareCompilation(await = true) {
+    prepareCompilation(await = true, request.id) {
       val promise = Promise[Unit]()
       // Documents must be saved on the UI thread, so a thread shift is mandatory in this case.
       invokeLater {
         val future =
           if (project.isDisposed) Future.unit
           else {
-            TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+            TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation(request.id)
             // Perform the rest of the execution of this incremental compilation on a background thread.
             val documentVersions: Map[CanonicalPath, Long] & Serializable = documentVersionsFor(request)
-            performCompilation(documentVersions, delayIndicator = false, refreshVfs = true) { client =>
-              if (BspUtil.isBspProject(project)) {
-                doBspIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
-              } else {
-                doJpsIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
+            performCompilation(documentVersions, delayIndicator = false, refreshVfs = true, request.id) { client =>
+              val requestKey = client.compilationId
+              val incrementalFiles = request.fileCompilationScopes.keys.map(_.getPath).mkString(", ")
+              try {
+                if (BspUtil.isBspProject(project)) {
+                  Tracing(project).begin(requestKey,
+                    CompilationRequestPhaseEvent(CompilationKind.BSPIncremental, incrementalFiles, request.debugReason,
+                      request.requestId,
+                      requestKey, closeParentValue = false, closeOnEndValue = closeRequest))
+                  doBspIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
+                } else {
+                  Tracing(project).begin(requestKey,
+                    // we trigger document compilation after incremental so we should keep parent trace open
+                    CompilationRequestPhaseEvent(CompilationKind.JPSIncremental, incrementalFiles, request.debugReason,
+                      request.requestId,
+                      requestKey, closeParentValue = false, closeOnEndValue = closeRequest))
+                  doJpsIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
+                }
+              } finally {
+                // If the compilation was cancelled before its CompilationStarted arrived (e.g. superseded by a
+                // newer edit), no CompilationFinished will arrive to end it. Anything still
+                // open under this compilationId here is stranded: end it, which self-removes its own context
+                // key. On the normal path it was already handed off and finished, so this is a no-op.
+                Tracing(project).mapAndEnd(requestKey)(e => Some(e.closed()))
               }
             }
           }
@@ -238,7 +291,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     documentVersions: Map[CanonicalPath, Long] & Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _, id) = request
     val context = new ProjectTaskContext()
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
     val sourceScope = mergeSourceScope(request)
@@ -253,10 +306,15 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val promise = taskRunner.run(project, context, task)
     promise.blockingGet(1, TimeUnit.DAYS)
 
-    if (!DocumentUtil.stillValid(documentVersions)) return
+    if (!DocumentUtil.stillValid(documentVersions)) {
+      Tracing(project).instant(EndEvent(id, "Documents changed during BSP incremental compilation"))
+      return
+    }
 
-    if (runDocumentCompiler && reporter.successful) {
-      triggerDocumentCompilationInAllOpenEditors(Some(client))
+    val handedOff = runDocumentCompiler && reporter.successful &&
+      triggerDocumentCompilationInAllOpenEditors(Some(client), "After BSP compilation", id)
+    if (!handedOff) {
+      Tracing(project).instant(EndEvent(id, "No document compilation followed BSP incremental compilation"))
     }
     if (reporter.successful && client.successful) {
       enableDocumentCompiler(fileCompilationScopes)
@@ -269,15 +327,20 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     documentVersions: Map[CanonicalPath, Long] & Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _, id) = request
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(request)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
 
-    if (!DocumentUtil.stillValid(documentVersions)) return
+    if (!DocumentUtil.stillValid(documentVersions)) {
+      Tracing(project).instant(EndEvent(id, "Documents changed during JPS incremental compilation"))
+      return
+    }
 
-    if (runDocumentCompiler && client.successful) {
-      triggerDocumentCompilationInAllOpenEditors(Some(client))
+    val handedOff = runDocumentCompiler && client.successful &&
+      triggerDocumentCompilationInAllOpenEditors(Some(client), "After JPS compilation", id)
+    if (!handedOff) {
+      Tracing(project).instant(EndEvent(id, "No document compilation followed JPS incremental compilation"))
     }
     if (client.successful) {
       enableDocumentCompiler(fileCompilationScopes)
@@ -293,9 +356,10 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
-    val CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, _), debugReason, _) = request
+    val CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, _), debugReason, _, _) = request
     debug(s"documentCompilation: $debugReason")
-    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), await = true)
+    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), debugReason:String, await = true,
+      request.id)
   }
 
   private def executeDocumentCompilationRequest(
@@ -304,19 +368,29 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     virtualFile: VirtualFile,
     document: Document,
     versions: Map[CanonicalPath, Long] & Serializable,
-    await: Boolean
+    debugReason:String,
+    await: Boolean,
+    requestId: RequestId
   ): Unit = {
-    prepareCompilation(await) {
-      performCompilation(versions, delayIndicator = true, refreshVfs = false) { client =>
+    prepareCompilation(await, requestId ) {
+      performCompilation(versions, delayIndicator = true, refreshVfs = false, requestId) { client =>
+        Tracing(project).begin(client.compilationId,
+          CompilationRequestPhaseEvent(documentCompilationKind, virtualFile.getPath, debugReason, requestId,
+            client.compilationId))
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
       }
     }
   }
 
-  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
+  /**
+   * @return `true` if at least one document compilation was dispatched for `requestId`.
+   */
+  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient],
+                                                                       debugReason:String,
+                                                                       requestId: RequestId): Boolean = {
     val selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles
-    selectedFiles.flatMap { vf =>
+    val eligible = selectedFiles.flatMap { vf =>
       val (document, module, psiFile) = inReadAction {
         (
           FileDocumentManager.getInstance().getDocument(vf),
@@ -336,20 +410,42 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         } else None
       }
       else None
-    }.foreach { case (module, sourceScope, document, virtualFile) =>
+    }
+    eligible.foreach { case (module, sourceScope, document, virtualFile) =>
       client match {
         case Some(c) =>
-          DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
+          Tracing(project).begin(c.compilationId,
+            CompilationRequestPhaseEvent(documentCompilationKind, virtualFile.getPath, debugReason, requestId,
+              c.compilationId))
+          try
+            DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
+          finally {
+            var pending = false
+            Tracing(project).mapAndEnd(c.compilationId) {
+              case req: CompilationRequestPhaseEvent =>
+                pending = true
+                Some(req.closed())
+              case _ => None
+            }
+            if (pending) {
+              Tracing(project).instant(EndEvent(c.compilationId, "document compilation aborted before starting"))
+            }
+          }
         case None =>
-          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, immutable.HashMap.empty, await = false)
+          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, immutable.HashMap.empty, debugReason,
+            await = false,
+            requestId)
       }
     }
+    eligible.nonEmpty
   }
 
-  private def prepareCompilation(await: Boolean)(compile: => Future[Unit]): Unit = {
+  private def prepareCompilation(await: Boolean, requestId: RequestId)(compile: => Future[Unit]): Unit = {
     try {
       saveProject()
-      CompileServerLauncher.ensureServerRunning(project)
+      Tracing(project).trace(EnsureServerRunningPhaseEvent(requestId)) {
+        CompileServerLauncher.ensureServerRunning(project)
+      }
       if (project.isDisposed) return
       val future = compile
       if (await) {
@@ -359,15 +455,18 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       case _: InterruptedException =>
         // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
         // Java thread interruption mechanism.
+        Tracing(project).instant(EndEvent(requestId, "Project close"))
       case _: EOFException =>
         // Stopping the Scala Compiler Server can result EOF exceptions to be thrown when trying to read from the
         // byte communication stream.
+        Tracing(project).instant(EndEvent(requestId, "EOF after stopping scala compiler server"))
     }
   }
 
   private def performCompilation(documentVersions: Map[CanonicalPath, Long] & Serializable,
                                  delayIndicator: Boolean,
-                                 refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
+                                 refreshVfs: Boolean,
+                                 requestId: RequestId)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     val taskMsg = CompilerHighlightingBundle.message("highlighting.compilation")
 
@@ -378,7 +477,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         try {
           progressIndicator.set(indicator)
           val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersions)
-          CompilerLockService.instance(project).withCompilerLock(indicator) {
+          CompilerLockService.instance(project).withCompilerLock(indicator, requestId) {
             compile(client)
           }
           promise.success(())
@@ -426,9 +525,9 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     } else if (request.deadline.isOverdue()) {
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
-        case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
-        case req @ CompilationRequest.IncrementalRequest(_, _, _) => canIncrementalRequestBeExecuted(req)
-        case CompilationRequest.DocumentRequest(FileCompilationScope(_, _, _, document, _), _, _) => canDocumentBeCompiled(document)
+        case CompilationRequest.WorksheetRequest(_, _, document, _, _, _, _) => canDocumentBeCompiled(document)
+        case req @ CompilationRequest.IncrementalRequest(_, _, _, _) => canIncrementalRequestBeExecuted(req)
+        case CompilationRequest.DocumentRequest(FileCompilationScope(_, _, _, document, _), _, _, _) => canDocumentBeCompiled(document)
       }
     } else RequestState.NotReady
   }
@@ -478,10 +577,10 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def shouldMerge(openFiles: Array[VirtualFile])(request: CompilationRequest): Boolean = request match {
-    case CompilationRequest.WorksheetRequest(_, _, _, _, _, _) => false
-    case CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) =>
+    case CompilationRequest.WorksheetRequest(_, _, _, _, _, _, _) => false
+    case CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _, _) =>
       fileCompilationScopes.keys.exists(openFiles.contains)
-    case CompilationRequest.DocumentRequest(scope, _, _) =>
+    case CompilationRequest.DocumentRequest(scope, _, _, _) =>
       openFiles.contains(scope.virtualFile)
   }
 
@@ -493,7 +592,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           case RequestState.Ready =>
             try {
               request match {
-                case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, deadline) =>
+                case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, deadline,id) =>
                   // Worksheet requests for the same file are debounced and deduplicated from the queue.
                   val otherWorksheetRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case wr: CompilationRequest.WorksheetRequest if wr.virtualFile == virtualFile => wr
@@ -505,16 +604,23 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // Its deadline becomes the new deadline of the debounced request.
                   val newDeadline = deadline max lastOne.deadline
                   // All worksheet requests for the same file are removed from the queue.
-                  otherWorksheetRequests.foreach(priorityQueue.remove)
+                  otherWorksheetRequests.foreach { other =>
+                    Tracing(project).mapAndEnd(other.id)(withOutcome(QueueWaitOutcome.Merged))
+                    priorityQueue.remove(other)
+                  }
                   // Instantiate the new worksheet request.
-                  val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document, firstTime, debugReason, newDeadline)
+                  val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document,
+                    firstTime, debugReason, newDeadline, request.id)
                   // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                    Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Executed))
                     execute(newRequest)
                   } else {
+                    Tracing(project).carry(request.id, newRequest.id)
                     priorityQueue.add(newRequest)
-                  }
-                case CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, deadline) =>
+                  } 
+                case CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, deadline,
+                request.id) =>
                   // Document requests for the same file are debounced and deduplicated from the queue.
                   val otherDocumentRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest if dr.scope.virtualFile == virtualFile => dr
@@ -524,28 +630,39 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // Its deadline becomes the new deadline of the debounced request.
                   val newDeadline = deadline max lastOne.deadline
                   // All document requests for the same file are removed from the queue.
-                  otherDocumentRequests.foreach(priorityQueue.remove)
+                  otherDocumentRequests.foreach { other =>
+                    Tracing(project).mapAndEnd(other.id)(withOutcome(QueueWaitOutcome.Merged))
+                    priorityQueue.remove(other)
+                  }
                   // Instantiate the new document request.
-                  val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, newDeadline)
+                  val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason,
+                    newDeadline, request.id)
                   // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                    Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Executed))
                     execute(newRequest)
                   } else {
+                    Tracing(project).carry(request.id, newRequest.id)
                     priorityQueue.add(newRequest)
                   }
-                case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, deadline) =>
+                case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, deadline, id) =>
                   // Gather all other document and incremental compilation requests.
                   val otherRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest => dr
                     case ir: CompilationRequest.IncrementalRequest => ir
                   }.toSeq
-
+  
                   // Merge only those requests which have a file open in any visible editor.
                   val openFiles = FileEditorManager.getInstance(project).getSelectedFiles
                   // Find all other requests that need to be merged with the current one.
                   val toMerge = otherRequests.filter(shouldMerge(openFiles))
                   // All other requests are removed from the queue.
-                  otherRequests.foreach(priorityQueue.remove)
+                  otherRequests.foreach { other =>
+                    // Those with an open file are folded into this compilation; the rest are simply superseded by it.
+                    Tracing(project).mapAndEnd(other.id)(withOutcome(if (toMerge.contains(other))
+                      QueueWaitOutcome.Merged else QueueWaitOutcome.Superseded))
+                    priorityQueue.remove(other)
+                  }
                   // Merge the compilation scopes. The logic here is the following.
                   // Worksheet requests are something separate and not taken into account (technically, they are not
                   // even present in the toMerge list, but needed for exhaustivity.
@@ -559,14 +676,14 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // all necessary module dependencies which also need to be compiled to achieve that.
                   val initialFiltering = fileCompilationScopes.filter { case (vf, _) => openFiles.contains(vf) }
                   val mergedScopes = toMerge.foldLeft(initialFiltering) {
-                    case (acc, CompilationRequest.WorksheetRequest(_, _, _, _, _, _)) =>
+                    case (acc, CompilationRequest.WorksheetRequest(_, _, _, _, _, _,_)) =>
                       acc
-                    case (acc, CompilationRequest.IncrementalRequest(scopes, _, _)) =>
+                    case (acc, CompilationRequest.IncrementalRequest(scopes, _, _,_)) =>
                       acc ++ scopes.filter { case (vf, _) => openFiles.contains(vf) }
-                    case (acc, CompilationRequest.DocumentRequest(scope, _, _)) =>
+                    case (acc, CompilationRequest.DocumentRequest(scope, _, _,_)) =>
                       acc + (scope.virtualFile -> scope)
                   }
-
+  
                   // It might happen that the merged scope has nothing to compile, for example, if there are no files
                   // open for editing. This is fine, as the project will be incrementally compiled the next time a file
                   // is opened. If the merged scope is empty (no modules to compile), we simply drop the request.
@@ -576,27 +693,39 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                     // Its deadline becomes the new deadline of the debounced request.
                     val newDeadline = deadline max lastOne.deadline
                     // Instantiate the new incremental compilation request.
-                    val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, newDeadline)
+                    val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, newDeadline, id)
                     // Execute it if ready, schedule it if not.
                     if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                      Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Executed))
                       execute(newRequest)
                     } else {
+                      Tracing(project).carry(request.id, newRequest.id)
                       priorityQueue.add(newRequest)
                     }
+                  } else {
+                    // The merged scope had nothing to compile, so the request is dropped.
+                    Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Dropped))
                   }
               }
             } catch {
               case _: ProcessCanceledException | _: InterruptedException =>
                 // Do not log PCE or InterruptedException.
+                Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Cancelled))
               case NonFatal(t) =>
+                Tracing(project).mapAndEnd(request.id)(withOutcome(QueueWaitOutcome.Error))
                 Log.error(s"Execution of compilation request $request failed", t)
             }
 
           case RequestState.NotReady =>
             val delayed = request.delayed(CompilationRequest.compilationDeadline(project))
+            // Mark the reschedule on the still-open span before following it onto the delayed copy.
+            Tracing(project).mark(request.id, QueueRescheduledPhaseEvent(request.id, "not ready"))
+            // Same logical request, new deadline: keep the span open and follow it onto the delayed copy.
+            Tracing(project).carry(request.id, delayed.id)
             priorityQueue.add(delayed)
 
           case RequestState.Expired =>
+            Tracing(project).mapAndEnd(request.id)(withOutcome( QueueWaitOutcome.Expired))
         }
       }
 

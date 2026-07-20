@@ -14,6 +14,7 @@ import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.{BSP, BspBundle}
+import org.jetbrains.jps.incremental.scala.tracing.BuildReason.*
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.*
@@ -94,7 +95,13 @@ class BspTask[T](project: Project,
         .getOrElse {
           new CompositeReporter(
             new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise, Some(indicator))),
-            new CompilerEventReporter(project, CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)),
+            new CompilerEventReporter(
+              project,
+              CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty),
+              buildReason = Some(getBuildReason.toString),
+              // One BSP compilation covers all targets (main + test), so label the span with all of them.
+              module = Option.when(targets.nonEmpty)(targets.map(BspTask.targetLabel).mkString(", "))
+            ),
             new IndicatorReporter(indicator)
           )
         }
@@ -152,6 +159,12 @@ class BspTask[T](project: Project,
     ExternalSystemVfsUtil.refreshRoots(project, BSP.ProjectSystemId, indicator)
     resultPromise.trySuccess(combinedMessages)
   }
+
+  // A non-empty clean set means a Rebuild; otherwise it's an incremental build.
+  private def getBuildReason = {
+    Some(if (targetsToClean.nonEmpty) Rebuild else Compile)
+  }
+  
 
   private def messagesWithStatus(reporter: BuildReporter,
                                  result: CompileResult,
@@ -353,6 +366,22 @@ class BspTask[T](project: Project,
 object BspTask {
 
   case class BspTarget(workspace: URI, target: URI)
+
+  /**
+   * A short, readable label for a BSP target URI, used only for the "External build" tracing span.
+   * Mirrors `BspSelectTargetDialog.visibleName`: prefer the `?id=<name>` query (Bloop/mill), else the
+   * URI fragment (sbt, e.g. `root/Compile` / `root/Test`), else the raw URI. (The last path segment is
+   * *not* usable: it's the shared build-root directory, identical for every target.)
+   */
+  private def targetLabel(target: BspTarget): String = {
+    val uri = target.target
+    val fromId = Option(uri.getQuery).flatMap { query =>
+      query.split("&").collectFirst { case kv if kv.startsWith("id=") => kv.stripPrefix("id=") }
+    }
+    fromId
+      .orElse(Option(uri.getFragment).filter(_.nonEmpty))
+      .getOrElse(uri.toString)
+  }
 
   private final implicit class TryTraversableOps[A](private val ts: Iterable[A]) extends AnyVal {
     def traverse[B](f: A => Try[B]): Try[Iterable[B]] = {

@@ -5,6 +5,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.highlighting.CompilationRequest.DocumentRequest
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
 import org.jetbrains.plugins.scala.lang.psi.impl.CompilerType
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
@@ -17,8 +18,9 @@ class CompilerTypeRequestListener(project: Project) extends CompilerType.Listene
     val module = psiFile.module.getOrElse(throw new IllegalArgumentException("The containing file must belong to a module"))
     val virtualFile = psiFile.getVirtualFile
     val scope = if (ProjectFileIndex.getInstance(project).isInSource(virtualFile)) SourceScope.Production else SourceScope.Test
-
-    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile), "compiler type request", CompilationRequest.compilationDeadline(project))
+    val id = TriggerPhaseEvents.newRequestId()
+    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile),
+      "compiler type request", CompilationRequest.compilationDeadline(project), id)
     CompilerHighlightingService.get(project).executeDocumentCompilationRequest(request)
   }
 }

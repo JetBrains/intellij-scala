@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.HighlightingTriggerPhaseEvent
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 
 private final class CompilerHighlightingModuleRootListener(project: Project) extends ModuleRootListener {
   override def rootsChanged(event: ModuleRootEvent): Unit = {
@@ -12,7 +15,9 @@ private final class CompilerHighlightingModuleRootListener(project: Project) ext
 
       // Ensure that the project will be saved before the next compilation.
       CompilerHighlightingService.get(project).saveProjectOnNextCompilation()
-      TriggerCompilerHighlightingService.get(project).triggerCompilationInSelectedEditor()
+      val requestId = TriggerPhaseEvents.newRequestId()
+      Tracing(project).instant(HighlightingTriggerPhaseEvent(requestId, "module roots changed (workspace model)"))
+      TriggerCompilerHighlightingService.get(project).triggerCompilationInSelectedEditor(requestId)
     }
   }
 }

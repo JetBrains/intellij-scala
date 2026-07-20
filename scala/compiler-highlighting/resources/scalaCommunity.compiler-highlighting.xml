@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <module name="scalaCommunity.compiler-integration"/>
+        <module name="intellij.libraries.opentelemetry"/>
     </dependencies>
 
     <extensionPoints>
@@ -21,6 +22,9 @@
 
         <registryKey key="scala.compiler.highlighting.document.use.in.memory.file" defaultValue="false" restartRequired="false"
                      description="When enabled, uses an in-memory file for document compilation"/>
+
+        <registryKey key="scala.compiler.highlighting.tracing.enabled" defaultValue="false" restartRequired="true"
+                     description="Enables tracing of compilation and highlighting events when compiler error highlighting is enabled"/>
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFocusListenerRegisterer$ByListener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFocusListenerRegisterer$AtStartup"/>

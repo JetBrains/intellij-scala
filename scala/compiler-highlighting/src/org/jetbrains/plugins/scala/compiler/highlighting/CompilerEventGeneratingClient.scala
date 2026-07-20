@@ -52,7 +52,8 @@ private class CompilerEventGeneratingClient(
   }
 
   override def compilationStart(): Unit =
-    sendEvent(CompilerEvent.CompilationStarted(compilationId, None))
+    // No JPS build session on the compile-server path.
+    sendEvent(CompilerEvent.CompilationStarted(compilationId, None, None, None))
 
   override def compilationEnd(sources: Set[Path]): Unit = {
     if (refreshVfs) {

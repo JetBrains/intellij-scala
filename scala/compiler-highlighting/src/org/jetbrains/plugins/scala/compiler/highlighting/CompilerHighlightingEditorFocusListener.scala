@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 
 import java.awt.event.{FocusAdapter, FocusEvent}
 
@@ -17,7 +19,9 @@ private final class CompilerHighlightingEditorFocusListener(editor: Editor) exte
 
   def focusGained(): Unit = {
     withProjectAndVirtualFile { (project, file) =>
-      TriggerCompilerHighlightingService.get(project).triggerOnEditorFocus(file)
+      val request = TriggerPhaseEvents.newRequestId()
+      Tracing(project).instant(TriggerPhaseEvents.create(request, "editor focus"))
+      TriggerCompilerHighlightingService.get(project).triggerOnEditorFocus(file, request)
     }
   }
 

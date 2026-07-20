@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiFile, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.{PsiFile, PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.HighlightingTriggerPhaseEvent
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 
 private class CompilerHighlightingPsiChangeListener(project: Project) extends PsiTreeChangeAdapter {
   override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
@@ -23,7 +26,9 @@ private class CompilerHighlightingPsiChangeListener(project: Project) extends Ps
     if (psiFile ne null) {
       val virtualFile = psiFile.getVirtualFile
       if (virtualFile ne null) {
-        TriggerCompilerHighlightingService.get(project).triggerOnFileChange(psiFile, virtualFile)
+        val requestId = TriggerPhaseEvents.newRequestId()
+        Tracing(project).instant(HighlightingTriggerPhaseEvent(requestId, "psi change"))
+        TriggerCompilerHighlightingService.get(project).triggerOnFileChange(psiFile, virtualFile, requestId)
       }
     }
   }

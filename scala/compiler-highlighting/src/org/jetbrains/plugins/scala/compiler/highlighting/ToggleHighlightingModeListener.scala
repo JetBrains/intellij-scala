@@ -9,6 +9,9 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.HighlightingTriggerPhaseEvent
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater, invokeWhenSmart}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
@@ -18,7 +21,7 @@ import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, Scala
  * [[ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
  */
 abstract class ToggleHighlightingModeListener(project: Project) {
-  protected def compileOrEraseHighlightings(): Unit =
+  protected def compileOrEraseHighlightings(triggerSource: String): Unit =
     invokeWhenSmart(project) {
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
@@ -36,7 +39,9 @@ abstract class ToggleHighlightingModeListener(project: Project) {
           forceStandardHighlighting(project)
           CompileServerNotificationsService.get(project).resetNotifications()
           if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-            TriggerCompilerHighlightingService.get(project).triggerCompilationInSelectedEditor()
+            val requestId = TriggerPhaseEvents.newRequestId()
+            Tracing(project).instant(HighlightingTriggerPhaseEvent(requestId, triggerSource))
+            TriggerCompilerHighlightingService.get(project).triggerCompilationInSelectedEditor(requestId)
           }
         }
       }
@@ -52,14 +57,14 @@ abstract class ToggleHighlightingModeListener(project: Project) {
 object ToggleHighlightingModeListener {
   final class OnCompilerHighlightingChange(project: Project) extends ToggleHighlightingModeListener(project) with CompilerHighlightingListener {
     override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
-      compileOrEraseHighlightings()
+      compileOrEraseHighlightings("highlighting toggled")
 
     override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
-      compileOrEraseHighlightings()
+      compileOrEraseHighlightings("highlighting toggled")
   }
 
   final class OnModuleRootChange(project: Project) extends ToggleHighlightingModeListener(project) with ModuleRootListener {
     override def rootsChanged(event: ModuleRootEvent): Unit =
-      compileOrEraseHighlightings()
+      compileOrEraseHighlightings("module roots changed")
   }
 }
