@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
@@ -91,6 +91,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
     val usedImportedNames = ContainerUtil.newConcurrentSet[UsedName]()
+    val unresolvedReferences = ContainerUtil.newConcurrentSet[ScReference]()
 
     val (importHolders, importUsers) = collectImportHoldersAndUsers(scalaFile)
 
@@ -126,7 +127,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     }
 
     processAllElementsConcurrentlyUnderProgress(importUsers) { element =>
-      collectImportsUsed(element, usedImports, usedImportedNames)
+      collectImportsUsed(element, usedImports, usedImportedNames, unresolvedReferences)
     }
 
     indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
@@ -152,6 +153,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       importUsed.isAlwaysUsed ||
         usedImports.contains(importUsed) && !isRedundant(importUsed) ||
         ScalaImportOptimizerHelper.extensions.exists(_.isImportUsed(importUsed)) ||
+        isPotentiallyUsedUnresolvedImport(importUsed, unresolvedReferences.asScala.toSet) ||
         isOnTheFly && !mayOptimizeOnTheFly(importUsed)
     }
 
@@ -1339,7 +1341,15 @@ object ScalaImportOptimizer {
     }
   }
 
-  private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
+  /**
+   * @param unresolvedReferences populated only if provided a non-null value
+   */
+  private def collectImportsUsed(
+    element: PsiElement,
+    imports: util.Set[ImportUsed],
+    names: util.Set[UsedName],
+    @Nullable unresolvedReferences: util.Set[ScReference] = null
+  ): Unit = {
     val defaultImportsSet = element.defaultImports
 
     def fromDefaultImport(srr: ScalaResolveResult): Boolean =
@@ -1403,7 +1413,11 @@ object ScalaImportOptimizer {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
       case ref: ScReference if !ScalaPsiUtil.isInsideImportStatement(ref) =>
-        ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
+        val results = ref.multiResolveScala(false)
+        if (unresolvedReferences != null && results.isEmpty) {
+          unresolvedReferences.add(ref)
+        }
+        results.foreach(addWithImplicits(_, ref))
       case derives: ScDerivesClause =>
         for {
           tcRef         <- derives.derivedReferences
@@ -1425,6 +1439,39 @@ object ScalaImportOptimizer {
       case e: ScExpression => addFromExpression(e)
       case _ =>
     }
+  }
+
+  private def isPotentiallyUsedUnresolvedImport(importUsed: ImportUsed, unresolvedRefs: Set[ScReference]): Boolean = {
+    val importedNameAndImportExpr = importUsed match {
+      case importExprUsed: ImportExprUsed =>
+        for {
+          importExpr <- importExprUsed.importExpr
+          ref        <- importExpr.reference
+        } yield ref.refName -> importExpr
+      case ImportSelectorUsed(selector) =>
+        selector.importedName.zip(importUsed.importExpr)
+      case _ => None
+    }
+
+    importedNameAndImportExpr match {
+      case Some(importedName -> importExpr) =>
+        unresolvedRefs.exists(ref => ref.refName == importedName && isImportVisibleAt(importExpr, ref))
+      case None => false
+    }
+  }
+
+  private def isImportVisibleAt(importExpr: ScImportExpr, place: PsiElement): Boolean = importExpr.getParent match {
+    case importStmt: ScImportStmt if place.startOffset > importStmt.endOffset => // the import is not visible if the usage is above
+      importStmt.getParent match {
+        case _: ScalaFile => true
+        case importsHolder: ScImportsHolder =>
+          val importsHolderStart = importsHolder.startOffset
+          place.parentsInFile
+            .takeWhile(_.startOffset >= importsHolderStart)
+            .contains(importsHolder)
+        case _ => false
+      }
+    case _ => false
   }
 
   private def mayOptimizeOnTheFly(importUsed: ImportUsed): Boolean =
