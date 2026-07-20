@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.Path
@@ -121,4 +121,29 @@ class PatternsTest_Scala3 extends TypeInferenceTestBase {
        |//Int
        |""".stripMargin
   )
+}
+
+class PatternsTest_since_2_11 extends TypeInferenceTestBase {
+  // uses scala.collection.Searching, which is available since Scala 2.11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
+
+  def testSCL8323(): Unit = {
+    doTest(
+      s"""
+         |import scala.collection.Searching
+         |import scala.collection.Searching.{Found, InsertionPoint}
+         |
+         |object CaseInsensitiveOrdering extends scala.math.Ordering[String] {
+         |  def compare(a:String, b:String) = a.compareToIgnoreCase(b)
+         |  def findClosest(s: String, availableNames: List[String]): String = {
+         |    val sorted: List[String] = availableNames.sorted(CaseInsensitiveOrdering)
+         |    Searching.search(sorted).search(s)(${START}CaseInsensitiveOrdering$END) match {
+         |      case Found(_) => s
+         |      case InsertionPoint(index) => sorted(index min sorted.size - 1)
+         |    }
+         |  }
+         |}
+         |//CaseInsensitiveOrdering.type
+      """.stripMargin)
+  }
 }
