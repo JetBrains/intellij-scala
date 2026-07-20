@@ -121,8 +121,8 @@ object ImportExprUsed {
  *
  * <code>import aaa.bbb.{C => D, E => _}</code><p>
  *
- * CAUTION! Import Optimized shouldn't remove shadowing selectos of form E => _, otherwise
- * resulting code may be incorrect <p>
+ * CAUTION! Import Optimizer shouldn't remove shadowing selectors of form E => _, otherwise
+ * the resulting code may be incorrect <p>
  *
  * Example: {{{
  *     package aaa.bbb {
@@ -135,9 +135,8 @@ object ImportExprUsed {
  *
  *     new F
  * }}}
- * In the example above after removing selector <code>E => _</code> cancels appropriate shadowing and
+ * In the example above, after removing selector <code>E => _</code> cancels appropriate shadowing and
  * reference to E may clash with some other in that place.
- *
  */
 class ImportSelectorUsed(
   sel: ScImportSelector,
@@ -154,9 +153,9 @@ class ImportSelectorUsed(
 
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"
 
-  //we can't reliable tell that hiding import (example: `import org.{A => _}`) is redundant, so it should never be marked as unused
+  //we can't reliably tell that hiding import (example: `import org.{A => _}`) is redundant, so it should never be marked as unused
   override def isAlwaysUsed: Boolean = {
-    //note: seems like here it's assumed that import selector `sel` is an alias import
+    //note: it seems like here it's assumed that import selector `sel` is an alias import
     val isHidingImport = sel.isAliasedImport && sel.aliasNameWithIgnoredHidingImport.isEmpty
     isHidingImport || super.isAlwaysUsed
   }
@@ -167,10 +166,9 @@ object ImportSelectorUsed {
 }
 
 /**
- * Marks import expression with trailing wildcard selector as used
+ * Marks import expression with trailing wildcard selector as used<p>
  * Example:
- *
- * import aaa.bbb.{A => B, C => _ , _}
+ * `import aaa.bbb.{A => B, C => _, _}`
  */
 class ImportWildcardSelectorUsed(
   e: ScImportExpr,
