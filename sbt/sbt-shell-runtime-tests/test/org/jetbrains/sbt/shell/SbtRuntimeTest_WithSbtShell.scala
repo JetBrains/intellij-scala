@@ -80,4 +80,24 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
     expectedRequestId: SbtShellCommandRequestId,
   ): Boolean =
     events.exists { case x: T => x.requestId == expectedRequestId; case _ => false }
+
+  /** Asserts that at least one diagnostic event of type `T` exists. */
+  def assertDiagnosticEventExists[T <: SbtShellDiagnosticEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    snapshot: String,
+  )(using ct: ClassTag[T]): Unit =
+    assertTrue(
+      s"Missing ${ct.runtimeClass.getSimpleName} event. Snapshot: $snapshot",
+      events.exists(ct.runtimeClass.isInstance)
+    )
+
+  /** Asserts that no diagnostic event of type `T` with the given `expectedRequestId` exists. */
+  protected def assertDiagnosticEventNotExists[T <: SbtShellDiagnosticEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    snapshot: String,
+  )(using ct: ClassTag[T]): Unit =
+    assertFalse(
+      s"Unexpected ${ct.runtimeClass.getSimpleName} event was found. Snapshot: $snapshot",
+      events.exists(ct.runtimeClass.isInstance)
+    )
 }
