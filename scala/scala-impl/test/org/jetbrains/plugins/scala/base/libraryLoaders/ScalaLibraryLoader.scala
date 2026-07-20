@@ -80,12 +80,9 @@ object ScalaLibraryLoader {
   ): Seq[LibraryLoader] = {
     val scala2LibraryLoader = ScalaLibraryLoader(scala2Version)
 
-    //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
-    val scala3SdkLoader = ScalaSDKLoader(includeScalaLibraryFilesInSdk = false)
-
     Seq(
       scala2LibraryLoader,
-      scala3SdkLoader
+      scalaSdkLoader
     ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
   }
 
@@ -101,13 +98,16 @@ object ScalaLibraryLoader {
     val scala2LibraryLoader = ScalaLibraryLoader(scala2Version)
     val scala3LibraryLoader = ScalaLibraryLoader(scala3Version)
 
-    //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
-    val scala3SdkLoader = ScalaSDKLoader(includeScalaLibraryFilesInSdk = false)
-
     Seq(
       scala3LibraryLoader,
       scala2LibraryLoader,
-      scala3SdkLoader
+      scalaSdkLoader
     ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
   }
+
+  //We use resolveScalaLibraryTransitiveDependencies = false to use the latest 2.13.14 RC version
+  private val scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(
+    includeScalaReflectIntoCompilerClasspath = true,
+    includeScalaLibraryFilesInSdk = false,
+  )
 }
