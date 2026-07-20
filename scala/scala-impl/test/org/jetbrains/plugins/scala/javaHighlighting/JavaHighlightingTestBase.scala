@@ -7,7 +7,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestBase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -28,7 +28,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     errorsFromJavaCode("", javaFileText, javaClassName)
 
   def errorsFromJavaCode(
-    @Language("Scala") scalaFileText: String,
+    @Language("Scala 3") scalaFileText: String,
     @Language("JAVA") javaFileText: String,
     javaClassName: String
   ): List[Message] = {
@@ -54,7 +54,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     javaClassName: String //TODO: don't make it mandatory?
   ): Unit = {
     val actualMessages = errorsFromJavaCode(fileText, javaClassName)
-    assertMessagesTextImpl("", actualMessages)
+    assertNoErrorMessages(actualMessages)
   }
 
   protected def assertNoErrorsInJava(
@@ -63,6 +63,10 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     javaClassName: String
   ): Unit = {
     val actualMessages = errorsFromJavaCode(scalaFileText, javaFileText, javaClassName)
+    assertNoErrorMessages(actualMessages)
+  }
+
+  private def assertNoErrorMessages(actualMessages: List[Message]): Unit = {
     assertMessagesTextImpl("", actualMessages)
   }
 
@@ -87,7 +91,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
 
   protected def assertNoErrorsInKotlin(@Language("kotlin") fileText: String): Unit = {
     val actualMessages = errorsFromKotlinCode(fileText)
-    assertMessagesTextImpl("", actualMessages)
+    assertNoErrorMessages(actualMessages)
   }
 
   protected def errorsFromKotlinCode(@Language("kotlin") fileText: String): List[Message] = {
