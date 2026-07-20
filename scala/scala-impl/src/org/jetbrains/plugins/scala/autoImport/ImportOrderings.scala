@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.autoImport
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiPackage}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiDocCommentOwner, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ElementToImport
 import org.jetbrains.plugins.scala.extensions.{ContainingFile, ObjectExt, PsiElementExt, cachify}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -24,6 +27,7 @@ object ImportOrderings {
         orderingByDistanceToLocalImports(place) orElse
         orderingByPackageImportCountInProject(place) orElse
         specialPackageOrdering orElse
+        orderingByPackageDepth orElse
         orderingByPackageName
       ).on(_.qualifiedName)
   }
@@ -93,6 +97,13 @@ object ImportOrderings {
     else {
       specialPackageWeight.getOrElse(qual.substring(0, idx), Int.MaxValue)
     }
+  }
+
+  /**
+   * Ordering that prefers qualified names with fewer '.' characters (shorter package depth)
+   */
+  val orderingByPackageDepth: Ordering[String] = Ordering.by { qual =>
+    qual.count(_ == '.')
   }
 
   private val specialPackageWeight: Map[String, Int] = Map(

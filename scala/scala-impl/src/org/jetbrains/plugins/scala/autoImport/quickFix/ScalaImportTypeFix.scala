@@ -169,7 +169,25 @@ object ScalaImportTypeFix {
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
-    val elementsAll = classesToImport ++ inheritedClassesToImport ++ aliasesToImport ++ packages
+    // When `ref` is the `qualifier` of a `qualifier.member` reference, offer the plain package named
+    // `qualifier` (containing `member`) as a prefix import. Such a package cannot be found via
+    // getClassesByName (which only finds package objects), and since Scala 2.11 e.g.
+    // scala.collection.immutable has no package object, so it would otherwise not be suggested.
+    val prefixPackages: Seq[PrefixPackageToImport] = ref.getParent match {
+      case parent: ScReference if parent.qualifier.exists(_ eq ref) =>
+        val memberName = parent.refName
+        manager.getClassesByName(memberName, ref.resolveScope).toSeq.flatMap { cls =>
+          Option(cls.qualifiedName)
+            .map(_.stripSuffix("." + memberName))
+            .filter(pkgFqn => pkgFqn.nonEmpty && pkgFqn.substring(pkgFqn.lastIndexOf('.') + 1) == referenceName)
+            .flatMap(ScPackageImpl.findPackage(_)(manager))
+            .filter(kindMatches(_, kinds))
+            .map(PrefixPackageToImport(_))
+        }
+      case _ => Seq.empty
+    }
+
+    val elementsAll = classesToImport ++ inheritedClassesToImport ++ aliasesToImport ++ packages ++ prefixPackages
     val elementsFiltered = elementsAll.filterNot(e => isExcluded(e.qualifiedName, project))
     val elementsSorted = elementsFiltered.sorted(defaultImportOrdering(ref))
     // it is possible to have same qualified name with different owners in case of val overriding
