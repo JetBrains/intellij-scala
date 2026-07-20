@@ -2,6 +2,7 @@ package org.jetbrains.sbt.shell
 
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
@@ -12,31 +13,20 @@ import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
 /**
- * Verifies the sbt-shell import path after real sbt fails project reload before structure dumping.
- *
- * The test intentionally makes `build.sbt` invalid, so sbt shows its interactive project-loading failure prompt during
- * shell-based import. IntelliJ must answer that prompt with `i`gnore, report import failure, return the shell to
- * `Idle`, and skip `dumpStructureTo` so no stale or partial structure XML is consumed after the failed reload.
- *
- *
- * @see SCL-25342
- * @see SCL-24349
- * @see SCL-24706
+ * sbt shell integration tests involving sbt's interactive project loading failure prompt
+ * (`Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?`).
  */
-abstract class SbtShellFailedReloadIntegrationTestBase extends SbtRuntimeTest_WithSbtShell {
+abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends SbtRuntimeTest_WithSbtShell {
 
   private val PrintDiagnosticsOnSuccessProperty =
     "sbt.shell.failed.reload.print.diagnostics.on.success"
 
-  override protected def getRelativeTestProjectPath: String = "sbt-shell-runtime-tests/testdata/sbt/shell/testShellState"
+  private val ProjectLoadingFailedPrompt = "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?"
+
+  override protected def getRelativeTestProjectPath: String =
+    s"sbt-shell-runtime-tests/testdata/sbt/shell/${getTestName(true)}"
 
   override protected def importProjectDuringTestSetUp: Boolean = false
-
-  override def setUp(): Unit = {
-    super.setUp()
-
-    sbtShellFixture.waitForShellReady(getMyProject)
-  }
 
   protected final def assertProjectImportFails(failureReason: String, structureFiles: Seq[Path] = Seq.empty): AssertionError = {
     var importFailure: AssertionError = null
@@ -115,7 +105,21 @@ abstract class SbtShellFailedReloadIntegrationTestBase extends SbtRuntimeTest_Wi
     s"$path (exists=$exists, regularFile=$regularFile, size=$size)"
   }
 
-  def testFailedReloadSendsIgnoreAndSkipsDumpStructureWithRealSbt(): Unit = {
+  /**
+   * Verifies the sbt-shell import path after real sbt fails project reload before structure dumping.
+   *
+   * The test intentionally makes `build.sbt` invalid, so sbt shows its interactive project-loading failure prompt during
+   * shell-based import. IntelliJ must answer that prompt with `i`gnore, report import failure, return the shell to
+   * `Idle`, and skip `dumpStructureTo` so no stale or partial structure XML is consumed after the failed reload.
+   *
+   *
+   * @see SCL-25342
+   * @see SCL-24349
+   * @see SCL-24706
+   */
+  def testFailedReloadSendsIgnoreAndSkipsDumpStructure(): Unit = {
+    sbtShellFixture.waitForShellReady(getMyProject)
+
     Files.writeString(
       getTestProjectPath / "build.sbt",
       """scalaVersion := "2.13.18"
@@ -150,7 +154,7 @@ abstract class SbtShellFailedReloadIntegrationTestBase extends SbtRuntimeTest_Wi
         importFailure,
         Seq(structureFile),
       ),
-      log.contains("Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?")
+      log.contains(ProjectLoadingFailedPrompt)
     )
     assertTrue(
       withFailedReloadDiagnostics(
@@ -180,12 +184,44 @@ abstract class SbtShellFailedReloadIntegrationTestBase extends SbtRuntimeTest_Wi
 
     printDiagnosticsOnSuccessIfEnabled(importFailure, Seq(structureFile))
   }
+
+  /**
+   * When the project loading failed prompt is displayed while
+   * the shell is already shutting down, no `ignore` command should be sent, as it would trigger an unwanted shell restart.
+   *
+   * @see SCL-25058
+   */
+  def testDoNotSendIgnoreWhenShellIsShuttingDown(): Unit = {
+    val processManager = SbtProcessManager.forProject(getMyProject)
+
+    // Wait until sbt reached the blocking onLoad task -> the load is stuck and the shell is not ready.
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not reach the blocking onLoad task") { () =>
+      processListener.getLog.contains("LOAD_STARTED") && processManager.isAlive && !shellCommunication.currentState.isIdle
+    }
+
+    processManager.destroyProcess()
+
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt did not print the loading failure prompt after the stop") { () =>
+      processListener.getLog.contains(ProjectLoadingFailedPrompt)
+    }
+
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not stop after destroying the process") { () =>
+      !processManager.isAlive
+    }
+
+    val events = shellCommunication.diagnosticEventsSnapshot
+    val snapshot = shellCommunication.diagnosticsSnapshot
+
+    // The shell was shutting down, so sendIgnore must have been skipped.
+    assertDiagnosticEventExists[SbtShellDiagnosticEvent.SendIgnoreSkipped](events, snapshot)
+    assertDiagnosticEventNotExists[SbtShellDiagnosticEvent.SendIgnore](events, snapshot)
+  }
 }
 
 @Category(Array(classOf[SlowTests2]))
-class SbtShellFailedReloadIntegrationTest extends SbtShellFailedReloadIntegrationTestBase
+class SbtShellProjectLoadingFailedPromptIntegrationTest extends SbtShellProjectLoadingFailedPromptIntegrationTestBase
 
 @Category(Array(classOf[SlowTests2]))
-class SbtShellFailedReloadIntegrationTest_NewShell extends SbtShellFailedReloadIntegrationTestBase {
+class SbtShellFailedReloadIntegrationTest_NewShellProjectLoading extends SbtShellProjectLoadingFailedPromptIntegrationTestBase {
   override protected def useNewShell: Boolean = true
 }
