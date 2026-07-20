@@ -12,10 +12,10 @@ val a = foo(new A) // inferred correctly as A
 def b1: B = a // okay implicit conversion underlyings
 def b2: B = /*start*/foo(new A)/*end*/
 /*
-Seq(a2b,
-    any2ArrowAssoc,
-    any2Ensuring,
-    any2stringadd,
-    any2stringfmt),
+Seq(ArrowAssoc,
+    Ensuring,
+    StringFormat,
+    a2b,
+    any2stringadd),
 Some(a2b)
  */
