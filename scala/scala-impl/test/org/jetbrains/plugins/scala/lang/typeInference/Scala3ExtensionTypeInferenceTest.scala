@@ -52,4 +52,46 @@ class Scala3ExtensionTypeInferenceTest extends TypeInferenceTestBase {
        |//String
        |""".stripMargin
   )
+
+  def testSCL24725(): Unit = doTest(
+    s"""
+      |import scala.language.implicitConversions
+      |
+      |trait EntityQuery[T]
+      |trait Quoted[T]
+      |
+      |extension [T](entity: EntityQuery[T]) {
+      |  def insertValue(value: T): Unit = println("A")
+      |}
+      |extension [T](quotedEntity: Quoted[EntityQuery[T]]) {
+      |  def insertValue(value: T): Unit = println("B")
+      |}
+      |implicit def autoQuote[T](body: T): Quoted[T] = ???
+      |
+      |def query[T]: EntityQuery[T] = new EntityQuery[T] {}
+      |
+      |@main def main(): Unit = {
+      |  ${START}query[String].insertValue("")$END // prints A
+      |}
+      |//Unit
+      |""".stripMargin
+  )
+
+  def testSCL23234(): Unit = doTest(
+    s"""
+      |object Main {
+      |  extension (v: Int) {
+      |    inline def compress: Int = ???
+      |  }
+      |  extension (v: Double) {
+      |    inline def compress: Double = ???
+      |  }
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    ${START}0.compress$END
+      |  }
+      |}
+      |//Int
+      |""".stripMargin
+  )
 }
