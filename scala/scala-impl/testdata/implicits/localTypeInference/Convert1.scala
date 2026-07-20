@@ -15,11 +15,11 @@ object Convert1 {
 	}
 }
 /*
-Seq(convert,
+Seq(ArrowAssoc,
+    Ensuring,
+    StringFormat,
     convert,
-    any2ArrowAssoc,
-    any2Ensuring,
-    any2stringadd,
-    any2stringfmt),
+    convert,
+    any2stringadd),
 Some(convert)
 */
