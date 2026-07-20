@@ -3,4 +3,4 @@ object SCL8831 {
   val l = List(1, 2, 3, 4, 5)
   /*start*/l.search(3)/*end*/
 }
-//SearchResult
+//Searching.SearchResult

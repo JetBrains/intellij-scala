@@ -17,9 +17,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL3987(): Unit = doTest()
 
-
-  def testSCL8831(): Unit = doTest()
-
   def testSCL9903(): Unit = doTest {
     s"""trait Prop extends  {
        |  def foo(s: String): Prop = ???
