@@ -34,6 +34,13 @@ trait ScImportSelector extends ScalaPsiElement {
   def aliasName: Option[String]
 
   /**
+   * PSI identifier after an alias symbol (`=>` or `as`), when present.
+   *
+   * Unlike [[aliasName]], this is only available from the parsed PSI tree, not from the stub.
+   */
+  def aliasNameElement: Option[PsiElement]
+
+  /**
    * Same as [[aliasName]] but returns None for hiding import (like `import a.b.{c => _}`)
    *
    * @example {{{
@@ -82,4 +89,35 @@ trait ScImportSelector extends ScalaPsiElement {
   def isGivenSelector: Boolean
 
   def givenTypeElement: Option[ScTypeElement]
+
+  /**
+   * Explicitly named member introduced by this selector, if any.
+   *
+   * Wildcard, `given`, and hiding selectors do not introduce one named member and are excluded.
+   *
+   * Example:
+   * {{{
+   *   import a.{b => c}
+   *   import a.{d}
+   *   import a.{e => _}
+   *   import a.{*}
+   *
+   *   // For the `b => c` selector:
+   *   selector.explicitNamedMember
+   *   // Some(ExplicitNamedMember("c", c, b))
+   * }}}
+   */
+  def explicitNamedMember: Option[ScImportExpr.ExplicitNamedMember] =
+    if (isWildcardSelector || isGivenSelector)
+      None
+    else {
+      for {
+        ref <- reference
+        (visibleName, visibleNameElement) <-
+          if (isAliasedImport)
+            aliasNameWithIgnoredHidingImport.zip(aliasNameElement)
+          else
+            Some(ref.refName -> ref.nameId)
+      } yield ScImportExpr.ExplicitNamedMember(visibleName, visibleNameElement, ref)
+    }
 }

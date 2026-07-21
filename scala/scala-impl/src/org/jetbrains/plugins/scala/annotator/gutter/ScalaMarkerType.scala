@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaExportedMemberUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -65,9 +66,24 @@ object ScalaMarkerType {
     namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = deep, withSelfType = true))
   }
 
+  private def overridingTooltip(member: PsiElement, namedElements: Seq[PsiNamedElement]): String = {
+    val prefix = overridesImplementsPrefix(member, namedElements)
+    val shownElements =
+      if (namedElements.size > maxNumberOfElements) emptyList
+      else namedElements.asJava
+
+    //skip the first member, show only containing class
+    val skipFirstMember = true
+    GutterTooltipHelper.getTooltipText(shownElements,
+      prefix,
+      skipFirstMember,
+      IdeActions.ACTION_GOTO_SUPER
+    )
+  }
+
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
     tooltipProvider = element => {
-      namedParent(element)
+      val ordinaryTooltip = namedParent(element)
         .collect {
           case method: ScFunction =>
             val supers = method.superSignaturesIncludingSelfType.map(_.namedElement)
@@ -85,16 +101,10 @@ object ScalaMarkerType {
           case ta: ScTypeAlias =>
             (ta, ScalaPsiUtil.superTypeMembers(ta, withSelfType = true))
         }
-        .map { case (member, namedElements) =>
-          val prefix = overridesImplementsPrefix(member, namedElements)
-          val shownElements =
-            if (namedElements.size > maxNumberOfElements) emptyList else namedElements.asJava
-          GutterTooltipHelper.getTooltipText(shownElements,
-            prefix,
-            true, //skip member, show only containing class
-            IdeActions.ACTION_GOTO_SUPER)
-        }
-        .orNull
+        .map { case (member, namedElements) => overridingTooltip(member, namedElements) }
+
+      val tooltip = ordinaryTooltip.orElse(tooltipForExport(element))
+      tooltip.orNull
     },
     navigationHandler = (event, element) =>
       namedParent(element).collect {
@@ -113,8 +123,19 @@ object ScalaMarkerType {
           val superElements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val navigatables = superElements.filterByType[NavigatablePsiElement].toArray
           ScalaNavigationUtils.navigateToSuperType(event, navigatables, ta.getProject, ta.name)
+      }.orElse {
+        ScalaExportedMemberUtil.exportedMemberOverrideAt(element).map { exportedMember =>
+          val superMembers = exportedMember.superSignatures.flatMap(sigToNavigatableElement).toArray
+          ScalaNavigationUtils.navigateToSuperMember(event, superMembers, element.getProject, element.getText)
+        }
       }
   )
+
+  private def tooltipForExport(element: PsiElement): Option[String] = {
+    ScalaExportedMemberUtil.exportedMemberOverrideAt(element).map { exportedMember =>
+      overridingTooltip(exportedMember.semantic, exportedMember.superSignatures.map(_.namedElement))
+    }
+  }
 
   val overriddenMember: ScalaMarkerType = ScalaMarkerType(
     tooltipProvider = element =>
@@ -167,20 +188,20 @@ object ScalaMarkerType {
 
   private val maxNumberOfElements = 5
 
-  private def overridesImplementsPrefix(member: ScMember, supers: Seq[PsiNamedElement]): String = {
+  private def overridesImplementsPrefix(member: PsiElement, supers: Seq[PsiNamedElement]): String = {
     val isTooMany = supers.size > maxNumberOfElements
     val isOverrides = GutterUtil.isOverrides(member, supers)
     member match {
-      case _: ScFunction | _: ScValueOrVariable | _: ScClassParameter =>
+      case _: ScTypeAlias =>
+        if (isTooMany) ScalaBundle.message("overrides.type.from.super.several.classes", supers.size)
+        else           ScalaBundle.message("overrides.type.prefix")
+      case _ =>
         (isOverrides, isTooMany) match {
           case (true, true)   => ScalaBundle.message("overrides.member.from.several.classes", supers.size)
           case (true, false)  => ScalaBundle.message("overrides.member.from.prefix")
           case (false, true)  => ScalaBundle.message("implements.member.from.several.classes", supers.size)
           case (false, false) => ScalaBundle.message("implements.member.from.prefix")
         }
-      case _: ScTypeAlias =>
-        if (isTooMany) ScalaBundle.message("overrides.type.from.super.several.classes", supers.size)
-        else           ScalaBundle.message("overrides.type.prefix")
     }
   }
 

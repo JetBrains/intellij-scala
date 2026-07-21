@@ -26,7 +26,7 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
   override def execute(sourceElement: PsiElement, consumer: Processor[_ >: PsiElement]): Boolean = {
     sourceElement match {
       case namedElement: ScNamedElement =>
-        for (implementation <- ScalaOverridingMemberSearcher.getOverridingMethods(namedElement)
+        for (implementation <- ScalaOverridingMemberSearcher.getOverridingMethodsForNavigation(namedElement)
              //to avoid duplicates with ScalaOverridingMemberSearcher
              if !namedElement.isInstanceOf[PsiMethod] || !implementation.is[PsiMethod]) {
           if (!consumer.process(implementation)) {
@@ -50,10 +50,11 @@ class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingM
     val method = queryParameters.getMethod
     method match {
       case namedElement: ScNamedElement =>
-        val overridingMembers = ScalaOverridingMemberSearcher.getOverridingMethods(namedElement)
+        val overridingMembers = ScalaOverridingMemberSearcher.getOverridingMembersForNavigation(namedElement)
         for {
-          implementation <- overridingMembers
-          if implementation.is[PsiMethod]
+          overridingMember <- overridingMembers
+          implementation = overridingMember.semantic
+          if implementation.is[PsiMethod] && (overridingMember.navigation eq implementation)
         } {
           if (!consumer.process(implementation.asInstanceOf[PsiMethod])) {
             return false
@@ -66,8 +67,43 @@ class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingM
 }
 
 object ScalaOverridingMemberSearcher {
+  /**
+   * Keeps the semantic declaration separate from the element used for navigation.
+   *
+   * For example, in:
+   * {{{
+   * trait Base {
+   *   def run(): Unit
+   * }
+   *
+   * trait Mixin {
+   *   def run(): Unit = ()
+   * }
+   *
+   * class Exported extends Base {
+   *   val delegate: Mixin = new Mixin {}
+   *   export delegate.run
+   * }
+   * }}}
+   * `semantic` is `Mixin.run`, while `navigation` is the containing `ScExportStmt`.
+   * Ordinary declarations use the same element for both fields.
+   */
+  private[search] case class OverridingMember(semantic: PsiNamedElement, navigation: PsiElement)
+  private[search] object OverridingMember {
+    def apply(element: PsiNamedElement): OverridingMember =
+      OverridingMember(semantic = element, navigation = element)
+  }
+
   def getOverridingMethods(method: ScNamedElement): Array[PsiNamedElement] = inReadAction {
     ScalaOverridingMemberSearcher.search(method)
+  }
+
+  private[search] def getOverridingMethodsForNavigation(method: ScNamedElement): Array[PsiElement] = inReadAction {
+    getOverridingMembersForNavigation(method).map(_.navigation)
+  }
+
+  private[search] def getOverridingMembersForNavigation(method: ScNamedElement): Array[OverridingMember] = inReadAction {
+    searchResults(method, None, deep = true, withSelfType = false)
   }
 
   def search(
@@ -76,6 +112,15 @@ object ScalaOverridingMemberSearcher {
     deep: Boolean = true,
     withSelfType: Boolean = false
   ): Array[PsiNamedElement] = {
+    searchResults(member, scopeOption, deep, withSelfType).map(_.semantic).distinct
+  }
+
+  private def searchResults(
+    member: PsiNamedElement,
+    scopeOption: Option[SearchScope],
+    deep: Boolean,
+    withSelfType: Boolean
+  ): Array[OverridingMember] = {
     val scope = scopeOption.getOrElse(inReadAction(member.getUseScope))
 
     ProgressManager.checkCanceled()
@@ -102,7 +147,7 @@ object ScalaOverridingMemberSearcher {
       ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
     }
 
-    val buffer = mutable.Set.empty[PsiNamedElement]
+    val buffer = mutable.LinkedHashSet.empty[OverridingMember]
     // The same class may be observed more than once across different inheritor sources
     // (e.g. normal inheritors + self-type inheritors branch). Process each class once per search call.
     val processedInheritors = mutable.HashSet.empty[PsiClass]
@@ -202,7 +247,7 @@ object ScalaOverridingMemberSearcher {
     originalMember: PsiNamedElement,
     deep: Boolean,
     withSelfType: Boolean,
-    resultBuffer: mutable.Set[PsiNamedElement]
+    resultBuffer: mutable.Set[OverridingMember]
   ): Boolean = {
     implicit val context: Context = Context(originalMember)
 
@@ -210,12 +255,12 @@ object ScalaOverridingMemberSearcher {
       inheritor match {
         case inheritor: ScTypeDefinition =>
           for (alias <- inheritor.aliases if name == alias.name) {
-            resultBuffer += alias
+            resultBuffer += OverridingMember(alias)
             if (!deep)
               return false
           }
           for (td <- inheritor.typeDefinitions if !td.isObject && name == td.name) {
-            resultBuffer += td
+            resultBuffer += OverridingMember(td)
             if (!deep)
               return false
           }
@@ -258,7 +303,9 @@ object ScalaOverridingMemberSearcher {
             while (supersIterator.hasNext) {
               val s = supersIterator.next()
               if (s.info.namedElement eq originalMember) {
-                resultBuffer += node.info.namedElement
+                val semanticMember = node.info.namedElement
+                val navigationElement = ScalaExportedMemberUtil.navigationTarget(node.info).getOrElse(node.info.namedElement)
+                resultBuffer += OverridingMember(semanticMember, navigationElement)
                 return deep
               }
             }

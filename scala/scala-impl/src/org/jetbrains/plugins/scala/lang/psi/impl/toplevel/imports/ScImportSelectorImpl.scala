@@ -49,6 +49,10 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
       else aliasNameFromPsi
     }
 
+  override def aliasNameElement: Option[PsiElement] =
+    if (isWildcardSelector) None
+    else Option(findChildByType[PsiElement](ID_SET))
+
   override def aliasNameWithIgnoredHidingImport: Option[String] = {
     val name = aliasName
     name.filterNot { name =>
@@ -57,8 +61,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   }
 
   private def aliasNameFromPsi: Option[String] = {
-    val aliasIdentifier = Option(findChildByType[PsiElement](ID_SET))
-    aliasIdentifier.map(_.getText)
+    aliasNameElement.map(_.getText)
   }
 
   override def reference: Option[ScStableCodeReference] = byPsiOrStub {

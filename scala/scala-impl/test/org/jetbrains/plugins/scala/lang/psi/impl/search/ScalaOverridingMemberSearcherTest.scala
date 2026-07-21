@@ -1,12 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.ide.scratch.ScratchRootType
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => Caret}
+import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage, ScalaVersion}
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
+
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaOverridingMemberSearcherTestBase extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
@@ -287,6 +293,65 @@ class ScalaOverridingMemberSearcherTest extends ScalaOverridingMemberSearcherTes
 
 class ScalaOverridingMemberSearcherTest_Scala3 extends ScalaOverridingMemberSearcherTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testExportedMemberDefinitionsSearchTarget(): Unit = {
+    val file = myFixture.configureByText(
+      ScalaFileType.INSTANCE,
+      """trait Base {
+        |  def run(): Unit
+        |}
+        |
+        |trait Mixin {
+        |  def run(): Unit = ()
+        |}
+        |
+        |class Exported extends Base {
+        |  val delegate: Mixin = new Mixin {}
+        |  export delegate.run
+        |}""".stripMargin
+    )
+
+    val baseRun = selectElement[ScNamedElement](file, path("Base", "run"))
+    val exportStatements = PsiTreeUtil.findChildrenOfType(file, classOf[ScExportStmt]).asScala.toSeq
+    assertEquals(1, exportStatements.size)
+    val exportStmt = exportStatements.head
+    val results = scala.collection.mutable.ArrayBuffer.empty[PsiElement]
+
+    new MethodImplementationsSearch().execute(baseRun, new Processor[PsiElement] {
+      override def process(element: PsiElement): Boolean = {
+        results += element
+        true
+      }
+    })
+
+    assertEquals(1, results.size)
+    assertEquals(exportStmt, results.head)
+  }
+
+  def testExportedMemberOverrideAtBracedSelector(): Unit = {
+    val file = myFixture.configureByText(
+      ScalaFileType.INSTANCE,
+      s"""trait Base {
+         |  def run(): Unit
+         |}
+         |
+         |trait Mixin {
+         |  def run(): Unit = ()
+         |}
+         |
+         |class Exported extends Base {
+         |  val delegate: Mixin = new Mixin {}
+         |  export delegate.{run$Caret}
+         |}""".stripMargin
+    )
+
+    val exportName = file.findElementAt(myFixture.getCaretOffset - 1)
+    val exportedMember = ScalaExportedMemberUtil.exportedMemberOverrideAt(exportName)
+
+    assertTrue(exportedMember.nonEmpty)
+    assertEquals("run", exportedMember.get.semantic.getName)
+    assertEquals(Seq("run"), exportedMember.get.superSignatures.map(_.name))
+  }
 
   def testExtensionMethod_1(): Unit = {
     check(

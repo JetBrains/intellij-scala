@@ -6,10 +6,12 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRender
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.PlatformTestUtil
-import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.annotator.gutter.LineMarkerInfoPresentationUtils
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestIndentUtils
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.junit.Assert.{assertNotNull, fail}
 
 import java.awt.event.MouseEvent
@@ -21,7 +23,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  * and returns the PSI target opened by that navigation.
  *
  * How it works:
- *  1. Reads all gutter markers at caret from the original `JavaCodeInsightTestFixture`
+ *  1. Reads all gutter markers at caret from the original `CodeInsightTestFixture`
  *  1. Filters only super-member markers (`OverridingMethod` / `ImplementingMethod`) and asserts that there is exactly one matching marker
  *  1. Invokes the marker navigation handler with a synthetic click event
  *  1. Waits for IDE queue processing (`PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()`)
@@ -40,12 +42,18 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  *  - It therefore covers interaction-level behavior (click -> async dispatch -> opened target),
  *    not just marker rendering/availability
  */
-final class SuperMemberGutterNavigationFixture(private val originalFixture: JavaCodeInsightTestFixture) {
+final class SuperMemberGutterNavigationFixture(private val originalFixture: CodeInsightTestFixture) {
 
   private val project = originalFixture.getProject
 
-  def navigateToSuperMemberTarget(fileName: String): PsiElement = {
-    val lineMarkerInfo = findSingleSuperNavigationLineMarker(fileName)
+  def navigateToSuperMemberTarget(fileName: String): PsiElement =
+    navigateToTarget(fileName, isSuperNavigationLineMarker)
+
+  def navigateToImplementationTarget(fileName: String): PsiElement =
+    navigateToTarget(fileName, isImplementationNavigationLineMarker)
+
+  private def navigateToTarget(fileName: String, markerFilter: LineMarkerInfo[_] => Boolean): PsiElement = {
+    val lineMarkerInfo = findSingleNavigationLineMarker(fileName, markerFilter)
     val navigationHandler = lineMarkerInfo.getNavigationHandler
     assertNotNull(s"Expected non-null gutter navigation handler for file $fileName", navigationHandler)
 
@@ -58,7 +66,12 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Java
     val selectedPsiFile = PsiDocumentManager.getInstance(project).getPsiFile(selectedEditor.getDocument)
     assertNotNull(s"Expected selected PSI file after gutter navigation for file $fileName", selectedPsiFile)
 
-    val targetAtCaret = TargetElementUtil.findTargetElement(selectedEditor, TargetElementUtil.getInstance.getAllAccepted)
+    val targetAtCaret = Option(TargetElementUtil.findTargetElement(selectedEditor, TargetElementUtil.getInstance.getAllAccepted))
+      .orElse {
+        val maybeElement = Option(selectedPsiFile.findElementAt(selectedEditor.getCaretModel.getOffset))
+        maybeElement.flatMap(element => Option(PsiTreeUtil.getParentOfType(element, classOf[ScExportStmt])))
+      }
+      .orNull
     assertNotNull(
       s"Expected target element at caret after gutter navigation for file $fileName. Selected file: ${NavigationElementUtils.elementLocationPath(selectedPsiFile)}",
       targetAtCaret
@@ -67,39 +80,46 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Java
     targetAtCaret
   }
 
-  private def findSingleSuperNavigationLineMarker(fileName: String): LineMarkerInfo[PsiElement] = {
+  private def findSingleNavigationLineMarker(
+    fileName: String,
+    markerFilter: LineMarkerInfo[_] => Boolean
+  ): LineMarkerInfo[PsiElement] = {
     val allLineMarkersAtCaret = originalFixture.findGuttersAtCaret().asScala.toSeq.collect {
       case renderer: LineMarkerGutterIconRenderer[_] =>
         renderer.getLineMarkerInfo.asInstanceOf[LineMarkerInfo[PsiElement]]
     }
 
-    val superNavigationLineMarkers = allLineMarkersAtCaret.filter(isSuperNavigationLineMarker)
+    val matchingLineMarkers = allLineMarkersAtCaret.filter(markerFilter)
 
-    if (superNavigationLineMarkers.isEmpty) {
+    if (matchingLineMarkers.isEmpty) {
       fail(
-        s"""Expected exactly one override/implements line marker at caret, got none for file $fileName.
+        s"""Expected exactly one matching line marker at caret, got none for file $fileName.
            |All markers at caret:
            |${lineMarkersPresentation(allLineMarkersAtCaret)}
            |""".stripMargin
       )
     }
-    if (superNavigationLineMarkers.size > 1) {
+    if (matchingLineMarkers.size > 1) {
       fail(
-        s"""Expected exactly one override/implements line marker at caret, got ${superNavigationLineMarkers.size} for file $fileName.
+        s"""Expected exactly one matching line marker at caret, got ${matchingLineMarkers.size} for file $fileName.
            |Matched markers:
-           |${lineMarkersPresentation(superNavigationLineMarkers)}
+           |${lineMarkersPresentation(matchingLineMarkers)}
            |All markers at caret:
            |${lineMarkersPresentation(allLineMarkersAtCaret)}
            |""".stripMargin
       )
     }
 
-    superNavigationLineMarkers.head
+    matchingLineMarkers.head
   }
 
   private def isSuperNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[_]): Boolean =
     lineMarkerInfo.getIcon == AllIcons.Gutter.OverridingMethod ||
       lineMarkerInfo.getIcon == AllIcons.Gutter.ImplementingMethod
+
+  private def isImplementationNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[_]): Boolean =
+    lineMarkerInfo.getIcon == AllIcons.Gutter.OverridenMethod ||
+      lineMarkerInfo.getIcon == AllIcons.Gutter.ImplementedMethod
 
   private def lineMarkersPresentation(lineMarkers: Seq[LineMarkerInfo[PsiElement]]): String = {
     val text = if (lineMarkers.isEmpty) "<none>" else lineMarkers.map(LineMarkerInfoPresentationUtils.describeLineMarkerWithRange).mkString("\n")

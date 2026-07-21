@@ -29,6 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaExportedMemberUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
 import java.awt.event.MouseEvent
@@ -131,69 +133,102 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   }
 
   private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
-    if (!OverridingOption.isEnabled && !ImplementingOption.isEnabled) {
+    val isEnabled = OverridingOption.isEnabled || ImplementingOption.isEnabled
+    if (!isEnabled)
       return None
-    }
 
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
-    val notReference = element.parent.exists {
-      case _: ScReference => false
-      case _              => true
-    }
-
-    if (isIdentifier && notReference) {
-      def containsNamedElement(holder: ScDeclaredElementsHolder) =
-        holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
-
-      val text = element.getText
-
-      val builtInHighlightingDisabled = builtInHighlightingDisabledIn(element.getProject)
-
-      namedParent(element).flatMap {
-        case method: ScFunction if method.isDefinedInClass && method.name == text =>
-          if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(method, element)
-          val signatures = method.superSignaturesIncludingSelfType
-          val icon       = getOverridesOrImplementsIcon(method, signatures)
-          if (!isEnabled(icon)) {
-            return None
-          }
-          val markerType = overridingMember
-          if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
-          else None
-        case cParam: ScClassParameter if cParam.name == text =>
-          if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(cParam, element)
-          val signatures = ScalaPsiUtil.superValsSignatures(cParam, withSelfType = true)
-          val icon       = getOverridesOrImplementsIcon(cParam, signatures)
-          if (!isEnabled(icon)) {
-            return None
-          }
-          val markerType = overridingMember
-          if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
-          else None
-        case v: ScValueOrVariable if !v.isLocal && containsNamedElement(v) =>
-          if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(v, element)
-          val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
-          val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
-          val icon       = getOverridesOrImplementsIcon(v, signatures)
-          if (!isEnabled(icon)) {
-            return None
-          }
-          val markerType = overridingMember
-          if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
-          else None
-        case ta: ScTypeAlias if ta.isDefinedInClass && ta.name == text =>
-          if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(ta, element)
-          val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
-          val icon = ImplementingMethod
-          if (!isEnabled(icon)) {
-            return None
-          }
-          val typez = overridingMember
-          if (elements.nonEmpty) arrowUpLineMarker(element, icon, typez).toOption
-          else None
-        case _ => None
+    if (isIdentifier) {
+      val exportedMemberMarker = lineMarkerForExportedOverride(element)
+      exportedMemberMarker.getOrElse {
+        val isReference = element.parent.exists(_.is[ScReference])
+        if (!isReference)
+          getOverridesImplementsMarkersForIdentifier(element)
+        else
+          None
       }
     } else None
+  }
+
+  private def getOverridesImplementsMarkersForIdentifier(element: PsiElement): Option[LineMarkerInfo[PsiElement]] = {
+    def containsNamedElement(holder: ScDeclaredElementsHolder): Boolean =
+      holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
+
+    val text = element.getText
+
+    val builtInHighlightingDisabled = builtInHighlightingDisabledIn(element.getProject)
+    val parent = namedParent(element) match {
+      case Some(value) => value
+      case None =>
+        return None
+    }
+    parent match {
+      case method: ScFunction if method.isDefinedInClass && method.name == text =>
+        if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(method, element)
+        val signatures = method.superSignaturesIncludingSelfType
+        val icon       = getOverridesOrImplementsIcon(method, signatures)
+        if (!isEnabled(icon)) {
+          return None
+        }
+        val markerType = overridingMember
+        if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
+        else None
+      case cParam: ScClassParameter if cParam.name == text =>
+        if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(cParam, element)
+        val signatures = ScalaPsiUtil.superValsSignatures(cParam, withSelfType = true)
+        val icon       = getOverridesOrImplementsIcon(cParam, signatures)
+        if (!isEnabled(icon)) {
+          return None
+        }
+        val markerType = overridingMember
+        if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
+        else None
+      case v: ScValueOrVariable if !v.isLocal && containsNamedElement(v) =>
+        if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(v, element)
+        val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
+        val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
+        val icon       = getOverridesOrImplementsIcon(v, signatures)
+        if (!isEnabled(icon)) {
+          return None
+        }
+        val markerType = overridingMember
+        if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
+        else None
+      case ta: ScTypeAlias if ta.isDefinedInClass && ta.name == text =>
+        if (builtInHighlightingDisabled) return simpleOverrideMarkerFor(ta, element)
+        val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
+        val icon = ImplementingMethod
+        if (!isEnabled(icon)) {
+          return None
+        }
+        val typez = overridingMember
+        if (elements.nonEmpty) arrowUpLineMarker(element, icon, typez).toOption
+        else None
+      case _ =>
+        None
+    }
+  }
+
+  /**
+   * Handle this case: {{{
+   *   trait T { def run: Int }
+   *   class C extends T {
+   *     val delegate: T = ???
+   *     export delegate.run // this creates the method "run" which overrides method from "T"
+   *   }
+   * }}}
+   */
+  private def lineMarkerForExportedOverride(element: PsiElement): Option[Option[LineMarkerInfo[PsiElement]]] = {
+    val exportedMemberOverride = ScalaExportedMemberUtil.exportedMemberOverrideAt(element)
+    exportedMemberOverride.map(lineMarkerForExportedOverride(element, _))
+  }
+
+  private def lineMarkerForExportedOverride(element: PsiElement, exportedMember: ScalaExportedMemberUtil.ExportedMemberOverride): Option[LineMarkerInfo[PsiElement]] = {
+    val icon = getOverridesOrImplementsIcon(exportedMember.semantic, exportedMember.superSignatures)
+    if (isEnabled(icon))
+      arrowUpLineMarker(element, icon, overridingMember).toOption
+    else
+      None
   }
 
   private def simpleOverrideMarkerFor(member: ScMember, element: PsiElement): Option[LineMarkerInfo[PsiElement]] =

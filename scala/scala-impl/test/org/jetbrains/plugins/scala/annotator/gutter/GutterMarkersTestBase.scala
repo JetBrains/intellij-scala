@@ -26,13 +26,13 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
   protected def ignoreGutterInTest(@unused marker: GutterMark): Boolean = false
 
-  protected def doTestNoLineMarkersAtCaret(fileText: String): Unit =
+  protected def doTestNoLineMarkersAtCaret(@Language("Scala 3") fileText: String): Unit =
     doTest(fileText) {
       val gutters = findGuttersAtCaretSuitableForThisTest
       assertNoGutters(gutters, s"no gutters expected at caret, but got:")
     }
 
-  protected def doTestNoLineMarkers(fileText: String, fileExtension: String = "scala"): Unit =
+  protected def doTestNoLineMarkers(@Language("Scala 3") fileText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
       val gutters = findAllGuttersSuitableForThisTest
       assertNoGutters(gutters, "no gutters expected, but got:")
@@ -64,14 +64,20 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
   protected def recursiveCallTooltip: String = ScalaBundle.message("call.is.recursive")
 
   // TODO: why using callback? we could just call it "prepareFile" and call as usual
-  protected def doTest(fileText: String, fileExtension: String = "scala")(testFn: => Any): Unit = {
+   protected def doTest(
+    @Language("Scala 3") fileText: String,
+    fileExtension: String = "scala"
+  )(testFn: => Any): Unit = {
     val name = getTestName(false)
     myFixture.configureByText(s"$name.$fileExtension", StringUtil.convertLineSeparators(fileText, "\n"))
     myFixture.doHighlighting()
     testFn
   }
 
-  protected def doTestSingleTooltipAtCaret(fileText: String, expectedTooltipParts: String*): Unit = {
+  protected def doTestSingleTooltipAtCaret(
+    @Language("Scala 3") fileText: String,
+    expectedTooltipParts: String*
+  ): Unit = {
     assertTrue("Tooltip text expected", expectedTooltipParts.nonEmpty)
 
     doTest(fileText) {
@@ -91,7 +97,10 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  protected def doTestAllTooltipsAtCaret(fileText: String, expectedTooltips: String*): Unit = {
+  protected def doTestAllTooltipsAtCaret(
+    @Language("Scala 3") fileText: String,
+    expectedTooltips: String*
+  ): Unit = {
     assertTrue("Tooltips expected", expectedTooltips.nonEmpty)
 
     doTest(fileText) {
@@ -108,7 +117,11 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  protected def doTestAllGuttersShort(@Language("Scala") fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit = {
+  protected def doTestAllGuttersShort(
+    @Language("Scala 3") fileText: String,
+    expectedGutters: Seq[ExpectedGutter],
+    fileExtension: String = "scala"
+  ): Unit = {
     val expectedGuttersSortedText = guttersDebugText(expectedGutters.sorted)
     doTestAllGuttersShortWithText(
       fileText,
@@ -117,7 +130,11 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     )
   }
 
-  protected def doTestAllGuttersShortWithText(@Language("Scala") fileText: String, expectedGuttersSortedText: String, fileExtension: String = "scala"): Unit =
+  protected def doTestAllGuttersShortWithText(
+    @Language("Scala 3") fileText: String,
+    expectedGuttersSortedText: String,
+    fileExtension: String = "scala"
+  ): Unit =
     doTest(fileText, fileExtension) {
       val gutters0 = findAllGuttersSuitableForThisTest
       val gutters = gutters0.map(toFullExpectedGutter)
