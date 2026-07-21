@@ -121,6 +121,7 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
       ShellState.Idle,
       ShellState.ShuttingDown,
       ShellState.Off,
+      ShellState.Starting,
       ShellState.Idle
     )
 
@@ -142,6 +143,7 @@ class SbtShellStateIntegrationTest extends SbtRuntimeTest_WithSbtShell {
       ShellState.SoftRestarting,
       ShellState.ShuttingDown,
       ShellState.Off,
+      ShellState.Starting,
       ShellState.Queued,
       ShellState.Idle
     )
