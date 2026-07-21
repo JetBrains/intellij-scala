@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, SmartSuperTypeUtil, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, ScalaType, SmartSuperTypeUtil, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -525,35 +525,55 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   }
 
   /**
-   * Returns the array of class types for the type definitions that this template definition implements.
+   * Returns the direct Java-facing parent types that this template definition extends or implements.
+   *
+   * This method does not traverse the full type hierarchy.<br>
+   * The "extends" list contains class parents written in the template definition. <br>
+   * The "implements" list contains the effective direct interface parents from [[ScExtendsBlock#superTypes]],
+   * including synthetic parents such as `Product` and `Serializable` on a case class.
+   *
+   * This method is used to calculate [[PsiClass#getExtendsListTypes()]] and [[PsiClass#getImplementsListTypes()]].
    *
    * @param forImplementsList if true, return class types for interfaces, otherwise for classes
-   * @see [[PsiClass#getExtendsListTypes()]]
-   * @see [[PsiClass#getImplementsListTypes()]]
    */
-  protected def innerExtendsListTypes(forImplementsList: Boolean): Array[PsiClassType] = {
+  protected def getExtendsOrImplementsListTypes(forImplementsList: Boolean): Array[PsiClassType] = {
     val eb = extendsBlock
-    if (eb != null) {
-      val templateParents = eb.templateParents
-      templateParents match {
-        case Some(tp) =>
-          val typeElements  = tp.allTypeElements
-          val psiTypes      = typeElements.map(_.calcType.toPsiType)
-          val psiClassTypes = psiTypes.filterByType[PsiClassType].filter { tpe =>
-            tpe.resolve() match {
-              case cls: PsiClass =>
-                forImplementsList == cls.isInterface
-              case _ => false
-            }
-          }
-          psiClassTypes.toArray[PsiClassType]
-        case _ =>
-          PsiClassType.EMPTY_ARRAY
-      }
-    } else {
+    if (eb != null)
+      getExtendsOrImplementsListTypes(forImplementsList, eb)
+    else
       PsiClassType.EMPTY_ARRAY
+  }
+
+  private def getExtendsOrImplementsListTypes(forImplementsList: Boolean, eb: ScExtendsBlock) = {
+    val scalaTypes: Seq[ScType] =
+      if (forImplementsList) {
+        // Use effective ScTypes so synthetic case-class interfaces such as Product reach Java hierarchy traversal,
+        // while written generic interface parents retain their type arguments and substitutions.
+        eb.superTypes
+      } else {
+        // Use only syntax-backed parents here: superTypes also appends an implicit java.lang.Object when no class
+        // parent is written, but the Java PSI extends-list contract must not expose that implicit root.
+        eb.templateParents.toSeq.flatMap(_.allTypeElements).map(_.calcType)
+      }
+
+    // Convert the selected Scala types without collapsing them to resolved classes, preserving generic arguments.
+    val classTypes = toPsiClassTypes(scalaTypes)
+
+    // A Scala parent clause mixes classes and traits, whereas Java PSI exposes them in separate parent lists.
+    classTypes.filter(isResolvedToPsiClassOrInterface(_, searchForInterface = forImplementsList))
+  }
+
+  private def isResolvedToPsiClassOrInterface(classType: PsiClassType, searchForInterface: Boolean): Boolean = {
+    val resolved = classType.resolve()
+    resolved match {
+      case psiClass: PsiClass =>
+        psiClass.isInterface == searchForInterface
+      case _ => false
     }
   }
+
+  protected final def toPsiClassTypes(scalaTypes: Seq[ScType]): Array[PsiClassType] =
+    scalaTypes.map(_.toPsiType).filterByType[PsiClassType].toArray
 
   override def superClass: Option[PsiClass] =
     for {

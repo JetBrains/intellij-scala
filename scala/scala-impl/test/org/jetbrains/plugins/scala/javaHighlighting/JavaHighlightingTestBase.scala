@@ -7,7 +7,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestBase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, SmartJDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -36,8 +36,11 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
       throw new AssertionError("Don't add files 2 times in a single test")
 
     myFixture.addFileToProject("dummy.scala", scalaFileText)
-    val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
+
+    val javaFileName = javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION
+    val myFile: PsiFile = myFixture.addFileToProject(javaFileName, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
+
     val allInfo = myFixture.doHighlighting()
 
     myFilesCreated = true
