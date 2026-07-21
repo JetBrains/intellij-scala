@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -21,6 +22,8 @@ import scala.util.{Failure, Success, Try}
 object Versions {
 
   import Entity._
+
+  private val Log: Logger = Logger.getInstance(this.getClass)
 
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
@@ -136,17 +139,15 @@ object Versions {
     }
 
     val downloadedVersionStringsFutures: Seq[CompletableFuture[(DownloadableEntity, Seq[String])]] = downloadable.zip(httpFutures).map {
-      case (entity@DownloadableEntity(_, _, hardcodedVersions, versionPattern), future) =>
+      case (entity@DownloadableEntity(url, _, hardcodedVersions, versionPattern), future) =>
         future
-          .thenApply[Seq[String]] { responseStream =>
-            val bodyLines = responseStream.body().toList.asScala.toSeq
-            bodyLines
-          }
-          .thenApply[(DownloadableEntity, Seq[String])] { lines =>
-            val versionStrings =
-              if (lines.isEmpty) hardcodedVersions
-              else extractVersions(lines, versionPattern)
-
+          .thenApply[(DownloadableEntity, Seq[String])] { response =>
+            val statusCode = response.statusCode()
+            val bodyLines = response.body().toList.asScala.toSeq
+            val versionStrings = extractVersionsFromResponse(statusCode, bodyLines, versionPattern).getOrElse {
+              Log.warn(s"Failed to extract versions from $url (status code: $statusCode), falling back to hardcoded versions")
+              hardcodedVersions
+            }
             entity -> versionStrings
           }
           .whenComplete((_, _) => latch.countDown())
@@ -217,6 +218,17 @@ object Versions {
   private def extractVersions(strings: Seq[String], pattern: Regex) =
     strings.collect {
       case pattern(number) => number
+    }
+
+  /**
+   * @return `None` if the response was not successful (e.g., HTTP 429 from Maven Central, SCL-25707)
+   *         or if no versions could be extracted from the body (e.g., unexpected page format).
+   *         Callers are expected to fall back to the hardcoded versions in this case.
+   */
+  private[project] def extractVersionsFromResponse(statusCode: Int, bodyLines: Seq[String], versionPattern: Regex): Option[Seq[String]] =
+    statusCode match {
+      case 200 => Some(extractVersions(bodyLines, versionPattern)).filter(_.nonEmpty)
+      case _ => None
     }
 
   @RequiresBackgroundThread

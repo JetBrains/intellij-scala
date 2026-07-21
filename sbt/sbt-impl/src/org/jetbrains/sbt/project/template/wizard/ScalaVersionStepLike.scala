@@ -51,8 +51,10 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
       Versions.Scala.loadVersionsWithProgress(indicator)
     }
     downloadVersionsAsynchronously(isScalaLoading, disposable, scalaDownloadVersions, Versions.Scala.toString) { versions =>
-      val stringRepresentation = versions.map(_.presentation)
-      updateSelectionsAndElementsModelForScala(stringRepresentation)
+      if (versions.nonEmpty) {
+        val stringRepresentation = versions.map(_.presentation)
+        updateSelectionsAndElementsModelForScala(stringRepresentation)
+      }
     }
   }
 
