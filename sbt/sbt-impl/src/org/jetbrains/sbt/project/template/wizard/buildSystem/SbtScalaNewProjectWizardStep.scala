@@ -157,8 +157,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   }
 
   override def setDownloadedSbtVersions(versions: Seq[SbtVersion]): Unit = {
-    availableSbtVersions.set(versions.toOption)
-    availableSbtVersionsForScala3.set(Versions.SBT.sbtVersionsForScala3(versions).toOption)
+    availableSbtVersions.set(versions.toOption.filter(_.nonEmpty))
+    availableSbtVersionsForScala3.set(Versions.SBT.sbtVersionsForScala3(versions).toOption.filter(_.nonEmpty))
     updateSupportedSbtVersionsForSelectedScalaVersion(selections.scalaVersion)
   }
 
