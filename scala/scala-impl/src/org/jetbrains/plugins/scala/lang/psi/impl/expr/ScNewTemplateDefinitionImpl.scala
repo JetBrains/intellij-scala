@@ -195,9 +195,9 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
                                    place: PsiElement): Boolean =
     processDeclarationsImpl(processor, state, lastParent, place)
 
-  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = false)
+  override def getExtendsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = false)
 
-  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = true)
+  override def getImplementsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = true)
 
   override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 

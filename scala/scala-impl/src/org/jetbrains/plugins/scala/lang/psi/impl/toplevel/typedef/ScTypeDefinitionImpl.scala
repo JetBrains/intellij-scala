@@ -60,13 +60,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       super.add(element)
   }
 
-  override def getSuperTypes: Array[PsiClassType] =
-    superTypes.map {
-      _.toPsiType
-    }.collect {
-      case c: PsiClassType => c
-    }.toArray
-
   // For Scala PSI
   override def annotationType: Boolean =
     elementScope.getCachedClass("scala.annotation.Annotation")
@@ -252,9 +245,14 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   })
 
-  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = false)
+  // `superTypes` already contains every effective direct parent, including synthetic parents and the implicit root.
+  // Convert those rich Scala types directly so their generic arguments and substitutions are preserved.
+  // TODO: Deduplicate Java-equivalent super types separately; value classes currently expose java.lang.Object twice.
+  override def getSuperTypes: Array[PsiClassType] = toPsiClassTypes(superTypes)
 
-  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = true)
+  override def getExtendsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = false)
+
+  override def getImplementsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = true)
 
   override def getQualifiedNameForDebugger: String = {
     import ScalaNamesUtil.toJavaName
