@@ -117,7 +117,14 @@ object ScalaColorsSchemeUtils {
   }
 
   def classParamHighlightInfoType(classParameter: ScClassParameter): HighlightInfoType =
-    if (classParameter.isClassMember)
+    if (classParameter.isCaseClassPrimaryParameter)
+      if (classParameter.isVar)
+        ScalaHighlightInfoTypes.CASE_CLASS_VAR_FIELD
+      else
+        ScalaHighlightInfoTypes.CASE_CLASS_FIELD
+    else if (classParameter.isVar)
+      ScalaHighlightInfoTypes.VARIABLES
+    else if (classParameter.isClassMember)
       ScalaHighlightInfoTypes.VALUES
     else
       ScalaHighlightInfoTypes.PARAMETER
