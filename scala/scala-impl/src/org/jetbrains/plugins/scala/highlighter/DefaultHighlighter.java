@@ -77,6 +77,8 @@ public class DefaultHighlighter {
   static final String LOCAL_LAZY_ID = "Scala Local lazy val/var";
   static final String VALUES_ID = "Scala Template val";
   static final String VARIABLES_ID = "Scala Template var";
+  static final String CASE_CLASS_FIELD_ID = "Scala Case class field";
+  static final String CASE_CLASS_VAR_FIELD_ID = "Scala Case class var field";
   static final String LAZY_ID = "Scala Template lazy val/var";
   static final String PARAMETER_ID = "Scala Parameter";
   static final String NAMED_ARGUMENT_ID = "Scala Named Argument";
@@ -151,6 +153,8 @@ public class DefaultHighlighter {
   public static final TextAttributesKey LOCAL_LAZY = createKey(LOCAL_LAZY_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey VALUES = createKey(VALUES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
   public static final TextAttributesKey VARIABLES = createKey(VARIABLES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey CASE_CLASS_FIELD = createKey(CASE_CLASS_FIELD_ID, VALUES);
+  public static final TextAttributesKey CASE_CLASS_VAR_FIELD = createKey(CASE_CLASS_VAR_FIELD_ID, VARIABLES);
   public static final TextAttributesKey LAZY = createKey(LAZY_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
   public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
@@ -195,5 +199,3 @@ public class DefaultHighlighter {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype);
   }
 }
-
-

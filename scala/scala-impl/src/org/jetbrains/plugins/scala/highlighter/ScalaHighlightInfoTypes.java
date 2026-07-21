@@ -51,6 +51,8 @@ public class ScalaHighlightInfoTypes {
     public static final HighlightInfoType LOCAL_LAZY = createType(DefaultHighlighter.LOCAL_LAZY);
     public static final HighlightInfoType VALUES = createType(DefaultHighlighter.VALUES);
     public static final HighlightInfoType VARIABLES = createType(DefaultHighlighter.VARIABLES);
+    public static final HighlightInfoType CASE_CLASS_FIELD = createType(DefaultHighlighter.CASE_CLASS_FIELD);
+    public static final HighlightInfoType CASE_CLASS_VAR_FIELD = createType(DefaultHighlighter.CASE_CLASS_VAR_FIELD);
     public static final HighlightInfoType LAZY = createType(DefaultHighlighter.LAZY);
     public static final HighlightInfoType PATTERN = createType(DefaultHighlighter.PATTERN);
     public static final HighlightInfoType GENERATOR = createType(DefaultHighlighter.GENERATOR);

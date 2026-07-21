@@ -55,6 +55,8 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.LOCAL_LAZY, LOCAL_LAZY),
     new AttributesDescriptor(DisplayNames.VALUES, VALUES),
     new AttributesDescriptor(DisplayNames.VARIABLES, VARIABLES),
+    new AttributesDescriptor(DisplayNames.CASE_CLASS_FIELD, CASE_CLASS_FIELD),
+    new AttributesDescriptor(DisplayNames.CASE_CLASS_VAR_FIELD, CASE_CLASS_VAR_FIELD),
     new AttributesDescriptor(DisplayNames.LAZY, LAZY),
     new AttributesDescriptor(DisplayNames.GIVEN, GIVEN),
     new AttributesDescriptor(DisplayNames.PARAMETER, PARAMETER),
@@ -127,6 +129,8 @@ object ScalaColorsAndFontsPage {
     val LOCAL_LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.lazy.val.var")
     val VALUES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.val")
     val VARIABLES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.var")
+    val CASE_CLASS_FIELD = ScalaOptionsBundle.message("options.scala.attribute.descriptor.case.class.field")
+    val CASE_CLASS_VAR_FIELD = ScalaOptionsBundle.message("options.scala.attribute.descriptor.case.class.var.field")
     val GIVEN = ScalaOptionsBundle.message("options.scala.attribute.descriptor.given")
     val LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.lazy.val.var")
     val PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter")
@@ -221,6 +225,8 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>"value"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>
        |<brace>}</brace>
        |
+       |<keyword>case</keyword> <keyword>class</keyword> <class>ScalaCaseClass</class><par>(</par><case_class_field>name</case_class_field><colon>:</colon> <predef>String</predef><comma>,</comma> <keyword>var</keyword> <case_class_var_field>age</case_class_var_field><colon>:</colon> <predef>Int</predef><par>)</par>
+       |
        |<keyword>object</keyword> <object>Object</object> <brace>{</brace>
        |  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>
        |  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()
@@ -282,6 +288,8 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("abstract", ABSTRACT_CLASS)
     map.put("local", LOCAL_VALUES)
     map.put("val", VALUES)
+    map.put("case_class_field", CASE_CLASS_FIELD)
+    map.put("case_class_var_field", CASE_CLASS_VAR_FIELD)
     map.put("given", GIVEN)
     map.put("param", PARAMETER)
     map.put("named_arg", NAMED_ARGUMENT)
