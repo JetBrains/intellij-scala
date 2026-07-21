@@ -6,10 +6,13 @@ import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellState
+import org.jetbrains.sbt.shell.communication.{SbtShellCommandRequest, SbtShellCommandRequestId}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
+import java.util.concurrent.atomic.AtomicBoolean
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 /**
@@ -22,6 +25,7 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
     "sbt.shell.failed.reload.print.diagnostics.on.success"
 
   private val ProjectLoadingFailedPrompt = "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?"
+  private val IgnoringLoadFailure = "Ignoring load failure"
 
   override protected def getRelativeTestProjectPath: String =
     s"sbt-shell-runtime-tests/testdata/sbt/shell/${getTestName(true)}"
@@ -162,7 +166,7 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
         importFailure,
         Seq(structureFile),
       ),
-      log.contains("Ignoring load failure")
+      log.contains(IgnoringLoadFailure)
     )
     assertEquals(
       withFailedReloadDiagnostics(
@@ -215,6 +219,107 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
     // The shell was shutting down, so sendIgnore must have been skipped.
     assertDiagnosticEventExists[SbtShellDiagnosticEvent.SendIgnoreSkipped](events, snapshot)
     assertDiagnosticEventNotExists[SbtShellDiagnosticEvent.SendIgnore](events, snapshot)
+  }
+
+  /**
+   * The project starts with a broken `build.sbt` file. The project-loading failure prompt is shown, and `ignore` commands is sent.
+   * After that, the shell should terminate because there is no previous session to fall back to.
+   */
+  def testInitialLoadFailureSendsIgnoreAndStopsShell(): Unit = {
+    val processManager = SbtProcessManager.forProject(getMyProject)
+
+    // The shell was already started with the broken build.sbt, so wait for the prompt and the ignore message.
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt") { () =>
+      processListener.getLog.contains(ProjectLoadingFailedPrompt)
+    }
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input") { () =>
+      processListener.getLog.contains(IgnoringLoadFailure)
+    }
+
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after ignoring the initial load failure") { () =>
+      !processManager.isAlive && shellCommunication.currentState == ShellState.Off
+    }
+
+    val events = shellCommunication.diagnosticEventsSnapshot
+    val snapshot = shellCommunication.diagnosticsSnapshot
+
+    assertDiagnosticEventExists[SbtShellDiagnosticEvent.SendIgnore](events, snapshot)
+    assertDiagnosticEventNotExists[SbtShellDiagnosticEvent.SendIgnoreSkipped](events, snapshot)
+  }
+
+  /**
+   * Verifies that when an sbt version change triggers a soft restart and the new shell fails to load the project,
+   * `ignore` is sent, the shell is terminated, and every task queued behind the reload is terminated.
+   *
+   * @see SCL-25667
+   */
+  def testQueuedTasksAreTerminatedWhenImportAfterSbtVersionChangeFails(): Unit = {
+    sbtShellFixture.waitForShellReady(getMyProject)
+
+    val processManager = SbtProcessManager.forProject(getMyProject)
+    val sbtBuildOverwritten = new AtomicBoolean(false)
+
+    var queuedFutures = Seq.empty[Future[_]]
+    val queuedTaskIds = Seq(
+      SbtShellCommandRequestId("queued-behind-failed-import-1"),
+      SbtShellCommandRequestId("queued-behind-failed-import-2"),
+    )
+
+    // Overwrite `build.sbt` with invalid content and add additional commands to the after-restart gate.
+    // Do this when the shell enters the `SoftRestarting` state, before termination.
+    val injectOnSoftRestart: ShellState => Unit = { state =>
+      if (state.isSoftRestarting && sbtBuildOverwritten.compareAndSet(false, true)) {
+        Files.writeString(
+          getTestProjectPath / "build.sbt",
+          """scalaVersion := "2.13.18"
+            |
+            |intentionalSbtLoadFailure + "This is an intentional initial load failure"
+            |""".stripMargin
+        )
+        queuedFutures = queuedTaskIds.map(id => shellCommunication.run(SbtShellCommandRequest.collectOutput("task", id)))
+      }
+    }
+    shellCommunication.addTestStateListener(injectOnSoftRestart)
+
+    try {
+      // Change the sbt version so the import goes through a soft restart.
+      Files.writeString(getTestProjectPath / "project" / "build.properties", "sbt.version=1.12.1")
+
+      assertProjectImportFails("there is a broken build.sbt content")
+
+      // Both queued tasks must be terminated once the failed import kills the shell.
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Queued tasks were not terminated after the failed import") { () =>
+        queuedFutures.size == queuedTaskIds.size && queuedFutures.forall(_.value.exists(_.isFailure))
+      }
+
+      val log = SbtProcessOutputDiagnosticsCollector.sharedProcessOutput
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt") { () =>
+        log.contains(ProjectLoadingFailedPrompt)
+      }
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input") { () =>
+        log.contains(IgnoringLoadFailure)
+      }
+
+      // No previous session exists, so the shell terminates after ignoring the failed initial load.
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after the failed soft-restart import") { () =>
+        !processManager.isAlive && shellCommunication.currentState == ShellState.Off
+      }
+
+      val events = shellCommunication.diagnosticEventsSnapshot
+      val snapshot = shellCommunication.diagnosticsSnapshot
+
+      assertDiagnosticEventExists[SbtShellDiagnosticEvent.SendIgnore](events, snapshot)
+      assertDiagnosticEventNotExists[SbtShellDiagnosticEvent.SendIgnoreSkipped](events, snapshot)
+
+      queuedTaskIds.foreach { taskId =>
+        assertDiagnosticEventExists[SbtShellDiagnosticEvent.EnqueueAfterRestartCommands](events, taskId, snapshot)
+        assertDiagnosticEventExists[SbtShellDiagnosticEvent.TerminatePendingCommand](events, taskId, snapshot)
+
+        assertDiagnosticEventNotExists[SbtShellDiagnosticEvent.ProcessCommandStart](events, taskId, snapshot)
+      }
+    } finally {
+      shellCommunication.removeTestStateListener(injectOnSoftRestart)
+    }
   }
 }
 
