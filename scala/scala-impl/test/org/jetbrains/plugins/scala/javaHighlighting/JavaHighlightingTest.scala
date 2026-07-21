@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.javaHighlighting
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator._
+import com.intellij.psi.{JavaPsiFacade, PsiClass, search}
 
 class JavaHighlightingTest extends JavaHighlightingTestBase {
   import Message._
@@ -403,6 +404,52 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
       """.stripMargin
 
     assertNoErrorsInJava(scala, java, javaClassName = "CaseClassExtended")
+  }
+
+  def testCaseClassIsProductFromJava(): Unit = {
+    assertNoErrorsInJava(
+      """case class MyUser()""",
+      """public class Usage {
+        |    public static void main(String[] args) {
+        |        scala.Product user = new MyUser();
+        |    }
+        |}""".stripMargin,
+      javaClassName = "Usage"
+    )
+
+    val myUserClass = JavaPsiFacade.getInstance(getProject).findClass("MyUser", search.GlobalSearchScope.allScope(getProject))
+    assert(myUserClass != null, "MyUser was not found")
+    assertSuperTypeContains(myUserClass, "scala.Product")
+  }
+
+  def testCaseClassIsProductFromJava_WithOtherExplicitSupers(): Unit = {
+    assertNoErrorsInJava(
+      """trait MyTrait
+        |class MyClass
+        |case class MyUser() extends MyClass with MyTrait""".stripMargin,
+      """public class Usage {
+        |    public static void main(String[] args) {
+        |        scala.Product user1 = new MyUser();
+        |        MyTrait user2 = new MyUser();
+        |        MyClass user3 = new MyUser();
+        |    }
+        |}""".stripMargin,
+      javaClassName = "Usage"
+    )
+
+    val myUserClass = JavaPsiFacade.getInstance(getProject).findClass("MyUser", search.GlobalSearchScope.allScope(getProject))
+    assert(myUserClass != null, "MyUser was not found")
+    assertSuperTypeContains(myUserClass, "MyTrait")
+    assertSuperTypeContains(myUserClass, "MyClass")
+  }
+
+  //noinspection ScalaWrongPlatformMethodsUsage,SameParameterValue
+  private def assertSuperTypeContains(clazz: PsiClass, expectedSuperTypeFqn: String): Unit = {
+    val superTypeTexts = clazz.getSuperTypes.map(_.getCanonicalText)
+    assert(
+      superTypeTexts.contains(expectedSuperTypeFqn),
+      s"getSuperTypes=${superTypeTexts.mkString(", ")}; getSupers=${clazz.getSupers.map(_.getQualifiedName).mkString(", ")}"
+    )
   }
 
   def testOverrideDefaultWithStaticSCL8861(): Unit = {

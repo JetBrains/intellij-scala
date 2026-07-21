@@ -38,8 +38,22 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def typeDefinitions: Seq[ScTypeDefinition]
 
+  /**
+   * Returns the effective direct parent types of the enclosing template.
+   *
+   * For `class Child extends Parent with Mixin` it returns the types for `Parent` and `Mixin`,
+   * but not the parents of `Parent` or `Mixin`. The result also includes parents synthesized by the language or the plugin,
+   * such as case-class parents and the implicit root class when needed.
+   */
   def superTypes: List[ScType]
 
+  /**
+   * Returns the resolved classes for the effective direct parent types of the enclosing template.
+   *
+   * For `class Child extends Parent with Mixin`, returns the classes for `Parent` and `Mixin`,
+   * but not an ancestor such as `Grandparent` of `Parent`.
+   * Types which cannot be resolved to a class are omitted; synthesized direct parents are included.
+   */
   def supers: Seq[PsiClass]
 
   def isAnonymousClass: Boolean
