@@ -81,12 +81,6 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
       diagnosticSection("Structure files", renderStructureFiles(structureFiles)),
     ).mkString("\n")
 
-  private def diagnosticSection(title: String, body: String): String = {
-    val text = Option(body).filter(_.nonEmpty).getOrElse("<empty>")
-    s"""===== $title =====
-       |$text""".stripMargin
-  }
-
   private def renderThrowable(error: Throwable): String = {
     val message = Option(error.getMessage).getOrElse("<no message>")
     val stack = error.getStackTrace.take(60).map(element => s"  at $element").mkString("\n")
@@ -199,17 +193,17 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
     val processManager = SbtProcessManager.forProject(getMyProject)
 
     // Wait until sbt reached the blocking onLoad task -> the load is stuck and the shell is not ready.
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not reach the blocking onLoad task") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not reach the blocking onLoad task"  + shellDiagnostics) { () =>
       processListener.getLog.contains("LOAD_STARTED") && processManager.isAlive && !shellCommunication.currentState.isIdle
     }
 
     processManager.destroyProcess()
 
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt did not print the loading failure prompt after the stop") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt did not print the loading failure prompt after the stop" + shellDiagnostics) { () =>
       processListener.getLog.contains(ProjectLoadingFailedPrompt)
     }
 
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not stop after destroying the process") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "sbt shell did not stop after destroying the process"  + shellDiagnostics) { () =>
       !processManager.isAlive
     }
 
@@ -229,14 +223,14 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
     val processManager = SbtProcessManager.forProject(getMyProject)
 
     // The shell was already started with the broken build.sbt, so wait for the prompt and the ignore message.
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt"  + shellDiagnostics) { () =>
       processListener.getLog.contains(ProjectLoadingFailedPrompt)
     }
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input"  + shellDiagnostics) { () =>
       processListener.getLog.contains(IgnoringLoadFailure)
     }
 
-    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after ignoring the initial load failure") { () =>
+    AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after ignoring the initial load failure" + shellDiagnostics) { () =>
       !processManager.isAlive && shellCommunication.currentState == ShellState.Off
     }
 
@@ -288,20 +282,20 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
       assertProjectImportFails("there is a broken build.sbt content")
 
       // Both queued tasks must be terminated once the failed import kills the shell.
-      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Queued tasks were not terminated after the failed import") { () =>
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Queued tasks were not terminated after the failed import"  + shellDiagnostics) { () =>
         queuedFutures.size == queuedTaskIds.size && queuedFutures.forall(_.value.exists(_.isFailure))
       }
 
       val log = SbtProcessOutputDiagnosticsCollector.sharedProcessOutput
-      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt") { () =>
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to print the project loading failure prompt"  + shellDiagnostics) { () =>
         log.contains(ProjectLoadingFailedPrompt)
       }
-      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input") { () =>
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Expected sbt to consume the ignore input"  + shellDiagnostics) { () =>
         log.contains(IgnoringLoadFailure)
       }
 
       // No previous session exists, so the shell terminates after ignoring the failed initial load.
-      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after the failed soft-restart import") { () =>
+      AwaitTestUtils.waitForConditionOrFail(DefaultCommandWaitTimeout, "Shell must stop after the failed soft-restart import"  + shellDiagnostics) { () =>
         !processManager.isAlive && shellCommunication.currentState == ShellState.Off
       }
 
