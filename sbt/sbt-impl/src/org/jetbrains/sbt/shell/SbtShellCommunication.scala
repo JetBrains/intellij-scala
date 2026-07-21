@@ -17,6 +17,7 @@ import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent.*
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -165,10 +166,6 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     if (currentState.isShuttingDown || currentState.isSoftRestarting) {
       routeCommandDuringShutdownOrRestart(qc, request, requestId, shellWasReadyForImmediateSubmission)
     } else {
-      // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted here
-      // and may be emitted again when the shell becomes ready and the prompt listener observes pending work.
-      // Introducing an explicit "Start" state would likely be a solution.
-
       Log.debug(s"command: enqueue to commands: requestId=$requestId...")
       recordDiagnosticEvent(SbtShellDiagnosticEvent.EnqueueCommands(requestId, shellWasReadyForImmediateSubmission, currentState))
 
@@ -256,8 +253,12 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
   /** Terminates and removes all commands currently waiting in the [[commands]] queue. */
   private def terminatePendingCommands(): Unit = {
-    commands.forEach(terminateQueuedCommand(_))
-    commands.clear()
+    // Drain with `poll` so every removed command is terminated atomically.
+    var queuedCommand = commands.poll()
+    while (queuedCommand != null) {
+      terminateQueuedCommand(queuedCommand)
+      queuedCommand = commands.poll()
+    }
   }
 
   private def terminateQueuedCommand(queuedCommand: QueuedCommand): Unit = {
@@ -430,9 +431,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     }
   }
 
-  private def shellEventBasedOnCommandsQueue(): ShellStateEvent =
-    if (commands.isEmpty) ShellStateEvent.QueueDrained
-    else ShellStateEvent.EnqueueCommand
+  private def readyPromptEvent(): ShellStateEvent =
+    ShellStateEvent.ReadyPromptObserved(queuePending = !commands.isEmpty)
 
   /**
    * Queue an sbt command for execution in the sbt shell to be performed after a "soft" restart of the shell.
@@ -456,17 +456,23 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     def allCommandsProcessed: Boolean =
       commands.isEmpty && !shellWorkingSinceLastReadyPrompt.get()
 
-    def waitForAllCommandsInQueueToFinish(): Unit =
-      while (!allCommandsProcessed && !currentState.isShuttingDownOrOff) {
+    // `true` - queue drained normally → the soft destroy should be performed.
+    // `false` - shell already killed externally → skip soft destroy.
+    @tailrec
+    def waitForAllCommandsInQueueToFinish(): Boolean =
+      // As long as the restart is still draining the queue, the state stays `SoftRestarting`. Any other state means
+      // the shell was destroyed externally, so skip the soft destroy in that case.
+      if (!currentState.isSoftRestarting) false
+      else if (allCommandsProcessed) true
+      else {
         Thread.sleep(1000)
+        waitForAllCommandsInQueueToFinish()
       }
 
     // The command is put on the `afterRestartCommands` queue
     val commandResultFuture = run(request)
 
-    waitForAllCommandsInQueueToFinish()
-
-    if !currentState.isShuttingDownOrOff then
+    if (waitForAllCommandsInQueueToFinish())
       SbtProcessManager.forProject(project).softDestroyProcess()
 
     commandResultFuture
@@ -475,11 +481,11 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
   /**
    * Attempts to initiate a soft restart by emitting [[ShellStateEvent.SoftRestartInitiated]].
    *
-   * @return `true` if the soft restart was initiated, `false` if the shell is already shutdown/restart/off.
+   * @return `true` if the soft restart was initiated, `false` if the shell is already starting/shutdown/restart/off.
    */
   private def initiateSoftRestart(): Boolean = {
     val state = currentState
-    if state.isSoftRestarting || state.isShuttingDown || state.isOff then
+    if state.isStarting || state.isSoftRestarting || state.isShuttingDown || state.isOff then
       false
     else
       emitShellStateEvent(ShellStateEvent.SoftRestartInitiated)
@@ -550,6 +556,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
 
     val lockAcquired = communicationActive.tryAcquire(5, TimeUnit.SECONDS)
     if (lockAcquired) {
+      emitShellStateEvent(ShellStateEvent.StartupInitiated)
+
       afterRestartCommands.reopen()
       queuedStartupOutputMirroring.registerIfNeeded(handler, queuedStartupOutputOwner)
 
@@ -565,8 +573,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
           if (canHandle) {
             shellWorkingSinceLastReadyPrompt.set(false)
             // Emit the event before releasing the permit. Releasing first lets the queue-processing loop poll the next command,
-            // so the queue could look empty and emit QueueDrained (-> Idle) instead of EnqueueCommand (-> Queued).
-            emitShellStateEvent(shellEventBasedOnCommandsQueue())
+            // so the queue could look empty causing the shell to enter the Idle state instead of Queued.
+            emitShellStateEvent(readyPromptEvent())
             shellQueueReady.release()
           }
           recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(

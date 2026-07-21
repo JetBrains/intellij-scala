@@ -44,6 +44,7 @@ class SbtShellStateIntegrationTest_WithMockSbt extends SbtShellStateIntegrationT
         ShellState.SoftRestarting,
         ShellState.ShuttingDown,
         ShellState.Off,
+        ShellState.Starting,
         ShellState.Queued,
         ShellState.Queued,
         ShellState.Idle
@@ -118,6 +119,7 @@ class SbtShellStateIntegrationTest_WithMockSbt extends SbtShellStateIntegrationT
         ShellState.Idle,
         ShellState.ShuttingDown,
         ShellState.Off,
+        ShellState.Starting,
         ShellState.Queued,
         ShellState.Idle
       )
@@ -167,6 +169,7 @@ class SbtShellStateIntegrationTest_WithMockSbt extends SbtShellStateIntegrationT
         ShellState.SoftRestarting,
         ShellState.ShuttingDown,
         ShellState.Off,
+        ShellState.Starting,
         ShellState.Queued,
         ShellState.Queued,
         ShellState.Idle
