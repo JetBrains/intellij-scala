@@ -4,6 +4,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.SbtRuntimeTestBase
+import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector
 import org.jetbrains.sbt.shell.communication.SbtShellCommandRequestId
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
@@ -53,6 +54,24 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
     sbtShellFixture.setUp()
   }
 
+  /** Renders a titled diagnostics section, substituting a placeholder for empty bodies. */
+  protected final def diagnosticSection(title: String, body: String): String = {
+    val text = Option(body).filter(_.nonEmpty).getOrElse("<empty>")
+    s"""===== $title =====
+       |$text""".stripMargin
+  }
+
+  /**
+   * Generic sbt-shell diagnostics captured live at call time: the sbt shell log, the shared raw sbt
+   * process output, and the [[SbtShellCommunication]] snapshot.
+   */
+  protected def shellDiagnostics: String =
+    Seq(
+      diagnosticSection("Captured sbt shell log", processListener.getLog),
+      diagnosticSection("Shared raw sbt process output", SbtProcessOutputDiagnosticsCollector.sharedProcessOutput),
+      diagnosticSection("Sbt shell communication snapshot", shellCommunication.diagnosticsSnapshot),
+    ).mkString("\n", "\n", "")
+
   /** Asserts that at least one diagnostic event of type `T` with the given `expectedRequestId` exists. */
   def assertDiagnosticEventExists[T <: SbtShellDiagnosticEvent.CommandEvent](
     events: Seq[SbtShellDiagnosticEvent],
@@ -80,4 +99,24 @@ abstract class SbtRuntimeTest_WithSbtShell extends SbtRuntimeTestBase {
     expectedRequestId: SbtShellCommandRequestId,
   ): Boolean =
     events.exists { case x: T => x.requestId == expectedRequestId; case _ => false }
+
+  /** Asserts that at least one diagnostic event of type `T` exists. */
+  def assertDiagnosticEventExists[T <: SbtShellDiagnosticEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    snapshot: String,
+  )(using ct: ClassTag[T]): Unit =
+    assertTrue(
+      s"Missing ${ct.runtimeClass.getSimpleName} event. Snapshot: $snapshot",
+      events.exists(ct.runtimeClass.isInstance)
+    )
+
+  /** Asserts that no diagnostic event of type `T` with the given `expectedRequestId` exists. */
+  protected def assertDiagnosticEventNotExists[T <: SbtShellDiagnosticEvent](
+    events: Seq[SbtShellDiagnosticEvent],
+    snapshot: String,
+  )(using ct: ClassTag[T]): Unit =
+    assertFalse(
+      s"Unexpected ${ct.runtimeClass.getSimpleName} event was found. Snapshot: $snapshot",
+      events.exists(ct.runtimeClass.isInstance)
+    )
 }
