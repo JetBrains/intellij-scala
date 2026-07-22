@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.events
 
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationKind
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, ContextTraceEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.util.UUID
@@ -39,16 +40,6 @@ object TriggerPhaseEvents {
 
   private val idGenerator = new AtomicLong(0)
 
-  enum CompilationKind:
-    case JPSIncremental, BSPIncremental, Document, InMemoryDocument, Worksheet
-
-    override def toString: String = this match
-      case JPSIncremental => "JPS Incremental"
-      case BSPIncremental => "BSP Incremental"
-      case InMemoryDocument => "Document (In memory)"
-      case Document => "Document"
-      case Worksheet => "Worksheet"
-
   enum LockWaitKind:
     case ProjectReady, JpsBuild
 
@@ -71,7 +62,7 @@ object TriggerPhaseEvents {
    * trigger comes from a finished IDE build).
    */
   case class HighlightingTriggerPhaseEvent(id: RequestId, source: String, parent: Any = null)
-    extends TriggerPhaseEvent(name = "trigger",
+    extends TriggerPhaseEvent(name = s"Trigger: $source",
       Option(parent), Some(id), false,
       args = "source" -> source)
 
@@ -81,20 +72,28 @@ object TriggerPhaseEvents {
    *
    * `outcome` is empty while the span is open and is filled in when the span is closed, so the begin event
    * carries only the request description and the end event additionally records how the wait ended (see the
-   * call sites in `CompilerHighlightingService` for the possible values).
+   * call sites in `DeduplicationLogic` / `CompilationRequestsScheduler` for the possible values).
    */
-  case class QueueWaitPhaseEvent(kind: QueueWaitKind, compilationId: RequestId, reason: String, files: String,
+  case class QueueWaitPhaseEvent(kind: CompilationKind, compilationId: RequestId, reason: String, files: String,
                                  outcome: Option[QueueWaitOutcome] = Option.empty)
-    extends TriggerPhaseEvent("Queue wait", Some(compilationId), Some(compilationId),
+    extends BaseEvent("Queue wait", Some(compilationId), Some(compilationId),
       true,
-      args = (Map("kind" -> kind.toString, "reason" -> reason, "files" -> files) ++
-        (if (outcome.nonEmpty) Map("outcome" -> outcome.get.toString) else Map())).toSeq*
+      // A terminal outcome (anything other than Executed) means no downstream phase span will consume this
+      // wait from the context registry, so it must drop its own key when it ends. An Executed wait is instead
+      // handed off to the compile pipeline (the ensure-server / lock spans consume it as their parent), so it
+      // must NOT self-remove.
+      outcome.exists(_ != QueueWaitOutcome.Executed),
+      args = Map("kind" -> kind.toString, "reason" -> reason, "files" -> files) ++
+        (if (outcome.nonEmpty) Map("outcome" -> outcome.get.toString) else Map())
     ) {
-    // A terminal outcome (anything other than Executed) means no downstream phase span will consume this
-    // wait from the context registry, so it must drop its own key when it ends. An Executed wait is instead
-    // handed off to the compile pipeline (the ensure-server / lock spans consume it as their parent), so it
-    // must NOT self-remove.
-    override val closeOnEnd: Boolean = outcome.exists(_ != QueueWaitOutcome.Executed)
+
+  }
+  object QueueWaitPhaseEvent {
+    /** Transform that records the `outcome` on a [[QueueWaitPhaseEvent]] as its span is closed. */
+    def withOutcome(outcome: QueueWaitOutcome): ContextTraceEvent => Option[ContextTraceEvent] = {
+      case e: QueueWaitPhaseEvent => Some(e.copy(outcome = Some(outcome)))
+      case other => Some(other)
+    }
   }
 
   /**
@@ -151,7 +150,7 @@ object TriggerPhaseEvents {
    * @param reason      the debug reason that scheduled the compilation
    * @param closeParentValue whether opening this span consumes its `requestId` parent; `false` for incremental
    *                    compilations, which keep the request chain open for a follow-up document compilation
-   * @param closeOnEnd  whether ending this span (without a handoff) removes it from the context registry
+   * @param closeOnEndValue  whether ending this span (without a handoff) removes it from the context registry
    */
   case class CompilationRequestPhaseEvent(kind: CompilationKind, file: String, reason: String, requestId: RequestId,
                                           compilationId: CompilationId,

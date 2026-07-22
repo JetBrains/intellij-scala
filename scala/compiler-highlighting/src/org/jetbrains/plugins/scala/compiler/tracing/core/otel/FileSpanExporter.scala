@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.compiler.tracing.core.otel
 
 import io.opentelemetry.sdk.common.CompletableResultCode
-import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.`export`.SpanExporter
+import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.plugins.scala.compiler.tracing.core.TraceFileWriter
-import spray.json._
+import spray.json.*
 
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class FileSpanExporter(writer: TraceFileWriter) extends SpanExporter {
 

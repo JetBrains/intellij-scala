@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.events
 
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionId, CompilationKind}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.BuildManagerSessionId
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationKind
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -18,7 +19,7 @@ import java.util.UUID
  * nested under it.
  */
 object HighlightingPhaseEvents {
-  
+
   /** Phase-2 span: the server-side compilation and the highlighting that follows (see
    * [[TraceCategory.Highlighting]]). */
   private[highlighting] class HighlightingPhaseEvent(name: String, parentKey: Option[Any], key: Option[Any],
@@ -64,6 +65,30 @@ object HighlightingPhaseEvents {
     extends HighlightingPhaseEvent("External build", jpsSessionId.map(BuildManagerSessionId.apply),
     Some(CompilationDurationEvent.key(compilationId)), false,
     "reason" -> reason, "module" -> module)
+
+  /**
+   * A point mark drawn on the open [[CompilationDurationEvent]] span, recorded for every `ProgressEmitted`
+   * the compile server sends. Recorded with `mark`, so it opens no span of its own and leaves the duration
+   * span's registry entry untouched. Its own context fields are left empty because `mark` passes the event
+   * straight to the span and never consults them.
+   *
+   * For scalac-driven compilations (document and in-memory document) each mark corresponds one-to-one with
+   * an `AbstractCompiler.ClientProgress.advance` call on the server. JPS compilations are the exception: their
+   * progress originates from JPS `ProgressMessage`s rather than from `advance`, so the counts there do not
+   * carry that meaning.
+   */
+  case class CompilationProgressMark(compilationId: CompilationId, progress: Double)
+    extends HighlightingPhaseEvent(s"progress:${progress.toString}", None, None, false)
+
+  /**
+   * A point mark drawn on the open [[CompilationDurationEvent]] span each time the compiler enters a new
+   * phase. The server sends `compilationPhase` only when the phase actually changes (see
+   * `AbstractCompiler.ClientProgress.startUnit`), so there is exactly one mark per phase transition.
+   *
+   * Only scalac-driven compilations produce these; the JPS path reports through JPS `ProgressMessage`s.
+   */
+  case class CompilationPhaseMark(compilationId: CompilationId, phase: String)
+    extends HighlightingPhaseEvent(s"phase:$phase", None, None, false)
 
   /** Applying the compiler's highlighting results to the open editors, ending once the affected files
    *  have been updated. Consumes the [[CompilationDurationEvent.key]] entry from the duration span. */

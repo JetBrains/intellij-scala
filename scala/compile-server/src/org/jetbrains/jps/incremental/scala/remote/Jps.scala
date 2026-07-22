@@ -54,6 +54,8 @@ private object Jps {
             fromCustomMessage(customMessage).foreach {
               case CompilerEvent.MessageEmitted(_, _, _, msg) => client.message(msg)
               case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources.map(_.toPath)
+              // Forwarded for tracing only
+              case CompilerEvent.CompilationPhase(_, _, name) => client.compilationPhase(name)
               case _ => ()
             }
           case progressMessage: ProgressMessage =>

@@ -14,6 +14,7 @@ import com.intellij.util.messages.MessageBusConnection
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.CompilerHighlightingTests
+import org.jetbrains.plugins.scala.compiler.highlighting.listeners.{CompilerHighlightingEditorFocusListener, ExternalHighlightingAppliedListener}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.project.VirtualFileExt

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
+import org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerOptions
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

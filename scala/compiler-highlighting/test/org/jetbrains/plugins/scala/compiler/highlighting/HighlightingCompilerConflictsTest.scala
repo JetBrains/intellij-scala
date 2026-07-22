@@ -8,11 +8,12 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
-import org.jetbrains.plugins.scala.{CompilerHighlightingTests, ScalaVersion}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingEditorFocusListener
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
+import org.jetbrains.plugins.scala.{CompilerHighlightingTests, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 import org.junit.experimental.categories.Category

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.jps.incremental.scala.MessageKind
+import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerMessageKinds, HighlightInfoType}
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

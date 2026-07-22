@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.worksheet.processor
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.plugins.scala.compiler.highlighting.compilers.WorksheetHighlightingCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.concurrent.duration.DurationInt
 
 final class WorksheetHighlightingCompilerImpl
-  extends org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler {
+  extends WorksheetHighlightingCompiler {
 
   override def compile(
     psiFile: ScalaFile,

@@ -6,7 +6,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.utils.EelSystemFolderUtils
 import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 
 import java.nio.file.Path
 
