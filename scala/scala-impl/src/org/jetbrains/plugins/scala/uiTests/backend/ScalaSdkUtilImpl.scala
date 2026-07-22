@@ -12,7 +12,7 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.NewLibraryEdito
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronouslyTry
 import org.jetbrains.plugins.scala.project.ScalaLibraryType
@@ -91,9 +91,7 @@ private[backend] object ScalaSdkUtilImpl {
       val dependencyManager = new DependencyManagerBase {
         override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
         override def createLogger: MessageLogger = new ProgressIndicatorLogger(indicator)
-        override def resolvers: Seq[DependencyManagerBase.Resolver] = Seq(
-          MavenResolver("JetBrains Maven Central", "https://cache-redirector.jetbrains.com/maven-central")
-        )
+        override def resolvers: Seq[DependencyManagerBase.Resolver] = Seq(Resolver.JetBrainsMavenCentralMirror)
       }
       createScalaVersionResolveResult(scalaVersion, dependencyManager)
     }
