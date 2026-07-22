@@ -283,8 +283,13 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
     val sbtVersion = getRunningOrDetectedSbtVersion
     val isNewShell = process.isRunWithNewShell
     val isLinux = SystemInfo.isLinux
-    val requiresNewLine = isLoadFailureIgnoreNewlineRequired(sbtVersion, isNewShell, isLinux)
-    val command = loadFailureIgnoreCommand(sbtVersion, isNewShell, isLinux)
+    val requiresNewLine = isLoadFailureIgnoreNewlineRequired(sbtVersion)
+    val command =
+      if requiresNewLine then
+        "i" + System.lineSeparator
+      else
+        "i"
+
     recordDiagnosticEvent(SbtShellDiagnosticEvent.SendIgnore(sbtVersion, isNewShell, isLinux, requiresNewLine, command, currentState))
 
     send(command)
@@ -669,31 +674,10 @@ object SbtShellCommunication {
   private val MaxDiagnosticTextLength = 500
   private val SbtVersionWithRawLoadFailureInput = SbtVersion("1.4.0")
 
-  private[shell] def loadFailureIgnoreCommand(
-    sbtVersion: SbtVersion,
-    isNewShell: Boolean,
-    isLinux: Boolean,
-    lineSeparator: String = System.lineSeparator,
-  ): String = {
-    val withNewLineAfter = isLoadFailureIgnoreNewlineRequired(sbtVersion, isNewShell, isLinux)
-    if (withNewLineAfter)
-      "i" + lineSeparator
-    else
-      "i"
-  }
-
-  private[shell] def isLoadFailureIgnoreNewlineRequired(
-    sbtVersion: SbtVersion,
-    isNewShell: Boolean,
-    isLinux: Boolean,
-  ): Boolean = {
+  private[shell] def isLoadFailureIgnoreNewlineRequired(sbtVersion: SbtVersion): Boolean = {
     // SCL-25342, SCL-24349: sbt 1.4+ reads one raw byte after printing the failed-load prompt
     // (https://github.com/sbt/sbt/commit/5afc0f0fdfe4500770c000a02fa57c9b46e8de3c).
-    // On Linux with the legacy idea-shell PTY, IDEA can observe the prompt and write `i` before sbt
-    // enters raw input mode, so the byte is echoed and not consumed as "ignore" without a newline.
-    val isLegacyLinuxShell = isLinux && !isNewShell
-
-    sbtVersion < SbtVersionWithRawLoadFailureInput || isLegacyLinuxShell
+    sbtVersion < SbtVersionWithRawLoadFailureInput
   }
 
   def forProject(project: Project): SbtShellCommunication =
