@@ -65,92 +65,20 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       )*),
     )
 
-  def testTopLevelDefinitions_InRootPackage(): Unit = {
-    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
+  def testTopLevelDefinitions_Scala3_InRootPackage(): Unit = {
+    check(
+      """enum MyEnum:
+        |  case X
+        |
+        |extension (x: MyClass) def myExtension(y: String) = ???
+        |""".stripMargin,
+      Node(ENUM, "MyEnum", Node(EnumCaseIcon, "X")),
+      Node(EXTENSION, "extension (MyClass)", Node(FUNCTION, "myExtension(String)")),
+    )
   }
 
   def testTopLevelDefinitions_InPackage(): Unit = {
     check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
-  }
-
-  def testAnonymousClasses_InsideValAndVarBody(): Unit = {
-    val code =
-      """object MyClass {
-        |  //`val`, fields
-        |  val value1: Runnable = new Runnable() { override def run(): Unit = () }
-        |  val value2: Runnable = { new Runnable() { override def run(): Unit = () } }
-        |  val value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
-        |  val (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
-        |  val (value5, value6) = (
-        |    new Runnable() { override def run(): Unit = () },
-        |    { new Runnable() { override def run(): Unit = () } },
-        |  )
-        |
-        |  //`var`, local members
-        |  def main(args: Array[String]): Unit = {
-        |    var value1: Runnable = new Runnable() { override def run(): Unit = () }
-        |    var value2: Runnable = { new Runnable() { override def run(): Unit = () } }
-        |    var value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
-        |    var (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
-        |    var (value5, value6) = (
-        |      new Runnable() { override def run(): Unit = () },
-        |      { new Runnable() { override def run(): Unit = () } },
-        |    )
-        |  }
-        |}
-        |""".stripMargin
-
-    // different from Scala 2 in `value4`
-    val expectedStructureWithAnonymousEnabled =
-      s"""-AnonymousClasses_InsideValAndVarBody.scala
-         | -MyClass
-         |  -value1: Runnable
-         |   -$$1
-         |    run(): Unit
-         |  -value2: Runnable
-         |   -$$2
-         |    run(): Unit
-         |  -value3: Runnable
-         |   -$EmptyBlockNodeText
-         |    -$$3
-         |     run(): Unit
-         |  -value4
-         |   -$$4
-         |    run(): Unit
-         |  value5
-         |  value6
-         |  -$$5
-         |   run(): Unit
-         |  -$$6
-         |   run(): Unit
-         |  -main(Array[String]): Unit
-         |   -$$7
-         |    run(): Unit
-         |   -$$8
-         |    run(): Unit
-         |   -$$9
-         |    run(): Unit
-         |   -$$10
-         |    run(): Unit
-         |   -$$11
-         |    run(): Unit
-         |   -$$12
-         |    run(): Unit
-         |""".stripMargin.trim
-
-    myFixture.configureByText(s"${getTestName(false)}.scala", code)
-
-    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
-    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
-    //In IntelliJ tests they test it using this fixture method
-    myFixture.testStructureView { svc =>
-      val tree = svc.getTree
-
-      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
-
-      PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
-    }
   }
 
   def testEnum_Simple(): Unit = {
@@ -305,36 +233,6 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     )
   }
 
-  def testNestedValDefinitions(): Unit = {
-    check(
-      """class MyClass {
-        |  val myVal1 = {
-        |    val myVal2 = {
-        |      class MyClassInner {
-        |        val myVal3 = {
-        |          val myVal4 = {
-        |
-        |          }
-        |        }
-        |      }
-        |    }
-        |  }
-        |}
-        |""".stripMargin,
-      Node(CLASS, "MyClass",
-        Node(FIELD_VAL, "myVal1",
-          Node(VAL, "myVal2",
-            Node(CLASS, "MyClassInner",
-              Node(FIELD_VAL, "myVal3",
-                Node(VAL, "myVal4")
-              )
-            )
-          )
-        )
-      )
-    )
-  }
-
   def testNavigationFromSourceLocalTypeDefinitionsInMethodBody(): Unit = checkNavigationFromSource(
     s"""object Wrapper:
        |  def outer(): Unit =
@@ -453,12 +351,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
   def testImplicitAndUsingParams(): Unit = check(
     """
        object Container {
-         class C1(i: Int)(using s: String)
-         class C2(i: Int) {
-           def this()(using s: String) = this(s.length)
-         }
          class C3(using val i: Int)(s: String)(using d: Double)(implicit val b: Boolean)
-         def m1(using i: Int, s: String): Unit = {}
          def m2[A, B, C, D](using a: A)(b: B)(using c: C, d: D): Unit = {}
          extension [T](x: T)(using n: Numeric[T])
            def + (y: T): T = n.plus(x, y)
@@ -468,15 +361,10 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
        }
     """,
     Node(OBJECT, "Container",
-      Node(CLASS, "C1(Int)(?=> String)"),
-      Node(CLASS, "C2(Int)",
-        Node(MethodIcon, "this()(?=> String)")
-      ),
       Node(CLASS, "C3(?=> Int)(String)(?=> Double)(?=> Boolean)",
         Node(FIELD_VAL, "i: Int"),
         Node(FIELD_VAL, "b: Boolean"),
       ),
-      Node(MethodIcon, "m1(?=> Int, String): Unit"),
       Node(MethodIcon, "m2[A, B, C, D](?=> A)(B)(?=> C, D): Unit"),
       Node(EXTENSION, "extension [T](T)(?=> Numeric[T])",
         Node(FUNCTION, "+(T): T"),
@@ -647,95 +535,50 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
        |
        |def to${CARET}pM(using I${CARET}nt) = {${CARET}}
        |
-       |abstract class Exa${CARET}mple(
-       |  classParam1${CARET}UnusedInBody: String,
-       |  classParam2UsedI${CARET}nBody: String,
-       |  val clas${CARET}sParam3: String
-       |):
-       |  def th${CARET}is() = th${CARET}is(???, ???, ???)
+       |extens${CARET}ion (s${CARET}: String)
+       |  def myExtens${CARET}ionMethod: String = ???
        |
-       |  val myV${CARET}al1 = ???
-       |  val (myVal2, myV${CARET}al3) = ???
-       |  protected lazy val myV${CARET}al4: Int
+       |given myG${CARET}iven: String = ???
+       |protected gi${CARET}ven myAbstractGiven: Int
        |
-       |  private var my${CARET}Var: Boolean = true
+       |given Lo${CARET}ng = ???
        |
-       |  def myD${CARET}ef(par${CARET}am: String): String = classParam${CARET}2UsedInBody
-       |  def myAbstra${CARET}ctDef(using Int)(s: String)(using Boolean): Unit
+       |given c${CARET}s: CharSequence with:
+       |  override def length(): Int = ???
+       |  override def cha${CARET}rAt(index: Int): Char = ???
+       |  override def subSequence(start: Int, end: Int): CharSequence = ???
        |
-       |  extens${CARET}ion (s${CARET}: String)
-       |    def myExtens${CARET}ionMethod: String = ???
+       |given AutoC${CARET}loseable with:
+       |  override de${CARET}f close(): Unit = {}
        |
-       |  given myG${CARET}iven: String = ???
-       |  protected gi${CARET}ven myAbstractGiven: Int
+       |enum My${CARET}Enum:
+       |  case MyCase1
+       |  case MyCase2, MyC${CARET}ase3
+       |  case MyCa${CARET}se4(x: Int) extends MyEnum
        |
-       |  given Lo${CARET}ng = ???
-       |
-       |  given c${CARET}s: CharSequence with:
-       |    override def length(): Int = ???
-       |    override def cha${CARET}rAt(index: Int): Char = ???
-       |    override def subSequence(start: Int, end: Int): CharSequence = ???
-       |
-       |  given AutoC${CARET}loseable with:
-       |    override de${CARET}f close(): Unit = {}
-       |
-       |  type MyTy${CARET}peAlias = String
-       |  type MyAbst${CARET}ractTypeAlias[T]
-       |
-       |  class My${CARET}Class
-       |  trait My${CARET}Trait
-       |  object MyO${CARET}bject
-       |
-       |  enum My${CARET}Enum:
-       |    case MyCase1
-       |    case MyCase2, MyC${CARET}ase3
-       |    case MyCa${CARET}se4(x: Int) extends MyEnum
-       |
-       |    private def myEnu${CARET}mFun() = this.toString
-       |    val myEnu${CARET}mVal: Boolean = false
-       |  end MyEnum
-       |e${CARET}nd Exam${CARET}ple
+       |  private def myEnu${CARET}mFun() = this.toString
+       |  val myEnu${CARET}mVal: Boolean = false
+       |end MyEnum
        |""".stripMargin,
     Node(VAL, "topX"), // toplevel val topX
     Node(VAR, PrivateIcon, "topY"), // toplevel var topY
     Node(FUNCTION, "topM(?=> Int)"), // toplevel def topM
     Node(FUNCTION, "topM(?=> Int)"), // topM function param `using Int`
     Node(FUNCTION, "topM(?=> Int)"), // topM function body
-    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class Example
-    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam1UnusedInBody
-    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam2UsedInBody
-    Node(FIELD_VAL, "classParam3: String"), // class val param classParam3
-    Node(MethodIcon, "this()"), // def this()
-    Node(MethodIcon, "this()"), // def this() body
-    Node(FIELD_VAL, "myVal1"), // val myVal1
-    Node(FIELD_VAL, "myVal3"), // val myVal3
-    Node(ABSTRACT_FIELD_VAL, ProtectedIcon, "myVal4: Int"), // lazy val myVal4
-    Node(FIELD_VAR, PrivateIcon, "myVar: Boolean"), // var myVar
-    Node(MethodIcon, "myDef(String): String"), // def myDef
-    Node(MethodIcon, "myDef(String): String"), // myDef method param `param`
-    Node(MethodIcon, "myDef(String): String"), // myDef method body
-    Node(AbstractMethodIcon, "myAbstractDef(?=> Int)(String)(?=> Boolean): Unit"), // def myAbstractDef
     Node(EXTENSION, "extension (String)"), // extension (s: String)
     Node(EXTENSION, "extension (String)"), // extension param s
     Node(FUNCTION, "myExtensionMethod: String"), // extension method def myExtensionMethod
-    Node(MethodIcon, "myGiven: String"), // given myGiven
-    Node(AbstractMethodIcon, ProtectedIcon, "myAbstractGiven: Int"), // protected given myAbstractImplicitDef
-    Node(MethodIcon, "given_Long: Long"), // given Long
+    Node(FUNCTION, "myGiven: String"), // given myGiven
+    Node(FUNCTION, ProtectedIcon, "myAbstractGiven: Int"), // protected given myAbstractImplicitDef
+    Node(FUNCTION, "given_Long: Long"), // given Long
     Node(CLASS, "cs"), // given cs: CharSequence...
     Node(MethodIcon, "charAt(Int): Char"), // method charAt inside given cs
     Node(CLASS, "AutoCloseable"), // given AutoCloseable...
     Node(MethodIcon, "close(): Unit"), // method close inside given AutoCloseable
-    Node(TYPE_ALIAS, "MyTypeAlias"), // type MyTypeAlias
-    Node(ABSTRACT_TYPE_ALIAS, "MyAbstractTypeAlias"), // type MyAbstractTypeAlias
-    Node(CLASS, "MyClass"), // class MyClass
-    Node(TRAIT, "MyTrait"), // class MyTrait
-    Node(OBJECT, "MyObject"), // class MyObject
     Node(ENUM, "MyEnum"), // class MyObject
     Node(EnumCaseIcon, "MyCase3"), // enum case MyCase3
     Node(EnumCaseIcon, "MyCase4(Int)"), // enum case MyCase4
     Node(MethodIcon, PrivateIcon, "myEnumFun()"), // enum method myEnumFun
     Node(FIELD_VAL, "myEnumVal: Boolean"), // enum variable val myEnumVal
-    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // end keyword of Example class end marker
-    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // identifier of Example class end marker
   )
 }

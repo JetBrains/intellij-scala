@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.{PlatformTestUtil, UsefulTestCase}
 import com.intellij.ui.{IconManager, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
@@ -29,6 +29,105 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
   def testEmptyFile(): Unit = {
     check("")
   }
+
+  private val CommonTopLevelDefinitionsText =
+    """class MyClass()
+      |
+      |case class MyCaseClass()
+      |
+      |abstract class MyAbstractClass()
+      |
+      |trait MyTrait
+      |
+      |object MyObject
+      |
+      |type MyTypeAlias[T] = (String, T)
+      |
+      |val myValue = 1
+      |
+      |var myVariable = 2
+      |
+      |def myFunction: String = ???
+      |
+      |""".stripMargin
+
+  private lazy val CommonTopLevelDefinitionsNodes: Seq[Node] =
+    Seq(
+      Node(CLASS, "MyClass()"),
+      Node(CASE_CLASS, "MyCaseClass()"),
+      Node(ABSTRACT_CLASS, "MyAbstractClass()"),
+      Node(TRAIT, "MyTrait"),
+      Node(OBJECT, "MyObject"),
+      Node(TYPE_ALIAS, "MyTypeAlias"),
+      Node(VAL, "myValue"),
+      Node(VAR, "myVariable"),
+      Node(FUNCTION, "myFunction: String"),
+    )
+
+  def testTopLevelDefinitions_InRootPackage(): Unit = {
+    check(CommonTopLevelDefinitionsText, CommonTopLevelDefinitionsNodes*)
+  }
+
+  def testThatCheckMethodCorrectlyFailsOnWrongIcons(): Unit =
+    assertCheckThrows(
+      classOf[org.junit.ComparisonFailure],
+      """class A""",
+      Node(OBJECT, "A")
+    )
+
+  def testThatCheckMethodCorrectlyFailsOnWrongNames(): Unit =
+    assertCheckThrows(
+      classOf[org.junit.ComparisonFailure],
+      """class A""",
+      Node(CLASS, "B")
+    )
+
+  def testNavigationFromSource(): Unit = checkNavigationFromSource(
+    s"""
+       |abstract class Exa${CARET}mple(
+       |  classParam1${CARET}UnusedInBody: String,
+       |  classParam2UsedI${CARET}nBody: String,
+       |  val clas${CARET}sParam3: String
+       |){
+       |  def th${CARET}is() = th${CARET}is(???, ???, ???)
+       |
+       |  val myV${CARET}al1 = ""
+       |  val (myVal2, myV${CARET}al3) = ???
+       |  protected lazy val myV${CARET}al4: Int
+       |
+       |  private var my${CARET}Var: Boolean = true
+       |
+       |  def myD${CARET}ef(par${CARET}am: String): String = classParam${CARET}2UsedInBody
+       |  def myAbstra${CARET}ctDef(s: String)(implicit b: Boolean): Unit
+       |
+       |  type MyTy${CARET}peAlias = String
+       |  type MyAbst${CARET}ractTypeAlias[T]
+       |
+       |  class My${CARET}Class
+       |  trait My${CARET}Trait
+       |  object MyO${CARET}bject
+       |}
+       |""".stripMargin,
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class Example
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam1UnusedInBody
+    Node(ABSTRACT_CLASS, "Example(String, String, String)"), // class param classParam2UsedInBody
+    Node(FIELD_VAL, "classParam3: String"), // class val param classParam3
+    Node(MethodIcon, "this()"), // def this()
+    Node(MethodIcon, "this()"), // def this() body
+    Node(FIELD_VAL, "myVal1"), // val myVal1
+    Node(FIELD_VAL, "myVal3"), // val myVal3
+    Node(ABSTRACT_FIELD_VAL, ProtectedIcon, "myVal4: Int"), // lazy val myVal4
+    Node(FIELD_VAR, PrivateIcon, "myVar: Boolean"), // var myVar
+    Node(MethodIcon, "myDef(String): String"), // def myDef
+    Node(MethodIcon, "myDef(String): String"), // myDef method param `param`
+    Node(MethodIcon, "myDef(String): String"), // myDef method body
+    Node(AbstractMethodIcon, "myAbstractDef(String)(?=> Boolean): Unit"), // def myAbstractDef
+    Node(TYPE_ALIAS, "MyTypeAlias"), // type MyTypeAlias
+    Node(ABSTRACT_TYPE_ALIAS, "MyAbstractTypeAlias"), // type MyAbstractTypeAlias
+    Node(CLASS, "MyClass"), // class MyClass
+    Node(TRAIT, "MyTrait"), // class MyTrait
+    Node(OBJECT, "MyObject"), // class MyObject
+  )
 
   def testVariable(): Unit = {
     check("""
@@ -825,6 +924,36 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         Node(OBJECT, "O")))
   }
 
+  def testNestedValDefinitions(): Unit = {
+    check(
+      """class MyClass {
+        |  val myVal1 = {
+        |    val myVal2 = {
+        |      class MyClassInner {
+        |        val myVal3 = {
+        |          val myVal4 = {
+        |
+        |          }
+        |        }
+        |      }
+        |    }
+        |  }
+        |}
+        |""".stripMargin,
+      Node(CLASS, "MyClass",
+        Node(FIELD_VAL, "myVal1",
+          Node(VAL, "myVal2",
+            Node(CLASS, "MyClassInner",
+              Node(FIELD_VAL, "myVal3",
+                Node(VAL, "myVal4")
+              )
+            )
+          )
+        )
+      )
+    )
+  }
+
   def testClassAndObject(): Unit = {
     check("""
           class C
@@ -971,6 +1100,82 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     checkAnonymousClassesInDefinitions(code, expectedStructureWithAnonymousEnabled)
   }
 
+  def testAnonymousClasses_InsideValAndVarBody(): Unit = {
+    val code =
+      """object MyClass {
+        |  //`val`, fields
+        |  val value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |  val value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |  val value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |  val (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |  val (value5, value6) = (
+        |    new Runnable() { override def run(): Unit = () },
+        |    { new Runnable() { override def run(): Unit = () } },
+        |  )
+        |
+        |  //`var`, local members
+        |  def main(args: Array[String]): Unit = {
+        |    var value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |    var value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |    var value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |    var (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |    var (value5, value6) = (
+        |      new Runnable() { override def run(): Unit = () },
+        |      { new Runnable() { override def run(): Unit = () } },
+        |    )
+        |  }
+        |}
+        |""".stripMargin
+
+    val expectedStructureWithAnonymousEnabled =
+      s"""-AnonymousClasses_InsideValAndVarBody.scala
+         | -MyClass
+         |  -value1: Runnable
+         |   -$$1
+         |    run(): Unit
+         |  -value2: Runnable
+         |   -$$2
+         |    run(): Unit
+         |  -value3: Runnable
+         |   -$EmptyBlockNodeText
+         |    -$$3
+         |     run(): Unit
+         |  -value4
+         |   -$$4
+         |    run(): Unit
+         |  value5
+         |  value6
+         |  -$$5
+         |   run(): Unit
+         |  -$$6
+         |   run(): Unit
+         |  -main(Array[String]): Unit
+         |   -$$7
+         |    run(): Unit
+         |   -$$8
+         |    run(): Unit
+         |   -$$9
+         |    run(): Unit
+         |   -$$10
+         |    run(): Unit
+         |   -$$11
+         |    run(): Unit
+         |   -$$12
+         |    run(): Unit
+         |""".stripMargin.trim
+
+    myFixture.configureByText(s"${getTestName(false)}.scala", code)
+
+    myFixture.testStructureView { svc =>
+      val tree = svc.getTree
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
+    }
+  }
+
   private def checkAnonymousClassesInDefinitions(code: String, expectedStructure: String): Unit = {
     myFixture.configureByText("ScalaStructureTest.scala", code)
     myFixture.testStructureView { svc =>
@@ -982,6 +1187,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       PlatformTestUtil.assertTreeEqual(tree, expectedStructure)
     }
   }
+
+  private def assertCheckThrows(exceptionClass: Class[? <: Throwable],
+                                @Language("Scala") code: String,
+                                nodes: Node*): Unit =
+    UsefulTestCase.assertThrows(exceptionClass, () => check(code, nodes*))
 
   def testAnonymousClasses(): Unit = {
     val code =
