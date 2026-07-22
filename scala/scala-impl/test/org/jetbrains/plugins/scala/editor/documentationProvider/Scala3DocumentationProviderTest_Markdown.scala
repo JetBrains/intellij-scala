@@ -291,6 +291,20 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
 
+  // SCL-25712: scaladoc has no single-tilde strikethrough, so `~test~` must render literally
+  // (with the tildes) rather than as <strike> and must not throw.
+  def test_strikethrough_single_tilde(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * _x~test~x_
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      "<div class='content'><p><em>x~test~x</em></p></div>",
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
   def test_table(): Unit =
     doGenerateRenderedDocBodyTest(
       s"""
