@@ -43,7 +43,11 @@ abstract class DependencyManagerBase {
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
 
-  private final val defaultResolvers: Seq[Resolver] = Seq(Resolver.MavenCentral)
+  private def defaultResolvers: Seq[Resolver] =
+    if (java.lang.Boolean.getBoolean(UseJetBrainsMavenCentralMirrorPropertyKey))
+      Seq(Resolver.JetBrainsMavenCentralMirror)
+    else
+      Seq(Resolver.MavenCentral)
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
     s"""
@@ -318,6 +322,12 @@ abstract class DependencyManagerBase {
 
 object DependencyManagerBase {
 
+  /**
+   * When `true`, artifacts are resolved from the JetBrains Maven Central mirror instead of Maven Central directly.
+   * Enabled by the UI automation tests, whose agents get throttled (HTTP 429) by Maven Central (SCL-25601).
+   */
+  val UseJetBrainsMavenCentralMirrorPropertyKey = "scala.ui.tests.use.jetbrains.maven.central.mirror"
+
   private val homePrefix: Path = sys.props.get("tc.idea.prefix")
     .orElse(Some(SystemProperties.getUserHome))
     .map(Path.of(_)).get
@@ -395,6 +405,10 @@ object DependencyManagerBase {
     val MavenCentral: MavenResolver = MavenResolver(
       "central",
       "https://repo1.maven.org/maven2"
+    )
+    val JetBrainsMavenCentralMirror: MavenResolver = MavenResolver(
+      "JetBrains Maven Central",
+      "https://cache-redirector.jetbrains.com/maven-central"
     )
     val TypesafeReleases: IvyResolver = IvyResolver(
       "typesafe-releases",
