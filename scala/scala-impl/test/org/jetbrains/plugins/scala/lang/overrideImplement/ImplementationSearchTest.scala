@@ -100,6 +100,48 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
     findFromJava(javaText, scalaText, Set("ScalaClass"))
   }
 
+  @TestFor(issues = Array("SCL-25260"))
+  def testSearchImplementationsFromJavaBaseWithScalaTraitAndScalaClass(): Unit = {
+    findFromJava(
+      s"""public class JavaBase {
+         |    public int ${CARET}foo() {
+         |        return 0;
+         |    }
+         |}
+         |""".stripMargin,
+      """trait ScalaTrait extends JavaBase {
+        |  override def foo = 1
+        |}
+        |
+        |class ScalaClass extends ScalaTrait {
+        |  override def foo = 2
+        |}
+        |""".stripMargin,
+      Set("ScalaTrait", "ScalaClass")
+    )
+  }
+
+  @TestFor(issues = Array("SCL-25260"))
+  def testSearchImplementationsFromScalaTraitWithScalaClass(): Unit = {
+    findFromScala(
+      s"""trait ScalaTrait extends JavaBase {
+         |  override def ${CARET}foo = 1
+         |}
+         |
+         |class ScalaClass extends ScalaTrait {
+         |  override def foo = 2
+         |}
+         |""".stripMargin,
+      """public class JavaBase {
+        |    public int foo() {
+        |        return 0;
+        |    }
+        |}
+        |""".stripMargin,
+      Set("ScalaClass")
+    )
+  }
+
   private def assertHasImplementationsInClasses(
     containingClassName: String,
     methodName: String,

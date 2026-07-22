@@ -245,13 +245,72 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   })
 
-  // `superTypes` already contains every effective direct parent, including synthetic parents and the implicit root.
-  // Convert those rich Scala types directly so their generic arguments and substitutions are preserved.
-  // TODO: Deduplicate Java-equivalent super types separately; value classes currently expose java.lang.Object twice.
+  /**
+   * Returns the resolved effective direct parents of this definition.
+   *
+   * Differences between other methods:
+   *  - Unlike [[getSuperTypes]], this result does not retain generic arguments or substitutions and omits unresolved parents.
+   *  - Unlike [[getExtendsListTypes]] and [[getImplementsListTypes]], it is not split into Java `extends` and
+   *    `implements` roles: it includes every effective parent, such as the implicit root and synthetic case-class parents.
+   *
+   * Synthetic parents are included when they resolve to a [[PsiClass]]; unresolved synthetic parents are omitted
+   * together with other unresolved parents.
+   *
+   * `java.lang.Object` is returned when it is the effective root (there is no class parent, or the parent is `Any`
+   * or `AnyRef`) and it resolves. It is not added beside another concrete class parent or in place of `AnyVal`.
+   */
+  override def getSupers: Array[PsiClass] = {
+    val supers = extendsBlock.supers
+    supers.filter(_ != this).toArray
+  }
+
+  /**
+   * Returns the effective direct parent types of this definition, retaining generic arguments and substitutions.
+   *
+   * Differences between other methods:
+   *  - Unlike [[getSupers]], this result keeps the richer [[PsiClassType]] representation.
+   *  - Unlike [[getExtendsListTypes]] and [[getImplementsListTypes]], it is a complete effective hierarchy view: it
+   *    includes synthetic parents and the implicit root rather than only the Java-facing parent-list roles.
+   *
+   * Synthetic parents are included when their Scala type can be represented as a [[PsiClassType]].
+   *
+   * `java.lang.Object` is included as the effective root when there is no other class parent, including for
+   * `Any`, `AnyRef`, and the Java projection of `AnyVal`; it is not appended beside another class parent.
+   *
+   * TODO: Deduplicate Java-equivalent super types separately; value classes currently expose java.lang.Object twice.
+   */
   override def getSuperTypes: Array[PsiClassType] = toPsiClassTypes(superTypes)
 
+  /**
+   * Returns direct class parents in the Java-facing `extends` role.
+   *
+   * Differences between other methods:
+   *  - Unlike [[getImplementsListTypes]], this result contains only non-interface parents.
+   *  - Unlike [[getSuperTypes]], it is limited to PSI-backed template parents and does not expose the ordinary
+   *    implicit root or synthetic interface parents.
+   *
+   * Synthetic class parents represented by template parent elements are included; synthetic interfaces belong to
+   * [[getImplementsListTypes]].
+   *
+   * `java.lang.Object` is returned only when an explicit PSI-backed parent projects to it, such as `Any`, `AnyRef`,
+   * `AnyVal`, or `java.lang.Object`; the ordinary implicit root is not added.
+   */
   override def getExtendsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = false)
 
+  /**
+   * Returns effective direct interface parents in the Java-facing `implements` role.
+   *
+   * Differences between other methods:
+   *  - Unlike [[getExtendsListTypes]], this result contains only interface parents and includes synthetic interfaces,
+   *    such as `Product` and `Serializable` for case classes.
+   *  - Unlike [[getSuperTypes]], it excludes class parents and the implicit root. Traits with a non-`Object`
+   *    superclass are deliberately omitted to preserve Java sibling-inheritance behavior.
+   *
+   * Synthetic interfaces, including case-class parents and injected interfaces, are included; synthetic class
+   * parents are excluded.
+   *
+   * `java.lang.Object` is never returned because it is a class parent, not an interface parent.
+   */
   override def getImplementsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = true)
 
   override def getQualifiedNameForDebugger: String = {
@@ -318,10 +377,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
   override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
-
-  override def getSupers: Array[PsiClass] = extendsBlock.supers.filter {
-    _ != this
-  }.toArray
 
   override def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
     TypeDefinitionMembers.getSignatures(this).forName(name)

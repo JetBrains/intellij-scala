@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package refactoring.rename3
 
+import org.jetbrains.plugins.scala.util.assertions.assertFails
+
 class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndTraitToOpChars(): Unit = doTest("+++")
@@ -62,6 +64,16 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testTypeAlias(): Unit = doTest()
 
   def testOverriddenFromJava(): Unit = doTest()
+
+  //FIXME when SCL-25260 is fixed  (or related causing ticket)
+  def testOverriddenFromBaseJavaClassInScalaTraitDirect(): Unit = assertFails {
+    doTest()
+  }
+
+  //FIXME when SCL-25260 is fixed  (or related causing ticket)
+  def testOverriddenFromBaseJavaClassInScalaTraitIndirect(): Unit = assertFails {
+    doTest()
+  }
 
   def testMethodSameAsJavaKeyword(): Unit = doTest()
 
