@@ -2872,4 +2872,43 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-25712: A GFM strikethrough may use a single tilde (`~text~`), not only the double-tilde
+  // `~~text~~`. The number of border tokens must be derived from the tree, not hard-coded to 2,
+  // otherwise the parser hits `assert(children.size >= borderNum * 2)` and crashes.
+  def test_single_strike_through(): Unit = checkTree(
+    """
+      |/**
+      | * _foo~foo~bar_
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('foo~foo~bar')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_SCL_25712(): Unit = {
+    val code =
+      """
+        |/** The value is "{\"src/_customers/bin/index.ts\":{\"imports\":[\"_setup-lHYhWbq7.js\",\"_rolldown-runtime-D9B2Ntkf.js\",\"src/_customers/core/index.ts\",\"_foo~foo~bar~baz~bin-vda993AD.js\",\"_bar~bar~baz~bin--ir_vGqa.js\",\"_foo~foo~baz~bin-EUCtUd1e.js\",\"_foo~foo~bin-CemCoMEo.js\"],\"isEntry\":true,\"name\":\"foo~foo~bar~baz~bin\",\"src\":null}}". */
+        |case object ScaladocMarkdownCrash {
+        |  val manifest: String = ""
+        |}
+        |""".stripMargin
+    parseScalaFile(code, ScalaFeatures.defaultScala3)
+  }
 }

@@ -79,7 +79,27 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
           override def closeTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {}
         },
 
-        GFMElementTypes.STRIKETHROUGH -> new SimpleInlineTagProvider("strike", 2, -2)
+        // GFM strikethrough may use one or two tildes (`~text~` or `~~text~~`), but scaladoc has
+        // no single-tilde strikethrough. A single tilde must be rendered literally, and the border
+        // for a real (double-tilde) strikethrough is not fixed, so trim the actual tilde run rather
+        // than assuming two (otherwise `childrenToRender` computes an invalid sublist range, SCL-25712).
+        GFMElementTypes.STRIKETHROUGH -> new SimpleInlineTagProvider("strike", 0, 0) {
+          private def borderLen(node: ASTNode): Int =
+            node.getChildren.asScala.iterator.takeWhile(_.getType == GFMTokenTypes.TILDE).size
+
+          override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, text: String, node: ASTNode): Unit =
+            if (borderLen(node) > 1) super.openTag(visitor, text, node)
+
+          override def closeTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, text: String, node: ASTNode): Unit =
+            if (borderLen(node) > 1) super.closeTag(visitor, text, node)
+
+          override def childrenToRender(node: ASTNode): java.util.List[ASTNode] = {
+            val children = node.getChildren
+            val border = borderLen(node)
+            // For a single tilde, render everything (including the tildes) as plain text.
+            if (border > 1) children.subList(border, children.size - border) else children
+          }
+        }
       ).asJava
     )
 

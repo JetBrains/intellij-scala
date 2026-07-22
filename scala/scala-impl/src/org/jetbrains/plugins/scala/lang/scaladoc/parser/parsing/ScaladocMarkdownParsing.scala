@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown
 import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.flavours.gfm.GFMElementTypes
+import org.intellij.markdown.flavours.gfm.{GFMElementTypes, GFMTokenTypes}
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
@@ -127,7 +127,15 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownElementTypes.EMPH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, 1)
       case MarkdownElementTypes.STRONG => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_BOLD_TAG, 2)
       case MarkdownElementTypes.CODE_SPAN => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_MONOSPACE_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG, 1)
-      case GFMElementTypes.STRIKETHROUGH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, 2)
+      case GFMElementTypes.STRIKETHROUGH =>
+        // GFM strikethrough delimiters may be one or two tildes (`~text~` or `~~text~~`),
+        // but scaladoc has no single strikethrough, so ignore it
+        val borderNum = treeIt.currentChildren.asScala.iterator.takeWhile(_.getType == GFMTokenTypes.TILDE).size
+        if (borderNum > 1) {
+          visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, borderNum)
+        } else {
+          visitRest(treeIt.startIterateCurrentChildren())
+        }
       case WikiLinkParser.WIKI_LINK => visitWikiDocLink(treeIt)
       case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
