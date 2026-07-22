@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.CompilerType
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 class CompilerTypeRequestListener(project: Project) extends CompilerType.Listener {
+  
+  private val service = CompilerHighlightingService(project)
   def onCompilerTypeRequest(e: PsiElement): Unit = {
     if (project.isDisposed) return
 
@@ -21,9 +23,9 @@ class CompilerTypeRequestListener(project: Project) extends CompilerType.Listene
     val virtualFile = psiFile.getVirtualFile
     val scope = if (ProjectFileIndex.getInstance(project).isInSource(virtualFile)) SourceScope.Production else SourceScope.Test
     val id = TriggerPhaseEvents.newRequestId()
-    val request = new DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile),
-      "compiler type request", CompilationRequest.compilationDeadline(project), id, project)
+    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile),
+      "compiler type request", CompilationRequest.compilationDeadline, id, project)
     // Compiled right away rather than scheduled: the caller is waiting for the compiler-provided type.
-    CompilerHighlightingService.get(project).compile(request)
+    service.compile(request)
   }
 }

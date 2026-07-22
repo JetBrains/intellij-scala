@@ -6,10 +6,10 @@ import org.jetbrains.plugins.scala.compiler.JpsSessionErrorTrackerService
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionId, BuildManagerSessionPhaseEvent, HighlightingTriggerPhaseEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilerLockService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilerLockService, ExternalBuildTracker}
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.DocumentCompilationTrigger
+import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.*
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.UUID
@@ -17,10 +17,17 @@ import java.util.UUID
 private final class CompilerHighlightingBuildManagerListener extends BuildManagerListener {
 
   // Span for the whole IDE JPS build session, buildStarted opens it, buildFinished closes it.
-  override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
+  override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+    // Snapshotted here so that edits made while the build runs are not absorbed by its success.
+    ExternalBuildTracker(project).buildStarted(sessionId)
     Tracing(project).begin(sessionId, BuildManagerSessionPhaseEvent(isAutomake, sessionId))
+  }
 
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+    ExternalBuildTracker(project).buildFinished(
+      sessionId,
+      successful = !JpsSessionErrorTrackerService.instance(project).hasError(sessionId)
+    )
     // Close the session span, and with it any external build spans it left open. A module's span is normally
     // closed by its own CompilationFinished; a cancelled build may never emit that, so we close whatever the
     // session still lists here (an already-closed one is a no-op). The session's own context entry is kept for
@@ -48,14 +55,14 @@ private final class CompilerHighlightingBuildManagerListener extends BuildManage
         // If nothing was dispatched (e.g. no eligible Scala editor when the rebuild is cancelled), nothing
         // will consume it, so close it explicitly.
         if (!dispatched) {
-          tracer.instant(EndEvent(requestId, "no document compilation scheduled after build"))
+          tracer.endTrace(requestId, "no document compilation scheduled after build")
         }
         // The session is a keyed root whose children only peek it to enable multiple children
         // (one per module), so nothing consumes it from the context registry.
         // Release it explicitly now that the trigger has captured it as its parent.
-        tracer.instant(EndEvent(traceSessionId, "build finished"))
+        tracer.endTrace(traceSessionId, "build finished")
       } else {
-        tracer.instant(EndEvent(traceSessionId, "Build canceled"))
+        tracer.endTrace(traceSessionId, "Build canceled")
       }
     }
   }

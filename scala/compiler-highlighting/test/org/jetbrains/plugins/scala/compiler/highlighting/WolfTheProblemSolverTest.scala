@@ -6,7 +6,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.testFramework.VfsTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingEditorFocusListener
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.{assertFalse, assertTrue}
@@ -39,10 +38,7 @@ class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
     // Trigger compilation.
     invokeAndWait {
       val descriptor = new OpenFileDescriptor(getProject, badFile)
-      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      // The tests are running in a headless environment where focus events are not propagated.
-      // We need to call our listener manually.
-      new CompilerHighlightingEditorFocusListener(editor).focusGained()
+      FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
     }
 
     val wolf = WolfTheProblemSolver.getInstance(getProject)

@@ -22,6 +22,15 @@ private[highlighting] object CompilerGeneratedStateManager {
 
   @Service
   private final class MutableState {
-    var state: CompilerGeneratedState = CompilerGeneratedState(Map.empty, 1.0, Set.empty)
+
+    /**
+     * Volatile for safe publication: this is written on the thread that emits the compiler events and read
+     * from others.
+     *
+     * Read-modify-write across [[get]] and [[update]] is deliberately not atomic. That is sound only because
+     * compilations, and so the event streams that write here, are serialised by the compiler lock — a second
+     * concurrent writer would silently lose updates.
+     */
+    @volatile var state: CompilerGeneratedState = CompilerGeneratedState(Map.empty, Set.empty)
   }
 }

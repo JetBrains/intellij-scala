@@ -70,5 +70,17 @@ object CompilerEvent {
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
   }
 
+  /**
+   * The compiler withdrew every diagnostic it holds for `source`, which it compiled and found clean.
+   *
+   */
+  case class DiagnosticsCleared(compilationId: CompilationId,
+                                compilationUnitId: Option[CompilationUnitId],
+                                source: SerializablePath)
+    extends CompilerEvent {
+
+    override def eventType: CompilerEventType = CompilerEventType.DiagnosticsCleared
+  }
+
   final val BuilderId = "compiler-event"
 }

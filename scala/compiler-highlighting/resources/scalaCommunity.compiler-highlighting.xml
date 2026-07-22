@@ -53,9 +53,6 @@
         <registryKey key="scala.compiler.highlighting.tracing.enabled" defaultValue="false" restartRequired="true"
                      description="Enables tracing of compilation and highlighting events when compiler error highlighting is enabled"/>
 
-        <editorFactoryListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingEditorFocusListenerRegisterer$ByListener"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingEditorFocusListenerRegisterer$AtStartup"/>
-
         <vfs.asyncListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingFileListener"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerHighlightingSetupActivity"/>
@@ -67,8 +64,14 @@
     </applicationListeners>
 
     <projectListeners>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingFileEditorListener"/>
+
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.UpdateCompilerGeneratedStateListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.ExternalBuildStateListener"/>
 
         <listener topic="org.jetbrains.plugins.scala.lang.psi.impl.CompilerType$Listener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerTypeRequestListener"/>

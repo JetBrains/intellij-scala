@@ -8,12 +8,9 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.HighlightingTriggerPhaseEvent
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService
-import org.jetbrains.plugins.scala.compiler.highlighting.triggers.OnEditorSelectedTrigger
-import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.highlighting.triggers.EditorTrigger
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater, invokeWhenSmart}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
@@ -29,7 +26,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           inReadAction(AnnotatorHints.clearIn(project))
         } else {
-          ExternalHighlightersService.instance(project).eraseAllHighlightings()
+          ExternalHighlightersService(project).eraseAllHighlightings()
         }
         // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
         //  e.g. for Scala 2 projects where it's disabled by default
@@ -41,9 +38,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
           forceStandardHighlighting(project)
           CompileServerNotificationsService.get(project).resetNotifications()
           if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-            val requestId = TriggerPhaseEvents.newRequestId()
-            Tracing(project).instant(HighlightingTriggerPhaseEvent(requestId, triggerSource))
-            OnEditorSelectedTrigger.trigger(project, requestId)
+            EditorTrigger.triggerOnSelectedEditor(project, triggerSource)
           }
         }
       }

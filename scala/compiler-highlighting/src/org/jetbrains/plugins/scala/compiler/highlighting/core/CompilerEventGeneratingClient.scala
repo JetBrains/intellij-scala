@@ -30,6 +30,10 @@ private[highlighting] class CompilerEventGeneratingClient(
 
   private var hasErrors: Boolean = false
 
+  private var compiled: Set[Path] = Set.empty
+
+  private var reported: Set[Path] = Set.empty
+
   private val tracer = Tracing(project)
 
   indicator.setIndeterminate(false)
@@ -55,6 +59,9 @@ private[highlighting] class CompilerEventGeneratingClient(
       case MessageKind.Error | MessageKind.InternalBuilderError => hasErrors = true
       case _ =>
     }
+    // Recorded here rather than at `compilationEnd` so that it matches exactly what the store takes from
+    // this message: a file the store holds a diagnostic for is a file this compilation reported on.
+    msg.source.foreach(source => reported += source.toPath)
     sendEvent(CompilerEvent.MessageEmitted(compilationId, None, None, msg))
   }
 
@@ -63,6 +70,7 @@ private[highlighting] class CompilerEventGeneratingClient(
     sendEvent(CompilerEvent.CompilationStarted(compilationId, None, None, None))
 
   override def compilationEnd(sources: Set[Path]): Unit = {
+    compiled = sources
     if (refreshVfs) {
       VfsUtil.refreshOutputPaths(project, sources)
     }
@@ -81,6 +89,22 @@ private[highlighting] class CompilerEventGeneratingClient(
     log.error(s"[${project.getName}] ${exception.getMessage}", exception)
 
   def successful: Boolean = !hasErrors
+
+  /**
+   * The sources this compilation looked at, which is what the build actually did rather than what was asked
+   * of it.
+   *
+   * Two channels, and neither is sufficient. `compilationEnd` names the sources that produced output plus
+   * the ones the build system handed over as dirty — under the default incrementality zinc invalidates
+   * further on its own, and a file it invalidated and then failed on produced no output and was never
+   * dirty, so it appears in neither half. The messages fill that in: a file the compiler reported a
+   * diagnostic against is a file it compiled, whatever became of its class files.
+   *
+   * The union is what "the compiler looked at this file" means, and it is the distinction the decision needs
+   * — nothing recorded about a file outside it can be attributed to this compilation. Read on the same
+   * thread that drives the compilation, and complete once `compilationEnd` has arrived.
+   */
+  def compiledSources: Set[Path] = compiled ++ reported
 
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus

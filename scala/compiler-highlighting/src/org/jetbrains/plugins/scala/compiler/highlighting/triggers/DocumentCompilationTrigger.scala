@@ -61,7 +61,7 @@ object DocumentCompilationTrigger {
     val service = CompilerHighlightingService.get(project)
     eligible.foreach { case EligibleDocument(module, sourceScope, document, virtualFile, psiFile) =>
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      val deadline = CompilationRequest.compilationDeadline(project)
+      val deadline = CompilationRequest.compilationDeadline
       val request = client match {
         case Some(c) => new SharedClientDocumentRequest(scope, debugReason, deadline, requestId, project, c)
         case None => new PostBuildDocumentRequest(scope, debugReason, deadline, requestId, project)

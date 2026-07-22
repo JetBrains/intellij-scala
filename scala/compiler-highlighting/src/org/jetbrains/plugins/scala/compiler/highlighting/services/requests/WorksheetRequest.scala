@@ -19,7 +19,16 @@ import scala.collection.immutable
 import scala.concurrent.duration.Deadline
 
 /**
- * @param isFirstTimeHighlighting whether worksheet editor has just been selected (is true every time when tabs are switched)
+ * @param isFirstTimeHighlighting whether the worksheet's module may not have been built yet, in which case an
+ *                                incremental compilation of that module runs first (see [[execute]]). The worksheet
+ *                                is compiled against the module's output, so without it the whole worksheet shows
+ *                                up as red code. Unlike an ordinary source file, a worksheet cannot be compiled by
+ *                                JPS at all, so the incremental is a prerequisite here rather than a substitute for
+ *                                the single-file compilation.
+ *
+ *                                It is true whenever the worksheet's editor is opened or its tab re-selected,
+ *                                because the document compiler availability it is derived from is withdrawn when
+ *                                the tab is deselected.
  */
 class WorksheetRequest(
   val file: ScalaFile,
@@ -58,7 +67,6 @@ class WorksheetRequest(
     if (Log.isDebugEnabled) {
       Log.debug(s"[${project.getName}] worksheetCompilation: $debugReason (isFirstTimeHighlighting: $isFirstTimeHighlighting)")
     }
-
     //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
     //because it's already called for all worksheets in WorksheetSyntheticModuleService
     val module = file.module match {
@@ -75,7 +83,7 @@ class WorksheetRequest(
       val incrementalRequest = IncrementalRequest(
         Map(virtualFile -> scope),
         debugReason,
-        CompilationRequest.compilationDeadline(project),
+        CompilationRequest.compilationDeadline,
         id,
         project,
         runDocumentCompiler = false,

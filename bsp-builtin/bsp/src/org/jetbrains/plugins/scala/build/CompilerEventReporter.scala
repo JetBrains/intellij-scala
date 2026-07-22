@@ -56,10 +56,16 @@ class CompilerEventReporter(project: Project,
     publisher.eventReceived(event)
   }
 
-  /** Clear any messages associated with file. */
+  /**
+   * Clear any messages associated with file.
+   *
+   * The server publishes an empty, resetting diagnostic set for every file it compiled and found clean, so
+   * this arrives once per clean file.
+   *
+   */
   override def clear(file: Path): Unit = {
     files.add(file)
-    val event = CompilerEvent.CompilationFinished(compilationId, None, Set(SerializablePath(file, pathTranslator)))
+    val event = CompilerEvent.DiagnosticsCleared(compilationId, None, SerializablePath(file, pathTranslator))
     publisher.eventReceived(event)
   }
 
@@ -99,4 +105,17 @@ class CompilerEventReporter(project: Project,
   override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit = ()
 
   private[scala] def successful: Boolean = !hasErrors
+
+  /**
+   * The files this compilation reported on, which is what it compiled rather than what was asked of it.
+   *
+   * A BSP server publishes diagnostics per file as it compiles them, and publishes an empty, resetting set
+   * for one it found clean, so a file reaches this set whether or not it has anything wrong with it. Files
+   * the server did not compile are absent, which is the distinction the decision needs: nothing recorded
+   * about an absent file can be attributed to this compilation.
+   *
+   * Complete only once the task has finished, and it is a report rather than a guarantee — a server that
+   * withholds the clean files leaves them out, costing them a compilation rather than a wrong answer.
+   */
+  private[scala] def coveredFiles: Set[Path] = files.toSet
 }

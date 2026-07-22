@@ -9,7 +9,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingEditorFocusListener
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
@@ -61,10 +60,14 @@ abstract class HighlightingCompilerConflictsBase(
       s"$className.scala",
       s"class $className"
     )
+    val another = addFileToProjectSources(
+      "another.scala",
+      "class another"
+    )
     compiler.make().assertNoProblems(allowWarnings = true)
 
     compiler.touch(sourceFile)
-    compileProjectWithJpsCompiler(sourceFile)
+    compileProjectWithJpsCompiler(another)
     val targetFileTimestampBefore = getTargetFileTimestamp(className)
 
     compiler.make().assertNoProblems(allowWarnings = true)
@@ -106,10 +109,7 @@ abstract class HighlightingCompilerConflictsBase(
 
     invokeAndWait {
       val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      // The tests are running in a headless environment where focus events are not propagated.
-      // We need to call our listener manually.
-      new CompilerHighlightingEditorFocusListener(editor).focusGained()
+      FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
     }
     Await.result(promise.future, 60.seconds)
   }

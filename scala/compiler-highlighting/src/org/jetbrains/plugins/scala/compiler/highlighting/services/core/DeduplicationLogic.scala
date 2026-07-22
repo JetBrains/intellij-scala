@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.QueueWaitOutcome
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.QueueWaitPhaseEvent.withOutcome
+import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationRequestsScheduler.ExecutionFunction
 import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.*
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
@@ -50,7 +51,7 @@ object DeduplicationLogic {
                           compile: CompilationRequest => Unit): Rule = {
     case request: IncrementalRequest =>
       val tracer = Tracing(project)
-
+      given CompilationLogicService = CompilationLogicService(project)
       // Gather all other document and incremental compilation requests.
       val otherRequests = queue.iteratorFrom(request).collect {
         case dr: DocumentRequest => dr
@@ -68,6 +69,8 @@ object DeduplicationLogic {
         tracer.mapAndEnd(req.id)(withOutcome(outcome))
       })
 
+
+
       // Merge the compilation scopes. The logic here is the following.
       // Worksheet requests are something separate and not taken into account (technically, they are not
       // even present in the toMerge list, but needed for exhaustivity.
@@ -79,9 +82,9 @@ object DeduplicationLogic {
       // all leaf modules necessary to show error-highlighting information for the currently opened
       // files visible to the user. The JPS incremental compilation algorithm will take care of computing
       // all necessary module dependencies which also need to be compiled to achieve that.
-      val initialScopes = request.fileCompilationScopes.filter { case (vf, _) => openFiles.contains(vf) }
+      val initialScopes = request.fileCompilationScopes.filter { case (vf, _) => keep(vf, openFiles) }
       val mergedScopes = toMerge.foldLeft(initialScopes) {
-        case (acc, ir: IncrementalRequest) => acc ++ ir.fileCompilationScopes.filter { case (vf, _) => openFiles.contains(vf) }
+        case (acc, ir: IncrementalRequest) => acc ++ ir.fileCompilationScopes.filter { case (vf, _) => keep(vf, openFiles) }
         case (acc, dr: DocumentRequest) => acc + (dr.scope.virtualFile -> dr.scope)
         case (acc, _) => acc
       }
@@ -164,8 +167,9 @@ object DeduplicationLogic {
       queue.enqueue(merged)
     }
   }
-  private def shouldMerge(openFiles: Array[VirtualFile])(request: CompilationRequest): Boolean = request match {
-    case ir: IncrementalRequest => ir.fileCompilationScopes.keys.exists(openFiles.contains)
+  private def keep(vf: VirtualFile, openFiles: Array[VirtualFile])(using logic: CompilationLogicService) = openFiles.contains(vf) || logic.isModified(vf)
+  private def shouldMerge(openFiles: Array[VirtualFile])(request: CompilationRequest)(using logic: CompilationLogicService): Boolean = request match {
+    case ir: IncrementalRequest => ir.fileCompilationScopes.keys.exists(keep(_, openFiles))
     case dr: DocumentRequest => openFiles.contains(dr.scope.virtualFile)
     case _ => false
   }

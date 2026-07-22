@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType
+import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager}
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.plugins.scala.compiler.highlighting.core.HighlightingState
+import org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerGeneratedStateManager
 import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.HighlightingEvent
 import org.jetbrains.plugins.scala.compiler.highlighting.listeners.ExternalHighlightingAppliedListener
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{ExternalHighlightingFixProvider, ExternalHighlightingUpdater, HighlightInfoFactory, HighlightingRangeCalculator}
@@ -25,10 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.CompilerType
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.util.CompilationId
+import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId}
 
 import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.collection.immutable
 import scala.util.control.NonFatal
 
 /**
@@ -51,7 +52,7 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
   private val highlightInfoFactory = new HighlightInfoFactory(project, rangeCalculator, fixProvider)
   private val updater = new ExternalHighlightingUpdater(project, self)
   private val tracer = Tracing(project)
-  
+
   private def notifyHighlightingApplied(virtualFiles: Set[VirtualFile]): Unit =
     BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed(project) {
       project.getMessageBus
@@ -59,11 +60,19 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
         .highlightingApplied(virtualFiles)
     }
 
-  def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
+  /**
+   * Applies the recorded diagnostics for `virtualFiles` to the editors showing them.
+   *
+   * The recorded state is read when the work runs rather than when it is scheduled, so results that arrive
+   * in between are the ones displayed. `compilationId` identifies the work and carries the document versions
+   * it is only valid against: it is abandoned if any of them changes first.
+   */
+  def applyHighlightingState(virtualFiles: Set[VirtualFile], compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
     val span = tracer.begin(HighlightingEvent(compilationId))
 
     val readActionCallable: Callable[HighlightInfoData] = { () =>
+      val state = CompilerGeneratedStateManager.get(project).toHighlightingState
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
       val psiManager = PsiManager.getInstance(project)
       val data = for {
@@ -161,8 +170,36 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
     }
   }
 
+  /**
+   * Applies the diagnostics already recorded for `files` to whichever editors are showing them, compiling
+   * nothing.
+   *
+   * Recorded diagnostics only reach an editor as a compilation finishes, so a file that had no editor open
+   * at that moment carries results that were never displayed.
+   *
+   * Whether those results still describe the files is the caller's judgement, and it is only made once. This
+   * holds that judgement to the documents it was made against: rendering is abandoned if any of them changes
+   * before it reaches the editors, and files that have become invalid meanwhile are dropped.
+   *
+   * A file with no recorded results renders as clean, which is also what the compiler records explicitly for
+   * a file it found no problems in.
+   *
+   * @return how many recorded diagnostics the files had between them
+   */
+  def renderRecordedDiagnostics(files: Set[VirtualFile]): Int =
+    if (files.isEmpty) 0
+    else {
+      val recorded = CompilerGeneratedStateManager.get(project).toHighlightingState
+      applyHighlightingState(files, ExternalHighlightersService.renderOf(files))
+      files.toSeq.map(recorded.externalHighlightings(_).size).sum
+    }
+
   def eraseAllHighlightings(): Unit = {
     updater.eraseAllHighlightings()
+  }
+  def eraseHighlightings(editor: Editor): Unit = {
+    updater.eraseEditorHighlightings(editor)
+    updater.clearWolfProblems(editor.getVirtualFile, this)
   }
 
   @RequiresReadLock
@@ -185,19 +222,35 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
 private[highlighting] object ExternalHighlightersService {
   final val ScalaCompilerPassId = 979132998
 
+  /**
+   * Identifies one application of already-recorded diagnostics, carrying the versions of the documents it
+   * was decided against so that a change to any of them invalidates it.
+   *
+   * A file with no loaded document contributes no version: there is no editor to render into, and nothing to
+   * compare against later. The timestamp is unique, which keeps the work from coalescing with any other.
+   */
+  private def renderOf(files: Set[VirtualFile]): CompilationId = {
+    val documents = FileDocumentManager.getInstance()
+    val versions = files.iterator
+      .flatMap(file => Option(documents.getCachedDocument(file)).map(DocumentUtil.documentVersion(file, _)))
+      .map(version => version.path -> version.version)
+      .to(immutable.HashMap.mapFactory[CanonicalPath, Long])
+    CompilationId(System.nanoTime(), versions)
+  }
+
   final case class HighlightInfoData(highlightingData: Seq[HighlightingData],
                                      virtualFiles: Set[VirtualFile],
                                      psiElements: Seq[PsiElement])
 
-  final case class HighlightingData(editor: com.intellij.openapi.editor.Editor,
-                                    document: com.intellij.openapi.editor.Document,
-                                    psiFile: com.intellij.psi.PsiFile,
+  final case class HighlightingData(editor: Editor,
+                                    document: Document,
+                                    psiFile: PsiFile,
                                     virtualFile: VirtualFile,
-                                    highlightInfos: Set[com.intellij.codeInsight.daemon.impl.HighlightInfo])
+                                    highlightInfos: Set[HighlightInfo])
 
   final val Log: Logger = Logger.getInstance(classOf[ExternalHighlightersService])
 
-  def instance(project: Project): ExternalHighlightersService =
+  def apply(project: Project): ExternalHighlightersService =
     project.getService(classOf[ExternalHighlightersService])
 
   final case class TextRangeWithEndOfLine(textRange: TextRange, endOfLine: Boolean)
