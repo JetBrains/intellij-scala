@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.structureView
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree.*
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScExtensionBody, ScFunction, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -100,7 +100,8 @@ class ScalaStructureViewModel(myRootElement: ScalaFile)
         case _ => isToplevelOrInsideSuitableTypeDef(function)
     case valOrVar: ScValueOrVariable =>
       isToplevelOrInsideSuitableTypeDef(valOrVar) ||
-        isLocalValOrVarWithBlockBodyInsideValOrVar(valOrVar)
+        isLocalValOrVarWithBlockBodyInsideValOrVar(valOrVar) ||
+        isInsideAnonymousClass(valOrVar)
     case member: ScMember =>
       isToplevelOrInsideSuitableTypeDef(member)
     case _ => false
@@ -128,6 +129,12 @@ class ScalaStructureViewModel(myRootElement: ScalaFile)
         isInsideValOrVarBlock(valOrVarDef.getParent)
       case _ =>
         false
+    }
+
+  private def isInsideAnonymousClass(element: PsiElement): Boolean =
+    element.parents.exists {
+      case definition: ScNewTemplateDefinition => definition.isAnonymous
+      case _ => false
     }
 
   @tailrec

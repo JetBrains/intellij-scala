@@ -127,7 +127,8 @@ trait ScFunction
     isStatic: Boolean,
     isAbstract: Boolean,
     isExportForwarder: Boolean,
-    cClass: Option[PsiClass] = None
+    cClass: Option[PsiClass] = None,
+    substitutor: ScSubstitutor = ScSubstitutor.empty
   ): Seq[ScFunctionWrapper]
 
   override def parameters: Seq[ScParameter] = paramClauses.params

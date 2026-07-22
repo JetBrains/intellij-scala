@@ -268,15 +268,17 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     isStatic:          Boolean,
     isAbstract:        Boolean,
     isExportForwarder: Boolean,
-    cClass:            Option[PsiClass] = None
+    cClass:            Option[PsiClass] = None,
+    substitutor:       ScSubstitutor = ScSubstitutor.empty
   ): Seq[ScFunctionWrapper] =
-    _getFunctionWrappers(isStatic, isAbstract, isExportForwarder, cClass)
+    _getFunctionWrappers(isStatic, isAbstract, isExportForwarder, (cClass, substitutor))
 
   private val _getFunctionWrappers =
     cached(
       "getFunctionWrappers",
       BlockModificationTracker(this),
-      (isStatic: Boolean, isAbstract: Boolean, isExportForwarder: Boolean, cClass: Option[PsiClass]) => {
+      (isStatic: Boolean, isAbstract: Boolean, isExportForwarder: Boolean, context: (Option[PsiClass], ScSubstitutor)) => {
+        val (cClass, substitutor) = context
         val builder = Seq.newBuilder[ScFunctionWrapper]
 
         if (cClass.isDefined || containingClass != null) {
@@ -290,6 +292,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
             isAbstract        = isAbstract,
             isExportForwarder = isExportForwarder,
             cClass            = cClass,
+            substitutor       = substitutor,
             isJavaVarargs     = true
           )
 
@@ -298,7 +301,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
             isStatic          = isStatic,
             isAbstract        = isAbstract,
             isExportForwarder = isExportForwarder,
-            cClass            = cClass
+            cClass            = cClass,
+            substitutor       = substitutor
           )
         }
 

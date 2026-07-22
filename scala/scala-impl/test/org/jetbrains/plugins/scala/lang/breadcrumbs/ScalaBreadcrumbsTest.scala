@@ -10,7 +10,7 @@ import com.intellij.xml.breadcrumbs.BreadcrumbsUtilEx
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.util.RevertableChange
+import org.jetbrains.plugins.scala.util.{RevertableChange, CommonScalaRevertableChanges}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, ScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -73,7 +73,7 @@ class ScalaBreadcrumbsTest extends ScalaBreadcrumbsTestBase {
   )
 
   protected def withMatchEnabled(body: => Unit): Unit =
-    RevertableChange.withModifiedScalaProjectSettings[Boolean](
+    CommonScalaRevertableChanges.withModifiedScalaProjectSettings[Boolean](
       getProject,
       _.isBreadcrumbsMatchEnabled,
       _.setBreadcrumbsMatchEnabled(_),
@@ -81,7 +81,7 @@ class ScalaBreadcrumbsTest extends ScalaBreadcrumbsTestBase {
     ).run(body)
 
   protected def withIfDoWhileEnabled(body: => Unit): Unit =
-    RevertableChange.withModifiedScalaProjectSettings[Boolean](
+    CommonScalaRevertableChanges.withModifiedScalaProjectSettings[Boolean](
       getProject,
       _.isBreadcrumbsIfDoWhileEnabled,
       _.setBreadcrumbsIfDoWhileEnabled(_),
@@ -89,7 +89,7 @@ class ScalaBreadcrumbsTest extends ScalaBreadcrumbsTestBase {
     ).run(body)
 
   protected def withValDefEnabled(body: => Unit): Unit =
-    RevertableChange.withModifiedScalaProjectSettings[Boolean](
+    CommonScalaRevertableChanges.withModifiedScalaProjectSettings[Boolean](
       getProject,
       _.isBreadcrumbsValDefEnabled,
       _.setBreadcrumbsValDefEnabled(_),

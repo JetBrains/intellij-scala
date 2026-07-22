@@ -4,17 +4,16 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.execution.testframework.SearchForTestsTask
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
 import java.lang
 
+/**
+ * For the common scala-related settings see `CommonScalaRevertableChanges` in different module
+ */
 trait RevertableChange {
 
   def applyChange(): Unit
@@ -161,7 +160,6 @@ object RevertableChange {
     }
   }
 
-
   def withModifiedCodeInsightSettings[T](
     get: CodeInsightSettings => T,
     set: (CodeInsightSettings, T) => Unit,
@@ -178,42 +176,6 @@ object RevertableChange {
 
     override def revertChange(): Unit =
       before.foreach(set(instance, _))
-  }
-
-  def withModifiedScalaProjectSettings[T](
-    project: Project,
-    get: ScalaProjectSettings => T,
-    set: (ScalaProjectSettings, T) => Unit,
-    value: T
-  ): RevertableChange = new RevertableChange {
-    private def instance: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
-
-    private var before: Option[T] = None
-
-    override def applyChange(): Unit = {
-      before = Some(get(instance))
-      set(instance, value)
-    }
-
-    override def revertChange(): Unit =
-      before.foreach(set(instance, _))
-  }
-
-  def withCompilerSettingsModified(
-    module: Module,
-    getModifiedCopy: ScalaCompilerSettings => ScalaCompilerSettings
-  ): RevertableChange = new RevertableChange {
-    private lazy val profile = ScalaCompilerSettingsProfile.forModule(module)
-    private lazy val oldSettings = profile.getSettings
-
-    override def applyChange(): Unit = {
-      val newSettings = getModifiedCopy(oldSettings)
-      profile.setSettings(newSettings)
-    }
-
-    override def revertChange(): Unit = {
-      profile.setSettings(oldSettings)
-    }
   }
 
   def withModifiedTestModeFlag(key: Key[java.lang.Boolean], value: Boolean): RevertableChange = {

@@ -18,7 +18,8 @@ import java.{util => ju}
  */
 final case class ScalaLibraryLoader(
   scalaVersion: ScalaVersion,
-  dependencyManager: DependencyManagerBase = DependencyManager
+  dependencyManager: DependencyManagerBase = DependencyManager,
+  includeSources: Boolean = true
 )
   extends LibraryLoader {
 
@@ -35,13 +36,15 @@ final case class ScalaLibraryLoader(
 
     implicit val scalaVersionImplicit: ScalaVersion = scalaVersion
 
-    val scalaLibraryClasses: ju.List[VirtualFile] = {
+    val scalaLibraryClasses: Seq[VirtualFile] = {
       val files: Seq[Path] = dependencyManager.resolve(scalaLibraryDescription).map(_.file)
-      files.map(findJarFile).asJava
+      files.map(findJarFile)
     }
-    val scalaLibrarySources: ju.List[VirtualFile] = {
+    val scalaLibrarySources: Seq[VirtualFile] = if (includeSources) {
       val files = dependencyManager.resolve(scalaLibraryDescription % Types.SRC).map(_.file)
-      files.map(findJarFile).asJava
+      files.map(findJarFile)
+    } else {
+      Nil
     }
 
     val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)
@@ -51,8 +54,8 @@ final case class ScalaLibraryLoader(
       PsiTestUtil.addProjectLibrary(
         module,
         scalaLibraryName,
-        scalaLibraryClasses,
-        scalaLibrarySources
+        scalaLibraryClasses.asJava,
+        scalaLibrarySources.asJava
       )
 
     val existingLibrary = Option(libraryTable.getLibraryByName(scalaLibraryName))
@@ -74,18 +77,37 @@ object ScalaLibraryLoader {
   def libraryLoadersWithSeparateScalaLibraries(
     superLibraryLoaders: Seq[LibraryLoader],
     scala2Version: ScalaVersion,
+  ): Seq[LibraryLoader] = {
+    val scala2LibraryLoader = ScalaLibraryLoader(scala2Version)
+
+    Seq(
+      scala2LibraryLoader,
+      scalaSdkLoader
+    ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
+  }
+
+  /**
+   * This utility "overrides" default scala sdk loader. use non-standard resolvers
+   * It uses separate scala libraries with specified versions
+   */
+  def libraryLoadersWithSeparateScalaLibraries(
+    superLibraryLoaders: Seq[LibraryLoader],
+    scala2Version: ScalaVersion,
     scala3Version: ScalaVersion,
   ): Seq[LibraryLoader] = {
     val scala2LibraryLoader = ScalaLibraryLoader(scala2Version)
     val scala3LibraryLoader = ScalaLibraryLoader(scala3Version)
 
-    //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
-    val scala3SdkLoader = ScalaSDKLoader(includeScalaLibraryFilesInSdk = false)
-
     Seq(
       scala3LibraryLoader,
       scala2LibraryLoader,
-      scala3SdkLoader
+      scalaSdkLoader
     ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
   }
+
+  //We use resolveScalaLibraryTransitiveDependencies = false to use the latest 2.13.14 RC version
+  private val scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(
+    includeScalaReflectIntoCompilerClasspath = true,
+    includeScalaLibraryFilesInSdk = false,
+  )
 }

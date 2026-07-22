@@ -28,7 +28,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     errorsFromJavaCode("", javaFileText, javaClassName)
 
   def errorsFromJavaCode(
-    @Language("Scala") scalaFileText: String,
+    @Language("Scala 3") scalaFileText: String,
     @Language("JAVA") javaFileText: String,
     javaClassName: String
   ): List[Message] = {
@@ -36,8 +36,11 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
       throw new AssertionError("Don't add files 2 times in a single test")
 
     myFixture.addFileToProject("dummy.scala", scalaFileText)
-    val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
+
+    val javaFileName = javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION
+    val myFile: PsiFile = myFixture.addFileToProject(javaFileName, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
+
     val allInfo = myFixture.doHighlighting()
 
     myFilesCreated = true
@@ -54,15 +57,19 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     javaClassName: String //TODO: don't make it mandatory?
   ): Unit = {
     val actualMessages = errorsFromJavaCode(fileText, javaClassName)
-    assertMessagesTextImpl("", actualMessages)
+    assertNoErrorMessages(actualMessages)
   }
 
   protected def assertNoErrorsInJava(
-    @Language("Scala") scalaFileText: String,
+    @Language("Scala 3") scalaFileText: String,
     @Language("JAVA") javaFileText: String,
     javaClassName: String
   ): Unit = {
     val actualMessages = errorsFromJavaCode(scalaFileText, javaFileText, javaClassName)
+    assertNoErrorMessages(actualMessages)
+  }
+
+  private def assertNoErrorMessages(actualMessages: List[Message]): Unit = {
     assertMessagesTextImpl("", actualMessages)
   }
 
@@ -76,7 +83,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
   }
 
   protected def assertErrorsTextInJava(
-    @Language("Scala") scalaCode: String,
+    @Language("Scala 3") scalaCode: String,
     @Language("JAVA") javaCode: String,
     javaClassName: String,
     messagesConcatenated: String,
@@ -87,7 +94,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
 
   protected def assertNoErrorsInKotlin(@Language("kotlin") fileText: String): Unit = {
     val actualMessages = errorsFromKotlinCode(fileText)
-    assertMessagesTextImpl("", actualMessages)
+    assertNoErrorMessages(actualMessages)
   }
 
   protected def errorsFromKotlinCode(@Language("kotlin") fileText: String): List[Message] = {
