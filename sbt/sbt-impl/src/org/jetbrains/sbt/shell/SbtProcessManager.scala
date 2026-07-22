@@ -19,6 +19,7 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.ui.TerminalWidget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
+import com.intellij.util.EnvironmentUtil
 import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.messages.MessageBusConnection
@@ -248,8 +249,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
       pty.addParameters(programParams.getList)
     }
 
-    val parentEnvironmentType = if (passParentEnvironment) ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
-    pty.withParentEnvironmentType(parentEnvironmentType)
+    if (shouldUnsetCIEnvVars(passParentEnvironment)) {
+      unsetCIEnvVars(pty)
+    } else {
+      val parentEnvironmentType = if (passParentEnvironment) ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
+      pty.withParentEnvironmentType(parentEnvironmentType)
+    }
 
     // The console mode needs to be disabled when TerminalExecution is used (see com.intellij.execution.process.LocalPtyOptions.Builder.consoleMode)
     if (withNewShell) {
@@ -281,6 +286,48 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
 
     pty
+  }
+
+  /**
+   * Whether the `BUILD_NUMBER` and `CI` environment variables should be removed from the sbt shell process.
+   *
+   * When the sbt shell runs on CI, it can inherit these variables from the parent environment. I only observed `BUILD_NUMBER` to be set,
+   * but it's enough for sbt to treat the environment as CI and change its behavior.
+   * https://github.com/sbt/sbt/blob/ae1192109d5b0ffd206f6f079c6b14ce25b995d4/internal/util-logging/src/main/scala/sbt/internal/util/Terminal.scala#L233
+   *
+   * The most visible consequence is that sbt disables its terminal management (https://github.com/sbt/sbt/blob/ae1192109d5b0ffd206f6f079c6b14ce25b995d4/internal/util-logging/src/main/scala/sbt/internal/util/Terminal.scala#L400)
+   * and therefore does not switch the PTY into raw input mode, so the PTY stays in canonical mode (input is read line by line). A single-character input
+   * written to the shell - such as the `i` (ignore) is then never read, because it's sent without a trailing newline.
+   * Unsetting these variables in the sbt shell process when running tests on CI makes sbt behave the same way as it does locally.
+   *
+   * Note: this most likely affects only prompts shown while sbt is starting. When a single-character input is sent while an sbt command is running,
+   * sbt appears to switch to raw mode, which behaves the same way as it does locally.
+   *
+   * This is only done in tests running on TeamCity, and only when the parent environment is actually inherited
+   * (`passParentEnvironment`); otherwise there is nothing to unset.
+   */
+  private def shouldUnsetCIEnvVars(passParentEnvironment: Boolean): Boolean = {
+    val isRunningInTeamcity = sys.env.contains("TEAMCITY_VERSION")
+    passParentEnvironment && isUnitTestMode && isRunningInTeamcity
+  }
+
+  /**
+   * Removes the `BUILD_NUMBER` and `CI` environment variables from the sbt shell process environment.
+   *
+   * To remove these variables, we get the full environment map used by the `CONSOLE` type (the same way
+   * `GeneralCommandLine.getParentEnvironment` does), drop the unwanted keys, and set the
+   * resulting environment map. The parent environment type must then be set explicitly to [[ParentEnvironmentType.NONE]],
+   * so the parent environment is not inherited again, which would otherwise re-add the removed keys.
+   *
+   * @see [[shouldUnsetCIEnvVars]]
+   */
+  private def unsetCIEnvVars(pty: PtyCommandLine): Unit = {
+    val envVarsToUnset = Set("BUILD_NUMBER", "CI")
+    // Explicit vars take precedence over the parent ones, matching the merge order in `GeneralCommandLine.setupEnvironment`.
+    val curatedEnvironment = (EnvironmentUtil.getEnvironmentMap.asScala.toMap ++ pty.getEnvironment.asScala) -- envVarsToUnset
+    pty.getEnvironment.clear()
+    pty.withEnvironment(curatedEnvironment.asJava)
+    pty.withParentEnvironmentType(ParentEnvironmentType.NONE)
   }
 
   /**
