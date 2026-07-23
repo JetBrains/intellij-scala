@@ -1370,6 +1370,11 @@ object ScalaPsiElementFactory {
       types.StableId(ScalaElementType.REFERENCE)(_)
     }
 
+  def crateReferenceExprFromText(@NonNls text: String, @Nullable context: PsiElement, child: PsiElement): ScReferenceExpression =
+    createElementWithContext[ScReferenceExpression](text, context, child) {
+      types.StableId(ScalaElementType.REFERENCE_EXPRESSION)(_)
+    }
+
   def createDocReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScDocResolvableCodeReference](text, context, child) {
       types.StableId(ScalaElementType.DOC_REFERENCE)(_)

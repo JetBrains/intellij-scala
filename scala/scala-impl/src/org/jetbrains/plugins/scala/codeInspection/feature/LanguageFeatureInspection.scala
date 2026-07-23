@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.project._
@@ -33,19 +34,37 @@ class LanguageFeatureInspection extends LocalInspectionTool {
     }
   }
 
+  private val reflectiveCall: PartialFunction[PsiElement, PsiElement] = {
+    case e@ReferenceTarget(decl@Parent(ref: ScRefinement)) if !decl.is[ScTypeAlias] && !isPolyFunctionRefinement(ref) =>
+      e.getLastChild match {
+        case id@ElementType(ScalaTokenTypes.tIDENTIFIER) => id
+        case _ => e
+      }
+  }
+
   private val Features = Seq(
     Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true),
       isErrorOn = _.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
       // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
-    Feature(ScalaInspectionBundle.message("language.feature.reflective.call"), "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
-      case e@ReferenceTarget(decl@Parent(ref: ScRefinement)) if !decl.is[ScTypeAlias] && !isPolyFunctionRefinement(ref)
-      => e.getLastChild match {
-        case id@ElementType(ScalaTokenTypes.tIDENTIFIER) => id
-        case _ => e
-      }
-    },
+    Feature(
+      ScalaInspectionBundle.message("language.feature.reflective.call"),
+      "scala.language",
+      "reflectiveCalls",
+      _.reflectiveCalls,
+      _.copy(reflectiveCalls = true),
+      isEnabledOn = _.scalaLanguageLevelOrDefault.isScala2,
+    )(reflectiveCall),
+    Feature(
+      ScalaInspectionBundle.message("language.feature.reflective.call"),
+      "scala.reflect.Selectable",
+      "reflectiveSelectable",
+      _.reflectiveCalls,
+      _.copy(reflectiveCalls = true),
+      isEnabledOn = _.scalaLanguageLevelOrDefault.isScala3,
+      isErrorOn = _ => true
+    )(reflectiveCall),
     Feature(ScalaInspectionBundle.message("language.feature.dynamic.member.selection"), "scala.language", "dynamics", _.dynamics, _.copy(dynamics = true)) {
       case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) & Parent(Parent(Parent(_: ScTemplateParents))) => e
     },
@@ -107,11 +126,16 @@ private case class Feature(@Nls name: String,
   }
 
   private def isFlagImportedFor(e: PsiElement): Boolean = {
-    val reference = ScalaPsiElementFactory.createReferenceFromText(flagName, e, e)
-    reference.resolve() match {
-      case e: ScReferencePattern => Option(e.containingClass).exists(_.qualifiedName == flagQualifier)
-      case _ => false
+    val reference = ScalaPsiElementFactory.crateReferenceExprFromText(flagName, e, e)
+    val cls = reference.resolve() match {
+      case e: ScReferencePattern =>
+        Option(e.containingClass)
+      case e: ScMember =>
+        Option(e.containingClass)
+      case _ =>
+        None
     }
+    cls.exists(_.qualifiedName == flagQualifier)
   }
 }
 
