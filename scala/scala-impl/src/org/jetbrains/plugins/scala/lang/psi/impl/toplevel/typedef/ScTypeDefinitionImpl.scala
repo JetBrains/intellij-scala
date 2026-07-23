@@ -282,15 +282,16 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getSuperTypes: Array[PsiClassType] = toPsiClassTypes(superTypes)
 
   /**
-   * Returns direct class parents in the Java-facing `extends` role.
+   * Returns direct parents in the Java-facing `extends` role.
    *
    * Differences between other methods:
-   *  - Unlike [[getImplementsListTypes]], this result contains only non-interface parents.
+   *  - For class-like definitions, unlike [[getImplementsListTypes]], this result contains only non-interface parents.
+   *    A Scala trait is a Java interface, so its direct parents are returned here instead, as Java-interface parents are.
    *  - Unlike [[getSuperTypes]], it is limited to PSI-backed template parents and does not expose the ordinary
    *    implicit root or synthetic interface parents.
    *
-   * Synthetic class parents represented by template parent elements are included; synthetic interfaces belong to
-   * [[getImplementsListTypes]].
+   * Synthetic class parents represented by template parent elements are included. Synthetic interfaces belong to
+   * [[getImplementsListTypes]] for class-like definitions; traits do not implement interfaces.
    *
    * `java.lang.Object` is returned only when an explicit PSI-backed parent projects to it, such as `Any`, `AnyRef`,
    * `AnyVal`, or `java.lang.Object`; the ordinary implicit root is not added.
@@ -301,10 +302,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
    * Returns effective direct interface parents in the Java-facing `implements` role.
    *
    * Differences between other methods:
-   *  - Unlike [[getExtendsListTypes]], this result contains only interface parents and includes synthetic interfaces,
-   *    such as `Product` and `Serializable` for case classes.
-   *  - Unlike [[getSuperTypes]], it excludes class parents and the implicit root. Traits with a non-`Object`
-   *    superclass are deliberately omitted to preserve Java sibling-inheritance behavior.
+   *  - Unlike [[getExtendsListTypes]], this result contains direct interface parents only for class-like definitions,
+   *    including synthetic interfaces such as `Product` and `Serializable` for case classes. A trait's direct
+   *    interface parents belong to [[getExtendsListTypes]], as they do for a Java interface.
+   *  - Unlike [[getSuperTypes]], it excludes class parents and the implicit root.
    *
    * Synthetic interfaces, including case-class parents and injected interfaces, are included; synthetic class
    * parents are excluded.

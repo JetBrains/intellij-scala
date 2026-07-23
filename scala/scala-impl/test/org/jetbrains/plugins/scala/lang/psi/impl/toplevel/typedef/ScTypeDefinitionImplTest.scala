@@ -112,14 +112,24 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
   def testParentListTypes_NoExplicitParents(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"class ${CARET}Foo",
-      ExpectedData(Seq(JavaObject), Seq(JavaObject), Seq.empty, Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq(JavaObject),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
 
   def testParentListTypes_ExplicitSuperclass(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"""class Parent
          |class ${CARET}Foo extends Parent""".stripMargin,
-      ExpectedData(Seq("Parent"), Seq("Parent"), Seq("Parent"), Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq("Parent"),
+        expectedGetSuperTypes = Seq("Parent"),
+        expectedGetExtendsListTypes = Seq("Parent"),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
 
   def testParentListTypes_ExplicitTraits(): Unit =
@@ -128,10 +138,10 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
          |trait Second
          |class ${CARET}Foo extends First with Second""".stripMargin,
       ExpectedData(
-        Seq("First", "Second", JavaObject),
-        Seq("First", "Second", JavaObject),
-        Seq.empty,
-        Seq("First", "Second")
+        expectedGetSupers = Seq("First", "Second", JavaObject),
+        expectedGetSuperTypes = Seq("First", "Second", JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq("First", "Second")
       )
     )
 
@@ -140,7 +150,12 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
       s"""trait BaseTrait
          |trait ChildA extends BaseTrait
          |class ${CARET}ChildB extends ChildA""".stripMargin,
-      ExpectedData(Seq("ChildA", JavaObject), Seq("ChildA", JavaObject), Seq.empty, Seq("ChildA"))
+      ExpectedData(
+        expectedGetSupers = Seq("ChildA", JavaObject),
+        expectedGetSuperTypes = Seq("ChildA", JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq("ChildA")
+      )
     )
 
   def testParentListTypes_ClassExtendingTraitWithSuperClass(): Unit =
@@ -148,7 +163,12 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
       s"""class BaseClass
          |trait ChildA extends BaseClass
          |class ${CARET}ChildB extends ChildA""".stripMargin,
-      ExpectedData(Seq("ChildA", JavaObject), Seq("ChildA", JavaObject), Seq.empty, Seq("ChildA"))
+      ExpectedData(
+        expectedGetSupers = Seq("ChildA", JavaObject),
+        expectedGetSuperTypes = Seq("ChildA", JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq("ChildA")
+      )
     )
 
   def testParentListTypes_MixedParentsWithTypeArguments(): Unit =
@@ -158,10 +178,10 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
          |trait Second[A]
          |class ${CARET}Foo extends Parent[String] with First[String] with Second[java.lang.Long]""".stripMargin,
       ExpectedData(
-        Seq("Parent", "First", "Second"),
-        Seq("Parent<java.lang.String>", "First<java.lang.String>", "Second<java.lang.Long>"),
-        Seq("Parent<java.lang.String>"),
-        Seq("First<java.lang.String>", "Second<java.lang.Long>")
+        expectedGetSupers = Seq("Parent", "First", "Second"),
+        expectedGetSuperTypes = Seq("Parent<java.lang.String>", "First<java.lang.String>", "Second<java.lang.Long>"),
+        expectedGetExtendsListTypes = Seq("Parent<java.lang.String>"),
+        expectedGetImplementsListTypes = Seq("First<java.lang.String>", "Second<java.lang.Long>")
       )
     )
 
@@ -175,37 +195,72 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
          |}
          |class ${CARET}Foo extends Aliases.StringParent with Aliases.StringMarker""".stripMargin,
       ExpectedData(
-        Seq("Parent", "Marker"),
-        Seq("Parent<java.lang.String>", "Marker<java.lang.String>"),
-        Seq("Parent<java.lang.String>"),
-        Seq("Marker<java.lang.String>")
+        expectedGetSupers = Seq("Parent", "Marker"),
+        expectedGetSuperTypes = Seq("Parent<java.lang.String>", "Marker<java.lang.String>"),
+        expectedGetExtendsListTypes = Seq("Parent<java.lang.String>"),
+        expectedGetImplementsListTypes = Seq("Marker<java.lang.String>")
       )
     )
 
   def testParentListTypes_ExplicitRootParent(): Unit = {
     parentListTypesFixture.assertParentListTypes(
       s"class ${CARET}Foo extends AnyRef",
-      ExpectedData(Seq(JavaObject), Seq(JavaObject), Seq(JavaObject), Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq(JavaObject),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq(JavaObject),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
     parentListTypesFixture.assertParentListTypes(
       s"class ${CARET}Foo extends java.lang.Object",
-      ExpectedData(Seq(JavaObject), Seq(JavaObject), Seq(JavaObject), Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq(JavaObject),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq(JavaObject),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
   }
 
-  def testParentListTypes_Trait(): Unit =
+  // A Scala trait is exposed as a Java interface, so its direct interface parent belongs to the extends list.
+  def testParentListTypes_TraitExtendingScalaTrait(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"""trait Parent
          |trait ${CARET}Foo extends Parent""".stripMargin,
-      ExpectedData(Seq("Parent", JavaObject), Seq("Parent", JavaObject), Seq.empty, Seq("Parent"))
+      ExpectedData(
+        expectedGetSupers = Seq("Parent", JavaObject),
+        expectedGetSuperTypes = Seq("Parent", JavaObject),
+        expectedGetExtendsListTypes = Seq("Parent"),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
+
+  def testParentListTypes_TraitExtendingJavaInterface(): Unit = {
+    myFixture.addFileToProject("JavaParent.java", "public interface JavaParent<T> {}")
+
+    parentListTypesFixture.assertParentListTypes(
+      s"trait ${CARET}Foo extends JavaParent[String]",
+      ExpectedData(
+        expectedGetSupers = Seq("JavaParent", JavaObject),
+        expectedGetSuperTypes = Seq("JavaParent<java.lang.String>", JavaObject),
+        expectedGetExtendsListTypes = Seq("JavaParent<java.lang.String>"),
+        expectedGetImplementsListTypes = Seq.empty
+      )
+    )
+  }
 
   def testParentListTypes_Object(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"""class Parent
          |trait Marker
          |object ${CARET}Foo extends Parent with Marker""".stripMargin,
-      ExpectedData(Seq("Parent", "Marker"), Seq("Parent", "Marker"), Seq("Parent"), Seq("Marker"))
+      ExpectedData(
+        expectedGetSupers = Seq("Parent", "Marker"),
+        expectedGetSuperTypes = Seq("Parent", "Marker"),
+        expectedGetExtendsListTypes = Seq("Parent"),
+        expectedGetImplementsListTypes = Seq("Marker")
+      )
     )
 
   def testParentListTypes_CaseClassWithSyntheticInterfaces(): Unit =
@@ -221,10 +276,10 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
     parentListTypesFixture.assertParentListTypes(
       s"class ${CARET}Foo extends JavaParent[String] with JavaMarker[String]",
       ExpectedData(
-        Seq("JavaParent", "JavaMarker"),
-        Seq("JavaParent<java.lang.String>", "JavaMarker<java.lang.String>"),
-        Seq("JavaParent<java.lang.String>"),
-        Seq("JavaMarker<java.lang.String>")
+        expectedGetSupers = Seq("JavaParent", "JavaMarker"),
+        expectedGetSuperTypes = Seq("JavaParent<java.lang.String>", "JavaMarker<java.lang.String>"),
+        expectedGetExtendsListTypes = Seq("JavaParent<java.lang.String>"),
+        expectedGetImplementsListTypes = Seq("JavaMarker<java.lang.String>")
       )
     )
   }
@@ -235,19 +290,34 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
   def testParentListTypes_ValueClass(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"class ${CARET}Foo(val value: Int) extends AnyVal",
-      ExpectedData(Seq("scala.AnyVal"), Seq(JavaObject), Seq(JavaObject), Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq("scala.AnyVal"),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq(JavaObject),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
 
   def testParentListTypes_UniversalTrait(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"trait ${CARET}Foo extends Any",
-      ExpectedData(Seq(JavaObject), Seq(JavaObject), Seq(JavaObject), Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq(JavaObject),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq(JavaObject),
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
 
   def testParentListTypes_PackageObject(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"package object ${CARET}foo",
-      ExpectedData(Seq(JavaObject), Seq(JavaObject), Seq.empty, Seq.empty)
+      ExpectedData(
+        expectedGetSupers = Seq(JavaObject),
+        expectedGetSuperTypes = Seq(JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq.empty
+      )
     )
 
   def testParentListTypes_InjectedInterfaceWithoutWrittenParents(): Unit =
@@ -256,10 +326,10 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
          |class ${CARET}Foo""".stripMargin,
       injectedSupers = Seq("SyntheticMarker"),
       expected = ExpectedData(
-        Seq("SyntheticMarker", JavaObject),
-        Seq("SyntheticMarker", JavaObject),
-        Seq.empty,
-        Seq("SyntheticMarker")
+        expectedGetSupers = Seq("SyntheticMarker", JavaObject),
+        expectedGetSuperTypes = Seq("SyntheticMarker", JavaObject),
+        expectedGetExtendsListTypes = Seq.empty,
+        expectedGetImplementsListTypes = Seq("SyntheticMarker")
       )
     )
 
@@ -271,10 +341,10 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
          |class ${CARET}Foo extends Parent with WrittenMarker""".stripMargin,
       injectedSupers = Seq("SyntheticMarker[String]"),
       expected = ExpectedData(
-        Seq("Parent", "WrittenMarker", "SyntheticMarker"),
-        Seq("Parent", "WrittenMarker", "SyntheticMarker<java.lang.String>"),
-        Seq("Parent"),
-        Seq("WrittenMarker", "SyntheticMarker<java.lang.String>")
+        expectedGetSupers = Seq("Parent", "WrittenMarker", "SyntheticMarker"),
+        expectedGetSuperTypes = Seq("Parent", "WrittenMarker", "SyntheticMarker<java.lang.String>"),
+        expectedGetExtendsListTypes = Seq("Parent"),
+        expectedGetImplementsListTypes = Seq("WrittenMarker", "SyntheticMarker<java.lang.String>")
       )
     )
 }

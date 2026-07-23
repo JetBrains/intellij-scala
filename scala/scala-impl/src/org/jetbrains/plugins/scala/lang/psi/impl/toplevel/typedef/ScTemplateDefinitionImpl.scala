@@ -528,9 +528,14 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
    * Returns the direct Java-facing parent types that this template definition extends or implements.
    *
    * This method does not traverse the full type hierarchy.<br>
-   * The "extends" list contains class parents written in the template definition. <br>
-   * The "implements" list contains the effective direct interface parents from [[ScExtendsBlock#superTypes]],
-   * including synthetic parents such as `Product` and `Serializable` on a case class.
+   * For class-like template definitions, the "extends" list contains written class parents and the "implements"
+   * list contains effective direct interface parents from [[ScExtendsBlock#superTypes]], including synthetic parents
+   * such as `Product` and `Serializable` on a case class. A Scala trait is a [[PsiClass#isInterface Java interface]],
+   * so its direct parents belong to the "extends" list, just as the parents of a Java interface do.
+   *
+   * A Scala trait may also have a concrete superclass, which has no faithful Java-interface representation. That
+   * source-level parent remains in the syntax-backed "extends" list; callers that need the complete Scala hierarchy
+   * must use [[ScExtendsBlock#superTypes]] rather than infer it from the Java parent-list roles.
    *
    * This method is used to calculate [[PsiClass#getExtendsListTypes()]] and [[PsiClass#getImplementsListTypes()]].
    *
@@ -560,14 +565,20 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     val classTypes = toPsiClassTypes(scalaTypes)
 
     // A Scala parent clause mixes classes and traits, whereas Java PSI exposes them in separate parent lists.
-    classTypes.filter(isResolvedToPsiClassOrInterface(_, searchForInterface = forImplementsList))
+    classTypes.filter(isInRequestedParentList(_, forImplementsList))
   }
 
-  private def isResolvedToPsiClassOrInterface(classType: PsiClassType, searchForInterface: Boolean): Boolean = {
+  private def isInRequestedParentList(classType: PsiClassType, forImplementsList: Boolean): Boolean = {
     val resolved = classType.resolve()
     resolved match {
       case psiClass: PsiClass =>
-        psiClass.isInterface == searchForInterface
+        if (isInterface) {
+          // A Scala trait is exposed as a Java interface: its direct interface parents are extended, not implemented.
+          // Keep an exceptional concrete superclass in the source-backed extends list (see the method ScalaDoc).
+          !forImplementsList
+        } else {
+          psiClass.isInterface == forImplementsList
+        }
       case _ => false
     }
   }

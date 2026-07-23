@@ -50,7 +50,7 @@ class JavaPsiClassParentListTypesTest extends LightJavaCodeInsightFixtureTestCas
       )
     )
 
-  // Unlike a Scala trait, a Java interface keeps its declared parent in `getExtendsListTypes`.
+  // Like a Scala trait, a Java interface keeps its declared parent in `getExtendsListTypes`.
   // Unlike a Scala trait, Java `getSupers` adds `java.lang.Object`, while `getSuperTypes` omits it.
   def testInterfaceWithGenericParent(): Unit =
     parentListTypesFixture.assertJavaParentListTypes(
