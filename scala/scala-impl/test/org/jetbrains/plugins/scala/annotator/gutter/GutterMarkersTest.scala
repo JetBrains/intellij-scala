@@ -162,6 +162,18 @@ class GutterMarkersTest extends GutterMarkersTestBase {
   )
 
   @Test
+  def testSCL10649(): Unit = doTestSingleTooltipAtCaret(
+    s"""object Alias {
+       |  class A$caret
+       |  type A2 = A
+       |  class B extends A2
+       |}
+       |""".stripMargin,
+
+    "Is extended by", referenceToElement("Alias.B", "B")
+  )
+
+  @Test
   def testSeveralSubclasses(): Unit = doTestSingleTooltipAtCaret(
     s"""
        |class Foo$caret
