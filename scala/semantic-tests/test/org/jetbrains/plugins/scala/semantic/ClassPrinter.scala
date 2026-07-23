@@ -200,7 +200,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOfExpression(e: ScExpression, indent: String): String = {
     val text = e match {
       case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
-        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
+        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
@@ -278,7 +278,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(textOf(_)).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
       case m: ScMatch =>
         m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
-          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
+          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
         "\n" + indent + "  }"
       case e => "<expr>"
     }
