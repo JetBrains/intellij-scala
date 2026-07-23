@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.lang.overrideImplement
 import com.intellij.codeInsight.navigation.{ImplementationSearcher, MethodImplementationsSearch}
 import com.intellij.idea.TestFor
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.impl.search.JavaOverridingMethodsSearcher
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.searches.AllOverridingMethodsSearch
+import com.intellij.psi.search.searches.{AllOverridingMethodsSearch, OverridingMethodsSearch}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.IndexingTestUtil
+import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
@@ -37,10 +39,14 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
     doFind(shouldFoundInClasses)
   }
 
+  /**
+   * Verifies the implementation-search behavior for the method at the caret.
+   *
+   * Each scenario is checked through both the "Has Implementations" navigation search and the "Implements"
+   * gutter-marker search.
+   */
   private def doFind(shouldFoundInClasses: Set[String]): Unit = {
-    // Find method at the caret marker
-    val atCaret = myFixture.getElementAtCaret
-    val method = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMethod], false)
+    val method = methodAtCaret
 
     //for go to implementations
     val list = new util.ArrayList[PsiMethod]()
@@ -53,6 +59,34 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
     val overriders2 = AllOverridingMethodsSearch.search(clazz).findAll().asScala
     val classNames2 = overriders2.map(_.second.containingClass.getName)
     Assert.assertEquals(s"Wrong set of overriders for $clazz", shouldFoundInClasses, classNames2.toSet)
+  }
+
+  /**
+   * Checks the platform's Java-only overrider search before the Scala plugin extensions contribute results.
+   *
+   * This is an extra implementation-detail check for the SCL-7463 scenarios, not a replacement for the
+   * user-facing navigation and gutter-marker assertions in [[doFind]]. It records the assumption that a
+   * reference-type specialization such as `String` is found by the platform, while an `Int` specialization
+   * needs the Scala-specific fallback.
+   */
+  private def assertOverridersFoundByPlatformJavaSearch(expectedClassNames: Set[String]): Unit = {
+    val method = methodAtCaret
+    val searchParameters = new OverridingMethodsSearch.SearchParameters(
+      method,
+      GlobalSearchScope.allScope(getProject),
+      /*checkDeep*/ true
+    )
+
+    val overriders = new CommonProcessors.CollectProcessor[PsiMethod]()
+
+    new JavaOverridingMethodsSearcher().execute(searchParameters, overriders)
+    val actualClassNames = overriders.getResults.asScala.map(_.containingClass.getName).toSet
+    Assert.assertEquals(s"Wrong platform Java overriders for $method", expectedClassNames, actualClassNames)
+  }
+
+  private def methodAtCaret: PsiMethod = {
+    val atCaret = myFixture.getElementAtCaret
+    PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMethod], false)
   }
 
   def testRawTypeFromJava(): Unit = {
@@ -98,6 +132,78 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
         |""".stripMargin
 
     findFromJava(javaText, scalaText, Set("ScalaClass"))
+  }
+
+  @TestFor(issues = Array("SCL-7463"))
+  def testGenericJavaMethodSpecializedWithValueType(): Unit = {
+    findFromJava(
+      s"""public class JavaBaseClass<T> {
+         |    public void ${CARET}foo(T t) {}
+         |}
+         |""".stripMargin,
+      """class ScalaChildClass extends JavaBaseClass[Int] {
+        |  override def foo(t: Int): Unit = ()
+        |}
+        |""".stripMargin,
+      Set("ScalaChildClass")
+    )
+
+    assertOverridersFoundByPlatformJavaSearch(Set.empty)
+  }
+
+  @TestFor(issues = Array("SCL-7463"))
+  def testGenericJavaMethodSpecializedWithValueTypeInSecondParameter(): Unit = {
+    findFromJava(
+      s"""public class JavaBaseClass<T> {
+         |    public void ${CARET}foo(String prefix, T value) {}
+         |}
+         |""".stripMargin,
+      """class ScalaChildClass extends JavaBaseClass[Int] {
+        |  override def foo(prefix: String, value: Int): Unit = ()
+        |}
+        |
+        |class ScalaSameNameOverload extends JavaBaseClass[Int] {
+        |  def foo(prefix: Int, value: Int): Unit = ()
+        |}
+        |""".stripMargin,
+      Set("ScalaChildClass")
+    )
+
+    assertOverridersFoundByPlatformJavaSearch(Set.empty)
+  }
+
+  @TestFor(issues = Array("SCL-7463"))
+  def testGenericJavaMethodSpecializedWithReferenceType(): Unit = {
+    findFromJava(
+      s"""public class JavaBaseClass<T> {
+         |    public void ${CARET}foo(T t) {}
+         |}
+         |""".stripMargin,
+      """class ScalaChildClass extends JavaBaseClass[String] {
+        |  override def foo(t: String): Unit = ()
+        |}
+        |""".stripMargin,
+      Set("ScalaChildClass")
+    )
+
+    assertOverridersFoundByPlatformJavaSearch(Set("ScalaChildClass"))
+  }
+
+  @TestFor(issues = Array("SCL-7463"))
+  def testGenericJavaMethodWithUnrelatedPrimitiveParameterSpecializedWithReferenceType(): Unit = {
+    findFromJava(
+      s"""public class JavaBaseClass<T> {
+         |    public void ${CARET}foo(T value, int count) {}
+         |}
+         |""".stripMargin,
+      """class ScalaChildClass extends JavaBaseClass[String] {
+        |  override def foo(value: String, count: Int): Unit = ()
+        |}
+        |""".stripMargin,
+      Set("ScalaChildClass")
+    )
+
+    assertOverridersFoundByPlatformJavaSearch(Set("ScalaChildClass"))
   }
 
   @TestFor(issues = Array("SCL-25260"))
