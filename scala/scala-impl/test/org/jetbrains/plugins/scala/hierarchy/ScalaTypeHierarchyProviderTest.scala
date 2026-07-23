@@ -1,124 +1,123 @@
 package org.jetbrains.plugins.scala.hierarchy
 
 import com.intellij.openapi.editor.ex.util.EditorUtil
-import com.intellij.psi.PsiClass
+import junit.framework.TestCase.assertEquals
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
+//TODO: currently the test only tests the `ScalaTypeHierarchyProvider.getTarget` implementation and nothing else
+// Add real tests for Scala class hierarchy
 class ScalaTypeHierarchyProviderTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil with AssertionMatchers {
-  private def doTest(code: String, targetPath: NamedElementPath): Unit = {
-    val file = myFixture.configureByText(ScalaFileType.INSTANCE, code)
-    val expectedTarget = selectElement[PsiClass](file, targetPath)
 
-    val provider = new ScalaTypeHierarchyProvider
+  private def assertTypeHierarchyTarget(
+    @Language("Scala") code: String,
+    expectedTargetName: String
+  ): Unit = {
+    myFixture.configureByText(ScalaFileType.INSTANCE, code)
 
-    val target = provider.getTarget(EditorUtil.getEditorDataContext(myFixture.getEditor))
+    val typeHierarchyProvider = new ScalaTypeHierarchyProvider
+    val dataContext = EditorUtil.getEditorDataContext(myFixture.getEditor)
+    val actualTarget = typeHierarchyProvider.getTarget(dataContext)
 
-    expectedTarget shouldBe target
+    assertEquals(
+      expectedTargetName,
+      actualTarget.getName
+    )
   }
 
-  def test_ref_to_class(): Unit = doTest(
-    s"""
-       |class Base
+  def testTargetElement_ReferenceToClass(): Unit = assertTypeHierarchyTarget(
+    s"""class Base
        |
        |class Impl extends ${CARET}Base
        |""".stripMargin,
-    path("Base")
+    "Base"
   )
 
-  def test_ref_to_primary_constructor(): Unit = doTest(
-    s"""
-       |trait Trait
+  def testTargetElement_ReferenceToPrimaryConstructor(): Unit = assertTypeHierarchyTarget(
+    s"""trait Trait
        |class Base(i: Int)
        |
-       |class Impl extends Bas${CARET}e(1) with Trait
+       |class Impl extends ${CARET}Base(1) with Trait
        |""".stripMargin,
-    path("Base")
+    "Base"
   )
 
-  def test_ref_to_secondary_constructor(): Unit = doTest(
-    s"""
-       |trait Trait
+  def testTargetElement_ReferenceToSecondaryConstructor(): Unit = assertTypeHierarchyTarget(
+    s"""trait Trait
        |class Base(i: Int) {
        |  def this(s: String) = this(1)
        |}
        |
-       |class Impl extends Bas${CARET}e("") with Trait
+       |class Impl extends ${CARET}Base("") with Trait
        |""".stripMargin,
-    path("Base")
+    "Base"
   )
 
-  def test_ref_to_trait(): Unit = doTest(
-    s"""
-       |trait Trait
+  def testTargetElement_ReferenceToTrait(): Unit = assertTypeHierarchyTarget(
+    s"""trait Trait
        |
        |class Impl extends ${CARET}Trait
        |""".stripMargin,
-    path("Trait")
+    "Trait"
   )
 
-  def test_ref_to_type_alias(): Unit = doTest(
-    s"""
-       |class Base
+  def testTargetElement_ReferenceToTypeAlias(): Unit = assertTypeHierarchyTarget(
+    s"""class Base
        |
        |type Alias = Base
        |
        |class Impl extends ${CARET}Alias
        |""".stripMargin,
-    path("Base")
+    "Base"
   )
 
-  def test_type_annotation(): Unit = doTest(
-    s"""
-       |
-       |class Blub
+  def testTargetElement_MethodReturnType(): Unit = assertTypeHierarchyTarget(
+    s"""class MyClass
        |class Outer {
-       |  def test: Bl${CARET}ub = 3
+       |  def test: ${CARET}MyClass = 3
        |}
        |""".stripMargin,
-    path("Blub")
+    "MyClass"
   )
 
-  def test_value_def(): Unit = doTest(
-    s"""
-       |class Blub
+  def testTargetElement_MethodDefinition(): Unit = assertTypeHierarchyTarget(
+    s"""class MyClass
        |class Outer {
-       |  def te${CARET}st: Blub = 3
+       |  def ${CARET}test: MyClass = 3
        |}
        |""".stripMargin,
-    path("Outer") // test has no type hierarchy, so take the outer one
+    // test has no type hierarchy, so take the outer one
+    "Outer"
   )
 
-  def test_type_alias(): Unit = doTest(
-    s"""
-       |class Blub
+  def testTargetElement_TypeAliasDefinition(): Unit = assertTypeHierarchyTarget(
+    s"""class MyClass
        |
        |class Outer {
-       |  type Al${CARET}ias = Blub
+       |  type ${CARET}Alias = MyClass
        |}
        |""".stripMargin,
-    path("Blub")
+    "MyClass"
   )
 
-  def test_type_alias2(): Unit = doTest(
-    s"""
-       |class Blub
+  def testTargetElement_TypeAliasRightHandSide(): Unit = assertTypeHierarchyTarget(
+    s"""class MyClass
        |
        |class Outer {
-       |  type Alias = Bl${CARET}ub
+       |  type Alias = ${CARET}MyClass
        |}
        |""".stripMargin,
-    path("Blub")
+    "MyClass"
   )
 
-  def test_object(): Unit = doTest(
-    s"""
-       |class Outer {
-       |  object Bl${CARET}ub
+  def testTargetElement_ObjectDefinition(): Unit = assertTypeHierarchyTarget(
+    s"""class Outer {
+       |  object ${CARET}Inner
        |}
        |""".stripMargin,
-    path("Outer", "Blub")
+    "Inner$"
   )
 }
