@@ -57,7 +57,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Fact
     //org.scalatest.Failed
     //org.scalatest.FailedStatus
-    //org.scalatest.FailureMessages
+    org.scalatest.FailureMessages
     //org.scalatest.Filter
     org.scalatest.FixtureAsyncTestRegistration
     //org.scalatest.FixtureAsyncTestSuite
@@ -80,8 +80,8 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.LinkedBlockingQueue
     //org.scalatest.LoneElement
     //org.scalatest.MessageRecorder
-    //org.scalatest.MessageRecordingDocumenter
-    //org.scalatest.MessageRecordingInformer
+    org.scalatest.MessageRecordingDocumenter
+    org.scalatest.MessageRecordingInformer
     org.scalatest.NameTransformer
     org.scalatest.NonImplicitAssertions
     //org.scalatest.Notifier
@@ -168,10 +168,10 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.concurrent.PimpedReadWriteLock
     //org.scalatest.concurrent.PimpedThreadGroup
     //org.scalatest.concurrent.ScalaFutures
-    //org.scalatest.concurrent.ScaledTimeSpans
+    org.scalatest.concurrent.ScaledTimeSpans
     //org.scalatest.concurrent.SelectorSignaler
     //org.scalatest.concurrent.SerialExecutionContext
-    //org.scalatest.concurrent.Signaler
+    org.scalatest.concurrent.Signaler
     //org.scalatest.concurrent.SignalerTimeoutTask
     org.scalatest.concurrent.SleepHelper
     org.scalatest.concurrent.SocketSignaler
@@ -279,11 +279,11 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.exceptions.TimeoutField
     //org.scalatest.featurespec.AnyFeatureSpec
     //org.scalatest.featurespec.AnyFeatureSpecLike
-    //org.scalatest.featurespec.AsyncFeatureSpec
+    org.scalatest.featurespec.AsyncFeatureSpec
     //org.scalatest.featurespec.AsyncFeatureSpecLike
     //org.scalatest.featurespec.FixtureAnyFeatureSpec
     //org.scalatest.featurespec.FixtureAnyFeatureSpecLike
-    //org.scalatest.featurespec.FixtureAsyncFeatureSpec
+    org.scalatest.featurespec.FixtureAsyncFeatureSpec
     //org.scalatest.featurespec.FixtureAsyncFeatureSpecLike
     //org.scalatest.fixture.AsyncConfigMapFixture
     //org.scalatest.fixture.AsyncPendingTransformer
@@ -297,29 +297,29 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.fixture.UnitFixture
     //org.scalatest.flatspec.AnyFlatSpec
     //org.scalatest.flatspec.AnyFlatSpecLike
-    //org.scalatest.flatspec.AsyncFlatSpec
+    org.scalatest.flatspec.AsyncFlatSpec
     //org.scalatest.flatspec.AsyncFlatSpecLike
     //org.scalatest.flatspec.FixtureAnyFlatSpec
     //org.scalatest.flatspec.FixtureAnyFlatSpecLike
-    //org.scalatest.flatspec.FixtureAsyncFlatSpec
+    org.scalatest.flatspec.FixtureAsyncFlatSpec
     //org.scalatest.flatspec.FixtureAsyncFlatSpecLike
     //org.scalatest.freespec.AnyFreeSpec
     //org.scalatest.freespec.AnyFreeSpecLike
-    //org.scalatest.freespec.AsyncFreeSpec
+    org.scalatest.freespec.AsyncFreeSpec
     //org.scalatest.freespec.AsyncFreeSpecLike
     //org.scalatest.freespec.FixtureAnyFreeSpec
     //org.scalatest.freespec.FixtureAnyFreeSpecLike
-    //org.scalatest.freespec.FixtureAsyncFreeSpec
+    org.scalatest.freespec.FixtureAsyncFreeSpec
     //org.scalatest.freespec.FixtureAsyncFreeSpecLike
     //org.scalatest.freespec.PathAnyFreeSpec
     //org.scalatest.freespec.PathAnyFreeSpecLike
     //org.scalatest.funspec.AnyFunSpec
     //org.scalatest.funspec.AnyFunSpecLike
-    //org.scalatest.funspec.AsyncFunSpec
+    org.scalatest.funspec.AsyncFunSpec
     //org.scalatest.funspec.AsyncFunSpecLike
     //org.scalatest.funspec.FixtureAnyFunSpec
     //org.scalatest.funspec.FixtureAnyFunSpecLike
-    //org.scalatest.funspec.FixtureAsyncFunSpec
+    org.scalatest.funspec.FixtureAsyncFunSpec
     //org.scalatest.funspec.FixtureAsyncFunSpecLike
     //org.scalatest.funspec.PathAnyFunSpec
     //org.scalatest.funspec.PathAnyFunSpecLike
@@ -342,7 +342,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.HavePropertyMatchResult
     //org.scalatest.matchers.HavePropertyMatcher
     //org.scalatest.matchers.LazyArg
-    //org.scalatest.matchers.LazyMessage
+    org.scalatest.matchers.LazyMessage
     //org.scalatest.matchers.MatchFailed
     //org.scalatest.matchers.MatchPatternHelper
     //org.scalatest.matchers.MatchPatternMacro
@@ -385,51 +385,51 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.matchers.dsl.ReadableWord
     //org.scalatest.matchers.dsl.RegexWithGroups
     //org.scalatest.matchers.dsl.ResultOfATypeInvocation
-    //org.scalatest.matchers.dsl.ResultOfAWordToAMatcherApplication
-    //org.scalatest.matchers.dsl.ResultOfAWordToBePropertyMatcherApplication
-    //org.scalatest.matchers.dsl.ResultOfAWordToSymbolApplication
-    //org.scalatest.matchers.dsl.ResultOfAllElementsOfApplication
+    org.scalatest.matchers.dsl.ResultOfAWordToAMatcherApplication
+    org.scalatest.matchers.dsl.ResultOfAWordToBePropertyMatcherApplication
+    org.scalatest.matchers.dsl.ResultOfAWordToSymbolApplication
+    org.scalatest.matchers.dsl.ResultOfAllElementsOfApplication
     //org.scalatest.matchers.dsl.ResultOfAllOfApplication
     //org.scalatest.matchers.dsl.ResultOfAnTypeInvocation
-    //org.scalatest.matchers.dsl.ResultOfAnWordToAnMatcherApplication
-    //org.scalatest.matchers.dsl.ResultOfAnWordToBePropertyMatcherApplication
-    //org.scalatest.matchers.dsl.ResultOfAnWordToSymbolApplication
-    //org.scalatest.matchers.dsl.ResultOfAtLeastOneElementOfApplication
+    org.scalatest.matchers.dsl.ResultOfAnWordToAnMatcherApplication
+    org.scalatest.matchers.dsl.ResultOfAnWordToBePropertyMatcherApplication
+    org.scalatest.matchers.dsl.ResultOfAnWordToSymbolApplication
+    org.scalatest.matchers.dsl.ResultOfAtLeastOneElementOfApplication
     //org.scalatest.matchers.dsl.ResultOfAtLeastOneOfApplication
-    //org.scalatest.matchers.dsl.ResultOfAtMostOneElementOfApplication
+    org.scalatest.matchers.dsl.ResultOfAtMostOneElementOfApplication
     //org.scalatest.matchers.dsl.ResultOfAtMostOneOfApplication
     //org.scalatest.matchers.dsl.ResultOfBeThrownBy
     //org.scalatest.matchers.dsl.ResultOfBeWordForAType
     //org.scalatest.matchers.dsl.ResultOfBeWordForAnType
     org.scalatest.matchers.dsl.ResultOfBeWordForNoException
     //org.scalatest.matchers.dsl.ResultOfContainWord
-    //org.scalatest.matchers.dsl.ResultOfDefinedAt
+    org.scalatest.matchers.dsl.ResultOfDefinedAt
     //org.scalatest.matchers.dsl.ResultOfGreaterThanComparison
     //org.scalatest.matchers.dsl.ResultOfGreaterThanOrEqualToComparison
     //org.scalatest.matchers.dsl.ResultOfInOrderApplication
-    //org.scalatest.matchers.dsl.ResultOfInOrderElementsOfApplication
+    org.scalatest.matchers.dsl.ResultOfInOrderElementsOfApplication
     //org.scalatest.matchers.dsl.ResultOfInOrderOnlyApplication
-    //org.scalatest.matchers.dsl.ResultOfKeyWordApplication
+    org.scalatest.matchers.dsl.ResultOfKeyWordApplication
     //org.scalatest.matchers.dsl.ResultOfLengthWordApplication
     //org.scalatest.matchers.dsl.ResultOfLessThanComparison
     //org.scalatest.matchers.dsl.ResultOfLessThanOrEqualToComparison
     //org.scalatest.matchers.dsl.ResultOfMessageWordApplication
-    //org.scalatest.matchers.dsl.ResultOfNoElementsOfApplication
+    org.scalatest.matchers.dsl.ResultOfNoElementsOfApplication
     //org.scalatest.matchers.dsl.ResultOfNoneOfApplication
     //org.scalatest.matchers.dsl.ResultOfNotExist
     //org.scalatest.matchers.dsl.ResultOfNotWordForAny
     org.scalatest.matchers.dsl.ResultOfOfTypeInvocation
-    //org.scalatest.matchers.dsl.ResultOfOneElementOfApplication
+    org.scalatest.matchers.dsl.ResultOfOneElementOfApplication
     //org.scalatest.matchers.dsl.ResultOfOneOfApplication
     //org.scalatest.matchers.dsl.ResultOfOnlyApplication
     //org.scalatest.matchers.dsl.ResultOfRegexWordApplication
     //org.scalatest.matchers.dsl.ResultOfSizeWordApplication
     //org.scalatest.matchers.dsl.ResultOfTheSameElementsAsApplication
     //org.scalatest.matchers.dsl.ResultOfTheSameElementsInOrderAsApplication
-    //org.scalatest.matchers.dsl.ResultOfTheSameInstanceAsApplication
+    org.scalatest.matchers.dsl.ResultOfTheSameInstanceAsApplication
     //org.scalatest.matchers.dsl.ResultOfTheTypeInvocation
     org.scalatest.matchers.dsl.ResultOfThrownByApplication
-    //org.scalatest.matchers.dsl.ResultOfValueWordApplication
+    org.scalatest.matchers.dsl.ResultOfValueWordApplication
     org.scalatest.matchers.dsl.SizeWord
     org.scalatest.matchers.dsl.SortedWord
     //org.scalatest.matchers.dsl.StartWithWord
@@ -593,20 +593,20 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.PrettyPrinter
     //org.scalatest.tools.PrintReporter
     //org.scalatest.tools.ProgressBarPanel
-    //org.scalatest.tools.ReStoppingState
+    org.scalatest.tools.ReStoppingState
     //org.scalatest.tools.ReadyState
     org.scalatest.tools.ReporterConfigParam
     org.scalatest.tools.ReporterConfiguration
     //org.scalatest.tools.ReporterConfigurations
     //org.scalatest.tools.ReporterElement
     //org.scalatest.tools.ReporterFactory
-    //org.scalatest.tools.RerunningState
+    org.scalatest.tools.RerunningState
     org.scalatest.tools.RunDoneListener
     //org.scalatest.tools.Runner
     org.scalatest.tools.RunnerGUI
     org.scalatest.tools.RunnerGUIState
     //org.scalatest.tools.RunnerJFrame
-    //org.scalatest.tools.RunningState
+    org.scalatest.tools.RunningState
     //org.scalatest.tools.RunpathUrl
     org.scalatest.tools.SbtDispatchReporter
     //org.scalatest.tools.SlowpokeConfig
@@ -617,7 +617,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.StandardOutReporter
     //org.scalatest.tools.StandardOutReporterConfiguration
     //org.scalatest.tools.StatusJPanel
-    //org.scalatest.tools.StoppingState
+    org.scalatest.tools.StoppingState
     //org.scalatest.tools.StringReporter
     //org.scalatest.tools.StyleElement
     //org.scalatest.tools.SuiteConfig
@@ -657,11 +657,11 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.verbs.WillVerb
     //org.scalatest.wordspec.AnyWordSpec
     //org.scalatest.wordspec.AnyWordSpecLike
-    //org.scalatest.wordspec.AsyncWordSpec
+    org.scalatest.wordspec.AsyncWordSpec
     //org.scalatest.wordspec.AsyncWordSpecLike
     //org.scalatest.wordspec.FixtureAnyWordSpec
     //org.scalatest.wordspec.FixtureAnyWordSpecLike
-    //org.scalatest.wordspec.FixtureAsyncWordSpec
+    org.scalatest.wordspec.FixtureAsyncWordSpec
     //org.scalatest.wordspec.FixtureAsyncWordSpecLike
   """)
 }

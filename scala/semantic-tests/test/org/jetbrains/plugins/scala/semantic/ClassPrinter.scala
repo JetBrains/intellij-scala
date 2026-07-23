@@ -254,7 +254,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case None => r.bind().map(_.getActualElement).orNull match {
           case e: ScSelfTypeElement => e.name
           case e: ScNamedElement => e.nameContext match {
-            case m: ScMember if !m.isLocal && !m.isTopLevel =>
+            case m: ScMember if m.isTopLevel =>
+              m.qualifiedNameOpt.getOrElse(r.refName)
+            case m: ScMember if !m.isLocal =>
               val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
               enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
                 case Some(enclosingClass) =>

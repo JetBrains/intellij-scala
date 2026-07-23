@@ -86,7 +86,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.SystemPlatformSpecific
     //zio.TagMacros
     //zio.TagVersionSpecific
-    //zio.TaskPlatformSpecific
+    zio.TaskPlatformSpecific
     //zio.ThreadLocalBridge
     //zio.Trace
     //zio.Unsafe
@@ -112,7 +112,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.ZIOCompanionVersionSpecific
     //zio.ZIOFunctionConstructor
     //zio.ZIOPlatformSpecific
-    //zio.ZIOPlatformSpecificJVM
+    zio.ZIOPlatformSpecificJVM
     //zio.ZIOVersionSpecific
     //zio.ZInputStream
     //zio.ZKeyedPool
@@ -157,7 +157,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.PlatformSpecific
     //zio.internal.RingBuffer
     //zio.internal.RingBufferArb
-    //zio.internal.RingBufferPow2
+    zio.internal.RingBufferPow2
     //zio.internal.Signal
     //zio.internal.SingleThreadedRingBuffer
     //zio.internal.SpecializationHelpers
@@ -267,7 +267,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.stream.internal.AsyncInputConsumer
     zio.stream.internal.AsyncInputProducer
     //zio.stream.internal.ChannelExecutor
-    //zio.stream.internal.CharacterSet
+    zio.stream.internal.CharacterSet
     //zio.stream.internal.SingleProducerAsyncInput
     //zio.stream.internal.ZInputStream
     //zio.stream.internal.ZReader
