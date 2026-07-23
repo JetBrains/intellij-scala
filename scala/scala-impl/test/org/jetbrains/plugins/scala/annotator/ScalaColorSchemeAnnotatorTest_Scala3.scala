@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -10,6 +12,8 @@ import org.junit.Test
 class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
 
   import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
+
+  private lazy val editorHighlightingFixture = new ScalaColorSchemeEditorHighlightingFixture(getFixture)
 
   override protected def buildAnnotationsTestText(annotations: Seq[Message2]): String =
     annotations.map(_.textWithRangeAndCodeAttribute).mkString("\n")
@@ -155,6 +159,15 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
         |Info((20,24),Unit,Scala Predefined types)
         |""".stripMargin
     )
+  }
+
+  @Test
+  def testGivenColorSchemeKey(): Unit = {
+    val text =
+      """given ordering: Ordering[Int] = Ordering.Int
+        |""".stripMargin
+
+    editorHighlightingFixture.assertHighlights(text, ExpectedHighlight("ordering", GIVEN))
   }
 
   @Test
