@@ -222,6 +222,7 @@ object ScalaSyntaxHighlighter {
       BRACES_TOKEN_SET -> BRACES,
       BRACKETS_TOKEN_SET -> BRACKETS,
       PARENTHESIS_TOKEN_SET -> PARENTHESES,
+      TokenSet.create(tCOLON) -> COLON,
       TokenSet.create(tSEMICOLON) -> SEMICOLON,
       TokenSet.create(tDOT) -> DOT,
       TokenSet.create(tCOMMA) -> COMMA,
