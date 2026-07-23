@@ -1010,7 +1010,7 @@ object SourceCode {
         }
         fun2 match {
           case Select(extractor, "unapply" | "unapplySeq") =>
-            printTree(extractor)
+            if (!fun.symbol.owner.fullName.startsWith("scala.Tuple")) printTree(extractor)
           case Ident("unapply" | "unapplySeq") =>
             this += fun.symbol.owner.fullName.stripSuffix("$")
           case _ =>
