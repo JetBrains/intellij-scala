@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
@@ -255,23 +255,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       }
       case r: ScReferenceExpression => (r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
-        case None => r.bind().map(_.getActualElement).orNull match {
-          case e: ScSelfTypeElement => e.name
-          case e: ScNamedElement => e.nameContext match {
-            case m: ScMember if !m.isLocal =>
-              if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(r.refName) else {
-                val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
-                enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
-                  case Some(enclosingClass) =>
-                    if (enclosingClass.name == "<anonymous>") "this." + r.refName else enclosingClass.name + ".this." + r.refName
-                  case None => m.qualifiedNameOpt.getOrElse(r.refName)
-                }
-              }
-            case _ => r.refName
-          }
-          case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
-          case _ => r.refName
-        }
+        case None => textOfReference(r)
       }) + (r.bind() match {
         case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
           ".apply"
@@ -302,6 +286,26 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     text + textOfImplicitArguments(e.findImplicitArguments, e)
   }
 
+  private def textOfReference(r: ScReference) = {
+    r.bind().map(_.getActualElement).orNull match {
+      case e: ScSelfTypeElement => e.name
+      case e: ScNamedElement => e.nameContext match {
+        case m: ScMember if !m.isLocal =>
+          if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(r.refName) else {
+            val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
+            enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
+              case Some(enclosingClass) =>
+                if (enclosingClass.name == "<anonymous>") "this." + r.refName else enclosingClass.name + ".this." + r.refName
+              case None => m.qualifiedNameOpt.getOrElse(r.refName)
+            }
+          }
+        case _ => r.refName
+      }
+      case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
+      case _ => r.refName
+    }
+  }
+
   private def textOfPattern(p: ScPattern): String = p match {
     case _: ScWildcardPattern => "_"
     case p: ScNamingPattern => p.name + " @ " + textOfPattern(p.named)
@@ -309,7 +313,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case p: ScTuplePattern => "(" + p.patternList.get.patterns.map(textOfPattern).mkString(", ") + ")"
     case p: ScTypedPattern => p.name + ": " + textOf(p.`type`())
     case p: ScReferencePattern => p.name
-    case p: ScExtractorPattern => p.ref.qualName + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
+    case p: ScExtractorPattern => textOfReference(p.ref) + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
     case _ => "<pattern>"
   }
 
