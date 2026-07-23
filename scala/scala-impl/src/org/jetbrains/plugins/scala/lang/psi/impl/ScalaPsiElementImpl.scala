@@ -19,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 
-import scala.annotation.nowarn
-
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
   with ScalaPsiElement {
 
@@ -78,12 +76,14 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
     with StubBasedPsiElement[S]
     with ScalaPsiElement {
 
-  @nowarn("cat=deprecation") // IJPL-562
-  override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = super.getElementType
+  // After the stub/PSI decoupling Scala element types are plain IElementTypes, not IStubElementTypes,
+  // so the deprecated getElementType can no longer return one.
+  // It is intentionally unsupported; every caller must use getIElementType (below) instead.
+  override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] =
+    throw new UnsupportedOperationException("Use getIElementType() instead of the deprecated getElementType()")
 
-  // SCL-23400: the frontend-safe element-type accessor. Unlike the deprecated getElementType (which
-  // throws for non-IStubElementType element types), this returns the raw element type via the platform's
-  // getElementTypeImpl, so it also works once element types are migrated to plain IElementTypes.
+  // The frontend-safe element-type accessor. Unlike the deprecated getElementType, this returns the raw
+  // element type via the platform's getElementTypeImpl, so it works for migrated plain IElementTypes.
   override def getIElementType: IElementType = getElementTypeImpl
 
   override def getStartOffsetInParent: Int = this.child match {
