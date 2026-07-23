@@ -47,8 +47,17 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
 
   private def isLanguageFeatureImport: Boolean = {
     importExpr.exists {
-      case ScImportExpr.qualifier(qualifier) =>
+      case expr@ScImportExpr.qualifier(qualifier) =>
         qualifier.resolve() match {
+          case o: ScObject if o.qualifiedName == "scala.reflect.Selectable" =>
+            /**
+             * `import scala.reflect.Selectable.reflectiveSelectable` is the Scala 3 replacement for
+             * `import scala.language.reflectiveCalls`. It enables reflective/structural calls but, unlike the
+             * language feature import, the plugin does not model the implicit conversion it provides, so its
+             * usage is never registered during resolution. Treat it as always used, mirroring how the
+             * `scala.language.reflectiveCalls` import is handled by [[isLanguageFeatureImport]].
+             */
+            expr.reference.exists(_.refName == "reflectiveSelectable")
           case o: ScObject =>
             //scala.language & scala.languageFeature
             o.qualifiedName.startsWith("scala.language")
