@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.annotator.colorScheme
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
