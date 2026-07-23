@@ -1,23 +1,14 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree._
-import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScSeqWildcardPattern, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumClassCaseImpl, ScEnumSingletonCaseImpl}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
+import org.jetbrains.plugins.scala.lang.psi.tree.IScalaElementType
 
-sealed class ScalaElementType(debugName: String,
-                              override val isLeftBound: Boolean = true)
-  extends IElementType(debugName, ScalaLanguage.INSTANCE) {
-
-  override final def toString: String = super.toString
-}
+/**
+ * Keeping for backward compatibility. Use [[IScalaElementType]] instead
+ */
+@ApiStatus.Obsolete
+sealed class ScalaElementType(debugName: String) extends IScalaElementType(debugName)
 
 //noinspection TypeAnnotation
 object ScalaElementType {
@@ -34,20 +25,20 @@ object ScalaElementType {
   val ExportStatement = new ScExportStmtElementType
 
   val EXTENSION = new ScExtensionElementType
-  val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = new ValueDeclaration
-  val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = new ValueDefinition
-  val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = new VariableDeclaration
-  val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = new VariableDefinition
-  val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = new FunctionDeclaration
-  val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = new FunctionDefinition
-  val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = new MacroDefinition
-  val GIVEN_ALIAS_DECLARATION: ScFunctionElementType[ScGivenAliasDeclaration] = new GivenAliasDeclaration
-  val GIVEN_ALIAS_DEFINITION: ScFunctionElementType[ScGivenAliasDefinition] = new GivenAliasDefinition
+  val VALUE_DECLARATION = new ValueDeclaration
+  val PATTERN_DEFINITION = new ValueDefinition
+  val VARIABLE_DECLARATION = new VariableDeclaration
+  val VARIABLE_DEFINITION = new VariableDefinition
+  val FUNCTION_DECLARATION = new FunctionDeclaration
+  val FUNCTION_DEFINITION = new FunctionDefinition
+  val MACRO_DEFINITION = new MacroDefinition
+  val GIVEN_ALIAS_DECLARATION = new GivenAliasDeclaration
+  val GIVEN_ALIAS_DEFINITION = new GivenAliasDefinition
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
-  val MODIFIERS = new ScModifiersElementType("modifiers")
+  val MODIFIERS = new ScModifiersElementType
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
@@ -66,44 +57,20 @@ object ScalaElementType {
   val SELF_TYPE = new ScSelfTypeElementElementType
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
-  val ClassDefinition = new ScTemplateDefinitionElementType[ScClass]("ScClass") {
-    override def createElement(node: ASTNode): ScClass = new ScClassImpl(null, this, node, toString)
-  }
-
-  val TraitDefinition = new ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
-    override def createElement(node: ASTNode): ScTrait = new ScTraitImpl(null, this, node, toString)
-  }
-
-  val ObjectDefinition = new ScTemplateDefinitionElementType[ScObject]("ScObject") {
-    override def createElement(node: ASTNode): ScObject = new ScObjectImpl(null, this, node, toString)
-  }
-
-  val EnumDefinition = new ScTemplateDefinitionElementType[ScClass]("ScEnum") {
-    override def createElement(node: ASTNode): ScClass = new ScEnumImpl(null, this, node, toString)
-  }
-
-  val EnumClassCase = new ScTemplateDefinitionElementType[ScClass]("ScEnumClassCase") {
-    override def createElement(node: ASTNode): ScClass = new ScEnumClassCaseImpl(null, this, node, toString)
-  }
-
-  val EnumSingletonCase = new ScTemplateDefinitionElementType[ScObject]("ScEnumSingletonCase") {
-    override def createElement(node: ASTNode): ScObject = new ScEnumSingletonCaseImpl(null, this, node, toString)
-  }
-
+  val ClassDefinition = new ScClassDefinitionElementType
+  val TraitDefinition = new ScTraitDefinitionElementType
+  val ObjectDefinition = new ScObjectDefinitionElementType
+  val EnumDefinition = new ScEnumDefinitionElementType
+  val EnumClassCase = new ScEnumClassCaseElementType
+  val EnumSingletonCase = new ScEnumSingletonCaseElementType
   val EnumCases = new ScEnumCasesElementType
+  val NewTemplate = new ScNewTemplateElementType
+  val GivenDefinition = new ScGivenDefinitionElementType
 
-  val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
-    override def createElement(node: ASTNode): ScNewTemplateDefinition = new ScNewTemplateDefinitionImpl(null, this, node, toString)
-  }
-
-  val GivenDefinition = new ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
-    override def createElement(node: ASTNode): ScGivenDefinition = new ScGivenDefinitionImpl(null, this, node, toString)
-  }
-
-  val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = new ScReferencePatternElementType
-  val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = new ScTypedPatternElementType
-  val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = new ScNamingPatternElementType
-  val SEQ_WILDCARD_PATTERN: ScBindingPatternElementType[ScSeqWildcardPattern] = new ScSeqWildcardPatternElementType
+  val REFERENCE_PATTERN = new ScReferencePatternElementType
+  val TYPED_PATTERN = new ScTypedPatternElementType
+  val NAMING_PATTERN = new ScNamingPatternElementType
+  val SEQ_WILDCARD_PATTERN = new ScSeqWildcardPatternElementType
 
   /** ********************************************************************************** */
   /** ****************************** DEFINITION PARTS ********************************** */

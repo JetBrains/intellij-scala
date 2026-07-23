@@ -22,14 +22,14 @@ import com.intellij.psi.impl.source.tree.{FileElement, SharedImplUtil}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
-import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, Nullable}
+import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager
@@ -44,10 +44,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTypedElementType
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.psi.tree.IScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PsiTypeBridge, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -1692,7 +1693,7 @@ package object extensions {
   }
 
   implicit class StubBasedExt(val element: PsiElement) extends AnyVal {
-    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IElementType with ScTypedElementType[Stub, Psi], f: ArrayFactory[Psi]): Array[Psi] = {
+    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IScalaElementType, f: ArrayFactory[Psi]): Array[Psi] = {
       def findWithNode(): Array[Psi] = {
         val nodes = SharedImplUtil.getChildrenOfType(element.getNode, elementType)
         val length = nodes.length
@@ -1742,7 +1743,7 @@ package object extensions {
 
     def stubOrPsiChildren: Array[PsiElement] = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
 
-    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IElementType with ScTypedElementType[Stub, Psi]): Option[Psi] = {
+    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: ScStubElementType[Psi]): Option[Psi] = {
       def findWithNode() = {
         val node = Option(element.getNode.findChildByType(elementType))
         node.map(_.getPsi.asInstanceOf[Psi])

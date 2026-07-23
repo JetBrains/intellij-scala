@@ -2,23 +2,19 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScAccessModifierImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAccessModifierStubImpl
 
-class ScAccessModifierElementType extends ScalaStubBasedElementType[ScAccessModifierStub, ScAccessModifier](ScAccessModifierElementType.DebugName) {
+final class ScAccessModifierElementType extends ScStubElementType[ScAccessModifier]("access modifier") {
   override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
 }
 
-object ScAccessModifierElementType {
-  val DebugName = "access modifier"
-}
-
-class ScAccessModifierStubFactory(elementType: IElementType)
-  extends StubSerializingElementFactory[ScAccessModifierStub, ScAccessModifier] {
+final class ScAccessModifierStubFactory(elementType: ScAccessModifierElementType)
+  extends ScStubSerializingElementFactory[ScAccessModifierStub, ScAccessModifier](elementType) {
 
   override def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isProtected)
@@ -34,20 +30,13 @@ class ScAccessModifierStubFactory(elementType: IElementType)
       isThis = dataStream.readBoolean,
       idText = dataStream.readOptionName)
 
-  override def createStub(modifier: ScAccessModifier, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
-    ScStubElementType.Processing.run {
-      new ScAccessModifierStubImpl(parentStub, elementType,
-        isProtected = modifier.isProtected,
-        isPrivate = modifier.isPrivate,
-        isThis = modifier.isThis,
-        idText = modifier.idText)
-    }
+  override def createStubImpl(modifier: ScAccessModifier, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
+    new ScAccessModifierStubImpl(parentStub, elementType,
+      isProtected = modifier.isProtected,
+      isPrivate = modifier.isPrivate,
+      isThis = modifier.isThis,
+      idText = modifier.idText
+    )
 
   override def createPsi(stub: ScAccessModifierStub): ScAccessModifier = new ScAccessModifierImpl(stub)
-
-  override def indexStub(stub: ScAccessModifierStub, sink: IndexSink): Unit = {}
-
-  override def getExternalId: String = s"scala.${ScAccessModifierElementType.DebugName}"
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }

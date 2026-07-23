@@ -1,20 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 package signatures
 
-import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
 
 abstract class ScParamElementType[P <: ScParameter](debugName: String)
-  extends ScalaStubBasedElementType[ScParameterStub, ScParameter](debugName)
+  extends ScStubElementType[ScParameter](debugName)
 
-abstract class ScParamStubFactory(elementType: IElementType)
-  extends StubSerializingElementFactory[ScParameterStub, ScParameter] {
+abstract class ScParamStubFactory[P <: ScParameter](elementType: ScParamElementType[P])
+  extends ScStubSerializingElementFactory[ScParameterStub, ScParameter](elementType) {
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -47,36 +46,33 @@ abstract class ScParamStubFactory(elementType: IElementType)
       implicitClassNames = dataStream.readNames,
     )
 
-  override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
-    ScStubElementType.Processing.run {
-      val typeText = parameter.typeElement.map {
-        _.getText
-      }
-      val (isVal, isVar, implicitClassNames) = parameter match {
-        case parameter: ScClassParameter =>
-          (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
-        case _ => (false, false, EMPTY_STRING_ARRAY)
-      }
-      val defaultExprText = parameter.getActualDefaultExpression.map {
-        _.getText
-      }
-      val isAnonymous = parameter.nameId == null
-
-      new ScParameterStubImpl(parentStub, elementType,
-        name = parameter.name,
-        typeText = typeText,
-        isStable = parameter.isStable,
-        isDefaultParameter = parameter.baseDefaultParam,
-        isRepeated = parameter.isRepeatedParameter,
-        isVal = isVal,
-        isVar = isVar,
-        isCallByNameParameter = parameter.isCallByNameParameter,
-        bodyText = defaultExprText,
-        deprecatedName = parameter.deprecatedName,
-        implicitClassNames = implicitClassNames,
-        isAnonymous = isAnonymous
-      )
+  override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
+    val typeText = parameter.typeElement.map {
+      _.getText
     }
+    val (isVal, isVar, implicitClassNames) = parameter match {
+      case parameter: ScClassParameter =>
+        (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
+      case _ => (false, false, EMPTY_STRING_ARRAY)
+    }
+    val defaultExprText = parameter.getActualDefaultExpression.map {
+      _.getText
+    }
+    val isAnonymous = parameter.nameId == null
 
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
+    new ScParameterStubImpl(parentStub, elementType,
+      name = parameter.name,
+      typeText = typeText,
+      isStable = parameter.isStable,
+      isDefaultParameter = parameter.baseDefaultParam,
+      isRepeated = parameter.isRepeatedParameter,
+      isVal = isVal,
+      isVar = isVar,
+      isCallByNameParameter = parameter.isCallByNameParameter,
+      bodyText = defaultExprText,
+      deprecatedName = parameter.deprecatedName,
+      implicitClassNames = implicitClassNames,
+      isAnonymous = isAnonymous
+    )
+  }
 }

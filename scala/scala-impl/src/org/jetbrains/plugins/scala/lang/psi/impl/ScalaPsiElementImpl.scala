@@ -8,16 +8,17 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTypedElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
   with ScalaPsiElement {
@@ -70,7 +71,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@Nullable stub: S,
-                                                                               nodeType: IElementType with ScTypedElementType[S, T],
+                                                                               nodeType: ScStubElementType[T],
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
     with StubBasedPsiElement[S]
@@ -153,7 +154,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   private def assertFilterMakesSenseForStubs(filter: TokenSet): Unit = {
     if (isUnitTestMode && (filter ne TokenSet.ANY)) {
       val elementTypes = filter.getTypes
-      val nonStubTypes = elementTypes.filterNot(_.isInstanceOf[ScTypedElementType[_, _]])
+      val nonStubTypes = elementTypes.filterNot(_.is[ScStubElementType[_]])
       if (nonStubTypes.nonEmpty)
         throw new IllegalArgumentException(s"Non-stub element types (${nonStubTypes.mkString(", ")}) should not be used in getStubOrPsiChildren")
     }

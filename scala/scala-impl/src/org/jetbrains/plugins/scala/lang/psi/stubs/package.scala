@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.StubElement
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCaptureTypeElement, ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyRefFqn
@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyRefFqn
 package object stubs {
 
   private[stubs] type RawStubElement = StubElement[_ <: PsiElement]
-  private[stubs] type RawStubElementType = IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]
 
   final def classNames(te: ScTypeElement): Array[String] = {
     val allNames = te match {

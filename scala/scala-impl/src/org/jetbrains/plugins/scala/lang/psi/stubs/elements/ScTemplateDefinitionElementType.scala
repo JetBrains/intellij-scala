@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumClassCaseImpl, ScEnumSingletonCaseImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScEnumImpl, ScGivenDefinitionImpl, ScObjectImpl, ScTraitImpl}
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
@@ -24,10 +24,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   debugName: String,
   language: Language = ScalaLanguage.INSTANCE
-) extends ScalaStubBasedElementType[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language)
+) extends ScStubElementType[TypeDef](debugName, language)
 
-abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](elementType: IElementType)
-  extends StubSerializingElementFactory[ScTemplateDefinitionStub[TypeDef], TypeDef] {
+abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](elementType: ScTemplateDefinitionElementType[TypeDef])
+  extends ScStubSerializingElementFactory[ScTemplateDefinitionStub[TypeDef], TypeDef](elementType) {
 
   override def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -55,109 +55,108 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
     new ScTemplateDefinitionStubImpl(
       parentStub,
       elementType,
-      nameRef                               = dataStream.readNameString,
-      getQualifiedName                      = dataStream.readNameString,
-      getSourceFileName                     = dataStream.readNameString,
-      javaName                              = dataStream.readNameString,
-      javaQualifiedName                     = dataStream.readNameString,
-      additionalJavaName                    = dataStream.readOptionName,
-      isPackageObject                       = dataStream.readBoolean,
-      isDeprecated                          = dataStream.readBoolean,
-      isLocal                               = dataStream.readBoolean,
-      isVisibleInJava                       = dataStream.readBoolean,
-      isImplicitObject                      = dataStream.readBoolean,
-      implicitConversionParameterClass      = dataStream.readOptionName,
-      implicitClassNames                    = dataStream.readNames,
-      isTopLevel                            = dataStream.readBoolean,
-      topLevelQualifier                     = dataStream.readOptionName,
-      isGiven                               = dataStream.readBoolean,
-      givenClassNames                       = dataStream.readNames,
-      givenDefinitionParameterText          = dataStream.readUTFFast,
+      nameRef = dataStream.readNameString,
+      getQualifiedName = dataStream.readNameString,
+      getSourceFileName = dataStream.readNameString,
+      javaName = dataStream.readNameString,
+      javaQualifiedName = dataStream.readNameString,
+      additionalJavaName = dataStream.readOptionName,
+      isPackageObject = dataStream.readBoolean,
+      isDeprecated = dataStream.readBoolean,
+      isLocal = dataStream.readBoolean,
+      isVisibleInJava = dataStream.readBoolean,
+      isImplicitObject = dataStream.readBoolean,
+      implicitConversionParameterClass = dataStream.readOptionName,
+      implicitClassNames = dataStream.readNames,
+      isTopLevel = dataStream.readBoolean,
+      topLevelQualifier = dataStream.readOptionName,
+      isGiven = dataStream.readBoolean,
+      givenClassNames = dataStream.readNames,
+      givenDefinitionParameterText = dataStream.readUTFFast,
       enumClassCaseMentionsParentTypeParams = dataStream.readBoolean,
     )
 
-  override def createStub(definition: TypeDef, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] =
-    ScStubElementType.Processing.run {
-      val fileName = definition.containingVirtualFile.map(_.getName).orNull
+  override def createStubImpl(definition: TypeDef, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
+    val fileName = definition.containingVirtualFile.map(_.getName).orNull
 
-      val (isDeprecated, additionalJavaName, isPackageObject) = definition match {
-        case typeDefinition: ScTypeDefinition =>
-          val annotations = definition.getModifierList match {
-            case null => Array.empty
-            case list => list.getAnnotations
-          }
+    val (isDeprecated, additionalJavaName, isPackageObject) = definition match {
+      case typeDefinition: ScTypeDefinition =>
+        val annotations = definition.getModifierList match {
+          case null => Array.empty
+          case list => list.getAnnotations
+        }
 
-          val isScalaDeprecated = annotations.exists {
-            case annotation: ScAnnotation =>
-              val text = annotation.constructorInvocation.typeElement.getText.stripPrefix("_root_.")
-              text == "deprecated" || text == "scala.deprecated"
-            case _ => false
-          }
+        val isScalaDeprecated = annotations.exists {
+          case annotation: ScAnnotation =>
+            val text = annotation.constructorInvocation.typeElement.getText.stripPrefix("_root_.")
+            text == "deprecated" || text == "scala.deprecated"
+          case _ => false
+        }
 
-          (
-            isScalaDeprecated,
-            typeDefinition.additionalClassJavaName,
-            typeDefinition.isPackageObject
-          )
-        case _ =>
-          (false, None, false)
-      }
-
-      val isLocal = definition.containingClass == null &&
-        PsiTreeUtil.getContextOfType(definition, classOf[ScTemplateDefinition], classOf[ScFunctionDefinition]) != null
-
-      val isVisibleInJava = definition.parents.forall {
-        case o: ScObject => !o.isPackageObject
-        case _ => true
-      } && !definition.isInstanceOf[ScEnum]
-
-      val isImplicit = definition.hasModifierPropertyScala("implicit")
-
-      val (isImplicitObject, implicitConversionParamClass, implicitClassNames) = definition match {
-        case obj: ScObject if isImplicit => (true, None, ScImplicitStub.superClassNames(obj))
-        case c: ScClass if isImplicit    => (false, ScImplicitStub.conversionParamClass(c), EMPTY_STRING_ARRAY)
-        case _                           => (false, None, EMPTY_STRING_ARRAY)
-      }
-
-      val (isTopLevel, topLevelQualifier) = definition match {
-        case member: ScMember => (member.isTopLevel, member.topLevelQualifier)
-        case _                => (false, None)
-      }
-
-      val (isGivenDefinition, givenDefinitionClassNames, givenDefinitionParameterText) = definition match {
-        case givenDef: ScGivenDefinitionImpl => (true, ScGivenStub.givenDefinitionClassNames(givenDef), givenDef.parametersText)
-        case _                               => (false, EMPTY_STRING_ARRAY, "")
-      }
-
-      val enumClassCaseMentionsParentTypeParams = definition match {
-        case enumCase: ScEnumClassCase => enumCase.mentionsEnumTypeParameters
-        case _                         => false
-      }
-
-      new ScTemplateDefinitionStubImpl(
-        parent,
-        elementType,
-        nameRef                               = definition.name,
-        getQualifiedName                      = definition.qualifiedName,
-        getSourceFileName                     = fileName,
-        javaName                              = definition.getName,
-        javaQualifiedName                     = definition.getQualifiedName,
-        additionalJavaName                    = additionalJavaName,
-        isPackageObject                       = isPackageObject,
-        isDeprecated                          = isDeprecated,
-        isLocal                               = isLocal,
-        isVisibleInJava                       = isVisibleInJava,
-        isImplicitObject                      = isImplicitObject,
-        implicitConversionParameterClass      = implicitConversionParamClass,
-        implicitClassNames                    = implicitClassNames,
-        isTopLevel                            = isTopLevel,
-        topLevelQualifier                     = topLevelQualifier,
-        isGiven                               = isGivenDefinition,
-        givenClassNames                       = givenDefinitionClassNames,
-        givenDefinitionParameterText          = givenDefinitionParameterText,
-        enumClassCaseMentionsParentTypeParams = enumClassCaseMentionsParentTypeParams,
-      )
+        (
+          isScalaDeprecated,
+          typeDefinition.additionalClassJavaName,
+          typeDefinition.isPackageObject
+        )
+      case _ =>
+        (false, None, false)
     }
+
+    val isLocal = definition.containingClass == null &&
+      PsiTreeUtil.getContextOfType(definition, classOf[ScTemplateDefinition], classOf[ScFunctionDefinition]) != null
+
+    val isVisibleInJava = definition.parents.forall {
+      case o: ScObject => !o.isPackageObject
+      case _ => true
+    } && !definition.isInstanceOf[ScEnum]
+
+    val isImplicit = definition.hasModifierPropertyScala("implicit")
+
+    val (isImplicitObject, implicitConversionParamClass, implicitClassNames) = definition match {
+      case obj: ScObject if isImplicit => (true, None, ScImplicitStub.superClassNames(obj))
+      case c: ScClass if isImplicit => (false, ScImplicitStub.conversionParamClass(c), EMPTY_STRING_ARRAY)
+      case _ => (false, None, EMPTY_STRING_ARRAY)
+    }
+
+    val (isTopLevel, topLevelQualifier) = definition match {
+      case member: ScMember => (member.isTopLevel, member.topLevelQualifier)
+      case _ => (false, None)
+    }
+
+    val (isGivenDefinition, givenDefinitionClassNames, givenDefinitionParameterText) = definition match {
+      case givenDef: ScGivenDefinitionImpl => (true, ScGivenStub.givenDefinitionClassNames(givenDef), givenDef.parametersText)
+      case _ => (false, EMPTY_STRING_ARRAY, "")
+    }
+
+    val enumClassCaseMentionsParentTypeParams = definition match {
+      case enumCase: ScEnumClassCase => enumCase.mentionsEnumTypeParameters
+      case _ => false
+    }
+
+    new ScTemplateDefinitionStubImpl(
+      parent,
+      elementType,
+      nameRef = definition.name,
+      getQualifiedName = definition.qualifiedName,
+      getSourceFileName = fileName,
+      javaName = definition.getName,
+      javaQualifiedName = definition.getQualifiedName,
+      additionalJavaName = additionalJavaName,
+      isPackageObject = isPackageObject,
+      isDeprecated = isDeprecated,
+      isLocal = isLocal,
+      isVisibleInJava = isVisibleInJava,
+      isImplicitObject = isImplicitObject,
+      implicitConversionParameterClass = implicitConversionParamClass,
+      implicitClassNames = implicitClassNames,
+      isTopLevel = isTopLevel,
+      topLevelQualifier = topLevelQualifier,
+      isGiven = isGivenDefinition,
+      givenClassNames = givenDefinitionClassNames,
+      givenDefinitionParameterText = givenDefinitionParameterText,
+      enumClassCaseMentionsParentTypeParams = enumClassCaseMentionsParentTypeParams,
+    )
+  }
 
   override def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
     import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
@@ -225,70 +224,76 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }
 
-class ScClassDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScClass])
-  extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
+final class ScClassDefinitionElementType extends ScTemplateDefinitionElementType[ScClass]("ScClass") {
+  override def createElement(node: ASTNode): ScClass = new ScClassImpl(null, this, node, toString)
+}
+
+final class ScClassDefinitionStubFactory(elementType: ScClassDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScClassImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScClass"
 }
 
-class ScTraitDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScTrait])
-  extends ScTemplateDefinitionStubFactory[ScTrait](elementType) {
+final class ScTraitDefinitionElementType extends ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
+  override def createElement(node: ASTNode): ScTrait = new ScTraitImpl(null, this, node, toString)
+}
+
+final class ScTraitDefinitionStubFactory(elementType: ScTraitDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]): ScTrait =
     new ScTraitImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScTrait"
 }
 
-class ScObjectDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScObject])
-  extends ScTemplateDefinitionStubFactory[ScObject](elementType) {
+final class ScObjectDefinitionElementType extends ScTemplateDefinitionElementType[ScObject]("ScObject") {
+  override def createElement(node: ASTNode): ScObject = new ScObjectImpl(null, this, node, toString)
+}
+
+final class ScObjectDefinitionStubFactory(elementType: ScObjectDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScObject]): ScObject =
     new ScObjectImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScObject"
 }
 
-class ScEnumDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScClass])
-  extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
+final class ScEnumDefinitionElementType extends ScTemplateDefinitionElementType[ScClass]("ScEnum") {
+  override def createElement(node: ASTNode): ScClass = new ScEnumImpl(null, this, node, toString)
+}
+
+final class ScEnumDefinitionStubFactory(elementType: ScEnumDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScEnumImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScEnum"
 }
 
-class ScEnumClassCaseStubFactory(elementType: ScTemplateDefinitionElementType[ScClass])
-  extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
+final class ScEnumClassCaseElementType extends ScTemplateDefinitionElementType[ScClass]("ScEnumClassCase") {
+  override def createElement(node: ASTNode): ScClass = new ScEnumClassCaseImpl(null, this, node, toString)
+}
+
+final class ScEnumClassCaseStubFactory(elementType: ScEnumClassCaseElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScEnumClassCaseImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScEnumClassCase"
 }
 
-class ScEnumSingletonCaseStubFactory(elementType: ScTemplateDefinitionElementType[ScObject])
-  extends ScTemplateDefinitionStubFactory[ScObject](elementType) {
+final class ScEnumSingletonCaseElementType extends ScTemplateDefinitionElementType[ScObject]("ScEnumSingletonCase") {
+  override def createElement(node: ASTNode): ScObject = new ScEnumSingletonCaseImpl(null, this, node, toString)
+}
+
+final class ScEnumSingletonCaseStubFactory(elementType: ScEnumSingletonCaseElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScObject]): ScObject =
     new ScEnumSingletonCaseImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScEnumSingletonCase"
 }
 
-class ScNewTemplateDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScNewTemplateDefinition])
-  extends ScTemplateDefinitionStubFactory[ScNewTemplateDefinition](elementType) {
+final class ScNewTemplateElementType extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
+  override def createElement(node: ASTNode): ScNewTemplateDefinition = new ScNewTemplateDefinitionImpl(null, this, node, toString)
+}
+
+final class ScNewTemplateDefinitionStubFactory(elementType: ScNewTemplateElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]): ScNewTemplateDefinition =
     new ScNewTemplateDefinitionImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScNewTemplateDefinition"
 }
 
-class ScGivenDefinitionStubFactory(elementType: ScTemplateDefinitionElementType[ScGivenDefinition])
-  extends ScTemplateDefinitionStubFactory[ScGivenDefinition](elementType) {
+final class ScGivenDefinitionElementType extends ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
+  override def createElement(node: ASTNode): ScGivenDefinition = new ScGivenDefinitionImpl(null, this, node, toString)
+}
+
+final class ScGivenDefinitionStubFactory(elementType: ScGivenDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition]): ScGivenDefinition =
     new ScGivenDefinitionImpl(stub, elementType, null, elementType.toString)
-
-  override def getExternalId: String = "scala.ScGivenDefinition"
 }

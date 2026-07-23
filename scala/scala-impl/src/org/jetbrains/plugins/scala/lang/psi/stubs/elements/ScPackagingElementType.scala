@@ -2,23 +2,20 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackagingStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-final class ScPackagingElementType extends ScalaStubBasedElementType[ScPackagingStub, ScPackaging](ScPackagingElementType.DebugName) {
+final class ScPackagingElementType extends ScStubElementType[ScPackaging]("packaging") {
   override def createElement(node: ASTNode): ScPackaging = new ScPackagingImpl(node)
 }
 
-object ScPackagingElementType {
-  val DebugName = "packaging"
-}
-
-class ScPackagingStubFactory(elementType: IElementType) extends StubSerializingElementFactory[ScPackagingStub, ScPackaging] {
+final class ScPackagingStubFactory(elementType: ScPackagingElementType)
+  extends ScStubSerializingElementFactory[ScPackagingStub, ScPackaging](elementType) {
 
   override def serialize(stub: ScPackagingStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.packageName)
@@ -35,16 +32,14 @@ class ScPackagingStubFactory(elementType: IElementType) extends StubSerializingE
       isExplicit = dataStream.readBoolean
     )
 
-  override def createStub(packaging: ScPackaging, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
-    ScStubElementType.Processing.run {
-      new ScPackagingStubImpl(
-        parentStub,
-        elementType,
-        packageName = packaging.packageName,
-        parentPackageName = packaging.parentPackageName,
-        isExplicit = packaging.isExplicit
-      )
-    }
+  override def createStubImpl(packaging: ScPackaging, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
+    new ScPackagingStubImpl(
+      parentStub,
+      elementType,
+      packageName = packaging.packageName,
+      parentPackageName = packaging.parentPackageName,
+      isExplicit = packaging.isExplicit
+    )
 
   override def createPsi(stub: ScPackagingStub): ScPackaging = new ScPackagingImpl(stub)
 
@@ -66,8 +61,4 @@ class ScPackagingStubFactory(elementType: IElementType) extends StubSerializingE
       }
     } while (i > 0)
   }
-
-  override def getExternalId: String = s"scala.${ScPackagingElementType.DebugName}"
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }

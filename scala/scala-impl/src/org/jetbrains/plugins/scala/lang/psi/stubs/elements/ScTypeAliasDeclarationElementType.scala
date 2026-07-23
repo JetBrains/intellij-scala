@@ -1,21 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDeclarationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
-class ScTypeAliasDeclarationElementType extends ScTypeAliasElementType[ScTypeAlias](ScTypeAliasDeclarationElementType.DebugName) {
+final class ScTypeAliasDeclarationElementType extends ScTypeAliasElementType("type alias declaration") {
   override def createElement(node: ASTNode): ScTypeAliasDeclaration = new ScTypeAliasDeclarationImpl(node)
 }
 
-object ScTypeAliasDeclarationElementType {
-  val DebugName = "type alias declaration"
-}
-
-class ScTypeAliasDeclarationStubFactory(elementType: IElementType)
-  extends ScTypeAliasStubFactory(elementType, s"scala.${ScTypeAliasDeclarationElementType.DebugName}") {
-
+final class ScTypeAliasDeclarationStubFactory(elementType: ScTypeAliasDeclarationElementType) extends ScTypeAliasStubFactory(elementType) {
   override def createPsi(stub: ScTypeAliasStub): ScTypeAliasDeclaration = new ScTypeAliasDeclarationImpl(stub)
 }

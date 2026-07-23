@@ -2,76 +2,55 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExportStmtStubImpl, ScImportStmtStubImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.TOP_LEVEL_EXPORT_BY_PKG_KEY
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportStmtStub}
 
-abstract sealed class ScImportOrExportStmtElementType[
-  P <: ScImportOrExportStmt,
-  S >: Null <: ScImportOrExportStmtStub[P],
-](
-  debugName: String
-) extends ScalaStubBasedElementType[S, P](debugName)
+abstract sealed class ScImportOrExportStmtElementType[P <: ScImportOrExportStmt](debugName: String)
+  extends ScStubElementType[P](debugName)
 
-class ScImportStmtElementType extends ScImportOrExportStmtElementType[ScImportStmt, ScImportStmtStub](ScImportStmtElementType.DebugName) {
-  override def createElement(node: ASTNode): ScImportStmt = new ScImportStmtImpl(null, null, node, ScImportStmtElementType.DebugName)
+final class ScImportStmtElementType extends ScImportOrExportStmtElementType[ScImportStmt]("ScImportStatement") {
+  override def createElement(node: ASTNode): ScImportStmt = new ScImportStmtImpl(null, null, node, toString)
 }
 
-object ScImportStmtElementType {
-  val DebugName = "ScImportStatement"
-}
-
-class ScImportStmtStubFactory(elementType: ScImportStmtElementType)
-  extends StubSerializingElementFactory[ScImportStmtStub, ScImportStmt] {
+final class ScImportStmtStubFactory(elementType: ScImportStmtElementType)
+  extends ScStubSerializingElementFactory[ScImportStmtStub, ScImportStmt](elementType) {
 
   override def createPsi(stub: ScImportStmtStub): ScImportStmt =
-    new ScImportStmtImpl(stub, elementType, null, ScImportStmtElementType.DebugName)
+    new ScImportStmtImpl(stub, elementType, null, elementType.toString)
 
-  override final def createStub(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
-    ScStubElementType.Processing.run {
-      new ScImportStmtStubImpl(parentStub, elementType, importText = statement.getText)
-    }
+  override def createStubImpl(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+    new ScImportStmtStubImpl(parentStub, elementType, importText = statement.getText)
 
-  override final def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit =
+  override def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit =
     dataStream.writeName(stub.importText)
 
-  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
     new ScImportStmtStubImpl(parentStub, elementType, importText = dataStream.readNameString)
-
-  override def indexStub(stub: ScImportStmtStub, sink: IndexSink): Unit = {}
-
-  override def getExternalId: String = s"scala.${ScImportStmtElementType.DebugName}"
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }
 
-class ScExportStmtElementType extends ScImportOrExportStmtElementType[ScExportStmt, ScExportStmtStub](ScExportStmtElementType.DebugName) {
-  override def createElement(node: ASTNode): ScExportStmt = new ScExportStmtImpl(null, null, node, ScExportStmtElementType.DebugName)
+final class ScExportStmtElementType extends ScImportOrExportStmtElementType[ScExportStmt]("ScExportStatement") {
+  override def createElement(node: ASTNode): ScExportStmt = new ScExportStmtImpl(null, null, node, toString)
 }
 
-object ScExportStmtElementType {
-  val DebugName = "ScExportStatement"
-}
+final class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
+  extends ScStubSerializingElementFactory[ScExportStmtStub, ScExportStmt](elementType) {
 
-class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
-  extends StubSerializingElementFactory[ScExportStmtStub, ScExportStmt] {
-
-  override def createStub(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
-    ScStubElementType.Processing.run {
-      new ScExportStmtStubImpl(
-        parentStub,
-        elementType,
-        importText        = statement.getText,
-        isTopLevel        = statement.isTopLevel,
-        topLevelQualifier = statement.topLevelQualifier
-      )
-    }
+  override def createStubImpl(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
+    new ScExportStmtStubImpl(
+      parentStub,
+      elementType,
+      importText        = statement.getText,
+      isTopLevel        = statement.isTopLevel,
+      topLevelQualifier = statement.topLevelQualifier
+    )
 
   override def createPsi(stub: ScExportStmtStub): ScExportStmt =
-    new ScExportStmtImpl(stub, elementType, null, ScExportStmtElementType.DebugName)
+    new ScExportStmtImpl(stub, elementType, null, elementType.toString)
 
   override def serialize(stub: ScExportStmtStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.importText)
@@ -95,8 +74,4 @@ class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
       )
     }
   }
-
-  override def getExternalId: String = s"scala.${ScExportStmtElementType.DebugName}"
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }

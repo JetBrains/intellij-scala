@@ -1,28 +1,21 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
-import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScTypeAliasStub, classNames}
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScTypeAliasStub, classNames}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * A plain [[ScalaStubBasedElementType]] base for the type alias declaration/definition element types.
- * Shared stub building/serialization/indexing lives in [[ScTypeAliasStubFactory]];
- * concrete factories provide `createPsi` and the external id.
- */
-abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
-  extends ScalaStubBasedElementType[ScTypeAliasStub, ScTypeAlias](debugName)
+abstract class ScTypeAliasElementType(debugName: String) extends ScStubElementType[ScTypeAlias](debugName)
 
-abstract class ScTypeAliasStubFactory(elementType: IElementType, externalId: String)
-  extends StubSerializingElementFactory[ScTypeAliasStub, ScTypeAlias] {
+abstract class ScTypeAliasStubFactory(elementType: ScTypeAliasElementType)
+  extends ScStubSerializingElementFactory[ScTypeAliasStub, ScTypeAlias](elementType) {
 
   override def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -57,59 +50,58 @@ abstract class ScTypeAliasStubFactory(elementType: IElementType, externalId: Str
       classType          = dataStream.readOptionName
     )
 
-  override def createStub(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub =
-    ScStubElementType.Processing.run {
-      val maybeAlias = Option(alias)
+  override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
+    val maybeAlias = Option(alias)
 
-      val aliasedTypeText = maybeAlias.collect {
-        case definition: ScTypeAliasDefinition => definition
-      }.flatMap {
-        _.aliasedTypeElement
-      }.map {
-        _.getText
-      }
-
-      val maybeDeclaration = maybeAlias.collect {
-        case declaration: ScTypeAliasDeclaration => declaration
-      }
-      val lowerBoundText = maybeAlias.flatMap {
-        _.lowerTypeElement
-      }.map {
-        _.getText
-      }
-      val upperBoundText = maybeAlias.flatMap {
-        _.upperTypeElement
-      }.map {
-        _.getText
-      }
-
-      val maybeContainingClass = maybeAlias.map(_.containingClass)
-
-      val stableQualifier = maybeContainingClass.collect {
-        case obj: ScObject if ScalaPsiUtil.hasStablePath(alias) =>
-          obj.qualifiedName + "." + alias.name
-      }
-
-      val classTypeFull = getClassType(alias)
-      //org.example.ClassName -> ClassName
-      val classTypeShort = classTypeFull.map(t => t.substring(t.lastIndexOf(".") + 1, t.length))
-      new ScTypeAliasStubImpl(
-        parentStub,
-        elementType,
-        name               = alias.name,
-        typeText           = aliasedTypeText,
-        lowerBoundText     = lowerBoundText,
-        upperBoundText     = upperBoundText,
-        contextBoundsTexts = alias.contextBounds.asStrings(),
-        isLocal            = maybeContainingClass.isEmpty,
-        isDeclaration      = maybeDeclaration.isDefined,
-        isStableQualifier  = stableQualifier.isDefined,
-        stableQualifier    = stableQualifier,
-        isTopLevel         = alias.isTopLevel,
-        topLevelQualifier  = alias.topLevelQualifier,
-        classType          = classTypeShort
-      )
+    val aliasedTypeText = maybeAlias.collect {
+      case definition: ScTypeAliasDefinition => definition
+    }.flatMap {
+      _.aliasedTypeElement
+    }.map {
+      _.getText
     }
+
+    val maybeDeclaration = maybeAlias.collect {
+      case declaration: ScTypeAliasDeclaration => declaration
+    }
+    val lowerBoundText = maybeAlias.flatMap {
+      _.lowerTypeElement
+    }.map {
+      _.getText
+    }
+    val upperBoundText = maybeAlias.flatMap {
+      _.upperTypeElement
+    }.map {
+      _.getText
+    }
+
+    val maybeContainingClass = maybeAlias.map(_.containingClass)
+
+    val stableQualifier = maybeContainingClass.collect {
+      case obj: ScObject if ScalaPsiUtil.hasStablePath(alias) =>
+        obj.qualifiedName + "." + alias.name
+    }
+
+    val classTypeFull = getClassType(alias)
+    //org.example.ClassName -> ClassName
+    val classTypeShort = classTypeFull.map(t => t.substring(t.lastIndexOf(".") + 1, t.length))
+    new ScTypeAliasStubImpl(
+      parentStub,
+      elementType,
+      name               = alias.name,
+      typeText           = aliasedTypeText,
+      lowerBoundText     = lowerBoundText,
+      upperBoundText     = upperBoundText,
+      contextBoundsTexts = alias.contextBounds.asStrings(),
+      isLocal            = maybeContainingClass.isEmpty,
+      isDeclaration      = maybeDeclaration.isDefined,
+      isStableQualifier  = stableQualifier.isDefined,
+      stableQualifier    = stableQualifier,
+      isTopLevel         = alias.isTopLevel,
+      topLevelQualifier  = alias.topLevelQualifier,
+      classType          = classTypeShort
+    )
+  }
 
   override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
     val name = stub.getName
@@ -139,10 +131,6 @@ abstract class ScTypeAliasStubFactory(elementType: IElementType, externalId: Str
       sink.occurrence(ScalaIndexKeys.ALIASED_CLASS_NAME_KEY, _)
     }
   }
-
-  override def getExternalId: String = externalId
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 
   private def getClassType(ta: ScTypeAlias): Option[String] = ta match {
     case td: ScTypeAliasDefinition =>

@@ -6,7 +6,7 @@ import com.intellij.psi.stubs.LanguageStubDefinition
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaParserDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
-abstract class ScalaLanguageStubDefinitionBase(fileType: ScStubFileElementType) extends LanguageStubDefinition {
+abstract class ScalaLanguageStubDefinitionBase[FileType <: ScStubFileElementType](fileType: FileType) extends LanguageStubDefinition {
   override def getStubVersion: Int = fileType.stubVersion
 
   override def getBuilder: StubBuilder = fileType.stubBuilder

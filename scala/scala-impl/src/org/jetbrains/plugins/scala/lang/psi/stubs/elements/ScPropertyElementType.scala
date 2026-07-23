@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScPropertyStub, classNames}
 
 sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: String)
-  extends ScalaStubBasedElementType[ScPropertyStub[P], P](debugName)
+  extends ScStubElementType[P](debugName)
 
-sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType: IElementType)
-  extends StubSerializingElementFactory[ScPropertyStub[P], P] {
+sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType: ScPropertyElementType[P])
+  extends ScStubSerializingElementFactory[ScPropertyStub[P], P](elementType) {
 
   override final def serialize(stub: ScPropertyStub[P], dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isDeclaration)
@@ -43,22 +43,20 @@ sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType:
       topLevelQualifier = dataStream.readOptionName
     )
 
-  override final def createStub(property: P, parentStub: StubElement[_ <: PsiElement]): ScPropertyStub[P] =
-    ScStubElementType.Processing.run {
-      new ScPropertyStubImpl(
-        parentStub,
-        elementType,
-        isDeclaration     = property.isInstanceOf[ScVariableDeclaration],
-        isImplicit        = property.hasModifierProperty("implicit"),
-        names             = property.declaredNames.toArray,
-        typeText          = property.typeElement.map(_.getText),
-        bodyText          = body(property).map(_.getText),
-        isLocal           = property.containingClass == null,
-        classNames        = property.typeElement.toArray.flatMap(classNames),
-        isTopLevel        = property.isTopLevel,
-        topLevelQualifier = property.topLevelQualifier
-      )
-    }
+  override final def createStubImpl(property: P, parentStub: StubElement[_ <: PsiElement]): ScPropertyStub[P] =
+    new ScPropertyStubImpl(
+      parentStub,
+      elementType,
+      isDeclaration     = property.isInstanceOf[ScVariableDeclaration],
+      isImplicit        = property.hasModifierProperty("implicit"),
+      names             = property.declaredNames.toArray,
+      typeText          = property.typeElement.map(_.getText),
+      bodyText          = body(property).map(_.getText),
+      isLocal           = property.containingClass == null,
+      classNames        = property.typeElement.toArray.flatMap(classNames),
+      isTopLevel        = property.isTopLevel,
+      topLevelQualifier = property.topLevelQualifier
+    )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
@@ -74,75 +72,49 @@ sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType:
     stub.indexImplicits(sink)
   }
 
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
-
   protected def body(property: P): Option[ScExpression] = None
 }
 
-final class ValueDeclaration extends ScPropertyElementType[ScValueDeclaration](ValueDeclaration.DebugName) {
+final class ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value declaration") {
   override def createElement(node: ASTNode): ScValueDeclaration = new ScValueDeclarationImpl(null, null, node)
 }
 
-object ValueDeclaration {
-  val DebugName = "value declaration"
-}
-
-class ScValueDeclarationStubFactory(elementType: ScPropertyElementType[ScValueDeclaration])
+final class ScValueDeclarationStubFactory(elementType: ValueDeclaration)
   extends ScPropertyStubFactory[ScValueDeclaration](elementType) {
   override def createPsi(stub: ScPropertyStub[ScValueDeclaration]): ScValueDeclaration =
     new ScValueDeclarationImpl(stub, elementType, null)
-
-  override def getExternalId: String = s"scala.${ValueDeclaration.DebugName}"
 }
 
-final class ValueDefinition extends ScPropertyElementType[ScPatternDefinition](ValueDefinition.DebugName) {
+final class ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value definition") {
   override def createElement(node: ASTNode): ScPatternDefinition = new ScPatternDefinitionImpl(null, null, node)
 }
 
-object ValueDefinition {
-  val DebugName = "value definition"
-}
-
-class ScValueDefinitionStubFactory(elementType: ScPropertyElementType[ScPatternDefinition])
+final class ScValueDefinitionStubFactory(elementType: ValueDefinition)
   extends ScPropertyStubFactory[ScPatternDefinition](elementType) {
   override def createPsi(stub: ScPropertyStub[ScPatternDefinition]): ScPatternDefinition =
     new ScPatternDefinitionImpl(stub, elementType, null)
 
   override protected def body(property: ScPatternDefinition): Option[ScExpression] = property.expr
-
-  override def getExternalId: String = s"scala.${ValueDefinition.DebugName}"
 }
 
-final class VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration](VariableDeclaration.DebugName) {
+final class VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration]("variable declaration") {
   override def createElement(node: ASTNode): ScVariableDeclaration = new ScVariableDeclarationImpl(null, null, node)
 }
 
-object VariableDeclaration {
-  val DebugName = "variable declaration"
-}
-
-class ScVariableDeclarationStubFactory(elementType: ScPropertyElementType[ScVariableDeclaration])
+final class ScVariableDeclarationStubFactory(elementType: VariableDeclaration)
   extends ScPropertyStubFactory[ScVariableDeclaration](elementType) {
   override def createPsi(stub: ScPropertyStub[ScVariableDeclaration]): ScVariableDeclaration =
     new ScVariableDeclarationImpl(stub, elementType, null)
-
-  override def getExternalId: String = s"scala.${VariableDeclaration.DebugName}"
 }
 
-final class VariableDefinition extends ScPropertyElementType[ScVariableDefinition](VariableDefinition.DebugName) {
+final class VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("variable definition") {
   override def createElement(node: ASTNode): ScVariableDefinition = new ScVariableDefinitionImpl(null, null, node)
 }
 
-object VariableDefinition {
-  val DebugName = "variable definition"
-}
-
-class ScVariableDefinitionStubFactory(elementType: ScPropertyElementType[ScVariableDefinition])
+final class ScVariableDefinitionStubFactory(elementType: VariableDefinition)
   extends ScPropertyStubFactory[ScVariableDefinition](elementType) {
   override def createPsi(stub: ScPropertyStub[ScVariableDefinition]): ScVariableDefinition =
     new ScVariableDefinitionImpl(stub, elementType, null)
 
   override protected def body(property: ScVariableDefinition): Option[ScExpression] = property.expr
-
-  override def getExternalId: String = s"scala.${VariableDefinition.DebugName}"
 }

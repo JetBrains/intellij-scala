@@ -70,7 +70,7 @@ abstract sealed class ScImportOrExportImpl[
   Stub >: Null <: ScImportOrExportStmtStub[Psi]
 ](
   stub: Stub,
-  nodeType: ScImportOrExportStmtElementType[Psi, Stub],
+  nodeType: ScImportOrExportStmtElementType[Psi],
   node: ASTNode,
   override val toString: String
 ) extends ScalaStubBasedElementImpl(stub, nodeType, node)

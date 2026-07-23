@@ -2,28 +2,20 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
-/**
- * A plain [[ScalaStubBasedElementType]] that only creates PSI from AST.
- * Stub building/serialization lives in [[ScSelfTypeElementStubFactory]]
- */
-class ScSelfTypeElementElementType
-  extends ScalaStubBasedElementType[ScSelfTypeElementStub, ScSelfTypeElement](ScSelfTypeElementElementType.DebugName) {
+final class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElement]("self type element") {
   override def createElement(node: ASTNode) = new ScSelfTypeElementImpl(node)
 }
 
-object ScSelfTypeElementElementType {
-  val DebugName = "self type element"
-}
-
-class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementType)
-  extends StubSerializingElementFactory[ScSelfTypeElementStub, ScSelfTypeElement] {
+final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementType)
+  extends ScStubSerializingElementFactory[ScSelfTypeElementStub, ScSelfTypeElement](elementType) {
 
   override def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -40,25 +32,18 @@ class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementType)
       classNames = dataStream.readNames
     )
 
-  override def createStub(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
-    ScStubElementType.Processing.run {
-      new ScSelfTypeElementStubImpl(
-        parentStub,
-        elementType,
-        name = typeElement.name,
-        typeText = typeElement.typeElement.map(_.getText),
-        classNames = typeElement.classNames
-      )
-    }
+  override def createStubImpl(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
+    new ScSelfTypeElementStubImpl(
+      parentStub,
+      elementType,
+      name = typeElement.name,
+      typeText = typeElement.typeElement.map(_.getText),
+      classNames = typeElement.classNames
+    )
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
     sink.occurrences(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
   }
 
   override def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = new ScSelfTypeElementImpl(stub)
-
-  // Preserves the former `getLanguage.getDisplayName.toLowerCase + "." + debugName` external id.
-  override def getExternalId: String = s"scala.${ScSelfTypeElementElementType.DebugName}"
-
-  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }
