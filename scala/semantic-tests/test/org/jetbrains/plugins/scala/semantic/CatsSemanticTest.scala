@@ -723,7 +723,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.effect.unsafe.StripedHashtable
     //cats.effect.unsafe.ThreadSafeHashtable
     //cats.effect.unsafe.TimerHeap
-    //cats.effect.unsafe.UnsafeNonFatal
+    cats.effect.unsafe.UnsafeNonFatal
     cats.effect.unsafe.UnsealedPollingContext
     //cats.effect.unsafe.WeakBag
     //cats.effect.unsafe.WeakList
@@ -1038,7 +1038,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.DurationGroup
     //cats.kernel.instances.DurationInstances
     //cats.kernel.instances.DurationOrder
-    //cats.kernel.instances.EitherEq
+    cats.kernel.instances.EitherEq
     //cats.kernel.instances.EitherHash
     //cats.kernel.instances.EitherInstances
     //cats.kernel.instances.EitherInstances0
@@ -1096,15 +1096,15 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.MapInstances1
     //cats.kernel.instances.MapMonoid
     cats.kernel.instances.OptionCommutativeMonoid
-    //cats.kernel.instances.OptionEq
-    //cats.kernel.instances.OptionHash
+    cats.kernel.instances.OptionEq
+    cats.kernel.instances.OptionHash
     //cats.kernel.instances.OptionInstances
     //cats.kernel.instances.OptionInstances0
     //cats.kernel.instances.OptionInstances1
     //cats.kernel.instances.OptionInstances2
-    //cats.kernel.instances.OptionMonoid
-    //cats.kernel.instances.OptionOrder
-    //cats.kernel.instances.OptionPartialOrder
+    cats.kernel.instances.OptionMonoid
+    cats.kernel.instances.OptionOrder
+    cats.kernel.instances.OptionPartialOrder
     cats.kernel.instances.OrderInstances
     cats.kernel.instances.PartialOrderInstances
     //cats.kernel.instances.QueueEq

@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScBindingPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
@@ -310,10 +310,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case _: ScWildcardPattern => "_"
     case p: ScNamingPattern => p.name + " @ " + textOfPattern(p.named)
     case p: ScLiteralPattern => textOfExpression(p.getLiteral, "")
-    case p: ScTuplePattern => "(" + p.patternList.get.patterns.map(textOfPattern).mkString(", ") + ")"
+    case p: ScStableReferencePattern => p.referenceExpression.map(textOfExpression(_, "")).getOrElse("")
+    case p: ScTuplePattern => "(" + p.patternList.map(_.patterns.map(textOfPattern).mkString(", ")).getOrElse("") + ")"
     case p: ScTypedPattern => p.name + ": " + textOf(p.`type`())
+    case p: Sc3TypedPattern => textOfPattern(p.pattern) + ": " + textOf(p.`type`())
     case p: ScReferencePattern => p.name
     case p: ScExtractorPattern => textOfReference(p.ref) + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
+    case p: ScCompositePattern => "(" + p.subpatterns.map(textOfPattern).mkString(" | ") + ")"
     case _ => "<pattern>"
   }
 

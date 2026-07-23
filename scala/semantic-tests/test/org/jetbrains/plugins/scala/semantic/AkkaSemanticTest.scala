@@ -40,7 +40,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.ActorPathExtractor
     akka.actor.ActorPaths
     //akka.actor.ActorRef
-    //akka.actor.ActorRefFactory
+    akka.actor.ActorRefFactory
     akka.actor.ActorRefProvider
     akka.actor.ActorRefScope
     akka.actor.ActorRefWithCell
@@ -161,7 +161,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.UnstartedCell
     //akka.actor.UntypedAbstractActor
     //akka.actor.VirtualPathContainer
-    //akka.actor.WrappedMessage
+    akka.actor.WrappedMessage
     //akka.actor.dungeon.Children
     //akka.actor.dungeon.ChildrenContainer
     //akka.actor.dungeon.DeathWatch
@@ -782,7 +782,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.javadsl.model.SslSessionInfo
     //akka.http.javadsl.model.Trailer
     //akka.http.javadsl.model.ws.BinaryMessage
-    //akka.http.javadsl.model.ws.Message
+    akka.http.javadsl.model.ws.Message
     akka.http.javadsl.model.ws.PeerClosedConnectionException
     //akka.http.javadsl.model.ws.TextMessage
     //akka.http.javadsl.model.ws.UpgradeToWebSocket
@@ -1299,7 +1299,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.Inet
     //akka.io.InetAddressDnsProvider
     //akka.io.InetAddressDnsResolver
-    //akka.io.IpVersionSelector
+    akka.io.IpVersionSelector
     akka.io.PeriodicCacheCleanup
     //akka.io.SelectionHandler
     //akka.io.SelectionHandlerSettings
@@ -1819,7 +1819,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.RemoveRoutee
     //akka.routing.ResizablePoolActor
     //akka.routing.ResizablePoolCell
-    //akka.routing.Resizer
+    akka.routing.Resizer
     akka.routing.ResizerInitializationException
     //akka.routing.RoundRobinGroup
     //akka.routing.RoundRobinPool

@@ -26,7 +26,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.BeforeAndAfterEachTestData
     //org.scalatest.CancelAfterFailure
     //org.scalatest.Canceled
-    //org.scalatest.CatchReporter
+    org.scalatest.CatchReporter
     //org.scalatest.Checkpoints
     //org.scalatest.CompleteLastly
     //org.scalatest.CompositeStatus
@@ -75,7 +75,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.InsertionOrderSet
     //org.scalatest.Inside
     //org.scalatest.Inspectors
-    //org.scalatest.InspectorsHelper
+    org.scalatest.InspectorsHelper
     //org.scalatest.JSuite
     //org.scalatest.LinkedBlockingQueue
     //org.scalatest.LoneElement
@@ -125,7 +125,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Stepwise
     //org.scalatest.StepwiseNestedSuiteExecution
     //org.scalatest.StopOnFailure
-    //org.scalatest.StopOnFailureReporter
+    org.scalatest.StopOnFailureReporter
     //org.scalatest.Stopper
     //org.scalatest.StreamlinedXmlEquality
     //org.scalatest.StreamlinedXmlNormMethods
@@ -150,7 +150,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Tracker
     //org.scalatest.Transformer
     //org.scalatest.TryValues
-    //org.scalatest.UnquotedString
+    org.scalatest.UnquotedString
     //org.scalatest.WrapperCatchReporter
     //org.scalatest.run
     //org.scalatest.concurrent.AbstractPatienceConfiguration
