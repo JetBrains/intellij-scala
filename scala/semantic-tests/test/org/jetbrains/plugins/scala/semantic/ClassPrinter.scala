@@ -199,7 +199,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOfExpression(e: ScExpression, indent: String): String = {
     val text = e match {
-      case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
+      case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
+        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
+        "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case u: ScUnitExpr => "()"
