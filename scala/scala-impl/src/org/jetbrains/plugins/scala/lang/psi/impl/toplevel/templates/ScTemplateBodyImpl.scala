@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 
-import scala.annotation.nowarn
-
 class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
     with ScTemplateBody {
@@ -36,7 +34,6 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
   override def aliases: Seq[ScTypeAlias] =
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def cases: Seq[ScEnumCases] =
     getStubOrPsiChildren(EnumCases, ScEnumCasesFactory).toSeq
 

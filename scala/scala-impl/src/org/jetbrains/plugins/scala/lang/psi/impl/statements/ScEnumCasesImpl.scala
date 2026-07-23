@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScEnumCasesElementTyp
 
 final class ScEnumCasesImpl(
   stub: ScEnumCasesStub,
-  nodeType: ScEnumCasesElementType.type,
+  nodeType: ScEnumCasesElementType,
   node: ASTNode
 ) extends ScalaStubBasedElementImpl(stub, nodeType, node)
   with ScEnumCases {

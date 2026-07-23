@@ -1,14 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 package signatures
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
-abstract class ScParamElementType[P <: ScParameter](debugName: String) extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
+abstract class ScParamElementType[P <: ScParameter](debugName: String)
+  extends ScalaStubBasedElementType[ScParameterStub, ScParameter](debugName)
+
+abstract class ScParamStubFactory(elementType: IElementType)
+  extends StubSerializingElementFactory[ScParameterStub, ScParameter] {
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -26,7 +32,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
-    new ScParameterStubImpl(parentStub, this,
+    new ScParameterStubImpl(parentStub, elementType,
       name = dataStream.readNameString,
       typeText = dataStream.readOptionName,
       isStable = dataStream.readBoolean,
@@ -41,33 +47,36 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       implicitClassNames = dataStream.readNames,
     )
 
-  override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
-    val typeText = parameter.typeElement.map {
-      _.getText
-    }
-    val (isVal, isVar, implicitClassNames) = parameter match {
-      case parameter: ScClassParameter =>
-        (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
-      case _ => (false, false, EMPTY_STRING_ARRAY)
-    }
-    val defaultExprText = parameter.getActualDefaultExpression.map {
-      _.getText
-    }
-    val isAnonymous = parameter.nameId == null
+  override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
+    ScStubElementType.Processing.run {
+      val typeText = parameter.typeElement.map {
+        _.getText
+      }
+      val (isVal, isVar, implicitClassNames) = parameter match {
+        case parameter: ScClassParameter =>
+          (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
+        case _ => (false, false, EMPTY_STRING_ARRAY)
+      }
+      val defaultExprText = parameter.getActualDefaultExpression.map {
+        _.getText
+      }
+      val isAnonymous = parameter.nameId == null
 
-    new ScParameterStubImpl(parentStub, this,
-      name = parameter.name,
-      typeText = typeText,
-      isStable = parameter.isStable,
-      isDefaultParameter = parameter.baseDefaultParam,
-      isRepeated = parameter.isRepeatedParameter,
-      isVal = isVal,
-      isVar = isVar,
-      isCallByNameParameter = parameter.isCallByNameParameter,
-      bodyText = defaultExprText,
-      deprecatedName = parameter.deprecatedName,
-      implicitClassNames = implicitClassNames,
-      isAnonymous = isAnonymous
-    )
-  }
+      new ScParameterStubImpl(parentStub, elementType,
+        name = parameter.name,
+        typeText = typeText,
+        isStable = parameter.isStable,
+        isDefaultParameter = parameter.baseDefaultParam,
+        isRepeated = parameter.isRepeatedParameter,
+        isVal = isVal,
+        isVar = isVar,
+        isCallByNameParameter = parameter.isCallByNameParameter,
+        bodyText = defaultExprText,
+        deprecatedName = parameter.deprecatedName,
+        implicitClassNames = implicitClassNames,
+        isAnonymous = isAnonymous
+      )
+    }
+
+  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }

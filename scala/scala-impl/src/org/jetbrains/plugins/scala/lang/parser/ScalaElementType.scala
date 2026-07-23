@@ -121,7 +121,7 @@ object ScalaElementType {
       new ScEnumSingletonCaseImpl(stub, nodeType, node, debugName)
   }
 
-  val EnumCases = ScEnumCasesElementType
+  val EnumCases = new ScEnumCasesElementType
 
   val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
 

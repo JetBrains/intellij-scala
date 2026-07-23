@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExportStmtStubImpl, ScImportStmtStubImpl}
@@ -14,58 +14,89 @@ abstract sealed class ScImportOrExportStmtElementType[
   S >: Null <: ScImportOrExportStmtStub[P],
 ](
   debugName: String
-) extends ScStubElementType.Impl[S, P](debugName)
+) extends ScalaStubBasedElementType[S, P](debugName)
 
-class ScImportStmtElementType extends ScImportOrExportStmtElementType[ScImportStmt, ScImportStmtStub]("ScImportStatement") {
+class ScImportStmtElementType extends ScImportOrExportStmtElementType[ScImportStmt, ScImportStmtStub](ScImportStmtElementType.DebugName) {
+  override def createElement(node: ASTNode): ScImportStmt = new ScImportStmtImpl(null, null, node, ScImportStmtElementType.DebugName)
+}
 
-  override protected def createPsi(stub: ScImportStmtStub, nodeType: this.type, node: ASTNode, debugName: String) =
-    new ScImportStmtImpl(stub, nodeType, node, debugName)
+object ScImportStmtElementType {
+  val DebugName = "ScImportStatement"
+}
 
-  override final def createStubImpl(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]) =
-    new ScImportStmtStubImpl(parentStub, this, importText = statement.getText)
+class ScImportStmtStubFactory(elementType: ScImportStmtElementType)
+  extends StubSerializingElementFactory[ScImportStmtStub, ScImportStmt] {
+
+  override def createPsi(stub: ScImportStmtStub): ScImportStmt =
+    new ScImportStmtImpl(stub, elementType, null, ScImportStmtElementType.DebugName)
+
+  override final def createStub(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+    ScStubElementType.Processing.run {
+      new ScImportStmtStubImpl(parentStub, elementType, importText = statement.getText)
+    }
 
   override final def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit =
     dataStream.writeName(stub.importText)
 
-  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
-    new ScImportStmtStubImpl(parentStub, this, importText = dataStream.readNameString)
+  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+    new ScImportStmtStubImpl(parentStub, elementType, importText = dataStream.readNameString)
+
+  override def indexStub(stub: ScImportStmtStub, sink: IndexSink): Unit = {}
+
+  override def getExternalId: String = s"scala.${ScImportStmtElementType.DebugName}"
+
+  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }
 
-class ScExportStmtElementType extends ScImportOrExportStmtElementType[ScExportStmt, ScExportStmtStub]("ScExportStatement") {
+class ScExportStmtElementType extends ScImportOrExportStmtElementType[ScExportStmt, ScExportStmtStub](ScExportStmtElementType.DebugName) {
+  override def createElement(node: ASTNode): ScExportStmt = new ScExportStmtImpl(null, null, node, ScExportStmtElementType.DebugName)
+}
 
-  override protected def createPsi(stub: ScExportStmtStub, nodeType: this.type, node: ASTNode, debugName: String) =
-    new ScExportStmtImpl(stub, nodeType, node, debugName)
+object ScExportStmtElementType {
+  val DebugName = "ScExportStatement"
+}
 
-  override final def createStubImpl(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]) =
-    new ScExportStmtStubImpl(
-      parentStub,
-      this,
-      importText        = statement.getText,
-      isTopLevel        = statement.isTopLevel,
-      topLevelQualifier = statement.topLevelQualifier
-    )
+class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
+  extends StubSerializingElementFactory[ScExportStmtStub, ScExportStmt] {
 
-  override final def serialize(stub: ScExportStmtStub, dataStream: StubOutputStream): Unit = {
+  override def createStub(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
+    ScStubElementType.Processing.run {
+      new ScExportStmtStubImpl(
+        parentStub,
+        elementType,
+        importText        = statement.getText,
+        isTopLevel        = statement.isTopLevel,
+        topLevelQualifier = statement.topLevelQualifier
+      )
+    }
+
+  override def createPsi(stub: ScExportStmtStub): ScExportStmt =
+    new ScExportStmtImpl(stub, elementType, null, ScExportStmtElementType.DebugName)
+
+  override def serialize(stub: ScExportStmtStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.importText)
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
     new ScExportStmtStubImpl(
       parentStub,
-      this,
+      elementType,
       importText        = dataStream.readNameString,
       isTopLevel        = dataStream.readBoolean,
       topLevelQualifier = dataStream.readOptionName
     )
 
   override def indexStub(stub: ScExportStmtStub, sink: IndexSink): Unit = {
-    stub.getParentStub
     if (stub.isTopLevel) {
       stub.topLevelQualifier.foreach(qual =>
         sink.occurrence(TOP_LEVEL_EXPORT_BY_PKG_KEY, qual)
       )
     }
   }
+
+  override def getExternalId: String = s"scala.${ScExportStmtElementType.DebugName}"
+
+  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }

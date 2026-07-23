@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.util.EnumSet
 import org.jetbrains.plugins.scala.util.EnumSet._
 
-import scala.annotation.nowarn
-
 class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.MODIFIERS, node) with ScModifierList {
 
@@ -73,7 +71,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   }
 
   override def accessModifier: Option[ScAccessModifier] = Option {
-    getStubOrPsiChild(ScalaElementType.ACCESS_MODIFIER): @nowarn("cat=deprecation") // IJPL-562
+    getStubOrPsiChild(ScalaElementType.ACCESS_MODIFIER, classOf[ScAccessModifier])
   }
 
   override def setModifierProperty(name: String, value: Boolean): Unit = {

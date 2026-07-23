@@ -5,6 +5,7 @@ import com.intellij.psi.stubs.{ObjectStubSerializer, StubElement, StubRegistry, 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaElementType, ScalaParserDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
 
 /**
  * Registers Scala's stub serializers/factories independently of the element types, so that element
@@ -55,6 +56,17 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
     registerStubSerializingFactory(registry, ScalaElementType.PATTERN_DEFINITION, new ScValueDefinitionStubFactory(ScalaElementType.PATTERN_DEFINITION))
     registerStubSerializingFactory(registry, ScalaElementType.VARIABLE_DECLARATION, new ScVariableDeclarationStubFactory(ScalaElementType.VARIABLE_DECLARATION))
     registerStubSerializingFactory(registry, ScalaElementType.VARIABLE_DEFINITION, new ScVariableDefinitionStubFactory(ScalaElementType.VARIABLE_DEFINITION))
+    registerStubSerializingFactory(registry, ScalaElementType.ACCESS_MODIFIER, new ScAccessModifierStubFactory(ScalaElementType.ACCESS_MODIFIER))
+    registerStubSerializingFactory(registry, ScalaElementType.ImportStatement, new ScImportStmtStubFactory(ScalaElementType.ImportStatement))
+    registerStubSerializingFactory(registry, ScalaElementType.ExportStatement, new ScExportStmtStubFactory(ScalaElementType.ExportStatement))
+    registerStubSerializingFactory(registry, ScalaElementType.EnumCases, new ScEnumCasesStubFactory(ScalaElementType.EnumCases))
+    registerStubSerializingFactory(registry, ScalaElementType.PRIMARY_CONSTRUCTOR, new ScPrimaryConstructorStubFactory(ScalaElementType.PRIMARY_CONSTRUCTOR))
+    registerStubSerializingFactory(registry, ScalaElementType.PARAM, new ScParameterStubFactory(ScalaElementType.PARAM))
+    registerStubSerializingFactory(registry, ScalaElementType.CLASS_PARAM, new ScClassParameterStubFactory(ScalaElementType.CLASS_PARAM))
+    registerStubSerializingFactory(registry, ScalaElementType.PARAM_CLAUSE, new ScParamClauseStubFactory(ScalaElementType.PARAM_CLAUSE))
+    registerStubSerializingFactory(registry, ScalaElementType.PARAM_CLAUSES, new ScParamClausesStubFactory(ScalaElementType.PARAM_CLAUSES))
+    registerStubSerializingFactory(registry, ScalaElementType.TYPE_PARAM, new ScTypeParamStubFactory(ScalaElementType.TYPE_PARAM))
+    registerStubSerializingFactory(registry, ScalaElementType.TYPE_PARAM_CLAUSE, new ScTypeParamClauseStubFactory(ScalaElementType.TYPE_PARAM_CLAUSE))
   }
 }
 

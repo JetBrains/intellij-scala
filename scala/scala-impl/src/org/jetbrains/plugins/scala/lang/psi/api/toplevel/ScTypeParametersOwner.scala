@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClausesOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import scala.annotation.nowarn
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
 
@@ -44,7 +43,8 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
    */
   def leadingTypeParametersClause: Option[ScTypeParamClause] = {
     this.withGreenStub(
-      stub => Option(stub.findChildStubByType(ScalaElementType.TYPE_PARAM_CLAUSE)).map(_.getPsi): @nowarn("cat=deprecation"),
+      stub => Option(stub.findChildStubByElementType(ScalaElementType.TYPE_PARAM_CLAUSE))
+        .map(_.getPsi.asInstanceOf[ScTypeParamClause]),
       () => Option(getNode).flatMap(_ => findChild[ScTypeParamClause])
     )
   }
