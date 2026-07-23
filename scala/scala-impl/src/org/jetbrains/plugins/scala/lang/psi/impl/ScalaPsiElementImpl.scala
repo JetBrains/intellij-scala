@@ -7,7 +7,7 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
@@ -81,6 +81,11 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
 
   @nowarn("cat=deprecation") // IJPL-562
   override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = super.getElementType
+
+  // SCL-23400: the frontend-safe element-type accessor. Unlike the deprecated getElementType (which
+  // throws for non-IStubElementType element types), this returns the raw element type via the platform's
+  // getElementTypeImpl, so it also works once element types are migrated to plain IElementTypes.
+  override def getIElementType: IElementType = getElementTypeImpl
 
   override def getStartOffsetInParent: Int = this.child match {
     case null => super.getStartOffsetInParent
