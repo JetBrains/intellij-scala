@@ -970,6 +970,8 @@ object SourceCode {
       this += highlightValDef(" =>")
       indented {
         caseDef.rhs match {
+          case Block(Nil, Literal(UnitConstant())) =>
+            this
           case Block(stats, expr) =>
             printStats(stats, expr)(using None)
           case body =>
