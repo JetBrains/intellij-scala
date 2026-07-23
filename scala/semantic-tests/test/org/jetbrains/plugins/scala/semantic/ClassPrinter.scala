@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
@@ -200,6 +200,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOfExpression(e: ScExpression, indent: String): String = {
     val text = e match {
       case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") + "\n" + indent + "  " + "}"
+      case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case u: ScUnitExpr => "()"
       case u: ScThisReference => "this"
@@ -289,10 +290,25 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
       case e: ScTuple =>
         "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(textOf(_)).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
+      case m: ScMatch =>
+        m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
+          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
+        "\n" + indent + "  }"
       case e => "<expr>"
     }
 
     text + textOfImplicitArguments(e.findImplicitArguments, e)
+  }
+
+  private def textOfPattern(p: ScPattern): String = p match {
+    case _: ScWildcardPattern => "_"
+    case p: ScNamingPattern => p.name + " @ " + textOfPattern(p.named)
+    case p: ScLiteralPattern => textOfExpression(p.getLiteral, "")
+    case p: ScTuplePattern => "(" + p.patternList.get.patterns.map(textOfPattern).mkString(", ") + ")"
+    case p: ScTypedPattern => p.name + ": " + textOf(p.`type`())
+    case p: ScReferencePattern => p.name
+    case p: ScExtractorPattern => p.ref.qualName + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
+    case _ => "<pattern>"
   }
 
   @tailrec
