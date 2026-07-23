@@ -184,9 +184,18 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   override def getName: String = name
 
   override def getSupers: Array[PsiClass] = {
-    extendsBlock.supers.filter { clazz =>
-      clazz != this
-    }.toArray
+    val effectiveSupers = extendsBlock.supers.filter(_ != this)
+    val (interfaces, classes) = effectiveSupers.partition(_.isInterface)
+    (classes ++ interfaces).toArray
+  }
+
+  override def getSuperTypes: Array[PsiClassType] = {
+    val effectiveSuperTypes = extendsBlock.superTypes
+    val (interfaceTypes, classTypes) = effectiveSuperTypes.partition { scalaType =>
+      val clazz = scalaType.extractClass
+      clazz.exists(_.isInterface)
+    }
+    toPsiClassTypes(classTypes ++ interfaceTypes)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -195,9 +204,9 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
                                    place: PsiElement): Boolean =
     processDeclarationsImpl(processor, state, lastParent, place)
 
-  override def getExtendsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = false)
+  override def getExtendsListTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
 
-  override def getImplementsListTypes: Array[PsiClassType] = getExtendsOrImplementsListTypes(forImplementsList = true)
+  override def getImplementsListTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
 
   override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 

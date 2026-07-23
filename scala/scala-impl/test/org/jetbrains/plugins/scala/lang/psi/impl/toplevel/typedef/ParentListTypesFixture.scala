@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.junit.Assert.{assertEquals, assertNotNull}
 import ParentListTypesFixture.ExpectedData
 
-private[typedef] final class ParentListTypesFixture(fixture: CodeInsightTestFixture, testRootDisposable: Disposable) {
+private[impl] final class ParentListTypesFixture(fixture: CodeInsightTestFixture, testRootDisposable: Disposable) {
 
   def assertParentListTypes(@Language("Scala 3") scalaText: String, expected: ExpectedData): Unit = {
     val definition = configureAndFindPsiClass("Test.scala", scalaText)
@@ -90,7 +90,7 @@ private[typedef] final class ParentListTypesFixture(fixture: CodeInsightTestFixt
   }
 }
 
-private[typedef] object ParentListTypesFixture {
+private[impl] object ParentListTypesFixture {
   final case class ExpectedData(
     expectedGetSupers: Seq[String],
     expectedGetSuperTypes: Seq[String],
