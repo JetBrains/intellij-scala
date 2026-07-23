@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -254,14 +255,14 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case None => r.bind().map(_.getActualElement).orNull match {
           case e: ScSelfTypeElement => e.name
           case e: ScNamedElement => e.nameContext match {
-            case m: ScMember if m.isTopLevel =>
-              m.qualifiedNameOpt.getOrElse(r.refName)
             case m: ScMember if !m.isLocal =>
-              val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
-              enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
-                case Some(enclosingClass) =>
-                  if (enclosingClass.name == "<anonymous>") "this." + r.refName else enclosingClass.name + ".this." + r.refName
-                case None => m.qualifiedNameOpt.getOrElse(r.refName)
+              if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(r.refName) else {
+                val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
+                enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
+                  case Some(enclosingClass) =>
+                    if (enclosingClass.name == "<anonymous>") "this." + r.refName else enclosingClass.name + ".this." + r.refName
+                  case None => m.qualifiedNameOpt.getOrElse(r.refName)
+                }
               }
             case _ => r.refName
           }

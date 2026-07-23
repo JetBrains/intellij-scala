@@ -1140,7 +1140,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.`X-Forwarded-Proto`
     //akka.http.scaladsl.model.headers.`X-Real-Ip`
     //akka.http.scaladsl.model.http2.Http2Exception
-    //akka.http.scaladsl.model.http2.Http2SettingsHeader
+    akka.http.scaladsl.model.http2.Http2SettingsHeader
     //akka.http.scaladsl.model.http2.PeerClosedStreamException
     //akka.http.scaladsl.model.sse.ServerSentEvent
     //akka.http.scaladsl.model.ws.BinaryMessage
@@ -1362,7 +1362,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.japi.Pair
     akka.japi.Predicate
     //akka.japi.Procedure
-    //akka.japi.Throwables
+    akka.japi.Throwables
     //akka.japi.Util
     //akka.japi.function.Creator
     //akka.japi.function.Effect
