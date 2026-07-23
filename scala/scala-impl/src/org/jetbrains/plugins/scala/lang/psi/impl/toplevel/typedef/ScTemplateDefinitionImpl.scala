@@ -533,9 +533,34 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
    * such as `Product` and `Serializable` on a case class. A Scala trait is a [[PsiClass#isInterface Java interface]],
    * so its direct parents belong to the "extends" list, just as the parents of a Java interface do.
    *
-   * A Scala trait may also have a concrete superclass, which has no faithful Java-interface representation. That
-   * source-level parent remains in the syntax-backed "extends" list; callers that need the complete Scala hierarchy
-   * must use [[ScExtendsBlock#superTypes]] rather than infer it from the Java parent-list roles.
+   * A Scala trait may also have a concrete superclass, which has no faithful Java-interface representation. For example:
+   *
+   * {{{
+   * // Java source
+   * public abstract class JavaBase {}
+   *
+   * // Scala source
+   * trait T extends JavaBase
+   * class C extends T
+   *
+   * // Source PSI parent-list types
+   * T.getExtendsListTypes()    == [JavaBase]
+   * C.getImplementsListTypes() == [T]
+   *
+   * // Compiled class-file PSI
+   * interface T {}                         // no JavaBase superclass
+   * class C extends JavaBase implements T {}
+   * }}}
+   *
+   * The source [[ScTrait]] PSI deliberately retains `JavaBase` in [[ScExtendsBlock#supers]],
+   * [[ScExtendsBlock#superTypes]], [[PsiClass#getSupers()]], [[PsiClass#getSuperTypes()]], and the syntax-backed
+   * "extends" list. A compiled class-file PSI is the source of truth for the JVM shape.
+   *
+   * This intentional source-PSI/JVM-shape mismatch is a known limitation of representing Scala traits through [[PsiClass]]
+   * and is tracked by [[https://youtrack.jetbrains.com/issue/SCL-25714 SCL-25714]].
+   *
+   * Do not drop `T` from `C`'s "implements" list to approximate the JVM superclass `JavaBase`: callers that need the
+   * complete Scala hierarchy must use [[ScExtendsBlock#superTypes]] rather than infer it from the Java parent-list roles.
    *
    * This method is used to calculate [[PsiClass#getExtendsListTypes()]] and [[PsiClass#getImplementsListTypes()]].
    *

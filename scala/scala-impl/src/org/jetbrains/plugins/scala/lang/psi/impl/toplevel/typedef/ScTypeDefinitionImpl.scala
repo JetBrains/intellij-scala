@@ -258,6 +258,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
    *
    * `java.lang.Object` is returned when it is the effective root (there is no class parent, or the parent is `Any`
    * or `AnyRef`) and it resolves. It is not added beside another concrete class parent or in place of `AnyVal`.
+   * Consequently, a trait whose direct parents are traits has both those traits and `java.lang.Object` in this result.
+   * This is an effective-hierarchy view, not a Java parent-list view.
    */
   override def getSupers: Array[PsiClass] = {
     val supers = extendsBlock.supers
@@ -276,6 +278,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
    *
    * `java.lang.Object` is included as the effective root when there is no other class parent, including for
    * `Any`, `AnyRef`, and the Java projection of `AnyVal`; it is not appended beside another class parent.
+   * Consequently, a trait whose direct parents are traits retains `java.lang.Object` alongside those traits.
+   * This differs from Java's `PsiClass.getSuperTypes`, which can omit `java.lang.Object` for an interface with an explicit `extends` list.
    *
    * TODO: Deduplicate Java-equivalent super types separately; value classes currently expose java.lang.Object twice.
    */

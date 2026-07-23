@@ -171,6 +171,22 @@ abstract class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
       )
     )
 
+  // Known source-PSI/JVM-shape mismatch (SCL-25714): source PSI retains a trait's Java superclass even though the
+  // emitted trait interface cannot extend that class.
+  def testParentListTypes_TraitExtendingJavaClass(): Unit = {
+    myFixture.addFileToProject("JavaBase.java", "public abstract class JavaBase {}")
+
+    parentListTypesFixture.assertParentListTypes(
+      s"trait ${CARET}Foo extends JavaBase",
+      ExpectedData(
+        expectedGetSupers = Seq("JavaBase"),
+        expectedGetSuperTypes = Seq("JavaBase"),
+        expectedGetExtendsListTypes = Seq("JavaBase"),
+        expectedGetImplementsListTypes = Seq.empty
+      )
+    )
+  }
+
   def testParentListTypes_MixedParentsWithTypeArguments(): Unit =
     parentListTypesFixture.assertParentListTypes(
       s"""class Parent[A]
