@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{AliasExportSemantics, ScalaCollectionHighlightingLevel}
@@ -12,6 +15,30 @@ import org.junit.Test
 import scala.collection.immutable.ListSet
 
 class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnnotatorCollectionByTypeTestBase {
+
+  private lazy val editorHighlightingFixture = new ScalaColorSchemeEditorHighlightingFixture(getFixture)
+
+  @Test
+  def testCollectionHighlightsUseTheirColorSchemeKeys(): Unit = {
+    val text =
+      """import scala.collection.immutable.Vector
+        |import scala.collection.mutable.ArrayBuffer
+        |import java.util.HashMap
+        |
+        |class Collections {
+        |  val immutable = Vector.empty[Int]
+        |  val mutable = ArrayBuffer.empty[Int]
+        |  val java = new HashMap[String, String]
+        |}
+        |""".stripMargin
+
+    editorHighlightingFixture.assertHighlights(
+      text,
+      ExpectedHighlight("Vector", DefaultHighlighter.IMMUTABLE_COLLECTION, occurrence = 1),
+      ExpectedHighlight("ArrayBuffer", DefaultHighlighter.MUTABLE_COLLECTION, occurrence = 1),
+      ExpectedHighlight("HashMap", DefaultHighlighter.JAVA_COLLECTION, occurrence = 1)
+    )
+  }
 
   @Test
   def testAnnotateImmutable_NonQualified(): Unit = {

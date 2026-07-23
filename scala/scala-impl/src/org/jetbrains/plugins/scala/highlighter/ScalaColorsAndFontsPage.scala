@@ -211,7 +211,9 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>number</param><colon>:</colon> <predef>Int</predef><par>)</par> <keyword>extends</keyword> <class>ScalaObject</class> <brace>{</brace>
        |  <number>1</number> <implicit>to</implicit> <number>5</number>
        |  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> <arrow>=></arrow> <anon_param>x</anon_param>
-       |  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>"</string>
+       |  <keyword>var</keyword> <localvar>counter</localvar> <assign>=</assign> <number>0</number>
+       |  <keyword>val</keyword> <local>message</local> <assign>=</assign> <string>s"Some<validescape>\\n</validescape>String<invalidescape>\\g</invalidescape>Count: <injection>$$counter</injection>"</string>
+       |  <keyword>lazy</keyword> <keyword>val</keyword> <locallazy>cached</locallazy> <assign>=</assign> <number>1</number>
        |  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>,</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>
        |    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>
        |    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number> - <localmethod>empty</localmethod>
@@ -223,12 +225,17 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |  <brace>}<brace>
        |  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>
        |  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>"value"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>
+       |
+       |  <blockcomment>/* Block comment */</blockcomment>
+       |  <linecomment>// Line comment */</linecomment>
        |<brace>}</brace>
        |
        |<keyword>case</keyword> <keyword>class</keyword> <class>ScalaCaseClass</class><par>(</par><case_class_field>name</case_class_field><colon>:</colon> <predef>String</predef><comma>,</comma> <keyword>var</keyword> <case_class_var_field>age</case_class_var_field><colon>:</colon> <predef>Int</predef><par>)</par>
        |
        |<keyword>object</keyword> <object>Object</object> <brace>{</brace>
        |  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>
+       |  <keyword>var</keyword> <var>mutableLayer</var> <assign>=</assign> <number>0</number>
+       |  <keyword>lazy</keyword> <keyword>val</keyword> <lazy>cachedLayer</lazy> <assign>=</assign> <number>1</number>
        |  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()
        |  <keyword>val</keyword> <val>immutableCollection</val> <assign>=</assign> <immutablec>List</immutablec>(<number>1</number><comma>,</comma> <number>2</number>)
        |  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()
@@ -241,7 +248,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |  <brace>}</brace>
        |<brace>}</brace>
        |
-       |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par>
+       |<annotation>@Annotation</annotation><par>(</par><attribute>enabled =</attribute> <keyword>true</keyword><par>)</par>
        |<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>
        |<brace>}</brace>
        |
@@ -252,6 +259,10 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |<keyword>enum</keyword> <enum>MyEnum</enum>:
        |  <keyword>case</keyword> <enum_singleton_case>MySingletonCase</enum_singleton_case>
        |  <keyword>case</keyword> <enum_class_case>MyClassCase</enum_class_case>(<param>x</param>: <predef>Int</predef>)
+       |
+       |<keyword>val</keyword> xmlComment <assign>=</assign> <xmlcomment><!-- XML comment --></xmlcomment>
+       |<scalatest>test</scalatest><par>(</par><string>"ScalaTest keyword"</string><par>)</par>
+       |<badchar>�</badchar>
        |""".stripMargin.replace("\r", "")
 
   override def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = {
@@ -287,7 +298,11 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("attribute", ANNOTATION_ATTRIBUTE)
     map.put("abstract", ABSTRACT_CLASS)
     map.put("local", LOCAL_VALUES)
+    map.put("localvar", LOCAL_VARIABLES)
+    map.put("locallazy", LOCAL_LAZY)
     map.put("val", VALUES)
+    map.put("var", VARIABLES)
+    map.put("lazy", LAZY)
     map.put("case_class_field", CASE_CLASS_FIELD)
     map.put("case_class_var_field", CASE_CLASS_VAR_FIELD)
     map.put("given", GIVEN)
@@ -307,7 +322,10 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("xmlattributename", XML_ATTRIBUTE_NAME)
     map.put("xmlattributevalue", XML_ATTRIBUTE_VALUE)
     map.put("xmlcomment", XML_COMMENT)
+    map.put("injection", INTERPOLATED_STRING_INJECTION)
     map.put("implicit", IMPLICIT_CONVERSIONS)
+    map.put("badchar", BAD_CHARACTER)
+    map.put("scalatest", SCALATEST_KEYWORD)
     map.put("scaladoc", DOC_COMMENT)
     map.put("markup", SCALA_DOC_MARKUP)
     map.put("tag", SCALA_DOC_TAG)
