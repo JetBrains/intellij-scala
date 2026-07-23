@@ -16,6 +16,7 @@ import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessorFact
 import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
+import org.jetbrains.plugins.scala.extensions.CharSeqExt
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.markdown._CustomGFMLexer
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
