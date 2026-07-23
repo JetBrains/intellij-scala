@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.annotator.colorScheme
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.TypecheckerTests
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderExtendedMock, Message2}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt, ToNullSafe}
 import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingVisitor}

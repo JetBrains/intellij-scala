@@ -45,6 +45,11 @@ class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
     case annotation: ScAnnotation =>
       holder.add(info(annotation.getFirstChild, ScalaHighlightInfoTypes.ANNOTATION))
       holder.add(info(annotation.annotationExpr.constructorInvocation.typeElement, ScalaHighlightInfoTypes.ANNOTATION))
+      annotation.annotationExpr.getAttributes.foreach { attribute =>
+        Option(attribute.nameId).foreach { nameId =>
+          holder.add(info(nameId, ScalaHighlightInfoTypes.ANNOTATION_ATTRIBUTE))
+        }
+      }
 
     case parameter: ScParameter  =>
       val nameId = parameter.nameId

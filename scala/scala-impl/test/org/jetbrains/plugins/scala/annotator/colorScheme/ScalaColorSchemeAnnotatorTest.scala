@@ -1,13 +1,20 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.annotator.colorScheme
 
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
+import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
+import org.jetbrains.plugins.scala.annotator.Message2
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedSetting
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
   import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
+
+  private lazy val editorHighlightingFixture = new ScalaColorSchemeEditorHighlightingFixture(getFixture)
 
   private val caseClassDefinition =
     """case class MyCaseClass(field1: String, val field2: String, var field3: String)
@@ -227,6 +234,64 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((2,8),Source,Scala Annotation name)
         |""".stripMargin
     )
+  }
+
+  @Test
+  def testAnnotationAttributeColorSchemeKey(): Unit = {
+    val text =
+      """
+        |@Source(url = "https://foo.com/")
+        |trait Foo
+        |""".stripMargin
+
+    editorHighlightingFixture.assertHighlights(text, ExpectedHighlight("url", ANNOTATION_ATTRIBUTE))
+  }
+
+  @Test
+  def testLazyValueColorSchemeKeys(): Unit = {
+    val text =
+      """class Template {
+        |  lazy val templateLazy = 1
+        |
+        |  def method(): Unit = {
+        |    lazy val localLazy = 2
+        |  }
+        |}
+        |""".stripMargin
+
+    editorHighlightingFixture.assertHighlights(
+      text,
+      ExpectedHighlight("templateLazy", LAZY),
+      ExpectedHighlight("localLazy", LOCAL_LAZY)
+    )
+  }
+
+  @Test
+  def testScalaTestKeywordColorSchemeKey(): Unit = {
+    addScalaFileToProject(
+      "org/scalatest/Suite.scala",
+      """package org.scalatest
+        |
+        |trait Suite {
+        |  def test(name: String)(body: => Unit): Unit = ()
+        |}
+        |""".stripMargin
+    )
+
+    val setting = withModifiedSetting(ScalaProjectSettings.getInstance(getProject))(true)(
+      _.isCustomScalatestSyntaxHighlighting,
+      _.setCustomScalatestSyntaxHighlighting(_)
+    )
+
+    setting.run {
+      val text =
+        """class MySuite extends org.scalatest.Suite {
+          |  test("highlighted") {}
+          |}
+          |""".stripMargin
+
+      editorHighlightingFixture.assertHighlights(text, ExpectedHighlight("test", SCALATEST_KEYWORD, occurrence = 1))
+    }
   }
 
   @Test
