@@ -23,6 +23,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
@@ -179,9 +180,9 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected final def configureFromFileText(fileName: String, fileText: String): PsiFile = scalaFixture.configureFromFileText(fileName, fileText)
   protected final def openEditorAtOffset(startOffset: Int): Editor = scalaFixture.openEditorAtOffset(startOffset)
 
-  protected final def configureScalaFromFileText(@Language("Scala") fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
-  protected final def configureScala3FromFileText(@Language("Scala 3") fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
-  protected final def addScalaFileToProject(relativePath: String, @Language("Scala") fileText: String): PsiFile = myFixture.addFileToProject(relativePath, fileText)
+  protected final def configureScalaFromFileText(@Language("Scala") fileText: String): ScalaFile = scalaFixture.configureScalaFromFileText(fileText)
+  protected final def configureScala3FromFileText(@Language("Scala 3") fileText: String): ScalaFile = scalaFixture.configureScalaFromFileText(fileText)
+  protected final def addScalaFileToProject(relativePath: String, @Language("Scala") fileText: String): ScalaFile = myFixture.addFileToProject(relativePath, fileText).asInstanceOf[ScalaFile]
   //end section: helper methods
 
   //TODO: consider extracting implementation body to ScalaCodeInsightTestFixture
