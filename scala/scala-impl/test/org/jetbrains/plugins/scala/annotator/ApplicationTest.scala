@@ -1,16 +1,73 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-
 class ApplicationTestBase_2_11 extends ApplicationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 }
 
 class ApplicationTestBase_2_12 extends ApplicationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+}
+
+class ApplicationTestBase_2_13 extends ApplicationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
+class ApplicationTestBase_3 extends ApplicationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3
 }
 
 abstract class ApplicationTestBase extends AnnotatorLightCodeInsightFixtureTestAdapter {
+  def testSCL25718(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.annotation.StaticAnnotation
+      |import scala.annotation.meta.field
+      |
+      |class Schema(`type`: String) extends StaticAnnotation
+      |
+      |case class Foo(
+      |  name: Option[String] = None,
+      |  @(Schema @field)(`type` = "boolean")
+      |  flag: Option[Boolean] = None,
+      |  other: Option[String] = None
+      |)
+      |
+      |object Use {
+      |  val foo = Foo(
+      |    name = Some("x"),
+      |    flag = Some(true),
+      |    other = Some("y")
+      |  )
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL9962(): Unit = {
+    addScalaFileToProject(
+      "shadowing/Try.scala",
+      """
+        |package shadowing
+        |
+        |case class Try(i: Int)
+        |""".stripMargin
+    )
+
+    checkTextHasNoErrors(
+      """
+        |package shadowing
+        |
+        |import scala.util.Try
+        |
+        |object ShadowingTest {
+        |  def main(args: Array[String]): Unit = {
+        |    val t = Try(1)
+        |    println(t)
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
   def testSCL9931(): Unit = {
     checkTextHasNoErrors(
       """
