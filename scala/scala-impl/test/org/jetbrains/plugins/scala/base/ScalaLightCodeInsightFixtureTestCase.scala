@@ -187,7 +187,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //TODO: consider extracting implementation body to ScalaCodeInsightTestFixture
   // or crete a similar fixture which would be more specific for highlighting
   //start section: check errors
-  protected def checkTextHasNoErrors(text: String): Unit = {
+  protected def checkTextHasNoErrors(@Language("Scala") text: String): Unit = {
     myFixture.configureByText(ScalaFileType.INSTANCE, text)
 
     //EditorTestUtil.buildInitialFoldingsInBackground(getEditor)
