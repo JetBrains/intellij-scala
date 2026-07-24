@@ -20,12 +20,12 @@ import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDes
 import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage, ScalaVersion}
 import org.junit.Assert
 import org.junit.Assert.fail
 
@@ -66,17 +66,36 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def includeCompilerAsLibrary: Boolean = false
   protected def includeScalaLibrarySources: Boolean = false
 
+  /**
+   * Configures a production Scala SDK with separate Scala libraries.
+   *
+   * Scala 3 uses the latest Scala 3 and Scala 2.13 libraries with a compiler SDK that does not include library files.
+   * Scala 2 retains its selected SDK and adds scala-reflect to the compiler classpath.
+   */
+  protected def useProductionScalaSdkWithSeparateLibraries: Boolean = false
+
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = {
+  private def scalaSdkAndLibraryLoaders: Seq[LibraryLoader] = {
     val scalaSdkLoader = ScalaSDKLoader(
-      includeScalaReflectIntoCompilerClasspath = includeReflectLibrary,
+      includeScalaReflectIntoCompilerClasspath = includeReflectLibrary || useProductionScalaSdkWithSeparateLibraries,
       includeScalaCompilerIntoLibraryClasspath = includeCompilerAsLibrary,
       includeScalaLibrarySources = includeScalaLibrarySources
     )
-    val additionalLoaders = additionalLibraries
-    scalaSdkLoader +: additionalLoaders
+
+    if (useProductionScalaSdkWithSeparateLibraries && version.isScala3) {
+      ScalaLibraryLoader.libraryLoadersWithSeparateScalaLibraries(
+        Seq(scalaSdkLoader),
+        ScalaVersion.Latest.Scala_2_13,
+        ScalaVersion.Latest.Scala_3
+      )
+    } else {
+      Seq(scalaSdkLoader)
+    }
   }
+
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    scalaSdkAndLibraryLoaders ++ additionalLibraries
   //end section: project libraries configuration
 
   //start section: project descriptor
