@@ -1,5 +1,0 @@
-Document tests/pos/i24134-nested/Container.scala
-(2:49..2:64) scala/PartialFunction#
-(2:65..2:66) _empty_/Container#[A] -> 1:17
-(2:68..2:69) _empty_/Container#JavaPartialFunction#[B] -> 2:38
-

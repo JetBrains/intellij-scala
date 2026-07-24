@@ -1,0 +1,11 @@
+Document tests/pos/predef-runtimechecked-import.scala
+(3:8..3:13) scala/
+(3:14..3:20) scala/Predef.
+(3:22..3:28) scala/Predef.assert().
+(3:22..3:28) scala/Predef.assert(+1).
+(6:10..6:13) scala/Any#
+(7:17..7:19) scala/runtime/RichInt#to().
+(8:5..8:8) scala/Predef.Map.
+(8:11..8:25) scala/Predef.runtimeChecked().
+(8:26..8:28) scala/Predef.ArrowAssoc#`->`().
+
