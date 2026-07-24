@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.util.io.FileUtilRt
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsSectionsTestingBase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
@@ -15,14 +14,7 @@ class ScalaDocumentationProviderTest_SyntheticScalaLibraryElements
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
-  //NOTE: we use custom Scala 2.13 library version because https://github.com/scala/bug/issues/12958 is available only since 2.13.14
-  // TODO: we can delete this once latest Scala 3 library depends at least at Scala 2.13.14
-  override protected def librariesLoaders: Seq[LibraryLoader] =
-    ScalaLibraryLoader.libraryLoadersWithSeparateScalaLibraries(
-      super.librariesLoaders,
-      ScalaVersion.Latest.Scala_2_13,
-      ScalaVersion.Latest.Scala_3
-    )
+  override protected def useProductionScalaSdkWithSeparateLibraries: Boolean = true
 
   private val ivyHome: String = FileUtilRt.toSystemIndependentName(DependencyManagerBase.ivyHome.toCanonicalPath.toString)
 
