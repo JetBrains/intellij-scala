@@ -11,16 +11,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
 import scala.annotation.tailrec
 
-private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
-                                         isStatic: Boolean,
-                                         isAbstract: Boolean,
-                                         isInTrait: Boolean,
-                                         isOverride: Boolean)
-  extends LightModifierList(scalaElement.getManager) {
+private[light] class ScLightModifierList(
+  scalaElement: ScalaPsiElement,
+  isStatic: Boolean,
+  isAbstract: Boolean,
+  isInTrait: Boolean,
+  isOverride: Boolean
+) extends LightModifierList(scalaElement.getManager) {
 
   private lazy val annotations: Array[PsiAnnotation] = computeAnnotations()
   private lazy val modifiers: java.util.Set[String] = computeModifiers()
@@ -41,7 +43,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
     val annotationsHolder = annotHolder(scalaElement)
 
     Option(annotationsHolder).foreach { holder =>
-      keywordAnnotations.foreach {
+      KeywordAnnotations.foreach {
         case (fqn, keyword) =>
           if (holder.hasAnnotation(fqn))
             set.add(keyword)
@@ -94,7 +96,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
     val convertibleAnnotations = annotationHolder.annotations.filterNot { a =>
       a.getQualifiedName match {
         case null => true
-        case s if keywordAnnotations.contains(s) => true
+        case s if KeywordAnnotations.contains(s) => true
         case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
         case s if s.endsWith("BeanProperty") => true
         case s if s.split('.').exists(PsiUtil.isKeyword(_, javaLL)) => true
@@ -120,7 +122,8 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
 
     e match {
       case a: ScAssignment =>
-        val res = a.leftExpression.getText + " = "
+        val javaName = ScalaNamesUtil.BacktickedName.stripBackticks(a.leftExpression.getText)
+        val res = s"$javaName = "
         a.rightExpression match {
           case Some(expr) => res + convertExpression(expr)
           case _ => res
@@ -178,18 +181,22 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
 }
 
 private[light] object ScLightModifierList {
-  val keywordAnnotations: Map[String, String] = Map(
+
+  private val KeywordAnnotations: Map[String, String] = Map(
     "scala.native" -> "native",
     "scala.scalajs.js.native" -> "native",
     "scala.annotation.strictfp" -> "strictfp",
     "scala.volatile" -> "volatile",
-    "scala.transient" -> "transient")
+    "scala.transient" -> "transient"
+  )
 
-  def apply(scalaElement: ScalaPsiElement,
-            isStatic: Boolean = false,
-            isAbstract: Boolean = false,
-            isInTrait: Boolean = false,
-            isOverride: Boolean = false): LightModifierList =
+  def apply(
+    scalaElement: ScalaPsiElement,
+    isStatic: Boolean = false,
+    isAbstract: Boolean = false,
+    isInTrait: Boolean = false,
+    isOverride: Boolean = false
+  ): LightModifierList =
     new ScLightModifierList(scalaElement, isStatic, isAbstract, isInTrait, isOverride)
 
   def empty(manager: PsiManager): LightModifierList = new LightModifierList(manager)

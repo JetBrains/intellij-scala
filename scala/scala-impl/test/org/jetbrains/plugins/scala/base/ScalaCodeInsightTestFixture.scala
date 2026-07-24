@@ -7,6 +7,7 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert.assertNotNull
 
 //NOTE: for now we intentionally inherit any base text feature (e.g. JavaCodeInsightTestFixture) and use composition instead.
@@ -41,8 +42,11 @@ final class ScalaCodeInsightTestFixture(
     }
   }
 
-  def configureFromFileText(@Language("Scala") fileText: String): PsiFile =
+  def configureFromFileText(fileText: String): PsiFile =
     configureFromFileText(defaultFileType, fileText)
+
+  def configureScalaFromFileText(@Language("Scala") fileText: String): ScalaFile =
+    configureFromFileText(ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]
 
   def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
     val fileTextPatched = fileTextPatcher(fileText.withNormalizedSeparator)
