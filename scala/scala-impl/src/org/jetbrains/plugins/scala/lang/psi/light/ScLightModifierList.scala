@@ -99,7 +99,7 @@ private[light] class ScLightModifierList(
         case s if KeywordAnnotations.contains(s) => true
         case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
         case s if s.endsWith("BeanProperty") => true
-        case s if s.split('.').exists(PsiUtil.isKeyword(_, javaLL)) => true
+        case s if ScalaNamesUtil.cleanFqn(s).split('.').exists(PsiUtil.isKeyword(_, javaLL)) => true
         case _ => false
       }
     }
@@ -109,8 +109,8 @@ private[light] class ScLightModifierList(
       s"@$fqn$args"
     }
 
-    val overrideAnnotation =
-      if (isOverride) Seq("@" + CommonClassNames.JAVA_LANG_OVERRIDE)
+    val overrideAnnotation: Seq[String] =
+      if (isOverride) Seq(s"@${CommonClassNames.JAVA_LANG_OVERRIDE}")
       else Seq.empty
 
     val factory = PsiElementFactory.getInstance(annotationHolder.getProject)
@@ -125,7 +125,8 @@ private[light] class ScLightModifierList(
         val javaName = ScalaNamesUtil.BacktickedName.stripBackticks(a.leftExpression.getText)
         val res = s"$javaName = "
         a.rightExpression match {
-          case Some(expr) => res + convertExpression(expr)
+          case Some(expr) =>
+            res + convertExpression(expr)
           case _ => res
         }
       case s: ScStringLiteral if s.isMultiLineString =>
@@ -144,7 +145,8 @@ private[light] class ScLightModifierList(
             typeResult match {
               case Right(tp) =>
                 tp.extractClass match {
-                  case Some(clazz) => clazz.getQualifiedName + ".class"
+                  case Some(clazz) =>
+                    clazz.getQualifiedName + ".class"
                   case _ => problem
                 }
               case _ => problem
@@ -160,7 +162,8 @@ private[light] class ScLightModifierList(
                   case c: PsiClass =>
                     var res = "@" + c.getQualifiedName
                     constr.args match {
-                      case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
+                      case Some(constrArgs) =>
+                        res += convertArgs(constrArgs.exprs)
                       case _ =>
                     }
                     res
