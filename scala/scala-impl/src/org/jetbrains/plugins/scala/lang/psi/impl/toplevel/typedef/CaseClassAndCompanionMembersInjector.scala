@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement}
-import org.apache.commons.text.StringEscapeUtils
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 
 class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
@@ -110,32 +109,9 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
     val builder = new StringBuilder()
 
-    def addAnnotation(a: PsiAnnotation): Unit = {
+    def addAnnotation(a: ScAnnotation): Unit = {
       builder += '@'
-      builder ++= a.getQualifiedName
-      Option(a.getParameterList).foreach { pList =>
-        builder += '('
-        var firstAttribute = true
-        pList.getAttributes.foreach { attr =>
-          if (!firstAttribute) {
-            builder ++= ", "
-          }
-          val name = attr.getName
-          val value = attr.getLiteralValue
-          if (value != null) {
-            if (name != null) {
-              builder ++= name
-              builder += '='
-            }
-            builder += '"'
-            builder ++= StringEscapeUtils.escapeJava(value)
-            builder += '"'
-          }
-          firstAttribute = false
-        }
-        builder += ')'
-
-      }
+      builder ++= annotationText(a)
       builder += ' '
     }
 
@@ -148,7 +124,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         builder += ','
       }
 
-      p.getAnnotations.foreach(addAnnotation)
+      p.annotations.foreach(addAnnotation)
       builder ++= p.name
       builder ++= " : "
       builder ++= paramType
@@ -175,6 +151,12 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
     effectiveClauses.foreach(addClauseText)
     builder.toString
   }
+
+  private def annotationText(annotation: ScAnnotation): String =
+    ScalaPsiUtil.stub(annotation)
+      .filterByType[ScAnnotationStub]
+      .map(_.annotationText)
+      .getOrElse(annotation.getText.stripPrefix("@"))
 
   private def toText(fallback: String)(psi: PsiElement): String =
     if (psi.hasParseError) fallback else psi.getText
