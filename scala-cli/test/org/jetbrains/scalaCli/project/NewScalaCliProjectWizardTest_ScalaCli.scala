@@ -81,13 +81,14 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
 
   protected def runSimpleCreateProjectTest(
     scalaVersion: String,
+    expectedSemanticDbVersion: String = "0.10.0",
     useIndentationBasedSyntax: Boolean = false,
     shouldExcludeScalaBuild: Boolean = true // Scala CLI bundled in Scala 3.5.2 & 3.6.7 doesn't have '.scala-build' in the output paths
   ): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId, useScalaSdkExtraClasspath = false)
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
-      val projectLibraries = scalaLibraries :+ new library(s"BSP: semanticdb-javac-0.10.0")
+      val projectLibraries = scalaLibraries :+ new library(s"BSP: semanticdb-javac-$expectedSemanticDbVersion")
 
       libraries := projectLibraries
       modules := Seq(
@@ -302,6 +303,11 @@ class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizar
       if (scalaVersion == Scala_3_5 || scalaVersion == Scala_3_6) false
       else true
 
-    runSimpleCreateProjectTest("3.0.2", useIndentationBasedSyntax = false, shouldExcludeScalaBuild)
+    val expectedSemanticDbVersion = scalaVersion match {
+      case ScalaVersion.Latest.Scala_3_9 => "0.12.3"
+      case _ => "0.10.0"
+    }
+
+    runSimpleCreateProjectTest("3.0.2", expectedSemanticDbVersion = expectedSemanticDbVersion, useIndentationBasedSyntax = false, shouldExcludeScalaBuild = shouldExcludeScalaBuild)
   }
 }
