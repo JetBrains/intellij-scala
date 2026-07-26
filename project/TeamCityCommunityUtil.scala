@@ -1,8 +1,9 @@
 import sbt.io.IO
 import sbt.{URL, url}
 
+import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, Node, XML}
 
 // Contains some duplicated code from <ultimate root>/project/teamcity/TeamCityAPI.scala.
@@ -89,6 +90,75 @@ object TeamCityCommunityUtil {
     XML.load(url(restUrl))
 
   case class PreviousTests(failing: Set[String], passing: Set[String])
+
+  /**
+   * A test bucket is started by a snapshot dependency, so its direct trigger is usually `snapshotDependency`.<br>
+   * Follow that dependency chain to determine whether the root build was started by TeamCity's retry trigger.
+   *
+   * This deliberately uses the structured `triggered.type` REST field instead of the
+   * human-readable `teamcity.build.triggeredBy` parameter.
+   *
+   * If the origin cannot be read, it returns false: a manually restarted build must never be treated as an automatic retry.
+   */
+  def isCurrentBuildAnAutomaticRetry: Boolean = {
+    val teamcityBuildId = Option(System.getProperty("teamcity.build.id")).filter(_.nonEmpty)
+    teamcityBuildId.exists(isBuildInAutomaticRetryChainSafeCheck)
+  }
+
+  private def isBuildInAutomaticRetryChainSafeCheck(buildId: String): Boolean = {
+    val result = Try(isBuildInAutomaticRetryChain(buildId))
+    result match {
+      case Success(value) => value
+      case Failure(ex) =>
+        println(s"Couldn't determine whether build $buildId is an automatic retry: $ex")
+        ex.printStackTrace()
+        false
+    }
+  }
+
+  /**
+   * Returns true only when this build, or a build that caused it to run, has TeamCity's automatic `retry` trigger type.
+   * A manually started build has the `user` trigger type, so a manual retry is not treated as an automatic retry.
+   *
+   * TeamCity documentation:
+   *   - [[https://www.jetbrains.com/help/teamcity/rest/build.html#triggered]]
+   *   - [[https://www.jetbrains.com/help/teamcity/rest/triggeredby.html#type]]
+   *   - [[https://www.jetbrains.com/help/teamcity/rest/triggeredby.html#build]]
+   *   - [[https://www.jetbrains.com/help/teamcity/rest/build.html#id]]
+   *   - [[https://www.jetbrains.com/help/teamcity/rest/teamcity-rest-api-documentation.html#Full+and+Partial+Responses]]
+   *   - [[https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html#Predefined+Server+Build+Parameters]]
+   *   - [[https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html#Other+Parameters]]
+   */
+  private def isBuildInAutomaticRetryChain(initialBuildId: String): Boolean = {
+    @tailrec
+    def loop(buildId: String, visited: Set[String]): Boolean = {
+      if (visited.contains(buildId))
+        false
+      else {
+        val build = fetchTCApi(s"$BuildsBaseUrl/id:$buildId?fields=id,triggered(type,build(id))")
+        val triggered = (build \ "triggered").headOption
+        val triggerType = triggered.map(_ \@ "type")
+        if (triggerType.contains("retry"))
+          true
+        else {
+          val parentBuildId = triggered
+            .flatMap(node => (node \ "build").headOption)
+            .map(_ \@ "id")
+            .filter(_.nonEmpty)
+
+          parentBuildId match {
+            case Some(parentId) =>
+              loop(parentId, visited + buildId)
+            case _ =>
+              false
+          }
+        }
+      }
+    }
+
+    loop(initialBuildId, Set.empty)
+  }
+
   def fetchPreviousTests(): PreviousTests = {
     val prevBuildIds = fetchPreviousBuildIds()
     println(s"Previous build Ids: [${prevBuildIds.mkString(", ")}]")
