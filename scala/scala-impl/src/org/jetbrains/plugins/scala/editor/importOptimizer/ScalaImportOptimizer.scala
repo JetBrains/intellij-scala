@@ -517,7 +517,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
   }
 
   /**
-   * Transforms `{Foo, *}` into `*` unless "Foo" clashes with another wildcard and is used in the code.
+   * Transforms `{Foo, *}` into `*` unless "Foo" clashes with another wildcard.
    */
   @RequiresWriteLock
   def removeAllUnusedSingleNamesInImportsWithWildcards(
@@ -534,8 +534,6 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val rangeInfos = collectImportRanges(importHolder)
 
-    val allUsedImportNames = collectUsedImportedNames(importHolder)
-
     val allImportInfosFromHolder = rangeInfos.flatMap(_.importStmtWithInfos.flatMap(_._2))
 
     for {
@@ -549,7 +547,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       } yield {
         if (info.hasWildcard)
           filterClashingSingleNamesForWildcardImport(
-            info, info, allImportInfosFromHolder, importStmt, allUsedImportNames
+            info, info, allImportInfosFromHolder, importStmt, isImportedNameUsed = _ => true
           )
         else
           None
@@ -903,7 +901,7 @@ object ScalaImportOptimizer {
     infoOriginal: ImportInfo,
     allInfos: collection.Iterable[ImportInfo],
     rangeStartPsi: PsiElement,
-    usedImportedNames: Set[String]
+    isImportedNameUsed: String => Boolean
   ): Option[ImportInfo] = {
     val allExplicitNames = allInfos.flatMap {
       case `infoOriginal` => Seq.empty
@@ -915,7 +913,7 @@ object ScalaImportOptimizer {
       case other => other.allNames
     }.toSet -- allExplicitNames
 
-    val problematicNames = info.allNamesForWildcard & usedImportedNames
+    val problematicNames = info.allNamesForWildcard.filter(isImportedNameUsed)
     val clashesWithOtherWildcards = problematicNames & allNamesFromOtherWildcards
 
     def notAtRangeStart = problematicNames.forall(name => !resolvesAtRangeStart(name, rangeStartPsi))
