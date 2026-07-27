@@ -517,16 +517,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
   }
 
   /**
-   * Example:<br>
-   * Before: {{{
-   *   import org.example.{A, B, C, _}
-   *   val a: A = ???
-   * }}}
-   * After: {{{
-   *   import org.example.{A, _}
-   *   val a: A = ???
-   * }}}
-   *
+   * Transforms `{Foo, *}` into `*` unless "Foo" clashes with another wildcard and is used in the code.
    */
   @RequiresWriteLock
   def removeAllUnusedSingleNamesInImportsWithWildcards(
