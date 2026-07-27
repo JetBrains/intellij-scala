@@ -139,7 +139,11 @@ class NonServerRunner(project: Project) {
   }
 
 
-  private class MyStreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
+  // Pass the sleeping policy explicitly: since 263.2278 a `null` policy defaults to BLOCKING,
+  // in which the reader closes the process streams right after the first empty non-blocking read.
+  private class MyStreamReader(private val reader: Reader, listener: String => Unit)
+    extends BaseDataReader(BaseDataReader.SleepingPolicy.NON_BLOCKING) {
+
     start(project.getName)
 
     private val charBuffer = new Array[Char](8192)
@@ -165,7 +169,7 @@ class NonServerRunner(project: Project) {
       reader.close()
     }
 
-    override def readAvailable(): Boolean = {
+    override def readAvailableNonBlocking(): Boolean = {
       var read = false
 
       while (reader.ready()) {
@@ -200,7 +204,7 @@ class NonServerRunner(project: Project) {
   private class CollectingStreamReader(
     reader: Reader,
     presentableName: String
-  ) extends BaseDataReader(null) {
+  ) extends BaseDataReader(BaseDataReader.SleepingPolicy.NON_BLOCKING) {
     start(presentableName)
 
     private val charBuffer = new Array[Char](8192)
@@ -214,7 +218,7 @@ class NonServerRunner(project: Project) {
       reader.close()
     }
 
-    override def readAvailable(): Boolean = {
+    override def readAvailableNonBlocking(): Boolean = {
       var read = false
 
       while (reader.ready()) {
