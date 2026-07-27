@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.PsiJavaFileImpl
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
@@ -64,7 +63,7 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
             val p = (progress * 100).toInt
             if (p == 100) 99 else p
           }
-          val pass = new PassWrapper(CompilerIntegrationBundle.message("highlighting.compilation"), percentage)
+          val pass = new PassWrapper(CompilerHighlightingBundle.message("highlighting.compilation"), percentage)
           val oldPasses = status.getPasses.asScala
           val newPasses = (oldPasses :+ pass).asJava
           status.withPasses(newPasses)

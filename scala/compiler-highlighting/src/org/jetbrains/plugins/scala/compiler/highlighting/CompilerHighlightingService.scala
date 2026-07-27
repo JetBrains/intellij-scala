@@ -26,7 +26,7 @@ import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
@@ -245,7 +245,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       .createModulesBuildTask(modules, true, true, false, sourceScope == SourceScope.Test)
     val reporter = new CompilerEventReporter(project, client.compilationId)
     val arguments = CustomTaskArguments(
-      CompilerIntegrationBundle.message("highlighting.compilation"),
+      CompilerHighlightingBundle.message("highlighting.compilation"),
       reporter
     )
     val taskRunner = new BspProjectTaskRunner(Some(arguments))
@@ -368,7 +368,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                                  delayIndicator: Boolean,
                                  refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
-    val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
+    val taskMsg = CompilerHighlightingBundle.message("highlighting.compilation")
 
     val task = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = {

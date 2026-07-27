@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package compiler.highlighting
+package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {

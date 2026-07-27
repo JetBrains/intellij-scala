@@ -98,6 +98,7 @@ lazy val scalaCommunity: sbt.Project =
       sbtShellBuildDelegationTests % "test->test",
       bspIntegrationTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
+      compilerHighlighting % "test->test;compile->compile",
       compilerTestUtils % "test->test",
       compilerIntegrationServerManagement % "test->test;compile->compile",
       compilerIntegrationServerManagementTests % "test->test",
@@ -281,6 +282,7 @@ lazy val worksheet =
     .dependsOn(
       bsp,
       compilerIntegration % "test->test;compile->compile",
+      compilerHighlighting % "test->test;compile->compile",
       compilerTestUtils % "test->test",
       testUtilsPlatform % "test->test",
       worksheetReplInterface,
@@ -681,6 +683,15 @@ lazy val compilerIntegration =
     )
     .settings(
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+    )
+
+lazy val compilerHighlighting =
+  newProject("compiler-highlighting", file("scala/compiler-highlighting"))
+    .dependsOn(
+      compilerIntegration % "test->test;compile->compile"
+    )
+    .settings(
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-highlighting")
     )
 
 lazy val eelTunnelsUtil =

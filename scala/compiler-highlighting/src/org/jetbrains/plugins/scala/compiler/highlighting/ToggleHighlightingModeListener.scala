@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache

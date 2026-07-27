@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.remote.{PathTranslator, SerializablePath}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, CompilerIntegrationBundle, EelPathTranslator}
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, EelPathTranslator}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId}
 
 import java.nio.file.Path
@@ -28,7 +28,7 @@ private class CompilerEventGeneratingClient(
   indicator.setIndeterminate(false)
 
   override def progress(@Nls text: String, done: Option[Float]): Unit = {
-    indicator.setText(CompilerIntegrationBundle.message("highlighting.compilation.progress", text))
+    indicator.setText(CompilerHighlightingBundle.message("highlighting.compilation.progress", text))
     indicator.setFraction(done.getOrElse(-1.0F).toDouble)
     done.foreach { doneVal =>
       sendEvent(CompilerEvent.ProgressEmitted(compilationId, None, doneVal))

@@ -66,6 +66,13 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaCompileServerBundle.properties"
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir / "compiler-highlighting",
+      bundleMessagesRelativePath = "CompilerHighlightingBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaModDir / "compiler-highlighting")
+      )
+    ),
+    ModuleWithBundleInfo(
       rootPath = scalaModDir / "compiler-integration-server-management",
       bundleMessagesRelativePath = "CompilerIntegrationBundle.properties",
       extraUsageModules = Seq(

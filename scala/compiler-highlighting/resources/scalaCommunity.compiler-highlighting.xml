@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <dependencies>
+        <module name="scalaCommunity.compiler-integration"/>
+    </dependencies>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.CustomTrafficLightRendererContributor"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.EraseCompilerProcessJdkOnce"/>
+
+        <highlightErrorFilter implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingErrorFilter"/>
+
+        <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingUpToDateChecker"/>
+
+        <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
+                     description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
+
+        <registryKey key="scala.compiler.highlighting.document.use.in.memory.file" defaultValue="false" restartRequired="false"
+                     description="When enabled, uses an in-memory file for document compilation"/>
+
+        <editorFactoryListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFocusListenerRegisterer$ByListener"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFocusListenerRegisterer$AtStartup"/>
+
+        <vfs.asyncListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingFileListener"/>
+
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingSetupActivity"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingBuildManagerListener"/>
+    </applicationListeners>
+
+    <projectListeners>
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.UpdateCompilerGeneratedStateListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.lang.psi.impl.CompilerType$Listener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerTypeRequestListener"/>
+
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingModuleRootListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.settings.CompilerHighlightingListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener$OnCompilerHighlightingChange"
+                  activeInTestMode="false"
+                  />
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener$OnModuleRootChange"
+                  activeInTestMode="false"
+                  />
+    </projectListeners>
+</idea-plugin>

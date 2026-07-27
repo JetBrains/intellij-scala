@@ -66,6 +66,7 @@
         <module name="scalaCommunity.worksheet"/>
         <module name="scalaCommunity.debugger"/>
         <module name="scalaCommunity.compiler-integration"/>
+        <module name="scalaCommunity.compiler-highlighting"/>
         <module name="scalaCommunity.structural-search"/>
         <module name="scalaCommunity.uast"/>
 

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package compiler.highlighting
+package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.projectRoots.Sdk
@@ -9,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
+import org.jetbrains.plugins.scala.{CompilerHighlightingTests, ScalaVersion}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction, invokeAndWait}
