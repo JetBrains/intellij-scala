@@ -1,51 +1,116 @@
 package org.jetbrains.plugins.scala.compiler.buildtools
 
-import com.intellij.maven.testFramework.MavenImportingTestCase
+import com.intellij.maven.testFramework.fixtures.{MavenTestFixtureFoldersKt, MavenTestFixtureProjectKt}
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.compiler.CompilerMessageCategory
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
+import com.intellij.testFramework.CompilerTester
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.TestJdkVersionArguments
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.JdkVersionParameters
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporterTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
-import org.junit.Assert.{assertNotNull, assertTrue}
-import org.junit.Test
-import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.Assertions.{assertNotNull, assertTrue}
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.ArgumentsSource
 
-import scala.compiletime.uninitialized
+import java.nio.file.Path
 import scala.jdk.CollectionConverters.*
 
-@RunWith(classOf[Parameterized])
-class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends MavenImportingTestCase {
+@ParameterizedClass
+@ArgumentsSource(classOf[TestJdkVersionArguments])
+class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends ScalaMavenImporterTestBase(None):
 
-  private var sdk: Sdk = uninitialized
+  @Test
+  def importAndCompile_Zinc(): Unit =
+    runImportAndCompileTest(IncrementalityType.SBT)
 
-  override protected def runInDispatchThread(): Boolean = false
+  @Test
+  def importAndCompile_IDEA(): Unit =
+    runImportAndCompileTest(IncrementalityType.IDEA)
 
-  override def setUp(): Unit = {
-    super.setUp()
-
-    EdtTestUtil.runInEdtAndWait { () =>
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
-      val settings = ScalaCompileServerSettings.getInstance()
-      settings.COMPILE_SERVER_SDK = res.getName
-      settings.USE_DEFAULT_SDK = false
-      sdk = res
-    }
-
+  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit =
     CompileServerTestUtil.registerLongRunningThreads()
 
-    createProjectSubDirs("module1/src/main/java", "module2/src/main/scala")
-    createProjectPom(
+    withCompileServerJdk { sdk =>
+      setUpTestProject()
+
+      importProjects(mavenTestFixture.getProjectPom)
+
+      ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementality
+
+      val modules = ModuleManager.getInstance(getProject).getModules
+      modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
+
+      withCompiler { compiler =>
+        val jdk21warnings = Set(
+          "source value 8 is obsolete and will be removed in a future release",
+          "target value 8 is obsolete and will be removed in a future release",
+          "To suppress warnings about obsolete options, use -Xlint:-options"
+        )
+
+        val bootstrapClasspathWarnings = incrementality match
+          case IncrementalityType.SBT => Set("bootstrap class path not set in conjunction with -source 8")
+          case IncrementalityType.IDEA => Set.empty
+
+        val messages = compiler.make()
+        val errorsAndWarnings = messages.asScala.filter { message =>
+          val category = message.getCategory
+          category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
+        }.filterNot(msg => jdk21warnings.exists(s => msg.getMessage.contains(s)))
+          .filterNot(msg => bootstrapClasspathWarnings.exists(s => msg.getMessage.contains(s)))
+
+        assertTrue(
+          errorsAndWarnings.isEmpty,
+          s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}"
+        )
+
+        val module1 = modules.find(_.getName == "module1").orNull
+        assertNotNull(module1, "Could not find module with name 'module1'")
+        val module2 = modules.find(_.getName == "module2").orNull
+        assertNotNull(module2, "Could not find module with name 'module2'")
+
+        val greeter = compiler.findClassFilePath("Greeter", module1)
+        assertNotNull(greeter, "Could not find compiled class file Greeter")
+
+        val helloWorldGreeter = compiler.findClassFilePath("HelloWorldGreeter", module2)
+        assertNotNull(helloWorldGreeter, "Could not find compiled class file HelloWorldGreeter")
+
+        val helloWorldGreeterModule = compiler.findClassFilePath("HelloWorldGreeter$", module2)
+        assertNotNull(helloWorldGreeterModule, "Could not find compiled class file HelloWorldGreeter$")
+      }
+    }
+  end runImportAndCompileTest
+
+  /**
+   * Sets up the JDK for the Scala compile server around `test` and removes it afterwards.
+   * SmartJDKLoader registers the JDK in the application-level table without a disposable,
+   * so it must be removed manually.
+   */
+  private def withCompileServerJdk(test: Sdk => Unit): Unit =
+    val sdk = WriteAction.computeAndWait: () =>
+      SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.COMPILE_SERVER_SDK = sdk.getName
+    settings.USE_DEFAULT_SDK = false
+
+    try test(sdk)
+    finally
+      settings.USE_DEFAULT_SDK = true
+      settings.COMPILE_SERVER_SDK = null
+      WriteAction.runAndWait(() => ProjectJdkTable.getInstance().removeJdk(sdk))
+
+  private def setUpTestProject(): Unit =
+    MavenTestFixtureFoldersKt.createProjectSubDirs(mavenTestFixture, "module1/src/main/java", "module2/src/main/scala")
+    MavenTestFixtureProjectKt.createProjectPom(mavenTestFixture,
       """    <groupId>org.example</groupId>
         |    <artifactId>pure-java</artifactId>
         |    <packaging>pom</packaging>
@@ -58,7 +123,7 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |""".stripMargin,
       false,
     )
-    createModulePom("module1",
+    MavenTestFixtureProjectKt.createModulePom(mavenTestFixture, "module1",
       """    <!-- parent pom -->
         |    <parent>
         |        <groupId>org.example</groupId>
@@ -86,7 +151,7 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |    </build>""".stripMargin,
       false,
     )
-    createModulePom("module2",
+    MavenTestFixtureProjectKt.createModulePom(mavenTestFixture, "module2",
       """<!-- parent pom -->
         |    <parent>
         |        <groupId>org.example</groupId>
@@ -139,94 +204,31 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |    </dependencies>""".stripMargin,
       false,
     )
-    createProjectSubFile("module1/src/main/java/Greeter.java",
+    MavenTestFixtureProjectKt.createProjectSubFile(mavenTestFixture, "module1/src/main/java/Greeter.java",
       """interface Greeter {
         |  String greeting();
         |}
         |""".stripMargin)
-    createProjectSubFile("module2/src/main/scala/HelloWorldGreeter.scala",
+    MavenTestFixtureProjectKt.createProjectSubFile(mavenTestFixture, "module2/src/main/scala/HelloWorldGreeter.scala",
       """object HelloWorldGreeter extends Greeter {
         |  def greeting: String = "Hello, world!"
         |}
         |""".stripMargin)
-  }
+  end setUpTestProject
 
-  override def tearDown(): Unit = try {
-    EdtTestUtil.runInEdtAndWait { () =>
-      val settings = ScalaCompileServerSettings.getInstance()
-      settings.USE_DEFAULT_SDK = true
-      settings.COMPILE_SERVER_SDK = null
-      inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
-    }
-  } finally {
-    super.tearDown()
-  }
-
-  @Category(Array(classOf[CompilationTests_Zinc]))
-  @Test
-  def importAndCompile_Zinc(): Unit =
-    runImportAndCompileTest(IncrementalityType.SBT)
-
-  @Category(Array(classOf[CompilationTests_IDEA]))
-  @Test
-  def importAndCompile_IDEA(): Unit =
-    runImportAndCompileTest(IncrementalityType.IDEA)
-
-  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit = {
-    importProject()
-
-    ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementality
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-
-    withCompiler { compiler =>
-      val jdk21warnings = Set(
-        "source value 8 is obsolete and will be removed in a future release",
-        "target value 8 is obsolete and will be removed in a future release",
-        "To suppress warnings about obsolete options, use -Xlint:-options"
-      )
-
-      val bootstrapClasspathWarnings = incrementality match {
-        case IncrementalityType.SBT => Set("bootstrap class path not set in conjunction with -source 8")
-        case IncrementalityType.IDEA => Set.empty
-      }
-
-      val messages = compiler.make()
-      val errorsAndWarnings = messages.asScala.filter { message =>
-        val category = message.getCategory
-        category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-      }.filterNot(msg => jdk21warnings.exists(s => msg.getMessage.contains(s)))
-        .filterNot(msg => bootstrapClasspathWarnings.exists(s => msg.getMessage.contains(s)))
-
-      assertTrue(
-        s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
-        errorsAndWarnings.isEmpty
-      )
-
-      val module1 = modules.find(_.getName == "module1").orNull
-      assertNotNull("Could not find module with name 'module1'", module1)
-      val module2 = modules.find(_.getName == "module2").orNull
-      assertNotNull("Could not find module with name 'module2'", module2)
-
-      val greeter = compiler.findClassFile("Greeter", module1)
-      assertNotNull("Could not find compiled class file Greeter", greeter)
-
-      val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2)
-      assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
-
-      val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
-      assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
-    }
-  }
-
-  private def withCompiler(action: CompilerTester => Unit): Unit = {
+  private def withCompiler(action: CompilerTester => Unit): Unit =
     val project = getProject
     val modules = ModuleManager.getInstance(project).getModules
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
+    val compiler = CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     try action(compiler)
     finally compiler.tearDown()
-  }
-}
 
-private object MavenProjectWithPureJavaModuleTest extends JdkVersionParameters
+  extension (compiler: CompilerTester)
+    @Nullable
+    //noinspection SSBasedInspection
+    private def findClassFilePath(@NotNull className: String, @NotNull module: Module): Path =
+      compiler.findClassFile(className, module) match
+        case null => null
+        case file => file.toPath
+
+end MavenProjectWithPureJavaModuleTest

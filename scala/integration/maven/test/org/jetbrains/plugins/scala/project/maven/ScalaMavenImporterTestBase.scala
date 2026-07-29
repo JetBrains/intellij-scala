@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.TestInfo
 
 import java.nio.file.{Files, Path}
-import java.util.Collections
 import kotlin.coroutines.Continuation
 
 /**
@@ -48,7 +47,9 @@ abstract class ScalaMavenImporterTestBase(projectJdkVersion: Option[LanguageLeve
       null                                // initialPom: each test imports its own pom from testdata
     )
 
-  protected def getProject: Project = mavenFixture.get().getProject
+  protected def mavenTestFixture: MavenImportingTestFixture = mavenFixture.get()
+
+  protected def getProject: Project = mavenTestFixture.getProject
 
   /**
    * Sets up the project JDK for `projectJdkVersion` around `test` and removes it afterwards.
@@ -86,12 +87,7 @@ abstract class ScalaMavenImporterTestBase(projectJdkVersion: Option[LanguageLeve
   private def runBlockingUnit(body: Continuation[? >: kotlin.Unit] => AnyRef): Unit =
     CoroutinesKt.runBlockingMaybeCancellable[kotlin.Unit]((_, cont) => body(cont))
 
-  protected def runImportingTest(expected: project)(using TestInfo): Unit =
-    val pomFile = getTestProjectDir.resolve("pom.xml")
-
-    val pomVFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(pomFile)
-    assertNotNull(pomVFile, "can't find 'pom.xml' file")
-
+  protected def importProjects(files: VirtualFile*): Unit =
     val fixture = mavenFixture.get()
 
     //1:1 port of the deprecated MavenImportingTestCase.importProjects: doImportProjectsAsync sets the original
@@ -99,7 +95,7 @@ abstract class ScalaMavenImporterTestBase(projectJdkVersion: Option[LanguageLeve
     runBlockingUnit: cont =>
       MavenTestFixtureImportKt.doImportProjectsAsync(
         fixture,
-        Collections.singletonList(pomVFile),
+        java.util.Arrays.asList(files*),
         true,                // failOnReadingError
         Array.empty[String], // profiles
         cont
@@ -108,7 +104,15 @@ abstract class ScalaMavenImporterTestBase(projectJdkVersion: Option[LanguageLeve
     //...unlike the old importProjects, it does not wait for indexes and project configuration, so do it here
     IndexingTestUtil.waitUntilIndexesAreReady(getProject)
     runBlockingUnit(MavenTestFixtureImportKt.awaitConfiguration(fixture, _))
+  end importProjects
+
+  protected def runImportingTest(expected: project)(using TestInfo): Unit =
+    val pomFile = getTestProjectDir.resolve("pom.xml")
+
+    val pomVFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(pomFile)
+    assertNotNull(pomVFile, "can't find 'pom.xml' file")
+
+    importProjects(pomVFile)
 
     ProjectStructureAssertionsFixture(getProject).assertProjectsEqual(expected)
-  end runImportingTest
 end ScalaMavenImporterTestBase
