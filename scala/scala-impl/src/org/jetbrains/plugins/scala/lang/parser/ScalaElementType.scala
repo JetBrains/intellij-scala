@@ -52,7 +52,7 @@ object ScalaElementType {
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
-  val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
+  val PACKAGING = new ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val DERIVES_CLAUSE = new ScDerivesClauseElementType
@@ -141,10 +141,10 @@ object ScalaElementType {
     }
   }
 
-  val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
-  val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
-  val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType
-  val SEQ_WILDCARD_PATTERN: ScBindingPatternElementType[ScSeqWildcardPattern] = ScSeqWildcardPatternElementType
+  val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = new ScReferencePatternElementType
+  val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = new ScTypedPatternElementType
+  val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = new ScNamingPatternElementType
+  val SEQ_WILDCARD_PATTERN: ScBindingPatternElementType[ScSeqWildcardPattern] = new ScSeqWildcardPatternElementType
 
   /** ********************************************************************************** */
   /** ****************************** DEFINITION PARTS ********************************** */

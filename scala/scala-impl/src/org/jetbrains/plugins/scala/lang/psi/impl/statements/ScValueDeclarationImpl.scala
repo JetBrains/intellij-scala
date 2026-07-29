@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.annotation.nowarn
-
 final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDeclaration],
                                                 nodeType: ScPropertyElementType[ScValueDeclaration],
                                                 node: ASTNode)
@@ -32,7 +30,7 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
-  override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST): @nowarn("cat=deprecation") // IJPL-562
+  override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST, classOf[ScIdList])
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitValueDeclaration(this)

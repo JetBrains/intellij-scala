@@ -61,7 +61,6 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
       case _ => false
     }
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def extensions: Seq[ScExtension] =
     getStubOrPsiChildren(EXTENSION, ScExtensionFactory).toSeq.filterNot(_.isLocal)
 

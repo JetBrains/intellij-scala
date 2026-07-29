@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
-import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 
 class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
@@ -41,8 +40,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   private val _templateBody = cached("templateBody", ModTracker.anyScalaPsiChange, () => {
     def childStubTemplate(stub: ScExtendsBlockStub) =
-      Option(stub.findChildStubByType(TEMPLATE_BODY))
-        .map(_.getPsi): @nowarn("cat=deprecation") // IJPL-562
+      Option(stub.findChildStubByElementType(TEMPLATE_BODY))
+        .map(_.getPsi.asInstanceOf[ScTemplateBody])
 
     def lastChildTemplateBody = getLastChild match {
       case tb: ScTemplateBody => Some(tb)
@@ -236,11 +235,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def selfTypeElement: Option[ScSelfTypeElement] = templateBody.flatMap(_.selfTypeElement)
   override def extensions: Seq[ScExtension]               = templateBodies.flatMap(_.extensions)
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def templateParents: Option[ScTemplateParents] =
     getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def derivesClause: Option[ScDerivesClause] =
     getStubOrPsiChildren(DERIVES_CLAUSE, ScDerivesClauseFactory).headOption
 

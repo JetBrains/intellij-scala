@@ -23,20 +23,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
 
-import scala.annotation.nowarn
-
-final class ScPackagingImpl private[psi](stub: ScPackagingStub,
-                                         nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
-                                         node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+final class ScPackagingImpl private(stub: ScPackagingStub,
+                                    node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.PACKAGING, node)
     with ScPackaging
     with ScImportsHolder // todo: to be removed
     with ScExportsHolder
     with ScDeclarationSequenceHolder {
   import ScPackageLike._
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScPackagingStub) = this(stub, null)
 
   override def toString = "ScPackaging"
 
@@ -51,7 +51,6 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       findChild[ScStableCodeReference]
     }
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def packagings: Seq[ScPackaging] =
     getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory).toSeq
 
@@ -164,7 +163,6 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def immediateMembers: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def immediateExtensions: Seq[ScExtension] =
     getStubOrPsiChildren(EXTENSION, JavaArrayFactoryUtil.ScExtensionFactory).toSeq
 

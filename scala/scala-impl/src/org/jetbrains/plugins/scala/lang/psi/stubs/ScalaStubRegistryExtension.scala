@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{ObjectStubSerializer, StubElement, StubRegistry, StubRegistryExtension, StubSerializingElementFactory}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaElementType, ScalaParserDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScModifiersStubFactory, ScSelfTypeElementStubFactory, ScTypeAliasDeclarationStubFactory, ScTypeAliasDefinitionStubFactory}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 
 /**
  * Registers Scala's stub serializers/factories independently of the element types, so that element
@@ -26,6 +26,26 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
     registerStubSerializingFactory(registry, ScalaElementType.SELF_TYPE, new ScSelfTypeElementStubFactory(ScalaElementType.SELF_TYPE))
     registerStubSerializingFactory(registry, ScalaElementType.TYPE_DECLARATION, new ScTypeAliasDeclarationStubFactory(ScalaElementType.TYPE_DECLARATION))
     registerStubSerializingFactory(registry, ScalaElementType.TYPE_DEFINITION, new ScTypeAliasDefinitionStubFactory(ScalaElementType.TYPE_DEFINITION))
+    registerStubSerializingFactory(registry, ScalaElementType.ANNOTATION, new ScAnnotationStubFactory(ScalaElementType.ANNOTATION))
+    registerStubSerializingFactory(registry, ScalaElementType.IMPORT_EXPR, new ScImportExprStubFactory(ScalaElementType.IMPORT_EXPR))
+    registerStubSerializingFactory(registry, ScalaElementType.IMPORT_SELECTOR, new ScImportSelectorStubFactory(ScalaElementType.IMPORT_SELECTOR))
+    registerStubSerializingFactory(registry, ScalaElementType.IMPORT_SELECTORS, new ScImportSelectorsStubFactory(ScalaElementType.IMPORT_SELECTORS))
+    registerStubSerializingFactory(registry, ScalaElementType.DERIVES_CLAUSE, new ScDerivesClauseStubFactory(ScalaElementType.DERIVES_CLAUSE))
+    registerStubSerializingFactory(registry, ScalaElementType.PATTERN_LIST, new ScPatternListStubFactory(ScalaElementType.PATTERN_LIST))
+    registerStubSerializingFactory(registry, ScalaElementType.ANNOTATIONS, new ScAnnotationsStubFactory(ScalaElementType.ANNOTATIONS))
+    registerStubSerializingFactory(registry, ScalaElementType.TEMPLATE_BODY, new ScTemplateBodyStubFactory(ScalaElementType.TEMPLATE_BODY))
+    registerStubSerializingFactory(registry, ScalaElementType.EXTENSION_BODY, new ScExtensionBodyStubFactory(ScalaElementType.EXTENSION_BODY))
+    registerStubSerializingFactory(registry, ScalaElementType.TEMPLATE_PARENTS, new ScTemplateParentsStubFactory(ScalaElementType.TEMPLATE_PARENTS))
+    registerStubSerializingFactory(registry, ScalaElementType.FIELD_ID, new ScFieldIdStubFactory(ScalaElementType.FIELD_ID))
+    registerStubSerializingFactory(registry, ScalaElementType.EARLY_DEFINITIONS, new ScEarlyDefinitionsStubFactory(ScalaElementType.EARLY_DEFINITIONS))
+    registerStubSerializingFactory(registry, ScalaElementType.EXTENDS_BLOCK, new ScExtendsBlockStubFactory(ScalaElementType.EXTENDS_BLOCK))
+    registerStubSerializingFactory(registry, ScalaElementType.EXTENSION, new ScExtensionStubFactory(ScalaElementType.EXTENSION))
+    registerStubSerializingFactory(registry, ScalaElementType.IDENTIFIER_LIST, new ScIdListStubFactory(ScalaElementType.IDENTIFIER_LIST))
+    registerStubSerializingFactory(registry, ScalaElementType.PACKAGING, new ScPackagingStubFactory(ScalaElementType.PACKAGING))
+    registerStubSerializingFactory(registry, ScalaElementType.REFERENCE_PATTERN, new ScReferencePatternStubFactory(ScalaElementType.REFERENCE_PATTERN))
+    registerStubSerializingFactory(registry, ScalaElementType.TYPED_PATTERN, new ScTypedPatternStubFactory(ScalaElementType.TYPED_PATTERN))
+    registerStubSerializingFactory(registry, ScalaElementType.NAMING_PATTERN, new ScNamingPatternStubFactory(ScalaElementType.NAMING_PATTERN))
+    registerStubSerializingFactory(registry, ScalaElementType.SEQ_WILDCARD_PATTERN, new ScSeqWildcardPatternStubFactory(ScalaElementType.SEQ_WILDCARD_PATTERN))
   }
 }
 

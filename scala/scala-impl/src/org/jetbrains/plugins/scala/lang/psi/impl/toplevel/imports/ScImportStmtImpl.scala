@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 class ScImportStmtImpl(
@@ -78,7 +78,6 @@ abstract sealed class ScImportOrExportImpl[
 
   import ScImportOrExportImpl._
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def importExprs: Seq[ScImportExpr] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
 

@@ -61,7 +61,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
       case _                   => None
     })
 
-  override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST): @nowarn("cat=deprecation") // IJPL-562
+  override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST, classOf[ScPatternList])
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAL
 

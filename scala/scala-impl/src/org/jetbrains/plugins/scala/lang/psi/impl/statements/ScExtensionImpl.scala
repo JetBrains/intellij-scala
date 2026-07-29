@@ -49,7 +49,7 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     clauses.toSeq.flatMap(_.clauses.flatMap(_.parameters))
 
   override def clauses: Option[ScParameters]          = getStubOrPsiChild(PARAM_CLAUSES).toOption: @nowarn("cat=deprecation") // IJPL-562
-  override def extensionBody: Option[ScExtensionBody] = getStubOrPsiChild(EXTENSION_BODY).toOption: @nowarn("cat=deprecation") // IJPL-562
+  override def extensionBody: Option[ScExtensionBody] = getStubOrPsiChild(EXTENSION_BODY, classOf[ScExtensionBody]).toOption
 
   override def getContainingClass: PsiClass = null
 

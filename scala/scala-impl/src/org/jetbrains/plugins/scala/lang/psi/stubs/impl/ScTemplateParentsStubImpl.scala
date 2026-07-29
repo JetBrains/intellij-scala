@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import com.intellij.psi.stubs.{StubBase, StubElement}
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
@@ -13,7 +14,7 @@ import scala.collection.immutable.ArraySeq
 
 final class ScTemplateParentsStubImpl(
   parent:                         StubElement[_ <: PsiElement],
-  elementType:                    IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+  elementType:                    IElementType,
   override val parentClausesText: Array[String]
 ) extends StubBase[ScTemplateParents](parent, elementType)
     with ScTemplateParentsStub

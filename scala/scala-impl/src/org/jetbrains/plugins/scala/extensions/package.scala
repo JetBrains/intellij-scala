@@ -1692,7 +1692,7 @@ package object extensions {
   }
 
   implicit class StubBasedExt(val element: PsiElement) extends AnyVal {
-    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, _ <: Psi], f: ArrayFactory[Psi]): Array[Psi] = {
+    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IElementType with ScTypedElementType[Stub, Psi], f: ArrayFactory[Psi]): Array[Psi] = {
       def findWithNode(): Array[Psi] = {
         val nodes = SharedImplUtil.getChildrenOfType(element.getNode, elementType)
         val length = nodes.length
@@ -1706,7 +1706,7 @@ package object extensions {
       }
 
       element match {
-        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f): @nowarn("cat=deprecation") // TODO: SCL-23400
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
             (stub: StubElement[_]) => stub.getChildrenByType(elementType, f),

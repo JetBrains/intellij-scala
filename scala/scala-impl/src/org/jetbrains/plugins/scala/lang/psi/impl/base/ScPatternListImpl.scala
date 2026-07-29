@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 
-import scala.annotation.nowarn
-
 class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PATTERN_LIST, node) with ScPatternList {
 
@@ -22,7 +20,6 @@ class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
 
   override def toString: String = "ListOfPatterns"
 
-  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def patterns: Seq[ScPattern] = {
     if (simplePatternsByStub) getStubOrPsiChildren(REFERENCE_PATTERN, ScReferencePatternFactory)
     else findChildrenByClass(classOf[ScPattern])
