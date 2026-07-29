@@ -35,10 +35,10 @@ object ScalaElementType {
   val ExportStatement = new ScExportStmtElementType
 
   val EXTENSION = new ScExtensionElementType
-  val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
-  val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
-  val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration
-  val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = VariableDefinition
+  val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = new ValueDeclaration
+  val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = new ValueDefinition
+  val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = new VariableDeclaration
+  val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = new VariableDefinition
   val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = new FunctionDeclaration
   val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = new FunctionDefinition
   val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = new MacroDefinition
