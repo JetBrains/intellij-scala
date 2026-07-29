@@ -13,7 +13,6 @@ import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -154,7 +153,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   private def assertFilterMakesSenseForStubs(filter: TokenSet): Unit = {
     if (isUnitTestMode && (filter ne TokenSet.ANY)) {
       val elementTypes = filter.getTypes
-      val nonStubTypes = elementTypes.filterNot(_.is[IStubElementType[_, _]])
+      val nonStubTypes = elementTypes.filterNot(_.isInstanceOf[ScTypedElementType[_, _]])
       if (nonStubTypes.nonEmpty)
         throw new IllegalArgumentException(s"Non-stub element types (${nonStubTypes.mkString(", ")}) should not be used in getStubOrPsiChildren")
     }
