@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 
 class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
   parent:                                             StubElement[_ <: PsiElement],
-  elementType:                                        IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+  elementType:                                        IElementType,
   nameRef:                                            String,
   override val getQualifiedName:                      String,
   override val getSourceFileName:                     String,

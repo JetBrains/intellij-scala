@@ -67,6 +67,14 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
     registerStubSerializingFactory(registry, ScalaElementType.PARAM_CLAUSES, new ScParamClausesStubFactory(ScalaElementType.PARAM_CLAUSES))
     registerStubSerializingFactory(registry, ScalaElementType.TYPE_PARAM, new ScTypeParamStubFactory(ScalaElementType.TYPE_PARAM))
     registerStubSerializingFactory(registry, ScalaElementType.TYPE_PARAM_CLAUSE, new ScTypeParamClauseStubFactory(ScalaElementType.TYPE_PARAM_CLAUSE))
+    registerStubSerializingFactory(registry, ScalaElementType.ClassDefinition, new ScClassDefinitionStubFactory(ScalaElementType.ClassDefinition))
+    registerStubSerializingFactory(registry, ScalaElementType.TraitDefinition, new ScTraitDefinitionStubFactory(ScalaElementType.TraitDefinition))
+    registerStubSerializingFactory(registry, ScalaElementType.ObjectDefinition, new ScObjectDefinitionStubFactory(ScalaElementType.ObjectDefinition))
+    registerStubSerializingFactory(registry, ScalaElementType.EnumDefinition, new ScEnumDefinitionStubFactory(ScalaElementType.EnumDefinition))
+    registerStubSerializingFactory(registry, ScalaElementType.EnumClassCase, new ScEnumClassCaseStubFactory(ScalaElementType.EnumClassCase))
+    registerStubSerializingFactory(registry, ScalaElementType.EnumSingletonCase, new ScEnumSingletonCaseStubFactory(ScalaElementType.EnumSingletonCase))
+    registerStubSerializingFactory(registry, ScalaElementType.NewTemplate, new ScNewTemplateDefinitionStubFactory(ScalaElementType.NewTemplate))
+    registerStubSerializingFactory(registry, ScalaElementType.GivenDefinition, new ScGivenDefinitionStubFactory(ScalaElementType.GivenDefinition))
   }
 }
 

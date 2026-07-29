@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumClassCaseImpl, ScEnumSingletonCaseImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 
 sealed class ScalaElementType(debugName: String,
@@ -68,77 +67,37 @@ object ScalaElementType {
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
   val ClassDefinition = new ScTemplateDefinitionElementType[ScClass]("ScClass") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScClassImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScClass = new ScClassImpl(null, this, node, toString)
   }
 
   val TraitDefinition = new ScTemplateDefinitionElementType[ScTrait]("ScTrait") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScTrait],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScTraitImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScTrait = new ScTraitImpl(null, this, node, toString)
   }
 
   val ObjectDefinition = new ScTemplateDefinitionElementType[ScObject]("ScObject") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScObject],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScObjectImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScObject = new ScObjectImpl(null, this, node, toString)
   }
 
   val EnumDefinition = new ScTemplateDefinitionElementType[ScClass]("ScEnum") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScEnumImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScClass = new ScEnumImpl(null, this, node, toString)
   }
 
   val EnumClassCase = new ScTemplateDefinitionElementType[ScClass]("ScEnumClassCase") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScClass],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScEnumClassCaseImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScClass = new ScEnumClassCaseImpl(null, this, node, toString)
   }
 
   val EnumSingletonCase = new ScTemplateDefinitionElementType[ScObject]("ScEnumSingletonCase") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScObject],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScEnumSingletonCaseImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScObject = new ScEnumSingletonCaseImpl(null, this, node, toString)
   }
 
   val EnumCases = new ScEnumCasesElementType
 
   val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
-
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScNewTemplateDefinitionImpl(stub, nodeType, node, debugName)
+    override def createElement(node: ASTNode): ScNewTemplateDefinition = new ScNewTemplateDefinitionImpl(null, this, node, toString)
   }
 
   val GivenDefinition = new ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
-    override protected def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition],
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String): ScGivenDefinition = {
-      new ScGivenDefinitionImpl(stub, nodeType, node, debugName)
-    }
+    override def createElement(node: ASTNode): ScGivenDefinition = new ScGivenDefinitionImpl(null, this, node, toString)
   }
 
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = new ScReferencePatternElementType
