@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTypedElementType
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
@@ -1741,17 +1742,17 @@ package object extensions {
 
     def stubOrPsiChildren: Array[PsiElement] = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
 
-    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
+    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IElementType with ScTypedElementType[Stub, Psi]): Option[Psi] = {
       def findWithNode() = {
         val node = Option(element.getNode.findChildByType(elementType))
         node.map(_.getPsi.asInstanceOf[Psi])
       }
 
       element match {
-        case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType)): @nowarn("cat=deprecation") // IJPL-562
+        case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType)).map(_.asInstanceOf[Psi])
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
-            (stub: StubElement[_]) => Option(stub.findChildStubByType(elementType)).map(_.getPsi): @nowarn("cat=deprecation"), // IJPL-562
+            (stub: StubElement[_]) => Option(stub.findChildStubByElementType(elementType)).map(_.getPsi.asInstanceOf[Psi]),
             (_: FileElement) => findWithNode()
           )
         case _ => findWithNode()

@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
-import com.intellij.psi.stubs.{ObjectStubSerializer, StubElement, StubRegistry, StubRegistryExtension}
+import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{ObjectStubSerializer, StubElement, StubRegistry, StubRegistryExtension, StubSerializingElementFactory}
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaParserDefinition}
+import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaElementType, ScalaParserDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScModifiersStubFactory
 
 /**
  * Registers Scala's stub serializers/factories independently of the element types, so that element
@@ -16,6 +18,8 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
 
     registerStubSerializer(registry, scalaFileType, new ScalaFileStubSerializer(scalaFileType))
     registerStubSerializer(registry, scala3FileType, new ScalaFileStubSerializer(scala3FileType))
+
+    registerStubSerializingFactory(registry, ScalaElementType.MODIFIERS, new ScModifiersStubFactory(ScalaElementType.MODIFIERS))
   }
 }
 
@@ -28,4 +32,10 @@ trait ScalaStubRegistryExtensionAdapter extends StubRegistryExtension {
     elementType: IElementType,
     serializer: Serializer,
   ): Unit = registry.registerStubSerializer(elementType, serializer)
+
+  def registerStubSerializingFactory[Factory <: StubSerializingElementFactory[_ <: StubElement[_], _ <: PsiElement]](
+    registry: StubRegistry,
+    elementType: IElementType,
+    factory: Factory,
+  ): Unit = registry.registerStubSerializingFactory(elementType, factory)
 }

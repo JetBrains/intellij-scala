@@ -8,6 +8,7 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTypedElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 import scala.annotation.nowarn
 
@@ -73,7 +73,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@Nullable stub: S,
-                                                                               nodeType: ScStubElementType[S, T],
+                                                                               nodeType: IElementType with ScTypedElementType[S, T],
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
     with StubBasedPsiElement[S]

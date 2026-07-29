@@ -6,7 +6,7 @@ import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
+import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
@@ -18,9 +18,7 @@ abstract class ScStubElementType[
 ](debugName: String,
   language: Language = ScalaLanguage.INSTANCE)
   extends IStubElementType[S, T](debugName, language)
-    with SelfPsiCreator {
-
-  override def createElement(node: ASTNode): T
+    with ScTypedElementType[S, T] {
 
   override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
     ScStubElementType.Processing.run {
@@ -64,7 +62,7 @@ object ScStubElementType {
   }
 
   @tailrec
-  private def isLocal(node: ASTNode): Boolean = node match {
+  private[stubs] def isLocal(node: ASTNode): Boolean = node match {
     case _: FileElement | null => false
     case _ =>
       node.getElementType match {
