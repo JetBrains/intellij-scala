@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{ObjectStubSerializer, StubElement, StubRegistry, StubRegistryExtension, StubSerializingElementFactory}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaElementType, ScalaParserDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScModifiersStubFactory, ScSelfTypeElementStubFactory}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScModifiersStubFactory, ScSelfTypeElementStubFactory, ScTypeAliasDeclarationStubFactory, ScTypeAliasDefinitionStubFactory}
 
 /**
  * Registers Scala's stub serializers/factories independently of the element types, so that element
@@ -24,6 +24,8 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
 
     registerStubSerializingFactory(registry, ScalaElementType.MODIFIERS, new ScModifiersStubFactory(ScalaElementType.MODIFIERS))
     registerStubSerializingFactory(registry, ScalaElementType.SELF_TYPE, new ScSelfTypeElementStubFactory(ScalaElementType.SELF_TYPE))
+    registerStubSerializingFactory(registry, ScalaElementType.TYPE_DECLARATION, new ScTypeAliasDeclarationStubFactory(ScalaElementType.TYPE_DECLARATION))
+    registerStubSerializingFactory(registry, ScalaElementType.TYPE_DEFINITION, new ScTypeAliasDefinitionStubFactory(ScalaElementType.TYPE_DEFINITION))
   }
 }
 

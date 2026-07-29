@@ -72,7 +72,7 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
   override def selfTypeElement: Option[ScSelfTypeElement] = _selfTypeElement()
 
   private val _selfTypeElement = cached("selfTypeElement", ModTracker.anyScalaPsiChange, () => {
-    Option(getStubOrPsiChild(SELF_TYPE)): @nowarn("cat=deprecation") // IJPL-562
+    Option(getStubOrPsiChild(SELF_TYPE, classOf[ScSelfTypeElement]))
   })
 
   override def processDeclarations(processor: PsiScopeProcessor,
