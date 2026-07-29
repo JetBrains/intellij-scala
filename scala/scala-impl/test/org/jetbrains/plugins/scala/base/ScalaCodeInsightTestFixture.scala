@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.{Editor, EditorCopyPasteHelper}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
 import org.junit.Assert.assertNotNull
