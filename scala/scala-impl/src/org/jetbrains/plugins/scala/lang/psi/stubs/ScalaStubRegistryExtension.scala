@@ -46,6 +46,11 @@ final class ScalaStubRegistryExtension extends ScalaStubRegistryExtensionAdapter
     registerStubSerializingFactory(registry, ScalaElementType.TYPED_PATTERN, new ScTypedPatternStubFactory(ScalaElementType.TYPED_PATTERN))
     registerStubSerializingFactory(registry, ScalaElementType.NAMING_PATTERN, new ScNamingPatternStubFactory(ScalaElementType.NAMING_PATTERN))
     registerStubSerializingFactory(registry, ScalaElementType.SEQ_WILDCARD_PATTERN, new ScSeqWildcardPatternStubFactory(ScalaElementType.SEQ_WILDCARD_PATTERN))
+    registerStubSerializingFactory(registry, ScalaElementType.FUNCTION_DECLARATION, new ScFunctionDeclarationStubFactory(ScalaElementType.FUNCTION_DECLARATION))
+    registerStubSerializingFactory(registry, ScalaElementType.FUNCTION_DEFINITION, new ScFunctionDefinitionStubFactory(ScalaElementType.FUNCTION_DEFINITION))
+    registerStubSerializingFactory(registry, ScalaElementType.MACRO_DEFINITION, new ScMacroDefinitionStubFactory(ScalaElementType.MACRO_DEFINITION))
+    registerStubSerializingFactory(registry, ScalaElementType.GIVEN_ALIAS_DECLARATION, new ScGivenAliasDeclarationStubFactory(ScalaElementType.GIVEN_ALIAS_DECLARATION))
+    registerStubSerializingFactory(registry, ScalaElementType.GIVEN_ALIAS_DEFINITION, new ScGivenAliasDefinitionStubFactory(ScalaElementType.GIVEN_ALIAS_DEFINITION))
   }
 }
 

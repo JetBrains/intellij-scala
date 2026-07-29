@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 
 final class ScFunctionStubImpl[F <: ScFunction](
   parent:                                        StubElement[_ <: PsiElement],
-  elementType:                                   IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+  elementType:                                   IElementType,
   name:                                          String,
   override val isDeclaration:                    Boolean,
   override val annotations:                      Array[String],

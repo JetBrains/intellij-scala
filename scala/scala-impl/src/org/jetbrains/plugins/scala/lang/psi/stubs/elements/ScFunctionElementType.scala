@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream, StubSerializingElementFactory}
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -17,7 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, 
 
 abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
                                                         language: Language = ScalaLanguage.INSTANCE)
-  extends ScStubElementType[ScFunctionStub[Fun], Fun](debugName, language) {
+  extends ScalaStubBasedElementType[ScFunctionStub[Fun], Fun](debugName, language)
+
+abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: IElementType)
+  extends StubSerializingElementFactory[ScFunctionStub[Fun], Fun] {
 
   override def serialize(stub: ScFunctionStub[Fun], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -36,10 +40,10 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeNames(stub.givenClassNames)
   }
 
-  override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]) =
+  override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] =
     new ScFunctionStubImpl(
       parent,
-      this,
+      elementType,
       name                             = dataStream.readNameString,
       isDeclaration                    = dataStream.readBoolean,
       annotations                      = dataStream.readNames,
@@ -56,60 +60,60 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       givenClassNames                  = dataStream.readNames,
     )
 
-  override def createStubImpl(function: Fun,
-                              parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
-    val returnTypeElement = function.returnTypeElement
+  override def createStub(function: Fun, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] =
+    ScStubElementType.Processing.run {
+      val returnTypeElement = function.returnTypeElement
 
-    val returnTypeText = returnTypeElement.map(_.getText)
+      val returnTypeText = returnTypeElement.map(_.getText)
 
-    val maybeDefinition = function.asOptionOfUnsafe[ScFunctionDefinition]
+      val maybeDefinition = function.asOptionOfUnsafe[ScFunctionDefinition]
 
-    val bodyText = returnTypeText match {
-      case Some(_) => None
-      case None =>
-        val text = maybeDefinition.flatMap(_.body).map {
-          case block: ScBlockExpr if !block.hasLBrace => s"{${block.getText}}"
-          case body                                   => body.getText
-        }
-        // just for some unpredictable cases when body is empty, e.g. `def this() = ???` is parsed to empty constructor body, see SCL-18521)
-        // empty body can lead to issues during building psi element from stubs
-        text.filter(StringUtils.isNotEmpty)
+      val bodyText = returnTypeText match {
+        case Some(_) => None
+        case None =>
+          val text = maybeDefinition.flatMap(_.body).map {
+            case block: ScBlockExpr if !block.hasLBrace => s"{${block.getText}}"
+            case body                                   => body.getText
+          }
+          // just for some unpredictable cases when body is empty, e.g. `def this() = ???` is parsed to empty constructor body, see SCL-18521)
+          // empty body can lead to issues during building psi element from stubs
+          text.filter(StringUtils.isNotEmpty)
+      }
+
+      val annotations = function.annotations
+        .map(_.annotationExpr.constructorInvocation.typeElement)
+        .asStrings { text =>
+        text.substring(text.lastIndexOf('.') + 1)
+      }
+
+      val implicitConversionParamClass =
+        if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
+        else None
+
+      val (isGivenAlias, givenAliasClassNames) = function match {
+        case alias: ScGivenAlias => (true, ScGivenStub.givenAliasClassNames(alias))
+        case _                   => (false, EMPTY_STRING_ARRAY)
+      }
+
+      new ScFunctionStubImpl(
+        parentStub,
+        elementType,
+        name                             = function.name,
+        isDeclaration                    = function.isInstanceOf[ScFunctionDeclaration],
+        annotations                      = annotations,
+        typeText                         = returnTypeText,
+        bodyText                         = bodyText,
+        hasAssign                        = maybeDefinition.exists(_.hasAssign),
+        implicitConversionParameterClass = implicitConversionParamClass,
+        isLocal                          = function.containingClass == null,
+        implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
+        isTopLevel                       = function.isTopLevel,
+        topLevelQualifier                = function.topLevelQualifier,
+        isExtensionMethod                = function.isExtensionMethod,
+        isGiven                          = isGivenAlias,
+        givenClassNames                  = givenAliasClassNames,
+      )
     }
-
-    val annotations = function.annotations
-      .map(_.annotationExpr.constructorInvocation.typeElement)
-      .asStrings { text =>
-      text.substring(text.lastIndexOf('.') + 1)
-    }
-
-    val implicitConversionParamClass =
-      if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
-      else None
-
-    val (isGivenAlias, givenAliasClassNames) = function match {
-      case alias: ScGivenAlias => (true, ScGivenStub.givenAliasClassNames(alias))
-      case _                   => (false, EMPTY_STRING_ARRAY)
-    }
-
-    new ScFunctionStubImpl(
-      parentStub,
-      this,
-      name                             = function.name,
-      isDeclaration                    = function.isInstanceOf[ScFunctionDeclaration],
-      annotations                      = annotations,
-      typeText                         = returnTypeText,
-      bodyText                         = bodyText,
-      hasAssign                        = maybeDefinition.exists(_.hasAssign),
-      implicitConversionParameterClass = implicitConversionParamClass,
-      isLocal                          = function.containingClass == null,
-      implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
-      isTopLevel                       = function.isTopLevel,
-      topLevelQualifier                = function.topLevelQualifier,
-      isExtensionMethod                = function.isExtensionMethod,
-      isGiven                          = isGivenAlias,
-      givenClassNames                  = givenAliasClassNames,
-    )
-  }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
@@ -138,39 +142,87 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     stub.indexImplicits(sink)
     stub.indexGivens(sink)
   }
+
+  override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 }
 
-object FunctionDeclaration extends ScFunctionElementType[ScFunctionDeclaration]("function declaration") {
-
-  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, null, node)
-
-  override def createPsi(stub: ScFunctionStub[ScFunctionDeclaration]) = new ScFunctionDeclarationImpl(stub, this, null)
+final class FunctionDeclaration extends ScFunctionElementType[ScFunctionDeclaration](FunctionDeclaration.DebugName) {
+  override def createElement(node: ASTNode): ScFunctionDeclaration = new ScFunctionDeclarationImpl(null, null, node)
 }
 
-object FunctionDefinition extends ScFunctionElementType[ScFunctionDefinition]("function definition") {
-
-  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, null, node)
-
-  override def createPsi(stub: ScFunctionStub[ScFunctionDefinition]) = new ScFunctionDefinitionImpl(stub, this, null)
+object FunctionDeclaration {
+  val DebugName = "function declaration"
 }
 
-object MacroDefinition extends ScFunctionElementType[ScMacroDefinition]("macro definition") {
+class ScFunctionDeclarationStubFactory(elementType: ScFunctionElementType[ScFunctionDeclaration])
+  extends ScFunctionStubFactory[ScFunctionDeclaration](elementType) {
 
-  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, null, node)
+  override def createPsi(stub: ScFunctionStub[ScFunctionDeclaration]): ScFunctionDeclaration =
+    new ScFunctionDeclarationImpl(stub, elementType, null)
 
-  override def createPsi(stub: ScFunctionStub[ScMacroDefinition]) = new ScMacroDefinitionImpl(stub, this, null)
+  override def getExternalId: String = s"scala.${FunctionDeclaration.DebugName}"
 }
 
-object GivenAliasDeclaration extends ScFunctionElementType[ScGivenAliasDeclaration]("given alias declaration") {
-
-  override def createElement(node: ASTNode) = new ScGivenAliasDeclarationImpl(null, null, node)
-
-  override def createPsi(stub: ScFunctionStub[ScGivenAliasDeclaration]) = new ScGivenAliasDeclarationImpl(stub, this, null)
+final class FunctionDefinition extends ScFunctionElementType[ScFunctionDefinition](FunctionDefinition.DebugName) {
+  override def createElement(node: ASTNode): ScFunctionDefinition = new ScFunctionDefinitionImpl(null, null, node)
 }
 
-object GivenAliasDefinition extends ScFunctionElementType[ScGivenAliasDefinition]("given alias definition") {
+object FunctionDefinition {
+  val DebugName = "function definition"
+}
 
-  override def createElement(node: ASTNode) = new ScGivenAliasDefinitionImpl(null, null, node)
+class ScFunctionDefinitionStubFactory(elementType: ScFunctionElementType[ScFunctionDefinition])
+  extends ScFunctionStubFactory[ScFunctionDefinition](elementType) {
+  override def createPsi(stub: ScFunctionStub[ScFunctionDefinition]): ScFunctionDefinition =
+    new ScFunctionDefinitionImpl(stub, elementType, null)
 
-  override def createPsi(stub: ScFunctionStub[ScGivenAliasDefinition]) = new ScGivenAliasDefinitionImpl(stub, this, null)
+  override def getExternalId: String = s"scala.${FunctionDefinition.DebugName}"
+}
+
+final class MacroDefinition extends ScFunctionElementType[ScMacroDefinition](MacroDefinition.DebugName) {
+  override def createElement(node: ASTNode): ScMacroDefinition = new ScMacroDefinitionImpl(null, null, node)
+}
+
+object MacroDefinition {
+  val DebugName = "macro definition"
+}
+
+class ScMacroDefinitionStubFactory(elementType: ScFunctionElementType[ScMacroDefinition])
+  extends ScFunctionStubFactory[ScMacroDefinition](elementType) {
+  override def createPsi(stub: ScFunctionStub[ScMacroDefinition]): ScMacroDefinition =
+    new ScMacroDefinitionImpl(stub, elementType, null)
+
+  override def getExternalId: String = s"scala.${MacroDefinition.DebugName}"
+}
+
+final class GivenAliasDeclaration extends ScFunctionElementType[ScGivenAliasDeclaration](GivenAliasDeclaration.DebugName) {
+  override def createElement(node: ASTNode): ScGivenAliasDeclaration = new ScGivenAliasDeclarationImpl(null, null, node)
+}
+
+object GivenAliasDeclaration {
+  val DebugName = "given alias declaration"
+}
+
+class ScGivenAliasDeclarationStubFactory(elementType: ScFunctionElementType[ScGivenAliasDeclaration])
+  extends ScFunctionStubFactory[ScGivenAliasDeclaration](elementType) {
+  override def createPsi(stub: ScFunctionStub[ScGivenAliasDeclaration]): ScGivenAliasDeclaration =
+    new ScGivenAliasDeclarationImpl(stub, elementType, null)
+
+  override def getExternalId: String = s"scala.${GivenAliasDeclaration.DebugName}"
+}
+
+final class GivenAliasDefinition extends ScFunctionElementType[ScGivenAliasDefinition](GivenAliasDefinition.DebugName) {
+  override def createElement(node: ASTNode): ScGivenAliasDefinition = new ScGivenAliasDefinitionImpl(null, null, node)
+}
+
+object GivenAliasDefinition {
+  val DebugName = "given alias definition"
+}
+
+class ScGivenAliasDefinitionStubFactory(elementType: ScFunctionElementType[ScGivenAliasDefinition])
+  extends ScFunctionStubFactory[ScGivenAliasDefinition](elementType) {
+  override def createPsi(stub: ScFunctionStub[ScGivenAliasDefinition]): ScGivenAliasDefinition =
+    new ScGivenAliasDefinitionImpl(stub, elementType, null)
+
+  override def getExternalId: String = s"scala.${GivenAliasDefinition.DebugName}"
 }

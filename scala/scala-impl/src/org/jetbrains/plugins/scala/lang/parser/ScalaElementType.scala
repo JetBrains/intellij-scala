@@ -39,11 +39,11 @@ object ScalaElementType {
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration
   val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = VariableDefinition
-  val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = FunctionDeclaration
-  val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = FunctionDefinition
-  val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = MacroDefinition
-  val GIVEN_ALIAS_DECLARATION: ScFunctionElementType[ScGivenAliasDeclaration] = GivenAliasDeclaration
-  val GIVEN_ALIAS_DEFINITION: ScFunctionElementType[ScGivenAliasDefinition] = GivenAliasDefinition
+  val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = new FunctionDeclaration
+  val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = new FunctionDefinition
+  val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = new MacroDefinition
+  val GIVEN_ALIAS_DECLARATION: ScFunctionElementType[ScGivenAliasDeclaration] = new GivenAliasDeclaration
+  val GIVEN_ALIAS_DEFINITION: ScFunctionElementType[ScGivenAliasDefinition] = new GivenAliasDefinition
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
