@@ -5,29 +5,30 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.bsp.*
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
 import org.jetbrains.bsp.protocol.BspCommunication.*
 import org.jetbrains.bsp.protocol.BspConfigRegeneration.RegenerationReason
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
+import org.jetbrains.bsp.protocol.session.*
 import org.jetbrains.bsp.protocol.session.BspServerConnector.*
 import org.jetbrains.bsp.protocol.session.BspSession.*
-import org.jetbrains.bsp.protocol.session.*
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.isUnitTestMode
 
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -226,12 +227,19 @@ class BspCommunication private[protocol](base: Path, initialServerConfig: BspSer
         project <- findProject
         _ <- BspUtil.getBspProjectSettings(project, base)
       } {
-        FileDocumentManager.getInstance.saveAllDocuments()
+        if isUnitTestMode then
+          projectCallbackInvocationCount.incrementAndGet()
+
+        log.info("[BspCommunication] Got DidChangeBuildTarget notification. Project refresh is triggered")
         ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))
       }
     case _ => // ignore
   }
 
+  /** Number of times [[projectCallback]] has triggered a reload. */
+  @TestOnly
+  private[protocol] val projectCallbackInvocationCount = new AtomicInteger(0)
+  
   /**
    * Close this session. This method may block on I/O.
    * Consider adding synchronization to this method `session.synchronized { ... }`
@@ -251,6 +259,20 @@ class BspCommunication private[protocol](base: Path, initialServerConfig: BspSer
   }
 
   def alive: Boolean = session.get().exists(_.isAlive)
+
+  /**
+   * Push a notification into the BSP session as if the BSP server had sent it.
+   *
+   * This is done to simplify the tests and avoid depending on a specific BSP server implementation whether
+   * it sends particular notifications after certain actions or not. The goal in tests is to verify that a given notification
+   * triggers the expected actions in IntelliJ.
+   */
+  @TestOnly
+  private[protocol] def simulateServerNotificationForTest(notification: BspNotification): Unit =
+    session.get() match {
+      case Some(s) => s.notifications(notification)
+      case None    => throw new IllegalStateException(s"No live BSP session for workspace $base")
+    }
 
   /**
    * @param canGenerateBspConfigFile whether to auto-generate missing BSP config before server startup.

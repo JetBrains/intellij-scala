@@ -9,6 +9,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.bsp.*
 import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications.*
@@ -68,9 +69,10 @@ class BspSession private(bspPID: Long,
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
     .scheduleWithFixedDelay(() => nextQueuedCommand(), queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
 
-  private def notifications(notification: BspNotification): Unit =
+  @VisibleForTesting
+  private[protocol] def notifications(notification: BspNotification): Unit =
     notificationCallbacks.foreach(_.apply(notification))
-
+  
   private def nextQueuedCommand(): Unit = {
     val initialisationResult = waitForSessionInitialization(sessionTimeout)
     initialisationResult match {
