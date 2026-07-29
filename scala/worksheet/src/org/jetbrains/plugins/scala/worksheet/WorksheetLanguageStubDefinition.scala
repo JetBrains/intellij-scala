@@ -1,0 +1,9 @@
+package org.jetbrains.plugins.scala.worksheet
+
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScalaLanguageStubDefinitionBase
+
+final class WorksheetLanguageStubDefinition
+  extends ScalaLanguageStubDefinitionBase(WorksheetParserDefinition.FileNodeType)
+
+final class Worksheet3LanguageStubDefinition
+  extends ScalaLanguageStubDefinitionBase(WorksheetParserDefinition3.FileNodeType)

@@ -19,6 +19,10 @@
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
 
+        <languageStubDefinition language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetLanguageStubDefinition"/>
+        <languageStubDefinition language="Scala 3 Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.Worksheet3LanguageStubDefinition"/>
+        <stubElementRegistryExtension implementation="org.jetbrains.plugins.scala.worksheet.WorksheetStubRegistryExtension"/>
+
         <lang.parserDefinition language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.parserDefinition language="Scala 3 Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition3"/>
 

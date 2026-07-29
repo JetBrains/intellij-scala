@@ -53,14 +53,14 @@ object ScClassFileDecompiler {
         .forLanguage(ScalaLanguage.INSTANCE)
         .asInstanceOf[ScalaParserDefinition]
         .getFileNodeType
-        .getBuilder
+        .stubBuilder
 
     private def stub3Builder =
       LanguageParserDefinitions.INSTANCE
         .forLanguage(Scala3Language.INSTANCE)
         .asInstanceOf[Scala3ParserDefinition]
         .getFileNodeType
-        .getBuilder
+        .stubBuilder
   }
 
   private def decompiledScalaFile(content: FileContent): Option[PsiFile] = {

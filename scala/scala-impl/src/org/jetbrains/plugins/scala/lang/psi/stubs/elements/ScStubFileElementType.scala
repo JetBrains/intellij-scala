@@ -3,34 +3,40 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs._
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
+import com.intellij.psi.templateLanguages.TemplateLanguage
+import com.intellij.psi.tree.{IElementType, IFileElementType, IStubFileElementType, TemplateLanguageStubBaseVersion}
+import com.intellij.psi.{PsiClass, PsiFile}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 
+/**
+ * A plain [[IFileElementType]] loadable on the Remote Development frontend. Stub support is provided independently:
+ *  - stub building / versioning via [[org.jetbrains.plugins.scala.lang.psi.stubs.ScalaLanguageStubDefinitionBase]]
+ *  - file stub serialization via [[org.jetbrains.plugins.scala.lang.psi.stubs.ScalaFileStubSerializer]]
+ */
 //noinspection TypeAnnotation
-class ScStubFileElementType(override val getExternalId: String,
-                            language: Language)
-  extends tree.IStubFileElementType[ScFileStub](getExternalId, language) {
+class ScStubFileElementType(debugName: String, language: Language)
+  extends IFileElementType(debugName, language) {
 
-  override final def getStubVersion: Int =
-    super.getStubVersion + ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+  /** External id used by the file stub serializer (formerly [[IStubFileElementType.getExternalId]]). */
+  val stubExternalId: String = debugName
 
-  override def shouldBuildStubFor(file: VirtualFile): Boolean =
+  /**
+   * Stub serialization format version for this language
+   */
+  def stubVersion: Int =
+    ScStubFileElementType.getStubVersion(language) + ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+
+  def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
 
-  override def getBuilder = new ScFileStubBuilderImpl
+  def stubBuilder = new ScFileStubBuilderImpl
 
-  override final def serialize(stub: ScFileStub,
-                               dataStream: StubOutputStream): Unit = {}
-
-  override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]) =
-    new ScFileStubImpl(null)
-
-  override final def indexStub(stub: ScFileStub,
-                               sink: IndexSink): Unit = {}
+  /** Used by [[org.jetbrains.plugins.scala.lang.psi.stubs.ScalaFileStubSerializer]] on deserialize. */
+  def createFileStub(@Nullable file: ScalaFile): ScFileStub = new ScFileStubImpl(file)
 
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
@@ -44,10 +50,15 @@ class ScStubFileElementType(override val getExternalId: String,
       }
   }
 
-  protected final class ScFileStubImpl(file: ScalaFile)
+  protected final class ScFileStubImpl(@Nullable file: ScalaFile)
     extends PsiFileStubImpl(file) with ScFileStub {
 
-    override def getType = ScStubFileElementType.this
+    override def getType: IStubFileElementType[_] =
+      throw new UnsupportedOperationException("Use getFileElementType() instead")
+
+    override def getFileElementType: IElementType = ScStubFileElementType.this
+
+    override def getElementType: IElementType = getFileElementType
 
     override def getClasses: Array[PsiClass] = getChildrenByType(
       TokenSets.TYPE_DEFINITIONS,
@@ -63,4 +74,17 @@ object ScStubFileElementType {
     s"${language.getDisplayName.toLowerCase} FILE".replace(' ', '.'),
     language
   )
+
+  private def getStubVersion(language: Language): Int = language match {
+    case _: TemplateLanguage =>
+      //noinspection ApiStatus,UnstableApiUsage
+      BaseStubVersion + TemplateLanguageStubBaseVersion.getVersion
+    case _ => BaseStubVersion
+  }
+
+  /**
+   * Should be incremented each time when stub tree changes (e.g. elements added/removed,
+   * element serialization/deserialization changes)
+   */
+  private val BaseStubVersion = 1
 }
