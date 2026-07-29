@@ -1,50 +1,91 @@
 package org.jetbrains.plugins.scala.compiler.polyglot
 
-import com.intellij.maven.testFramework.MavenImportingTestCase
+import com.intellij.maven.testFramework.fixtures.{MavenTestFixtureFoldersKt, MavenTestFixtureProjectKt}
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.{CompilerTester, EdtTestUtil, IndexingTestUtil}
-import org.jetbrains.plugins.scala.CompilationTests_Zinc
+import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
+import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.TestJdkVersionArguments
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.JdkVersionParameters
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporterTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.junit.Assert.{assertEquals, assertNotNull}
-import org.junit.Test
-import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.Assertions.{assertEquals, assertNotNull, assertTrue}
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.ArgumentsSource
 
-import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[Parameterized])
-class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImportingTestCase {
+@ParameterizedClass
+@ArgumentsSource(classOf[TestJdkVersionArguments])
+class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends ScalaMavenImporterTestBase(None):
 
-  private var sdk: Sdk = uninitialized
-
-  override protected def runInDispatchThread(): Boolean = false
-
-  override def setUp(): Unit = {
-    super.setUp()
-
-    EdtTestUtil.runInEdtAndWait { () =>
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
-      val settings = ScalaCompileServerSettings.getInstance()
-      settings.COMPILE_SERVER_SDK = res.getName
-      settings.USE_DEFAULT_SDK = false
-      sdk = res
-    }
-
+  @Test
+  def polyglotCompilation(): Unit =
     CompileServerTestUtil.registerLongRunningThreads()
 
-    createProjectSubDirs("module1/src/main/java", "module1/src/main/kotlin", "module2/src/main/scala")
-    createProjectPom(
+    withCompileServerJdk { sdk =>
+      setUpTestProject()
+
+      importProjects(mavenTestFixture.getProjectPom)
+
+      KotlinDaemonUtil.disableKotlinDaemon(getProject)
+
+      val modules = ModuleManager.getInstance(getProject).getModules
+      modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
+
+      IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+
+      assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
+      val module1 = findModule("module1")
+      val module2 = findModule("module2")
+
+      withCompiler { compiler =>
+        val messages = compiler.make()
+        val errors = messages.asScala.filter(_.getCategory == CompilerMessageCategory.ERROR)
+        assertTrue(errors.isEmpty, s"Expected no compilation errors, got: ${errors.mkString(System.lineSeparator())}")
+
+        assertClassExists(compiler, "Greeter", module1)
+        assertClassExists(compiler, "AbstractGreeter", module1)
+        assertClassExists(compiler, "HelloWorldGreeter", module2)
+      }
+    }
+
+  /**
+   * Sets up the JDK as the project SDK and for the Scala compile server around `test`, and removes it afterwards,
+   * together with the "Kotlin SDK" registered by the Kotlin Maven import. SmartJDKLoader and the Kotlin importer
+   * register them in the application-level table without a disposable, so they must be removed manually.
+   */
+  private def withCompileServerJdk(test: Sdk => Unit): Unit =
+    val sdk = WriteAction.computeAndWait: () =>
+      val sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+      ProjectRootManager.getInstance(getProject).setProjectSdk(sdk)
+      sdk
+
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.COMPILE_SERVER_SDK = sdk.getName
+    settings.USE_DEFAULT_SDK = false
+
+    try test(sdk)
+    finally
+      settings.USE_DEFAULT_SDK = true
+      settings.COMPILE_SERVER_SDK = null
+      WriteAction.runAndWait { () =>
+        val jdkTable = ProjectJdkTable.getInstance()
+        jdkTable.removeJdk(sdk)
+        val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
+        kotlinSdk.foreach(jdkTable.removeJdk)
+      }
+
+  private def setUpTestProject(): Unit =
+    MavenTestFixtureFoldersKt.createProjectSubDirs(mavenTestFixture, "module1/src/main/java", "module1/src/main/kotlin", "module2/src/main/scala")
+    MavenTestFixtureProjectKt.createProjectPom(mavenTestFixture,
       """<groupId>org.example</groupId>
         |<artifactId>polyglot-maven</artifactId>
         |<packaging>pom</packaging>
@@ -57,7 +98,7 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |""".stripMargin,
       false,
     )
-    createModulePom("module1",
+    MavenTestFixtureProjectKt.createModulePom(mavenTestFixture, "module1",
       """<!-- parent pom -->
         |<parent>
         |  <groupId>org.example</groupId>
@@ -77,6 +118,14 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |  <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         |  <kotlin.version>2.0.21</kotlin.version>
         |</properties>
+        |
+        |<dependencies>
+        |  <dependency>
+        |    <groupId>org.jetbrains.kotlin</groupId>
+        |    <artifactId>kotlin-stdlib</artifactId>
+        |    <version>${kotlin.version}</version>
+        |  </dependency>
+        |</dependencies>
         |
         |<repositories>
         |  <repository>
@@ -157,7 +206,7 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |""".stripMargin,
       false,
     )
-    createModulePom("module2",
+    MavenTestFixtureProjectKt.createModulePom(mavenTestFixture, "module2",
       """<!-- parent pom -->
         |<parent>
         |  <groupId>org.example</groupId>
@@ -197,80 +246,36 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |""".stripMargin,
       false,
     )
-
-    createProjectSubFile("module1/src/main/java/Greeter.java",
+    MavenTestFixtureProjectKt.createProjectSubFile(mavenTestFixture, "module1/src/main/java/Greeter.java",
       """public interface Greeter {
         |  String greeting();
         |}
         |""".stripMargin)
-    createProjectSubFile("module1/src/main/kotlin/AbstractGreeter.kt",
+    MavenTestFixtureProjectKt.createProjectSubFile(mavenTestFixture, "module1/src/main/kotlin/AbstractGreeter.kt",
       """abstract class AbstractGreeter(private val str: String) : Greeter {
         |  override fun greeting(): String = str
         |}
         |""".stripMargin)
-    createProjectSubFile("module2/src/main/scala/HelloWorldGreeter.scala",
+    MavenTestFixtureProjectKt.createProjectSubFile(mavenTestFixture, "module2/src/main/scala/HelloWorldGreeter.scala",
       """object HelloWorldGreeter extends AbstractGreeter("Hello, world!")
         |""".stripMargin)
+  end setUpTestProject
 
-    importProject()
-
-    KotlinDaemonUtil.disableKotlinDaemon(getProject)
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
-  }
-
-  override def tearDown(): Unit = try {
-    EdtTestUtil.runInEdtAndWait { () =>
-      val settings = ScalaCompileServerSettings.getInstance()
-      settings.USE_DEFAULT_SDK = true
-      settings.COMPILE_SERVER_SDK = null
-      inWriteAction {
-        val jdkTable = ProjectJdkTable.getInstance()
-        jdkTable.removeJdk(sdk)
-        val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
-        kotlinSdk.foreach(jdkTable.removeJdk)
-      }
-    }
-  } finally {
-    super.tearDown()
-  }
-
-  @Test
-  def polyglotCompilation(): Unit = {
-    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
-    val module1 = findModule("module1")
-    val module2 = findModule("module2")
-
-    withCompiler { compiler =>
-      compiler.make()
-      assertClassExists(compiler, "Greeter", module1)
-      assertClassExists(compiler, "AbstractGreeter", module1)
-      assertClassExists(compiler, "HelloWorldGreeter", module2)
-    }
-  }
-
-  private def assertClassExists(compiler: CompilerTester, name: String, module: Module): Unit = {
+  //noinspection SSBasedInspection
+  private def assertClassExists(compiler: CompilerTester, name: String, module: Module): Unit =
     val file = compiler.findClassFile(name, module)
-    assertNotNull(s"Could not find class file for $name", file)
-  }
+    assertNotNull(file, s"Could not find class file for $name")
 
-  private def findModule(name: String): Module = {
+  private def findModule(name: String): Module =
     val modules = ModuleManager.getInstance(getProject).getModules
     val m = modules.find(_.getName == name).orNull
-    assertNotNull(s"Could not find module with name '$name'", m)
+    assertNotNull(m, s"Could not find module with name '$name'")
     m
-  }
 
-  private def withCompiler(action: CompilerTester => Unit): Unit = {
+  private def withCompiler(action: CompilerTester => Unit): Unit =
     val project = getProject
     val modules = ModuleManager.getInstance(project).getModules
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
+    val compiler = CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     try action(compiler)
     finally compiler.tearDown()
-  }
-}
-
-private object PolyglotMavenCompilationTest extends JdkVersionParameters
+end PolyglotMavenCompilationTest

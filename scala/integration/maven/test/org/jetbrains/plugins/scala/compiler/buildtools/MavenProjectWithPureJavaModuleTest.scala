@@ -5,7 +5,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -90,13 +90,15 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Sca
   end runImportAndCompileTest
 
   /**
-   * Sets up the JDK for the Scala compile server around `test` and removes it afterwards.
+   * Sets up the JDK as the project SDK and for the Scala compile server around `test`, and removes it afterwards.
    * SmartJDKLoader registers the JDK in the application-level table without a disposable,
    * so it must be removed manually.
    */
   private def withCompileServerJdk(test: Sdk => Unit): Unit =
     val sdk = WriteAction.computeAndWait: () =>
-      SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+      val sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+      ProjectRootManager.getInstance(getProject).setProjectSdk(sdk)
+      sdk
 
     val settings = ScalaCompileServerSettings.getInstance()
     settings.COMPILE_SERVER_SDK = sdk.getName
