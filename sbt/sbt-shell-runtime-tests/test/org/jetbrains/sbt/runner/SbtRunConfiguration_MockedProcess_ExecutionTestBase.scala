@@ -18,6 +18,8 @@ import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil}
 import org.junit.Assert.{assertFalse, assertTrue}
 
 import java.nio.file.Path
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
+
 import scala.compiletime.uninitialized
 import scala.concurrent.duration.{Duration, DurationInt}
 
@@ -165,23 +167,26 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
       return
     }
 
-    val runConfigurationOutput = executionObserver.consoleOutputSnapshot
-    assertTrue(
-      s"""Debug run configuration console output must contain debugger attach output.
-         |Expected output fragment:
-         |${DebuggerConnectedOutput.indent(2)}Actual run configuration console output:
-         |${runConfigurationOutput.indent(2)}""".stripMargin,
-      runConfigurationOutput.contains(DebuggerConnectedOutput),
-    )
-    assertTrue(
+    val debugConnectionTimeoutMessage = (expected: String) =>
       s"""Debug run configuration console output must contain debugger detach output.
          |Expected output fragment:
-         |${DebuggerDisconnectedOutput.indent(2)}Actual run configuration console output:
-         |${runConfigurationOutput.indent(2)}""".stripMargin,
-      runConfigurationOutput.contains(DebuggerDisconnectedOutput),
+         |${expected.indent(2)}Actual run configuration console output:
+         |${executionObserver.consoleOutputSnapshot.indent(2)}""".stripMargin
+
+    assertTrue(
+      debugConnectionTimeoutMessage(DebuggerConnectedOutput),
+      executionObserver.consoleOutputSnapshot.contains(DebuggerConnectedOutput),
     )
 
+    // Wait a moment for the disconnect message. When the debugger detaches, the "process finished"
+    // event and the disconnect banner are delivered separately, so the banner may not yet be present
+    // in the console when the process reports that it has finished.
+    AwaitTestUtils.waitForConditionOrFail(20.seconds, debugConnectionTimeoutMessage(DebuggerDisconnectedOutput)) { () =>
+      executionObserver.consoleOutputSnapshot.contains(DebuggerDisconnectedOutput)
+    }
+
     if (options.useSbtShellInRunConfig && options.enableDebuggingInShell) {
+      val runConfigurationOutput = executionObserver.consoleOutputSnapshot
       assertFalse(
         s"""Debug run configuration console output must not contain sbt shell debug-server startup output.
            |Unexpected output fragment:
