@@ -14,7 +14,10 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.{Files, Path}
 import scala.concurrent.duration.DurationInt
@@ -26,6 +29,7 @@ import scala.concurrent.{Await, Promise}
  *
  * @see SCL-17676
  */
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[CompilerHighlightingTests]))
 abstract class HighlightingCompilerConflictsBase(
   scalaVersion: ScalaVersion,
@@ -49,6 +53,7 @@ abstract class HighlightingCompilerConflictsBase(
     super.setUp()
   }
 
+  @Test
   def testNoConflictsBetweenJpsCompilerAndUsualCompilation(): Unit = runWithErrorsFromCompiler(getProject) {
     val className = "MyClass"
     val sourceFile = addFileToProjectSources(

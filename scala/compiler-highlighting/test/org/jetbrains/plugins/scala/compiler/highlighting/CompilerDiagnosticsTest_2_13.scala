@@ -3,10 +3,15 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase with CompilerDiagnosticsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
+  @Test
   def testImplicitDefinitionNeedsExplicitType(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "ImplicitDefinitionNeedsExplicitType.scala",
@@ -33,6 +38,7 @@ class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase wit
     )
   }
 
+  @Test
   def testArgumentAdaptation(): Unit = {
     setCompilerOptions("-Xlint:adapted-args", "-deprecation")
 
@@ -60,7 +66,8 @@ class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase wit
           |""".stripMargin
     )
   }
-
+  
+  @Test
   def testEtaExpansion(): Unit = {
     setCompilerOptions("-Xlint:deprecation,eta-zero,eta-sam")
 
@@ -129,6 +136,7 @@ class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase wit
     )
   }
 
+  @Test
   def testKeywordIdentifiers(): Unit = {
     setCompilerOptions("-Xlint")
 
@@ -173,6 +181,7 @@ class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase wit
     )
   }
 
+  @Test
   def testPrimitiveWidening(): Unit = {
     setCompilerOptions("-Xlint")
 
@@ -201,6 +210,7 @@ class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase wit
     )
   }
 
+  @Test
   def testProcedureSyntax(): Unit = {
     setCompilerOptions("-Xlint")
 

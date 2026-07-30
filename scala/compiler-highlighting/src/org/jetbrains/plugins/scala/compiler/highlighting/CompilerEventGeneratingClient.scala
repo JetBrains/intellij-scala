@@ -16,7 +16,7 @@ private class CompilerEventGeneratingClient(
   indicator: ProgressIndicator,
   log: Logger,
   refreshVfs: Boolean,
-  documentVersions: Map[CanonicalPath, Long] with Serializable
+  documentVersions: Map[CanonicalPath, Long] & Serializable
 ) extends DummyClient {
 
   override def pathTranslator: PathTranslator = EelPathTranslator

@@ -3,10 +3,15 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with CompilerDiagnosticsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
+  @Test
   def testConvertToFunctionValue(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "ConvertToFunctionValue.scala",
@@ -35,6 +40,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testInsertBracesForEmptyArgument(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "InsertBracesForEmptyArgument.scala",
@@ -63,6 +69,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testRemoveRepeatModifier(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "RemoveRepeatModifier.scala",
@@ -89,6 +96,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testInsertMissingCasesEnum(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "InsertMissingCasesEnum.scala",
@@ -128,6 +136,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testInsertMissingCasesForUnionStringType(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "InsertMissingCasesForUnionStringType.scala",
@@ -158,6 +167,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testInsertMissingCasesForUnionIntType(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "InsertMissingCasesForUnionIntType.scala",
@@ -190,6 +200,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testInsertMissingCasesWithBraces(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "InsertMissingCasesWithBraces.scala",
@@ -225,6 +236,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testIntersectingRangesAfterApplication(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "IntersectingRangesAfterApplication.scala",
@@ -253,6 +265,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 
+  @Test
   def testOutOfBounds(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "OutOfBounds.scala",

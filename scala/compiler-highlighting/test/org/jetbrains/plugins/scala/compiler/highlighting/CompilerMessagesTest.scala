@@ -16,7 +16,7 @@ class CompilerMessagesTest {
   }
 
   @unused("used reflectively by the @Parameters annotation")
-  private val testParameters: Array[AnyRef] = Array(
+  private def testParameters: Array[AnyRef] = Array(
     TestCaseParams(
       displayName = "sbtMultilineMessage",
       originalMessage = "Found:    Conversion.DoubleWrapper\nRequired: Int\n    override def apply(i: IntWrapper): Int = DoubleWrapper(i.a.toDouble)",

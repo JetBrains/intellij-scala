@@ -9,9 +9,13 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.concurrent.TimeoutException
 
+@RunWith(classOf[JUnit4])
 class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
@@ -25,6 +29,7 @@ class WolfTheProblemSolverTest extends ScalaCompilerHighlightingTestBase {
     Disposer.register(getTestRootDisposable, theRealWolf)
   }
 
+  @Test
   def testRemoveSourceFile(): Unit = runWithErrorsFromCompiler(getProject) {
     // Create source files.
     val okFile = addFileToProjectSources("Ok.scala", "class Ok")

@@ -3,7 +3,11 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerHighlightingTestBase {
 
   protected val worksheetContent =
@@ -23,6 +27,7 @@ class ScalaWorksheetCompilerHighlightingTest_2_13 extends ScalaWorksheetCompiler
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
+  @Test
   def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
@@ -48,6 +53,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   /* see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
+  @Test
   def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
@@ -67,6 +73,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
     )
   )
 
+  @Test
   def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content =
@@ -89,6 +96,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
     )
   )
 
+  @Test
   def testCompilerDiagnostics(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "worksheet.sc",
@@ -113,6 +121,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
     )
   }
 
+  @Test
   def testMultipleCompilerDiagnosticsCorrectLines(): Unit = {
     runCompilerDiagnosticsTest(
       fileName = "worksheet.sc",

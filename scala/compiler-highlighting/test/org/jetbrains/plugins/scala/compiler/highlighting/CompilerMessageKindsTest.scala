@@ -12,7 +12,7 @@ import scala.annotation.unused
 @RunWith(classOf[JUnitParamsRunner])
 class CompilerMessageKindsTest {
 
-  private case class TestCaseParams(
+  case class TestCaseParams(
     displayName: String,
     text: String,
     kind: MessageKind,
