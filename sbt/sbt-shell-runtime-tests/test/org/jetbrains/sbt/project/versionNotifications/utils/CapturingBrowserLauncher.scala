@@ -21,10 +21,6 @@ final class CapturingBrowserLauncher extends BrowserLauncher {
 
   override def open(url: String): Unit = ()
 
-  // Required override of an @Obsolete SDK abstract method; the inspection suppression mirrors the platform's own.
-  //noinspection IO_FILE_USAGE
-  override def browse(file: java.io.File): Unit = ()
-
   override def browse(file: java.nio.file.Path): Unit = ()
 
   override def browse(url: String, browser: WebBrowser, project: Project): Unit = {
