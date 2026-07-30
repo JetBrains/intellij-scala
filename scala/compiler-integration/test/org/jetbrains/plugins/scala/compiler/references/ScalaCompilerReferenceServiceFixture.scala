@@ -9,15 +9,15 @@ import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions.LockExtensions
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.junit.Assert.{assertNotSame, fail}
 
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.{Condition, Lock, ReentrantLock}
 import scala.collection.mutable
+import scala.concurrent.Promise
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
@@ -31,9 +31,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true),
     )
 
-  private[this] val compilerIndexLock: Lock                = new ReentrantLock()
-  private[this] val indexReady: Condition                  = compilerIndexLock.newCondition()
-  @volatile private[this] var indexReadyPredicate: Boolean = false
+  private val IndexReadyTimeout: FiniteDuration = 60.seconds
 
   protected var compiler: CompilerTester = _
 
@@ -50,6 +48,11 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
     try {
       compilerConfig.applyChange()
+      // In production, ScalaCompilerReferenceService is created by an async post-startup activity.
+      // If the first build starts before the service exists, it misses the `buildStarted` event,
+      // `activeIndexingPhases` stays 0 and `onIndexingPhaseFinished` is never published.
+      // Instantiate the service before any compilation can be triggered.
+      ScalaCompilerReferenceService(getProject)
       setUpLibrariesFor(getModule)
       PsiTestUtil.addSourceRoot(getModule, myFixture.getTempDirFixture.findOrCreateDir("src"), true)
       val project = getProject
@@ -87,37 +90,47 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     myLoaders.clear()
   }
 
-  protected def buildProject(): Unit = {
-    val messageBus = getProject.getMessageBus
-    val messageBusConnection = messageBus.connect(getProject.unloadAwareDisposable)
-    messageBusConnection.subscribe(
-      CompilerReferenceServiceStatusListener.topic,
-      new CompilerReferenceServiceStatusListener {
-        override def onIndexingPhaseFinished(success: Boolean): Unit = compilerIndexLock.withLock {
-          indexReadyPredicate = true
-          indexReady.signalAll()
-        }
-      })
+  protected def buildProject(): Unit =
+    compileAndWaitUntilIndexReady(compiler.rebuild())
 
-    val compilerMessages: mutable.Seq[CompilerMessage] = compiler.rebuild.asScala
-    compilerMessages.foreach { message =>
-      assertNotSame(message.getMessage, CompilerMessageCategory.ERROR, message.getCategory)
-    }
+  protected def buildModule(module: Module): Unit =
+    compileAndWaitUntilIndexReady(compiler.compileModule(module))
 
-    compilerIndexLock.withLock {
-      //onIndexingPhaseFinished can be called in the same thread in com.intellij.testFramework.CompilerTester.rebuild
-      if (!indexReadyPredicate) {
-        val timeout = !indexReady.await(30, TimeUnit.SECONDS)
-        if (timeout) {
-          fail("Failed to updated compiler index: timeout reached")
-        }
+  /**
+   * Runs the given compilation, asserts that it produced no error messages and waits until the
+   * compiler reference index has been updated for the finished compilation.
+   *
+   * The listener is subscribed BEFORE the compilation is triggered, because `onIndexingPhaseFinished`
+   * may be delivered synchronously on the EDT while `CompilerTester` pumps events waiting for the
+   * build to finish.
+   *
+   * The event is published from a job scheduled on a `BackgroundTaskQueue`
+   * (see [[indices.CompilerReferenceIndexerScheduler]]), which needs EDT turns to start its tasks.
+   * Test methods run on the EDT, so we must keep dispatching events while waiting instead of
+   * blocking the thread, otherwise the queue is starved and the wait always times out.
+   */
+  private def compileAndWaitUntilIndexReady(doCompile: => java.util.List[CompilerMessage]): Unit = {
+    val indexReady = Promise[Unit]()
+
+    val connection = getProject.getMessageBus.connect()
+    try {
+      connection.subscribe(
+        CompilerReferenceServiceStatusListener.topic,
+        new CompilerReferenceServiceStatusListener {
+          override def onIndexingPhaseFinished(success: Boolean): Unit =
+            if (success) indexReady.trySuccess(())
+            else indexReady.tryFailure(new AssertionError(
+              "Compiler index update finished unsuccessfully (the index was invalidated or corrupted)"))
+        })
+
+      val compilerMessages = doCompile.asScala
+      compilerMessages.foreach { message =>
+        assertNotSame(message.getMessage, CompilerMessageCategory.ERROR, message.getCategory)
       }
 
-      if (!indexReadyPredicate) {
-        fail("Failed to updated compiler index: indexReadyPredicate is still false")
-      }
-
-      indexReadyPredicate = false
+      AwaitTestUtils.waitFutureDispatchingAllEdtEvents(indexReady.future, IndexReadyTimeout)
+    } finally {
+      connection.disconnect()
     }
   }
 
