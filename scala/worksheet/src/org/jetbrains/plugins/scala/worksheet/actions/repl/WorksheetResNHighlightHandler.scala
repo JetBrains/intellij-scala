@@ -15,8 +15,8 @@ private final class WorksheetResNHighlightHandler(
 ) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
   override def selectTargets(
-    targets: ju.List[_ <: PsiElement],
-    selectionConsumer: Consumer[_ >: ju.List[_ <: PsiElement]]
+    targets: ju.List[? <: PsiElement],
+    selectionConsumer: Consumer[? >: ju.List[? <: PsiElement]]
   ): Unit = {
     selectionConsumer.consume(targets)
   }
@@ -28,7 +28,7 @@ private final class WorksheetResNHighlightHandler(
     list
   }
 
-  override def computeUsages(targets: ju.List[_ <: PsiElement]): Unit = {
+  override def computeUsages(targets: ju.List[? <: PsiElement]): Unit = {
     if (targets.size >= 2) {
       myReadUsages.add(targets.get(0).getTextRange)
       targets.stream().skip(1).forEach { target =>

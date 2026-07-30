@@ -7,10 +7,14 @@ import com.intellij.testFramework.VfsTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.highlighting.ScalaCompilerHighlightingTestBase
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ScratchFileCompilerHighlightingTest extends ScalaCompilerHighlightingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
+  @Test
   def testSimpleError(): Unit = runWithErrorsFromCompiler(getProject) {
     val expected = expectedResult(
       ExpectedHighlighting(

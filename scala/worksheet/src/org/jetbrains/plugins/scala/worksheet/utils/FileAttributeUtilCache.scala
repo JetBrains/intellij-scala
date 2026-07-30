@@ -10,7 +10,7 @@ object FileAttributeUtilCache {
   private val lightKeys = mutable.WeakHashMap[VirtualFile, mutable.HashMap[FileAttribute, String]]()
 
   private def getAttribute(file: VirtualFile, attribute: FileAttribute) =
-    Option(attribute readAttributeBytes file) map (new String(_))
+    Option(attribute.readAttributeBytes(file)) map (new String(_))
 
   def readAttribute(attribute: FileAttribute, file: VirtualFile): Option[String] =
     file match {

@@ -17,10 +17,10 @@ import scala.jdk.CollectionConverters._
 
 class WorksheetLineMarkerProvider extends LineMarkerProvider {
 
-  override def getLineMarkerInfo(psiElement: PsiElement): LineMarkerInfo[_] = null
+  override def getLineMarkerInfo(psiElement: PsiElement): LineMarkerInfo[?] = null
 
-  override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
-                                      result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit =
+  override def collectSlowLineMarkers(elements: ju.List[? <: PsiElement],
+                                      result: ju.Collection[? >: LineMarkerInfo[?]]): Unit =
     // assuming that all elements are from the same file
     for {
       firstElement <- elements.iterator.asScala.nextOption()
@@ -36,7 +36,7 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
         None
     }
 
-  private def lineMarkerInfo(elements: ju.List[_ <: PsiElement], scalaFile: ScalaFile): Option[LineMarkerInfo[PsiElement]] = {
+  private def lineMarkerInfo(elements: ju.List[? <: PsiElement], scalaFile: ScalaFile): Option[LineMarkerInfo[PsiElement]] = {
     val project = scalaFile.getProject
     for {
       document          <- Option(PsiDocumentManager.getInstance(project).getCachedDocument(scalaFile))
@@ -46,7 +46,7 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
     } yield createArrowMarker(element)
   }
 
-  private def findMarkerAnchorElement(elements: ju.List[_ <: PsiElement],
+  private def findMarkerAnchorElement(elements: ju.List[? <: PsiElement],
                                       document: Document,
                                       lastProcessedLine: Int): Option[PsiElement] =
     elements.iterator.asScala

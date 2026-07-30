@@ -44,7 +44,6 @@ trait WorksheetItEditorPreparations {
       addFileToProjectSources(fileName, before)
     }
     assertNotNull(vFile)
-
     val psiFile = PsiManager.getInstance(project).findFile(vFile)
     assertNotNull(psiFile)
     (vFile, psiFile.asInstanceOf[WorksheetFile])

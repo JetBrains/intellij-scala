@@ -31,7 +31,7 @@ class TestSourcesInScratchWorksheetTest(jdkVersion: TestJdkVersion) extends SbtP
 
   override def runInDispatchThread(): Boolean = false
 
-  private var worksheetVirtualFile: VirtualFile = _
+  private var worksheetVirtualFile: VirtualFile = scala.compiletime.uninitialized
 
   override def setUp(): Unit = {
     EdtTestUtil.runInEdtAndWait { () =>
@@ -72,7 +72,7 @@ class TestSourcesInScratchWorksheetTest(jdkVersion: TestJdkVersion) extends SbtP
 
       importProject(false)
       val modules = ModuleManager.getInstance(getMyProject).getModules
-      compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+      compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
     }
   }
 

@@ -68,7 +68,7 @@ private object SbtUtils {
 
     protected def onText(text: String): Unit
 
-    override final def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+    override final def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
       val text = event.getText.trim
       onText(text)
       buffer += text

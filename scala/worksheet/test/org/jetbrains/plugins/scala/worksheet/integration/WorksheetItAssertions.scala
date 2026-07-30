@@ -4,10 +4,8 @@ import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData, WorksheetEditorAndFile}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
-
-import scala.annotation.nowarn
 
 trait WorksheetItAssertions {
   self: WorksheetIntegrationBaseTest =>
@@ -73,7 +71,7 @@ trait WorksheetItAssertions {
 
   protected def assertCompilerMessages(editor: Editor)(expectedAllMessagesText: String): Unit = {
     val messages = collectedCompilerMessages(editor).sortBy(m => (m.getLine, m.getColumn))
-    val messagesRendered = messages.map { message: CompilerMessageImpl =>
+    val messagesRendered = messages.map { (message: CompilerMessageImpl) =>
       val level = message.getCategory.toString.toLowerCase.capitalize
       s"$level:(${message.getLine}, ${message.getColumn}) ${message.getMessage}"
     }
@@ -104,10 +102,10 @@ trait WorksheetItAssertions {
         s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}"
       }
       val typ = category match {
-        case CompilerMessageCategory.ERROR       => "errors"
-        case CompilerMessageCategory.WARNING     => "warnings"
+        case CompilerMessageCategory.ERROR => "errors"
+        case CompilerMessageCategory.WARNING => "warnings"
         case CompilerMessageCategory.INFORMATION => "information messages"
-        case CompilerMessageCategory.STATISTICS  => "???"
+        case CompilerMessageCategory.STATISTICS => "???"
       }
       fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }

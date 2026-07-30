@@ -64,16 +64,16 @@ object RunWorksheetAction {
 
   sealed trait RunWorksheetActionResult
   object RunWorksheetActionResult {
-    final case object Done extends RunWorksheetActionResult
-
+    case object Done extends RunWorksheetActionResult
+  
     sealed trait Error extends RunWorksheetActionResult
-    final case object AlreadyRunning extends Error
+    case object AlreadyRunning extends Error
     final case class ProjectCompilationError(aborted: Boolean, errors: Boolean, context: ProjectTaskContext) extends Error
     final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
-
-    final case object NoModuleError extends Error
-    final case object NoWorksheetFileError extends Error
-    final case object NoWorksheetEditorError extends Error
+  
+    case object NoModuleError extends Error
+    case object NoWorksheetFileError extends Error
+    case object NoWorksheetEditorError extends Error
   }
 
   private final class RunImmediatelyExecutionContext extends ExecutionContext {
@@ -92,7 +92,7 @@ object RunWorksheetAction {
       case Success(error: RunWorksheetActionResult.Error) => reportError(project, error)
       case Success(_)                                     =>
       case Failure(exception)                             => Log.error("Error occurred during worksheet evaluation", exception)
-    }(new RunImmediatelyExecutionContext)
+    }(using new RunImmediatelyExecutionContext)
     future
   }
 
@@ -123,7 +123,7 @@ object RunWorksheetAction {
     future.onComplete(s => {
       val end = System.currentTimeMillis()
       Log.debugSafe(s"worksheet evaluation result (took ${end - start}ms): " + s.toString)
-    })(new RunImmediatelyExecutionContext)
+    })(using new RunImmediatelyExecutionContext)
     future
   }
 
@@ -203,7 +203,7 @@ object RunWorksheetAction {
     if (makeBeforeRun) {
       ProjectTaskManager.getInstance(project)
         .build(module)
-        .`then`[Unit] { result: ProjectTaskManager.Result =>
+        .`then`[Unit] { (result: ProjectTaskManager.Result) =>
           if (result.hasErrors || result.isAborted) {
             promise.success(RunWorksheetActionResult.ProjectCompilationError(result.isAborted, result.hasErrors, result.getContext))
             invokeLater {

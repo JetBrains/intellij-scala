@@ -30,7 +30,7 @@ class AmmoniteRunMarkerContributor extends RunLineMarkerContributor {
     }
 
     val actions = Array[AnAction](new AmmoniteRunScriptAction(ammoniteFile))
-    val tooltipProvider: JFunction[_ >: PsiElement, String] = (_: PsiElement) => WorksheetBundle.message("ammonite.run.script")
+    val tooltipProvider: JFunction[? >: PsiElement, String] = (_: PsiElement) => WorksheetBundle.message("ammonite.run.script")
     new RunLineMarkerContributor.Info(
       AllIcons.RunConfigurations.TestState.Run,
       actions,

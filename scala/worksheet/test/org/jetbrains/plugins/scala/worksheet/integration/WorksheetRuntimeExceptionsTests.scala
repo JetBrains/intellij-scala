@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ViewerEditorData

@@ -10,7 +10,7 @@ class WorksheetAnnotationInspectionTest extends TypeAnnotationInspectionTest {
 
   override protected val fileType: WorksheetFileType.type = WorksheetFileType
 
-  private var excludeInDialectSources: Boolean = _
+  private var excludeInDialectSources: Boolean = scala.compiletime.uninitialized
 
   protected override def setUp(): Unit = {
     super.setUp()

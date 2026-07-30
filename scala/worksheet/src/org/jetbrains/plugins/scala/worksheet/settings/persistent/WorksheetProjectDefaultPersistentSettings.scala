@@ -25,17 +25,17 @@ final class WorksheetProjectDefaultPersistentSettings
   override def getState: WorksheetProjectDefaultPersistentSettings.State = state
   override def loadState(state: WorksheetProjectDefaultPersistentSettings.State): Unit = XmlSerializerUtil.copyBean(state, this.state)
 
-  def getRunType: WorksheetExternalRunType = getState.getRunType()
-  def isInteractive: Boolean = getState.isInteractive()
-  def isMakeBeforeRun: Boolean = getState.isMakeBeforeRun()
+  def getRunType: WorksheetExternalRunType = getState.runType
+  def isInteractive: Boolean = getState.interactive
+  def isMakeBeforeRun: Boolean = getState.makeBeforeRun
   def getModuleName: Option[String] = Option(getState.moduleName)
   def getCompilerProfileName: Option[String] = Option(getState.compilerProfileName)
 
-  override def setRunType(value: WorksheetExternalRunType): Unit = getState.setRunType(value)
-  override def setInteractive(value: Boolean): Unit = getState.setInteractive(value)
-  override def setMakeBeforeRun(value: Boolean): Unit = getState.setMakeBeforeRun(value)
-  override def setModuleName(name: String): Unit = getState.setModuleName(name)
-  override def setCompilerProfileName(name: String): Unit = getState.setCompilerProfileName(name)
+  override def setRunType(value: WorksheetExternalRunType): Unit = getState.runType = value
+  override def setInteractive(value: Boolean): Unit = getState.interactive = value
+  override def setMakeBeforeRun(value: Boolean): Unit = getState.makeBeforeRun = value
+  override def setModuleName(name: String): Unit = getState.moduleName  = name
+  override def setCompilerProfileName(name: String): Unit = getState.compilerProfileName = name
 }
 
 object WorksheetProjectDefaultPersistentSettings {

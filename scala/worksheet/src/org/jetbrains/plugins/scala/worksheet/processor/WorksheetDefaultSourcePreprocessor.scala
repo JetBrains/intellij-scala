@@ -631,7 +631,7 @@ object WorksheetDefaultSourcePreprocessor {
         case funDef: ScFunctionDefinition =>
           val assignOpt0 = funDef.assignment // braceless syntax can only be used after assign sign
           val assignOpt = assignOpt0.filter(_ => usesBracelessSyntax(funDef))
-          assignOpt.fold(textWithoutAccessModifier) { assign: PsiElement =>
+          assignOpt.fold(textWithoutAccessModifier) { (assign: PsiElement) =>
             funTextWithBodyWithBraces(fun, assign)
           }
         case _ =>

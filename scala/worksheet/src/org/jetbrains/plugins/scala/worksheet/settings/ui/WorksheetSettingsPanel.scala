@@ -116,7 +116,7 @@ private final class WorksheetSettingsPanel(
     tabTypeData.is[TabTypeData.DefaultProjectSettingsTab]
 
   private class NullableListCellRenderer(emptySelectionText: String) extends com.intellij.ui.SimpleListCellRenderer[String] {
-    override def customize(list: JList[_ <: String], value: String, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
+    override def customize(list: JList[? <: String], value: String, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
       val displayValue = if (value == null) emptySelectionText else value
       setText(displayValue)
     }

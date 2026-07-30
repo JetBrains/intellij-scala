@@ -288,6 +288,8 @@ lazy val worksheet =
       worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     ).settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.worksheet")
     )
 

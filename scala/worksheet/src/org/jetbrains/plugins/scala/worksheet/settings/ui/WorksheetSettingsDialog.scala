@@ -7,7 +7,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 
-import javax.swing.{JComponent, SwingConstants}
+import javax.swing.JComponent
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle

@@ -31,7 +31,6 @@ private object RecompileMacroPrinterScript {
   ) {
     override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_1_8
   }
-
   @RunWith(classOf[JUnit4])
   abstract class AbstractRecompileMacroPrinter(scalaVersion: ScalaVersion, macroPrinterName: String)
     extends ScalaCompilerTestBase {

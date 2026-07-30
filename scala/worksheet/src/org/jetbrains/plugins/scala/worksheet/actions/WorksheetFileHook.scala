@@ -101,7 +101,7 @@ object WorksheetFileHook {
 
   final class WorksheetBeforeEditorOpenedOrClosedListener(project: Project) extends FileEditorManagerListener.Before {
     override def beforeFileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
-      if (!isPluggable(file)) return
+     if (!isPluggable(file)) return
 
      val selectedEditor = source.getSelectedTextEditor
      if (selectedEditor != null) {

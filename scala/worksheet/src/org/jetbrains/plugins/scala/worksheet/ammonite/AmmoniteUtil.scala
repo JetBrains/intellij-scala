@@ -236,7 +236,8 @@ object AmmoniteUtil {
     extractLibInfo(refElement).map(convertLibName) flatMap { name =>
       Option(
         LibraryTablesRegistrar
-          .getInstance() getLibraryTable refElement.getProject getLibraryByName name)
+          .getInstance().getLibraryTable(refElement.getProject).getLibraryByName(name)
+      )
     }
 
   def convertLibName(info: LibInfo): String =
@@ -295,7 +296,7 @@ object AmmoniteUtil {
     implicit class MyStringExtractorContext(private val sc: StringContext) {
 
       object mre {
-        def apply(args: Any*): String = sc.s(args: _*)
+        def apply(args: Any*): String = sc.s(args*)
 
         def unapplySeq(s: String): Option[Seq[String]] = {
           val patternString = sc.parts.map(Pattern.quote).mkString("(.+)")

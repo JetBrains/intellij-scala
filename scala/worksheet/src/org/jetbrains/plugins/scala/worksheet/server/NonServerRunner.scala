@@ -11,7 +11,7 @@ import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
-import org.jetbrains.plugins.scala.compiler.{CompilationProcess, CompileServerLauncher, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompilationProcess, CompileServerLauncher}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.server.NonServerRunner.Log
@@ -149,7 +149,7 @@ class NonServerRunner(project: Project) {
     private val charBuffer = new Array[Char](8192)
     private val text = new StringBuilder
 
-    override def executeOnPooledThread(runnable: Runnable): Future[_] =
+    override def executeOnPooledThread(runnable: Runnable): Future[?] =
       AppExecutorUtil.getAppExecutorService.submit(runnable)
 
     def onTextAvailable(text: String): Unit = {
@@ -211,7 +211,7 @@ class NonServerRunner(project: Project) {
     private val text = new java.lang.StringBuilder
     def getText: String = text.toString
 
-    override def executeOnPooledThread(runnable: Runnable): Future[_] =
+    override def executeOnPooledThread(runnable: Runnable): Future[?] =
       AppExecutorUtil.getAppExecutorService.submit(runnable)
 
     override def close(): Unit = {

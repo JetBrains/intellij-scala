@@ -17,7 +17,7 @@ private[worksheet] object BspWorksheetCompilerExtension {
     } else None
   }
 
-  def extraWorksheetActions(): Seq[TopComponentAction with AnAction] = {
+  def extraWorksheetActions(): Seq[TopComponentAction & AnAction] = {
     Seq(new ConfigureBspTargetForWorksheet)
   }
 }

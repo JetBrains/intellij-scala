@@ -94,7 +94,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
 
   def onAmmoniteRun(vFile: VirtualFile): Unit = {
     if (getFile(vFile).isEmpty) return
-    val state = disabledFiles get vFile
+    val state = disabledFiles.get(vFile)
     if (state != AlwaysDisabled) disabledFiles.remove(vFile)
   }
 

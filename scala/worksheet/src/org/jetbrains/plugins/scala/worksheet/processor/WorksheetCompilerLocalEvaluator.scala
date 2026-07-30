@@ -113,7 +113,7 @@ private object WorksheetCompilerLocalEvaluator {
 
   private def processListener(callback: EvaluationCallback, worksheetPrinter: WorksheetEditorPrinter): ProcessListener =
     new ProcessListener {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
         val isStdOutput = ConsoleViewContentType.getConsoleViewType(outputType) == ConsoleViewContentType.NORMAL_OUTPUT
         if (isStdOutput) {
           val text = event.getText

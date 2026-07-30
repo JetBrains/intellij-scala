@@ -153,7 +153,7 @@ trait WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_11
 trait WorksheetReplIntegration_CommonTests_Since_2_11
   extends WorksheetReplIntegrationHealthCheckTest_Since_2_11
     with WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_11 {
-  self: WorksheetReplIntegrationBaseTest with WorksheetRuntimeExceptionsTests =>
+  self: WorksheetReplIntegrationBaseTest & WorksheetRuntimeExceptionsTests =>
 
   @Test
   def testSimpleFolding(): Unit = {

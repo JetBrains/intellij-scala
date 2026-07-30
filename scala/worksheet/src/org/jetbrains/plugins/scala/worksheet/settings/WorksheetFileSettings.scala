@@ -81,7 +81,7 @@ final class WorksheetFileSettings private(
         .filterNot(WorksheetModuleUtil.isStale)
     } else {
       // We don't allow changing the worksheet module if it is already located in some module (non-scratch files)
-      val fixedModule = ScalaUtil.getModuleForFile(file)(project)
+      val fixedModule = ScalaUtil.getModuleForFile(file)(using project)
       fixedModule.orElse(moduleFromPersistedSettings).orElse(anyScalaSdkModule)
     }
   }

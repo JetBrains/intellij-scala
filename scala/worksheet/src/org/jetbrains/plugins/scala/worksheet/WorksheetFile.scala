@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
-final class WorksheetFile(viewProvider: FileViewProvider, language: Language with WorksheetLanguageLike)
+final class WorksheetFile(viewProvider: FileViewProvider, language: Language & WorksheetLanguageLike)
   extends ScalaFileImpl(viewProvider, WorksheetFileType, language) {
 
   override def toString: String = "WorksheetFile: " + getName

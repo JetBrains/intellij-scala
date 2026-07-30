@@ -218,7 +218,8 @@ class WorksheetCompiler(
           makeType match {
             case OutOfProcessServer =>
               val plainArgs = args.asInstanceOf[PlainModeArgs]
-              WorksheetCompilerLocalEvaluator.executeWorksheet(virtualFile, plainArgs.className, plainArgs.outputDir.toCanonicalPath.toString)(callback, printer)(module)
+              WorksheetCompilerLocalEvaluator.executeWorksheet(virtualFile,
+                plainArgs.className, plainArgs.outputDir.toCanonicalPath.toString)(callback, printer)(using module)
             case _ =>
               callback(WorksheetCompilerResult.CompiledAndEvaluated)
           }
@@ -286,9 +287,9 @@ object WorksheetCompiler {
     sealed trait WorksheetCompilerError extends WorksheetCompilerResult
     final case class PreprocessError(error: WorksheetPreprocessError) extends WorksheetCompilerError
     final case class PreconditionError(message: Precondition) extends WorksheetCompilerError
-    final case object CompilationError extends WorksheetCompilerError
+    case object CompilationError extends WorksheetCompilerError
     final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetCompilerError
-    final object CompileServerIsNotRunningError extends WorksheetCompilerError
+    object CompileServerIsNotRunningError extends WorksheetCompilerError
     final case class ProjectIsAlreadyDisposed(name: String, trace: Throwable = new Throwable) extends WorksheetCompilerError
     final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.UnhandledError) extends WorksheetCompilerError
     final case class UnknownError(cause: Throwable) extends WorksheetCompilerError // TODO: maybe wrap result into Try instead?
@@ -389,7 +390,7 @@ object WorksheetCompiler {
     worksheetPrinter: WorksheetEditorPrinter,
   ) extends WorksheetEvaluationBase(logUnexpectedException, worksheetPrinter) {
 
-    private var _progressIndicator: ProgressIndicator = _
+    private var _progressIndicator: ProgressIndicator = scala.compiletime.uninitialized
     override protected def progressIndicator: ProgressIndicator = _progressIndicator
 
     override def message(message: CompilerMessage): Unit = {

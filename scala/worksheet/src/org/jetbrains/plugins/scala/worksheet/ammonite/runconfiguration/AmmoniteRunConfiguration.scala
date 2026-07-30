@@ -54,7 +54,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
   def getIOFile: Option[Path] = fileName.map(Path.of(_)).filter(Files.exists(_))
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
+  override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
     def patchSdkVersion(cmd: GeneralCommandLine): Unit = {
@@ -210,7 +210,7 @@ object AmmoniteRunConfiguration {
 
     private def initPanel() = {
       val panel = new JPanel()
-      panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
+      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS))
 
       val comp0 = createLabeledElement(WorksheetBundle.message("ammonite.script"), createFileBrowser)
       val comp1 = createLabeledElement(WorksheetBundle.message("ammonite.executable"), createFileBrowser)

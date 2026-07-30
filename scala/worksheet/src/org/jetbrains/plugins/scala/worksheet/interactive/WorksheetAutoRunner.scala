@@ -3,7 +3,6 @@ package worksheet.interactive
 
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
@@ -11,7 +10,6 @@ import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -57,7 +55,7 @@ class WorksheetAutoRunner(project: Project) {
     }
 
   private class MyDocumentAdapter(document: Document) extends DocumentListener {
-    private val documentManager: PsiDocumentManager = PsiDocumentManager getInstance project
+    private val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
     private var lastProcessedOffset = 0
 
     def updateOffset(offset: Int): Unit =

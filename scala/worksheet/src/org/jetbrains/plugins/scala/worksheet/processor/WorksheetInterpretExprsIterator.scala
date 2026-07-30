@@ -14,7 +14,7 @@ private class WorksheetInterpretExprsIterator(
   import WorksheetInterpretExprsIterator._
 
   private val firstElement = inReadAction {
-    firstElementToProcess(lastProcessedLine)(file, document)
+    firstElementToProcess(lastProcessedLine)(using file, document)
   }
 
   var current: PsiElement = firstElement.orNull

@@ -170,7 +170,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
 
-  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = {
+  def addFileToProjectSources(relativePath: String, text: String): VirtualFile = {
     val file = VfsTestUtil.createFile(getSourceRootDir, relativePath, StringUtil.convertLineSeparators(text))
     createdFiles += file
     file

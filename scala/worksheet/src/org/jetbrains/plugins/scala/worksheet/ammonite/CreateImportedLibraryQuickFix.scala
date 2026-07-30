@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
-import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions
@@ -45,7 +44,7 @@ class CreateImportedLibraryQuickFix(myPsi: PsiElement) extends LocalQuickFixOnPs
               model.commit()
               tableModel.commit()
 
-              Option(file.getVirtualFile).flatMap(ScalaUtil.getModuleForFile(_)(project)).foreach {
+              Option(file.getVirtualFile).flatMap(ScalaUtil.getModuleForFile(_)(using project)).foreach {
                 module =>
                   val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
                   moduleModel.addLibraryEntry(lib)

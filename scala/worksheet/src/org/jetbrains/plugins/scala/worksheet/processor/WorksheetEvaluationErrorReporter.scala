@@ -86,7 +86,7 @@ class WorksheetEvaluationErrorReporter(
     WorksheetCompilerUtil.showCompilationError(
       worksheetFile, position, Array(message),
       () => worksheetEditor.getCaretModel.moveToLogicalPosition(position)
-    )(project)
+    )(using project)
 }
 
 object WorksheetEvaluationErrorReporter {

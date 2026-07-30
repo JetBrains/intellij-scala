@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.worksheet.ui.printers.repl
 
 import com.intellij.psi.PsiElement
 import org.apache.commons.lang3.StringUtils
-
-import scala.collection.immutable.Seq
-
 /**
  * @param lineOffset relative offset of chunk output text (in lines) after previous chunk
  * @param text chunk output  text
@@ -51,11 +48,11 @@ object PrintChunk {
     originalDocumentLineFromOffset: Int => Option[Int],
   ): Seq[PrintChunk] = {
     val offsets = elements.map(QueuedPsi.psiContentOffset)
-    val lines = offsets.map(originalDocumentLineFromOffset)
+    val lines = offsets.map(originalDocumentLineFromOffset).toSeq
     val linesOffsets = Iterator(0) ++ lines.sliding(2).map {
       case Seq(Some(prev), Some(curr)) => curr - prev // original content hasn't changed
       case _                           => 1 // some chunk was e.g. removed
     }
-    linesOffsets.zip(outputLines.iterator).map((PrintChunk.apply _).tupled).toSeq
+    linesOffsets.zip(outputLines.iterator).map((PrintChunk.apply).tupled).toSeq
   }
 }

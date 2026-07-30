@@ -39,7 +39,7 @@ final class WorksheetFoldGroup(
   }
 
   def left2rightOffset(left: Int): Int = {
-    val key: Int = unfolded.synchronized(unfolded floorKey left)
+    val key: Int = unfolded.synchronized(unfolded `floorKey` left)
 
     if (key == 0) {
       left
@@ -169,7 +169,7 @@ final class WorksheetFoldGroup(
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean): Unit = unfolded.synchronized {
     val line = originalDocument.safeLineNumber(target.leftEndOffset - 1)
-    val key = unfolded floorKey line
+    val key = unfolded.floorKey(line)
 
     val spaces = target.spaces
     if (unfolded.get(key) == 0) {
@@ -206,7 +206,7 @@ object WorksheetFoldGroup {
    * @param spaces           number of folded lines
    * @param expanded         whether the region is expanded
    */
-  private case class FoldRegionInfo private(region: FoldRegion,
+  private case class FoldRegionInfo(region: FoldRegion,
                                             leftEndOffset: Int,
                                             leftContentLines: Int,
                                             spaces: Int,
@@ -242,7 +242,7 @@ object WorksheetFoldGroup {
 
     val builder = Seq.newBuilder[(Int, Int)]
 
-    val Seq(parsedHead, parsedTail @ _*) = parsedRegions
+    val Seq(parsedHead, parsedTail @ _*) = parsedRegions: @unchecked
     val regionsEffective = parsedTail :+ fakeEndFoldRegion(originalDocument, viewerDocument)
 
     regionsEffective.foldLeft(parsedHead) { case (prevFolding, currFolding) =>

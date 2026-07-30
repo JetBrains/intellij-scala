@@ -93,7 +93,7 @@ object WorksheetCompilerUtil {
   // has not been initialized, there is no old content to remove.
   def removeOldMessageContent(project: Project): Unit = Try {
     val contentManager = MessageView.getInstance(project).getContentManager
-    val oldContent = contentManager findContent ERROR_CONTENT_NAME
+    val oldContent = contentManager.findContent(ERROR_CONTENT_NAME)
     if (oldContent != null) {
       contentManager.removeContent(oldContent, true)
     }
