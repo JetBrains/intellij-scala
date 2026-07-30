@@ -28,8 +28,9 @@ abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
       processListener
     )
     flush()
-    val logNoAnsi = BuildMessages.stripAnsiCodes(processListener.getLog)
-    assert(logNoAnsi.contains(SbtShellTestUtil.ErrorPrefix))
+
+    val log = getLog
+    assert(log.contains(SbtShellTestUtil.ErrorPrefix), s"log doesn't contain error. Full log:\n $log")
   }
 
   def testShow(): Unit =
@@ -71,10 +72,10 @@ abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
     )
     flush()
 
-    val log = processListener.getLog
+    val log = getLog
 
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!log.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestSetSetting(
@@ -92,9 +93,10 @@ abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
       processListener
     )
     flush()
-    val log = processListener.getLog
+
+    val log = getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!log.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestAddToSetting(
@@ -119,13 +121,22 @@ abstract class SettingQueryHandlerTestBase extends SbtRuntimeTest_WithSbtShell {
       processListener
     ).trim
     flush()
-    val log = processListener.getLog
+
+    val log = getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!processListener.getLog.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!log.contains(SbtShellTestUtil.ErrorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   private def flush(): Unit = {
     SbtProcessManager.forProject(getMyProject).flushConsoleOutputForTests()
+  }
+
+  private def getLog: String = {
+    val log = processListener.getLog
+    if useNewShell then
+      BuildMessages.stripAnsiCodes(log)
+    else
+      log
   }
 }
 
