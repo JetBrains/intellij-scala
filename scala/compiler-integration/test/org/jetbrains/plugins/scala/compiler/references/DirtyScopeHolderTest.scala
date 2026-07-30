@@ -78,7 +78,7 @@ abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFix
     assertEquals(scopes, dirtyScopes)
     FileDocumentManager.getInstance().saveAllDocuments()
     assertEquals(scopes, dirtyScopes)
-    compiler.compileModule(getModule)
+    buildModule(getModule)
     assertEquals(moduleScopes(moduleA) ++ moduleScopes(moduleB), dirtyScopes)
   }
 
@@ -93,7 +93,7 @@ abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFix
     assertEquals(Set(ScopedModule.test(moduleA)), dirtyScopes)
     FileDocumentManager.getInstance().saveAllDocuments()
     assertEquals(Set(ScopedModule.test(moduleA)), dirtyScopes)
-    compiler.compileModule(moduleA)
+    buildModule(moduleA)
     assertEmptyScopes(dirtyScopes)
   }
 
