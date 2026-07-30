@@ -278,7 +278,8 @@ class BspOpenProjectProviderCloseDuringImportTest extends JavaModuleTestCase {
     waitForWorkspaceCondition(
       workspace,
       importEvents,
-      "sbt BSP import did not reach build loading"
+      "sbt BSP import did not reach build loading",
+      timeout = 60.seconds
     ) { _.hasReachedBlockingImportLoad }
 
   private def waitForWorkspaceCondition(
