@@ -1093,6 +1093,7 @@ package object extensions {
     /**
       * The second match branch is for Java only.
       */
+    @Nullable
     def qualifiedName: String = {
       clazz match {
         case t: ScTemplateDefinition => t.qualifiedName

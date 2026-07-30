@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedElementsSearch
-import com.intellij.psi.{PsiClass, PsiField, PsiMember, PsiModifier}
+import com.intellij.psi.{PsiField, PsiMember, PsiModifier}
 import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
@@ -44,22 +47,32 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
     }
 
   override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
-    val annotationClass: PsiClass = p.getAnnotationClass
-    assert(annotationClass.annotationType, "Annotation type should be passed to annotated members search")
-    val annotationFQN = annotationClass.qualifiedName
+    val annotationFQN = getAnnotationName(p)
     assert(annotationFQN != null, "Annotation qualifier can't be null")
 
     inReadAction {
-      executeInner(p, consumer, annotationClass)
+      executeInner(p, consumer, annotationFQN)
     }
+  }
 
-    true
+  @Nullable
+  private def getAnnotationName(parameters: AnnotatedElementsSearch.Parameters): String = {
+    val annotationName = parameters.getAnnotationName
+    if (annotationName != null) annotationName
+    else ReadAction.computeBlocking { () =>
+      val annotationClass = parameters.getAnnotationClass
+      if (annotationClass == null) null
+      else {
+        assert(annotationClass.annotationType, "Annotation type should be passed to annotated members search")
+        annotationClass.qualifiedName
+      }
+    }
   }
 
   private def executeInner(
     parameters: AnnotatedElementsSearch.Parameters,
     consumer: Processor[_ >: PsiMember],
-    annotationClass: PsiClass,
+    annotationFQN: String,
   ): Boolean = {
     val scope = parameters.getScope match {
       case searchScope: GlobalSearchScope =>
@@ -69,7 +82,8 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
     }
 
     import ScalaIndexKeys._
-    val elements = ANNOTATED_MEMBER_KEY.elements(annotationClass.name, scope)(annotationClass.getProject)
+    val shortName = StringUtil.getShortName(annotationFQN)
+    val elements = ANNOTATED_MEMBER_KEY.elements(shortName, scope)(parameters.getProject)
     val iterator = elements.iterator
     while (iterator.hasNext) {
       val annotation = iterator.next()
