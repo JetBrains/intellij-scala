@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
@@ -260,7 +260,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
           ".apply"
         case _ => ""
-      }) + (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
+      }) + inferredTypeArgumentsFor(r).map(_.map(textOf(_)).mkString("[", ", ", "]")).getOrElse("") +
+        (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
@@ -370,6 +371,22 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       }.mkString(", ")
     }
     .map("(using " + _ + ")").mkString
+
+  // SCL-25529, SCL-25541
+  private def inferredTypeArgumentsFor(r: ScReferenceExpression): Option[Seq[ScType]] = r.getParent match {
+    case _: MethodInvocation | _: ScGenericCall => None
+    case _ => r.bind().flatMap { result =>
+      result.element match {
+        case function: ScFunction if !function.isConstructor && function.typeParameters.nonEmpty =>
+          val constraints = result.applicabilityConstraints
+          constraints.substitutionBounds(canThrowSCE = false)(r, Context(r)).map { bounds =>
+            def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
+            function.typeParameters.map(tp => typeParamSubst(tp).removeAbstracts)
+          }
+        case _ => None
+      }
+    }
+  }
 
   private def normalized(e: ScExpression): ScExpression = e match {
     case b: ScBlock if normalize => b.statements match {

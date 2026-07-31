@@ -52,7 +52,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.ComposedTraverse
     //cats.Contravariant
     //cats.ContravariantMonoidal
-    //cats.ContravariantMonoidalMonoid
+    cats.ContravariantMonoidalMonoid
     //cats.ContravariantSemigroupal
     cats.ContravariantSemigroupalSemigroup
     //cats.Defer
@@ -131,7 +131,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.arrow.Arrow
     //cats.arrow.ArrowChoice
     //cats.arrow.Category
-    //cats.arrow.Choice
+    cats.arrow.Choice
     cats.arrow.CommutativeArrow
     //cats.arrow.Compose
     //cats.arrow.FunctionK
@@ -1358,7 +1358,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.laws.discipline.arbitrary
     //cats.laws.discipline.eq
     //cats.mtl.Ask
-    //cats.mtl.AskForMonadPartialOrder
+    cats.mtl.AskForMonadPartialOrder
     //cats.mtl.AskInstances
     //cats.mtl.Censor
     //cats.mtl.CensorInstances

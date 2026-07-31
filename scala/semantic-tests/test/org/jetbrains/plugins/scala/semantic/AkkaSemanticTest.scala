@@ -610,7 +610,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.http2.HttpMessageRendering
     //akka.http.impl.engine.http2.IncomingFlowController
     //akka.http.impl.engine.http2.MessageRendering
-    //akka.http.impl.engine.http2.NoOpTelemetry
+    akka.http.impl.engine.http2.NoOpTelemetry
     //akka.http.impl.engine.http2.OutgoingConnectionBuilderImpl
     akka.http.impl.engine.http2.PriorityNode
     //akka.http.impl.engine.http2.PriorityTree
@@ -937,7 +937,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.coding.NoCodingCompressor
     //akka.http.scaladsl.coding.StreamDecoder
     //akka.http.scaladsl.common.CsvEntityStreamingSupport
-    //akka.http.scaladsl.common.EntityStreamingSupport
+    akka.http.scaladsl.common.EntityStreamingSupport
     //akka.http.scaladsl.common.JsonEntityStreamingSupport
     akka.http.scaladsl.common.NameDefaultReceptacle
     akka.http.scaladsl.common.NameDefaultUnmarshallerReceptacle
@@ -1411,7 +1411,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.japi.function.Procedure7
     //akka.japi.function.Procedure8
     //akka.japi.function.Procedure9
-    //akka.japi.pf.CaseStatement
+    akka.japi.pf.CaseStatement
     akka.japi.pf.UnitCaseStatement
     //akka.japi.tuple.Tuple10
     //akka.japi.tuple.Tuple11
@@ -1971,7 +1971,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.Server
     //akka.stream.Shape
     //akka.stream.SharedKillSwitch
-    //akka.stream.SinkRef
+    akka.stream.SinkRef
     //akka.stream.SinkShape
     akka.stream.SourceRef
     //akka.stream.SourceShape
@@ -2244,7 +2244,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.javadsl.Framing
     //akka.stream.javadsl.GraphCreate
     //akka.stream.javadsl.GraphDSL
-    //akka.stream.javadsl.JsonFraming
+    akka.stream.javadsl.JsonFraming
     //akka.stream.javadsl.Keep
     //akka.stream.javadsl.Merge
     //akka.stream.javadsl.MergeHub
@@ -2320,7 +2320,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.scaladsl.RestartWithBackoffLogic
     //akka.stream.scaladsl.RestartWithBackoffSink
     //akka.stream.scaladsl.RestartWithBackoffSource
-    //akka.stream.scaladsl.RetryFlow
+    akka.stream.scaladsl.RetryFlow
     //akka.stream.scaladsl.RunnableGraph
     //akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink
@@ -2338,7 +2338,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.scaladsl.Tcp
     //akka.stream.scaladsl.TcpAttributes
     //akka.stream.scaladsl.TcpIdleTimeoutException
-    //akka.stream.scaladsl.Unzip
+    akka.stream.scaladsl.Unzip
     akka.stream.scaladsl.UnzipWith
     //akka.stream.scaladsl.UnzipWith10
     //akka.stream.scaladsl.UnzipWith11
@@ -2388,7 +2388,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.scaladsl.ZipLatestWith8
     //akka.stream.scaladsl.ZipLatestWith9
     akka.stream.scaladsl.ZipLatestWithApply
-    //akka.stream.scaladsl.ZipN
+    akka.stream.scaladsl.ZipN
     akka.stream.scaladsl.ZipWith
     //akka.stream.scaladsl.ZipWith10
     //akka.stream.scaladsl.ZipWith11
