@@ -6,7 +6,7 @@ import org.junit.Test
 class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
   @Test def test1(): Unit = doTest("""
     akka.AkkaException
-    //akka.AkkaVersion
+    akka.AkkaVersion
     akka.ConfigurationException
     //akka.Done
     //akka.Main
@@ -257,7 +257,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.SystemMessage
     //akka.actor.typed.internal.SystemMessageList
     //akka.actor.typed.internal.Terminate
-    //akka.actor.typed.internal.TimerSchedulerCrossDslSupport
+    akka.actor.typed.internal.TimerSchedulerCrossDslSupport
     //akka.actor.typed.internal.TimerSchedulerImpl
     //akka.actor.typed.internal.TransformMessagesInterceptor
     //akka.actor.typed.internal.UnstashException
@@ -730,7 +730,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.util.J2SMapping
     //akka.http.impl.util.JavaAccessors
     //akka.http.impl.util.JavaMapping
-    //akka.http.impl.util.JavaVersion
+    akka.http.impl.util.JavaVersion
     //akka.http.impl.util.LazyValueBytesRenderable
     //akka.http.impl.util.LogByteStringTools
     //akka.http.impl.util.LogMessages
@@ -1476,7 +1476,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.parboiled2.support.hlist.syntax.HListOps
     //akka.parboiled2.util.Base64
     //akka.pattern.AskPromiseRef
-    //akka.pattern.AskSupport
+    akka.pattern.AskSupport
     //akka.pattern.AskTimeoutException
     //akka.pattern.AskableActorRef
     //akka.pattern.AskableActorSelection
@@ -1491,7 +1491,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.pattern.CircuitBreaker
     //akka.pattern.CircuitBreakerOpenException
     //akka.pattern.CircuitBreakersRegistry
-    //akka.pattern.ExplicitAskSupport
+    akka.pattern.ExplicitAskSupport
     //akka.pattern.ExplicitlyAskableActorRef
     //akka.pattern.ExplicitlyAskableActorSelection
     //akka.pattern.ExtendedBackoffOptions
@@ -1520,7 +1520,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.pattern.internal.CircuitBreakerTelemetryProvider
     akka.persistence.AbstractPersistentActor
     akka.persistence.AbstractPersistentActorLike
-    //akka.persistence.AbstractPersistentActorWithAtLeastOnceDelivery
+    akka.persistence.AbstractPersistentActorWithAtLeastOnceDelivery
     akka.persistence.AbstractPersistentActorWithTimers
     //akka.persistence.AtLeastOnceDelivery
     //akka.persistence.AtLeastOnceDeliveryLike
@@ -1541,7 +1541,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.persistence.PersistenceIdentity
     //akka.persistence.PersistencePlugin
     //akka.persistence.PersistenceRecovery
-    //akka.persistence.PersistenceSettings
+    akka.persistence.PersistenceSettings
     akka.persistence.PersistenceStash
     akka.persistence.PersistentActor
     akka.persistence.PersistentEnvelope
@@ -1849,7 +1849,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.WithListeners
     akka.serialization.AsyncSerializer
     //akka.serialization.AsyncSerializerWithStringManifest
-    //akka.serialization.AsyncSerializerWithStringManifestCS
+    akka.serialization.AsyncSerializerWithStringManifestCS
     //akka.serialization.BaseSerializer
     //akka.serialization.BooleanSerializer
     //akka.serialization.ByteArraySerializer
@@ -2467,7 +2467,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.util.ImmutableIntMap
     //akka.util.Index
     //akka.util.JavaDurationConverters
-    //akka.util.JavaVersion
+    akka.util.JavaVersion
     //akka.util.LineNumbers
     //akka.util.ManifestInfo
     //akka.util.MessageBuffer

@@ -486,7 +486,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.Tuple2KInstances8
     //cats.data.Tuple2KMonad
     //cats.data.Tuple2KMonoidK
-    //cats.data.Tuple2KOrder
+    cats.data.Tuple2KOrder
     //cats.data.Tuple2KSemigroupK
     //cats.data.Tuple2KSemigroupal
     //cats.data.Tuple2KShow
@@ -734,7 +734,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.effect.unsafe.metrics.ComputePoolSamplerMBean
     cats.effect.unsafe.metrics.CpuStarvation
     cats.effect.unsafe.metrics.CpuStarvationMBean
-    //cats.effect.unsafe.metrics.CpuStarvationMetrics
+    cats.effect.unsafe.metrics.CpuStarvationMetrics
     //cats.effect.unsafe.metrics.CpuStarvationSampler
     cats.effect.unsafe.metrics.IORuntimeMetrics
     //cats.effect.unsafe.metrics.IORuntimeMetricsCompanionPlatform

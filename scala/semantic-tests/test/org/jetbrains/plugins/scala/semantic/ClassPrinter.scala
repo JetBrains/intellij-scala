@@ -284,7 +284,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case e => "<expr>"
     }
 
-    text + textOfImplicitArguments(e.findImplicitArguments, e)
+    val expression = text + textOfImplicitArguments(e.findImplicitArguments, e)
+
+    e.implicitConversion().map(textOfImplicitConversion(_, expression, e)).getOrElse(expression)
   }
 
   private def textOfReference(r: ScReference): String =
@@ -332,9 +334,18 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     if (fileContext == null) file else containingFileOf(fileContext)
   }
 
+  private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
+    val typeArgText = function.element match {
+      case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+        owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
+      case _ => ""
+    }
+    textOfReferenceTo(function, place, function.name) + typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
+  }
+
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
     .map { clause =>
-      clause.args.map(arg =>
+      clause.args.map { arg =>
         val typeArgText = arg.element match {
           case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
             owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
@@ -346,7 +357,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           case _ =>
             textOfReferenceTo(arg, place, arg.name)
         }
-        prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place)).mkString(", ")
+        val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place)
+        arg.implicitConversion.map(textOfImplicitConversion(_, inner, place)).getOrElse(inner)
+      }.mkString(", ")
     }
     .map("(using " + _ + ")").mkString
 
