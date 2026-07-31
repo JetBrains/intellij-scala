@@ -4,6 +4,7 @@ import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
@@ -11,8 +12,11 @@ import org.jetbrains.bsp.protocol.session.GenericConnector.RemoteProcessPid
 import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage, BspSessionCreationError}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.isUnitTestMode
+import org.jetbrains.sbt.process.SbtRunner
 
 import java.nio.file.Path
+import scala.jdk.CollectionConverters.*
 
 class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabilities, methods: List[ProcessBsp]) extends BspServerConnector() {
 
@@ -34,6 +38,11 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
     val commandLine = new GeneralCommandLine(details.getArgv)
       .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
       .withWorkingDirectory(base)
+    // Add coursier environment variables when starting the sbt/BSP server in tests on Windows,
+    // because the same issue with hanging sbt processes has been observed during project import in sbt/BSP tests.
+    if isUnitTestMode && SystemInfo.isWindows then
+      commandLine.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
+
     val process = commandLine.createProcess()
 
     val cleanup = () => {

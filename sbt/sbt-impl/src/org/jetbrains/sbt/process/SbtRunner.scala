@@ -406,7 +406,7 @@ object SbtRunner:
    * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
    * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
    */
-  private[sbt] def defaultCoursierDirectoriesAsEnvVariables(): Map[String, String] =
+  private[jetbrains] def defaultCoursierDirectoriesAsEnvVariables(): Map[String, String] =
     val LocalAppData = System.getenv("LOCALAPPDATA")
     val AppData = System.getenv("APPDATA")
 
