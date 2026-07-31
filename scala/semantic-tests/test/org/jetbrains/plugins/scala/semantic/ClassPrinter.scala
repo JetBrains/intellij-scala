@@ -203,10 +203,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
-      case t: ScTypedExpression => "(" + textOfExpression(t.expr, indent) + ": " + t.typeElement.flatMap(_.`type`().toOption.map(textOf(_))).getOrElse("NotInferred") + ")"
+      case t: ScTypedExpression =>
+        val s = textOfExpression(t.expr, indent)
+        if (t.isSequenceArg) s + ": _*"
+        else "(" + s + ": " + t.typeElement.flatMap(_.`type`().toOption.map(textOf(_))).getOrElse("NotInferred") + ")"
       case u: ScUnitExpr => "()"
       case u: ScThisReference => "this"
-      case s: ScSuperReference => "super" + (s.staticSuper.map("[" + textOf(_) + "]").getOrElse(""))
+      case s: ScSuperReference => "super" + s.staticSuper.map("[" + textOf(_) + "]").getOrElse("")
       case l: ScInterpolatedStringLiteral => l.desugaredExpression.map(p => textOfExpression(p._2, indent)).getOrElse("")
       case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
       case e: ScUnderscoreSection => "_"

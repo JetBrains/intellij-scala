@@ -465,7 +465,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.prop.TableFor7
     //org.scalatest.prop.TableFor8
     //org.scalatest.prop.TableFor9
-    //org.scalatest.prop.Tables
+    org.scalatest.prop.Tables
     org.scalatest.prop.Whenever
     //org.scalatest.propspec.AnyPropSpec
     //org.scalatest.propspec.AnyPropSpecLike
