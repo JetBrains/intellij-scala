@@ -2,23 +2,25 @@ package org.jetbrains.plugins.scala
 package performance.highlighting
 
 import com.intellij.psi.PsiFileFactory
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.PerformanceUnitTest
+import com.intellij.tools.ide.metrics.benchmark.Benchmark
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.junit.experimental.categories.Category
 
 import scala.util.Try
 
+@PerformanceUnitTest
 @Category(Array(classOf[SlowTests]))
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
-  def doTest(text: String, TIMEOUT: Int): Unit = {
+  def doTest(text: String): Unit = {
 
-    PlatformTestUtil.assertTiming("Running highlighting performance test", TIMEOUT,
+    Benchmark.newBenchmark("Running highlighting performance test",
       () => Try {
         val file = PsiFileFactory.getInstance(myFixture.getProject)
           .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
         myFixture.testHighlighting(false, false, false, file.getVirtualFile)
       }
-    )
+    ).start()
   }
 
   def testPerformance(): Unit = {
@@ -87,8 +89,7 @@ object addressbook {
   }
 }
 """
-    val TIMEOUT: Int = 15000
-    doTest(text, TIMEOUT)
+    doTest(text)
   }
 
   def testLotsOfArguments(): Unit = {
@@ -122,9 +123,8 @@ object addressbook {
         |  9,11,68,1,14,13,19,7,2,18,3,10,2,28,23,73,79,37,9,11,68,16,10,68,15,14,18,2,79,23,2,10,10,71,7,13,20,79,3,11,0,22,30,67
         |  ,68,19,7,1,71,8,8,8,29,29,71,0,2,71,27,12,2,79,11,9,3,29,71,60,11,9,79,11,1,79,16,15,10,68,33,14,16,15,10,22,73)
       """.stripMargin
-    val TIMEOUT = 13000
 
-    doTest(text, TIMEOUT)
+    doTest(text)
   }
 
   //SCL-18276
@@ -271,6 +271,6 @@ object addressbook {
         |      <error descr="Cannot resolve symbol year2032">year2032</error> = 0
         |    )
         |  }
-        |}""".stripMargin, 5000)
+        |}""".stripMargin)
   }
 }
