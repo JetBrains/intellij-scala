@@ -496,7 +496,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.time.Minutes
     //org.scalatest.time.Nanosecond
     //org.scalatest.time.Nanoseconds
-    //org.scalatest.time.Now
+    org.scalatest.time.Now
     //org.scalatest.time.Second
     //org.scalatest.time.Seconds
     //org.scalatest.time.Span

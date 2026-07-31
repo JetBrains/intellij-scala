@@ -262,9 +262,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       }) + (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
+        val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
         "new " + e.firstConstructorInvocation
-          .map(textOfConstructorInvocation(_, indent))
-          .getOrElse("") + (if (!e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))) "" else
+          .map(textOfConstructorInvocation(_, indent, emptyParens = !hasMembers))
+          .getOrElse("") + (if (!hasMembers) "" else
           " {" + {
             val sb = new StringBuilder()
             printTo(sb, e.extendsBlock, indent + "  ")
@@ -333,9 +334,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfConstructorInvocation(ci: ScConstructorInvocation, indent: String, emptyParens: Boolean = true) =
-    ci.typeElement.`type`().map(textOf(_, parens = 1)).getOrElse("NotInferred") +
-      (if (emptyParens || ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "") +
-        textOfImplicitArguments(ci.findImplicitArguments, ci)
+    ci.typeElement.`type`().map(textOf(_, parens = 1)).getOrElse("NotInferred") + (ci.arguments match {
+      case Seq() => if (emptyParens) "()" else ""
+      case Seq(list) if list.exprs.isEmpty => if (emptyParens) "()" else ""
+      case lists => lists.map("(" + _.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
+    }) +
+      textOfImplicitArguments(ci.findImplicitArguments, ci)
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
     val typeArgText = function.element match {

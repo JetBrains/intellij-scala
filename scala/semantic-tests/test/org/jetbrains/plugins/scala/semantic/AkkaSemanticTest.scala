@@ -167,7 +167,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.dungeon.DeathWatch
     //akka.actor.dungeon.Dispatch
     //akka.actor.dungeon.FaultHandling
-    //akka.actor.dungeon.LicenseKeySupplier
+    akka.actor.dungeon.LicenseKeySupplier
     //akka.actor.dungeon.ReceiveTimeout
     //akka.actor.dungeon.SerializationCheckFailedException
     //akka.actor.setup.ActorSystemSetup
@@ -750,7 +750,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.impl.util.StringTools
     //akka.http.impl.util.Timestamp
     //akka.http.impl.util.ToStrict
-    //akka.http.impl.util.ToStringRenderable
+    akka.http.impl.util.ToStringRenderable
     akka.http.impl.util.ValueRenderable
     //akka.http.javadsl.ClientTransport
     //akka.http.javadsl.ConnectHttp
@@ -1704,7 +1704,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.remote.artery.OutOfBuffersException
     akka.remote.artery.OutboundContext
     //akka.remote.artery.OutboundControlJunction
-    //akka.remote.artery.OutboundEnvelope
+    akka.remote.artery.OutboundEnvelope
     //akka.remote.artery.OutboundHandshake
     //akka.remote.artery.OutboundTestStage
     akka.remote.artery.OversizedPayloadException
@@ -1796,13 +1796,13 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.ConsistentHashingRouter
     //akka.routing.ConsistentHashingRoutingLogic
     //akka.routing.ConsistentRoutee
-    //akka.routing.CustomRouterConfig
+    akka.routing.CustomRouterConfig
     //akka.routing.Deafen
     //akka.routing.DefaultOptimalSizeExploringResizer
     //akka.routing.DefaultResizer
     //akka.routing.FromConfig
     //akka.routing.GetRoutees
-    //akka.routing.Group
+    akka.routing.Group
     //akka.routing.GroupBase
     //akka.routing.Listen
     akka.routing.ListenerMessage
@@ -2022,7 +2022,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.Buffer
     //akka.stream.impl.BuilderKey
     //akka.stream.impl.Cancel
-    //akka.stream.impl.CancelSink
+    akka.stream.impl.CancelSink
     //akka.stream.impl.CancelledSubscription
     akka.stream.impl.CancellingSubscriber
     //akka.stream.impl.ChainedBuffer
@@ -2032,7 +2032,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.Compose
     //akka.stream.impl.CompositeTraversalBuilder
     //akka.stream.impl.Concat
-    //akka.stream.impl.ContextPropagation
+    akka.stream.impl.ContextPropagation
     akka.stream.impl.ContextPropagationImpl
     //akka.stream.impl.CoupledTerminationBidi
     akka.stream.impl.DefaultInputTransferStates
@@ -2127,7 +2127,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.SubscribePending
     //akka.stream.impl.SubscriberManagement
     akka.stream.impl.SubscriberSink
-    //akka.stream.impl.SubscriberSource
+    akka.stream.impl.SubscriberSource
     akka.stream.impl.SubscriptionTimeoutException
     //akka.stream.impl.SubscriptionWithCursor
     //akka.stream.impl.TakeLastStage
@@ -2229,7 +2229,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.streamref.SourceRefStageImpl
     //akka.stream.impl.streamref.StreamRefResolverImpl
     //akka.stream.impl.streamref.StreamRefSettingsImpl
-    //akka.stream.impl.streamref.StreamRefsMaster
+    akka.stream.impl.streamref.StreamRefsMaster
     //akka.stream.impl.streamref.StreamRefsProtocol
     //akka.stream.javadsl.Balance
     //akka.stream.javadsl.BidiFlow
