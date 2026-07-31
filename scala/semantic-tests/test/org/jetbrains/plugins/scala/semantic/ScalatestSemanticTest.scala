@@ -609,6 +609,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.RunningState
     //org.scalatest.tools.RunpathUrl
     org.scalatest.tools.SbtDispatchReporter
+    //org.scalatest.tools.ScalaTestAntTask
     //org.scalatest.tools.SlowpokeConfig
     //org.scalatest.tools.SocketReporter
     //org.scalatest.tools.SocketReporterConfiguration

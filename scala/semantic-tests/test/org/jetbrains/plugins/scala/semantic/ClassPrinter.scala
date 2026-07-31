@@ -77,11 +77,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       val classParent =
         if (normalize && isScala3 && !cls.isInterface && cls.superClass.isEmpty) cls.allSupers.find(!_.isInterface).filter(_.qualifiedName != "java.lang.Object").map(ScDesignatorType(_)).toList
         else Seq.empty
-      def asString(ci: ScConstructorInvocation) =
-        textOf(ci.typeElement.`type`().get, parens = 1) + (if (ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "")
       // TODO Don't add "Foo.this." in class parents, see ScalaTypePresentation.innerTypeText, SCL-25555
       if (parentClauses.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") +
-        (classParent.map(textOf(_, parens = 1)) ++ parentClauses.map(asString)).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ").replace(name + ".this.", "")
+        (classParent.map(textOf(_, parens = 1)) ++ parentClauses.map(textOfConstructorInvocation(_, indent, emptyParens = false))).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ").replace(name + ".this.", "")
     }
 
     val derivations = {
@@ -265,7 +263,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         "new " + e.firstConstructorInvocation
-          .map(ci => ci.typeElement.`type`().map(textOf(_)).getOrElse("NotInferred") + ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString)
+          .map(textOfConstructorInvocation(_, indent))
           .getOrElse("") + (if (!e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))) "" else
           " {" + {
             val sb = new StringBuilder()
@@ -333,6 +331,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val fileContext = file.getContext
     if (fileContext == null) file else containingFileOf(fileContext)
   }
+
+  private def textOfConstructorInvocation(ci: ScConstructorInvocation, indent: String, emptyParens: Boolean = true) =
+    ci.typeElement.`type`().map(textOf(_, parens = 1)).getOrElse("NotInferred") +
+      (if (emptyParens || ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "")
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
     val typeArgText = function.element match {
@@ -531,12 +533,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       (if (ml.isCase) "case " else "")
   }
 
-  private def textOf(tpe: ScType, parens: Int = 0): String = tpe match {
+  private def textOf(tpe: ScType, parens: Int = 0): String = (tpe match {
     case FunctionType(_, _) if !tpe.isAliasType && parens > 0 => "(" + tpe.canonicalText + ")"
 //    case AliasType(ta, _, _) => ta.containingClass.name + ".this." + ta.name
     case _ =>
-      tpe.canonicalText(context).replace("_root_.", "")
-  }
+      tpe.canonicalText(context)
+  }).replace("_root_.", "")
 
   private val context = TypePresentationContext.emptyContextIn(isScala3)
 

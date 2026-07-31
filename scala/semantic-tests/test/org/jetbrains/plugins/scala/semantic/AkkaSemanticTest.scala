@@ -446,7 +446,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.dispatch.ExecutorServiceDelegate
     akka.dispatch.ExecutorServiceFactory
     akka.dispatch.ExecutorServiceFactoryProvider
-    akka.dispatch.Filter
+    //akka.dispatch.Filter
     //akka.dispatch.Foreach
     //akka.dispatch.ForkJoinExecutorConfigurator
     //akka.dispatch.Futures
@@ -1725,6 +1725,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.TestManagementCommands
     //akka.remote.artery.TestState
     //akka.remote.artery.ThisActorSystemQuarantinedEvent
+    //akka.remote.artery.aeron.AeronSource
     //akka.remote.artery.aeron.TaskRunner
     //akka.remote.artery.compress.CompressionProtocol
     //akka.remote.artery.compress.CompressionTable
