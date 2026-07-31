@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.factories
 
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubOutputStream, StubSerializingElementFactory}
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -11,9 +11,9 @@ abstract class ScStubSerializingElementFactory[Stub <: StubElement[_], Psi <: Ps
   elementType: IScalaElementType,
 ) extends StubSerializingElementFactory[Stub, Psi] {
 
-  protected def getExternalIdPrefix: String = ScalaLanguage.INSTANCE.getDisplayName.toLowerCase
+  protected def language: Language = ScalaLanguage.INSTANCE
 
-  override final def getExternalId: String = s"$getExternalIdPrefix.$elementType"
+  override final def getExternalId: String = s"${language.getDisplayName.toLowerCase}.$elementType"
 
   override def serialize(stub: Stub, dataStream: StubOutputStream): Unit = {}
 
