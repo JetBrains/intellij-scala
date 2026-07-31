@@ -334,7 +334,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOfConstructorInvocation(ci: ScConstructorInvocation, indent: String, emptyParens: Boolean = true) =
     ci.typeElement.`type`().map(textOf(_, parens = 1)).getOrElse("NotInferred") +
-      (if (emptyParens || ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "")
+      (if (emptyParens || ci.arguments.nonEmpty) ci.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString else "") +
+        textOfImplicitArguments(ci.findImplicitArguments, ci)
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
     val typeArgText = function.element match {
