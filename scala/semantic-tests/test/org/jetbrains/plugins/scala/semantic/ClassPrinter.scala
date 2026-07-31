@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
 
@@ -286,23 +287,26 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     text + textOfImplicitArguments(e.findImplicitArguments, e)
   }
 
-  private def textOfReference(r: ScReference) = {
-    r.bind().map(_.getActualElement).orNull match {
+  private def textOfReference(r: ScReference): String =
+    r.bind().map(textOfReferenceTo(_, r, r.refName)).getOrElse(r.refName)
+
+  private def textOfReferenceTo(result: ScalaResolveResult, place: PsiElement, refName: String): String = {
+    result.getActualElement match {
       case e: ScSelfTypeElement => e.name
       case e: ScNamedElement => e.nameContext match {
         case m: ScMember if !m.isLocal =>
-          if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(r.refName) else {
-            val enclosingClasses = r.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
+          if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(refName) else {
+            val enclosingClasses = place.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
             enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
               case Some(enclosingClass) =>
-                if (enclosingClass.name == "<anonymous>") "this." + r.refName else enclosingClass.name + ".this." + r.refName
-              case None => m.qualifiedNameOpt.getOrElse(r.refName)
+                if (enclosingClass.name == "<anonymous>") "this." + refName else enclosingClass.name + ".this." + refName
+              case None => m.qualifiedNameOpt.getOrElse(refName)
             }
           }
-        case _ => r.refName
+        case _ => refName
       }
-      case m: PsiMember => m.qualifiedNameOpt.getOrElse(r.refName)
-      case _ => r.refName
+      case m: PsiMember => m.qualifiedNameOpt.getOrElse(refName)
+      case _ => refName
     }
   }
 
@@ -340,14 +344,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           case Some(tpe) =>
             tpe.canonicalText(TypePresentationContext(place))(using Context(place)).stripPrefix("_root_.").stripSuffix(".type") + "." + arg.element.asInstanceOf[ScNamedElement].name
           case _ =>
-            arg.element match {
-              case e: ScNamedElement => e.nameContext match {
-                case m: ScMember if !m.isLocal && !m.isTopLevel =>
-                  if (e.getContainingFile == place.getContainingFile) (if (m.containingClass.name == "<anonymous>") "this." + e.name else m.containingClass.name + ".this." + e.name)
-                  else m.qualifiedNameOpt.getOrElse(e.name)
-                case _ => e.name
-              }
-            }
+            textOfReferenceTo(arg, place, arg.name)
         }
         prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place)).mkString(", ")
     }
