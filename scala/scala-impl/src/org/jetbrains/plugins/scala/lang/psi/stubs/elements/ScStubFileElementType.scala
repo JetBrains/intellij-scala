@@ -86,5 +86,5 @@ object ScStubFileElementType {
    * Should be incremented each time when stub tree changes (e.g. elements added/removed,
    * element serialization/deserialization changes)
    */
-  private val BaseStubVersion = 1
+  private val BaseStubVersion = 2
 }
