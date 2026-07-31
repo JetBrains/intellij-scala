@@ -65,6 +65,7 @@
         <module name="scalaCommunity.scala-cli"/>
         <module name="scalaCommunity.worksheet"/>
         <module name="scalaCommunity.debugger"/>
+        <module name="scalaCommunity.compiler-integration-server-management"/>
         <module name="scalaCommunity.compiler-integration"/>
         <module name="scalaCommunity.compiler-highlighting"/>
         <module name="scalaCommunity.structural-search"/>

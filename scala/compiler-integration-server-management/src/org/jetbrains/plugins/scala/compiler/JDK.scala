@@ -15,6 +15,6 @@ object JDK {
       val version = Option(jdkType.getVersion(sdk))
       Right(JDK(vmExecutable, tools, sdk.getName, version))
     case unexpected =>
-      Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("unexpected.sdk.type.for.sdk", unexpected, sdk)))
+      Left(CompileServerProblem.Error(ServerManagementBundle.message("unexpected.sdk.type.for.sdk", unexpected, sdk)))
   }
 }

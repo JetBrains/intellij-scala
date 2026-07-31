@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class CompilerIntegrationBundle extends DynamicBundle {
+public final class CompilerIntegrationBundle {
     @NonNls
     private static final String BUNDLE = "messages.CompilerIntegrationBundle";
-
-    private static final CompilerIntegrationBundle INSTANCE = new CompilerIntegrationBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(CompilerIntegrationBundle.class, BUNDLE);
 
     private CompilerIntegrationBundle() {
-        super(BUNDLE);
     }
 
     @Nls

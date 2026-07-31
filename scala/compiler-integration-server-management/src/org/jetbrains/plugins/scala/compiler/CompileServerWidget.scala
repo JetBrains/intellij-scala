@@ -72,9 +72,9 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
   private def launcher: CompileServerLauncher.type = CompileServerLauncher
 
   @Nls
-  private def title: String = CompilerIntegrationBundle.message("scala.compile.server.title")
+  private def title: String = ServerManagementBundle.message("scala.compile.server.title")
 
-  private object Start extends AnAction(CompilerIntegrationBundle.message("action.run"), CompilerIntegrationBundle.message("start.compile.server"), AllIcons.Actions.Execute) with DumbAware {
+  private object Start extends AnAction(ServerManagementBundle.message("action.run"), ServerManagementBundle.message("start.compile.server"), AllIcons.Actions.Execute) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(!launcher.running)
 
@@ -84,7 +84,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
-  private object Stop extends AnAction(CompilerIntegrationBundle.message("action.stop"), CompilerIntegrationBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
+  private object Stop extends AnAction(ServerManagementBundle.message("action.stop"), ServerManagementBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(launcher.running)
 
@@ -94,7 +94,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
-  private object Configure extends AnAction(CompilerIntegrationBundle.message("action.configure"), CompilerIntegrationBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
+  private object Configure extends AnAction(ServerManagementBundle.message("action.configure"), ServerManagementBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
     override def actionPerformed(e: AnActionEvent): Unit =
       CompileServerSettingsUtil.showCompileServerSettingsDialog(project)
 

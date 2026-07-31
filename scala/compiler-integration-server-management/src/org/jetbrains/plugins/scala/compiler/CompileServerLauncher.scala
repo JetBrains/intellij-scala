@@ -72,7 +72,7 @@ object CompileServerLauncher {
         CompileServerNotificationsService.get(project).resetNotifications()
         true
       case Left(error)  =>
-        val title = CompilerIntegrationBundle.message("cannot.start.scala.compile.server")
+        val title = ServerManagementBundle.message("cannot.start.scala.compile.server")
         val groupId = "scala"
         error match {
           case CompileServerProblem.SdkNotSpecified =>
@@ -251,7 +251,7 @@ object CompileServerLauncher {
               val portReportedByServer = waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
                 case Some(p) => p
                 case None =>
-                  return Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("compile.server.missing.tcp.port")))
+                  return Left(CompileServerProblem.Error(ServerManagementBundle.message("compile.server.missing.tcp.port")))
               }
 
               if (local) CompileServerPort.Local(portReportedByServer)
@@ -303,7 +303,7 @@ object CompileServerLauncher {
                     ProjectManager.getInstance().getOpenProjects.foreach { project =>
                       if (!project.isDisposed) {
                         CompileServerNotifications.showNotification(
-                          CompilerIntegrationBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid),
+                          ServerManagementBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid),
                           NotificationType.WARNING,
                           Some(project)
                         )
@@ -330,7 +330,7 @@ object CompileServerLauncher {
           }
       case (_, absentFiles) =>
         val paths = absentFiles.mkString(", ")
-        Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("required.file.not.found.paths", paths)))
+        Left(CompileServerProblem.Error(ServerManagementBundle.message("required.file.not.found.paths", paths)))
     }
   }
 
@@ -465,10 +465,10 @@ object CompileServerLauncher {
     val sdk =
       if (settings.USE_DEFAULT_SDK)
         Option(defaultSdk(project))
-          .toRight(CompileServerProblem.Error(CompilerIntegrationBundle.message("can.t.find.default.jdk")))
+          .toRight(CompileServerProblem.Error(ServerManagementBundle.message("can.t.find.default.jdk")))
       else if (settings.COMPILE_SERVER_SDK != null)
         Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK))
-          .toRight(CompileServerProblem.Error(CompilerIntegrationBundle.message("cant.find.jdk", settings.COMPILE_SERVER_SDK)))
+          .toRight(CompileServerProblem.Error(ServerManagementBundle.message("cant.find.jdk", settings.COMPILE_SERVER_SDK)))
       else
         Left(CompileServerProblem.SdkNotSpecified)
     sdk

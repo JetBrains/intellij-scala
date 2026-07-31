@@ -10,7 +10,7 @@ import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.util.{Condition, NlsSafe}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ServerManagementBundle}
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
@@ -23,7 +23,7 @@ import scala.annotation.nowarn
 final class OpenCompileServerLogAction extends DumbAwareAction {
 
   // Called in the constructor
-  getTemplatePresentation.setText(CompilerIntegrationBundle.message("open.compile.server.log.action.text"))
+  getTemplatePresentation.setText(ServerManagementBundle.message("open.compile.server.log.action.text"))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject

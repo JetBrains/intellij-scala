@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 @Service(Array(Service.Level.PROJECT))
 final class CompileServerNotificationsService(project: Project) {
 
-  private val title = CompilerIntegrationBundle.message("scala.compile.server.title")
+  private val title = ServerManagementBundle.message("scala.compile.server.title")
   
   private val modificationTracker = new CompositeModificationTracker(ProjectRootManager.getInstance(project))
   
@@ -46,7 +46,7 @@ final class CompileServerNotificationsService(project: Project) {
     Notifications.Bus.notify(notification)
   }
   
-  private class FixSdkAction(fixedSdk: String) extends NotificationAction(CompilerIntegrationBundle.message("wrong.jdk.action.use.jdk", fixedSdk)) {
+  private class FixSdkAction(fixedSdk: String) extends NotificationAction(ServerManagementBundle.message("wrong.jdk.action.use.jdk", fixedSdk)) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       notification.expire()
