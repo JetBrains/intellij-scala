@@ -143,6 +143,7 @@ object Common {
     (Compile / scalacOptions) := globalScalacOptions,
     updateOptions := updateOptions.value.withCachedResolution(true),
     instrumentThreadingAnnotations := true,
+    instrumentNotNullAnnotations := true,
     libraryDependencies ++= Seq(
       //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull/@Nls/etc.. annotations
       Dependencies.jetbrainsAnnotations % Provided,
