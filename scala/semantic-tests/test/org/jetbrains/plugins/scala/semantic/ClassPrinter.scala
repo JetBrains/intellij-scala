@@ -203,6 +203,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
+      case t: ScTypedExpression => "(" + textOfExpression(t.expr, indent) + ": " + t.typeElement.flatMap(_.`type`().toOption.map(textOf(_))).getOrElse("NotInferred") + ")"
       case u: ScUnitExpr => "()"
       case u: ScThisReference => "this"
       case s: ScSuperReference => "super" + (s.staticSuper.map("[" + textOf(_) + "]").getOrElse(""))
