@@ -6,7 +6,7 @@ import com.intellij.util.{ArrayFactory, ArrayUtil}
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, IterableExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-package object elements {
+package object factories {
 
   implicit class StubInputStreamExt(private val dataStream: StubInputStream) extends AnyVal {
     def readOptionName: Option[String] = {

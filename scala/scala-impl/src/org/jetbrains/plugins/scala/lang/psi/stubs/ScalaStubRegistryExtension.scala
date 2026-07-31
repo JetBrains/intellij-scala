@@ -4,8 +4,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubRegistry, StubRegistryExtension, StubSerializingElementFactory}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaElementType, ScalaParserDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories._
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.signatures._
 
 /**
  * Registers Scala's stub serializers/factories independently of the element types, so that element
