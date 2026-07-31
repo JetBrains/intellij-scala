@@ -319,6 +319,7 @@ class BspSession private(bspPID: Long,
               BSP.NotificationGroup.createNotification(msg, NotificationType.ERROR)
               val fullMessage = s"$msg (code ${errorObject.getCode}). Data: ${errorObject.getData}"
               logger.error(fullMessage)
+            case _ =>
           }
         }
     }
