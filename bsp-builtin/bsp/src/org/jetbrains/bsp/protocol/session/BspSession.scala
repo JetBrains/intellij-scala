@@ -24,6 +24,7 @@ import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 import scala.annotation.tailrec
 import scala.concurrent.*
@@ -48,6 +49,12 @@ class BspSession private(bspPID: Long,
   {
     logger.debug(s"new BspSession(bspPID: $bspPID)")
   }
+
+  /**
+   * Session termination future - it completes once the server process tree has actually terminated. It is populated
+   * exactly once, by the first [[shutdown]] call, and stays `null` until then.
+   */
+  private[bsp] val termination = new AtomicReference[Future[Unit]]()
 
   private val jobs = new LinkedBlockingQueue[BspSessionJob[?,?]]
 
@@ -330,8 +337,14 @@ class BspSession private(bspPID: Long,
     sessionInitialized.cancel(false)
 
     // ensure connection-related stuff is canceled after a timeout
-    Future(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
+    val terminationResult = Future(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
       .andThen { case _ => serverConnection.cancelable.cancel() }
+
+    // Only the first shutdown records its result as the termination signal; later calls fail fast against a dead server
+    // and terminate nothing, so their (fast-failing) result must not overwrite it and falsely signal "done" early.
+    termination.compareAndSet(null, terminationResult)
+
+    terminationResult
   }
 
   private[protocol] def getLastActivity: Long = lastActivity

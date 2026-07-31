@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.ScalaShutDownTracker
@@ -15,7 +16,7 @@ import java.nio.file._
 import java.util.concurrent.TimeUnit
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
 class BspCommunicationService extends Disposable {
@@ -104,6 +105,22 @@ class BspCommunicationService extends Disposable {
   def closeAll: Future[Unit] = {
     import ExecutionContext.Implicits.global
     Future.traverse(comms.values)(_.closeSession()).map(_ => updateWidget())
+  }
+
+  /**
+   * Blocks until every open BSP session has fully shut down, including its sbt server process tree exiting.
+   * For each session it waits on the termination captured when that session was closed.
+   * Throws if a session's termination failed or does not complete within `timeout`. Intended for tests that
+   * delete a temporary workspace afterward on Windows, where a still-running sbt process keeps the working directory
+   * locked.
+   *
+   * @see [[BspCommunication.lastSessionTermination]].
+   */
+  @TestOnly
+  private[bsp] def awaitAllSessionsClosed(timeout: FiniteDuration): Unit = {
+    import ExecutionContext.Implicits.global
+    val all = Future.sequence(comms.values.map(_.lastSessionTermination.get()).toList)
+    Await.result(all, timeout)
   }
 
   override def dispose(): Unit = {

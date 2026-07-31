@@ -41,6 +41,13 @@ class BspCommunication private[protocol](base: Path, initialServerConfig: BspSer
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
   /**
+   * The [[BspSession.termination]] of the session most recently closed via [[closeSession]] - it completes
+   * once that session's sbt server process tree has exited. Captured by [[closeSession]] after it triggers the shutdown
+   * and clears the live [[session]], so the termination can still be awaited even though [[session]] is already `None`.
+   */
+  private[bsp] val lastSessionTermination = new AtomicReference[Future[Unit]](Future.successful(()))
+
+  /**
    * The [[ProgressIndicator]] active during [[prepareSession]].
    * Cancelling this indicator is the mechanism for stopping BSP connection file generation.
    */
@@ -248,9 +255,10 @@ class BspCommunication private[protocol](base: Path, initialServerConfig: BspSer
     case None => Future.successful(())
     case Some(s) =>
       session.set(None)
-      s.shutdown()
+      val shutdownFuture = s.shutdown()
+      Option(s.termination.get()).foreach(lastSessionTermination.set)
+      shutdownFuture
   }
-
 
   private[protocol] def isIdle(now: Long, timeout: Duration) = session.get() match {
     case None => false

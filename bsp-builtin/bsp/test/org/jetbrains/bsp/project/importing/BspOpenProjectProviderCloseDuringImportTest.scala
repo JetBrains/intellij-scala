@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{JavaModuleTestCase, PlatformTestUtil, ServiceContainerUtil}
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.bsp.{BSP, BspJdkUtil}
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -72,6 +73,10 @@ class BspOpenProjectProviderCloseDuringImportTest extends JavaModuleTestCase {
 
   override protected def tearDown(): Unit =
     try {
+      // super.tearDown() deletes the project workspace, and on Windows a directory cannot be deleted
+      // while a process (the still-exiting sbt) has it open, so deletion would fail.
+      // Waiting guarantees the sbt process is gone before the delete.
+      BspCommunicationService.getInstance.awaitAllSessionsClosed(120.seconds)
       testProjectJdk.tearDown()
     } finally {
       super.tearDown()
