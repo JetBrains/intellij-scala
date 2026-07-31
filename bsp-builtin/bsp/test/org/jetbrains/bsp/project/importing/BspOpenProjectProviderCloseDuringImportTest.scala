@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.service.notification.ExternalSystemPr
 import com.intellij.openapi.externalSystem.service.project.manage.{ProjectDataService, WorkspaceDataService}
 import com.intellij.openapi.externalSystem.service.project.{IdeModifiableModelsProvider, ProjectDataManager}
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
-import com.intellij.openapi.util.io.NioFiles
+import com.intellij.openapi.util.io.{FileUtil, NioFiles}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{JavaModuleTestCase, PlatformTestUtil, ServiceContainerUtil}
@@ -482,7 +482,9 @@ class BspOpenProjectProviderCloseDuringImportTest extends JavaModuleTestCase {
       observeActualImport.get() &&
         id.getProjectSystemId == BSP.ProjectSystemId &&
         id.getType == ExternalSystemTaskType.RESOLVE_PROJECT &&
-        projectPath == workspace.toString
+        // `projectPath` uses '/' as the path separator, while `workspace.toString()` uses '\' on Windows.
+        // Use `FileUtil.pathsEqual` to normalize the paths before comparing them.
+        FileUtil.pathsEqual(projectPath, workspace.toString)
   }
 
   /**
