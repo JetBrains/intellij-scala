@@ -197,7 +197,7 @@ object AmmoniteUtil {
   final case class AlternativeSegments(segments: List[String], next: FileTree)
       extends FileTree
   final case class AnySegment(next: FileTree) extends FileTree
-  final case object Empty extends FileTree
+  case object Empty extends FileTree
 
   private def segment(s: String, down: FileTree) = s.split('|').toList match {
     case "*" :: Nil => AnySegment(down)

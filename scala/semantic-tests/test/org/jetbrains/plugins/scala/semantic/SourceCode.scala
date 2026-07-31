@@ -4,9 +4,7 @@ package org.jetbrains.plugins.scala.semantic
 
 import scala.quoted.*
 import runtime.impl.printers.*
-
-import scala.annotation.switch
-
+import scala.annotation.{switch, tailrec}
 import scala.util.matching.Regex
 
 /** Printer for fully elaborated representation of the source code */
@@ -194,11 +192,11 @@ object SourceCode {
             printParent(fun)
           case Apply(fun@Apply(_,_), args) =>
             printParent(fun, true)
-            if (!args.isEmpty || needEmptyParens)
+            if (args.nonEmpty || needEmptyParens)
               inParens(printTrees(args, ", ")(using Some(cdef.symbol)))
           case Apply(fun, args) =>
             printParent(fun)
-            if (!args.isEmpty || needEmptyParens)
+            if (args.nonEmpty || needEmptyParens)
               inParens(printTrees(args, ", ")(using Some(cdef.symbol)))
           case Select(newTree: New, _) =>
             printType(newTree.tpe)(using Some(cdef.symbol))
@@ -206,6 +204,7 @@ object SourceCode {
             cannotBeShownAsSource(parent.show(using Printer.TreeStructure))
         }
 
+        @tailrec
         def printSeparated(list: List[Tree /* Term | TypeTree */]): Unit = list match {
           case Nil =>
           case x :: Nil => printParent(x)
@@ -629,6 +628,7 @@ object SourceCode {
         case Literal(UnitConstant()) => // ignore
         case stat => flatStats += stat
       }
+      @tailrec
       def extractFlatExpr(term: Term): Term = term match {
         case Lambda(_, _) =>   // must come before `Block`
           term
@@ -676,6 +676,7 @@ object SourceCode {
     private def printStats(stats: List[Tree], expr: Tree)(using eliseThis: Option[Symbol]): Unit = {
       def printSeparator(next: Tree): Unit = {
         // Avoid accidental application of opening `{` on next line with a double break
+        @tailrec
         def rec(next: Tree): Unit = next match {
           case Lambda(_, _) => this += lineBreak()
           case Block(stats, _) if stats.nonEmpty => this += doubleLineBreak()
@@ -695,6 +696,7 @@ object SourceCode {
           case _ => this += lineBreak()
         }
       }
+      @tailrec
       def printSeparated(list: List[Tree]): Unit = list match {
         case Nil =>
           printTree(expr)
@@ -709,6 +711,7 @@ object SourceCode {
     }
 
     private def printList[T](xs: List[T], sep: String, print: T => this.type): this.type = {
+      @tailrec
       def printSeparated(list: List[T]): Unit = list match {
         case Nil =>
         case x :: Nil => print(x)
@@ -728,6 +731,7 @@ object SourceCode {
       printList(trees, sep, (t: TypeTree) => printTypeTree(t))
 
     private def printTypes(trees: List[TypeRepr], sep: String)(using elideThis: Option[Symbol]): this.type = {
+      @tailrec
       def printSeparated(list: List[TypeRepr]): Unit = list match {
         case Nil =>
         case x :: Nil => printType(x)
@@ -741,6 +745,7 @@ object SourceCode {
     }
 
     private def printSelectors(selectors: List[Selector]): this.type = {
+      @tailrec
       def printSeparated(list: List[Selector]): Unit = list match {
         case Nil =>
         case x :: Nil => printSelector(x)
@@ -755,6 +760,7 @@ object SourceCode {
     }
 
     private def printCases(cases: List[CaseDef], sep: String): this.type = {
+      @tailrec
       def printSeparated(list: List[CaseDef]): Unit = list match {
         case Nil =>
         case x :: Nil => printCaseDef(x)
@@ -768,6 +774,7 @@ object SourceCode {
     }
 
     private def printTypeCases(cases: List[TypeCaseDef], sep: String): this.type = {
+      @tailrec
       def printSeparated(list: List[TypeCaseDef]): Unit = list match {
         case Nil =>
         case x :: Nil => printTypeCaseDef(x)
@@ -781,6 +788,7 @@ object SourceCode {
     }
 
     private def printPatterns(cases: List[Tree], sep: String): this.type = {
+      @tailrec
       def printSeparated(list: List[Tree]): Unit = list match {
         case Nil =>
         case x :: Nil => printPattern(x)
@@ -794,6 +802,7 @@ object SourceCode {
     }
 
     private def printTypesOrBounds(types: List[TypeRepr], sep: String)(using elideThis: Option[Symbol]): this.type = {
+      @tailrec
       def printSeparated(list: List[TypeRepr]): Unit = list match {
         case Nil =>
         case x :: Nil => printType(x)
@@ -807,7 +816,8 @@ object SourceCode {
     }
 
     private def printTargsDefs(targs: List[(TypeDef, TypeDef)], isDef:Boolean = true)(using elideThis: Option[Symbol]): Unit = {
-      if (!targs.isEmpty) {
+      if (targs.nonEmpty) {
+        @tailrec
         def printSeparated(list: List[(TypeDef, TypeDef)]): Unit = list match {
           case Nil =>
           case x :: Nil => printTargDef(x, isDef = isDef)
@@ -853,6 +863,7 @@ object SourceCode {
             case t: TypeBoundsTree => printBoundsTree(t)
             case t: TypeTree => printTypeTree(t)
           }
+          @tailrec
           def printSeparated(list: List[TypeDef]): Unit = list match {
             case Nil =>
             case x :: Nil =>
@@ -884,6 +895,7 @@ object SourceCode {
 
     private val WildcardName: Regex = "_\\$\\d+".r
 
+    @tailrec
     private def printSeparatedParamDefs(list: List[ValDef])(using elideThis: Option[Symbol]): Unit = list match {
       case Nil =>
       case x :: Nil => printParamDef(x)
@@ -919,6 +931,7 @@ object SourceCode {
     }
 
     private def printAnnotations(trees: List[Term])(using elideThis: Option[Symbol]): this.type = {
+      @tailrec
       def printSeparated(list: List[Term]): Unit = list match {
         case Nil =>
         case x :: Nil =>
@@ -971,7 +984,6 @@ object SourceCode {
       indented {
         caseDef.rhs match {
           case Block(Nil, Literal(UnitConstant())) =>
-            this
           case Block(stats, expr) =>
             printStats(stats, expr)(using None)
           case body =>
@@ -990,6 +1002,7 @@ object SourceCode {
       this
     }
 
+    @tailrec
     private def printPattern(pattern: Tree): this.type = pattern match {
       case Wildcard() =>
         this += "_"
@@ -1052,8 +1065,8 @@ object SourceCode {
       case LongConstant(v) => this += highlightLiteral(v.toString + "L")
       case FloatConstant(v) => this += highlightLiteral(v.toString + "f")
       case DoubleConstant(v) => this += highlightLiteral(v.toString)
-      case CharConstant(v) => this += highlightString(s"${qc}${escapedChar(v)}${qc}")
-      case StringConstant(v) => this += highlightString(s"${qSc}${escapedString(v)}${qSc}")
+      case CharConstant(v) => this += highlightString(s"$qc${escapedChar(v)}$qc")
+      case StringConstant(v) => this += highlightString(s"$qSc${escapedString(v)}$qSc")
       case ClassOfConstant(v) =>
         this += "classOf"
         inSquare(printType(v))
@@ -1250,7 +1263,7 @@ object SourceCode {
             this += "_*"
           case _ =>
             if !fullNames && args.lengthCompare(2) == 0 && tp.typeSymbol.flags.is(Flags.Infix) then
-              val lhs = args(0)
+              val lhs = args.head
               val rhs = args(1)
               this += "("
               printType(lhs)
@@ -1427,6 +1440,7 @@ object SourceCode {
     }
 
     private def printRefinement(tpe: TypeRepr)(using elideThis: Option[Symbol]): this.type = {
+      @tailrec
       def printMethodicType(tp: TypeRepr): Unit = tp match {
         case tp @ MethodType(paramNames, params, res) =>
           inParens(printMethodicTypeParams(paramNames, params))
@@ -1471,6 +1485,7 @@ object SourceCode {
           this += ": "
           printType(info)
       }
+      @tailrec
       def printSeparated(list: List[(String, TypeRepr)]): Unit = list match {
         case Nil =>
         case (name, info) :: Nil =>

@@ -253,7 +253,7 @@ abstract class SbtShellProjectLoadingFailedPromptIntegrationTestBase extends Sbt
     val processManager = SbtProcessManager.forProject(getMyProject)
     val sbtBuildOverwritten = new AtomicBoolean(false)
 
-    var queuedFutures = Seq.empty[Future[_]]
+    var queuedFutures = Seq.empty[Future[?]]
     val queuedTaskIds = Seq(
       SbtShellCommandRequestId("queued-behind-failed-import-1"),
       SbtShellCommandRequestId("queued-behind-failed-import-2"),

@@ -47,8 +47,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val modifiers = {
       val s = textOf(cls.getModifierList)
-      if (normalize && cls.isInstanceOf[ScClass] && (cls.hasModifierProperty("implicit") || isValueClass(cls))) s.replace("final ", "")
-      else if (normalize && cls.isInstanceOf[ScObject] && cls.hasModifierProperty("case")) s.replace("final ", "")
+      if (normalize && cls.is[ScClass] && (cls.hasModifierPropertyScala("implicit") || isValueClass(cls))) s.replace("final ", "")
+      else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
     }
 
@@ -260,7 +260,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
         case None => textOfReference(r)
       }) + (r.bind() match {
-        case Some(r) if r.element != r.getActualElement && r.element.getName == "apply" =>
+        case Some(r) if r.element != r.getActualElement && r.element.name == "apply" =>
           ".apply"
         case _ => ""
       }) + inferredTypeArgumentsFor(r).map(_.map(textOf(_)).mkString("[", ", ", "]")).getOrElse("") +
@@ -382,7 +382,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       result.element match {
         case function: ScFunction if !function.isConstructor && function.typeParameters.nonEmpty =>
           val constraints = result.applicabilityConstraints
-          constraints.substitutionBounds(canThrowSCE = false)(r, Context(r)).map { bounds =>
+          constraints.substitutionBounds(canThrowSCE = false)(using r, Context(r)).map { bounds =>
             def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
             function.typeParameters.map(tp => typeParamSubst(tp).removeAbstracts)
           }
@@ -409,7 +409,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = {
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(v.getModifierList)
-    val keyword = if (v.isInstanceOf[ScValue]) "val " else "var "
+    val keyword = if (v.is[ScValue]) "val " else "var "
     val symbolType = symbol.`type`()
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
     val name = normalized(symbol.name)
@@ -427,7 +427,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case _: ScLiteralType => true
     case t if t.isPrimitive => true
     case t if t.isNull => true
-    case ScDesignatorType(cls: PsiClass) if cls.getQualifiedName == "java.lang.String" => true
+    case ScDesignatorType(cls: PsiClass) if cls.qualifiedName == "java.lang.String" => true
     case _ => false
   }
 
@@ -532,7 +532,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textWithQualifiers(expr: ScExpression): String =
     expr.getText // TODO Use AST
-      .replaceAll("""(?<!\.|\w)Array\(""", "scala.Array(")
+      .replaceAll("""(?<![.\w])Array\(""", "scala.Array(")
       .replaceAll("""([a-z]+)(?<! n|cat|origin|msg|explain|serialCommandExec)=(?=\S)""", "$1 = ")
       .replace("\"\"\"", "\"")
 

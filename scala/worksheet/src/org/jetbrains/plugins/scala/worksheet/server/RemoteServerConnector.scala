@@ -212,7 +212,7 @@ object RemoteServerConnector {
     sealed trait Error extends RemoteServerConnectorResult
     sealed trait UnhandledError extends Error
     final case class ProcessTerminatedError(cause: Throwable) extends UnhandledError
-    final case object CantInitializeProcessError extends UnhandledError
+    case object CantInitializeProcessError extends UnhandledError
     final case class ExpectedError(cause: Throwable) extends UnhandledError
     final case class RequiredJLineIsMissingFromClasspathError(module: Module) extends UnhandledError  // (SCL-15818, SCL-15948)
     final case class UnexpectedError(cause: Throwable) extends UnhandledError

@@ -49,7 +49,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
             val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
             sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
           }
-          val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
+          val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1)*)
           directory.toFile.mkdirs()
           Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
           Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
