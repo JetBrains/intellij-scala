@@ -1157,7 +1157,7 @@ object SourceCode {
         }
 
       case Annotated(tpt, annot) =>
-        val Annotation(ref, args) = annot: @unchecked
+        val Annotation(ref, targs, args) = annot: @unchecked
         ref.tpe match {
           case tpe: TypeRef if tpe.typeSymbol == Symbol.requiredClass("scala.annotation.internal.Repeated") =>
             val Types.Sequence(tp) = tpt.tpe: @unchecked
@@ -1290,7 +1290,7 @@ object SourceCode {
         }
 
       case AnnotatedType(tp, annot) =>
-        val Annotation(ref, args) = annot: @unchecked
+        val Annotation(ref, targs, args) = annot: @unchecked
         printType(tp)
         this += " "
         printAnnotation(annot)
@@ -1416,9 +1416,14 @@ object SourceCode {
     }
 
     private def printAnnotation(annot: Term)(using elideThis: Option[Symbol]): this.type = {
-      val Annotation(ref, args) = annot: @unchecked
+      val Annotation(ref, targs, args) = annot: @unchecked
       this += "@"
-      printTypeTree(ref)
+      ref.tpe match {
+        case TypeLambda(_, _, AppliedType(tc, _)) => printType(tc)
+        case _ => printTypeTree(ref)
+      }
+      if (targs.nonEmpty)
+        inSquare(printTrees(targs, ", "))
       if (args.isEmpty)
         this
       else
@@ -1427,7 +1432,7 @@ object SourceCode {
 
     private def printDefAnnotations(definition: Definition)(using elideThis: Option[Symbol]): this.type = {
       val annots = definition.symbol.annotations.filter {
-        case Annotation(annot, _) =>
+        case Annotation(annot, _, _) =>
           val sym = annot.tpe.typeSymbol
           sym != Symbol.requiredClass("scala.forceInline") &&
           sym.maybeOwner != Symbol.requiredClass("scala.annotation.internal")
@@ -1619,10 +1624,10 @@ object SourceCode {
     }
 
     private object Annotation {
-      def unapply(arg: Tree): Option[(TypeTree, List[Term])] = arg match {
-        case New(annot) => Some((annot, Nil))
-        case Apply(Select(New(annot), "<init>"), args) => Some((annot, args))
-        case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, args))
+      def unapply(arg: Tree): Option[(TypeTree, List[TypeTree], List[Term])] = arg match {
+        case New(annot) => Some((annot, Nil, Nil))
+        case Apply(Select(New(annot), "<init>"), args) => Some((annot, Nil, args))
+        case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, targs, args))
         case _ => None
       }
     }
