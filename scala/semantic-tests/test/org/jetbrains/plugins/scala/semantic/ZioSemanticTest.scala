@@ -53,7 +53,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.Hub
     //zio.InterruptStatus
     //zio.IntersectionTypeCompat
-    //zio.IsReloadable
+    zio.IsReloadable
     //zio.IsReloadableMacros
     //zio.IsReloadableVersionSpecific
     //zio.IsSubtypeOfError
