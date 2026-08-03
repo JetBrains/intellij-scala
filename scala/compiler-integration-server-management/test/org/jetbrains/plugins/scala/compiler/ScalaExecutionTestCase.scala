@@ -13,6 +13,7 @@ import com.intellij.testFramework.EdtTestUtil
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
