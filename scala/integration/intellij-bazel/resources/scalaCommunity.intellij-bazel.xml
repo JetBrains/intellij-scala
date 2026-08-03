@@ -3,6 +3,7 @@
     <dependencies>
         <plugin id="org.jetbrains.bazel"/>
         <module name="intellij.bazel.importer"/>
+        <module name="intellij.bazel.java.core"/>
         <module name="intellij.bazel.java.common"/>
         <module name="scalaCommunity.testing-support"/>
     </dependencies>
