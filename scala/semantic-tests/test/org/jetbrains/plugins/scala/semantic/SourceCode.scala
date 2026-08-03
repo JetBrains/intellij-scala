@@ -942,7 +942,7 @@ object SourceCode {
           this += lineBreak()
           printSeparated(xs)
       }
-      printSeparated(trees)
+      printSeparated(trees.reverse)
       this
     }
 
