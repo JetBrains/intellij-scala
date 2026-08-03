@@ -3,6 +3,7 @@ package protocol
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -22,6 +23,8 @@ import scala.util.Try
 class BspCommunicationService extends Disposable {
 
   import BspCommunicationService.{projectPath, updateWidget}
+
+  private val logger = Logger.getInstance(classOf[BspCommunicationService])
 
   { // init
     ScalaShutDownTracker.registerShutdownTask(() => this.dispose())
@@ -108,20 +111,22 @@ class BspCommunicationService extends Disposable {
   }
 
   /**
-   * Blocks until every open BSP session has fully shut down, including its sbt server process tree exiting.
-   * For each session it waits on the termination captured when that session was closed.
-   * Throws if a session's termination failed or does not complete within `timeout`. Intended for tests that
-   * delete a temporary workspace afterward on Windows, where a still-running sbt process keeps the working directory
-   * locked.
+   * Waits for every open BSP session to shut down. Intended for tests that delete a temporary workspace afterward on
+   * Windows, where a still-running sbt process keeps the working directory locked.
+   *
+   * For each open session it waits on the termination captured when that session was closed, which completes once the
+   * session's sbt server process tree has exited. If a session does not finish within the timeout, it stops waiting for
+   * that session, logs it, and moves on to the next one instead of failing.
    *
    * @see [[BspCommunication.lastSessionTermination]].
    */
   @TestOnly
-  private[bsp] def awaitAllSessionsClosed(timeout: FiniteDuration): Unit = {
-    import ExecutionContext.Implicits.global
-    val all = Future.sequence(comms.values.map(_.lastSessionTermination.get()).toList)
-    Await.result(all, timeout)
-  }
+  private[bsp] def awaitAllSessionsClosed(timeout: FiniteDuration): Unit =
+    comms.values.foreach { comm =>
+      Try(Await.result(comm.lastSessionTermination.get(), timeout)).failed.foreach { t =>
+        logger.warn(s"BSP session did not terminate within $timeout while awaiting shutdown", t)
+      }
+    }
 
   override def dispose(): Unit = {
     comms.values.foreach(_.closeSession())
