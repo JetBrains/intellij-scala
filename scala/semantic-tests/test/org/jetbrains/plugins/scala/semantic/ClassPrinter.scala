@@ -251,12 +251,21 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "this" + si.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
-      case sc: ScAssignment => sc.mirrorMethodCall match {
-        case Some(mc) if !(mc.getEffectiveInvokedExpr.getText.endsWith("_=") && (sc.assignNavigationElement match { case v: ScVariable => true; case p: ScClassParameter => p.isVar; case _ => false })) =>
-          textOfExpression(mc, indent)
-        case _ =>
-          textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
-      }
+      case sc: ScAssignment =>
+        val parameterName = sc.leftExpression match {
+          case expr: ScReferenceExpression => expr.bind().collect { case r if r.isNamedParameter => r.name }
+          case _ => None
+        }
+        parameterName match {
+          case Some(name) => name + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+          case None =>
+            sc.mirrorMethodCall match {
+              case Some(mc) if !(mc.getEffectiveInvokedExpr.getText.endsWith("_=") && (sc.assignNavigationElement match { case v: ScVariable => true; case p: ScClassParameter => p.isVar; case _ => false })) =>
+                textOfExpression(mc, indent)
+              case _ =>
+                textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+            }
+        }
       case r: ScReferenceExpression => (r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
         case None => textOfReference(r)
