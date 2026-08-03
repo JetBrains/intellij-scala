@@ -4,7 +4,7 @@ import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ServerManagementBundle}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
@@ -29,7 +29,7 @@ final class ShowCompileServerLogAction extends DumbAwareAction {
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def displayName(skipDetection: Boolean): String =
-    CompilerIntegrationBundle.message("show.compile.server.log.action.text", RevealFileAction.getFileManagerName(skipDetection))
+    ServerManagementBundle.message("show.compile.server.log.action.text", RevealFileAction.getFileManagerName(skipDetection))
 
   private def isSupported: Boolean =
     RevealFileAction.isDirectoryOpenSupported

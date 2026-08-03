@@ -711,7 +711,7 @@ lazy val compilerIntegrationServerManagement =
     )
     .settings(
       // It's fine to merge it into the same module
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration-server-management")
     )
 
 lazy val compilerIntegrationServerManagementTests =

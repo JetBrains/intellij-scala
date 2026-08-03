@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable bundle="messages.ServerManagementBundle"
+                             key="displayname.scala.compile.server"
+                             parentId="scala.compiler"
+                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
+
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.PrepareCompileServerTask"/>
+
+
+        <statusBarWidgetFactory id="ScalaCompileServer" implementation="org.jetbrains.plugins.scala.compiler.CompileServerWidgetFactory" order="before ScalaHighlightingMode"/>
+    </extensions>
+
+    <applicationListeners>
+
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompileServerErrorListener"
+                  class="org.jetbrains.plugins.scala.compiler.CompileServerErrorListenerImpl"
+                  activeInTestMode="false"/>
+    </applicationListeners>
+
+    <actions resource-bundle="messages.ServerManagementBundle">
+        <action id="Scala.OpenCompileServerLog"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.actions.internal.OpenCompileServerLogAction">
+            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="Scala.ShowCompileServerLog"/>
+        </action>
+
+        <action id="Scala.ShowCompileServerLog"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.actions.internal.ShowCompileServerLogAction">
+            <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="ShowLog"/>
+            <synonym key="show.compile.server.log.synonym.finder"/>
+            <synonym key="show.compile.server.log.synonym.explorer"/>
+        </action>
+    </actions>
+</idea-plugin>

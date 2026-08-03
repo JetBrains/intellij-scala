@@ -13,7 +13,7 @@ import javax.swing.Icon
 private final class CompileServerWidgetFactory extends StatusBarWidgetFactory {
   override def getId: String = CompileServerWidgetFactory.ID
 
-  override def getDisplayName: String = CompilerIntegrationBundle.message("scala.compile.server.title")
+  override def getDisplayName: String = ServerManagementBundle.message("scala.compile.server.title")
 
   override def isAvailable(project: Project): Boolean =
     CompileServerLauncher.running || canBeEnabled(project)

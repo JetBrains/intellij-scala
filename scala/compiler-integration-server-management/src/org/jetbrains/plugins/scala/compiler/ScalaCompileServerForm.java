@@ -71,8 +71,8 @@ public class ScalaCompileServerForm implements Configurable {
         // Allow the field to be empty, in which case the -Xmx VM option will not be generated.
         myCompilationServerMaximumHeapSize.setCanBeEmpty(true);
 
-        myProjectHomeChb = new JCheckBox(CompilerIntegrationBundle.message("compile.server.use.project.home"));
-        myUseProjectHomePanel.add(UI.PanelFactory.panel(myProjectHomeChb).withTooltip(CompilerIntegrationBundle.message("compile.server.new.project.restart")).createPanel());
+        myProjectHomeChb = new JCheckBox(ServerManagementBundle.message("compile.server.use.project.home"));
+        myUseProjectHomePanel.add(UI.PanelFactory.panel(myProjectHomeChb).withTooltip(ServerManagementBundle.message("compile.server.new.project.restart")).createPanel());
 
         myEnableCompileServer.addChangeListener(e -> updateJvmSettingsPanel());
         myParallelCompilation.addChangeListener(e -> updateParallelCompilationSettingsPanel());
@@ -91,14 +91,14 @@ public class ScalaCompileServerForm implements Configurable {
                         .ifPresent(version -> {
                             if (!CompileServerJdkManager$.MODULE$.isCompatible(version)) {
                                 myJdkWarningLabel.setForeground(JBColor.RED);
-                                final var text = CompilerIntegrationBundle.message("compile.server.jdk.too.old");
+                                final var text = ServerManagementBundle.message("compile.server.jdk.too.old");
                                 myJdkWarningLabel.setText("<html>" + text + "</html>");
                                 myJdkWarningLabel.setVisible(true);
                             } else if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
                                 myJdkWarningLabel.setVisible(false);
                             } else {
                                 myJdkWarningLabel.setForeground(JBColor.RED);
-                                final var text = CompilerIntegrationBundle.message("compile.server.wrong.jdk.selected");
+                                final var text = ServerManagementBundle.message("compile.server.wrong.jdk.selected");
                                 myJdkWarningLabel.setText("<html>" + text + "</html>");
                                 myJdkWarningLabel.setVisible(true);
                             }
@@ -106,7 +106,7 @@ public class ScalaCompileServerForm implements Configurable {
             }
         });
 
-        mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(CompilerIntegrationBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
+        mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(ServerManagementBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
 
         myShutdownDelay.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
         myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 9999, 1));
@@ -156,7 +156,7 @@ public class ScalaCompileServerForm implements Configurable {
     @Override
     @Nls
     public String getDisplayName() {
-        return CompilerIntegrationBundle.message("scala.compile.server.title");
+        return ServerManagementBundle.message("scala.compile.server.title");
     }
 
     @Override
@@ -278,7 +278,7 @@ public class ScalaCompileServerForm implements Configurable {
         panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         myAdvancedSettingsPanel.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myShutdownServerCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShutdownServerCheckBox, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.shutdown.if.idle.for"));
+        this.$$$loadButtonText$$$(myShutdownServerCheckBox, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "compile.server.shutdown.if.idle.for"));
         panel1.add(myShutdownServerCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myShutdownSettingsPanel = new JPanel();
         myShutdownSettingsPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
@@ -286,7 +286,7 @@ public class ScalaCompileServerForm implements Configurable {
         myShutdownDelay = new JSpinner();
         myShutdownSettingsPanel.add(myShutdownDelay, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "minutes"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "minutes"));
         myShutdownSettingsPanel.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         myShutdownSettingsPanel.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -297,7 +297,7 @@ public class ScalaCompileServerForm implements Configurable {
         panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         myAdvancedSettingsPanel.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myParallelCompilation = new JCheckBox();
-        this.$$$loadButtonText$$$(myParallelCompilation, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.parallel.compilation"));
+        this.$$$loadButtonText$$$(myParallelCompilation, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "compile.server.parallel.compilation"));
         panel2.add(myParallelCompilation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myParallelCompilationSettingsPanel = new JPanel();
         myParallelCompilationSettingsPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
@@ -305,7 +305,7 @@ public class ScalaCompileServerForm implements Configurable {
         myParallelism = new JSpinner();
         myParallelCompilationSettingsPanel.add(myParallelism, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.parallelism"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "compile.server.parallelism"));
         myParallelCompilationSettingsPanel.add(label2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel2.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
@@ -316,22 +316,22 @@ public class ScalaCompileServerForm implements Configurable {
         myContentPanel.add(myJvmSettingsPanel, new GridConstraints(9, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final JLabel label3 = new JLabel();
         label3.setEnabled(true);
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "jvm.options"));
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "jvm.options"));
         myJvmSettingsPanel.add(label3, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myCompilationServerJvmParameters = new RawCommandLineEditor();
-        myCompilationServerJvmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.jvm.command.line.parameters"));
+        myCompilationServerJvmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "compile.server.jvm.command.line.parameters"));
         myCompilationServerJvmParameters.setEnabled(true);
         myJvmSettingsPanel.add(myCompilationServerJvmParameters, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(250, -1), new Dimension(500, 27), null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setEnabled(true);
-        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "jvm.maximum.heap.size.mb"));
+        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "jvm.maximum.heap.size.mb"));
         myJvmSettingsPanel.add(label4, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myCompilationServerMaximumHeapSize = new IntegerField();
         myCompilationServerMaximumHeapSize.setColumns(5);
         myCompilationServerMaximumHeapSize.setEnabled(true);
         myJvmSettingsPanel.add(myCompilationServerMaximumHeapSize, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
-        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "jdk"));
+        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "jdk"));
         myJvmSettingsPanel.add(label5, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mySdkPanel = new JPanel();
         mySdkPanel.setLayout(new BorderLayout(0, 0));
@@ -343,7 +343,7 @@ public class ScalaCompileServerForm implements Configurable {
         myJdkWarningLabel.setVisible(false);
         myJvmSettingsPanel.add(myJdkWarningLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(500, -1), 1, false));
         myEnableCompileServer = new JCheckBox();
-        this.$$$loadButtonText$$$(myEnableCompileServer, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.use.for.scala"));
+        this.$$$loadButtonText$$$(myEnableCompileServer, this.$$$getMessageFromBundle$$$("messages/ServerManagementBundle", "compile.server.use.for.scala"));
         myContentPanel.add(myEnableCompileServer, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myJvmTitle = new TitledSeparator();
         myJvmTitle.setText("JVM");

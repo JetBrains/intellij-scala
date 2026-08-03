@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <module name="scalaCommunity.bsp"/>
+        <module name="scalaCommunity.compiler-integration-server-management"/>
     </dependencies>
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.buildToolProjectSyncHelper" interface="org.jetbrains.plugins.scala.compiler.sync.BuildToolProjectSyncHelper" dynamic="true"/>
@@ -14,20 +15,11 @@
 
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
 
-        <projectConfigurable bundle="messages.CompilerIntegrationBundle"
-                             key="displayname.scala.compile.server"
-                             parentId="scala.compiler"
-                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
-
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.WriteScalaJpsProjectMetadataCompileTask"/>
 
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.PrepareCompileServerTask"/>
-
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
-
-        <statusBarWidgetFactory id="ScalaCompileServer" implementation="org.jetbrains.plugins.scala.compiler.CompileServerWidgetFactory" order="before ScalaHighlightingMode"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
@@ -41,8 +33,8 @@
                              instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
 
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsBuildToolWindowNodeFactory" />
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService$Startup"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -56,10 +48,6 @@
     <applicationListeners>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
-
-        <listener topic="org.jetbrains.plugins.scala.compiler.CompileServerErrorListener"
-                  class="org.jetbrains.plugins.scala.compiler.CompileServerErrorListenerImpl"
-                  activeInTestMode="false"/>
     </applicationListeners>
 
     <projectListeners>
@@ -80,21 +68,5 @@
         <action id="Scala.ShowScalaCompilerTreeForFileAction"
                 class="org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction"
                 internal="true"/>
-    </actions>
-
-    <actions resource-bundle="messages.CompilerIntegrationBundle">
-        <action id="Scala.OpenCompileServerLog"
-                internal="true"
-                class="org.jetbrains.plugins.scala.compiler.actions.internal.OpenCompileServerLogAction">
-            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="Scala.ShowCompileServerLog"/>
-        </action>
-
-        <action id="Scala.ShowCompileServerLog"
-                internal="true"
-                class="org.jetbrains.plugins.scala.compiler.actions.internal.ShowCompileServerLogAction">
-            <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="ShowLog"/>
-            <synonym key="show.compile.server.log.synonym.finder"/>
-            <synonym key="show.compile.server.log.synonym.explorer"/>
-        </action>
     </actions>
 </idea-plugin>

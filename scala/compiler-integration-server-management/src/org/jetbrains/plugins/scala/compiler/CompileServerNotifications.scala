@@ -54,7 +54,7 @@ private object CompileServerNotifications {
   }
 
   @Nls
-  private def title: String = CompilerIntegrationBundle.message("scala.compile.server.title")
+  private def title: String = ServerManagementBundle.message("scala.compile.server.title")
 
   private val NotificationGroupId = "Scala Compile Server"
 
@@ -64,7 +64,7 @@ private object CompileServerNotifications {
 
   @RequiresEdt
   def showStoppedByIdleTimeoutNotification(project: Project): Unit = {
-    val message = NlsString(CompilerIntegrationBundle.message("compile.server.stopped.due.to.inactivity"))
+    val message = NlsString(ServerManagementBundle.message("compile.server.stopped.due.to.inactivity"))
     showBalloonNotificationOnWidget(message, project)
   }
 }
