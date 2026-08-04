@@ -280,6 +280,7 @@ lazy val uast = newProject(
 lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
+      compilerIntegrationServerManagement,
       bsp,
       compilerIntegration % "test->test;compile->compile",
       compilerHighlighting % "test->test;compile->compile",
@@ -729,7 +730,7 @@ lazy val debugger =
   newProject("debugger", file("scala/debugger"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      compilerIntegration % "test->test;compile->compile"
+      compilerIntegrationServerManagement % "test->test;compile->compile"
     ).settings(
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
