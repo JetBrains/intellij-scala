@@ -2,13 +2,13 @@ import coursier.cache.FileCache
 import coursier.core.Dependency
 import coursier.ivy.IvyRepository
 import coursier.maven.{MavenRepository, SbtMavenRepository}
-import coursier.{Fetch, Module, ModuleName, Organization, Repositories, moduleNameString, organizationString, util}
+import coursier.{Fetch, LocalRepositories, Module, ModuleName, Organization, Repository, moduleNameString, organizationString, util}
 import sbt.*
 import sbt.Keys.target
 import sbt.librarymanagement.CrossVersion
 
 import java.net.URI
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import scala.annotation.nowarn
 import scala.util.matching.Regex
 
@@ -27,6 +27,12 @@ object LocalRepoPackager extends AutoPlugin {
     )
   )
 
+  private val repositories: Seq[Repository] = Seq(
+    LocalRepositories.ivy2Local,
+    MavenRepository("https://cache-redirector.jetbrains.com/maven-central"),
+    SbtMavenRepository("https://cache-redirector.jetbrains.com/maven-central")
+  )
+
   /**
    * Create or update a local repository at `localRepoRoot` with given `dependencies`
    * and return the set of path it comprises.
@@ -40,7 +46,7 @@ object LocalRepoPackager extends AutoPlugin {
       .map(_.withExclusions(Set((org"org.scala-lang", name"scala-library"))))
 
     val fetch: Fetch[util.Task] = Fetch()
-      .addRepositories(SbtMavenRepository(Repositories.central))
+      .withRepositories(repositories)
       .withDependencies(depsWithExclusions)
       .allArtifactTypes()
       .withMainArtifacts()
@@ -193,7 +199,7 @@ object LocalRepoPackager extends AutoPlugin {
 
   def relativeJarPath(dep: Dependency): Path = {
     val fetch = Fetch()
-      .addRepositories(SbtMavenRepository(Repositories.central))
+      .withRepositories(repositories)
       .addDependencies(dep)
       .noExtraArtifacts()
 
@@ -265,7 +271,7 @@ object LocalRepoPackager extends AutoPlugin {
       fetch.repositories.collect {
         case repo: MavenRepository =>
           val root = new URI(repo.root)
-          val relativeRepoRoot = Paths.get(root.getScheme, root.getSchemeSpecificPart)
+          val relativeRepoRoot = Path.of(root.getScheme, root.getSchemeSpecificPart)
           cacheRoot.resolve(relativeRepoRoot)
       }
   }
