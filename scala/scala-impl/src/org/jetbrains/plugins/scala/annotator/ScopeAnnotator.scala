@@ -211,8 +211,8 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       //during erasure literal types collapse into widened types
       case lit: ScLiteralType => lit.wideType
       case ScProjectionType(_, element: Typeable) => element.`type`().map {
-        case literalType: ScLiteralType => literalType.widen
-        case other => other
+        case literalType: ScLiteralType => literalType.wideType
+        case other                          => other
       }.getOrAny
 
       // array types are not erased

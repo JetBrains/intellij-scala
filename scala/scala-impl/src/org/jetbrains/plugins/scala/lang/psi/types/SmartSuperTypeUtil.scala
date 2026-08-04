@@ -57,7 +57,15 @@ object SmartSuperTypeUtil {
       case ScAndType(lhs, rhs) =>
         traverseSuperTypes(lhs, f, visited) || traverseSuperTypes(rhs, f, visited)
       case _ =>
-        tpe.extractClassType.fold(false) { case (cls, subst) => traverseSuperTypes(cls, subst, f, visited) }
+        tpe.extractClassType.fold(false) {
+          case (cls, subst) =>
+            f(tpe, cls, subst) match {
+              case TraverseSupers.Stop => true
+              case TraverseSupers.Skip => false
+              case TraverseSupers.ProcessParents =>
+                traverseSuperTypes(cls, subst, f, visited)
+            }
+        }
     }
   }
 

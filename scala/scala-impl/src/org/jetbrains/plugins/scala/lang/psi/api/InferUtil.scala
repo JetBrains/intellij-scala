@@ -798,13 +798,13 @@ object InferUtil {
         if (!hasRecursiveTypeParams(substedTypeParameter)) {
           upperTypeParamId.foreach { id =>
             result = result
-              .withLower(typeParameter, substedTypeParameter)
+              .withLower(id, substedTypeParameter)
               .withTypeParamId(id)
           }
 
           lowerTypeParamId.foreach { id =>
             result = result
-              .withUpper(typeParameter, substedTypeParameter)
+              .withUpper(id, substedTypeParameter)
               .withTypeParamId(id)
           }
         }

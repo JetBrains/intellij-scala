@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -125,7 +126,7 @@ object PatternTypeInference {
   }
 
   /**
-   * For given `pattern` and `scrutineeType` implement a multi-step process of pattern type inference:
+   * For given `pattern` and `scrutineeType` implement a multistep process of pattern type inference:
    * (1) Collect initial constraints from bounds of the corresponding type parameters
    * (2) Check if pattern type conforms to scrutinee type as is, stop if it does.
    * (3) Instantiate type variables as undefined types in pattern type and repeat conformance check from step (2)
@@ -190,13 +191,13 @@ object PatternTypeInference {
                 case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
                   targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
                     case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
-                      val tParam = tpt.typeParameter
+                      val tVar = tpt.typeParameter
 
                       //@TODO: should we add constraints from unapply type parameters too
                       //       (in case of custom unapply)???
-                      if (typeVariablesNames.contains(tParam.name) || shouldSolveForMaxType) {
-                        typeVarsBuilder += tParam
-                        addTypeParamBounds(acc, tParam, tp, boundsSubst.followed(unapplySubst))
+                      if (typeVariablesNames.contains(tVar.name) || shouldSolveForMaxType) {
+                        typeVarsBuilder += tVar
+                        addTypeParamBounds(acc, tVar, tp, boundsSubst.followed(unapplySubst))
                       } else acc
                     case (acc, _) => acc
                   }
@@ -270,12 +271,10 @@ object PatternTypeInference {
     tvar:        TypeParameter,
     param:       TypeParameter,
     boundSubst:  ScSubstitutor = ScSubstitutor.empty
-  ): ConstraintSystem = {
-    val id = tvar.typeParamId
+  ): ConstraintSystem =
     constraints
       .withLower(tvar, boundSubst(param.lowerType))
       .withUpper(tvar, boundSubst(param.upperType))
-  }
 
   /**
    * Checks if intersection of `patType` and `scrutineeType` is populated under given `constraints`,
@@ -341,7 +340,7 @@ object PatternTypeInference {
 
         checked match {
           case ConstraintsResult.Left => ConstraintsResult.Left
-          case cs: ConstraintSystem   => checkTypeParamsConsistency(tParams, cs, check)
+          case cs: ConstraintSystem   => checkTypeParamsConsistency(tParams, constraints + cs, check)
         }
       }
 
@@ -359,7 +358,7 @@ object PatternTypeInference {
           case Some(scrutineeSubst) =>
             checkConsistent(cls, patternSubst, scrutineeSubst, constraints) match {
               case ConstraintsResult.Left => ConstraintsResult.Left
-              case cs: ConstraintSystem   => checkBaseClassesConsistency(baseClasses, cs)
+              case cs: ConstraintSystem   => checkBaseClassesConsistency(baseClasses, constraints + cs)
             }
           case None => checkBaseClassesConsistency(baseClasses, constraints)
         }

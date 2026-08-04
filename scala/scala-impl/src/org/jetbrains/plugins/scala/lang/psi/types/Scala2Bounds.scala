@@ -142,11 +142,11 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
           case _ =>
             val leftClasses  = extractBaseClassInfo(t1)
             val rightClasses = extractBaseClassInfo(t2)
-            val buf          = new ArrayBuffer[ScType]
+            val buf          = ArrayBuffer.empty[ScType]
             val supers       = getLeastSuperClasses(leftClasses, rightClasses)
 
             for (sup <- supers) {
-              val tp = getTypeForAppending(
+              val tp = mergeSuperClassTypes(
                 leftClasses(sup._2),
                 rightClasses(sup._3),
                 sup._1,

@@ -51,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.SmartSuperTypeUtil.TraverseSupers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -193,7 +194,16 @@ object ScalaPsiUtil {
     def checkWithSelfType =
       thisClass match {
         case TypeOfThis(thisType) =>
-          thisType.conforms(ScalaType.designator(base))
+          var res = false
+
+          SmartSuperTypeUtil.traverseSuperTypes(
+            thisType,
+            (_, cls, _) =>
+              if (cls == base) { res = true; TraverseSupers.Stop }
+              else             TraverseSupers.ProcessParents
+          )
+
+          res
         case _ => false
       }
 

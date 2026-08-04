@@ -34,7 +34,7 @@ class Sc3TypedPatternTypeInferenceTest extends TypeInferenceTestBase {
        |    ${START}x$END
        |  }
        |}
-       |//A.Test & A.Foo
+       |//A.Foo & A.Test
        |""".stripMargin
   )
 
@@ -52,7 +52,7 @@ class Sc3TypedPatternTypeInferenceTest extends TypeInferenceTestBase {
        |    ${START}x$END
        |  }
        |}
-       |//123 & A.Bar & A.Foo & A.Test
+       |//Int & A.Bar & A.Foo & A.Test
        |""".stripMargin
   )
 }

@@ -197,7 +197,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.ControlMessage
     akka.dispatch.DefaultDispatcherPrerequisites
     //akka.dispatch.DefaultExecutorServiceConfigurator
-    //akka.dispatch.DefaultSystemMessageQueue
+    akka.dispatch.DefaultSystemMessageQueue
     akka.dispatch.DequeBasedMessageQueue
     akka.dispatch.DequeBasedMessageQueueSemantics
     //akka.dispatch.Dispatcher

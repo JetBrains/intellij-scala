@@ -39,9 +39,11 @@ trait ScalaEquivalence extends api.Equivalence {
       }
 
       if (right.isAliasType && containsUndefinedTypes(left)) {
+        if (falseUndef) return ConstraintsResult.Left
         val t = left.equivInner(right, empty, falseUndef)
         if (t.isRight) return t
       } else if (left.isAliasType && containsUndefinedTypes(right)) {
+        if (falseUndef) return ConstraintsResult.Left
         val t = right.equivInner(left, empty, falseUndef)
         if (t.isRight) return t
       }

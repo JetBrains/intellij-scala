@@ -102,6 +102,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
         var foundClasses = List.empty[String]
 
         classes.foreach { name =>
+          println(s"Processing class: $name")
           val isCommented = name.startsWith("//")
           val fqn = if (isCommented) name.substring(2) else name
 

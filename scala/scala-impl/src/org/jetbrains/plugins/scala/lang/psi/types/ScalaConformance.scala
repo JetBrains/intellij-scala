@@ -982,18 +982,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       p.designator match {
-        case DesignatorOwner(ta: ScTypeAlias) if p.typeArguments.size == 1 =>
-          val containingClassName = Option(ta.containingClass).map(_.qualifiedName).orNull
-
-          if (ta.name == "S" && containingClassName == "scala.compiletime.ops.int") {
-            r match {
-              case ScLiteralType(ScIntegerLiteralImpl.Value(int)) if int > 0 =>
-                val tvar = p.typeArguments.head
-                val decremented = ScIntegerLiteralImpl.Value(int - 1)
-                result = equivInner(tvar, ScLiteralType(decremented)(projectContext), constraints, falseUndef = false)
-                return
-              case _ => ()
-            }
+        case DesignatorOwner((ta: ScTypeAlias) & ContainingClass(cls)) if
+          ta.name == "S" && cls.qualifiedNameOpt.contains("scala.compiletime.ops.int") =>
+          r match {
+            case ScLiteralType(ScIntegerLiteralImpl.Value(int)) if int > 0 =>
+              val tvar = p.typeArguments.head
+              val decremented = ScIntegerLiteralImpl.Value(int - 1)
+              result = equivInner(tvar, ScLiteralType(decremented)(projectContext), constraints, falseUndef = false)
+              return
+            case _ => ()
           }
         case a: ScAbstractType =>
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
@@ -1100,6 +1097,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       r match {
+        case orType: ScOrType =>
+          // If we apply the default algorithm for `A[X] | B[Y] <: C[Z]` where `C` is a
+          // type parameter, we will instantiate `C` to `A` and then fail when comparing
+          // with `B[Y]`. To do the right thing, we need to instantiate `C` to the
+          // common superclass of `A` and `B`.
+          p.designator match {
+            case _: UndefinedType =>
+              result = conformsInner(l, orType.join, visited, constraints, checkWeak)
+            case _ => ()
+          }
         case ScalaArrayType(rightArg) =>
           p match {
             case ScalaArrayType(leftArg) => result = checkArrayArgs(leftArg, rightArg)

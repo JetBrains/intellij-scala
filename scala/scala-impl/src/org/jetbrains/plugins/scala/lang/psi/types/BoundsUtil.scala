@@ -297,7 +297,7 @@ trait BoundsUtil {
       }
     }
 
-  protected def getTypeForAppending(
+  protected def mergeSuperClassTypes(
     clazz1:               BaseClassInfo,
     clazz2:               BaseClassInfo,
     baseClass:            BaseClassInfo,

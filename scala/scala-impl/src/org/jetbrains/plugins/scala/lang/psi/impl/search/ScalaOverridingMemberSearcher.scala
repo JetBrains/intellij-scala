@@ -103,7 +103,7 @@ object ScalaOverridingMemberSearcher {
   }
 
   private[search] def getOverridingMembersForNavigation(method: ScNamedElement): Array[OverridingMember] = inReadAction {
-    searchResults(method, None, deep = true, withSelfType = false)
+    searchResults(method, None, deep = true, withSelfType = true)
   }
 
   def search(

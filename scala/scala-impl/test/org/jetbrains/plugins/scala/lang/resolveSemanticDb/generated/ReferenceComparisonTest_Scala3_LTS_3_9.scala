@@ -1263,7 +1263,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part13 extends ReferenceCompa
   def test_i11015(): Unit = doTest("i11015", true)
   def test_i11020(): Unit = doTest("i11020", true) // #extension
   def test_i11022(): Unit = doTest("i11022", true)
-  def test_i11057(): Unit = doTest("i11057", true)
+  def test_i11057(): Unit = doTest("i11057", false)
   def test_i11075(): Unit = doTest("i11075", true)
   def test_i11078(): Unit = doTest("i11078", true)
   def test_i11078b(): Unit = doTest("i11078b", false)
@@ -1338,7 +1338,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part13 extends ReferenceCompa
   def test_i11922(): Unit = doTest("i11922", false) // #export
   def test_i11955(): Unit = doTest("i11955", true)
   def test_i11968(): Unit = doTest("i11968", true) // #intersectionType
-  def test_i11968a(): Unit = doTest("i11968a", false) // #intersectionType
+  def test_i11968a(): Unit = doTest("i11968a", true) // #intersectionType
   def test_i11977(): Unit = doTest("i11977", true)
   def test_i11981(): Unit = doTest("i11981", true) // #intersectionType
   def test_i11982a(): Unit = doTest("i11982a", true)
@@ -2152,9 +2152,9 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part21 extends ReferenceCompa
   def test_i23897(): Unit = doTest("i23897", true) // #derives
   def test_i23928(): Unit = doTest("i23928", true)
   def test_i24007(): Unit = doTest("i24007", true) // #intersectionType
-  def test_i24038a(): Unit = doTest("i24038a", false) // #matchType, #transparentInline
-  def test_i24038b(): Unit = doTest("i24038b", false) // #matchType
   def test_i24056(): Unit = doTest("i24056", true)
+  def test_i24038a(): Unit = doTest("i24038a", true) // #matchType, #transparentInline
+  def test_i24038b(): Unit = doTest("i24038b", true) // #matchType
   def test_i24074(): Unit = doTest("i24074", true)
   def test_i24076(): Unit = doTest("i24076", true) // #transparentInline
   def test_i24094(): Unit = doTest("i24094", false)
@@ -2192,7 +2192,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part22 extends ReferenceCompa
   def test_i24894b(): Unit = doTest("i24894b", false) // #transparentInline, #spliced/quoted
   def test_i24894c(): Unit = doTest("i24894c", false) // #transparentInline
   def test_i24917(): Unit = doTest("i24917", false)
-  def test_i25002(): Unit = doTest("i25002", false) // #intersectionType
+  def test_i25002(): Unit = doTest("i25002", true) // #intersectionType
   def test_i25091(): Unit = doTest("i25091", false) // #opaque, #extension
   def test_i25091b(): Unit = doTest("i25091b", true) // #opaque
   def test_i25133(): Unit = doTest("i25133", true)

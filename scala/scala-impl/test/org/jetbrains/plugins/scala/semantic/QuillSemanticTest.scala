@@ -620,7 +620,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.sql.norm.InContext
     //io.getquill.sql.norm.NormalizeFilteredActionAliases
     //io.getquill.sql.norm.ProtractQuat
-    //io.getquill.sql.norm.QueryLevel
+    io.getquill.sql.norm.QueryLevel
     //io.getquill.sql.norm.References
     //io.getquill.sql.norm.RemoveExtraAlias
     //io.getquill.sql.norm.RemoveUnusedSelects

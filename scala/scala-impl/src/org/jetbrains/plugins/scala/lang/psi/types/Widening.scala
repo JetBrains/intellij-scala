@@ -88,7 +88,7 @@ object Widening {
    *   widenTermRef(<x.type>) == <1>  // as opposed to widenSingleton, which yields Int
    * }}}
    */
-  def widenTermRef(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = true)
+  private def widenTermRef(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = true)
 
   /**
    * Repeatedly replaces a singleton type by its underlying type, which corresponds to `Type.underlying`
@@ -152,7 +152,7 @@ object Widening {
    *   widenSingletons(<Test { type X = 1 }>) == Test { type X = 1 } // nor into a refinement
    * }}}
    */
-  def widenSingletons(tpe: ScType)(implicit context: Context): ScType = tpe match {
+  private def widenSingletons(tpe: ScType)(implicit context: Context): ScType = tpe match {
     case ScOrType(lhs, rhs) =>
       val (l, r) = (widenSingletons(lhs), widenSingletons(rhs))
       if ((l eq lhs) && (r eq rhs)) tpe else ScOrType(l, r)
@@ -190,11 +190,12 @@ object Widening {
   }
 
   /**
-   * Widens an inferred type `tpe` that has to stay within `bound`.
-   *
-   * Corresponds to `ConstraintHandling.widenInferred` in the Scala 3 compiler: singleton types are
-   * only widened if the widened type still conforms to the expected type, and not at all if the
-   * expected type is bounded by `Singleton`.
+   * Widens an inferred type `tpe` that has to stay within `bound` using the following rules:
+   *  1. If `scType` is a singleton type or a [[ScOrType]] containing singletons,
+   *     widen all singletons, unless the result does not conform to `pt`.
+   *  2. If `scType` is a [[ScOrType]], replace it with its join, unless it does not conform to `pt`
+   *  3. If `scType` is a [[ScAndType]] with one or more of its operands designated to transparent traits,
+   *     drop as many of them as possible, as long as the result still conforms to `pt`
    *
    * @param tpe   the type that was inferred from below, i.e. from the actual arguments or the right
    *              hand side
@@ -207,13 +208,28 @@ object Widening {
    *   widenInferred(<1>, Some(<Int with Singleton>)) == <1> // the bound asks for a singleton
    * }}}
    */
-  def widenInferred(tpe: ScType, bound: Option[ScType])(implicit context: Context): ScType =
-    if (bound.exists(isSingletonBounded)) tpe
-    else {
-      val widened = widenSingletons(tpe)
-      if ((widened eq tpe) || bound.forall(widened.conforms(_))) widened
-      else tpe
+  def widenInferred(tpe: ScType, bound: Option[ScType])(implicit context: Context): ScType = {
+    val withoutSingletons =
+      if (bound.exists(isSingletonBounded)) tpe
+      else {
+        val widened = widenSingletons(tpe)
+        if ((widened eq tpe) || bound.forall(widened.conforms(_))) widened
+        else tpe
+      }
+
+    val join = withoutSingletons match {
+      case orType: ScOrType =>
+        val res = orType.join
+
+        if (bound.forall(res.conforms)) res
+        else                         orType
+      case other => other
     }
+
+    val dropTransparent = join.dropTransparentTraits(bound)
+
+    dropTransparent
+  }
 
   /**
    * The type a compiler infers for a definition without an explicit type annotation.

@@ -39,9 +39,9 @@ final case class ScAndType private(lhs: ScType, rhs: ScType) extends ScalaType w
 
 object ScAndType {
   def apply(lhs: ScType, rhs: ScType): ScType =
-    if (!ScalaApplicationSettings.PRECISE_TEXT && (lhs == rhs || rhs.isAny)) lhs
-    else if (!ScalaApplicationSettings.PRECISE_TEXT && lhs.isAny)            rhs
-    else                                                                     makeAndType(lhs, rhs)
+    if (lhs == rhs || rhs.isAny) lhs
+    else if (lhs.isAny)          rhs
+    else                         makeAndType(lhs, rhs)
 
   private[this] def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: Context): Boolean =
     lhs.equiv(rhs, ConstraintSystem.empty, falseUndef = false).isRight

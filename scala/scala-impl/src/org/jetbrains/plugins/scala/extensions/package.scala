@@ -1105,10 +1105,16 @@ package object extensions {
       case _ => false
     }
 
-    def isTransparentTrait: Boolean =
-      clazz.hasModifierPropertyScala(ScalaModifier.TRANSPARENT) ||
+    def isTransparentTrait: Boolean = {
+      val hasTransparentKW =
+        clazz
+          .asOptionOf[ScTypeDefinition]
+          .exists(_.hasModifierPropertyScala(ScalaModifier.TRANSPARENT))
+
+      hasTransparentKW ||
         clazz.hasAnnotation("scala.annotation.transparentTrait") ||
         transparentTraitsFqns.contains(clazz.qualifiedName)
+    }
 
     /**
       * The second match branch is for Java only.
@@ -1762,10 +1768,10 @@ package object extensions {
     def stubOrPsiChildren: Array[PsiElement] = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
 
     def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: ScStubElementType[Psi]): Option[Psi] = {
-      def findWithNode() = {
-        val node = Option(element.getNode.findChildByType(elementType))
-        node.map(_.getPsi.asInstanceOf[Psi])
-      }
+      def findWithNode() = for {
+        node         <- element.getNode.toOption
+        nodeWithType <- node.findChildByType(elementType).toOption
+      } yield nodeWithType.getPsi.asInstanceOf[Psi]
 
       element match {
         case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType)).map(_.asInstanceOf[Psi])

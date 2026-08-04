@@ -41,7 +41,7 @@ final case class ScOrType private (lhs: ScType, rhs: ScType) extends ScalaType w
 
 object ScOrType {
   def apply(lhs: ScType, rhs: ScType): ScType = {
-    if (!ScalaApplicationSettings.PRECISE_TEXT && lhs == rhs) lhs.asInstanceOf[ValueType]
-    else                                                      new ScOrType(lhs, rhs)
+    if (lhs == rhs) lhs.asInstanceOf[ValueType]
+    else            new ScOrType(lhs, rhs)
   }
 }

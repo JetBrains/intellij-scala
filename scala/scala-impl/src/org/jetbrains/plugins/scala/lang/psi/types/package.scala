@@ -350,12 +350,15 @@ package object types {
       widenLiterals: Boolean        = true,
       pt:            Option[ScType] = None
     )(implicit ctx: Context): ScType = {
-      val withoutLiterals = scType match {
-        case lit: ScLiteralType if !widenLiterals || !lit.allowWiden => lit.blockWiden
-        case other                                                   => ScLiteralType.widenRecursive(other)
+      def withoutLiterals(t: ScType): ScType = t match {
+        case lit: ScLiteralType  => lit.wideType
+//          if (!widenLiterals || !lit.allowWiden) lit.blockWiden
+//          else                                   lit.wideType
+        case ScOrType(lhs, rhs) => ScOrType(withoutLiterals(lhs), withoutLiterals(rhs))
+        case other              => other
       }
 
-      val join = withoutLiterals match {
+      val join = withoutLiterals(scType) match {
         case orType: ScOrType =>
           val res = orType.join
 
@@ -419,7 +422,10 @@ package object types {
         }
       }
 
-      recur(scType)
+      scType match {
+        case _: ScAndType => recur(scType)
+        case _            => scType
+      }
     }
   }
 

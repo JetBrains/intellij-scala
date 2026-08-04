@@ -161,11 +161,20 @@ object ScMatchType {
         val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
         val conformance = scrutinee.conforms(undefSubst(pat), ConstraintSystem.empty)
 
+        lazy val reductionFailure: MatchResult =
+          if (isProvablyDisjoint(pat, scrutinee)) MatchResult.Disjoint
+          else                                    MatchResult.Stuck
+
         conformance match {
-          case ConstraintSystem(subst) => MatchResult.Reduced(subst)
-          case _ =>
-            if (isProvablyDisjoint(pat, scrutinee)) MatchResult.Disjoint
-            else                                    MatchResult.Stuck
+          case cs: ConstraintSystem =>
+            val substBounds = cs.substitutionBounds(canThrowSCE = false)
+
+            substBounds match {
+              case Some(bounds) => MatchResult.Reduced(bounds.substitutor)
+              case None         => reductionFailure
+            }
+          case _ => reductionFailure
+
         }
       }
 

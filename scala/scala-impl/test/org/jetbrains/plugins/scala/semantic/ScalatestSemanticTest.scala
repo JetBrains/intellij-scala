@@ -92,7 +92,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.OneInstancePerTest
     //org.scalatest.OptionValues
     org.scalatest.Outcome
-    //org.scalatest.OutcomeOf
+    org.scalatest.OutcomeOf
     //org.scalatest.ParallelTestExecution
     //org.scalatest.PartialFunctionValues
     //org.scalatest.PastAsyncOutcome

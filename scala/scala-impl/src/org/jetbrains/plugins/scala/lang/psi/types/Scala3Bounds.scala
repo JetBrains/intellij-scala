@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 @Service(Array(Service.Level.PROJECT))
@@ -84,8 +83,8 @@ final case class Scala3Bounds(project: Project)
     if (lhs.isAny || rhs.isNothing)      lhs
     else if (rhs.isAny || lhs.isNothing) rhs
     else
-      mergeIfSuper(lhs, rhs)
-        .orElse(mergeIfSuper(rhs, lhs))
+      mergeIfSuper(rhs, lhs)
+        .orElse(mergeIfSuper(lhs, rhs))
         .getOrElse(
           mergeIfTypeConstructors(
             lhs,
@@ -147,7 +146,7 @@ final case class Scala3Bounds(project: Project)
       val (arg1, arg2, typeParam) = zippedArgs.next()
 
       jointArgs +=
-        (if (checkEquiv(arg1, arg2))        arg1
+        (if (checkEquiv(arg1, arg2))        arg2
         else if (typeParam.isCovariant)     lub(arg1, arg2)
         else if (typeParam.isContravariant) glb(arg1, arg2)
         else
@@ -256,7 +255,7 @@ final case class Scala3Bounds(project: Project)
             case (l, None)          => l
             case (Some(newL), Some(newR)) =>
               if ((newL ne l) || (newR ne r)) {
-                Option(ScAndType(l, r))
+                Option(ScAndType(newL, newR))
               } else Option(tp)
           }
         case _ => Option(tp)
@@ -289,23 +288,38 @@ final case class Scala3Bounds(project: Project)
         if checkEquiv(des1, des2) => ParameterizedType(des1, lubArgs(args1, args2, extractTypeParameters(des1)))
       case ScOrType(lhs, rhs) =>
         approximateOr(lhs, rhs).getOrElse {
-          val leftClasses  = extractBaseClassInfo(lhs)
-          val rightClasses = extractBaseClassInfo(rhs)
-          val supers       = getLeastSuperClasses(leftClasses, rightClasses)
-          supers.map {
-            case (baseCls, lhsIdx, rhsIdx) =>
-              getTypeForAppending(
-                leftClasses(lhsIdx),
-                rightClasses(rhsIdx),
-                baseCls,
-                Int.MaxValue,
-                checkWeak            = false,
-                stopAddingUpperBound = false
-              )
-          }.foldLeft[ScType](projectContext.stdTypes.Any)(ScAndType(_, _))
+          lazy val leftClasses  = extractBaseClassInfo(lhs)
+          lazy val rightClasses = extractBaseClassInfo(rhs)
+
+          if (isBottomType(lhs))      rhs
+          else if (isBottomType(rhs)) lhs
+          else {
+            val supers = getLeastSuperClasses(leftClasses, rightClasses)
+
+            supers.map {
+              case (baseCls, lhsIdx, rhsIdx) =>
+                mergeSuperClassTypes(
+                  leftClasses(lhsIdx),
+                  rightClasses(rhsIdx),
+                  baseCls,
+                  Int.MaxValue,
+                  checkWeak            = false,
+                  stopAddingUpperBound = false
+                )
+            }.foldLeft[ScType](projectContext.stdTypes.Any)(ScAndType(_, _))
+          }
         }
       case _ => orTp
     }
   }
 
+  /**
+   * @TODO:
+   *   This should technically gate the .isNull check behind the
+   *   explicitNulls flag check, but that would make all the methods above
+   *   psi-element-place-depenedent. Maybe we can store that data in Context instead.
+   */
+  private def isBottomType(tp: ScType): Boolean =
+    tp.isNothing ||
+      tp.isNull
 }

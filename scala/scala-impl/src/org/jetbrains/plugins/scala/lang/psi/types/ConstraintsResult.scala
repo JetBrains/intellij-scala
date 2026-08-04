@@ -117,8 +117,14 @@ sealed trait ConstraintSystem extends ConstraintsResult {
    *                                   `ConstraintHandling.instanceType` and
    *                                   `ConstraintHandling.approximation` in the Scala 3 compiler.
    */
-  def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean = true, widenInferredTypeArguments: Boolean = false)
-                        (implicit projectContext: ProjectContext, context: Context): Option[ConstraintSystem.SubstitutionBounds]
+  def substitutionBounds(
+    canThrowSCE:                Boolean,
+    checkWeak:                  Boolean = true,
+    widenInferredTypeArguments: Boolean = false
+  )(implicit
+    projectContext: ProjectContext,
+    context:        Context
+  ): Option[ConstraintSystem.SubstitutionBounds]
 }
 
 object ConstraintSystem {
@@ -344,11 +350,17 @@ private final case class ConstraintSystemImpl(
         // that, which [[Widening.widenInferred]] takes care of.
         // Corresponds to `ConstraintHandling.instanceType` in the Scala 3 compiler.
         if (widenInferredTypeArguments && instantiatedFromBelow) {
-          val correspondingTypeParam = constrainedTypeParams.get(id)
-          val tpUpperBound           = correspondingTypeParam.map(_.upperType)
-          //TODO
+          val tpUpperBound           = {
+            val correspondingTypeParam = constrainedTypeParams.get(id)
+            val declaredBound          = correspondingTypeParam.map(_.upperType)
+            val inferredUpperBound     = uMap.get(id)
+            Option.unless(declaredBound.isEmpty && inferredUpperBound.isEmpty) {
+              declaredBound.getOrElse(Any).glb(inferredUpperBound.getOrElse(Any))
+            }
+          }
+
           tvMap.get(id).foreach { inferred =>
-            tvMap += ((id, Widening.widenInferred(inferred, uMap.get(id))))
+            tvMap += ((id, Widening.widenInferred(inferred, tpUpperBound)))
           }
         }
 

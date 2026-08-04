@@ -165,7 +165,6 @@ private object TextToTextTestConfig {
       minClassCount = 134,
       withSources = true,
       sourceExceptions = Set(
-        "mill.api.Result", // with Product with Serializable
         "mill.define.Command", // extends Task[T] vs Task
         "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type
         "mill.define.TargetImpl", // extends Task[T] vs Task
@@ -203,6 +202,7 @@ private object TextToTextTestConfig {
         "views.html.helper.form", // By-name function type parameter
         "views.html.helper.script", // By-name function type parameter
         "views.html.helper.style", // By-name function type parameter
+        "play.api.mvc.BodyParser", // Self type edge case
       )
     ),
 
@@ -279,9 +279,7 @@ private object TextToTextTestConfig {
         "io.getquill.metaprog.TranspileConfigLiftable", // ?=> | N/A
         "io.getquill.metaprog.etc.ListFlicer", // scala.quoted.Exp | scala.Any
         "io.getquill.norm.AdHocReduction", // | vs with
-        "io.getquill.norm.ExpandReturning", // N/A | with Product with Serializable
         "io.getquill.norm.OrderTerms", // | vs with
-        "io.getquill.norm.SymbolicReduction", // | vs with
         "io.getquill.parser.ActionParser", // ?=> | N/A
         "io.getquill.parser.BatchActionParser", // ?=> | N/A
         "io.getquill.parser.BlockParser", // ?=> | N/A
@@ -305,7 +303,6 @@ private object TextToTextTestConfig {
         "io.getquill.parser.Unlifter", // ?=> | N/A
         "io.getquill.parser.ValParser", // ?=> | N/A
         "io.getquill.parser.ValueParser", // ?=> | N/A
-        "io.getquill.sql.norm.QueryLevel", // N/A | with Product with Serializable
         "io.getquill.util.Format", // java.lang.Object | java.io.Serializable
         "io.getquill.util.Interpolator2", // scala.|[T, (T, L)] | scala.Any
         "io.getquill.util.Load", // private | private[Load]

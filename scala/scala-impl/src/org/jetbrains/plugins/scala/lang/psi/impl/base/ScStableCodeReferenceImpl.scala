@@ -408,14 +408,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p =>
               // Do not call PatternTypeInference, if this reference is itself located inside a target pattern
               def containsThisTypeElementInPattern(cc: ScCaseClause): Boolean = {
-                var contains = false
-
-                cc.pattern.foreach(_.acceptChildren(new ScalaRecursiveElementVisitor {
-                  override def visitReference(ref: ScReference): Unit =
-                    if (ref eq refThis) contains = true
-                }))
-
-                contains
+                cc.pattern.exists { pat =>
+                  PsiTreeUtil.isContextAncestor(pat, refThis, false)
+                }
               }
 
               val newState = place match {

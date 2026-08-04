@@ -48,9 +48,8 @@ class SetConformanceTest_3 extends SetConformanceTestBase {
     """.stripMargin
   )
 
-  ////TODO: replace with "checkTextHasNoErrors" when SCL-9738 is fixed
   def testSCL9738(): Unit = {
-    checkErrorsText(
+    checkTextHasNoErrors(
       s"""
          |sealed trait FeedbackReason
          |case object CostReason extends FeedbackReason
@@ -66,8 +65,7 @@ class SetConformanceTest_3 extends SetConformanceTestBase {
          |    reasons ++ Map(OtherReason -> "Some other reason")
          |  }
          |}
-      """.stripMargin,
-      """Error(},Expression of type Map[FeedbackReason & Product & Serializable, String] doesn't conform to expected type Map[FeedbackReason, String])"""
+      """.stripMargin
     )
   }
 }

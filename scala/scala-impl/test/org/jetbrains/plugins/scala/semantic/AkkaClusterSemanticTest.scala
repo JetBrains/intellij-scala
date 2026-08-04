@@ -31,7 +31,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     akka.cluster.ClusterScope
     //akka.cluster.ClusterSettings
     akka.cluster.ClusterUserAction
-    //akka.cluster.ConfigValidation
+    akka.cluster.ConfigValidation
     //akka.cluster.CoordinatedShutdownLeave
     //akka.cluster.CrossDcHeartbeatSender
     //akka.cluster.CrossDcHeartbeatingState

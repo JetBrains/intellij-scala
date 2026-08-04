@@ -156,7 +156,9 @@ final class ScParameterizedType private (override val designator: ScType, overri
         val iterator1 = typeArguments.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
-          t = iterator1.next().equiv(iterator2.next(), lastConstraints, falseUndef)
+          val lhsArg = iterator1.next()
+          val rhsArg = iterator2.next()
+          t = lhsArg.equiv(rhsArg, lastConstraints, falseUndef)
 
           if (t.isLeft) return ConstraintsResult.Left
 

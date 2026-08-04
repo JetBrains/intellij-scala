@@ -590,7 +590,7 @@ object MixinNodes {
     }
   }
 
-  class IntersectionMap[T <: Signature](lhsMap: Map[T], rhsMap: Map[T]) extends Map[T] {
+  private class IntersectionMap[T <: Signature](lhsMap: Map[T], rhsMap: Map[T]) extends Map[T] {
     override val allNames: util.HashSet[String] =
       new util.HashSet[String]() {
         addAll(lhsMap.allNames)
@@ -648,14 +648,14 @@ object MixinNodes {
                   oldCls <- oldOwner
                   newCls <- newOwner
                 } yield
-                  if (ScalaPsiUtil.isInheritorDeep(oldCls, newCls))       1
-                  else if (ScalaPsiUtil.isInheritorDeep(newCls, oldCls)) -1
-                  else                                                    0).getOrElse(0)
+                  if (ScalaPsiUtil.thisSubsumes(oldCls, newCls))       1
+                  else if (ScalaPsiUtil.thisSubsumes(newCls, oldCls)) -1
+                  else                                                 0).getOrElse(0)
 
               oldElement match {
                 case e @ (_: PsiMethod | _: ScBindingPattern | _: ScFieldId) =>
-                  if (signatureRelativeWeight == 1)       oldNode
-                  else if (signatureRelativeWeight == -1) node
+                  if (signatureRelativeWeight == 1)       { oldNode.addSuper(node); oldNode }
+                  else if (signatureRelativeWeight == -1) { node.addSuper(oldNode); node }
                   else {
                     //None of the signatures win based on linearizaton order, proceed with merging.
                     val sigReturnType = sig.intersectedReturnType.getOrElse(returnType(sig.namedElement))
