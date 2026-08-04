@@ -6,9 +6,15 @@ import com.intellij.openapi.util.TextRange
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  @Test
+  def testFunctionLiteral(): Unit = runTestFunctionLiteral(48)
 
   private def runTestFunctionLiteral(startOffset: Int): Unit = runTestCase(
     fileName = "FunctionLiteral.scala",
@@ -27,10 +33,17 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     )
   )
 
-  def testFunctionLiteral(): Unit = runTestFunctionLiteral(48)
-
+  @Test
   def testFunctionLiteral_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestFunctionLiteral(50)
+  }
+  
+  @Test
+  def testWrongReturnType(): Unit = runTestWrongReturnType(53)
+
+  @Test
+  def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestWrongReturnType(56)
   }
 
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
@@ -50,11 +63,8 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     ))
   )
 
-  def testWrongReturnType(): Unit = runTestWrongReturnType(53)
-
-  def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestWrongReturnType(56)
-  }
+  @Test
+  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
 
   private def runTestUnusedLocalDefinitions(): Unit = {
     setCompilerOptions("-Wunused:locals")
@@ -94,10 +104,14 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     )
   }
 
-  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
-
+  @Test
   def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestUnusedLocalDefinitions()
+  }
+  
+  @Test
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
   }
 
   private def runTestCompilationWithParserError(): Unit = {
@@ -122,12 +136,17 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     )
   }
 
-  def testCompilationWithParserError(): Unit = {
-    runTestCompilationWithParserError()
-  }
-
+  @Test
   def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestCompilationWithParserError()
+  }
+  
+  @Test
+  def testTooManyParameter(): Unit = runTestTooManyParameter()
+
+  @Test
+  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestTooManyParameter()
   }
 
   protected def runTestTooManyParameter(): Unit = {
@@ -154,25 +173,25 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
       expectedResult = expectedResult(
         ExpectedHighlighting(
           severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(100,101)),
+          range = Some(TextRange.create(100, 101)),
           quickFixDescriptions = Seq("Add parameter to method 'test1'"),
           msgPrefix = "too many arguments (found 2, expected 1) for method test1: (i: Int): Unit"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(114,115)),
+          range = Some(TextRange.create(114, 115)),
           quickFixDescriptions = Seq("Add parameters to method 'test1'"),
           msgPrefix = "too many arguments (found 3, expected 1) for method test1: (i: Int): Unit"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(143,144)),
+          range = Some(TextRange.create(143, 144)),
           quickFixDescriptions = Seq("Add parameter to method 'test2'"),
           msgPrefix = "too many arguments (found 2, expected 1) for method test2: (i: Int): Unit"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(157,158)),
+          range = Some(TextRange.create(157, 158)),
           quickFixDescriptions = Seq("Add parameters to method 'test2'"),
           msgPrefix = "too many arguments (found 3, expected 1) for method test2: (i: Int): Unit"
         ),
@@ -180,14 +199,20 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     )
   }
 
-  def testTooManyParameter(): Unit = runTestTooManyParameter()
-  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestTooManyParameter()
-  }
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+
+  @Test
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  @Test
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
+  }
 
   private def runTestCompilationWithParserError(): Unit = {
     runTestCase(
@@ -214,13 +239,10 @@ class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 
       )
     )
   }
-
-  def testCompilationWithParserError(): Unit = {
-    runTestCompilationWithParserError()
-  }
-
-  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestCompilationWithParserError()
+  
+  @Test
+  def testEof(): Unit = {
+    runTestEof()
   }
 
   private def runTestEof(): Unit = {
@@ -248,17 +270,25 @@ class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 
     )
   }
 
-  def testEof(): Unit = {
-    runTestEof()
-  }
-
+  @Test
   def testEof_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestEof()
   }
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
 }
 
 class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
+
+  @Test
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  @Test
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
+  }
 
   private def runTestCompilationWithParserError(): Unit = {
     runTestCase(
@@ -279,13 +309,10 @@ class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 
       )
     )
   }
-
-  def testCompilationWithParserError(): Unit = {
-    runTestCompilationWithParserError()
-  }
-
-  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestCompilationWithParserError()
+  
+  @Test
+  def testEof(): Unit = {
+    runTestEof()
   }
 
   private def runTestEof(): Unit = {
@@ -307,13 +334,12 @@ class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 
     )
   }
 
-  def testEof(): Unit = {
-    runTestEof()
-  }
-
+  @Test
   def testEof_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestEof()
   }
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
 }
 
 class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3_1 {
@@ -321,7 +347,14 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3_
 }
 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_2 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
+
+  @Test
+  def testUnusedImports(): Unit = runTestUnusedImports()
+
+  @Test
+  def testUnusedImports_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestUnusedImports()
+  }
 
   private def runTestUnusedImports(): Unit = {
     setCompilerOptions("-Wunused:imports")
@@ -348,11 +381,8 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
     )
   }
 
-  def testUnusedImports(): Unit = runTestUnusedImports()
-
-  def testUnusedImports_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestUnusedImports()
-  }
+  @Test
+  def testAutomaticUnusedImports(): Unit = runTestAutomaticUnusedImports()
 
   private def runTestAutomaticUnusedImports(): Unit = {
     def highlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
@@ -380,10 +410,17 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
     )
   }
 
-  def testAutomaticUnusedImports(): Unit = runTestAutomaticUnusedImports()
-
+  @Test
   def testAutomaticUnusedImports_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestAutomaticUnusedImports()
+  }
+
+  @Test
+  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
+
+  @Test
+  def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestUnusedLocalDefinitions()
   }
 
   private def runTestUnusedLocalDefinitions(): Unit = {
@@ -414,19 +451,16 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
     )
   }
 
-  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
-
-  def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestUnusedLocalDefinitions()
-  }
-
   override def testWarningHighlighting(): Unit = {
     runTestWarningHighlighting(Seq("Insert missing cases (1)"))
   }
 
+  @Test
   override def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWarningHighlighting(Seq("Insert missing cases (1)"))
   }
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
 
   override protected def runTestNotImplementedMembers(): Unit = {
     @Language("Scala 3")
@@ -460,9 +494,11 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible,"
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
     def makeAbstract(name: String) = s"Make '$name' abstract"
+
     val implementMembers = "Implement members"
 
     runTestCase(
@@ -571,9 +607,8 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_
 }
 
 class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
-
   // SCL-23325
+  @Test
   def testImportImplicits(): Unit = runTestCase(
     fileName = "blub/ImportImplicits.scala",
     content =
@@ -598,6 +633,7 @@ class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_
     ))
   )
 
+  @Test
   def testImportExtension(): Unit = runTestCase(
     fileName = "blub/ImportExtension.scala",
     content =
@@ -613,12 +649,13 @@ class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(39,43)),
+      range = Some(TextRange.create(39, 43)),
       quickFixDescriptions = Seq("Import 'blub.ExtensionHolder.test'"),
       msgPrefix = "value test is not a member of String, but could be made available as an extension method."
     ))
   )
-
+  
+  @Test
   def testImportConversion(): Unit = runTestCase(
     fileName = "blub/ImportExtension.scala",
     content =
@@ -634,11 +671,13 @@ class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(48,49)),
+      range = Some(TextRange.create(48, 49)),
       quickFixDescriptions = Seq("Import 'blub.ConversionHolder.given_Conversion_Int_String'"),
       msgPrefix = "Found:    (1 : Int)\nRequired: String"
     ))
   )
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
 
   override protected def runTestNotImplementedMembers(): Unit = {
     @Language("Scala 3")
@@ -672,9 +711,11 @@ class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible,"
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
     def makeAbstract(name: String) = s"Make '$name' abstract"
+
     val implementMembers = "Implement members"
 
     runTestCase(
@@ -825,9 +866,11 @@ class ScalaCompilerHighlightingTest_3_7 extends ScalaCompilerHighlightingTest_3_
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible,"
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
     def makeAbstract(name: String) = s"Make '$name' abstract"
+
     val implementMembers = "Implement members"
 
     runTestCase(
@@ -999,9 +1042,11 @@ class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingT
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible,"
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
     def makeAbstract(name: String) = s"Make `$name` abstract"
+
     val addMissingMethods = "Add missing methods"
 
     runTestCase(
@@ -1109,7 +1154,16 @@ class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingT
   }
 }
 
+@RunWith(classOf[JUnit4])
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
+  
+  @Test
+  def testImportTypeFix(): Unit = runTestImportTypeFix()
+
+  @Test
+  def testImportTypeFix_UseCompilerRanges(): Unit = withUseCompilerRangesDisabled {
+    runTestImportTypeFix()
+  }
 
   private def runTestImportTypeFix(): Unit = runTestCase(
     fileName = "ImportTypeFix.scala",
@@ -1127,11 +1181,8 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testImportTypeFix(): Unit = runTestImportTypeFix()
-
-  def testImportTypeFix_UseCompilerRanges(): Unit = withUseCompilerRangesDisabled {
-    runTestImportTypeFix()
-  }
+  @Test
+  def testImportMemberFix(): Unit = runTestImportMemberFix()
 
   private def runTestImportMemberFix(): Unit = runTestCase(
     fileName = "ImportMemberFix.scala",
@@ -1147,10 +1198,17 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testImportMemberFix(): Unit = runTestImportMemberFix()
-
+  @Test
   def testImportMemberFix_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestImportMemberFix()
+  }
+
+  @Test
+  def testFunctionLiteral(): Unit = runTestFunctionLiteral()
+
+  @Test
+  def testFunctionLiteral_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestFunctionLiteral()
   }
 
   private def runTestFunctionLiteral(): Unit = runTestCase(
@@ -1168,11 +1226,8 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     )
   )
 
-  def testFunctionLiteral(): Unit = runTestFunctionLiteral()
-
-  def testFunctionLiteral_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestFunctionLiteral()
-  }
+  @Test
+  def testWrongReturnType(): Unit = runTestWrongReturnType(26)
 
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
@@ -1188,10 +1243,109 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testWrongReturnType(): Unit = runTestWrongReturnType(26)
-
+  @Test
   def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWrongReturnType(29)
+  }
+  
+  @Test
+  def testTooManyParameter(): Unit = runTestTooManyParameter()
+
+  @Test
+  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestTooManyParameter()
+  }
+
+  protected def runTestTooManyParameter(): Unit = {
+    @Language("Scala")
+    val fileText =
+      """
+        |object Test {
+        |  def test1(i: Int): Unit = ()
+        |  def test2(i: Int): Unit = ()
+        |
+        |  test1(1)
+        |  test1(1, 2)
+        |  test1(1, 2, 3)
+        |
+        |  test2(1)
+        |  test2(1, 2)
+        |  test2(1, 2, 3)
+        |}
+        |""".stripMargin
+
+    runTestCase(
+      "tooMany.scala",
+      fileText,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(97, 101)),
+          quickFixDescriptions = Seq("Add parameter to method 'test1'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(111, 118)),
+          quickFixDescriptions = Seq("Add parameters to method 'test1'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(140, 144)),
+          quickFixDescriptions = Seq("Add parameter to method 'test2'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(154, 161)),
+          quickFixDescriptions = Seq("Add parameters to method 'test2'"),
+          msgPrefix = "Found:"
+        ),
+      )
+    )
+  }
+
+  @Test
+  def testMultipleErrors(): Unit = runTestMultipleErrors(alreadyDefinedStartOffset = 69)
+
+  // SCL-25244
+  private def runTestMultipleErrors(alreadyDefinedStartOffset: Int): Unit = runTestCase(
+    fileName = "MultipleErrors.scala",
+    content =
+      """object MultipleErrors:
+        |  class C(x: Int)
+        |  class Text(str: String)
+        |  case class C(x: Text)
+        |  def Test() =
+        |    val c = C("a")
+        |    val d = new C("b")
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(alreadyDefinedStartOffset, 90)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "C is already defined as class C"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(120, 123)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Found:"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(TextRange.create(143, 146)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Found:"
+      )
+    )
+  )
+
+  @Test
+  def testMultipleErrors_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestMultipleErrors(alreadyDefinedStartOffset = 80)
   }
 
   // SCL-19751
@@ -1227,9 +1381,11 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible,"
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
     def makeAbstract(name: String) = s"Make '$name' abstract"
+
     val implementMembers = "Implement members"
 
     runTestCase(
@@ -1335,105 +1491,13 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
       )
     )
   }
-
-  protected def runTestTooManyParameter(): Unit = {
-    @Language("Scala")
-    val fileText =
-      """
-        |object Test {
-        |  def test1(i: Int): Unit = ()
-        |  def test2(i: Int): Unit = ()
-        |
-        |  test1(1)
-        |  test1(1, 2)
-        |  test1(1, 2, 3)
-        |
-        |  test2(1)
-        |  test2(1, 2)
-        |  test2(1, 2, 3)
-        |}
-        |""".stripMargin
-
-    runTestCase(
-      "tooMany.scala",
-      fileText,
-      expectedResult = expectedResult(
-        ExpectedHighlighting(
-          severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(97,101)),
-          quickFixDescriptions = Seq("Add parameter to method 'test1'"),
-          msgPrefix = "Found:"
-        ),
-        ExpectedHighlighting(
-          severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(111,118)),
-          quickFixDescriptions = Seq("Add parameters to method 'test1'"),
-          msgPrefix = "Found:"
-        ),
-        ExpectedHighlighting(
-          severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(140,144)),
-          quickFixDescriptions = Seq("Add parameter to method 'test2'"),
-          msgPrefix = "Found:"
-        ),
-        ExpectedHighlighting(
-          severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(154,161)),
-          quickFixDescriptions = Seq("Add parameters to method 'test2'"),
-          msgPrefix = "Found:"
-        ),
-      )
-    )
-  }
-
-  def testTooManyParameter(): Unit = runTestTooManyParameter()
-  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestTooManyParameter()
-  }
-
-  // SCL-25244
-  private def runTestMultipleErrors(alreadyDefinedStartOffset: Int): Unit = runTestCase(
-    fileName = "MultipleErrors.scala",
-    content =
-      """object MultipleErrors:
-        |  class C(x: Int)
-        |  class Text(str: String)
-        |  case class C(x: Text)
-        |  def Test() =
-        |    val c = C("a")
-        |    val d = new C("b")
-        |""".stripMargin,
-    expectedResult = expectedResult(
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(TextRange.create(alreadyDefinedStartOffset, 90)),
-        quickFixDescriptions = Seq.empty,
-        msgPrefix = "C is already defined as class C"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(TextRange.create(120, 123)),
-        quickFixDescriptions = Seq.empty,
-        msgPrefix = "Found:"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(TextRange.create(143, 146)),
-        quickFixDescriptions = Seq.empty,
-        msgPrefix = "Found:"
-      )
-    )
-  )
-
-  def testMultipleErrors(): Unit = runTestMultipleErrors(alreadyDefinedStartOffset = 69)
-
-  def testMultipleErrors_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestMultipleErrors(alreadyDefinedStartOffset = 80)
-  }
 }
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
   self: ScalaCompilerHighlightingTestBase =>
+
+  @Test
+  def testWarningHighlighting(): Unit = runTestWarningHighlighting(Seq.empty)
 
   protected def runTestWarningHighlighting(quickFixDescriptions: Seq[String]): Unit = runTestCase(
     fileName = "ExhaustiveMatchWarning.scala",
@@ -1454,11 +1518,13 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
     ))
   )
 
-  def testWarningHighlighting(): Unit = runTestWarningHighlighting(Seq.empty)
-
+  @Test
   def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWarningHighlighting(Seq.empty)
   }
+
+  @Test
+  def testAbstractMethodInClass(): Unit = runTestAbstractMethodInClass()
 
   protected def runTestAbstractMethodInClass(): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
@@ -1476,10 +1542,17 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
     ))
   )
 
-  def testAbstractMethodInClass(): Unit = runTestAbstractMethodInClass()
-
+  @Test
   def testAbstractMethodInClass_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestAbstractMethodInClass()
+  }
+
+  @Test
+  def testNotImplementedMembers(): Unit = runTestNotImplementedMembers()
+
+  @Test
+  def testNotImplementedMembers_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestNotImplementedMembers()
   }
 
   // SCL-19751
@@ -1513,9 +1586,11 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         |""".stripMargin
 
     val objectCreationImpossible = "object creation impossible."
+
     def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract."
 
     def makeAbstract(name: String) = s"Make '$name' abstract"
+
     val implementMembers = "Implement members"
 
     runTestCase(
@@ -1596,11 +1671,5 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         ),
       )
     )
-  }
-
-  def testNotImplementedMembers(): Unit = runTestNotImplementedMembers()
-
-  def testNotImplementedMembers_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestNotImplementedMembers()
   }
 }

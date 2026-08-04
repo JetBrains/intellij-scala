@@ -92,7 +92,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
                   case PosInfo(line, column) if column > 0 => Some(PosInfo(line, column - 1))
                   case _ => None
                 }
-                pointer.map(RangeInfo.Pointer)
+                pointer.map(RangeInfo.Pointer(_))
                   .orElse {
                     // fall back to the regular highlighting behaviour for WRONG_REF
                     calculateRangeInfo(pointerOrProblemStart(msg), msg.problemEnd, s"bsp wrong_ref fallback case, msg=$msg")
@@ -109,7 +109,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
               // Otherwise, the range from the pointer to the end is used, matching the behaviour before
               // SCL-21339, SCL-21292 were implemented.
               calculateRangeInfo(pointerOrProblemStart(msg), msg.problemEnd, s"default case, msg=$msg")
-          }).orElse(pointerOrProblemStart(msg).map(RangeInfo.Pointer))
+          }).orElse(pointerOrProblemStart(msg).map(RangeInfo.Pointer(_)))
           val highlighting = ExternalHighlighting(
             highlightType = highlightingType,
             message = text,

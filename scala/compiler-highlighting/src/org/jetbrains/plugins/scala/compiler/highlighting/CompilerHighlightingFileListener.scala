@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters._
 private final class CompilerHighlightingFileListener extends AsyncFileListener {
 
   @RequiresReadLock
-  override def prepareChange(events: java.util.List[_ <: VFileEvent]): AsyncFileListener.ChangeApplier = {
+  override def prepareChange(events: java.util.List[? <: VFileEvent]): AsyncFileListener.ChangeApplier = {
     val deletedFiles = events.asScala.collect { case event: VFileDeleteEvent => event.getFile }.toSeq
 
     if (deletedFiles.isEmpty) return null

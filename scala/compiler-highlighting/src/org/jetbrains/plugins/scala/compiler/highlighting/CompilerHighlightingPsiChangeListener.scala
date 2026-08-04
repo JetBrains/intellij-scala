@@ -19,7 +19,7 @@ private class CompilerHighlightingPsiChangeListener(project: Project) extends Ps
     }
   }
 
-  private[this] def triggerOnFileChange(psiFile: PsiFile): Unit = {
+  private def triggerOnFileChange(psiFile: PsiFile): Unit = {
     if (psiFile ne null) {
       val virtualFile = psiFile.getVirtualFile
       if (virtualFile ne null) {

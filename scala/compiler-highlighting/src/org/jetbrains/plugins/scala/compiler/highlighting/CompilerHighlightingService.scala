@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, DocumentVersion}
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 import java.io.EOFException
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
@@ -58,7 +59,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private val priorityQueue: ConcurrentSkipListSet[CompilationRequest] =
     new ConcurrentSkipListSet(CompilationRequest.compilationRequestOrdering)
 
-  private val compilationTask: AtomicReference[ScheduledFuture[_]] = new AtomicReference()
+  private val compilationTask: AtomicReference[ScheduledFuture[?]] = new AtomicReference()
 
   private val progressIndicator: AtomicReference[ProgressIndicator] = new AtomicReference()
 
@@ -194,7 +195,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def documentVersionsFor(request: CompilationRequest): Map[CanonicalPath, Long] with Serializable =
+  private def documentVersionsFor(request: CompilationRequest): Map[CanonicalPath, Long] & Serializable =
     request.documentVersions.map { case (_, DocumentVersion(path, version)) =>
       path -> version
     }.to(immutable.HashMap.mapFactory[CanonicalPath, Long])
@@ -210,7 +211,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           else {
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
-            val documentVersions = documentVersionsFor(request)
+            val documentVersions: Map[CanonicalPath, Long] & Serializable = documentVersionsFor(request)
             performCompilation(documentVersions, delayIndicator = false, refreshVfs = true) { client =>
               if (BspUtil.isBspProject(project)) {
                 doBspIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
@@ -234,7 +235,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def doBspIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
-    documentVersions: Map[CanonicalPath, Long] with Serializable,
+    documentVersions: Map[CanonicalPath, Long] & Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
@@ -265,7 +266,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def doJpsIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
-    documentVersions: Map[CanonicalPath, Long] with Serializable,
+    documentVersions: Map[CanonicalPath, Long] & Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
@@ -302,7 +303,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     sourceScope: SourceScope,
     virtualFile: VirtualFile,
     document: Document,
-    versions: Map[CanonicalPath, Long] with Serializable,
+    versions: Map[CanonicalPath, Long] & Serializable,
     await: Boolean
   ): Unit = {
     prepareCompilation(await) {
@@ -364,7 +365,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def performCompilation(documentVersions: Map[CanonicalPath, Long] with Serializable,
+  private def performCompilation(documentVersions: Map[CanonicalPath, Long] & Serializable,
                                  delayIndicator: Boolean,
                                  refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
@@ -393,7 +394,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, indicator)
     val Duration(length, unit) =
-      if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else 1.second
+      (if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else 1.second): @unchecked
     val runnable: Runnable = () => indicator.show()
     indicatorExecutor.schedule(runnable, length, unit)
     promise.future
@@ -468,7 +469,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def scheduleCompilationTask(deadline: Deadline): Unit = {
-    val Duration(length, unit) = deadline.timeLeft max 1.millisecond
+    val Duration(length, unit) = deadline.timeLeft max 1.millisecond: @unchecked
     val future = executor.schedule(new CompilationTask(), length, unit)
     val previous = compilationTask.getAndSet(future)
     if (previous ne null) {

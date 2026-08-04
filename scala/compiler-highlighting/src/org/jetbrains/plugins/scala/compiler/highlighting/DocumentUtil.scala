@@ -17,7 +17,7 @@ private object DocumentUtil {
     case doc => doc.getModificationStamp
   }
 
-  def stillValid(documentVersions: Map[CanonicalPath, Long] with Serializable): Boolean =
+  def stillValid(documentVersions: Map[CanonicalPath, Long] & Serializable): Boolean =
     documentVersions.forall { case (CanonicalPath(path), version) =>
       val virtualFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(path))
       if (virtualFile eq null) false

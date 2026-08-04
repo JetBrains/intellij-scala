@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import org.apache.commons.lang3.{StringUtils, Strings}
+import org.apache.commons.lang3.Strings
 import org.jetbrains.jps.incremental.scala.MessageKind
 
 private object CompilerMessageKinds {

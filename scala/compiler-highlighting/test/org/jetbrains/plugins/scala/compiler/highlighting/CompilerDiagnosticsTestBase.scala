@@ -22,7 +22,7 @@ trait CompilerDiagnosticsTestBase { self: ScalaCompilerHighlightingTestBase =>
     quickFixes.foreach { fix =>
       inWriteCommandAction {
         fix.invoke(getProject, myEditor, myPsiFile)
-      }(getProject)
+      }(using getProject)
     }
 
     val actualContent = inReadAction(virtualFile.findDocument.get.getText)

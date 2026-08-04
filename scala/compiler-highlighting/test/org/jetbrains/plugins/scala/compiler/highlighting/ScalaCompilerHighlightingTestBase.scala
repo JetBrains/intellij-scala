@@ -25,15 +25,16 @@ import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilerHighlightingTests]))
 abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
 
-  protected var myEditor: Editor = _
-  protected var myPsiFile: PsiFile = _
+  protected var myEditor: Editor = uninitialized
+  protected var myPsiFile: PsiFile = uninitialized
 
   // Safety-net timeout: normally the wait returns as soon as highlighting is applied. Hitting it means the
   // notification never arrived, i.e. compilation was never triggered for the file.
