@@ -86,7 +86,13 @@ object ScalaFilterScope {
            (implicit project: Project): SearchScope = scope match {
     case global: GlobalSearchScope => apply(global)
     case local: LocalSearchScope => new LocalSearchScope(
-      local.getScope.filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE)),
+      local.getScope.filter { e =>
+        e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
+          (e.getContainingFile.getFileType match {
+            case lft: LanguageFileType => ScalaLanguageDerivative.existsFor(lft)
+            case _ => false
+          })
+      },
       local.getDisplayName + " in scala",
       local.isIgnoreInjectedPsi
     )
