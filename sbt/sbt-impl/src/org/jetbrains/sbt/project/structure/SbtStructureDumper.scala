@@ -230,7 +230,9 @@ object SbtStructureDumper:
 
       extraSbtFileToRemove.foreach { path =>
         try {
-          Files.deleteIfExists(path)
+          logPluginFileEvent("pre-remove(eager-cleanup)", importId, path)
+          val deleted = Files.deleteIfExists(path)
+          logPluginFileEvent(s"removed(eager-cleanup) deleted=$deleted", importId, path)
         } catch {
           case exc: Throwable =>
             log.warn(s"[sbt import] cannot remove the temporary sbt file in $path ", exc)
@@ -306,10 +308,15 @@ object SbtStructureDumper:
         val tempPluginFile = eelDescriptor match
           case LocalEelDescriptor.INSTANCE =>
             val f = Files.createTempFile(globalPluginsDir, "idea-structure", Sbt.Extension)
-            Runtime.getRuntime.addShutdownHook(Thread(() => deleteFileIfExists(f)))
+            Runtime.getRuntime.addShutdownHook(Thread(() => {
+              logPluginFileEvent("pre-remove(shutdown-hook)", importId, f)
+              deleteFileIfExists(f)
+              logPluginFileEvent("removed(shutdown-hook)", importId, f)
+            }))
             f
           case remote =>
             EelPathKotlinUtils.createTemporaryFile("idea-structure", Sbt.Extension, globalPluginsDir, remote)
+        logPluginFileEvent("created", importId, tempPluginFile)
 
         // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
         // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
@@ -319,6 +326,7 @@ object SbtStructureDumper:
         )
 
         Files.writeString(tempPluginFile, pluginContent)
+        logPluginFileEvent("written", importId, tempPluginFile)
         StructureDumpConfig(commands, extraSbtFileToRemove = Some(tempPluginFile), launcherArgs = Nil)
       }
     }
@@ -326,6 +334,19 @@ object SbtStructureDumper:
     private def deleteFileIfExists(path: Path): Unit =
       try Files.deleteIfExists(path)
       catch case _: IOException => ()
+
+    /**
+     * Diagnostic logging for the lifecycle of the temporary `idea-structure*.sbt` plugin file.
+     *
+     * @see SCL-25691
+     */
+    private def logPluginFileEvent(event: String, importId: String, path: Path): Unit =
+      try {
+        val exists = Try(Files.exists(path)).getOrElse(false)
+        log.info(s"[sbt import][idea-structure-plugin] $event | importId=$importId | exists=$exists | path=$path")
+      } catch {
+        case _: Throwable =>
+      }
 
     private def getDumpProcessArgsForLegacySbt(
       @unused structureFilePath: Path,
