@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package util
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.platform.eel.EelDescriptor

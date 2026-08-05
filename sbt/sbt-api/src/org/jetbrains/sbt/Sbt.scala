@@ -1,9 +1,7 @@
 package org.jetbrains.sbt
 
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.util.ExternalSystemUtil.SbtModuleChildKey
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 
 import javax.swing.Icon
 
@@ -24,8 +22,6 @@ object Sbt {
 
   // this should be in sync with sbt.BuildUtil.baseImports
   @NonNls val DefaultImplicitImports: Seq[String] = Seq("sbt._", "Process._", "Keys._", "dsl._")
-
-  val SbtModuleChildKeyInstance: SbtModuleChildKey = SbtModuleChildKey(SbtNestedModuleData.Key, SbtSourceSetData.Key)
 
   /**
    * '''ATTENTION!'''<br>

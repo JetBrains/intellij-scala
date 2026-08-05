@@ -14,8 +14,6 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.actions.ScalaDirectoryCompletionContributorBase.getModuleContentRootsData
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
-import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtSourceSetData
 
 import java.util
@@ -114,10 +112,6 @@ object ScalaDirectoryCompletionContributorBase {
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
     if (moduleId == null) return None
     val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
-    if (projectSystemId == SbtProjectSystem.Id) {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath, Some(SbtModuleChildKeyInstance))
-    } else {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath, None)
-    }
+    ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath)
   }
 }

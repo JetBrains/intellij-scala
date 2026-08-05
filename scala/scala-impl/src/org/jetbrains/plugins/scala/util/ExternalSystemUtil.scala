@@ -6,6 +6,9 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ExternalProjectInfo,
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 
 import scala.jdk.CollectionConverters._
 
@@ -42,58 +45,38 @@ object ExternalSystemUtil {
     Right(result)
   }
 
-  /**
-   * @param sbtModuleChildKey see [[org.jetbrains.plugins.scala.util.ExternalSystemUtil.SbtModuleChildKey]] docs for more details.
-   *                          In BSP import the value for this parameter should be None.
-   */
   def getModuleData[K](
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
     key: Key[K],
     rootProjectPath: Option[String],
-    sbtModuleChildKey: Option[SbtModuleChildKey]
   ): Either[String, Iterable[K]] = {
-    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key, rootProjectPath, sbtModuleChildKey)
+    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key, rootProjectPath)
     nodes.map(_.map(_.getData))
   }
 
-  /**
-   * @param sbtModuleChildKey see [[org.jetbrains.plugins.scala.util.ExternalSystemUtil.SbtModuleChildKey]] docs for more details.
-   *                          In BSP import the value for this parameter should be None.
-   */
   private def getModuleDataNodes[K](
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
     key: Key[K],
     rootProjectPath: Option[String],
-    sbtModuleChildKey: Option[SbtModuleChildKey]
   ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
-    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath, sbtModuleChildKey)
+    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath)
     moduleDataNode.map(findAllNodesEnsuring(dataManager, _, key))
   }
 
-  /**
-   * @param sbtModuleChildKey see [[org.jetbrains.plugins.scala.util.ExternalSystemUtil.SbtModuleChildKey]] docs for more details.
-   *                          In BSP import the value for this parameter should be None.
-   */
   def getModuleDataNode(
     projectSystemId: ProjectSystemId,
     project: Project,
     moduleId: String,
     rootProjectPath: Option[String],
-    sbtModuleChildKey: Option[SbtModuleChildKey]
   ): Option[DataNode[? <: ModuleData]] = {
     val dataManager = ProjectDataManager.getInstance()
-    getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath, sbtModuleChildKey).toOption
+    getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath).toOption
   }
-
-  /**
-   * Class that holds keys corresponding to the types of child modules added to the ModuleData during the SBT import process.
-   */
-  case class SbtModuleChildKey(sbtNestedModuleKey: Key[? <: ModuleData], sbtSourceSetModuleKey: Key[? <: ModuleData])
 
   private def getModuleDataNode(
     dataManager: ProjectDataManager,
@@ -101,7 +84,6 @@ object ExternalSystemUtil {
     project: Project,
     moduleId: String,
     rootProjectPath: Option[String],
-    sbtModuleChildKey: Option[SbtModuleChildKey],
   ): Either[String, DataNode[? <: ModuleData]] = {
     val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, rootProjectPath) match {
       case Right(value) => value
@@ -109,6 +91,7 @@ object ExternalSystemUtil {
         return Left(error)
     }
 
+    @Nullable
     def findDataNodeWithModuleId(parentNode: DataNode[?], key: Key[? <: ModuleData]): DataNode[? <: ModuleData] = {
       ExternalSystemApiUtil.findChild(parentNode, key, (node: DataNode[? <: ModuleData]) => {
         // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
@@ -116,10 +99,12 @@ object ExternalSystemUtil {
       })
     }
 
-    val moduleDataNode = sbtModuleChildKey match {
-      case Some(x) => processSbtModuleDataChildNodes(projectDataNode, moduleId, x).orNull
-      case _ => findDataNodeWithModuleId(projectDataNode, ProjectKeys.MODULE)
+    val moduleDataNode = if (projectSystemId == SbtProjectSystem.Id) {
+      processSbtModuleDataChildNodes(projectDataNode, moduleId).orNull
+    } else {
+      findDataNodeWithModuleId(projectDataNode, ProjectKeys.MODULE)
     }
+
     if (moduleDataNode != null) {
       Right(moduleDataNode)
     } else {
@@ -130,7 +115,6 @@ object ExternalSystemUtil {
   private def processSbtModuleDataChildNodes(
     projectDataNode: DataNode[ProjectData],
     moduleId: String,
-    moduleChildKey: SbtModuleChildKey
   ): Option[DataNode[? <: ModuleData]] = {
 
     def findModuleDataInChildren(key: Key[? <: ModuleData], parents: Seq[DataNode[?]]): Either[Seq[DataNode[? <: ModuleData]], DataNode[? <: ModuleData]] = {
@@ -144,14 +128,14 @@ object ExternalSystemUtil {
       case Left(children) => children
     }
 
-    val sbtNestedModuleDataEither = findModuleDataInChildren(moduleChildKey.sbtNestedModuleKey, moduleDataChildren)
+    val sbtNestedModuleDataEither = findModuleDataInChildren(SbtNestedModuleData.Key, moduleDataChildren)
     val sbtNestedModuleDataChildren = sbtNestedModuleDataEither match {
       case Right(r) => return Some(r)
       // it is required to add moduleDataChildren to sbtNestedModuleChildren, because sbt source set modules may be found in both
       case Left(children) => children ++ moduleDataChildren
     }
 
-    val sbtSourceSetModuleDataEither = findModuleDataInChildren(moduleChildKey.sbtSourceSetModuleKey, sbtNestedModuleDataChildren)
+    val sbtSourceSetModuleDataEither = findModuleDataInChildren(SbtSourceSetData.Key, sbtNestedModuleDataChildren)
     sbtSourceSetModuleDataEither.toOption
   }
 
