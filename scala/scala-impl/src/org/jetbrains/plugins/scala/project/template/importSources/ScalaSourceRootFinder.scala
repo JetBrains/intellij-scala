@@ -25,7 +25,7 @@ object ScalaSourceRootFinder {
   import StringUtil._
 
   def packageStatement(buf: CharSequence): String = {
-    implicit val lexer: ScalaLexer = new ScalaLexer(false, null)
+    implicit val lexer: ScalaLexer = new ScalaLexer(false)
     lexer.start(buf)
 
     val builder = new StringBuilder()

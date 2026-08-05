@@ -462,7 +462,7 @@ object ScalaBasicCompletionProvider {
 
   private def tokenizeLiteral(text: String, quoteLength: Int) = text.charAt(0) match {
     case '.' =>
-      val lexer = new ScalaLexer(false, null)
+      val lexer = new ScalaLexer(false)
       lexer.start(text, 1, text.length - quoteLength)
       lexer.getTokenType match {
         case `tIDENTIFIER` => Some(lexer.getTokenEnd)

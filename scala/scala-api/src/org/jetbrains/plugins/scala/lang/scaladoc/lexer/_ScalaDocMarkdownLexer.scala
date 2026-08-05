@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.lang.scaladoc.lexer
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.lexer.MarkdownLexer
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.markdown._CustomGFMLexer
 
 class _ScalaDocMarkdownLexer extends LexerBase {
   private var originalBuffer: CharSequence = scala.compiletime.uninitialized
@@ -13,7 +14,7 @@ class _ScalaDocMarkdownLexer extends LexerBase {
   private var isTwirlDocComment = false
   private var contentEndOffset = 0
 
-  private val delegate = (new ScalaDocMarkdownFlavour).createInlinesLexer()
+  private val delegate = new MarkdownLexer(new _CustomGFMLexer)
   private var delegateState = 0
 
   private var myState = 0

@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
@@ -26,8 +25,6 @@ import com.intellij.util.text.CharArrayUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.Tracing;
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -65,11 +62,14 @@ public final class ScalaLexer extends Lexer {
    */
   private IElementType previousToken = null;
 
-  public ScalaLexer(boolean isScala3,
-                    @Nullable Project project) {
+  public ScalaLexer(boolean isScala3) {
+    this(isScala3, ScalaLexerConfig.DEFAULT);
+  }
+
+  public ScalaLexer(boolean isScala3, @NotNull ScalaLexerConfig config) {
     myScalaPlainLexer = new ScalaPlainLexer(
         isScala3,
-        project != null && ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment()
+        config.treatDocCommentAsBlockComment()
     );
     myXmlLexer = new ScalaXmlLexer();
     myCurrentLexer = myScalaPlainLexer;
@@ -88,7 +88,6 @@ public final class ScalaLexer extends Lexer {
     myBufferEnd = endOffset;
     myTokenType = null;
 
-    Tracing.lexerStart(buffer, startOffset, endOffset, initialState);
   }
 
   @Override
@@ -116,8 +115,6 @@ public final class ScalaLexer extends Lexer {
 
     if (myTokenType == null) {
       doLocateToken();
-
-      Tracing.lexer(myBuffer, myTokenStart, myTokenEnd);
     }
   }
 

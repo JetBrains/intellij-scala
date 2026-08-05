@@ -4,14 +4,14 @@ package worksheet
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.tree.IFileElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexerFactory
 import org.jetbrains.plugins.scala.lang.parser.{ScalaParser, ScalaParserDefinitionBase}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
 final class WorksheetParserDefinition extends ScalaParserDefinitionBase {
 
   override def createLexer(project: Project) =
-    new ScalaLexer(/*isScala3 =*/ false, project)
+    ScalaLexerFactory.create(/*isScala3 =*/ false, project)
 
   override def createParser(project: Project): ScalaParser =
     new ScalaParser(isScala3 = false)

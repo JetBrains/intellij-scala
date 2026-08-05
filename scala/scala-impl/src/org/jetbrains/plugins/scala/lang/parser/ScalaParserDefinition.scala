@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexerFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
  */
 class ScalaParserDefinition extends ScalaParserDefinitionBase {
 
-  override def createLexer(project: Project): org.jetbrains.plugins.scala.lang.lexer.ScalaLexer = new ScalaLexer(false, project)
+  override def createLexer(project: Project): org.jetbrains.plugins.scala.lang.lexer.ScalaLexer = ScalaLexerFactory.create(false, project)
 
   override def createParser(project: Project): org.jetbrains.plugins.scala.lang.parser.ScalaParser = new ScalaParser(isScala3 = false)
 

@@ -22,7 +22,7 @@ abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementTyp
   override final def getErrorsCount(buf: CharSequence,
                                     fileLanguage: Language,
                                     project: Project): Int = {
-    val scalaLexer = new ScalaLexer(false, null)
+    val scalaLexer = new ScalaLexer(false)
     scalaLexer.start(buf)
     scalaLexer.getTokenType match {
       case ScalaTokenTypes.tLBRACE => iterate(1)(using scalaLexer)

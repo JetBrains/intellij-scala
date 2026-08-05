@@ -18,7 +18,7 @@ public class ScalaWordsScanner extends DefaultWordsScanner {
   private final TokenSet mySkipCodeContextTokenSet;
 
   public ScalaWordsScanner() {
-    this(new ScalaLexer(false, null), ScalaTokenTypes.IDENTIFIER_TOKEN_SET, ScalaTokenTypes.COMMENTS_TOKEN_SET, ScalaTokenTypes.STRING_LITERAL_TOKEN_SET, TokenSet.EMPTY);
+    this(new ScalaLexer(false), ScalaTokenTypes.IDENTIFIER_TOKEN_SET, ScalaTokenTypes.COMMENTS_TOKEN_SET, ScalaTokenTypes.STRING_LITERAL_TOKEN_SET, TokenSet.EMPTY);
   }
 
   public ScalaWordsScanner(final Lexer lexer, final TokenSet identifierTokenSet, final TokenSet commentTokenSet,

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import org.jetbrains.plugins.scala.Scala3Language
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaLexerFactory}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
@@ -15,7 +15,7 @@ final class Scala3ParserDefinition extends ScalaParserDefinitionBase {
   //noinspection TypeAnnotation
   override def getFileNodeType: ScStubFileElementType = Scala3ParserDefinition.FileNodeType
 
-  override def createLexer(project: Project): ScalaLexer = new ScalaLexer(true, project)
+  override def createLexer(project: Project): ScalaLexer = ScalaLexerFactory.create(true, project)
 
   override def createParser(project: Project): ScalaParser = new ScalaParser(isScala3 = true)
 

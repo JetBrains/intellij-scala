@@ -54,5 +54,5 @@ object ScalaNamesValidator {
     LanguageNamesValidation.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
 
   private val lexerCache: UnloadableThreadLocal[ScalaLexer] =
-    new UnloadableThreadLocal(new ScalaLexer(false, null))
+    new UnloadableThreadLocal(new ScalaLexer(false))
 }
