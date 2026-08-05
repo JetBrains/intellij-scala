@@ -2,7 +2,7 @@ import AttributedClasspathUtils.buildIntellijSdkSubsetAttributedClasspath
 import CompilationCache.compilationCacheSettings
 import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import coursier.maven.{MavenRepository, SbtMavenRepository}
-import coursier.{LocalRepositories, Repository}
+import coursier.{LocalRepositories, Repositories, Repository}
 import org.jetbrains.sbt.kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
 import org.jetbrains.sbt.kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
@@ -19,7 +19,10 @@ object Common {
   val repositories: Seq[Repository] = Seq(
     LocalRepositories.ivy2Local,
     MavenRepository("https://cache-redirector.jetbrains.com/maven-central"),
-    SbtMavenRepository("https://cache-redirector.jetbrains.com/maven-central")
+    SbtMavenRepository("https://cache-redirector.jetbrains.com/maven-central"),
+    // Maven Central proper is a fallback in case the JetBrains cache redirector is not available.
+    Repositories.central,
+    SbtMavenRepository(Repositories.central.root)
   )
 
   /**
