@@ -1,2 +1,4 @@
 -Xmx4g
 -Dfile.encoding=UTF-8
+-Dsbt.override.build.repos=true
+-Dsbt.repository.config=project/repositories
