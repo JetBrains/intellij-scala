@@ -1,3 +1,5 @@
+ThisBuild / resolvers += "JetBrains Maven Central" at "https://cache-redirector.jetbrains.com/maven-central"
+
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 //NOTE: KEEP VERSIONS IN SYNC WITH ultimate/project/plugins.sbt
