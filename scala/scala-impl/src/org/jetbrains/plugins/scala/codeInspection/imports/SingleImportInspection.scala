@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.codeInspection.imports
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,15 +21,19 @@ class SingleImportInspection extends LocalInspectionTool {
         if (!importExpr.isVisible(holder.getProject, holder.getFile)) return
 
         importExpr.selectorSet.foreach {
-          case selectorSet@ScImportSelectors(selector) if selectorSet.getFirstChild.elementType == ScalaTokenTypes.tLBRACE =>
+          case selectorSet@ScImportSelectors(selector)
+            if selectorSet.getFirstChild.elementType == ScalaTokenTypes.tLBRACE &&
+              selectorSet.getLastChild.elementType == ScalaTokenTypes.tRBRACE =>
             //Scala 2 alias requires braces: `import scala.util.{Random => Random}`
             //Scala 3 alias can go without braces: `import scala.util.Random as Random2`
             if (!selector.isScala2StyleAliasImport) {
-              holder.registerProblem(holder.getManager.createProblemDescriptor(
-                selectorSet,
+              //highlight only the braces themselves, as "unused" (SCL-25732)
+              registerRedundantParensProblem(
                 ScalaInspectionBundle.message("single.import"),
+                selectorSet,
                 new RemoveBracesForSingleImportQuickFix(importExpr),
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly)
+                holder,
+                isOnTheFly
               )
             }
           case _ =>
