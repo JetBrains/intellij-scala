@@ -61,7 +61,7 @@ class CompileToTestDependencyTest(jdkVersion: TestJdkVersion)
       assertNotNull(s"Could not find module with name $moduleName", module)
     }
 
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
   }

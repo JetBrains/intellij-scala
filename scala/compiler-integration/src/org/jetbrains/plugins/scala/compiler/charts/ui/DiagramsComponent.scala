@@ -5,32 +5,33 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.compiler.charts.ui.Common._
+import org.jetbrains.plugins.scala.compiler.charts.ui.Common.*
 import org.jetbrains.plugins.scala.compiler.charts.{CompilationProgressStateManager, CompileServerMetricsStateManager}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
-import java.awt._
+import java.awt.*
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.geom.{Point2D, Rectangle2D}
 import javax.swing.UIManager
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 import scala.concurrent.duration.{Duration, DurationInt, DurationLong, FiniteDuration}
-import scala.math.Ordering.Implicits._
+import scala.math.Ordering.Implicits.*
 
 class DiagramsComponent(chartsComponent: CompilationChartsComponent,
                         project: Project,
                         defaultZoom: Zoom)
   extends JBPanelWithEmptyText {
 
-  import DiagramsComponent._
+  import DiagramsComponent.*
 
   // injecting due to cyclic dependency between scroll pane and diagrams component
-  private[ui] var scrollComponent: JBScrollPane = _
+  private[ui] var scrollComponent: JBScrollPane = uninitialized
 
   private var initialized = false
 
-  private var diagrams: Diagrams = _
-  private var staticHeights: DiagramStaticHeights = _
+  private var diagrams: Diagrams = uninitialized
+  private var staticHeights: DiagramStaticHeights = uninitialized
   private var currentZoom = defaultZoom
   private var currentLevel = Level.Modules
   private var currentZoomPixels: Double = -1
@@ -227,7 +228,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
       val point = new Point2D.Double(x, clip.getY)
       if (i % currentZoom.durationLabelPeriod == 0) {
         if (i != 0) graphics.printVerticalLine(point, LongDashLength, LineColor, DashStroke)
-        val text = " " + stringifyForAxisLabel(i * currentZoom.durationStep)
+        val text = " " + stringifyForAxisLabel(currentZoom.durationStep * i)
         val textClip = new Rectangle2D.Double(point.x, clip.getY, clip.getWidth, clip.getHeight)
         val rendering = graphics.getTextRendering(textClip, text, SmallFont, HAlign.Left, VAlign.Top)
         val fixedRendering = rendering.translate(rendering.x, rendering.y + rendering.rect.getHeight / 4)

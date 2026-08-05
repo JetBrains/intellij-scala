@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture
 private final class MissingScalaSdkBuildIssueQuickFix(syncActions: Seq[SyncAction]) extends BuildIssueQuickFix {
   override def getId: String = MissingScalaSdkBuildIssueQuickFix.ID
 
-  override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[_] = {
+  override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[?] = {
     syncActions.foreach(_.syncProject(project, dataContext))
     CompletableFuture.completedFuture(null)
   }

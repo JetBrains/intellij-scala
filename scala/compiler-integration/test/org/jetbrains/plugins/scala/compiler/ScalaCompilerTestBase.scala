@@ -3,13 +3,13 @@ package compiler
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.compiler._
-import com.intellij.openapi.projectRoots._
-import com.intellij.openapi.roots._
+import com.intellij.openapi.compiler.*
+import com.intellij.openapi.projectRoots.*
+import com.intellij.openapi.roots.*
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs._
+import com.intellij.openapi.vfs.*
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework._
+import com.intellij.testFramework.*
 import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
 import org.jetbrains.plugins.scala.base.SourceRootTestUtil
 import org.jetbrains.plugins.scala.compiler.testUtils.ScalaCompileServerTester
@@ -18,30 +18,31 @@ import org.jetbrains.plugins.scala.util.CompilerTestUtil.{applyEnabledCompileSer
 import java.nio.file.{Files, Path}
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
-import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.base.libraryLoaders.*
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.CompilerTestUtil
 import org.junit.Assert
-import org.junit.Assert._
+import org.junit.Assert.*
 
-import java.util.{List => JList}
+import java.util.List as JList
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
 abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
-  private var compilerTester: CompilerTester = _
+  private var compilerTester: CompilerTester = uninitialized
 
   private val createdFiles: mutable.Set[VirtualFile] = mutable.Set.empty
 
-  private var scalaCompileServerTester: ScalaCompileServerTester = _
+  private var scalaCompileServerTester: ScalaCompileServerTester = uninitialized
 
   /**
    * Called on each project, but before initializing ThreadWatcher.

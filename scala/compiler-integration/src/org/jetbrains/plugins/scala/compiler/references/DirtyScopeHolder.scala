@@ -69,7 +69,7 @@ abstract class DirtyScopeHolder[Scope](
     indexingPhases = 0
   }
 
-  override def prepareChange(events: util.List[_ <: VFileEvent]): AsyncFileListener.ChangeApplier = {
+  override def prepareChange(events: util.List[? <: VFileEvent]): AsyncFileListener.ChangeApplier = {
     if (project.isDisposed) return null
     val dirty = scopesToBeMarkedDirtyBefore(events)
 
@@ -85,7 +85,7 @@ abstract class DirtyScopeHolder[Scope](
     }
   }
 
-  private def scopesToBeMarkedDirtyBefore(events: util.List[_ <: VFileEvent]): Set[Scope] = {
+  private def scopesToBeMarkedDirtyBefore(events: util.List[? <: VFileEvent]): Set[Scope] = {
     val dirty = Set.newBuilder[Scope]
 
     events.forEach { event =>
@@ -101,7 +101,7 @@ abstract class DirtyScopeHolder[Scope](
     dirty.result()
   }
 
-  private def after(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
+  private def after(events: util.List[? <: VFileEvent]): Unit = events.forEach {
     case event @ (_: VFileCreateEvent | _: VFileMoveEvent | _: VFileCopyEvent) =>
       onFileChange(event.getFile)
     case event: VFilePropertyChangeEvent =>
@@ -205,7 +205,7 @@ abstract class DirtyScopeHolder[Scope](
     }
   }.expireWith(project.unloadAwareDisposable).expireWhen(() => project.isDisposed).executeSynchronously()
 
-  private[this] def calcDirtyScope(): GlobalSearchScope = {
+  private def calcDirtyScope(): GlobalSearchScope = {
     val dirty = dirtyScopes
     if (dirty.isEmpty) GlobalSearchScope.EMPTY_SCOPE
     else GlobalSearchScope.union(dirty.map(scopeToSearchScope).asJavaCollection)

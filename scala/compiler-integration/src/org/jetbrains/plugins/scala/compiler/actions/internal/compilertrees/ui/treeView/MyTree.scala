@@ -8,8 +8,6 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.PhaseWithTreeText
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.TreeDisplayOptions
 
-import java.awt.Dimension
-import javax.swing.Timer
 import javax.swing.event.TreeSelectionEvent
 import javax.swing.plaf.basic.BasicTreeUI
 import javax.swing.tree.{DefaultMutableTreeNode, TreeSelectionModel}

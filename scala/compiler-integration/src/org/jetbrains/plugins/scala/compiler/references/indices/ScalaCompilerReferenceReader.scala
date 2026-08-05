@@ -75,7 +75,7 @@ private[references] class ScalaCompilerReferenceReader private[references](
       referentFiles
     }
 
-  private[this] def searchInBackwardUsagesIndex(
+  private def searchInBackwardUsagesIndex(
     ref:    CompilerRef
   )(action: ContainerAction[collection.Seq[Int]]): Unit = {
     val hierarchy = ref match {

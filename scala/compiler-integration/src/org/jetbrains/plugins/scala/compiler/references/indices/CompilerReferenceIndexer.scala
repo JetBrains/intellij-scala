@@ -6,48 +6,49 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.bytecode.{ClassfileParser, CompiledScalaFile}
-import org.jetbrains.plugins.scala.compiler.references.indices.IndexerFailure._
-import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage._
+import org.jetbrains.plugins.scala.compiler.references.indices.IndexerFailure.*
+import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage.*
 import org.jetbrains.plugins.scala.compiler.references.{indexDir, removeIndexFiles, task}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.nio.file.Path
-import java.util.concurrent._
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: Int) {
-  import CompilerReferenceIndexer._
+  import CompilerReferenceIndexer.*
 
-  private[this] val indexerJobQueue = new ConcurrentLinkedQueue[IndexerJob]()
-  private[this] val nThreads        = Runtime.getRuntime.availableProcessors()
+  private val indexerJobQueue = new ConcurrentLinkedQueue[IndexerJob]()
+  private val nThreads        = Runtime.getRuntime.availableProcessors()
 
-  private[this] var indexingExecutor: ExecutorService                 = _
-  private[this] var indexWriter: Option[ScalaCompilerReferenceWriter] = None
+  private var indexingExecutor: ExecutorService                = uninitialized
+  private var indexWriter: Option[ScalaCompilerReferenceWriter] = None
 
-  private[this] val jobFailures  = ContainerUtil.newConcurrentSet[IndexerJobFailure]()
-  private[this] val fatalFailure = new AtomicReference[Option[Throwable]](Option.empty)
+  private val jobFailures  = ContainerUtil.newConcurrentSet[IndexerJobFailure]()
+  private val fatalFailure = new AtomicReference[Option[Throwable]](Option.empty)
 
   invokeOnDispose(project.unloadAwareDisposable){
     shutdown()
   }
 
-  private[this] def shutdown(): Unit =
+  private def shutdown(): Unit =
     if (!isShutdown) indexingExecutor.shutdownNow()
 
-  private[this] def onException(e: Throwable, shouldClearIndex: Boolean): Unit = {
+  private def onException(e: Throwable, shouldClearIndex: Boolean): Unit = {
     fatalFailure.updateAndGet(_.orElse(Option(e)))
     if (shouldClearIndex) indexWriter.foreach(_.close(shouldClearIndex = true))
     shutdown()
   }
 
-  private[this] def isShutdown: Boolean =
+  private def isShutdown: Boolean =
     indexingExecutor == null || indexingExecutor.isShutdown
 
-  private[this] def checkInterruptStatus(): Unit =
+  private def checkInterruptStatus(): Unit =
     if (Thread.interrupted()) throw new InterruptedException
 
   private def parseClassfiles(writer: ScalaCompilerReferenceWriter): Unit =
@@ -69,7 +70,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
       }
     } catch { case e: Throwable => onException(e, shouldClearIndex = false) }
 
-  private[this] def initialiseExecutorIfNeeded(): Unit =
+  private def initialiseExecutorIfNeeded(): Unit =
     if (isShutdown) indexingExecutor = Executors.newFixedThreadPool(nThreads)
 
   def toTask(job: IndexingStage): Task.Backgroundable =
@@ -79,7 +80,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         indexWriter = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
       }
       case CloseWriter(onFinish) => task(project, CompilerIntegrationBundle.message("title.closing.compiler.indices.writer")) { _ =>
-        val maybeFatalFailure = fatalFailure.get().map(FatalFailure)
+        val maybeFatalFailure = fatalFailure.get().map(FatalFailure(_))
 
         val maybeFailure = maybeFatalFailure.orElse {
           if (!jobFailures.isEmpty) FailedToParse(jobFailures.asScala).toOption
@@ -97,7 +98,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         }
     }
 
-  private[this] def cleanUp(shouldClearIndex: Boolean): Unit =
+  private def cleanUp(shouldClearIndex: Boolean): Unit =
     try indexWriter match {
       case Some(writer)             => writer.close(shouldClearIndex)
       case None if shouldClearIndex => removeIndexFiles(project)
@@ -111,7 +112,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private final class IndexCompilationInfoTask(info: CompilationInfo, callback: () => Unit)
       extends Task.Backgroundable(project, CompilerIntegrationBundle.message("bytecode.indices.indexing"), true) {
 
-    private[this] def processInfo(): Unit = {
+    private def processInfo(): Unit = {
       val start = System.currentTimeMillis()
       indexWriter match {
         case None =>
@@ -119,7 +120,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           callback()
         case Some(writer) =>
           try {
-            info.removedSources.iterator.map(ProcessRemovedSource).foreach(indexerJobQueue.add)
+            info.removedSources.iterator.map(ProcessRemovedSource.apply).foreach(indexerJobQueue.add)
 
             info.generatedClasses.groupBy(_.source).foreach {
               case (_, classes) => indexerJobQueue.add(ProcessGeneratedClasses(classes))

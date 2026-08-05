@@ -4,7 +4,7 @@ sealed trait HAlign
 
 object HAlign {
 
-  final case object Center extends HAlign
-  final case object Left extends HAlign
-  final case object Right extends HAlign
+  case object Center extends HAlign
+  case object Left extends HAlign
+  case object Right extends HAlign
 }

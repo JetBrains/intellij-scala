@@ -61,7 +61,7 @@ class ClasspathOrderingCompilationTest_ProdTestSourcesSeparatedEnabled(jdkVersio
     val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root.main").orNull
     assertNotNull("Could not find module with name 'root'", rootModule)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)

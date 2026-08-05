@@ -19,6 +19,7 @@ import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.junit.Assert.assertNotNull
 
 import java.nio.file.{Files, Path}
+import scala.compiletime.uninitialized
 
 /**
  * A base class for writing tests which:
@@ -44,11 +45,11 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
-  protected var compiler: CompilerTester = _
+  protected var compiler: CompilerTester = uninitialized
 
-  protected var sdk: Sdk = _
+  protected var sdk: Sdk = uninitialized
 
-  protected var rootModule: Module = _
+  protected var rootModule: Module = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()

@@ -19,7 +19,7 @@ class CompilerIndicesInheritorsSearch private ()
 
 //noinspection ApiStatus
 object CompilerIndicesInheritorsSearch extends ExternalInheritorsSearcher {
-  private[this] val instance = new CompilerIndicesInheritorsSearch
+  private val instance = new CompilerIndicesInheritorsSearch
 
   def search(
     cls:       PsiClass,

@@ -8,7 +8,6 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.JDOMUtil
 import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadataConstants
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
 
 import java.io.{BufferedOutputStream, DataInputStream, DataOutputStream, IOException}

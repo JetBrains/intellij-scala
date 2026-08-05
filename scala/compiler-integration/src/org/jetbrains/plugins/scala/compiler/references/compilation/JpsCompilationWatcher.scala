@@ -17,7 +17,7 @@ private[references] class JpsCompilationWatcher(
 
   override def compilerMode: CompilerMode.JPS.type = CompilerMode.JPS
 
-  private[this] def handleBuilderMessage(
+  private def handleBuilderMessage(
     messageType: String,
     messageText: String,
     publisher:   CompilerIndicesEventPublisher

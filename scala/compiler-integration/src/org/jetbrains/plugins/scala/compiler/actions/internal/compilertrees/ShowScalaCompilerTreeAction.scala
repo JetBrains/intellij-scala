@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog
 import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 //TODO: (big feature) don't ignore last bytecode generation phase, show decompiled classes (1. bytecode and 2. as Java)
 //TODO: (big improvement) implement folding (check how it's done for "Show Decompiled Code" action, if it even works for it)
 final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBundle.message("show.scala.compiler.trees.action.title")) {

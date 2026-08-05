@@ -14,7 +14,8 @@ import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
@@ -33,9 +34,9 @@ class UsePipeliningCompilationTest extends SbtProjectCompilationTestBase with Sc
 
   override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.from(testProjectJdkVersion)
 
-  private var module1: Module = _
-  private var module2: Module = _
-  private var module3: Module = _
+  private var module1: Module = uninitialized
+  private var module2: Module = uninitialized
+  private var module3: Module = uninitialized
 
   @Test
   @Category(Array(classOf[CompilationTests_Zinc]))
@@ -81,7 +82,7 @@ class UsePipeliningCompilationTest extends SbtProjectCompilationTestBase with Sc
     assertNotNull("Could not find module with name 'root.module2'", module2)
     module3 = modules.find(_.getName == "root.module3").orNull
     assertNotNull("Could not find module with name 'root.module3'", module3)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)

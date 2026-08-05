@@ -41,7 +41,7 @@ class ClassfileParserTest {
     val classInfo = parsed.classInfo
 
     assertEquals(
-      Set(fqn[Simple], fqn[Serializable], fqn[Comparable[_]]),
+      Set(fqn[Simple], fqn[Serializable], fqn[Comparable[?]]),
       classInfo.superClasses
     )
   }
@@ -66,14 +66,14 @@ class ClassfileParserTest {
     )
 
     assertThat(
-      java.util.Arrays.asList(parsed.refs: _*),
-      hasItems(expectedRefs: _*)
+      java.util.Arrays.asList(parsed.refs*),
+      hasItems(expectedRefs*)
     )
   }
 
   @Test
   def testSAMInheritor(): Unit = doTest[SAM] { parsed =>
-    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.compiler.references.bytecode.Foo", 107)))
+    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.compiler.references.bytecode.Foo", 110)))
   }
 }
 
@@ -90,16 +90,19 @@ private class WithRefs extends HasImplicitVal {
 
   bar
 
-  private[this] implicit val noGetter: Int = 42
+  private implicit val noGetter: Int = 42
   def baz(implicit i: Int): Int = i * 2
   baz
 
   def qux(s: String): Int = s.toInt
+  // Ensures `noGetter` is emitted as an actual field: Scala 3 hoists private vals which are only
+  // read inside the constructor into local variables, and then there is no field reference to parse.
+  def usesNoGetter: Int = baz
 }
 
 private trait Foo { def foo(s: String): Int }
 private class SAM {
-  private[this] val x = 123
+  private val x = 123
 
   def takesFoo(f: Foo): Int = f.foo("123")
 

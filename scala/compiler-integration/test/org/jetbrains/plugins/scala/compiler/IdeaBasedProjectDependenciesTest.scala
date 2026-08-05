@@ -42,7 +42,7 @@ class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
     val moduleDirectory = createChildDirectory(getBaseDir, moduleName)
     val module = PsiTestUtil.addModule(
       getProject,
-      JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]],
+      JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]],
       moduleName,
       moduleDirectory
     )
@@ -66,7 +66,7 @@ class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
   private def setUpApacheCommonsLibrary(module: Module): Unit = {
     val artifactId = "commons-text"
     val libLoader = IvyManagedLoader("org.apache.commons" % artifactId % "1.12.0")
-    libLoader.init(module, version)
+    libLoader.init(using module, version)
 
     val isApacheCommonsLibrary = (orderEntry: LibraryOrderEntry) => Option(orderEntry.getLibraryName).exists(_.contains(artifactId))
     ModuleRootModificationUtil.updateModel(module, model =>

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.phas
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.PhaseWithTreeText
 
+import scala.compiletime.uninitialized
 /**
  * Parser for Scala 2 compiler output.
  * In Scala 2, phases are emitted as:
@@ -21,7 +22,7 @@ private class Scala2PhaseParser(onPhaseDetected: PhaseWithTreeText => Unit) exte
 
   private val Scala2TreePhaseOutputRegexp = """\[\[\s*syntax trees at end of\s+(.*?)]].*?""".r
 
-  private var currentPhase: String = _
+  private var currentPhase: String = uninitialized
   private var currentTreeText: String = ""
 
   override def processMessage(msg: Client.ClientMsg): Unit = {

@@ -17,7 +17,7 @@ package object ui {
     def doInClip[A](clip: Rectangle2D)
                    (action: Graphics2D => A): A =
       Using.resource(graphics.create().asInstanceOf[Graphics2D]) { clipGraphics =>
-        clipGraphics.setClip(clip createIntersection graphics.getClipBounds)
+        clipGraphics.setClip(clip.createIntersection(graphics.getClipBounds))
         action(clipGraphics)
       }
 

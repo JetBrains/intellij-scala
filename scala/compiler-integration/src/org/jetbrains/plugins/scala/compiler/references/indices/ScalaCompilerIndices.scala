@@ -16,12 +16,12 @@ private[references] object ScalaCompilerIndices {
   val backwardHierarchy: IndexId[CompilerRef, collection.Seq[CompilerRef]] = IndexId.create("sc.back.hierarchy")
   val version                                                   = 0
 
-  val getIndices: util.Collection[_ <: IndexExtension[_, _, _ >: CompiledScalaFile]] = util.Arrays.asList(
+  val getIndices: util.Collection[? <: IndexExtension[?, ?, ? >: CompiledScalaFile]] = util.Arrays.asList(
     backUsagesExtension,
     backHierarchyExtension
   )
 
-  private[this] val refDescriptor = new KeyDescriptor[CompilerRef] {
+  private val refDescriptor = new KeyDescriptor[CompilerRef] {
     override def getHashCode(t: CompilerRef): Int                  = t.hashCode
     override def isEqual(t: CompilerRef, t1: CompilerRef): Boolean = t == t1
     override def save(out:  DataOutput, t:   CompilerRef): Unit    = t.save(out)
@@ -36,7 +36,7 @@ private[references] object ScalaCompilerIndices {
     }
   }
 
-  private[this] def backUsagesExtension: IndexExtension[CompilerRef, collection.Seq[Int], CompiledScalaFile] =
+  private def backUsagesExtension: IndexExtension[CompilerRef, collection.Seq[Int], CompiledScalaFile] =
     new IndexExtension[CompilerRef, collection.Seq[Int], CompiledScalaFile] {
       override def getVersion: Int = version
       override def getName: IndexId[CompilerRef, collection.Seq[Int]] = backwardUsages
@@ -45,7 +45,7 @@ private[references] object ScalaCompilerIndices {
       override def getIndexer: DataIndexer[CompilerRef, collection.Seq[Int], CompiledScalaFile] = _.refs
     }
 
-  private[this] def backHierarchyExtension: IndexExtension[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] =
+  private def backHierarchyExtension: IndexExtension[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] =
     new IndexExtension[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] {
       override def getVersion: Int =
         version
@@ -59,7 +59,7 @@ private[references] object ScalaCompilerIndices {
         seqExternalizer(refDescriptor.read, refDescriptor.save)
     }
 
-  private[this] def seqExternalizer[T](
+  private def seqExternalizer[T](
                                         reader: DataInput => T,
                                         writer: (DataOutput, T) => Unit
                                       ): DataExternalizer[collection.Seq[T]] = new DataExternalizer[collection.Seq[T]] {

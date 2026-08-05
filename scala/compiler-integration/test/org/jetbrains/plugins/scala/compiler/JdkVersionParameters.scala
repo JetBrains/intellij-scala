@@ -13,7 +13,7 @@ trait JdkVersionParameters {
         .flatMap(p => Try(TestJdkVersion.valueOf(p)).toOption)
     versionFromProperty match {
       case Some(version) => java.util.Collections.singletonList(version)
-      case None => java.util.Arrays.asList(TestJdkVersion.values(): _*)
+      case None => java.util.Arrays.asList(TestJdkVersion.values()*)
     }
   }
 }

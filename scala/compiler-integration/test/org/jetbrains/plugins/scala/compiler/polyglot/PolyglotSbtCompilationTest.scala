@@ -16,6 +16,8 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+import scala.compiletime.uninitialized
+
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
 abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separateModules: Boolean)
@@ -23,9 +25,9 @@ abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separa
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1: Module = _
+  private var module1: Module = uninitialized
 
-  private var module2: Module = _
+  private var module2: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -83,7 +85,7 @@ abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separa
     assertNotNull(s"Could not find module with name '$module1Name'", module1)
     module2 = modules.find(_.getName == module2Name).orNull
     assertNotNull(s"Could not find module with name '$module2Name'", module2)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   override def tearDown(): Unit = try {

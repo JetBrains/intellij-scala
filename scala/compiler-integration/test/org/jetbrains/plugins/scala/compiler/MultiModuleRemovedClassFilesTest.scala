@@ -16,7 +16,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
@@ -24,9 +25,9 @@ class MultiModuleRemovedClassFilesTest(jdkVersion: TestJdkVersion) extends SbtPr
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1: Module = _
+  private var module1: Module = uninitialized
 
-  private var module2: Module = _
+  private var module2: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -55,7 +56,7 @@ class MultiModuleRemovedClassFilesTest(jdkVersion: TestJdkVersion) extends SbtPr
     assertNotNull("Could not find module with name 'root.module1'", module1)
     module2 = modules.find(_.getName == "root.module2").orNull
     assertNotNull("Could not find module with name 'root.module2'", module2)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

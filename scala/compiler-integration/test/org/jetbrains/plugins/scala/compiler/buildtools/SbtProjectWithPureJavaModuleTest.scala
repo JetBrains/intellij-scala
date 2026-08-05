@@ -75,7 +75,7 @@ abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, 
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val jdk21warnings = Set(
       "scala: source value 8 is obsolete and will be removed in a future release",

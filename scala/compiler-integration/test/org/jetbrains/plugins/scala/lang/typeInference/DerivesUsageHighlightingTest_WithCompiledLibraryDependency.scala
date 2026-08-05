@@ -4,7 +4,11 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrors
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceServiceFixture
 import org.jetbrains.plugins.scala.lang.typeInference.utils.SourcesCompileAndAttachLibraryFixture
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
@@ -13,11 +17,12 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  * This test is located in the compiler-integration module because it uses the Scala compiler (via `SourcesCompileAndAttachLibraryFixture`).<br>
  * The reference service is used to make that the test code depends on the decompiled code from a library
  */
+@RunWith(classOf[JUnit4])
 class DerivesUsageHighlightingTest_WithCompiledLibraryDependency extends ScalaCompilerReferenceServiceFixture {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
-  private var compiledLibraryFixture: SourcesCompileAndAttachLibraryFixture = _
+  private var compiledLibraryFixture: SourcesCompileAndAttachLibraryFixture = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -126,36 +131,37 @@ class DerivesUsageHighlightingTest_WithCompiledLibraryDependency extends ScalaCo
         |""".stripMargin
   )
 
+  @Test
   def testHighlighting_WithLibraryCode_InSameSources(): Unit = {
     withCodeInSameSources(Seq(barSourceFile, catsSupportSourceFile)) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)
     }
   }
-
+  @Test
   def testHighlighting_WithLibraryCode_InCompiledBinaries(): Unit = {
     withCompiledLibrary(Seq(barSourceFile, catsSupportSourceFile), allowWarnings = true) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)
     }
   }
-
+  @Test
   def testHighlighting_WithAliasedTypeclass_InSameSources(): Unit = {
     withCodeInSameSources(Seq(barSourceFile_WithAliasedTypeClass, catsSupportSourceFile)) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)
     }
   }
-
+  @Test
   def testHighlighting_WithAliasedTypeclass_InCompiledBinaries(): Unit = {
     withCompiledLibrary(Seq(barSourceFile_WithAliasedTypeClass, catsSupportSourceFile), allowWarnings = true) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)
     }
   }
-
+  @Test
   def testHighlighting_WithFullyQualifiedTypeclass_InSameSources(): Unit = {
     withCodeInSameSources(Seq(barSourceFile_WithFullyQualifiedTypeClass, catsSupportSourceFile)) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)
     }
   }
-
+  @Test
   def testHighlighting_WithFullyQualifiedTypeclass_InCompiledBinaries(): Unit = {
     withCompiledLibrary(Seq(barSourceFile_WithFullyQualifiedTypeClass, catsSupportSourceFile), allowWarnings = true) {
       assertNoCompilationOrHighlightingErrors(usageSourceFile)

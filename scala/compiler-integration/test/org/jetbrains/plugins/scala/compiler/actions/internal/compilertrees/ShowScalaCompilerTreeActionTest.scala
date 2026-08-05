@@ -17,7 +17,7 @@ import org.junit.ComparisonFailure
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{Future, Promise}
 
 @Category(Array(classOf[SlowTests]))
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {

@@ -15,12 +15,14 @@ import org.jetbrains.plugins.scala.util.{CompilerTestUtil, TestUtils}
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.experimental.categories.Category
 
+import scala.compiletime.uninitialized
+
 @Category(Array(classOf[HighlightingTests]))
 final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
   extends SbtExternalSystemImportingTestLike
     with AllProjectHighlightingTest {
 
-  protected var codeInsightFixture: CodeInsightTestFixture = _
+  protected var codeInsightFixture: CodeInsightTestFixture = uninitialized
 
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"

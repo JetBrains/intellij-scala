@@ -16,7 +16,7 @@ abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion, separatePro
     val project = getMyProject
     val modules = ModuleManager.getInstance(project).getModules
     rootModule = modules.find(_.getName == "root").orNull
-    compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     compiler.rebuild()
     assertUseModuleDisplayName(expectedValue, project)
   }

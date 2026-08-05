@@ -9,16 +9,17 @@ import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.junit.Assert.{assertNotSame, fail}
 
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 import scala.concurrent.Promise
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
@@ -33,9 +34,9 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
   private val IndexReadyTimeout: FiniteDuration = 60.seconds
 
-  protected var compiler: CompilerTester = _
+  protected var compiler: CompilerTester = uninitialized
 
-  private[this] val myLoaders = mutable.Set.empty[LibraryLoader]
+  private val myLoaders = mutable.Set.empty[LibraryLoader]
 
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
@@ -77,7 +78,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       module <- modules
       loader <- librariesLoaders
     } {
-      loader.init(module, version)
+      loader.init(using module, version)
       myLoaders += loader
     }
 
@@ -85,7 +86,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     for {
       module <- getProject.modules
       loader <- myLoaders
-    } loader.clean(module)
+    } loader.clean(using module)
 
     myLoaders.clear()
   }

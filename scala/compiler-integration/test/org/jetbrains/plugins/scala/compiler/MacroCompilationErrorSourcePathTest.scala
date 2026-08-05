@@ -92,7 +92,7 @@ class MacroCompilationErrorSourcePathTest(jdkVersion: TestJdkVersion) extends Sb
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 }
 

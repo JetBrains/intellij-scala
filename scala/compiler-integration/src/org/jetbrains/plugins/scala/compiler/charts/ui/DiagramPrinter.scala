@@ -273,7 +273,7 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     val textClip = new Rectangle2D.Double(clip.getX + DashLength, y - h, clip.getWidth, 2 * h)
     val text = " " + stringify(memory, showMb = last)
     val rendering = graphics.getTextRendering(textClip, text, SmallFont, HAlign.Left, VAlign.Center)
-    if (!currentMemoryRect.exists(_ intersects rendering.rect))
+    if (!currentMemoryRect.exists(_.intersects(rendering.rect)))
       graphics.printText(rendering, TextColor)
   }
 

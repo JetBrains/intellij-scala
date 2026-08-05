@@ -59,7 +59,7 @@ object ScalaExecutionTestUtils {
   }
 
   private def runCommand(command: String*): Try[String] = Try {
-    val process = new ProcessBuilder(command: _*)
+    val process = new ProcessBuilder(command*)
       .redirectErrorStream(true)
       .start()
 

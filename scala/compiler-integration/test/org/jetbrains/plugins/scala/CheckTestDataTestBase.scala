@@ -5,10 +5,14 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.TestData
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[CompilerHighlightingTests]))
 abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: ScalaVersion)
   extends ScalaCompilerTestBase {
@@ -33,6 +37,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
       .map(wrapIntoObject)
       .mkString("\n\n")
 
+  @Test
   def test(): Unit = {
     assert(testData.nonEmpty)
     if (testData.forall(_.isFailing))
@@ -43,7 +48,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
       compiler.make().assertNoProblems(allowWarnings = true)
     }
   }
-
+  @Test
   def test_failing(): Unit = {
     assert(testData.nonEmpty)
     val tests = testData.filter(_.isFailing)

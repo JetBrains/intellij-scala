@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests
 import org.junit.experimental.categories.Category
 
 import java.net.{URI, URL, URLClassLoader}
+import scala.compiletime.uninitialized
 
 /**
  * This test:
@@ -42,7 +43,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
   private var revertible: RevertableChange = RevertableChange.NoOpRevertableChange
 

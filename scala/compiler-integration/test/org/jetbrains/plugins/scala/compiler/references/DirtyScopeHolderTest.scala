@@ -9,7 +9,9 @@ import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.lang.CompoundRuntimeException
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.references.ScalaDirtyScopeHolder.ScopedModule
-import org.junit.Assert._
+import org.junit.Assert.*
+
+import scala.compiletime.uninitialized
 
 class DirtyScopeHolderTest_IdeaIncrementality extends DirtyScopeHolderTestBase {
   override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
@@ -20,13 +22,13 @@ class DirtyScopeHolderTest_SbtIncrementality extends DirtyScopeHolderTestBase {
 }
 
 abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFixture {
-  private[this] var moduleA: Module = _
-  private[this] var moduleB: Module = _
+  private var moduleA: Module = uninitialized
+  private var moduleB: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
-    moduleA = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]], "A", myFixture.getTempDirFixture.findOrCreateDir("A"))
-    moduleB = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]], "B", myFixture.getTempDirFixture.findOrCreateDir("B"))
+    moduleA = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]], "A", myFixture.getTempDirFixture.findOrCreateDir("A"))
+    moduleB = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]], "B", myFixture.getTempDirFixture.findOrCreateDir("B"))
     PsiTestUtil.addSourceRoot(moduleA, myFixture.getTempDirFixture.findOrCreateDir("A/test"), true)
     PsiTestUtil.addSourceRoot(moduleB, myFixture.getTempDirFixture.findOrCreateDir("B/test"), true)
     ModuleRootModificationUtil.addDependency(moduleA, getModule)
@@ -50,7 +52,7 @@ abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFix
     }
   }
 
-  private[this] def dirtyScopes: Set[ScopedModule] = ScalaCompilerReferenceService(getProject).getDirtyScopeHolder.dirtyScopes
+  private def dirtyScopes: Set[ScopedModule] = ScalaCompilerReferenceService(getProject).getDirtyScopeHolder.dirtyScopes
 
   private def moduleScopes(m: Module): Set[ScopedModule] = Set(ScopedModule.compile(m), ScopedModule.test(m))
 

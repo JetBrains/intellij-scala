@@ -18,10 +18,7 @@ import java.nio.file.{Files, Path}
 
 @RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
-abstract class IncrementalCompilationTestBase(
-  override protected val incrementalityType: IncrementalityType,
-  override protected val useCompileServer: Boolean
-) extends ScalaCompilerTestBase {
+abstract class IncrementalCompilationTestBase extends ScalaCompilerTestBase {
 
   @Test
   def testRecompileOnlyAffectedFiles(): Unit = {
@@ -220,8 +217,10 @@ abstract class IncrementalCompilationTestBase(
 // IDEA incremental compiler running in the Scala Compile Server
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-abstract class IncrementalIdeaOnServerCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
+abstract class IncrementalIdeaOnServerCompilationTest extends IncrementalCompilationTestBase {
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
+  override protected def useCompileServer: Boolean = true
+}
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10_6,
@@ -271,8 +270,10 @@ class IncrementalIdeaOnServerCompilationTest_Scala_3_Next_RC extends Incremental
 
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-abstract class IncrementalIdeaCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
+abstract class IncrementalIdeaCompilationTest extends IncrementalCompilationTestBase {
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
+  override protected def useCompileServer: Boolean = false
+}
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10_6,
@@ -321,8 +322,10 @@ class IncrementalIdeaCompilationTest_Scala_3_Next_RC extends IncrementalIdeaComp
 // SBT incremental compiler running in the Scala Compile Server
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-abstract class IncrementalSbtOnServerCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.SBT, useCompileServer = true) {
+abstract class IncrementalSbtOnServerCompilationTest extends IncrementalCompilationTestBase {
+
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
+  override protected def useCompileServer: Boolean = true
 
   @Test
   def testRecompileOnlyAffectedFilesScalaSpecific(): Unit = {
@@ -417,7 +420,7 @@ class IncrementalSbtOnServerCompilationTest_Scala_3_Next_RC extends IncrementalS
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 abstract class IncrementalSbtCompilationTest extends IncrementalSbtOnServerCompilationTest {
-  override protected val useCompileServer: Boolean = false
+  override protected def useCompileServer: Boolean = false
 }
 
 @RunWithScalaVersions(Array(

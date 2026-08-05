@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.{CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.experimental.categories.Category

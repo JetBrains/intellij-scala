@@ -4,6 +4,7 @@ import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.PhaseWithTreeText
 
 import scala.collection.mutable.ArrayBuffer
+import scala.compiletime.uninitialized
 
 /**
  * Parses Tasty output from compiler messages.
@@ -25,7 +26,7 @@ private class TastyStreamingParser(onPhaseDetected: PhaseWithTreeText => Unit) {
   private val TastyStartPattern = """\*{2,} pickled info of (.+)""".r
   private val TastyEndPattern = """\*{2,} end of pickled info of (.+)""".r
 
-  private var currentEntityName: String = _
+  private var currentEntityName: String = uninitialized
   private val intermediateContent = ArrayBuffer[String]()
 
   /**

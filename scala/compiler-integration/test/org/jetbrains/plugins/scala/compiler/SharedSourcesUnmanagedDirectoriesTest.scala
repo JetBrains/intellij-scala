@@ -13,7 +13,8 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
@@ -21,11 +22,11 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1: Module = _
+  private var module1: Module = uninitialized
 
-  private var module2: Module = _
+  private var module2: Module = uninitialized
 
-  private var module3: Module = _
+  private var module3: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -62,7 +63,7 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
     assertNotNull("Could not find module with name 'root.module2'", module2)
     module3 = modules.find(_.getName == "root.module3").orNull
     assertNotNull("Could not find module with name 'root.module3'", module3)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

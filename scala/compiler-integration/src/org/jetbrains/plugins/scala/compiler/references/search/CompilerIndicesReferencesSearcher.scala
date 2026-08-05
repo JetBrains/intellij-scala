@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.task.ProjectTaskManager
 import com.intellij.util.Processor
@@ -16,23 +16,24 @@ import com.intellij.util.messages.MessageBusConnection
 import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ModuleScope, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.SAMType
 import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
 
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.compiler.references.indices.ScalaCompilerIndices
-import org.jetbrains.plugins.scala.compiler.references.search.ImplicitUsagesSearchDialogs._
-import org.jetbrains.plugins.scala.compiler.references.search.UsageToPsiElements._
+import org.jetbrains.plugins.scala.compiler.references.search.ImplicitUsagesSearchDialogs.*
+import org.jetbrains.plugins.scala.compiler.references.search.UsageToPsiElements.*
 import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandler}
 import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
-import org.jetbrains.plugins.scala.util.ImplicitUtil._
+import org.jetbrains.plugins.scala.util.ImplicitUtil.*
 import org.jetbrains.sbt.project.settings.CompilerMode
 
 import java.util.concurrent.locks.ReentrantLock
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 private class CompilerIndicesReferencesSearcher
   extends CompilerIndicesSearcher[
@@ -43,7 +44,7 @@ private class CompilerIndicesReferencesSearcher
 
   override def processQuery(
     parameters: CompilerIndicesReferencesSearch.SearchParameters,
-    consumer:   Processor[_ >: PsiReference]
+    consumer:   Processor[? >: PsiReference]
   ): Unit = {
     val target  = parameters.element
     val project = target.getProject
@@ -57,7 +58,7 @@ private class CompilerIndicesReferencesSearcher
       usage:              UsagesInFile,
       isPossiblyOutDated: Boolean,
       candidates:         ElementsInContext,
-      processor:          Processor[_ >: PsiReference]
+      processor:          Processor[? >: PsiReference]
     ): Boolean = {
       val ElementsInContext(elements, file, doc) = candidates
 
@@ -82,7 +83,7 @@ private class CompilerIndicesReferencesSearcher
 
 //noinspection ApiStatus
 object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
-  private[this] var pendingConnection: MessageBusConnection = _
+  private var pendingConnection: MessageBusConnection = uninitialized
 
   private sealed trait BeforeIndicesSearchAction {
     def runAction(): Boolean
@@ -107,7 +108,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
         case (CompilerMode.JPS, _) =>
           val manager = ProjectTaskManager.getInstance(project)
           runSearchAfterIndexingFinishedAsync(modules, project, target)
-          manager.build(modules.toArray: _*)
+          manager.build(modules.toArray*)
           false
         case (CompilerMode.SBT, _) =>
           // SCL-22858 compiler bytecode indices are disabled in sbt shell
@@ -128,7 +129,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
           if (modules.nonEmpty) {
             val manager = ProjectTaskManager.getInstance(project)
             runSearchAfterIndexingFinishedAsync(modules, project, target)
-            manager.build(modules.toArray: _*)
+            manager.build(modules.toArray*)
             false
           } else true
         case (CompilerMode.SBT, _) =>
@@ -139,10 +140,10 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     }
   }
 
-  private[this] val lock                      = new ReentrantLock()
-  private[this] val indexingFinishedCondition = lock.newCondition()
+  private val lock                      = new ReentrantLock()
+  private val indexingFinishedCondition = lock.newCondition()
 
-  private[this] def showProgressIndicator(project: Project): Unit = {
+  private def showProgressIndicator(project: Project): Unit = {
     val awaitIndexing = task(project, CompilerIntegrationBundle.message("bytecode.indices.progress.title")) { _ =>
       lock.withLock(indexingFinishedCondition.awaitUninterruptibly())
     }
@@ -154,7 +155,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     * [[org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory]] (and hence the
     * scope check in [[checkSearchScopeIsSufficient]]), so it does not recurse. Must be called on the EDT.
     */
-  private[this] def runFindUsages(project: Project, target: PsiElement): Unit = {
+  private def runFindUsages(project: Project, target: PsiElement): Unit = {
     val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
     val config      = ScalaFindUsagesConfiguration.getInstance(project)
 
@@ -174,7 +175,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     }
   }
 
-  private[this] def runSearchAfterIndexingFinishedAsync(
+  private def runSearchAfterIndexingFinishedAsync(
     targetModules: Iterable[Module],
     project:       Project,
     target:        PsiElement
@@ -187,7 +188,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     pendingConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-      private[this] val modulesInCurrentBuild = ContainerUtil.newConcurrentSet[(String, ModuleScope)]
+      private val modulesInCurrentBuild = ContainerUtil.newConcurrentSet[(String, ModuleScope)]
 
       modulesInCurrentBuild.addAll(targetModules.collect {
         case module if module.isSourceModule => module.getName
@@ -249,7 +250,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     }
   }
 
-  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
+  private def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
     val project          = element.getProject
     val file             = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
     val index            = ProjectFileIndex.getInstance(project)
@@ -272,12 +273,12 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     modules.partition(dirtyScopes.isSearchInModuleContent)
   }
 
-  private[this] def showIndexingInProgressDialog(project: Project): Unit = {
+  private def showIndexingInProgressDialog(project: Project): Unit = {
     val message = CompilerIntegrationBundle.message("bytecode.indices.unavailable")
     Messages.showInfoMessage(project, message, CompilerIntegrationBundle.message("bytecode.indices.in.progress"))
   }
 
-  private[this] def showRebuildSuggestionDialog(
+  private def showRebuildSuggestionDialog(
     project:          Project,
     dirtyModules:     Set[Module],
     upToDateModules:  Set[Module],

@@ -92,7 +92,7 @@ class ScalaJpsProjectMetadataTest {
   private def generateJson(moduleNames: Set[String], useModuleDisplayName: Boolean): JsValue = {
     import ScalaJpsProjectMetadataConstants.ModulesWithScalaSdkElement
     JsObject(
-      ModulesWithScalaSdkElement -> JsArray(moduleNames.toSeq.map(_.toJson): _*),
+      ModulesWithScalaSdkElement -> JsArray(moduleNames.toSeq.map(_.toJson)*),
       UseModuleDisplayNameElement -> JsBoolean(useModuleDisplayName)
     )
   }

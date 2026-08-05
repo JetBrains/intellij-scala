@@ -19,7 +19,7 @@ class CompilerIndicesReferencesSearch private ()
 
 //noinspection ApiStatus
 object CompilerIndicesReferencesSearch extends ExternalReferenceSearcher {
-  private[this] val instance = new CompilerIndicesReferencesSearch
+  private val instance = new CompilerIndicesReferencesSearch
 
   def search(
     target:          PsiNamedElement,

@@ -16,6 +16,7 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @RunWith(classOf[Parameterized])
@@ -24,9 +25,9 @@ class MissingScalaSdkCompilationTest(jdkVersion: TestJdkVersion)
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1: Module = _
-  private var module2: Module = _
-  private var module3: Module = _
+  private var module1: Module = uninitialized
+  private var module2: Module = uninitialized
+  private var module3: Module = uninitialized
 
   @Test
   @Category(Array(classOf[CompilationTests_Zinc]))
@@ -68,7 +69,7 @@ class MissingScalaSdkCompilationTest(jdkVersion: TestJdkVersion)
     module1 = findModule("missingScalaSdkTest.module1.main", modules)
     module2 = findModule("missingScalaSdkTest.module2.main", modules)
     module3 = findModule("missingScalaSdkTest.module3.main", modules)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     removeScalaSdk(module2)
     removeScalaSdk(module3)

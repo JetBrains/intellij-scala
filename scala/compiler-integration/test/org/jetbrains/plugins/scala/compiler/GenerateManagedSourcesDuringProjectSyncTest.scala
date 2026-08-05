@@ -94,7 +94,7 @@ abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTe
       else "generateManagedSourcesDuringProjectSyncTest"
     rootModule = modules.find(_.getName == moduleName).orNull
     assertNotNull(s"Could not find module with name '$moduleName'", rootModule)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 }
 
