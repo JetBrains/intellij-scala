@@ -1,15 +1,14 @@
 import coursier.cache.FileCache
-import coursier.core.Dependency
+import coursier.core.{Dependency, MinimizedExclusions}
 import coursier.ivy.IvyRepository
-import coursier.maven.{MavenRepository, SbtMavenRepository}
-import coursier.{Fetch, LocalRepositories, Module, ModuleName, Organization, Repository, moduleNameString, organizationString, util}
+import coursier.maven.MavenRepository
+import coursier.{Fetch, Module, ModuleName, Organization, moduleNameString, organizationString, util}
 import sbt.*
 import sbt.Keys.target
 import sbt.librarymanagement.CrossVersion
 
 import java.net.URI
 import java.nio.file.{Files, Path}
-import scala.annotation.nowarn
 import scala.util.matching.Regex
 
 /**
@@ -35,9 +34,8 @@ object LocalRepoPackager extends AutoPlugin {
    */
   def updateLocalRepo(dependencies: Seq[Dependency], projectTargetDir: Path): Seq[(Path, Path)] = {
 
-    @nowarn("cat=deprecation")
     val depsWithExclusions = dependencies
-      .map(_.withExclusions(Set((org"org.scala-lang", name"scala-library"))))
+      .map(_.withMinimizedExclusions(MinimizedExclusions(Set((org"org.scala-lang", name"scala-library")))))
 
     val fetch: Fetch[util.Task] = Fetch()
       .withRepositories(Common.repositories)
