@@ -27,12 +27,6 @@ object LocalRepoPackager extends AutoPlugin {
     )
   )
 
-  private val repositories: Seq[Repository] = Seq(
-    LocalRepositories.ivy2Local,
-    MavenRepository("https://cache-redirector.jetbrains.com/maven-central"),
-    SbtMavenRepository("https://cache-redirector.jetbrains.com/maven-central")
-  )
-
   /**
    * Create or update a local repository at `localRepoRoot` with given `dependencies`
    * and return the set of path it comprises.
@@ -46,7 +40,7 @@ object LocalRepoPackager extends AutoPlugin {
       .map(_.withExclusions(Set((org"org.scala-lang", name"scala-library"))))
 
     val fetch: Fetch[util.Task] = Fetch()
-      .withRepositories(repositories)
+      .withRepositories(Common.repositories)
       .withDependencies(depsWithExclusions)
       .allArtifactTypes()
       .withMainArtifacts()
@@ -199,7 +193,7 @@ object LocalRepoPackager extends AutoPlugin {
 
   def relativeJarPath(dep: Dependency): Path = {
     val fetch = Fetch()
-      .withRepositories(repositories)
+      .withRepositories(Common.repositories)
       .addDependencies(dep)
       .noExtraArtifacts()
 

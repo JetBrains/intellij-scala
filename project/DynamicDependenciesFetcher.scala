@@ -37,8 +37,16 @@ object DynamicDependenciesFetcher extends AutoPlugin {
 
   private def fetchDynamicDependency(dependency: DynamicDependency): Path = {
     val fetch = dependency match {
-      case DynamicDependency.Binary(dep) => Fetch().withDependencies(Seq(dep)).noExtraArtifacts()
-      case DynamicDependency.Source(dep) => Fetch().withDependencies(Seq(dep)).withClassifiers(Set(Classifier.sources))
+      case DynamicDependency.Binary(dep) =>
+        Fetch()
+          .withRepositories(Common.repositories)
+          .withDependencies(Seq(dep))
+          .noExtraArtifacts()
+      case DynamicDependency.Source(dep) =>
+        Fetch()
+          .withRepositories(Common.repositories)
+          .withDependencies(Seq(dep))
+          .withClassifiers(Set(Classifier.sources))
     }
     val fetched = fetch.runResult().detailedArtifacts
     fetched.find(_._1.moduleVersion == dependency.dep.moduleVersion).map(_._4).get.toPath

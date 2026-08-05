@@ -1,6 +1,8 @@
 import AttributedClasspathUtils.buildIntellijSdkSubsetAttributedClasspath
 import CompilationCache.compilationCacheSettings
 import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
+import coursier.maven.{MavenRepository, SbtMavenRepository}
+import coursier.{LocalRepositories, Repository}
 import org.jetbrains.sbt.kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
 import org.jetbrains.sbt.kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
@@ -13,6 +15,12 @@ import java.nio.file.Path
 
 object Common {
   final val JetBrains = "JetBrains"
+
+  val repositories: Seq[Repository] = Seq(
+    LocalRepositories.ivy2Local,
+    MavenRepository("https://cache-redirector.jetbrains.com/maven-central"),
+    SbtMavenRepository("https://cache-redirector.jetbrains.com/maven-central")
+  )
 
   /**
    * Tells the IntelliJ test framework to write per-test log dumps to separate files instead of printing the
