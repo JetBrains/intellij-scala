@@ -1,7 +1,7 @@
 import coursier.cache.FileCache
 import coursier.core.{Dependency, MinimizedExclusions}
 import coursier.ivy.IvyRepository
-import coursier.maven.MavenRepository
+import coursier.maven.MavenRepositoryLike
 import coursier.{Fetch, Module, ModuleName, Organization, moduleNameString, organizationString, util}
 import sbt.*
 import sbt.Keys.target
@@ -52,7 +52,7 @@ object LocalRepoPackager extends AutoPlugin {
     val fetched = fetch.run().map(_.toPath)
     for {
       src <- fetched
-      root <- repositoryRoots(fetch, src)
+      root = repositoryRoot(fetch, src)
       mapping <- createFileMappings(root, src, projectTargetDir)
     } yield mapping
   }
@@ -200,12 +200,9 @@ object LocalRepoPackager extends AutoPlugin {
       .detailedArtifacts
       .find(_._1.moduleVersion == dep.moduleVersion)
       .map(_._4.toPath)
+      .getOrElse(sys.error(s"Could not find an artifact for $dep in the fetch result"))
 
-    val res: Seq[Path] = for {
-      artifact <- artifact.toSeq
-      root <- repositoryRoots(fetch, artifact)
-    } yield root.relativize(artifact)
-    res.head
+    repositoryRoot(fetch, artifact).relativize(artifact)
   }
 
   // Q: this method logic looks very similar to sbt.Defaults.sbtPluginExtra. Can we somehow reuse it?
@@ -245,27 +242,39 @@ object LocalRepoPackager extends AutoPlugin {
     )
   }
 
-  private def repositoryRoots(fetch: Fetch[coursier.util.Task], artifact: Path): Seq[Path] = {
+  /**
+   * Determine the root directory on disk under which the given `artifact` is stored,
+   * among the roots of the repositories configured in `fetch`.
+   */
+  private def repositoryRoot(fetch: Fetch[coursier.util.Task], artifact: Path): Path = {
     val cacheRoot = fetch.cache.asInstanceOf[FileCache[Any]].location.toPath
 
     //we check for ivy, mainly for artifacts published locally for testing purposes
     val isFromIvy = artifact.toString.contains(".ivy2")
-    if (isFromIvy)
-      fetch.repositories.collect {
-        case repo: IvyRepository =>
-          val rootStr = repo.pattern.chunks.collectFirst { case c if c.string.contains("file:/") => c.string }.getOrElse {
-            throw new RuntimeException(s"Can't determine .ivy2 root for coursier repo $repo, for artifact $artifact")
-          }
-          val root = new URI(rootStr)
-          Path.of(root)
-      }
-    else
-      fetch.repositories.collect {
-        case repo: MavenRepository =>
-          val root = new URI(repo.root)
-          val relativeRepoRoot = Path.of(root.getScheme, root.getSchemeSpecificPart)
-          cacheRoot.resolve(relativeRepoRoot)
-      }
+    val candidateRoots =
+      if (isFromIvy)
+        fetch.repositories.collect {
+          case repo: IvyRepository =>
+            val rootStr = repo.pattern.chunks.collectFirst { case c if c.string.contains("file:/") => c.string }.getOrElse {
+              sys.error(s"Can't determine .ivy2 root for coursier repo $repo, for artifact $artifact")
+            }
+            val root = new URI(rootStr)
+            Path.of(root)
+        }
+      else
+        fetch.repositories.collect {
+          case repo: MavenRepositoryLike =>
+            val root = new URI(repo.root)
+            val relativeRepoRoot = Path.of(root.getScheme, root.getSchemeSpecificPart)
+            cacheRoot.resolve(relativeRepoRoot)
+        }
+
+    // The artifact is stored under exactly one of the candidate roots.
+    // Prefer the deepest matching root in case the roots are nested.
+    val matching = candidateRoots.filter(artifact.startsWith)
+    if (matching.isEmpty)
+      sys.error(s"Could not determine the repository root of artifact $artifact (repositories: ${fetch.repositories})")
+    matching.maxBy(_.getNameCount)
   }
 
 }
