@@ -1,4 +1,0 @@
-[repositories]
-  local
-  jetbrains-maven-central: https://cache-redirector.jetbrains.com/maven-central
-  maven-central: https://repo1.maven.org/maven2/
