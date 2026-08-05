@@ -213,6 +213,30 @@ object Compatibility {
       }
     }
 
+    /**
+     * The result type of an implicit conversion has to be ''more specific'' than the expected type,
+     * which is never the case for `AnyRef`/`java.lang.Object` (and, since Scala 2.11, `AnyVal`).
+     * The compiler therefore doesn't even search for a conversion in that case:
+     * {{{
+     *   val x: AnyRef = 1L // error: the result type of an implicit conversion must be more specific than AnyRef
+     * }}}
+     *
+     * Just like the compiler (SI-10206) we compare the type itself instead of using conformance,
+     * so that structural supertypes of `AnyRef` (e.g. `AnyRef { def foo: Int }`) are not affected.
+     *
+     * @see `scala.tools.nsc.typechecker.Implicits.ImplicitSearch#bestImplicit` in Scala 2
+     * @see `dotty.tools.dotc.typer.Implicits#viewExists` in Scala 3
+     */
+    private def isTooGeneralForImplicitConversion(expectedType: ScType): Boolean = {
+      val stdTypes = expectedType.projectContext.stdTypes
+      expectedType match {
+        case stdTypes.AnyRef   => true
+        case stdTypes.AnyVal   => place.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_11
+        case _: ScCompoundType => false
+        case _                 => expectedType.extractClass.exists(_.qualifiedName == CommonClassNames.JAVA_LANG_OBJECT)
+      }
+    }
+
     final def updateTypeWithImplicitConversion(
       tpe: ScType,
       expectedType: ScType
@@ -228,31 +252,36 @@ object Compatibility {
             tpe
         }
 
-      val functionType = FunctionType(expectedType, Seq(afterNTtoTConversion))
+      val fromImplicit = {
+        if (isTooGeneralForImplicitConversion(expectedType)) None
+        else {
+          val functionType = FunctionType(expectedType, Seq(afterNTtoTConversion))
 
-      val implicitCollector = new ImplicitCollector(
-        place,
-        functionType,
-        functionType,
-        None,
-        isImplicitConversion = true
-      )
+          val implicitCollector = new ImplicitCollector(
+            place,
+            functionType,
+            functionType,
+            None,
+            isImplicitConversion = true
+          )
 
-      val fromImplicit = implicitCollector.collect() match {
-        case Seq(res) =>
-          extractImplicitParameterType(res).flatMap {
-            case FunctionType(rt, Seq(_)) => Some(rt)
-            case paramType =>
-              elementScope.cachedFunction1Type.flatMap { functionType =>
-                paramType.conforms(functionType, ConstraintSystem.empty) match {
-                  case ConstraintSystem(substitutor) =>
-                    Some(substitutor(functionType.typeArguments(1)))
-                  case _ =>
-                    None
-                }
-              }.filterNot(_.is[UndefinedType])
-          }.map(_ -> res)
-        case _ => None
+          implicitCollector.collect() match {
+            case Seq(res) =>
+              extractImplicitParameterType(res).flatMap {
+                case FunctionType(rt, Seq(_)) => Some(rt)
+                case paramType =>
+                  elementScope.cachedFunction1Type.flatMap { functionType =>
+                    paramType.conforms(functionType, ConstraintSystem.empty) match {
+                      case ConstraintSystem(substitutor) =>
+                        Some(substitutor(functionType.typeArguments(1)))
+                      case _ =>
+                        None
+                    }
+                  }.filterNot(_.is[UndefinedType])
+              }.map(_ -> res)
+            case _ => None
+          }
+        }
       }
 
       fromImplicit match {
