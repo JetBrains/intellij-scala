@@ -40,7 +40,7 @@ object SbtVersion {
     val Sbt_1_12 = SbtVersion("1.12.14")
 
     val Sbt_1: SbtVersion = Sbt_1_12
-    val Sbt_2: SbtVersion = SbtVersion("2.0.3")
+    val Sbt_2: SbtVersion = SbtVersion("2.0.5")
 
     val Sbt_LatestIncludingUnreleased: SbtVersion = Sbt_2
 
