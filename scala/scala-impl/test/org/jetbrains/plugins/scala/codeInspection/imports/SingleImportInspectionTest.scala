@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.imports
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.extensions.TextRangeExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
 
@@ -11,8 +14,24 @@ abstract class SingleImportInspectionTestBase extends ScalaInspectionTestBase {
 
   override val description = ScalaInspectionBundle.message("single.import")
 
+  /** Only the braces themselves are highlighted, see SCL-25732 */
+  private def checkBracesHaveError(code: String): Unit = {
+    val expectedHighlights = configureByText(code)
+    val actualHighlights = findMatchingHighlightings(code)
+    val ExpectedHighlight(range) = expectedHighlights.head
+    val expectedBraceHighlights = {
+      val left = TextRange.from(range.getStartOffset, 1)
+      val right = TextRange.from(range.getEndOffset - 1, 1)
+      val ranges =
+        if (range.getLength >= 4) Seq(left, range.shrink(2), right)
+        else Seq(left, right)
+      ranges.map(ExpectedHighlight)
+    }
+    assertTextHasError(expectedBraceHighlights, actualHighlights, allowAdditionalHighlights = false)
+  }
+
   def doTest(code: String, expe: String): Unit = {
-    checkTextHasError(code)
+    checkBracesHaveError(code)
     testQuickFix(
       code.replace(START, "").replace(END, ""),
       expe,
