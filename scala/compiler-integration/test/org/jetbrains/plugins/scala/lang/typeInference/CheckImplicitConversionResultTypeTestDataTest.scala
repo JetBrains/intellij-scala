@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.lang.typeInference
+
+import org.jetbrains.plugins.scala.{CheckTestDataTestBase, LatestScalaVersions}
+
+class CheckImplicitConversionResultTypeTestDataTest extends CheckTestDataTestBase(ImplicitConversionResultTypeTest.testData, LatestScalaVersions.Scala_2)
