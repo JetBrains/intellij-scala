@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 
 import java.io.IOException
 
-final class ScalaDocLexer() extends MergingLexerAdapter(
+final class ScalaDocLexer extends MergingLexerAdapter(
   new ScalaDocAsteriskStripperLexer(new _ScalaDocLexer),
   ScalaDocLexer.TokensToMerge
 )
