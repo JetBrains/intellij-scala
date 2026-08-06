@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 import com.intellij.lang.*;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.ILazyParseableElementType;
 import com.intellij.psi.tree.TokenSet;
@@ -12,12 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.Scala3Language;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocReferenceLinkImpl;
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
-import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
+import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocMarkdownAwareParserDefinition;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,14 +35,6 @@ public interface ScalaDocElementTypes {
             parser.parse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK, builder);
             return builder.getTreeBuilt().getFirstChildNode();
         }
-
-        @Nullable
-        @Override
-        public ASTNode createNode(CharSequence text) {
-            return text != null ?
-                    new ScDocReferenceLinkImpl(this, text) :
-                    null;
-        }
     };
 
     /**
@@ -61,31 +49,31 @@ public interface ScalaDocElementTypes {
         @Override
         @Nullable
         public ASTNode parseContents(@NotNull ASTNode lazyNode) {
-            Project project = JavaPsiFacade.getInstance(lazyNode.getTreeParent().getPsi().getProject()).getProject();
+            Project project = lazyNode.getTreeParent().getPsi().getProject();
 
             Language language = getLanguage();
             ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language);
 
-            if (parserDefinition instanceof ScalaDocParserDefinition) {
+            if (parserDefinition instanceof ScalaDocMarkdownAwareParserDefinition scalaDocParserDefinition) {
                 boolean isMarkdown = isMarkdown(lazyNode);
 
                 PsiBuilder builder = PsiBuilderFactory.getInstance()
                         .createBuilder(
                                 project,
                                 lazyNode,
-                                ((ScalaDocParserDefinition) parserDefinition).createLexerWithFlavour(project, isMarkdown),
+                                scalaDocParserDefinition.createLexerWithFlavour(project, isMarkdown),
                                 language,
                                 lazyNode.getText()
                         );
 
-                ASTNode node = ((ScalaDocParserDefinition) parserDefinition)
+                ASTNode node = scalaDocParserDefinition
                         .createParserWithFlavour(project, isMarkdown)
                         .parse(this, builder)
                         .getFirstChildNode();
 
                 // Hand Markdown text over to the first child node
                 // We can't put it on the parent because it doesn't exist yet
-                node.putUserData(ScaladocMarkdownParsing.MARKDOWN_DATA(), builder.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA()));
+                scalaDocParserDefinition.attachMarkdownDataToNode(node, builder);
                 return node;
             } else {
                 PsiBuilder builder = PsiBuilderFactory.getInstance()
@@ -127,14 +115,6 @@ public interface ScalaDocElementTypes {
                     .getContainingFile()
                     .getLanguage()
                     .isKindOf(Scala3Language.INSTANCE);
-        }
-
-        @Nullable
-        @Override
-        public ASTNode createNode(CharSequence text) {
-            return text != null ?
-                    new ScDocCommentImpl(text, this) :
-                    null;
         }
     };
 

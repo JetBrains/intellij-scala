@@ -174,6 +174,9 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
   )
 
 lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+  .settings(
+    intellijPlugins += "com.intellij.xml".toPlugin,
+  )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(

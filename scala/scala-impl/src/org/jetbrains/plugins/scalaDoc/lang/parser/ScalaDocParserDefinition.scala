@@ -4,7 +4,7 @@ package parser
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
+import com.intellij.lang.{ASTNode, PsiBuilder, PsiParser}
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
@@ -15,11 +15,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocMarkdownLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.TagNames
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInlinedTag, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl._
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition.isInsideJavaLinkTag
 
-class ScalaDocParserDefinition extends ParserDefinition {
+class ScalaDocParserDefinition extends ScalaDocMarkdownAwareParserDefinition {
 
   import ScalaDocElementTypes._
   import ScalaDocParserDefinition.isInsideThrowsTag
@@ -27,17 +28,19 @@ class ScalaDocParserDefinition extends ParserDefinition {
 
   override val getFileNodeType = new IFileElementType(ScalaDocLanguage.INSTANCE)
 
+  // TODO: extract token sets into a separate interface.
+  //       related inspection: TokenSetInParserDefinitionInspection
   //noinspection TypeAnnotation
   override val getCommentTokens = TokenSet.create(SCALA_DOC_COMMENT)
 
   //noinspection TypeAnnotation
   override val getStringLiteralElements = TokenSet.create()
 
-  def createLexerWithFlavour(project: Project, isMarkdown: Boolean): Lexer = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
+  override def createLexerWithFlavour(project: Project, isMarkdown: Boolean): Lexer = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
 
   override def createLexer(project: Project): Lexer = createLexerWithFlavour(project, isMarkdown = false /* fallback is no Markdown */)
 
-  def createParserWithFlavour(project: Project, isMarkdown: Boolean): PsiParser = {
+  override def createParserWithFlavour(project: Project, isMarkdown: Boolean): PsiParser = {
     val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
     new ScalaDocParser(tabSize, isMarkdown)
   }
@@ -89,6 +92,9 @@ class ScalaDocParserDefinition extends ParserDefinition {
   }
 
   override def createFile(viewProvider: FileViewProvider): PsiFile = null
+
+  override def attachMarkdownDataToNode(node: ASTNode, builder: PsiBuilder): Unit =
+    node.putUserData(ScaladocMarkdownParsing.MARKDOWN_DATA, builder.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA))
 }
 
 object ScalaDocParserDefinition {
