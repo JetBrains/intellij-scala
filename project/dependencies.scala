@@ -223,7 +223,7 @@ object Dependencies {
   val intellijUastTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "uast-test-framework" % IntellijTestFrameworkVersion).notTransitive()
 
   val intellijTeamCityTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-team-city" % IntellijTestFrameworkVersion).notTransitive()
-  val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "2.0.17" // Necessary as a test dependency for the "external-system-test-framework".
+  val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "2.0.18" // Necessary as a test dependency for the "external-system-test-framework".
   val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % IntellijTestFrameworkVersion).notTransitive()
   val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % IntellijTestFrameworkVersion).notTransitive()
   val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % IntellijTestFrameworkVersion).notTransitive.notTransitive()
