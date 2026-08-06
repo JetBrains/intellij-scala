@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class IntellilangBundle extends DynamicBundle {
+public final class IntellilangBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaIntellilangBundle";
-
-    private static final IntellilangBundle INSTANCE = new IntellilangBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(IntellilangBundle.class, BUNDLE);
 
     private IntellilangBundle() {
-        super(BUNDLE);
     }
 
     @Nls

@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class PackageSearchSbtBundle extends DynamicBundle {
+public final class PackageSearchSbtBundle {
     @NonNls
     private static final String BUNDLE = "messages.PackageSearchSbtBundle";
-
-    private static final PackageSearchSbtBundle INSTANCE = new PackageSearchSbtBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(PackageSearchSbtBundle.class, BUNDLE);
 
     private PackageSearchSbtBundle() {
-        super(BUNDLE);
     }
 
     @Nls

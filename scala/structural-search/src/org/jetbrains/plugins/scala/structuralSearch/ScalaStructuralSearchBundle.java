@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class ScalaStructuralSearchBundle extends DynamicBundle {
+public class ScalaStructuralSearchBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaStructuralSearchBundle";
-
-    private static final ScalaStructuralSearchBundle INSTANCE = new ScalaStructuralSearchBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(ScalaStructuralSearchBundle.class, BUNDLE);
 
     private ScalaStructuralSearchBundle() {
-        super(BUNDLE);
     }
 
     @Nls
