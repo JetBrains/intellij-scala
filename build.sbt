@@ -99,6 +99,8 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaApi % "test->test;compile->compile",
+      scalaPsiApi % "test->test;compile->compile",
+      scalaPsiImpl % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
@@ -177,6 +179,12 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
   .settings(
     intellijPlugins += "com.intellij.xml".toPlugin,
   )
+
+lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
+  .dependsOn(scalaApi)
+
+lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"))
+  .dependsOn(scalaPsiApi)
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
@@ -408,6 +416,7 @@ lazy val scalaImpl: sbt.Project =
       scalaApi,
       scalaLanguageUtils,
       scalafmtDynamicShim,
+      scalaPsiImpl,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
