@@ -4,10 +4,9 @@ import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.dataFlow.jvm.descriptors.JvmVariableDescriptor
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.DfaVariableValue
-import com.intellij.codeInspection.dataFlow.DfaPsiUtil
 import com.intellij.psi.{PsiElement, PsiModifierListOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableElement, scTypeToDfType}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{elementNullabilityForRead, isStableElement, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -29,7 +28,7 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement,
       val scType = typeable.`type`().getOrAny
       val nullability = variable match {
         case owner: PsiModifierListOwner =>
-          DfaPsiUtil.getElementNullabilityForRead(scType.toPsiType, owner)
+          elementNullabilityForRead(scType, Some(owner))
         case _ => Nullability.UNKNOWN
       }
       scTypeToDfType(scType, nullability)
