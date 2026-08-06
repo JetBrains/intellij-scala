@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class WorksheetBundle extends DynamicBundle {
+public final class WorksheetBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaWorksheetBundle";
-
-    private static final WorksheetBundle INSTANCE = new WorksheetBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(WorksheetBundle.class, BUNDLE);
 
     private WorksheetBundle() {
-        super(BUNDLE);
     }
 
     @Nls

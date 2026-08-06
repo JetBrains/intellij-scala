@@ -5,15 +5,16 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class ScalaOptionsBundle extends DynamicBundle {
+public final class ScalaOptionsBundle {
     @NonNls
-    public static final String BUNDLE = "messages.ScalaOptionsBundle";
-    public static final ScalaOptionsBundle INSTANCE = new ScalaOptionsBundle();
+    private static final String BUNDLE = "messages.ScalaOptionsBundle";
+    private static final DynamicBundle INSTANCE = new DynamicBundle(ScalaOptionsBundle.class, BUNDLE);
 
-    private ScalaOptionsBundle() { super(BUNDLE); }
+    private ScalaOptionsBundle() {
+    }
 
     @NotNull
-    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,  @NotNull Object... params) {
+    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
         return INSTANCE.getMessage(key, params);
     }
 }

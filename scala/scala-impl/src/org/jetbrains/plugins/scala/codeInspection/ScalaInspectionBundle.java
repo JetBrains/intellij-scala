@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class ScalaInspectionBundle extends DynamicBundle {
+public final class ScalaInspectionBundle {
   @NonNls
   private static final String BUNDLE = "messages.ScalaInspectionBundle";
-
-  private static final ScalaInspectionBundle INSTANCE = new ScalaInspectionBundle();
+  private static final DynamicBundle INSTANCE = new DynamicBundle(ScalaInspectionBundle.class, BUNDLE);
 
   private ScalaInspectionBundle() {
-    super(BUNDLE);
   }
 
   @Nls

@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class ScalaCodeInsightBundle extends DynamicBundle {
+public final class ScalaCodeInsightBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaCodeInsightBundle";
-
-    private static final ScalaCodeInsightBundle INSTANCE = new ScalaCodeInsightBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(ScalaCodeInsightBundle.class, BUNDLE);
 
     private ScalaCodeInsightBundle() {
-        super(BUNDLE);
     }
 
     @Nls
