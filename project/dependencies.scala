@@ -128,7 +128,7 @@ object Dependencies {
   val coursierPaths: ModuleID = "io.get-coursier" % "coursier-paths" % "2.1.25-M26"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
-  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2-1"
+  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.1.0"
 
   val structureExtractor_0_13: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_0_13)
   val structureExtractor_1_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_0)
