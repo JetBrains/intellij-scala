@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scalaDirective
-package lang
-package parser
+package org.jetbrains.plugins.scalaDirective.lang.parser
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
@@ -8,6 +6,7 @@ import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage
 import org.jetbrains.plugins.scalaDirective.lang.lexer._ScalaDirectiveLexer
 
 class ScalaDirectiveParserDefinition extends ParserDefinition {

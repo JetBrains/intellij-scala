@@ -186,6 +186,13 @@ lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
 
 lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"))
   .dependsOn(scalaPsiApi)
+  .settings(
+    Compile / scalacOptions ++= Seq(
+      "-no-indent",
+      "-Wconf:msg=Non local returns are no longer supported:s",
+    ),
+    intellijPlugins += "com.intellij.xml".toPlugin,
+  )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
@@ -533,7 +540,7 @@ lazy val scalafmtDynamicShim: sbt.Project =
     )
 
 /**
- * Same as [[scalaLanguageUtils]], but utilities from this module can be used form both IntelliJ IDEA process and JPS process.
+ * Same as [[scalaLanguageUtils]], but utilities from this module can be used from both IntelliJ IDEA process and JPS process.
  * Keep this module as small as possible with no other dependencies
  */
 lazy val scalaLanguageUtilsRt: sbt.Project =

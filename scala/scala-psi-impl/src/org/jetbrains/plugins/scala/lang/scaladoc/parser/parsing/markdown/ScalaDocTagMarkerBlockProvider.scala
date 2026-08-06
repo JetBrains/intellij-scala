@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
 import org.intellij.markdown.MarkdownTokenTypes
-import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionHolder}
 import org.intellij.markdown.parser.constraints.MarkdownConstraints
 import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
 import org.intellij.markdown.parser.sequentialparsers.SequentialParser
+import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionHolder}
 
 import java.util
 import kotlin.ranges.IntRange

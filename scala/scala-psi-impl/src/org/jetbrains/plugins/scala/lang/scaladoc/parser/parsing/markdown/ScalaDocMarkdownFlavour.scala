@@ -6,6 +6,7 @@ import com.intellij.markdown.utils.CodeFenceSyntaxHighlighterGeneratingProvider
 import com.intellij.markdown.utils.lang.HtmlSyntaxHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.HtmlChunk
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.intellij.markdown.ast.{ASTNode, ASTUtilKt}
 import org.intellij.markdown.flavours.gfm.{GFMElementTypes, GFMFlavourDescriptor, GFMTokenTypes, StrikeThroughDelimiterParser}
 import org.intellij.markdown.html.*
@@ -15,13 +16,12 @@ import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, Seque
 import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessorFactory, ProductionHolder}
 import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.plugins.scala.Scala3Language
-import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
-import org.jetbrains.plugins.scala.extensions.CharSeqExt
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.markdown._CustomGFMLexer
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 import java.net.URI
 import java.util
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
 
 class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
@@ -67,7 +67,8 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
             val html =
               if (refText.startsWith("http:") || refText.startsWith("https:")) {
-                HtmlPsiUtils.hyperLink(refText, description)
+                // TODO: copied from HtmlPsiUtils.hyperLink that is still inside scala-impl
+                s"""<a href="${escapeHtml4(refText)}">$description</a>""".stripMargin
               } else {
                 val buffer = new java.lang.StringBuilder
                 DocumentationManagerUtil.createHyperlink(buffer, refText, description, false)
@@ -122,7 +123,7 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 object ScalaDocMarkdownFlavour {
   class ScalaHtmlSyntaxHighlighter(project: Project) extends HtmlSyntaxHighlighter {
     override def color(language: String, rawContent: String): HtmlChunk =
-      HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent.stripLineEnd)
+      HtmlSyntaxHighlighter.Companion.colorHtmlChunk(project, selectLanguage(language), rawContent.stripLineEnd)
 
     private def selectLanguage(language: String): Language = {
       Language.getRegisteredLanguages.asScala
@@ -146,7 +147,7 @@ object ScalaDocMarkdownFlavour {
       val lines = rawContent.stripLineEnd.split("\n", -1)
       val commonIndent = lines.iterator.filterNot(_.isBlank).map(_.prefixLength(_.isWhitespace)).minOption.getOrElse(0)
       val code = lines.map(_.drop(commonIndent)).mkString("\n")
-      HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, Scala3Language.INSTANCE, code)
+      HtmlSyntaxHighlighter.Companion.colorHtmlChunk(project, Scala3Language.INSTANCE, code)
     })
 
     override def processNode(visitor: HtmlGenerator#HtmlGeneratingVisitor, text: String, node: ASTNode): Unit = {
@@ -163,11 +164,11 @@ object ScalaDocMarkdownFlavour {
   /**
    * Information about a tag on a line. All positions are relative to the start of the line.
    *
-   * @param start the start of the tag, including the @
-   * @param end the end of the tag itself
+   * @param start    the start of the tag, including the @
+   * @param end      the end of the tag itself
    * @param argument if it exists, the start and end of the argument
    */
-  case class TagInfo(start: Int, end: Int, argument: Option[(Int, Int)]) {
+  final case class TagInfo(start: Int, end: Int, argument: Option[(Int, Int)]) {
     def bodyStart: Int = argument.map(_._2).getOrElse(end)
   }
 
@@ -198,9 +199,9 @@ object ScalaDocMarkdownFlavour {
         return None
 
       // Argument processing
-      val tag = currentLine.substring(start + 1, tagEnd)
+      val tag = currentLine.subSequence(start + 1, tagEnd).toString
       val argument = Option.when(MyScaladocParsing.TagNames.TagNamesWithParameters.contains(tag)) {
-        nextMatchingChar(currentLine, tagEnd, c => !Character.isWhitespace(c)).map(argStart => {
+        nextMatchingChar(currentLine, tagEnd, c => !Character.isWhitespace(c)).map { argStart =>
           if (tag == MyScaladocParsing.TagNames.Define) {
             if (currentLine.charAt(argStart) == '{') {
               val argEnd = nextMatchingChar(currentLine, argStart, _ == '}')
@@ -215,31 +216,31 @@ object ScalaDocMarkdownFlavour {
             val argEnd = indexAfterWikiDocRef(currentLine, argStart)
             (argStart, argEnd)
           }
-        })
+        }
       }.flatten
 
       Some(TagInfo(start, tagEnd, argument))
     } else None
   }
 
-  private def nextMatchingChar(line: CharSequence, from: Int, predicate: Char => Boolean): Option[Int] = {
+  private def nextMatchingChar(line: CharSequence, from: Int, predicate: Char => Boolean): Option[Int] =
     (from until line.length)
       .find(i => predicate(line.charAt(i)))
-  }
 
+  @tailrec
   private def indexAfterWikiDocRef(line: CharSequence, i: Int, inTicks: Boolean = false): Int = {
     if (i >= line.length()) {
       i
     } else {
       val c = line.charAt(i)
       if (c == '`') {
-        indexAfterWikiDocRef(line, i+1, inTicks = !inTicks)
+        indexAfterWikiDocRef(line, i + 1, inTicks = !inTicks)
       } else if (c.isWhitespace && !inTicks) {
         i
       } else if (c == '\\') {
-        indexAfterWikiDocRef(line, Math.min(i+2, line.length()), inTicks)
+        indexAfterWikiDocRef(line, Math.min(i + 2, line.length()), inTicks)
       } else {
-        indexAfterWikiDocRef(line, i+1, inTicks)
+        indexAfterWikiDocRef(line, i + 1, inTicks)
       }
     }
   }

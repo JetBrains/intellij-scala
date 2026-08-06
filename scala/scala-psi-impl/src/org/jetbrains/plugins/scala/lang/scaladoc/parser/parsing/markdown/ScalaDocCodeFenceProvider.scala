@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
-import org.intellij.markdown.parser.LookaheadText
-import org.intellij.markdown.parser.ProductionHolder
-import org.intellij.markdown.parser.MarkerProcessor
-import org.intellij.markdown.parser.constraints.MarkdownConstraints
-import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
-import org.intellij.markdown.parser.markerblocks.impl.CodeFenceMarkerBlock
-import org.intellij.markdown.parser.sequentialparsers.SequentialParser
 import org.intellij.markdown.MarkdownTokenTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MarkdownCompanionProxy
+import org.intellij.markdown.parser.constraints.MarkdownConstraints
+import org.intellij.markdown.parser.markerblocks.impl.CodeFenceMarkerBlock
+import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
+import org.intellij.markdown.parser.sequentialparsers.SequentialParser
+import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionHolder}
 
 import java.util
 import kotlin.ranges.IntRange
@@ -36,12 +33,12 @@ class ScalaDocCodeFenceProvider extends MarkerBlockProvider[MarkerProcessor.Stat
 
   private def fenceEnd(position: LookaheadText#Position, constraints: MarkdownConstraints, fence: String): Option[Int] = {
     if (
-      !MarkdownCompanionProxy.MarkerBlockProviderCompanion.isStartOfLineWithConstraints(position, constraints)
+      !MarkerBlockProvider.Companion.isStartOfLineWithConstraints(position, constraints)
     )
       None
     else {
       val sequence = position.getCurrentLineFromPosition
-      val start = MarkdownCompanionProxy.MarkerBlockProviderCompanion.passSmallIndent(sequence, 0)
+      val start = MarkerBlockProvider.Companion.passSmallIndent(sequence, 0)
       val trimmed = sequence.subSequence(start, sequence.length())
 
       if (trimmed.length() >= fence.length &&

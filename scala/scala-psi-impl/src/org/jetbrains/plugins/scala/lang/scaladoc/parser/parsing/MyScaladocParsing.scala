@@ -6,8 +6,6 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderFactory}
 import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaParserBundle}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
@@ -15,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
-import org.jetbrains.plugins.scala.util.IndentUtil
 
 import java.util
 import scala.collection.immutable.{HashMap, ListSet}
@@ -45,11 +42,6 @@ class MyScaladocParsing(private val builder: PsiBuilder,
 
   private def clearFlag(flag: Int): Unit =
     flags &= ~flag
-
-  /** intended to be overridden in case a user of this class wants
-   * another implementation of `ScalaPsiBuilder` */
-  def mkScalaPsiBuilder(delegate: PsiBuilder, isScala3: Boolean): ScalaPsiBuilder =
-    ScalaPsiBuilderFactory.create(delegate, isScala3)
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
@@ -117,8 +109,24 @@ class MyScaladocParsing(private val builder: PsiBuilder,
   // NOTE: it will parse ok if only spaces are used in lists OR if only tabs are used,
   // but it will not parse ok if the list contains mixed leading spaces with tabs e.g.
 
-  private def calcIndent(builder: PsiBuilder): Int =
-    IndentUtil.calcIndent(builder.getTokenText, tabSize)
+  // TODO: move IndentUtil out of scala-impl and reuse IndentUtil.calcIndent
+  private def calcIndent(builder: PsiBuilder): Int = {
+    val text = builder.getTokenText
+    var result = 0
+    var idx = 0
+
+    while (idx < text.length) {
+      text.charAt(idx) match {
+        case c if !Character.isWhitespace(c) => return result
+        case '\n' => result = 0
+        case '\t' => result += tabSize
+        case _ => result += 1
+      }
+      idx += 1
+    }
+
+    result
+  }
 
   private def parseList(): Unit = {
     assert(isListItemStart)
@@ -651,8 +659,10 @@ object MyScaladocParsing {
     DOC_COMMENT_END, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS
   )
 
-  private val monospaceEndTokenSet: TokenSet =
-    MyScaladocParsing.nonDataTokens + DOC_MONOSPACE_TAG
+  private val monospaceEndTokenSet: TokenSet = TokenSet.orSet(
+    MyScaladocParsing.nonDataTokens,
+    TokenSet.create(DOC_MONOSPACE_TAG),
+  )
 
   /**
    * In general we want to treat blank lines as a paragraph separator e.g:
