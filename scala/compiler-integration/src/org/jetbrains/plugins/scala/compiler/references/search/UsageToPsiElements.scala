@@ -21,7 +21,7 @@ object UsageToPsiElements {
       psiFile    <- psiManager.findFile(usage.file).toOption
       document   <- psiDocManager.getDocument(psiFile).toOption
       lineNumber = (e: PsiElement) => document.getLineNumber(e.getTextOffset) + 1
-      canBeUsage = usage.lines.contains _
+      canBeUsage = usage.lines.contains
     } yield {
       val elems = psiFile.depthFirst().flatMap { e =>
         val line = lineNumber(e)

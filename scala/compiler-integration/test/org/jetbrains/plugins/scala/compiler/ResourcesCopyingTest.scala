@@ -16,7 +16,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 import java.nio.file.Files
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[Parameterized])
 abstract class ResourcesCopyingTestBase(
@@ -26,12 +27,12 @@ abstract class ResourcesCopyingTestBase(
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var apiMainModule: Module = _
-  private var apiTestModule: Module = _
-  private var middleMainModule: Module = _
-  private var middleTestModule: Module = _
-  private var implMainModule: Module = _
-  private var implTestModule: Module = _
+  private var apiMainModule: Module = uninitialized
+  private var apiTestModule: Module = uninitialized
+  private var middleMainModule: Module = uninitialized
+  private var middleTestModule: Module = uninitialized
+  private var implMainModule: Module = uninitialized
+  private var implTestModule: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -92,7 +93,7 @@ abstract class ResourcesCopyingTestBase(
     implMainModule = findMainModule(modules, "impl")
     implTestModule = findTestModule(modules, "impl")
 
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

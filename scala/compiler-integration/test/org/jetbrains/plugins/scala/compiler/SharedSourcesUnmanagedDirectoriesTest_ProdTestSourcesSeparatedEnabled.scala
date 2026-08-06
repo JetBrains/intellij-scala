@@ -13,7 +13,8 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
@@ -22,14 +23,14 @@ class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled(jdkV
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1Main: Module = _
-  private var module1Test: Module = _
+  private var module1Main: Module = uninitialized
+  private var module1Test: Module = uninitialized
 
-  private var module2Main: Module = _
-  private var module2Test: Module = _
+  private var module2Main: Module = uninitialized
+  private var module2Test: Module = uninitialized
 
-  private var module3Main: Module = _
-  private var module3Test: Module = _
+  private var module3Main: Module = uninitialized
+  private var module3Test: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -75,7 +76,7 @@ class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled(jdkV
     assertNotNull("Could not find module with name 'root.module3.main'", module3Main)
     module3Test = modules.find(_.getName == "root.module3.test").orNull
     assertNotNull("Could not find module with name 'root.module3.test'", module3Test)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

@@ -57,7 +57,7 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
     findModule("root.base.base-sources.main")
     findModule("root.base.base-sources.test")
 
-    val compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = try {
       compiler.make().asScala.toSeq

@@ -22,14 +22,15 @@ import org.junit.experimental.categories.Category
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests]))
 class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImportingTestCase {
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
@@ -126,7 +127,7 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = first
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages1 = compiler.make()
     val errorsAndWarnings1 = collectErrorsAndWarnings(messages1.asScala.toSeq)
@@ -156,7 +157,7 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = second
     saveSettings()
 
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages2 = compiler.make()
     val errorsAndWarnings2 = collectErrorsAndWarnings(messages2.asScala.toSeq)

@@ -16,14 +16,13 @@ import org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesC
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 
 import java.awt.FlowLayout
-import java.awt.event.ActionEvent
 import javax.swing._
 
 private object ImplicitUsagesSearchDialogs {
   class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean, usageType: UsageType)
-    extends DialogWrapper(project, canBeParent) {
+    extends ScalaDialogWrapper(project, canBeParent) {
 
-    private[this] val settingsLink =
+    private val settingsLink =
       new LinkLabel[AnyRef](CompilerIntegrationBundle.message("bytecode.indices.settings.navigate"), null) {
         setListener({
           case (_, _) =>
@@ -32,7 +31,7 @@ private object ImplicitUsagesSearchDialogs {
         }, null)
       }
 
-    private[this] val description = new JLabel(
+    private val description = new JLabel(
       s"""<html>${CompilerIntegrationBundle.message("bytecode.indices.must.be.enabled.1", usageType)}<br>
         ${CompilerIntegrationBundle.message("bytecode.indices.must.be.enabled.2")}</html>""".stripMargin)
 
@@ -56,20 +55,16 @@ private object ImplicitUsagesSearchDialogs {
         CompilerIndicesSettings(project).setIndexingEnabled(true)
       }
 
-      val enable = new DialogWrapperAction(CompilerIntegrationBundle.message("bytecode.indices.enable")) {
-        override def doAction(e: ActionEvent): Unit = {
-          enableCompilerIndices()
-          close(DialogWrapper.OK_EXIT_CODE)
-        }
-      }
+      val enable = dialogAction(CompilerIntegrationBundle.message("bytecode.indices.enable"), _ => {
+        enableCompilerIndices()
+        close(DialogWrapper.OK_EXIT_CODE)
+      })
 
-      val enableAndRestart = new DialogWrapperAction(CompilerIntegrationBundle.message("bytecode.indices.enable.and.restart")) {
-        override def doAction(e: ActionEvent): Unit = {
-          enableCompilerIndices()
-          ApplicationManagerEx.getApplicationEx.restart(true)
-          close(DialogWrapper.OK_EXIT_CODE)
-        }
-      }
+      val enableAndRestart = dialogAction(CompilerIntegrationBundle.message("bytecode.indices.enable.and.restart"), _ => {
+        enableCompilerIndices()
+        ApplicationManagerEx.getApplicationEx.restart(true)
+        close(DialogWrapper.OK_EXIT_CODE)
+      })
 
       Array(enableAndRestart, enable, getCancelAction)
     }
@@ -81,7 +76,7 @@ private object ImplicitUsagesSearchDialogs {
     title:       String
   ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.IDE) {
 
-    private[this] val shouldCompileCB = {
+    private val shouldCompileCB = {
       val checkBox = new JBCheckBox(
         CompilerIntegrationBundle.message("bytecode.indices.precompile"),
         true)

@@ -12,17 +12,18 @@ import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
+import scala.compiletime.uninitialized
 import scala.concurrent.TimeoutException
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests]))
 class SbtGenerateManagedSourcesActionTest extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
-  private var module1: Module = _
-  private var module2: Module = _
-  private var module3: Module = _
+  private var module1: Module = uninitialized
+  private var module2: Module = uninitialized
+  private var module3: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -84,7 +85,7 @@ class SbtGenerateManagedSourcesActionTest extends SbtProjectCompilationTestBase 
     module1 = findModule("generate-managed-sources.module1", modules)
     module2 = findModule("generate-managed-sources.module2", modules)
     module3 = findModule("generate-managed-sources.module3", modules)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   def testGenerateManagedSources(): Unit = {

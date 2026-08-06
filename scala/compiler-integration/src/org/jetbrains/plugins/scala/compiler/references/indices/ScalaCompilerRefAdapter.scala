@@ -27,10 +27,10 @@ object ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
       util.Arrays.asList(ScalaFileType.INSTANCE)
     )
 
-  private[this] def tryEnumerate(enumerator: NameEnumerator, name: String): Option[Int] =
+  private def tryEnumerate(enumerator: NameEnumerator, name: String): Option[Int] =
     enumerator.tryEnumerate(name).toOption.filter(_ != 0)
 
-  private[this] def toCompilerRef(element: PsiElement, enumerator: NameEnumerator): Option[CompilerRef] = {
+  private def toCompilerRef(element: PsiElement, enumerator: NameEnumerator): Option[CompilerRef] = {
     def ownerId(member: PsiMember): Option[Int] =
       for {
         owner     <- member.containingClass.toOption
@@ -86,17 +86,17 @@ object ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
       case _                          => element
     })
 
-  private[this] class BytecodeMethod(e: ScTypedDefinition, name: String) extends FakePsiMethod(e, None, name) {
+  private class BytecodeMethod(e: ScTypedDefinition, name: String) extends FakePsiMethod(e, None, name) {
     override def params: Array[Parameter]   = Array.empty
     override def retType: ScType            = e.`type`().getOrAny
     override def getContainingFile: PsiFile = ScalaPsiUtil.fileContext(e)
   }
 
   object HasSyntheticGetter {
-    private[this] def syntheticGetter(e: ScTypedDefinition): FakePsiMethod =
+    private def syntheticGetter(e: ScTypedDefinition): FakePsiMethod =
       new BytecodeMethod(e, e.name)
 
-    private[this] def isPrivateThis(mod: ScModifierListOwner): Boolean =
+    private def isPrivateThis(mod: ScModifierListOwner): Boolean =
       mod.getModifierList.accessModifier.exists(m => m.isPrivate && m.isThis)
 
     def unapply(e: PsiElement): Option[FakePsiMethod] = e match {

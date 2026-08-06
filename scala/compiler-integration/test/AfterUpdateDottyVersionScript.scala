@@ -181,7 +181,7 @@ object AfterUpdateDottyVersionScript {
 
     // A hack to ignore the @Ignore annotation, otherwise the test class would not be executed by the JUnit 4 machinery.
     val computer = new Computer() {
-      override def getRunner(builder: RunnerBuilder, testClass: Class[_]): Runner = new JUnitParamsRunner(testClass) {
+      override def getRunner(builder: RunnerBuilder, testClass: Class[?]): Runner = new JUnitParamsRunner(testClass) {
         override def isIgnored(child: FrameworkMethod): Boolean = false
       }
     }
@@ -670,7 +670,7 @@ object AfterUpdateDottyVersionScript {
 
   sealed trait Script
   object Script {
-    final case class FromTestCase(clazz: Class[_ <: TestCase]) extends Script
+    final case class FromTestCase(clazz: Class[? <: TestCase]) extends Script
   }
 
   private def runSbt(cmdline: String, dir: Path): Unit = {

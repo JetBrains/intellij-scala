@@ -685,6 +685,8 @@ lazy val compilerIntegration =
       bsp
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 

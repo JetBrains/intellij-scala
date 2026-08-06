@@ -18,9 +18,9 @@ private[references] class CompilerReferenceIndexerScheduler(
 ) extends IndexerScheduler {
   import CompilerReferenceIndexerScheduler._
 
-  private[this] val indexer  = new CompilerReferenceIndexer(project, expectedIndexVersion)
+  private val indexer  = new CompilerReferenceIndexer(project, expectedIndexVersion)
   // TODO: BackgroundTaskQueue is deprecated. See IJPL-384
-  private[this] val jobQueue = new BackgroundTaskQueue(project, CompilerIntegrationBundle.message("bytecode.indices.progress.title")): @nowarn("cat=deprecation")
+  private val jobQueue = new BackgroundTaskQueue(project, CompilerIntegrationBundle.message("bytecode.indices.progress.title")): @nowarn("cat=deprecation")
 
   override def schedule(job: IndexingStage): Unit = synchronized {
     job match {

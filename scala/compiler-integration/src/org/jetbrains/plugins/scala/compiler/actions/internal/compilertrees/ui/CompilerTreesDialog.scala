@@ -29,6 +29,7 @@ import java.awt.{BorderLayout, Dimension}
 import java.lang
 import javax.swing._
 import scala.util.matching.Regex
+import scala.compiletime.uninitialized
 
 final class CompilerTreesDialog(
   myProject: Project,
@@ -36,7 +37,7 @@ final class CompilerTreesDialog(
   phasesCollectionProgress: ProgressIndicator
 ) extends DialogWrapper(myProject) {
 
-  private var myEditor: EditorEx = _
+  private var myEditor: EditorEx = uninitialized
 
   private object GraphProperties {
     private val graph: PropertyGraph = new PropertyGraph("internal.CompilerTreesDialog.propertyGraph", true)
@@ -106,18 +107,18 @@ final class CompilerTreesDialog(
 
   private object UiComponents {
     // Controls for display options, just above the tree view
-    var myShowEmptyPhasesCb: JBCheckBox = _
-    var myShowTastyCb: JBCheckBox = _
-    var myShowUncapturedMessagesCb: JBCheckBox = _
+    var myShowEmptyPhasesCb: JBCheckBox = uninitialized
+    var myShowTastyCb: JBCheckBox = uninitialized
+    var myShowUncapturedMessagesCb: JBCheckBox = uninitialized
 
-    var myTree: MyTree = _
-    var myTreeScrollPane: JBScrollPane = _
+    var myTree: MyTree = uninitialized
+    var myTreeScrollPane: JBScrollPane = uninitialized
 
     /**
      * left part: tree view with phases<br>
      * right: part editor with compiler tree text corresponding to the selected phase
      */
-    var mySplitter: OnePixelSplitter = _
+    var mySplitter: OnePixelSplitter = uninitialized
   }
 
   private val collectedPhases: scala.collection.mutable.ArrayBuffer[PhaseWithTreeText] =
@@ -147,7 +148,7 @@ final class CompilerTreesDialog(
   private def invokeLaterIfDialogIsNotDisposed(action: => Unit): Unit = {
     ApplicationManager.getApplication.invokeLater(
       () => action,
-      (_ => isDisposed): Condition[_]
+      (_ => isDisposed): Condition[?]
     )
   }
 
@@ -298,7 +299,7 @@ final class CompilerTreesDialog(
     val document = EditorFactory.getInstance.createDocument(documentText)
 
     val scalaFeatures = myModule.features
-    val scalaFile = ScalaPsiElementFactory.createScalaFileFromText(documentText, scalaFeatures)(myProject)
+    val scalaFile = ScalaPsiElementFactory.createScalaFileFromText(documentText, scalaFeatures)(using myProject)
     val virtualFile = ScFile.VirtualFile.unapply(scalaFile).get
 
     val editor = EditorFactory.getInstance.createEditor(

@@ -8,12 +8,16 @@ import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilin
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Files
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests]))
+@RunWith(classOf[JUnit4])
 class ZincAnnotationProcessingTest extends ScalaCompilerTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
@@ -22,7 +26,7 @@ class ZincAnnotationProcessingTest extends ScalaCompilerTestBase {
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
     Seq(IvyManagedLoader("org.jetbrains" % "annotations" % "26.0.1"))
-
+  @Test
   def testAnnotationProcessing(): Unit = {
     addFileToProjectSources("A.scala",
       """import org.jetbrains.annotations.NotNull

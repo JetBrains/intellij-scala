@@ -13,15 +13,15 @@ import java.nio.file.Path
 
 class TransitiveDependencyClasspathTest extends ScalaCompilerReferenceServiceFixture {
   def testClasspathIncludesTransitiveModules(): Unit = {
-    val moduleA = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]], "A", myFixture.getTempDirFixture.findOrCreateDir("A"))
-    val moduleB = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]], "B", myFixture.getTempDirFixture.findOrCreateDir("B"))
+    val moduleA = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]], "A", myFixture.getTempDirFixture.findOrCreateDir("A"))
+    val moduleB = PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]], "B", myFixture.getTempDirFixture.findOrCreateDir("B"))
     ModuleRootModificationUtil.addDependency(moduleA, getModule)
     ModuleRootModificationUtil.addDependency(moduleB, getModule)
     ModuleRootModificationUtil.addDependency(moduleA, moduleB, DependencyScope.COMPILE, true)
     setUpLibrariesFor(moduleA, moduleB)
 
     val libLoader = IvyManagedLoader("org.scalatest" %% "scalatest" % "3.2.0")
-    libLoader.init(moduleB, version)
+    libLoader.init(using moduleB, version)
 
     val remoteServerConnectorBase = new TestRemoteServerConnectorBase(moduleA, Path.of(System.getProperty("java.io.tmpdir")))
 

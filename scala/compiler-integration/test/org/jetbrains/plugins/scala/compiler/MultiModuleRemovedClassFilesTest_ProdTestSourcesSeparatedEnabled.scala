@@ -16,7 +16,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
@@ -25,11 +26,11 @@ class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled(jdkVersio
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1Main: Module = _
-  private var module1Test: Module = _
+  private var module1Main: Module = uninitialized
+  private var module1Test: Module = uninitialized
 
-  private var module2Main: Module = _
-  private var module2Test: Module = _
+  private var module2Main: Module = uninitialized
+  private var module2Test: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -62,7 +63,7 @@ class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled(jdkVersio
     assertNotNull("Could not find module with name 'root.module2.main'", module2Main)
     module2Test = modules.find(_.getName == "root.module2.test").orNull
     assertNotNull("Could not find module with name 'root.module2.test'", module2Test)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

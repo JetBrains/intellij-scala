@@ -17,7 +17,7 @@ abstract class CompilerIndicesSearcher[Target, Result, Params](reqireReadAction:
     target:    Target,
     results:   Set[Timestamped[UsagesInFile]],
     project:   Project,
-    processor: Processor[_ >: Result]
+    processor: Processor[? >: Result]
   ): Unit = {
     val fileDocManager     = FileDocumentManager.getInstance()
     val outdated           = Set.newBuilder[String]
@@ -68,6 +68,6 @@ abstract class CompilerIndicesSearcher[Target, Result, Params](reqireReadAction:
     usage:              UsagesInFile,
     isPossiblyOutdated: Boolean,
     elements:           ElementsInContext,
-    processor:          Processor[_ >: Result]
+    processor:          Processor[? >: Result]
   ): Boolean
 }

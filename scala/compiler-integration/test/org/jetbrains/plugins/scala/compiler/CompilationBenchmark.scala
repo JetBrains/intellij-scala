@@ -9,7 +9,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.compiler.Metering._
+import org.jetbrains.plugins.scala.compiler.Metering.*
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -20,8 +20,9 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Ignore
 
 import java.util.concurrent.TimeUnit
+import scala.compiletime.uninitialized
 import scala.concurrent.duration.FiniteDuration
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 abstract class CompilationBenchmark
@@ -32,8 +33,8 @@ abstract class CompilationBenchmark
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
-  private var revertable: RevertableChange = _
-  private var compiler: CompilerTester = _
+  private var revertable: RevertableChange = uninitialized
+  private var compiler: CompilerTester = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()

@@ -15,8 +15,8 @@ import javax.swing.JComponent
 class CompilerIndicesConfigurable(project: Project) extends Configurable {
   import CompilerIndicesConfigurable._
 
-  private[this] val panel                              = new CompilerIndicesSettingsForm(project)
-  private[this] var shutdownCallback: Option[Runnable] = None
+  private val panel                              = new CompilerIndicesSettingsForm(project)
+  private var shutdownCallback: Option[Runnable] = None
 
   override def getDisplayName: String        = CompilerIntegrationBundle.message("bytecode.indices")
   override def createComponent(): JComponent = panel.mainPanel

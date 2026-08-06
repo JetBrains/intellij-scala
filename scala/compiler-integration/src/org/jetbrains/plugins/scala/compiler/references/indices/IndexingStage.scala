@@ -12,5 +12,5 @@ object IndexingStage {
   final case class OpenWriter(isCleanBuild: Boolean)                                 extends IndexingStage
   final case class ProcessCompilationInfo(data: CompilationInfo, onFinish: Callback) extends IndexingStage
   final case class CloseWriter(onFinish: IndexingHandler)                            extends IndexingStage
-  final case class InvalidateIndex(index: Option[CompilerReferenceIndex[_]])         extends IndexingStage
+  final case class InvalidateIndex(index: Option[CompilerReferenceIndex[?]])         extends IndexingStage
 }

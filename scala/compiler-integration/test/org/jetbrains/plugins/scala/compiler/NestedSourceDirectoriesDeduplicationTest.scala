@@ -54,7 +54,7 @@ class NestedSourceDirectoriesDeduplicationTest extends SbtExternalSystemImportin
 
     val modules = ModuleManager.getInstance(project).getModules
 
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     val messages =
       try compiler.make().asScala.toSeq
       finally compiler.tearDown()

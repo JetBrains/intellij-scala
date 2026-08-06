@@ -13,7 +13,8 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
@@ -21,13 +22,13 @@ class SharedSourcesCrossProjectTest(jdkVersion: TestJdkVersion) extends SbtProje
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var middleJS: Module = _
-  private var middleJVM: Module = _
-  private var middleShared: Module = _
+  private var middleJS: Module = uninitialized
+  private var middleJVM: Module = uninitialized
+  private var middleShared: Module = uninitialized
 
-  private var baseJS: Module = _
-  private var baseJVM: Module = _
-  private var baseShared: Module = _
+  private var baseJS: Module = uninitialized
+  private var baseJVM: Module = uninitialized
+  private var baseShared: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -70,7 +71,7 @@ class SharedSourcesCrossProjectTest(jdkVersion: TestJdkVersion) extends SbtProje
     assertNotNull("Could not find module with name 'root.base.baseJVM'", baseJVM)
     baseShared = modules.find(_.getName == "root.base.base-sources").orNull
     assertNotNull("Could not find module with name 'root.base.base-sources'", baseShared)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   @Test

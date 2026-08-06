@@ -40,16 +40,16 @@ import scala.jdk.CollectionConverters._
 final private[references] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker with Disposable {
   import ScalaCompilerReferenceService._
 
-  private[this] val compilationCount = new LongAdder
-  private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-  private[this] val lock             = new ReentrantReadWriteLock()
-  private[this] val openCloseLock    = lock.writeLock()
-  private[this] val readDataLock     = lock.readLock()
+  private val compilationCount = new LongAdder
+  private val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
+  private val lock             = new ReentrantReadWriteLock()
+  private val openCloseLock    = lock.writeLock()
+  private val readDataLock     = lock.readLock()
 
-  private[this] val fileTypes =
+  private val fileTypes =
     (LanguageCompilerRefAdapter.EP_NAME.getExtensions :+ ScalaCompilerRefAdapter).flatMap(_.getFileTypes.asScala)
 
-  private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
+  private val dirtyScopeHolder = new ScalaDirtyScopeHolder(
     project,
     fileTypes,
     projectFileIndex,
@@ -58,18 +58,18 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     this
   )
 
-  private[this] val activeIndexingPhases = new AtomicInteger()
+  private val activeIndexingPhases = new AtomicInteger()
 
   /** access only in [[transactionManager.inTransaction()]] */
-  private[this] var reader = Option.empty[ScalaCompilerReferenceReader]
+  private var reader = Option.empty[ScalaCompilerReferenceReader]
 
-  private[this] val indexerScheduler =
+  private val indexerScheduler =
     new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
 
-  private[this] val failedToParse                       = ContainerUtil.newConcurrentSet[Path]()
-  private[this] val compilationTimestamps               = new ConcurrentHashMap[String, Long]()
-  private[this] val messageBus                          = project.getMessageBus
-  private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
+  private val failedToParse                       = ContainerUtil.newConcurrentSet[Path]()
+  private val compilationTimestamps               = new ConcurrentHashMap[String, Long]()
+  private val messageBus                          = project.getMessageBus
+  private var currentCompilerMode: CompilerMode   = CompilerMode.JPS
 
   @volatile
   private[references] var initialized: Boolean = false
@@ -83,7 +83,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
 
   override def dispose(): Unit = {}
 
-  private[this] val publisher = new CompilerIndicesEventPublisher {
+  private val publisher = new CompilerIndicesEventPublisher {
     private def debugPublisher(message: => String): Unit = {
       if (logger.isDebugEnabled) {
         logger.debug(s"(event publisher) $message")
@@ -155,13 +155,13 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
   }
 
-  private[this] val transactionManager: TransactionGuard[CompilerIndicesState] =
+  private val transactionManager: TransactionGuard[CompilerIndicesState] =
     new TransactionGuard[CompilerIndicesState] {
       override def inTransaction[T](body: CompilerIndicesState => T): T =
         openCloseLock.withLock(body((currentCompilerMode, publisher)))
     }
 
-  private[this] def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
+  private def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
     val index = reader.map(_.getIndex())
     dirtyScopeHolder.reset()
     messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(success = false)
@@ -173,7 +173,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     })
   }
 
-  private[this] def closeReader(incrementBuildCount: Boolean): Unit = transactionManager.inTransaction { _ =>
+  private def closeReader(incrementBuildCount: Boolean): Unit = transactionManager.inTransaction { _ =>
     if (incrementBuildCount) {
       if (activeIndexingPhases.getAndIncrement() == 0) {
         messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseStarted()
@@ -185,7 +185,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     reader = None
   }
 
-  private[this] def openReader(indexingSuccessful: Boolean): Unit = transactionManager.inTransaction { _ =>
+  private def openReader(indexingSuccessful: Boolean): Unit = transactionManager.inTransaction { _ =>
     logger.debug(s"openReader step 1, active indexing phases: ${activeIndexingPhases.get()}, project.isOpen: ${project.isOpen}")
 
     if (activeIndexingPhases.get() > 0) {
@@ -211,7 +211,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
   }
 
-  private[this] def processIndexingFailure(failure: IndexerFailure): Unit =
+  private def processIndexingFailure(failure: IndexerFailure): Unit =
     transactionManager.inTransaction { _ =>
       failure match {
         case FailedToParse(failures) =>
@@ -288,7 +288,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     initialized = true
   }
 
-  private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.withLock {
+  private def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.withLock {
     for {
       r       <- reader
       file    <- ScalaPsiUtil.fileContext(e).toOption
@@ -297,13 +297,13 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     } yield ref
   }
 
-  private[this] def findAdapter(file: PsiFile): Option[LanguageCompilerRefAdapter] =
+  private def findAdapter(file: PsiFile): Option[LanguageCompilerRefAdapter] =
     if (file.getFileType == ScalaFileType.INSTANCE)
       Option(ScalaCompilerRefAdapter)
     else
       LanguageCompilerRefAdapter.findAdapter(file).toOption
 
-  private[this] def withReader(target: PsiElement)(
+  private def withReader(target: PsiElement)(
     builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
   ): Set[Timestamped[UsagesInFile]] = {
     val usages = Set.newBuilder[UsagesInFile]
