@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.dfa.utils
 
-import com.intellij.codeInsight.Nullability
+import com.intellij.codeInsight.{Nullability, NullableNotNullManager}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{DfaPsiUtil, Mutability}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiArrayType, PsiElement, PsiModifierListOwner, PsiType}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.Pr
 import org.jetbrains.plugins.scala.lang.dfa.types.DfUnitType
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
-import scala.annotation.nowarn
+import java.{util => ju}
+import scala.jdk.CollectionConverters._
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
@@ -174,5 +175,48 @@ object ScalaDfaTypeUtils {
   }
 
   def nullability(param: Parameter): Nullability =
-    DfaPsiUtil.getElementNullability(param.paramType.toPsiType, param.psiParam.orNull): @nowarn("cat=deprecation")
+    elementNullabilityForWrite(param.paramType, param.psiParam)
+
+  /**
+   * Nullability of `owner`, whose declared type is `scType`, when a value is written into it
+   * (for a parameter that means: when it is passed by a call).
+   *
+   * @see [[DfaPsiUtil.getElementNullabilityForWrite]]
+   */
+  def elementNullabilityForWrite(scType: ScType, owner: Option[PsiModifierListOwner]): Nullability =
+    elementNullability(scType, owner)(DfaPsiUtil.getElementNullabilityForWrite)
+
+  /**
+   * Nullability of `owner`, whose declared type is `scType`, when a value is read from it.
+   *
+   * @see [[DfaPsiUtil.getElementNullabilityForRead]]
+   */
+  def elementNullabilityForRead(scType: ScType, owner: Option[PsiModifierListOwner]): Nullability =
+    elementNullability(scType, owner)(DfaPsiUtil.getElementNullabilityForRead)
+
+  private def elementNullability(scType: ScType, owner: Option[PsiModifierListOwner])
+                                (fromPlatform: (PsiType, PsiModifierListOwner) => Nullability): Nullability = {
+    val psiType = scType.toPsiType
+    val fromScalaAnnotation = owner match {
+      // The platform follows Java's type annotation rules, where an ambiguous TYPE_USE annotation on
+      // an array-typed declaration (like `@Nullable int[] param`) annotates the array component
+      // and not the declaration itself, so it is ignored here.
+      // Scala annotations are always declaration annotations, so `@Nullable param: Array[Int]`
+      // does annotate the parameter (SCL-25159).
+      case Some(holder: ScAnnotationsHolder) if psiType.is[PsiArrayType] => nullabilityFromAnnotations(holder)
+      case _ => None
+    }
+    fromScalaAnnotation.getOrElse(fromPlatform(psiType, owner.orNull))
+  }
+
+  private def nullabilityFromAnnotations(holder: ScAnnotationsHolder): Option[Nullability] = {
+    val manager = NullableNotNullManager.getInstance(holder.getProject)
+
+    def isAnnotatedWithAny(qualifiedNames: ju.List[String]): Boolean =
+      qualifiedNames.asScala.exists(holder.hasAnnotation)
+
+    if (isAnnotatedWithAny(manager.getNotNulls)) Some(Nullability.NOT_NULL)
+    else if (isAnnotatedWithAny(manager.getNullables)) Some(Nullability.NULLABLE)
+    else None
+  }
 }

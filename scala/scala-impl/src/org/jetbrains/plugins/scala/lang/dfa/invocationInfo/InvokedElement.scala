@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import com.intellij.codeInsight.Nullability
-import com.intellij.codeInspection.dataFlow.DfaPsiUtil
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.psi.{PsiElement, PsiMember, PsiMethod, PsiModifierListOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvokedElement.ValueInfo
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{elementNullabilityForWrite, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-
-import scala.annotation.nowarn
 
 case class InvokedElement(psiElement: PsiElement) {
 
@@ -44,7 +41,7 @@ case class InvokedElement(psiElement: PsiElement) {
   }
 
   lazy val returnInfo: ValueInfo = {
-    val nullability = DfaPsiUtil.getElementNullability(returnType.toPsiType, psiElement.asOptionOf[PsiModifierListOwner].orNull): @nowarn("cat=deprecation")
+    val nullability = elementNullabilityForWrite(returnType, psiElement.asOptionOf[PsiModifierListOwner])
     ValueInfo(returnType, nullability)
   }
 }
