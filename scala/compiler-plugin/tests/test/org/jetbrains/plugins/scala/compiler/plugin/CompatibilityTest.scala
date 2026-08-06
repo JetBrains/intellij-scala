@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.compiler.plugin
 
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.testFramework.junit5.TestApplication
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.plugins.scala.compiler.plugin.CompatibilityTest._
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
-import org.junit.Assert.{assertEquals, fail}
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.Assertions.{assertEquals, fail}
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.{Arguments, MethodSource}
 import org.junit.runners.Parameterized.Parameters
 
 import java.io.InputStream
@@ -20,12 +20,14 @@ import scala.collection.immutable.ArraySeq
 import scala.concurrent.duration.DurationInt
 import scala.io.Source
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.StreamConverters._
 import scala.util.Using
 
-@RunWith(classOf[Parameterized])
-class CompatibilityTest(version: String) {
-  @Test
-  def compatibilityWith(): Unit = {
+@TestApplication
+class CompatibilityTest {
+  @ParameterizedTest
+  @MethodSource(Array("scalaVersions"))
+  def compatibilityWith(version: String): Unit = {
     val scalaVersion = ScalaVersion.fromString(version).getOrElse(throw new IllegalArgumentException(version))
 
     val jars = download(scalaVersion)
@@ -82,6 +84,9 @@ object CompatibilityTest {
     ScalaVersion.Latest.Scala_3_LTS_RC.minor,
     ScalaVersion.Latest.Scala_3_Next_RC.minor
   )
+
+  val scalaVersions: java.util.stream.Stream[Arguments] =
+    Versions.map(Arguments.of(_)).asJavaSeqStream
 
   private val Definition =
     "object Definition { def id_impl(c: scala.reflect.macros.whitebox.Context)(x: c.Expr[Int]): c.Expr[Any] = x; def id(x: Int): Any = macro id_impl }"

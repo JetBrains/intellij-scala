@@ -817,7 +817,9 @@ lazy val scalaCompilerPlugin_3_3: sbt.Project =
 
 lazy val scalaCompilerPluginTests: sbt.Project =
   newProject("compiler-plugin-tests", file("scala/compiler-plugin/tests"))
-    .dependsOn(scalaImpl)
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile"
+    )
 
 lazy val compilerJps =
   newPlainScalaProject("compiler-jps", file("scala/compiler-jps"))
