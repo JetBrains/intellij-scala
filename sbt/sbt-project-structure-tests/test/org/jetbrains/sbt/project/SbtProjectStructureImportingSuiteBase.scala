@@ -165,10 +165,10 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   /*
-  Simulates a scenario where the global plugins directory contains an .sbt file from a concurrent sbt import, or it's left orphaned by a
-  previous import (which shouldn't happen in real life, as the file is removed). The current import should ignore such files.
-  The external/orphan file intentionally contains a non-existent sbt-structure plugin
-  version, which would cause the import to fail if it were taken into account. It verifies that .sbt files from other imports are not picked up.
+  A stale `idea-structure*.sbt` file may hang in sbt's global plugins directory after upgrading from an older plugin
+  version (which used to write such guarded files there). The current import must still succeed: the stale file is guarded
+  by an `idea.import.id` that the current import never sets, so it evaluates to no settings and is not applied.
+  The file intentionally declares a non-existent sbt-structure plugin version, which would fail the import if it were applied.
   */
   def testGlobalSbtFilesFromConcurrentImports(): Unit = {
     val settings = SbtSettings.getInstance(getMyProject)
