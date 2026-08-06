@@ -49,7 +49,7 @@ Global / onLoad := {
   val prev = (Global / onLoad).value
   state => {
     //NOTE: the min JDK version should be the same as in README.md
-    JdkVersionCheck.warnIfNotRequiredJdk(state.log, minJdkVersion = "21")
+    JdkVersionCheck.warnIfNotRequiredJdk(state.log, minJdkVersion = "25")
     prev(state)
   }
 }

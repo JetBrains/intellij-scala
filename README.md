@@ -45,7 +45,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 In order to take part in Scala plugin development, you need:
 
 1. IntelliJ IDEA 2022.3 or higher with a compatible version of Scala plugin
-2. JDK 21 (you can [download it via IntelliJ IDEA](https://www.jetbrains.com/help/idea/sdk.html#define-sdk))
+2. JDK 25 (you can [download it via IntelliJ IDEA](https://www.jetbrains.com/help/idea/sdk.html#define-sdk))
 3. (optional but **recommended**) \
    Enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) in IDEA to get access to helpful internal actions and debug information
 
@@ -60,7 +60,7 @@ In order to take part in Scala plugin development, you need:
 2. Open IntelliJ IDEA. From the Welcome screen or `File` menu, click `Open`, and point to
 the directory where you cloned the Scala plugin sources. It will be automatically imported as a sbt project.
 
-3. In the next step, select JDK 21 as project JDK (create it from an installed JDK if necessary).
+3. In the next step, select JDK 25 as project JDK (create it from an installed JDK if necessary).
 
 4. Select the `scalaCommunity` run configuration and select the `Run` or `Debug` button to build and start a
 development version of IDEA with the Scala plugin.
