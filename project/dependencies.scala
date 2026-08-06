@@ -188,7 +188,7 @@ object Dependencies {
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
   object provided {
     val scalaTest = scalaTestNotSpecified % Provided
-    val utest = "com.lihaoyi" %% "utest" % "0.9.1" % Provided
+    val utest = "com.lihaoyi" %% "utest" % "0.9.5" % Provided
     val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.5" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
     val specs2_4x = "org.specs2" %% "specs2-core" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
