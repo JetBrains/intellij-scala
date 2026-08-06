@@ -3,15 +3,15 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 trait ParsingRule {
-  def parse(implicit builder: ScalaPsiBuilder): Boolean
+  def parse(using builder: ScalaPsiBuilder): Boolean
 
   @inline
-  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = parse(using builder)
+  final def apply()(using builder: ScalaPsiBuilder): Boolean = parse(using builder)
 }
 
 object ParsingRule {
 
   object AlwaysTrue extends ParsingRule {
-    override def parse(implicit builder: ScalaPsiBuilder): Boolean = true
+    override def parse(using builder: ScalaPsiBuilder): Boolean = true
   }
 }
