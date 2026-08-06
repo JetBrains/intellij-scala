@@ -6,14 +6,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class ScalaDirectiveBundle extends DynamicBundle {
+public final class ScalaDirectiveBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaDirectiveBundle";
-
-    private static final ScalaDirectiveBundle INSTANCE = new ScalaDirectiveBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(ScalaDirectiveBundle.class, BUNDLE);
 
     private ScalaDirectiveBundle() {
-        super(BUNDLE);
     }
 
     @Nls

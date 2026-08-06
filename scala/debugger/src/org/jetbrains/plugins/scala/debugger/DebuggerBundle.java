@@ -5,16 +5,13 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
-import org.jetbrains.plugins.scala.NlsString;
 
-public final class DebuggerBundle extends DynamicBundle {
+public final class DebuggerBundle {
     @NonNls
     private static final String BUNDLE = "messages.DebuggerBundle";
-
-    private static final DebuggerBundle INSTANCE = new DebuggerBundle();
+    private static final DynamicBundle INSTANCE = new DynamicBundle(DebuggerBundle.class, BUNDLE);
 
     private DebuggerBundle() {
-        super(BUNDLE);
     }
 
     @Nls
