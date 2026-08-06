@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.{`scalaOption`, li
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
   import OptionWithLiteralToSomeIntention._
@@ -24,7 +25,7 @@ class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = element match {
     case OptionLiteral(opt, constant) =>
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(s"Some($constant)", element)(using project)
+      val newExpr = ScalaPsiElementFactory.createExpressionFromText(s"Some($constant)", ScalaFeaturesProvider.forPsiOrDefault(element))(using project)
       opt.replaceExpression(newExpr, removeParenthesis = true)
     case _ =>
   }

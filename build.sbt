@@ -176,6 +176,7 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
   )
 
 lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+  .dependsOn(scalaLanguageUtilsRt)
   .settings(
     intellijPlugins += "com.intellij.xml".toPlugin,
   )

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.mutable
 
@@ -52,7 +53,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction with Dumb
       append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else {\n").
       append(ifStmt.elseExpression.get.getText).append("\n}")
 
-    val newIfStmt: ScExpression = createExpressionFromText(expr.toString(), element)(using element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString(), ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getManager)
     val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
       newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 

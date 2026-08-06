@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import java.util
 import scala.annotation.tailrec
@@ -64,11 +64,11 @@ object ImportMembersUtil {
         val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
         replaceWithName(ref, name)
       case _ childOf (postfix @ ScPostfixExpr(qual: ScReferenceExpression, `oldRef`)) =>
-        val withDot = postfix.replace(createExpressionFromText(s"${qual.getText}.$name", oldRef))
+        val withDot = postfix.replace(createExpressionFromText(s"${qual.getText}.$name", ScalaFeaturesProvider.forPsiOrDefault(oldRef)))
                 .asInstanceOf[ScReferenceExpression]
         replaceWithName(withDot, name)
       case _: ScReferenceExpression =>
-        oldRef.replace(createExpressionFromText(name, oldRef)).asInstanceOf[ScReference]
+        oldRef.replace(createExpressionFromText(name, ScalaFeaturesProvider.forPsiOrDefault(oldRef))).asInstanceOf[ScReference]
       case _: ScStableCodeReference =>
         oldRef.replace(createReferenceFromText(name)).asInstanceOf[ScReference]
       case _ => null
@@ -100,7 +100,7 @@ object ImportMembersUtil {
               case m: PsiMember => Option(m.getContainingClass)
               case _ => None
             }
-            val refExpr = createExpressionFromText(name, expr)
+            val refExpr = createExpressionFromText(name, ScalaFeaturesProvider.forPsiOrDefault(expr))
             val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
             replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
           case _: ScStableCodeReference =>

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction with DumbAware {
@@ -33,7 +33,7 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction with D
     val statement = elementAndTouchingPrevElement(editor, element)
       .collectFirst { case Parent(f: ScFor) => f }
       .head
-    val block = createElementFromText[PsiElement]("{}", element)
+    val block = createElementFromText[PsiElement]("{}", ScalaFeaturesProvider.forPsiOrDefault(element))
 
     for (lParen <- statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)) {
       val lBrace = lParen.replace(block.getFirstChild)

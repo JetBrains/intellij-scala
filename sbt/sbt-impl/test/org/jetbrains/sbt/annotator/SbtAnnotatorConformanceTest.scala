@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -24,7 +25,7 @@ abstract class SbtAnnotatorConformanceTestBase(
       inReadAction:
         // just for the context. we can probably create a context without loading the file?
         val file = loadTestFile()
-        val expression = ScalaPsiElementFactory.createExpressionFromText(text, file)(using getProject)
+        val expression = ScalaPsiElementFactory.createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(file))(using getProject)
 
         val expressionType = expression.`type`() match
           case Right(value) => value

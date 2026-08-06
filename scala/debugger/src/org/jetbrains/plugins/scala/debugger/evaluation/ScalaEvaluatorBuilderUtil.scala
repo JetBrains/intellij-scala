@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.*
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveResultUtils}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.AnonymousFunction.*
 import org.jetbrains.plugins.scala.util.SAMUtil.SAMToFunctionType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
@@ -752,7 +753,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val clName = c.name
             val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
             val text = s"new $clName($paramName).${call.getText}"
-            val expr = createExpressionFromText(text, call.getContext)
+            val expr = createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(call.getContext))
             evaluatorFor(expr)
           case _ =>
             val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
@@ -1032,7 +1033,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                     new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
                   )
                 )
-              val indexExpr = createExpressionFromText("" + nextPatternIndex, pattern)(using pattern.getManager)
+              val indexExpr = createExpressionFromText("" + nextPatternIndex, ScalaFeaturesProvider.forPsiOrDefault(pattern))(using pattern.getManager)
               val indexEval = evaluatorFor(indexExpr)
               ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
             } else throw EvaluationException(DebuggerBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
@@ -1228,7 +1229,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case symbol: Symbol =>
           val expr = createExpressionFromText(
             s"""Symbol("${symbol.name}")""",
-            literal.getContext
+            ScalaFeaturesProvider.forPsiOrDefault(literal.getContext)
           )
           evaluatorFor(expr)
         case value =>

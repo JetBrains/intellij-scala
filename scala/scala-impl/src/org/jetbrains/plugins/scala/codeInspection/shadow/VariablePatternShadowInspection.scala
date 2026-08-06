@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createPatternFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class VariablePatternShadowInspection extends LocalInspectionTool {
 
@@ -47,7 +48,7 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
 
   override protected def doApplyFix(ref: ScReferencePattern)
                                    (implicit project: Project): Unit = {
-    val stableIdPattern = createPatternFromText(s"`${ref.getText}`", ref)
+    val stableIdPattern = createPatternFromText(s"`${ref.getText}`", ScalaFeaturesProvider.forPsiOrDefault(ref))
     ref.replace(stableIdPattern)
   }
 }

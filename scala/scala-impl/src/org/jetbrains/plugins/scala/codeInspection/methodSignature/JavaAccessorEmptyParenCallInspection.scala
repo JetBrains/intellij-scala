@@ -3,14 +3,15 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElementVisitor, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection.{createQuickFix, hasSameType, isNotOverloadedMethod}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, result}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class JavaAccessorEmptyParenCallInspection extends LocalInspectionTool {
 
@@ -51,7 +52,7 @@ object JavaAccessorEmptyParenCallInspection {
     new AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.call.parentheses"), call) {
       override protected def doApplyFix(call: ScMethodCall)(implicit project: Project): Unit = {
         val text = call.getInvokedExpr.getText
-        val replacement = ScalaPsiElementFactory.createExpressionFromText(text, call)
+        val replacement = ScalaPsiElementFactory.createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(call))
         call.replace(replacement)
       }
     }

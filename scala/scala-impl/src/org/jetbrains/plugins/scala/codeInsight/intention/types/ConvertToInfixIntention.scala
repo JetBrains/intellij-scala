@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 /** Converts type element `@@[A, B]` to `(A @@ B)` */
 class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAware {
@@ -35,7 +36,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAwa
       case _ => true
     }
     val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesize(needParens)
-    val newTypeElement = createTypeElementFromText(newTypeText, element)(using element)
+    val newTypeElement = createTypeElementFromText(newTypeText, ScalaFeaturesProvider.forPsiOrDefault(element))(using element)
     if (paramTypeElement.isValid) {
       val replaced = try {
         paramTypeElement.replace(newTypeElement)

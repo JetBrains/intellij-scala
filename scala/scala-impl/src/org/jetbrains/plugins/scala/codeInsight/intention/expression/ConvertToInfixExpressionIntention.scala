@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction with DumbAware {
@@ -104,7 +105,7 @@ object ConvertToInfixExpressionIntention {
           else
             s"($qualifierText) $operationText ($argumentsText)"
 
-        createExpressionFromText(text, call)
+        createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(call))
           .asOptionOf[ScInfixExpr]
           .map { infix =>
             stripUnnecessaryParentheses(infix.left)

@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class AutoTuplingInspection extends LocalInspectionTool {
 
@@ -23,7 +24,7 @@ class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiEle
     case mc: ScMethodCall =>
       val newArgsText = s"(${mc.args.getText})"
       val invokedExprText = mc.getInvokedExpr.getText
-      val newCall = createExpressionFromText(s"$invokedExprText$newArgsText", mc)
+      val newCall = createExpressionFromText(s"$invokedExprText$newArgsText", ScalaFeaturesProvider.forPsiOrDefault(mc))
       mc.replaceExpression(newCall, removeParenthesis = false)
     case _ =>
 

@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.{Failure, Success, Try}
@@ -192,7 +193,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     for (case (anchor, makePrivate) <- findAnchor()) yield {
       val holder = anchor.getParent
       val textWithAccess = if (makePrivate) s"private $text" else text
-      holder.addAfter(createElementFromText(textWithAccess, block), anchor)
+      holder.addAfter(createElementFromText(textWithAccess, ScalaFeaturesProvider.forPsiOrDefault(block)), anchor)
     }
   }
 
@@ -201,14 +202,14 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
       val holder = anchor.getParent
 
       if (holder.is[ScalaFile]) {
-        val entity = holder.addBefore(createElementFromText(text, ref), anchor)
+        val entity = holder.addBefore(createElementFromText(text, ScalaFeaturesProvider.forPsiOrDefault(ref)), anchor)
         val isUsageFirstElementInFile = entity.getPrevSiblingNotWhitespace == null
         if (!isUsageFirstElementInFile)
           holder.addBefore(createNewLine("\n\n"), entity)
         holder.addAfter(createNewLine("\n\n"), entity)
         entity
       } else {
-        val entity = holder.addAfter(createElementFromText(s"private $text", ref), anchor)
+        val entity = holder.addAfter(createElementFromText(s"private $text", ScalaFeaturesProvider.forPsiOrDefault(ref)), anchor)
         holder.addBefore(createNewLine(), entity)
         entity
       }

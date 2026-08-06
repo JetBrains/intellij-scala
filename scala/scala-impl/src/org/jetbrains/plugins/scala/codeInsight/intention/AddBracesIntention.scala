@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -72,7 +73,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction with DumbAware {
         CodeEditUtil.replaceChild(
           expr.getParent.getNode,
           expr.getNode,
-          createExpressionFromText("{\n%s}".format(expr.getText), expr)(using expr.getManager).getNode
+          createExpressionFromText("{\n%s}".format(expr.getText), ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager).getNode
         )
 
         if (!IntentionPreviewUtils.isIntentionPreviewActive)

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, Signature}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
+import org.jetbrains.plugins.scala.project.{ScalaFeaturesProvider, UserDataHolderExt}
 
 import java.util
 import javax.swing.Icon
@@ -33,7 +33,7 @@ object RenameSuperMembersUtil {
   private def renameAllMarker(element: PsiElement): ScObject = {
     val project = element.getProject
     project.getOrUpdateUserData(renameAllKey,
-      ScalaPsiElementFactory.createScalaFileFromText("object RenameAll", element)(using project).typeDefinitions.head.asInstanceOf[ScObject]
+      ScalaPsiElementFactory.createScalaFileFromText("object RenameAll", ScalaFeaturesProvider.forPsiOrDefault(element))(using project).typeDefinitions.head.asInstanceOf[ScObject]
     )
   }
 

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
   extends CreateTypeDefinitionQuickFix(ref, Object) {
@@ -34,7 +35,7 @@ class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
 
   private def addUnapplyMethod(clazz: ScTypeDefinition): Unit = {
     val methodText = unapplyMethodText(p)
-    val method = createMethodFromText(methodText, clazz)(using clazz.getManager)
+    val method = createMethodFromText(methodText, ScalaFeaturesProvider.forPsiOrDefault(clazz))(using clazz.getManager)
     clazz.addMember(method, None)
   }
 }

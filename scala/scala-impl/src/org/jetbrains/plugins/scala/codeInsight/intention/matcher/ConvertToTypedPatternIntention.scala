@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 
 class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
@@ -52,6 +53,6 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
       case _ => "value"
     }
     val typeText = constrPattern.`type`().toOption.fold(codeRef.getText)(_.presentableText)
-    constrPattern.replace(createPatternFromText(s"$name: $typeText", element)(using codeRef.getManager))
+    constrPattern.replace(createPatternFromText(s"$name: $typeText", ScalaFeaturesProvider.forPsiOrDefault(element))(using codeRef.getManager))
   }
 }

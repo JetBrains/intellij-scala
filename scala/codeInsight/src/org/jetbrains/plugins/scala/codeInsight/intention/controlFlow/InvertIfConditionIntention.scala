@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 
 final class InvertIfConditionIntention extends PsiElementBaseIntentionAction with DumbAware {
 
@@ -47,7 +47,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction wit
     if (ifStmt == null || !ifStmt.isValid) return
 
     implicit val ctx: ProjectContext = element.getManager
-    implicit val features: ScalaFeatures = element
+    implicit val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(element)
 
     val condition = ifStmt.condition.orNull
     val thenExpression = ifStmt.thenExpression.orNull

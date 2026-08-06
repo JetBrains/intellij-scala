@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, ScTypeExt, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring._
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
@@ -137,7 +137,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
     maybeExpression.foreach {
       case call@Implementation.EmptyCollectionFactoryCall(ref) if true =>
-        val replacement = createPsiElementFromText(ref.getText, ref)(using ref.projectContext)
+        val replacement = createPsiElementFromText(ref.getText, ScalaFeaturesProvider.forPsiOrDefault(ref))(using ref.projectContext)
         call.replace(replacement)
       case _ =>
     }
@@ -148,7 +148,7 @@ object AddOnlyStrategy {
   case class TypeForAnnotation(ty: ScType, ctx: PsiElement, addSuperTypes: Boolean = true) {
     def typeWithSuperTypes: Seq[ScTypeElement] =
       if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty, ctx)
-      else Seq(createTypeElementFromText(ty.canonicalCodeText(ctx), ctx)(using ctx))
+      else Seq(createTypeElementFromText(ty.canonicalCodeText(ctx), ScalaFeaturesProvider.forPsiOrDefault(ctx))(using ctx))
   }
 
   case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])
@@ -250,7 +250,7 @@ object AddOnlyStrategy {
           case Parent(Parent(Parent(block: ScBlockExpr))) if !block.isEnclosedByColon => p
           // ensure that the parameter is wrapped in parentheses before we add the type annotation.
           case clause: ScParameterClause if clause.parameters.length == 1 =>
-            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(), clause))
+            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(), ScalaFeaturesProvider.forPsiOrDefault(clause)))
               .asInstanceOf[ScParameterClause].parameters.head
           case _ => p
         }
@@ -260,7 +260,7 @@ object AddOnlyStrategy {
           .appendSiblings(
             createColon,
             createWhitespace,
-            createParameterTypeFromText(annotation.getText, parameter)
+            createParameterTypeFromText(annotation.getText, ScalaFeaturesProvider.forPsiOrDefault(parameter))
           ).last
 
       case underscore: ScUnderscoreSection =>
@@ -269,11 +269,11 @@ object AddOnlyStrategy {
           case _: ScArgumentExprList => false
           case _ => true
         }
-        val e = createScalaFileFromText(s"(_: ${annotation.getText})", underscore).getFirstChild.asInstanceOf[ScParenthesisedExpr]
+        val e = createScalaFileFromText(s"(_: ${annotation.getText})", ScalaFeaturesProvider.forPsiOrDefault(underscore)).getFirstChild.asInstanceOf[ScParenthesisedExpr]
         underscore.replace(if (needsParentheses) e else e.innerElement.get)
 
       case pattern@(_: ScWildcardPattern | _: ScReferencePattern) =>
-        val patternWithType = createPatternFromText(s"${pattern.getText}: ${annotation.getText}", pattern)
+        val patternWithType = createPatternFromText(s"${pattern.getText}: ${annotation.getText}", ScalaFeaturesProvider.forPsiOrDefault(pattern))
         pattern.replace(patternWithType)
 
       case _ =>
@@ -287,7 +287,7 @@ object AddOnlyStrategy {
     implicit val context: Context = Context(ctx)
 
     canonicalTypes(`type`)
-      .map(createTypeElementFromText(_, ctx))
+      .map(createTypeElementFromText(_, ScalaFeaturesProvider.forPsiOrDefault(ctx)))
   }
 
   private def canonicalTypes(tpe: ScType)(implicit tpc: TypePresentationContext, context: Context): Seq[String] = {

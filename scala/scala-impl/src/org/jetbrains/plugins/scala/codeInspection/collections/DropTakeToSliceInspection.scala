@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.immutable.ArraySeq
 
@@ -34,7 +35,7 @@ object DropTakeToSlice extends SimplificationType {
       case (intLiteral(a), q) => s"${q.getText} + $a"
       case _ => s"${left.getText} + ${right.getText}"
     }
-    createExpressionFromText(sumText, left)(using left.getManager)
+    createExpressionFromText(sumText, ScalaFeaturesProvider.forPsiOrDefault(left))(using left.getManager)
   }
 
   object intLiteral {

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{DynamicTypeReferenceResolver, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -86,7 +87,7 @@ object DynamicResolveProcessor {
         }
     }
 
-    val emptyStringExpression = createExpressionFromText("\"\"", ref)(using qualifier.projectContext)
+    val emptyStringExpression = createExpressionFromText("\"\"", ScalaFeaturesProvider.forPsiOrDefault(ref))(using qualifier.projectContext)
     val args                  = Seq(Seq(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty))
     val clauses               = args.map(InvocationClause.argsOnly)
 

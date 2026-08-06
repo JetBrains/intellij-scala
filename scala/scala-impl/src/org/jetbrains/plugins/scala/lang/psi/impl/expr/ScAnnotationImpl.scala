@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl.ScAnnotat
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import java.util.Objects
 
@@ -152,7 +153,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
           params.head.replace(
             createExpressionFromText(
               PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params.head.getText,
-              params.head
+              ScalaFeaturesProvider.forPsiOrDefault(params.head)
             )(using params.head.getManager)
           )
         }
@@ -166,7 +167,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
           namePrefix = attributeName + " = "
         }
 
-        args.head.addBefore(createExpressionFromText(namePrefix + value.getText, value)(using value.getManager), null)
+        args.head.addBefore(createExpressionFromText(namePrefix + value.getText, ScalaFeaturesProvider.forPsiOrDefault(value))(using value.getManager), null)
       }
     }
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]

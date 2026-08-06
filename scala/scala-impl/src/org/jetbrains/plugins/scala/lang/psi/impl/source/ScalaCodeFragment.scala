@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.mutable
 
@@ -102,7 +103,7 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
       case st: ScStableCodeReference if st.resolve() == null =>
         Some(createReferenceFromText(st.getText, st.getParent, st))
       case expr: ScReferenceExpression if expr.resolve() == null =>
-        Some(createExpressionFromText(expr.getText, expr).asInstanceOf[ScReferenceExpression])
+        Some(createExpressionFromText(expr.getText, ScalaFeaturesProvider.forPsiOrDefault(expr)).asInstanceOf[ScReferenceExpression])
       case _ => None
     }
 

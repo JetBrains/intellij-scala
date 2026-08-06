@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaFeaturesProvider}
 
 final class SplitIfIntention extends PsiElementBaseIntentionAction with DumbAware {
 
@@ -50,9 +50,9 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction with DumbAwar
     }
 
     import ifStmt.projectContext
-    implicit val features: ScalaFeatures = element
+    implicit val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(element)
     val start = ifStmt.getTextRange.getStartOffset
-    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](prefix + suffix, element), recursive = true)
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](prefix + suffix, features), recursive = true)
     val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>

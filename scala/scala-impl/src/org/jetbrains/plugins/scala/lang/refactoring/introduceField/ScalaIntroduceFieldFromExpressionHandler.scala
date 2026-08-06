@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
@@ -104,16 +104,17 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val anchor = anchorForNewDeclaration(replacedOccurences, aClass)
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
+    val features = ScalaFeaturesProvider.forPsiOrDefault(aClass)
     if (initInDecl) {
-      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, expression, aClass)
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, expression, features)
     } else {
-      val underscore = createExpressionFromText("_", aClass)
-      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, underscore, aClass)
+      val underscore = createExpressionFromText("_", features)
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, underscore, features)
 
       anchorForInitializer(replacedOccurences, ifc.file) match {
         case Some(anchorForInit) =>
           val parent = anchorForInit.getParent
-          val assignStmt = createExpressionFromText(s"$name = ${expression.getText}", aClass)
+          val assignStmt = createExpressionFromText(s"$name = ${expression.getText}", features)
           parent.addBefore(assignStmt, anchorForInit)
           parent.addBefore(createNewLine(), anchorForInit)
         case None => throw new IntroduceException

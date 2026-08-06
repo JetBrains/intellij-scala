@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiFile, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaFeatures, ScalaFeaturesProvider}
 
 import java.util.Properties
 
@@ -53,7 +53,7 @@ object ScalaFileTemplateUtil {
       ScalaFeatures.setAttachedScalaFeatures(file, features)
     }
 
-    val features = ScalaFeatures.forPsiOrDefault(file)
+    val features = ScalaFeaturesProvider.forPsiOrDefault(file)
     if (file.getProject.indentationBasedSyntaxEnabled(features)) {
       WriteCommandAction
         .writeCommandAction(file.getProject)

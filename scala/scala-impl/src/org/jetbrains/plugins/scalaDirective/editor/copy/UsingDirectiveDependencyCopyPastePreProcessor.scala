@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyKeys
 import org.jetbrains.plugins.scalaDirective.editor.copy.UsingDirectiveDependencyCopyPastePreProcessor.{extractDependencyDirectivePrefix, parseSbtDependencies, scheduleCompletion}
 import org.jetbrains.plugins.scalaDirective.lang.completion.{DirectivePrefix, UsingDirective}
@@ -68,7 +69,7 @@ object UsingDirectiveDependencyCopyPastePreProcessor {
   private case class DependencyDescriptor(groupId: String, artifactId: String, versionOrPlaceholder: Either[String, String], groupDelimiterLength: Int)
 
   private def parseSbtDependencies(text: String, context: PsiElement): Seq[DependencyDescriptor] = {
-    val element = ScalaPsiElementFactory.safe(_.createPsiElementFromText(text, context)(using context.getProject))
+    val element = ScalaPsiElementFactory.safe(_.createPsiElementFromText(text, ScalaFeaturesProvider.forPsiOrDefault(context))(using context.getProject))
     element match {
       case Some(SbtLibraryDependencies(descriptors@_*)) => descriptors
       case Some(SeqOfSbtDependencies(descriptors@_*)) => descriptors

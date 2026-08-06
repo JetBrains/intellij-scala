@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class KindProjectorUseCorrectLambdaKeywordInspection extends LocalInspectionTool {
 
@@ -44,7 +45,7 @@ final class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, @SafeFie
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
-    elem.replace(createTypeElementFromText(replacement, elem))
+    elem.replace(createTypeElementFromText(replacement, ScalaFeaturesProvider.forPsiOrDefault(elem)))
   }
 }
 

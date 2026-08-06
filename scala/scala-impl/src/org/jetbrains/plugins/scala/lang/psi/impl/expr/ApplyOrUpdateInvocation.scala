@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveResultUtils, ScalaResolveState}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(
@@ -132,11 +132,12 @@ object ApplyOrUpdateInvocation {
     clause:       InvocationClause
   ): Seq[InvocationClause] = {
     implicit val projectContext: ProjectContext = call
+    val features = ScalaFeaturesProvider.forPsiOrDefault(call)
 
     val newValueForUpdate = call.getContext match {
       case assign: ScAssignment if isUpdateCall =>
         val rightExpr = assign.rightExpression
-          .getOrElse(createExpressionFromText("scala.Predef.???", call))
+          .getOrElse(createExpressionFromText("scala.Predef.???", features))
 
         Option(Seq(rightExpr))
       case _ => None
@@ -155,7 +156,7 @@ object ApplyOrUpdateInvocation {
       //if the first (non-synthetic) clause has type arguments, they must go along with the
       //synthetic "method name" argument. Otherwise, in scala 2 we might miss errors/fail in overloaded contexts.
       val typeArguments         = clause.targs
-      val emptyStringExpression = createExpressionFromText("\"\"", call)
+      val emptyStringExpression = createExpressionFromText("\"\"", features)
 
       val syntheticClause =
         InvocationClause(

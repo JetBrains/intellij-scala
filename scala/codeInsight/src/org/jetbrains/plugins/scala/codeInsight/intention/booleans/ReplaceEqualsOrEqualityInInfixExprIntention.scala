@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction with DumbAware {
 
@@ -43,7 +44,7 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
     val start = infixExpr.getTextRange.getStartOffset
 
     val newInfixExpr =
-      createExpressionFromText(s"$baseText ${Replacement(operation.refName)} $argumentText", element)
+      createExpressionFromText(s"$baseText ${Replacement(operation.refName)} $argumentText", ScalaFeaturesProvider.forPsiOrDefault(element))
         .asInstanceOf[ScInfixExpr]
 
     val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -

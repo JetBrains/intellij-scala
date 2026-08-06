@@ -4,8 +4,8 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.collection.mutable
@@ -107,7 +108,7 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {
-    element.replace(createExpressionFromText(replacement, element))
+    element.replace(createExpressionFromText(replacement, ScalaFeaturesProvider.forPsiOrDefault(element)))
   }
 }
 

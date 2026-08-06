@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral)
   extends IntentionAction
@@ -27,7 +28,7 @@ final class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral)
     if (symbolLiteral.isValid) {
       val newText = s"""Symbol("$symbolText")"""
       symbolLiteral.replace {
-        ScalaPsiElementFactory.createExpressionFromText(newText, symbolLiteral)(using project)
+        ScalaPsiElementFactory.createExpressionFromText(newText, ScalaFeaturesProvider.forPsiOrDefault(symbolLiteral))(using project)
       }
     }
 

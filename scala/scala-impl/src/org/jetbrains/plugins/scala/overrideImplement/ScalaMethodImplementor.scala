@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.nowarn
@@ -29,7 +30,7 @@ class ScalaMethodImplementor extends MethodImplementor {
       }
     } yield {
       val body = ScalaGenerationInfo.defaultValue
-      val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body, inClass)(using inClass.getManager)
+      val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body, ScalaFeaturesProvider.forPsiOrDefault(inClass))(using inClass.getManager)
       TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)
       prototype

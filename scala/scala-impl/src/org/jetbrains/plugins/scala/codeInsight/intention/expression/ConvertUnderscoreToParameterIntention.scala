@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import java.util.regex.{MatchResult, Pattern}
 import scala.collection.mutable
@@ -135,7 +135,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     }
     buf.append(newExpressionText)
 
-    val newExpr = createExpressionFromText(buf.toString(), expr)
+    val newExpr = createExpressionFromText(buf.toString(), ScalaFeaturesProvider.forPsiOrDefault(expr))
     val newParentEndOffset =
       if (ApplicationManager.getApplication.isUnitTestMode) {
         parentEndOffset

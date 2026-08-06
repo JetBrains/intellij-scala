@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import java.util.regex.Pattern
 import scala.annotation.tailrec
@@ -34,7 +34,7 @@ package object quickfix {
     for {
       expression <- definition.body
       if !expression.is[ScBlockExpr]
-      block = createBlockFromExpr(expression, expression)
+      block = createBlockFromExpr(expression, ScalaFeaturesProvider.forPsiOrDefault(expression))
     } expression.replace(block)
 
     for {
@@ -44,7 +44,7 @@ package object quickfix {
 
   def addUnitTypeElement(definition: ScFunctionDefinition)
                         (implicit context: ProjectContext): Unit = {
-    val declaration = createDeclaration("x", "Unit", isVariable = false, null, definition)
+    val declaration = createDeclaration("x", "Unit", isVariable = false, null, ScalaFeaturesProvider.forPsiOrDefault(definition))
     for {
       colon <- findChild(declaration)
       assignment <- findChild(declaration, tASSIGN)

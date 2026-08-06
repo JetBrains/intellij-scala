@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures, ScalaFeaturesProvider}
 
 import java.{util => ju}
 import scala.annotation.tailrec
@@ -479,7 +479,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   private def addMemberToEmptyTemplateBody(member: ScMember, projectContext: ProjectContext): ScMember = {
     //when class doesn't yet have body: `class A`
     val extendsBlockNode = extendsBlock.getNode
-    val features: ScalaFeatures = extendsBlockNode.getPsi
+    val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(extendsBlockNode.getPsi)
 
     if (!projectContext.project.indentationBasedSyntaxEnabled(features)) {
       val whitespace = createWhitespace.getNode

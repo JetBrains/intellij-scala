@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.UnzipSingleElementInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.immutable.ArraySeq
 
@@ -24,7 +25,7 @@ private object UnzipSingleElementInspection {
       case `._2`(`.unzip3`(q)) => (q, 2)
       case `._3`(`.unzip3`(q)) => (q, 3)
     }.map { case (q, index) =>
-      val args = createExpressionFromText(s"_._$index", e)(using q.getContext)
+      val args = createExpressionFromText(s"_._$index", ScalaFeaturesProvider.forPsiOrDefault(e))(using q.getContext)
       val text = invocationText(q, "map", args)
       replace(e).withText(text).highlightFrom(q)
     }

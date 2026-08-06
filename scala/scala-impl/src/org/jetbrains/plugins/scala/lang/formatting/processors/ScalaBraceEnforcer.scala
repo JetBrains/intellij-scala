@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeStyleSettings) extends ScalaRecursiveElementVisitor {
   private val commonSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
@@ -143,7 +144,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     try {
       val project = head.getProject
       val concatText = elements.map(_.getText).mkString("{\n", "\n", "\n}")
-      val newExpr = createExpressionFromText(concatText, head)(using head.getManager)
+      val newExpr = createExpressionFromText(concatText, ScalaFeaturesProvider.forPsiOrDefault(head))(using head.getManager)
 
       val prev = PsiTreeUtil.prevLeaf(head)
       val next = PsiTreeUtil.nextLeaf(elements.last)

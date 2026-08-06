@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.overrideImplement._
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import javax.swing.Icon
@@ -147,7 +147,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     import TypeAnnotationUtil._
     import clazz.projectContext
 
-    val scalaFeatures = ScalaFeatures.forPsiOrDefault(clazz)
+    val scalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(clazz)
 
     val text: String = classMember match {
       case member @ ScMethodMember(signature, isOverride) =>

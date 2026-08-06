@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -66,7 +67,7 @@ object DoubleNegationUtil {
         builder.append(if (hasNegRight) invertedNegationText(right) else right.getText)
         builder.toString()
     }
-    createExpressionFromText(text, expr)(using expr.getManager)
+    createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager)
   }
 
   @tailrec

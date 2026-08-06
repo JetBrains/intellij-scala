@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 package object intention {
 
@@ -59,7 +60,7 @@ package object intention {
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               IntentionPreviewUtils.write { () =>
-                argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText, argList)(using element.getManager))
+                argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText, ScalaFeaturesProvider.forPsiOrDefault(argList))(using element.getManager))
               }
             }
         }
@@ -83,7 +84,7 @@ package object intention {
       }
       IntentionPreviewUtils.writeAndCompute { () =>
         expression.replaceExpression(
-          createExpressionFromText(target.getText, expression)(using expression),
+          createExpressionFromText(target.getText, ScalaFeaturesProvider.forPsiOrDefault(expression))(using expression),
           removeParenthesis = true
         ).getText
       }

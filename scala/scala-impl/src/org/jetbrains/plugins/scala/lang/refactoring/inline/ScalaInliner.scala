@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createStringLiteralFromText
 import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInliner.InlineState
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.{MultilineStringSettings, MultilineStringUtil}
 
 import scala.jdk.CollectionConverters._
@@ -308,7 +309,7 @@ final class ScalaInliner {
       toMultiline = targetString.isMultiLineString,
       enforceInterpolator = enforceInterpolator
     )
-    createStringLiteralFromText(newStringText, targetString)(using targetString.projectContext)
+    createStringLiteralFromText(newStringText, ScalaFeaturesProvider.forPsiOrDefault(targetString))(using targetString.projectContext)
   }
 }
 

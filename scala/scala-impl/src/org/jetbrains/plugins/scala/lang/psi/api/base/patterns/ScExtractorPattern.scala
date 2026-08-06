@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil
 
 /**
@@ -202,13 +202,14 @@ object ScExtractorPattern {
   object ArgPatternsMapping {
     private[ScExtractorPattern] final class Quasiquote(extractorPattern: ScExtractorPattern, fun: ScFunction) extends ArgPatternsMapping {
       private implicit def projectContext: ProjectContext = fun.projectContext
+      private def scalaFeatures: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(fun)
 
       private lazy val seqSeqTreeType =
-        ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", fun).`type`().toOption
+        ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", scalaFeatures).`type`().toOption
       private lazy val seqTreeType =
-        ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", fun).`type`().toOption
+        ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", scalaFeatures).`type`().toOption
       private lazy val treeType =
-        ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", fun).`type`().toOption
+        ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", scalaFeatures).`type`().toOption
 
       override def typeOfArg(pattern: ScPattern): Option[ScType] = {
         if (pattern.getContext.getContext != extractorPattern)
@@ -236,7 +237,7 @@ object ScExtractorPattern {
       private implicit def projectContext: ProjectContext = fun.projectContext
 
       private def makeType(clazz: String): Option[ScType] =
-        ScalaPsiElementFactory.createTypeElementFromText(clazz, fun).`type`().toOption
+        ScalaPsiElementFactory.createTypeElementFromText(clazz, ScalaFeaturesProvider.forPsiOrDefault(fun)).`type`().toOption
 
       override def typeOfArg(pattern: ScPattern): Option[ScType] = qqPatterns.get(pattern).flatMap(makeType)
     }

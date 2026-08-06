@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 /**
  * @note original implementation was inspired by [[com.intellij.refactoring.anonymousToInner.AnonymousToInnerHandler]]
@@ -95,7 +95,7 @@ object ScalaAnonymousToInnerHandler {
     val args = variables.map(_.variable.getName).mkString(", ")
     val text = s"""new $name($args)""".stripMargin
 
-    createElementFromText[ScNewTemplateDefinition](text, newTemplate)
+    createElementFromText[ScNewTemplateDefinition](text, ScalaFeaturesProvider.forPsiOrDefault(newTemplate))
   }
 
   private def collectUsedVariables(anonClass: ScExtendsBlock): Seq[ScalaVariableData] = {
@@ -146,7 +146,7 @@ object ScalaAnonymousToInnerHandler {
     val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
     val text = s"private class $name($parameters) extends ${anonClass.getText}"
 
-    val newClass = createElementFromText[ScClass](text, anonClass)
+    val newClass = createElementFromText[ScClass](text, ScalaFeaturesProvider.forPsiOrDefault(anonClass))
 
     val parameterOldNameToNewName = variables.map(v => v.variable.getName -> v.name).toMap
     newClass.accept(new ScalaRecursiveElementVisitor() {

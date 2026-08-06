@@ -7,12 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class AddCallParenthesesQuickFix(reference: PsiElement) extends LocalQuickFixAndIntentionActionOnPsiElement(reference) {
   override def invoke(project: Project, psiFile: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!reference.isValid) return
 
-    val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${reference.getText}()", reference)(using project)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${reference.getText}()", ScalaFeaturesProvider.forPsiOrDefault(reference))(using project)
 
     IntentionPreviewUtils.write { () =>
       reference.replace(replacement)

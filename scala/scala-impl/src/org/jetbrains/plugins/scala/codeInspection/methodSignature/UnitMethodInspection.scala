@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Scal
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 sealed abstract class UnitMethodInspection extends AbstractMethodSignatureInspection with DumbAware {
@@ -87,7 +88,7 @@ object UnitMethodInspection {
           import ScalaPsiElementFactory.{createColon, createTypeElementFromText, createWhitespace}
           addChildNode(createColon)
           addChildNode(createWhitespace)
-          addChildNode(createTypeElementFromText("Unit", function))
+          addChildNode(createTypeElementFromText("Unit", ScalaFeaturesProvider.forPsiOrDefault(function)))
         }
       }
 

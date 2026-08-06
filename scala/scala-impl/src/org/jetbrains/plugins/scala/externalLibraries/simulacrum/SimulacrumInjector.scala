@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class SimulacrumInjector extends SyntheticMembersInjector {
   import SimulacrumInjector._
@@ -213,7 +214,7 @@ object SimulacrumInjector {
   private def definitionsToBeInjected(source: ScTypeDefinition): Seq[String] = {
     val tCons            = source.typeParameters.head
     val liftedTypeParams = tCons.typeParameters.zipWithIndex.map {
-      case (_, idx) => createTypeParameterFromText(s"LP$idx", source)(using source)
+      case (_, idx) => createTypeParameterFromText(s"LP$idx", ScalaFeaturesProvider.forPsiOrDefault(source))(using source)
     }
 
     val className      = source.name

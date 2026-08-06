@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.immutable.ArraySeq
 
@@ -108,7 +109,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parent =
       if (isNotBlock && needBraces(parExpr, nextParent(parExpr, file))) {
         firstRange = firstRange.shiftRight(1)
-        parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}", parExpr)(using file.getManager),
+        parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}", ScalaFeaturesProvider.forPsiOrDefault(parExpr))(using file.getManager),
           removeParenthesis = false)
       } else container(parExpr).getOrElse(file)
     if (parent == null) None

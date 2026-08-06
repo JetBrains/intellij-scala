@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext, api}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -61,7 +61,7 @@ final class AddParametersQuickfix(argExprList: SmartPsiElementPointer[ScArgument
           val injectionPositions = findInjectionPositions(arguments, parameters)
           val newParamTexts = generateNewParameterTexts(injectionPositions, parameters.map(_.name))
           val newClauseText = createNewClauseText(clause, newParamTexts)
-          val newClause = clause.replace(createClauseFromText(newClauseText, clause.getParent)).asInstanceOf[ScParameterClause]
+          val newClause = clause.replace(createClauseFromText(newClauseText, ScalaFeaturesProvider.forPsiOrDefault(clause.getParent))).asInstanceOf[ScParameterClause]
 
           val isNewParam = injectionPositions.map { case (_, _, idx) => idx }.toSet
           val builder = new TemplateBuilderImpl(newClause)

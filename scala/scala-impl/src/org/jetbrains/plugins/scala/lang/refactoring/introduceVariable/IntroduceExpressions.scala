@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.{util => ju}
@@ -362,7 +362,7 @@ object IntroduceExpressions {
 
     // wrap expression in parentheses to avoid parsing errors (SCL-20916)
     val parenthesisedExpr = wrapInParentheses(expression)
-    val features: ScalaFeatures = expression
+    val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(expression)
 
     def createForBindingIn(forStmt: ScFor): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
@@ -550,7 +550,7 @@ object IntroduceExpressions {
   }
 
   private def wrapInParentheses(expression: ScExpression)(implicit ctx: ProjectContext): ScParenthesisedExpr = {
-    val parenthesised = ScalaPsiElementFactory.createElementFromText[ScParenthesisedExpr]("(1)", expression)
+    val parenthesised = ScalaPsiElementFactory.createElementFromText[ScParenthesisedExpr]("(1)", ScalaFeaturesProvider.forPsiOrDefault(expression))
     parenthesised.innerElement.foreach(_.replace(expression.copy()))
     parenthesised
   }

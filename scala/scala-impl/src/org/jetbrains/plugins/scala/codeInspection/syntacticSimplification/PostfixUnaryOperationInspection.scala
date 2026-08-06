@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.Postfi
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class PostfixUnaryOperationInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
@@ -72,7 +73,7 @@ object PostfixUnaryOperationInspection {
       val unaryExpr =
         ScalaPsiElementFactory.createExpressionFromText(
           s"${unaryOperators(operator)}${operand.getText}",
-          target
+          ScalaFeaturesProvider.forPsiOrDefault(target)
         )
 
       target.replaceExpression(unaryExpr, removeParenthesis = true)

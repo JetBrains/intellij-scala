@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
@@ -210,7 +211,7 @@ object SyntheticMembersInjector {
 
     extendsBlock.templateBody.getOrElse {
       cachedInUserData("templateBodyOrSynthetic", td, ModTracker.libraryAware(td)) {
-        val body = ScalaPsiElementFactory.createTemplateBody(isGiven = false, features = extendsBlock)(using td.getProject)
+        val body = ScalaPsiElementFactory.createTemplateBody(isGiven = false, features = ScalaFeaturesProvider.forPsiOrDefault(extendsBlock))(using td.getProject)
         body.context = extendsBlock
         body.child = extendsBlock.getLastChild
         body

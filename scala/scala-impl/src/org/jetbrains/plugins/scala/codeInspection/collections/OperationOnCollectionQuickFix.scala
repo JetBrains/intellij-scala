@@ -4,6 +4,7 @@ import com.intellij.modcommand.{ActionContext, ModPsiUpdater, PsiUpdateModComman
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class OperationOnCollectionQuickFix(
   @Nls override val getFamilyName: String,
@@ -11,7 +12,7 @@ class OperationOnCollectionQuickFix(
   replacementText: String,
 ) extends PsiUpdateModCommandAction[ScExpression](expression) {
   override def invoke(context: ActionContext, expression: ScExpression, updater: ModPsiUpdater): Unit = {
-    val replacement = createExpressionFromText(replacementText, expression)(using context.project())
+    val replacement = createExpressionFromText(replacementText, ScalaFeaturesProvider.forPsiOrDefault(expression))(using context.project())
     expression.replaceExpression(replacement, removeParenthesis = true)
   }
 }

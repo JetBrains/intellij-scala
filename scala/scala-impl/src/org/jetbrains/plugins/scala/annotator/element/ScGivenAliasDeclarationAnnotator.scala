@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPsiElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider}
 
 object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDeclaration] with DumbAware {
   override def annotate(decl: ScGivenAliasDeclaration, typeAware: Boolean)
@@ -69,7 +69,7 @@ object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDec
       val deferredGiven =
         ScalaPsiElementFactory.createMethodFromText(
           decl.getText + " = scala.compiletime.deferred",
-          ScalaFeatures.forPsiOrDefault(decl)
+          ScalaFeaturesProvider.forPsiOrDefault(decl)
         )(using decl)
 
       decl.replace(deferredGiven)
@@ -109,7 +109,7 @@ private[element] final class ImplementAnonymousAbstractGivenFix(declaration: ScG
     new ImplementAnonymousAbstractGivenFix(PsiTreeUtil.findSameElementInCopy(declaration, target))
 
   override protected def doInvoke(implicit editor: Editor, project: Project): Unit = {
-    val newElement = declaration.replace(createPsiElementFromText(s"${declaration.getText} = ???", features = declaration))
+    val newElement = declaration.replace(createPsiElementFromText(s"${declaration.getText} = ???", ScalaFeaturesProvider.forPsiOrDefault(declaration)))
 
     if (!IntentionPreviewUtils.isIntentionPreviewActive) {
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(newElement) match {

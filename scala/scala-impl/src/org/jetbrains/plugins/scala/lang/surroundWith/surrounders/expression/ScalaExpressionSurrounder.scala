@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.surroundWith.ScalaModCommandSurrounder
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 /**
  * Surrounds an expression and return an expression
@@ -82,7 +82,7 @@ abstract class ScalaExpressionSurrounder extends ScalaModCommandSurrounder {
       .parenthesize(needParenthesis = elements.length == 1 && this.needParenthesis(element))
 
     implicit val context: ProjectContext = element.projectContext
-    ScalaPsiElementFactory.createExpressionFromText(text, element)
+    ScalaPsiElementFactory.createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(element))
   }
 
   def getTemplateAsString(elements: Array[PsiElement]): String =

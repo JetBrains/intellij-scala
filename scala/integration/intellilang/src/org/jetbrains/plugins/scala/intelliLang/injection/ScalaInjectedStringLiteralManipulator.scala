@@ -4,9 +4,10 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.AbstractElementManipulator
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl._
+import org.jetbrains.plugins.scala.lang.psi.impl.*
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[ScStringLiteral] {
 
@@ -39,7 +40,7 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
       super.getRangeInElement(element)
 
   private def replaceWith(literal: ScStringLiteral, newText: String): ScStringLiteral = {
-    val expression = ScalaPsiElementFactory.createExpressionFromText(newText, literal)(using literal)
+    val expression = ScalaPsiElementFactory.createExpressionFromText(newText, ScalaFeaturesProvider.forPsiOrDefault(literal))(using literal)
     (expression, literal) match {
       case (newInterpolatedLiteral: ScInterpolatedStringLiteral, _: ScInterpolatedStringLiteral) =>
         literal.replace(newInterpolatedLiteral).asInstanceOf[ScStringLiteral]
@@ -53,6 +54,4 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
       case _ => null
     }
   }
-
 }
-

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -107,7 +108,7 @@ object RemoveBracesIntention {
               val Regex = """(?ms)\{(.+)\}""".r
               x.getText match {
                 case Regex(code) =>
-                  val replacement = createBlockExpressionWithoutBracesFromText(code, element)(using element)
+                  val replacement = createBlockExpressionWithoutBracesFromText(code, ScalaFeaturesProvider.forPsiOrDefault(element))(using element)
                   CodeEditUtil.replaceChild(x.getParent.getNode, x.getNode, replacement.getNode)
                   CodeEditUtil.markToReformat(caseClause.getNode, true)
                 case _ =>

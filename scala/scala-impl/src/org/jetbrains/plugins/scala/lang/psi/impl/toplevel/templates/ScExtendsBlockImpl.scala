@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.collection.mutable.ArrayBuffer
@@ -292,7 +292,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def templateBodies = templateBody.toSeq
 
   private def createEmptyTemplateBody: ScTemplateBody =
-    add(ScalaPsiElementFactory.createTemplateBody(getParentByStub.is[ScGivenDefinition], this))
+    add(ScalaPsiElementFactory.createTemplateBody(getParentByStub.is[ScGivenDefinition], ScalaFeaturesProvider.forPsiOrDefault(this)))
       .asInstanceOf[ScTemplateBody]
 }
 

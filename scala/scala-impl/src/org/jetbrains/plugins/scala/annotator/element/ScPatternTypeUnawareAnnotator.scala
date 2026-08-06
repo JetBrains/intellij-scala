@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScSeqWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider}
 
 object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] with DumbAware {
 
@@ -83,7 +83,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] with Du
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!binder.isValid) return
-      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(_ @ _*)", binder)(using project)
+      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(_ @ _*)", ScalaFeaturesProvider.forPsiOrDefault(binder))(using project)
       val newBinder = pattern.elements.find(_.elementType == ScalaTokenTypes.tAT)
       newBinder.foreach(binder.replace)
     }
@@ -103,7 +103,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] with Du
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!namingPattern.isValid) return
-      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(${namingPattern.name}*)", namingPattern)(using project)
+      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(${namingPattern.name}*)", ScalaFeaturesProvider.forPsiOrDefault(namingPattern))(using project)
       val newPattern = pattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
       newPattern.foreach(namingPattern.replace)
     }

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
 
@@ -286,7 +287,7 @@ object AutoBraceInsertionTools {
           enclosementText.substring(caretInEnclosement)
       probeFile =
         ScalaPsiElementFactory.createScalaFileFromText(
-          enclosementTextWithoutStatement, element, shouldTrimText = false
+          enclosementTextWithoutStatement, ScalaFeaturesProvider.forPsiOrDefault(element), shouldTrimText = false
         )(using element.getProject)
 
       // find the expression that comes after the statement start (which is parsed corretly now in the dummy file)

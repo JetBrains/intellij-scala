@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -51,7 +52,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
 
     val convertedExpr: String = convertExpression(methodCallExpr, scReferenceExpression, desiredOper)
 
-    val newMethodCallExpr = createExpressionFromText(convertedExpr, element)(using element.getManager)
+    val newMethodCallExpr = createExpressionFromText(convertedExpr, ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getManager)
 
     IntentionPreviewUtils.write { () =>
       val newExpr = methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)

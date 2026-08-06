@@ -9,13 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertBlockToBraceless
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScCatchBlock, ScFinallyBlock, ScFor, ScIf, ScMatch, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createWhitespace}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures, ScalaFeaturesProvider}
 
 package object expression {
 
   private[scala] implicit class ScalaPsiElementExt[E <: ScalaPsiElement](private val element: E) extends AnyVal {
     def toIndentationBasedSyntax(implicit ctx: ProjectContext = element.projectContext,
-                                 features: ScalaFeatures = element): E = inWriteCommandActionIf(element.isPhysical) {
+                                 features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(element)): E = inWriteCommandActionIf(element.isPhysical) {
       val withNewSyntax = Rewriters.rewriteToNewSyntax(element)
       val withIndentationBasedSyntax = Rewriters.rewriteToIndentationBasedSyntax(withNewSyntax)
 
@@ -23,7 +23,7 @@ package object expression {
     }(using ctx.project)
 
     def toNewSyntax(implicit ctx: ProjectContext = element.projectContext,
-                    features: ScalaFeatures = element): E =
+                    features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(element)): E =
       inWriteCommandActionIf(element.isPhysical)(Rewriters.rewriteToNewSyntax(element))(using ctx.project)
 
     private[expression] def forcePostprocessAndRestore: Option[PsiElement] =

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
 
@@ -33,7 +33,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       simplify(super.surroundPsi(elements), isTopLevel = false) match {
         case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant =>
           implicit val context: ProjectContext = parenthesized
-          createExpressionFromText(parenthesized.getTextOfStripped(), element)
+          createExpressionFromText(parenthesized.getTextOfStripped(), ScalaFeaturesProvider.forPsiOrDefault(element))
         case expression => expression
       }
     }

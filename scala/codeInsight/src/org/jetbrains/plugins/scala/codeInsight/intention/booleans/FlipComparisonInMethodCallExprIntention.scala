@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -57,7 +57,7 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
     val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
 
     import methodCallExpr.projectContext
-    val flipped = createFlippedCall(qualifier.getText, operation, argumentExpr)(element)
+    val flipped = createFlippedCall(qualifier.getText, operation, argumentExpr)(ScalaFeaturesProvider.forPsiOrDefault(element))
 
     val size = flipped.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.
       getTextRange.getStartOffset - flipped.getTextRange.getStartOffset

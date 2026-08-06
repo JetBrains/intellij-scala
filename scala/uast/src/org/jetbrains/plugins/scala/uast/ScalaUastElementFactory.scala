@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter.U
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.uast.UastContextKt.toUElement
 import org.jetbrains.uast._
 import org.jetbrains.uast.generate.{UParameterInfo, UastElementFactory}
@@ -63,7 +63,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
   @Nullable
   override def createBlockExpression(expressions: util.List[? <: UExpression], @Nullable context: PsiElement): UBlockExpression = {
-    val block = createBlockWithGivenExpressions(expressions.asScala.toSeq.flatMap(_.getSourcePsi.toOption), context)
+    val block = createBlockWithGivenExpressions(expressions.asScala.toSeq.flatMap(_.getSourcePsi.toOption), ScalaFeaturesProvider.forPsiOrDefault(context))
     block.context = context
     new ScUBlockExpression(block, LazyUElement.Empty)
   }
@@ -200,7 +200,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
       }
     }.mkString(if (needsParensAroundParams) "(" else "", ", ", if (needsParensAroundParams) ")" else "")
 
-    ScalaPsiElementFactory.createScalaFileFromText(s"Option(???).map { $paramText => () }", context)
+    ScalaPsiElementFactory.createScalaFileFromText(s"Option(???).map { $paramText => () }", ScalaFeaturesProvider.forPsiOrDefault(context))
       .getFirstChild
       .asInstanceOf[ScMethodCall]
       .argumentExpressions
@@ -213,7 +213,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
           val newBody =
             if (statements.sizeIs == 1) statements.head
-            else createBlockWithGivenExpressions(statements, context)
+            else createBlockWithGivenExpressions(statements, ScalaFeaturesProvider.forPsiOrDefault(context))
 
           fn.result.foreach(_.replace(newBody))
           new ScULambdaExpression(fn, LazyUElement.Empty)
@@ -309,7 +309,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
   @Nullable
   override def createMethodFromText(methodText: String, @Nullable context: PsiElement): UMethod =
-    toUElement(ScalaPsiElementFactory.createMethodFromText(methodText, context), classOf[UMethod])
+    toUElement(ScalaPsiElementFactory.createMethodFromText(methodText, ScalaFeaturesProvider.forPsiOrDefault(context)), classOf[UMethod])
 
   override def createComment(text: String, @Nullable context: PsiElement): UComment =
     toUElement(ScalaPsiElementFactory.createCommentFromText(text), classOf[UComment])

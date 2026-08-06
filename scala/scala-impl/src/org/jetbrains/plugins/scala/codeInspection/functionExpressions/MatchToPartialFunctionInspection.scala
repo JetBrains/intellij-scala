@@ -4,12 +4,12 @@ import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import scala.jdk.CollectionConverters._
 
@@ -115,18 +115,18 @@ object MatchToPartialFunctionInspection {
     private def doApplyFix(statement: ScMatch, expression: ScExpression)
                           (implicit project: Project): Unit = {
       val matchStmtCopy = statement.copy.asInstanceOf[ScMatch]
-
+      val features = ScalaFeaturesProvider.forPsiOrDefault(expression)
       val newBlock = findLeftBrace(matchStmtCopy) match {
         case Some(leftBrace) =>
           addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
           matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-          createExpressionFromText(matchStmtCopy.getText, expression)
+          createExpressionFromText(matchStmtCopy.getText, features)
         case None =>
           findMatchKeyword(matchStmtCopy) match {
             case Some(matchKw) =>
               addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
               matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, matchKw)
-              createExpressionFromText("{" + matchStmtCopy.getText + "\n}", expression)
+              createExpressionFromText("{" + matchStmtCopy.getText + "\n}", features)
             case None => return
           }
       }
@@ -136,7 +136,7 @@ object MatchToPartialFunctionInspection {
       IntentionPreviewUtils.write { () =>
         expression.getParent match {
           case (argList: ScArgumentExprList) childOf (call@ScMethodCall(ElementText(invoked), _)) if argList.exprs.size == 1 =>
-            val replacement = createExpressionFromText(invoked + " " + newBlock.getText, call)
+            val replacement = createExpressionFromText(invoked + " " + newBlock.getText, features)
             call.replace(replacement)
           case block@ScBlock(`expression`) =>
             block.replace(newBlock)
@@ -172,7 +172,7 @@ object MatchToPartialFunctionInspection {
           (p, name + " @ " + text)
       }.foreach {
         case (pattern, text) =>
-          val replacement = createPatternFromText(text, pattern)
+          val replacement = createPatternFromText(text, ScalaFeaturesProvider.forPsiOrDefault(pattern))
           pattern.replace(replacement)
       }
     }

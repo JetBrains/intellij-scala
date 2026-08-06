@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.Associations
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import java.{util => ju}
 
@@ -96,7 +97,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     val textWithQualifier = s"${targetClass.name}.${reference.refName}"
     val qualified = reference match {
       case _: ScReferenceExpression =>
-        createExpressionFromText(textWithQualifier, reference)
+        createExpressionFromText(textWithQualifier, ScalaFeaturesProvider.forPsiOrDefault(reference))
       case _: ScStableCodeReference =>
         createReferenceFromText(textWithQualifier)
       case _ => return false

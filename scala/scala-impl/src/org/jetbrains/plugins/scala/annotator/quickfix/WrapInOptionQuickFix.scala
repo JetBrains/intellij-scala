@@ -9,9 +9,10 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult) extends IntentionAction {
 
@@ -28,7 +29,7 @@ final class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, e
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     if (expr.isValid) {
       val newText = "Option(" + expr.getText + ")"
-      expr.replaceExpression(createExpressionFromText(newText, expr)(using expr.getManager), removeParenthesis = true)
+      expr.replaceExpression(createExpressionFromText(newText, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager), removeParenthesis = true)
     }
 
   override def startInWriteAction(): Boolean = true

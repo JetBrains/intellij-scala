@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, api}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 sealed abstract class NumberLiteralQuickFix[L <: Numeric](private val literal: L)
   extends IntentionAction
@@ -41,7 +42,7 @@ sealed abstract class NumberLiteralQuickFix[L <: Numeric](private val literal: L
   private def replaceLiteral(literal: L): Unit = {
     val newText = transformText(literal.getText)
     literal.replace {
-      ScalaPsiElementFactory.createExpressionFromText(newText, literal)(using literal)
+      ScalaPsiElementFactory.createExpressionFromText(newText, ScalaFeaturesProvider.forPsiOrDefault(literal))(using literal)
     }
   }
 }

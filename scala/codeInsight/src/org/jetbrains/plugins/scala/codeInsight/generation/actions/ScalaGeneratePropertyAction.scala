@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDefinitionWithContext, createNewLine}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 
 final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(
   new ScalaGeneratePropertyAction.Handler,
@@ -48,7 +48,7 @@ object ScalaGeneratePropertyAction {
 
     private def addPropertyMembers(definition: ScVariableDefinition): Unit = {
       implicit val ctx: ProjectContext = definition.getManager
-      implicit val features: ScalaFeatures = definition
+      implicit val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(definition)
 
       val name = definition.bindings.head.name
       val typeText = definition.`type`().getOrAny.canonicalText

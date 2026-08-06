@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixPatternQuickFix.message
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScParenthesisedPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ConvertFromInfixPatternQuickFix(expr: ScInfixPattern) extends PsiUpdateModCommandAction[ScInfixPattern](expr) {
   override def getFamilyName: String = message
@@ -19,7 +20,7 @@ object ConvertFromInfixPatternQuickFix {
   val message: String = ScalaInspectionBundle.message("convert.from.infix.pattern")
 
   def applyFix(infixPattern: ScInfixPattern)(implicit project: Project): Unit = {
-    val replacement = ScalaPsiElementFactory.createPatternFromText(computeReplacementText(infixPattern), infixPattern)
+    val replacement = ScalaPsiElementFactory.createPatternFromText(computeReplacementText(infixPattern), ScalaFeaturesProvider.forPsiOrDefault(infixPattern))
 
     val elementToReplace = infixPattern.getContext match {
       case x: ScParenthesisedPattern => x

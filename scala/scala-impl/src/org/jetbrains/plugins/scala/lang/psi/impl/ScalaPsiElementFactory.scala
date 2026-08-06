@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext.toManager
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
@@ -200,7 +200,7 @@ object ScalaPsiElementFactory {
 
       val firstNonNullOfContextAndChild = ObjectUtils.firstNonNull(context, child)
       implicit val ctx: ProjectContext = projectContext.getOrElse(firstNonNullOfContextAndChild)
-      val features: ScalaFeatures = scalaFeatures.getOrElse(firstNonNullOfContextAndChild)
+      val features: ScalaFeatures = scalaFeatures.getOrElse(ScalaFeaturesProvider.forPsiOrDefault(firstNonNullOfContextAndChild))
 
       if (needsBlock || body.nonEmpty) {
         val braceless = !forceBraces && ctx.project.indentationBasedSyntaxEnabled(features)
@@ -275,7 +275,7 @@ object ScalaPsiElementFactory {
     text: String,
     @Nullable contextElement: PsiElement
   )(implicit ctx: ProjectContext): Option[E] = {
-    createElementFromText[E](text, contextElement).toOption.map { element =>
+    createElementFromText[E](text, ScalaFeaturesProvider.forPsiOrDefault(contextElement)).toOption.map { element =>
       element.context = contextElement
       element
     }
@@ -695,7 +695,7 @@ object ScalaPsiElementFactory {
   ): ScMember =
     createMemberFromText(
       replaceKeywordTokenIn(valOrVar, fromToken, toToken),
-      ScalaFeatures.forPsiOrDefault(valOrVar)
+      ScalaFeaturesProvider.forPsiOrDefault(valOrVar)
     )
 
   private def replaceKeywordTokenIn(member: ScMember,
@@ -721,7 +721,7 @@ object ScalaPsiElementFactory {
     val enumText = s"$name$typeText = ${expr.getText}"
     // see ScalaPsiElementFactory.createClassWithBody comment
     val text    = s"for {\n  i <- 1 to 239\n  $enumText\n}"
-    val forStmt = createElementFromText[ScFor](text, ScalaFeatures.forPsiOrDefault(expr))
+    val forStmt = createElementFromText[ScFor](text, ScalaFeaturesProvider.forPsiOrDefault(expr))
 
     forStmt.enumerators.flatMap {
       _.forBindings.headOption
@@ -1365,7 +1365,7 @@ object ScalaPsiElementFactory {
   def createTypeDefinitionWithContext(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScTypeDefinition =
     createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef.parse(using _))
 
-  def createReferenceFromText(@NonNls text: String, @Nullable context: PsiElement, child: PsiElement): ScStableCodeReference =
+  def createReferenceFromText(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScStableCodeReference](text, context, child) {
       types.StableId(ScalaElementType.REFERENCE)(using _)
     }
@@ -1430,7 +1430,7 @@ object ScalaPsiElementFactory {
     @Nullable child:   PsiElement
   )(parse:        ScalaPsiBuilder => AnyVal): E = {
     implicit val project: Project = (if (context == null) child else context).getProject
-    createElementWithContext[E](text, context, child, ScalaFeatures.forPsiOrDefault(context))(parse)
+    createElementWithContext[E](text, context, child, ScalaFeaturesProvider.forPsiOrDefault(context))(parse)
   }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =

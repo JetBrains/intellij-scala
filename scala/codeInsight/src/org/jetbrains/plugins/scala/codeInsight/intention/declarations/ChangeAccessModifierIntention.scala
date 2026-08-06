@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import javax.swing.ListSelectionModel
 import scala.jdk.CollectionConverters._
@@ -288,7 +289,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
     val modifierList = member.getModifierList
     if (modifierList == null || modifierList.hasModifierProperty(PsiModifier.PRIVATE)) return Some(conflicts)
     val newModifierList = ScalaPsiElementFactory
-      .createScalaFileFromText(s"$modifier class a", member).typeDefinitions.head.getModifierList
+      .createScalaFileFromText(s"$modifier class a", ScalaFeaturesProvider.forPsiOrDefault(member)).typeDefinitions.head.getModifierList
     val useScope = member.getUseScope
 
     def getElementsToSearch(member: ScMember): Seq[PsiElement] = member match {

@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 /**
   * mattfowler
@@ -15,6 +16,6 @@ final class RemoveNewQuickFix(param: ScNewTemplateDefinition) extends AbstractFi
   override protected def doApplyFix(p: ScNewTemplateDefinition)
                                    (implicit project: Project): Unit = {
     p.targetToken.delete()
-    p.replaceExpression(createExpressionFromText(p.getText, p), removeParenthesis = false)
+    p.replaceExpression(createExpressionFromText(p.getText, ScalaFeaturesProvider.forPsiOrDefault(p)), removeParenthesis = false)
   }
 }

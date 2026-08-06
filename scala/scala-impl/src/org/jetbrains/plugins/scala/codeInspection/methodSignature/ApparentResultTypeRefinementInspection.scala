@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Scal
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatureInspection {
 
@@ -28,7 +29,7 @@ final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatu
         endIndex = lastType.getTextRange.getEndOffset - function.getTextRange.getStartOffset
 
         text = s"${function.getText.substring(0, endIndex)} = ${refinement.getText}"
-        method = ScalaPsiElementFactory.createMethodFromText(text, function)
+        method = ScalaPsiElementFactory.createMethodFromText(text, ScalaFeaturesProvider.forPsiOrDefault(function))
       } function.replace(method)
     }
 

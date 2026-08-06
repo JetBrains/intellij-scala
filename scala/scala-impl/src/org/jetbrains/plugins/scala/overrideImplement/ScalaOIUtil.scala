@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOv
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import scala.collection.immutable.ArraySeq
@@ -49,7 +49,7 @@ object ScalaOIUtil {
         needsOverrideModifier = false,
         isVal = true,
         clazz = parameter.containingClass,
-        features = tdContext
+        features = ScalaFeaturesProvider.forPsiOrDefault(tdContext)
       ).asInstanceOf[ScValue]
 
       member.context = tdContext

@@ -10,8 +10,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.format.AnyTopmostStringParts
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLit
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.BundleExtraction.{BundleExtractionInfo, executeBundleExtraction}
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection.*
 
@@ -114,7 +115,7 @@ object ScalaExtractStringToBundleInspection {
             else arguments.mkString(", ", ", ", "")
           element.replace(ScalaPsiElementFactory.createExpressionFromText(
             s"""$bundleClassName.message("$key"$argString)""",
-            element
+            ScalaFeaturesProvider.forPsiOrDefault(element)
           ))
       }
     }

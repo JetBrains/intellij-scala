@@ -21,10 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import javax.swing.Icon
 
@@ -340,7 +341,7 @@ object SameSignatureCallParametersProvider {
       foreachArgument(list) { argument =>
         val replacementText = argument.getText + AssignmentText + NotImplementedError
         argument.replaceExpression(
-          createExpressionFromText(replacementText, list)(using argument),
+          createExpressionFromText(replacementText, ScalaFeaturesProvider.forPsiOrDefault(list))(using argument),
           removeParenthesis = false
         )
       }

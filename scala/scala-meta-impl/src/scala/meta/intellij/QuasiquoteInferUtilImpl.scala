@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtilApi
 
 import scala.annotation.{nowarn, switch}
@@ -85,7 +85,7 @@ trait QuasiquoteInferUtilApiImpl extends QuasiquoteInferUtilApi {
       (parsed match {
         case Parsed.Success(qq) =>
           ScalaPsiElementFactory
-            .createTypeElementFromText(s"scala.meta.${qq.productPrefix}", pat)
+            .createTypeElementFromText(s"scala.meta.${qq.productPrefix}", ScalaFeaturesProvider.forPsiOrDefault(pat))
             .`type`()
         case Parsed.Error(_, message, _) =>
           Failure(NlsString.force(message))

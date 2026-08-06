@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class VariableNullInitializerInspection extends LocalInspectionTool {
 
@@ -63,13 +63,13 @@ private object VariableNullInitializerInspection {
 
   private class UseUnderscoreInitializerQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.underscore.initializer"), definition) {
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit =
-      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("_", element)))
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("_", ScalaFeaturesProvider.forPsiOrDefault(element))))
   }
 
   private class UseOptionTypeQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.option.type"), definition) {
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit = {
-      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("None", element)))
-      element.typeElement.foreach(typeElement => typeElement.replace(createTypeElementFromText(s"Option[${typeElement.getText}]", definition)))
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("None", ScalaFeaturesProvider.forPsiOrDefault(element))))
+      element.typeElement.foreach(typeElement => typeElement.replace(createTypeElementFromText(s"Option[${typeElement.getText}]", ScalaFeaturesProvider.forPsiOrDefault(definition))))
     }
   }
 
@@ -78,7 +78,7 @@ private object VariableNullInitializerInspection {
 
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit =
       element.expr.filter(isNull).foreach { expression =>
-        expression.replace(createExpressionFromText("uninitialized", element))
+        expression.replace(createExpressionFromText("uninitialized", ScalaFeaturesProvider.forPsiOrDefault(element)))
         ScImportsHolder(element).addImportForPath("scala.compiletime.uninitialized", element)
       }
   }

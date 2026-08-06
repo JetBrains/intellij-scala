@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class FloatLiteralEndingWithDecimalPointInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
@@ -20,7 +21,7 @@ final class MakeDoubleFix(lit: ScLiteral)
     with DumbAware {
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit =
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d", l))
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d", ScalaFeaturesProvider.forPsiOrDefault(l)))
 }
 
 final class MakeFloatFix(lit: ScLiteral)
@@ -28,7 +29,7 @@ final class MakeFloatFix(lit: ScLiteral)
     with DumbAware {
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit =
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f", l))
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f", ScalaFeaturesProvider.forPsiOrDefault(l)))
 }
 
 final class AddZeroAfterDecimalPoint(lit: ScLiteral)
@@ -36,5 +37,5 @@ final class AddZeroAfterDecimalPoint(lit: ScLiteral)
     with DumbAware {
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit =
-    l.replace(createExpressionFromText(l.getText + "0", l))
+    l.replace(createExpressionFromText(l.getText + "0", ScalaFeaturesProvider.forPsiOrDefault(l)))
 }

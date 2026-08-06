@@ -5,10 +5,9 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, Parent, PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.text.ClassPrinter.{Keywords, isIdentifier}
 
 class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false) {
@@ -67,7 +66,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       val classParent =
         if (normalize && isScala3 && !cls.isInterface && cls.superClass.isEmpty) cls.allSupers.find(!_.isInterface).filter(_.qualifiedName != "java.lang.Object").map(ScDesignatorType(_)).toList
         else Seq.empty
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") + (classParent ++ superTypes).map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") + (classParent ++ superTypes).map(textOf(_, parens = 1)).mkString(if (cls.features.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
     }
 
     val derivations = {

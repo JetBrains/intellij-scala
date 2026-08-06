@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -57,7 +58,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   def addAnnotation(qualifiedName: String, addNewLine: Boolean): ScAnnotation = {
     val container = findChild[ScAnnotations].get
 
-    val added = container.add(createAnAnnotation(qualifiedName, container))
+    val added = container.add(createAnAnnotation(qualifiedName, ScalaFeaturesProvider.forPsiOrDefault(container)))
     if (addNewLine) container.add(createNewLine())
 
     ScalaPsiUtil.adjustTypes(added)

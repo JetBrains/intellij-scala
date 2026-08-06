@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClassTemplateParents
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -47,14 +47,15 @@ object ExtractSuperUtil {
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
     implicit val projectContext: ProjectContext = clazz.projectContext
+    val features = ScalaFeaturesProvider.forPsiOrDefault(clazz)
 
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>
         val tpText = s"${tp.getText} with $text"
-        val (_, newTp) = createClassTemplateParents(tpText, clazz)
+        val (_, newTp) = createClassTemplateParents(tpText, features)
         tp.replace(newTp).asInstanceOf[ScTemplateParents]
       case None =>
-        val (extKeyword, newTp) = createClassTemplateParents(text, clazz)
+        val (extKeyword, newTp) = createClassTemplateParents(text, features)
         oldExtBlock.addRangeBefore(extKeyword, newTp, oldExtBlock.getFirstChild)
         oldExtBlock.templateParents.get
     }

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMe
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 
 final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
   new ScalaGenerateEqualsAction.Handler,
@@ -164,7 +164,7 @@ object ScalaGenerateEqualsAction {
         if (!isOk) return
 
         implicit val projectContext: ProjectContext = project
-        implicit val features: ScalaFeatures = aClass
+        implicit val features: ScalaFeatures = ScalaFeaturesProvider.forPsiOrDefault(aClass)
 
         inWriteAction {
           val needHashCode = hasHashCode(aClass).isEmpty

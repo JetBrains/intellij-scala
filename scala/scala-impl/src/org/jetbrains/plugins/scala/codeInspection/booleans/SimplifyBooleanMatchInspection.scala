@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaFeaturesProvider}
 
 
 class SimplifyBooleanMatchInspection extends LocalInspectionTool {
@@ -33,7 +33,7 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends PsiBasedModCom
   override def perform(context: ActionContext, scStmt: ScMatch): ModCommand = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
       ModCommand.psiUpdate(scStmt, (scStmt: ScMatch) => {
-        val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(using context.project, scStmt)
+        val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(using context.project, ScalaFeaturesProvider.forPsiOrDefault(scStmt))
         scStmt.replaceExpression(newExpr, removeParenthesis = false)
         ()
       })
@@ -68,7 +68,7 @@ object SimpleBooleanMatchUtil {
       case None => stmt
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
-        val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)
+        val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", ScalaFeaturesProvider.forPsiOrDefault(stmt))
         ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt, recursive = true)
     }
   }
@@ -84,7 +84,7 @@ object SimpleBooleanMatchUtil {
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin, stmt)
+           """.stripMargin, ScalaFeaturesProvider.forPsiOrDefault(stmt))
         ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt, recursive = true)
       case _ => stmt
     }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtensionBody, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.SideEffectsUtil.hasNoSideEffects
 
 private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: String, val removeBindingOnly: Boolean) extends LocalQuickFixAndIntentionActionOnPsiElement(e) with Comparable[AnyRef] {
@@ -37,7 +38,7 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
   }
 
   private def removeInWriteAction(startElement: PsiElement, project: Project): Unit = inWriteAction {
-    def wildcard = createWildcardNode(startElement)(using project).getPsi
+    def wildcard = createWildcardNode(ScalaFeaturesProvider.forPsiOrDefault(startElement))(using project).getPsi
     startElement match {
       case ref: ScReferencePattern => ref.getContext match {
         case pList: ScPatternList if pList.patterns == Seq(ref) =>

@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, Tracing}
@@ -99,7 +99,7 @@ trait ScExpression extends ScBlockStatement
 
     val newExpr: PsiElement =
       if (ScalaPsiUtil.needParentheses(this, expr))
-        ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize(), expr)
+        ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize(), ScalaFeaturesProvider.forPsiOrDefault(expr))
       else
         expr.copy
 

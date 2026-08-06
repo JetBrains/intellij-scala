@@ -1,8 +1,8 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.*
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
+import org.jetbrains.plugins.scala.project.{ScalaFeaturesProvider, ScalaLanguageLevel}
+import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor.*
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 import org.jetbrains.sbt.language.utils.{SbtScalacOptionInfo, SbtScalacOptionUtils}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class SbtScalacOptionsCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PATTERN, completionProvider)
@@ -124,7 +124,7 @@ object SbtScalacOptionsCompletionContributor {
               context.getDocument.replaceString(startOffset, startOffset + option.getText.length, s"Seq(${option.getText})")
               context.commitDocument()
               val op = expr.operation.refName
-              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head), expr)(using expr.projectContext))
+              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head), ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.projectContext))
               PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(context.getDocument)
               startOffset + 5 // '+' or '-' in operation + 'Seq('
             case _ =>

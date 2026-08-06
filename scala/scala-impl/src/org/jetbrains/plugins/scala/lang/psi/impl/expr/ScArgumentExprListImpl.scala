@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createComma, createNewLineNode, createPsiElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -156,7 +157,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         case call: ScMethodCall =>
           // Simply deleting argument list of a method call could lead to `None.get` in `ScMethodCall.args`
           val callText = call.getText
-          val newElement = createPsiElementFromText(callText, call)
+          val newElement = createPsiElementFromText(callText, ScalaFeaturesProvider.forPsiOrDefault(call))
           call.replace(newElement)
         case _ =>
       }

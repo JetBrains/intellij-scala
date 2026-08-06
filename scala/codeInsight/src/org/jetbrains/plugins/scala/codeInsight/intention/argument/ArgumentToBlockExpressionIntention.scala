@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnonFunBlockFromFunExpr, createBlockFromExpr}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction with DumbAware {
@@ -33,10 +34,11 @@ final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAc
       .foreach { list =>
         import list.projectContext
         val exp = list.exprs.head
+        val features = ScalaFeaturesProvider.forPsiOrDefault(element)
         val block = exp match {
-          case FunctionExpression(fnExpr) => createAnonFunBlockFromFunExpr(fnExpr, element)
+          case FunctionExpression(fnExpr) => createAnonFunBlockFromFunExpr(fnExpr, features)
           case block: ScBlockExpr => ScalaPsiUtil.convertBlockToBraced(block)
-          case _ => createBlockFromExpr(exp, element)
+          case _ => createBlockFromExpr(exp, features)
         }
         if (list.isArgsInParens) {
           list.getLastChild.delete()

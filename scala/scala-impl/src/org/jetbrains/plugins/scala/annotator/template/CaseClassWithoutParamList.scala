@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider, ScalaLanguageLevel}
 
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] with DumbAware {
 
@@ -51,7 +51,7 @@ final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends Inten
     c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    c.clauses.foreach(_.addClause(createClauseFromText(features = c)(using c.getManager)))
+    c.clauses.foreach(_.addClause(createClauseFromText(features = ScalaFeaturesProvider.forPsiOrDefault(c))(using c.getManager)))
 
   override def getFileModifierForPreview(target: PsiFile): FileModifier =
     new AddEmptyParenthesesToPrimaryConstructorFix(PsiTreeUtil.findSameElementInCopy(c, target))

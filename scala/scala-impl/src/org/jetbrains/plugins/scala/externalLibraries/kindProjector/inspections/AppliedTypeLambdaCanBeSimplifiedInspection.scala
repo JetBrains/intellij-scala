@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 /**
  * Inspection to simplify a type like:
@@ -99,6 +100,6 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.type"), paramType) {
 
     override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =
-      element.replace(createTypeElementFromText(replacement, element))
+      element.replace(createTypeElementFromText(replacement, ScalaFeaturesProvider.forPsiOrDefault(element)))
   }
 }

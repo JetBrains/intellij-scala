@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWitho
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class TypedParameterWithoutParenthesisInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
@@ -26,7 +27,7 @@ object TypedParameterWithoutParenthesisInspection {
     with DumbAware {
     override protected def doApplyFix(pclause: ScParameterClause)
                                      (implicit project: Project): Unit = {
-      val replacement = ScalaPsiElementFactory.createExpressionFromText("(" + pclause.getText + ")", pclause)
+      val replacement = ScalaPsiElementFactory.createExpressionFromText("(" + pclause.getText + ")", ScalaFeaturesProvider.forPsiOrDefault(pclause))
       pclause.replace(replacement)
     }
   }

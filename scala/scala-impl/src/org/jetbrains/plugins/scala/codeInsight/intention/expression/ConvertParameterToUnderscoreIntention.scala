@@ -6,8 +6,8 @@ import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createNewLine}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -122,7 +123,7 @@ object ConvertParameterToUnderscoreIntention {
           buf.replace(offset, offset + p.name.length, newParam)
         }
 
-        val newExpr = createExpressionFromText(buf.toString, expr)(using expr.getManager)
+        val newExpr = createExpressionFromText(buf.toString, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager)
         if (isValidExpr(newExpr, expr.parameters.length))
           Right(newExpr)
         else

@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
@@ -195,7 +195,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
         case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
           implicit val tpc: TypePresentationContext = TypePresentationContext(declaration)
           val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-          val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", declaration)
+          val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", ScalaFeaturesProvider.forPsiOrDefault(declaration))
 
           val first  = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           val last   = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN).get

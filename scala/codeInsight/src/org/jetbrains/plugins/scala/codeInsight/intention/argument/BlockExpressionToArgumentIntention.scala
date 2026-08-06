@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction with DumbAware {
@@ -46,7 +46,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     singleExpressionStatement(block).exists { statement =>
       implicit val context: ProjectContext = block.getManager
       buildNewArgumentsText(statement)
-        .flatMap(text => ScalaPsiElementFactory.safe(_.createExpressionFromText(text, element)))
+        .flatMap(text => ScalaPsiElementFactory.safe(_.createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(element))))
         .flatMap(_.children.findByType[ScArgumentExprList])
         .exists { newArguments =>
           isStructurallyEqual(
@@ -83,7 +83,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     for {
       statement <- singleExpressionStatement(block)
       newArgumentsText <- buildNewArgumentsText(statement)
-      newArgumentsExpr <- ScalaPsiElementFactory.safe(_.createExpressionFromText(newArgumentsText, element))
+      newArgumentsExpr <- ScalaPsiElementFactory.safe(_.createExpressionFromText(newArgumentsText, ScalaFeaturesProvider.forPsiOrDefault(element)))
       newArguments <- newArgumentsExpr.children.findByType[ScArgumentExprList]
       replacement = block.getParent.replace(newArguments)
     } replacement.getPrevSibling match {

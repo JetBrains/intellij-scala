@@ -5,6 +5,7 @@ import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class AddCaseToGeneratorQuickfix(gen: ScGenerator) extends PsiBasedModCommandAction[ScGenerator](gen) with DumbAware {
   override def getFamilyName: String = ScalaInspectionBundle.message("add.case")
@@ -14,7 +15,7 @@ final class AddCaseToGeneratorQuickfix(gen: ScGenerator) extends PsiBasedModComm
     else ModCommand.psiUpdate(gen,
       (gen : ScGenerator) => {
         gen.replace(
-          ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()", gen)(using gen)
+          ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()", ScalaFeaturesProvider.forPsiOrDefault(gen))(using gen)
             .asInstanceOf[ScFor].enumerators.head.generators.head
         )
         ()

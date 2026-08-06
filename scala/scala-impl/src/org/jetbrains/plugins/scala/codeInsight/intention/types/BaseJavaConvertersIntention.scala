@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
@@ -79,7 +79,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
         case _ => false
       })
       val replacementText = s"${expression.getText.parenthesize(needsParentheses)}.$methodName"
-      val replacement = createExpressionFromText(replacementText, expression)(using expression.getManager)
+      val replacement = createExpressionFromText(replacementText, ScalaFeaturesProvider.forPsiOrDefault(expression))(using expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
 

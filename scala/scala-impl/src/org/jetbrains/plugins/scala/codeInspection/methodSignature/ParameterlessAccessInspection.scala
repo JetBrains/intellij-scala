@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
@@ -62,7 +62,7 @@ object ParameterlessAccessInspection {
 
   final class EmptyParenMethod extends ParameterlessAccessInspection {
     override def isAvailableForFile(file: PsiFile): Boolean =
-      !file.isScala3 && super.isAvailableForFile(file)
+      !file.features.isScala3 && super.isAvailableForFile(file)
 
     // might have been eta-expanded to () => A, so don't warn.
     // this avoids false positives. To be more accurate, we would need an 'etaExpanded'

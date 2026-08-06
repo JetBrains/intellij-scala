@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.MacroExpansion
 
 import java.util.regex.Pattern
@@ -40,10 +41,11 @@ class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvide
       case None    =>  //
       case Some(e) =>
         val fixed = ensugarExpansion(expansion.body)
+        val features = ScalaFeaturesProvider.forPsiOrDefault(e)
         val psi = if (expansion.tree.startsWith("Block"))
-          ScalaPsiElementFactory.createExpressionFromText(fixed, e)
+          ScalaPsiElementFactory.createExpressionFromText(fixed, features)
         else
-          ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(fixed, element)
+          ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(fixed, features)
         reformatCode(psi)
         extensions.inWriteAction(e.replace(psi))
     }

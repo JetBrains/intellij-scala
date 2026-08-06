@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -67,7 +67,7 @@ package object transformation {
 
   private def createReferenceElement(reference: String, ctx: PsiElement)(implicit isExpression: Boolean): ScReference =
     if (isExpression) createReferenceExpressionFromText(reference)(using ctx.getProject)
-    else createTypeElementFromText(reference, ctx)(using ctx).getFirstChild.asInstanceOf[ScReference]
+    else createTypeElementFromText(reference, ScalaFeaturesProvider.forPsiOrDefault(ctx))(using ctx).getFirstChild.asInstanceOf[ScReference]
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {

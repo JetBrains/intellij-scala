@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -65,7 +66,7 @@ object ScalaInsertHandler {
     import reference.projectContext
 
     val newReference = reference match {
-      case _: ScReferenceExpression => createExpressionFromText(text, reference).asInstanceOf[ScReferenceExpression]
+      case _: ScReferenceExpression => createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(reference)).asInstanceOf[ScReferenceExpression]
       case _                        => createReferenceFromText(text)
     }
 
@@ -187,7 +188,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           case ref: ScReferenceExpression =>
             ref.getParent match {
               case parentRef: ScReferenceExpression =>
-                val newRef = createExpressionFromText(ref.getText, ref)(using ref)
+                val newRef = createExpressionFromText(ref.getText, ScalaFeaturesProvider.forPsiOrDefault(ref))(using ref)
                 Some(parentRef.replace(newRef).getFirstChild)
               case _ => None
             }

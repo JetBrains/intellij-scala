@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 import org.jetbrains.plugins.scala.lang.refactoring.{Associations, ScTypePresentationExt}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import scala.collection.mutable
 
@@ -134,7 +134,7 @@ final class ScalaPullUpProcessor(project: Project,
         copy.accept(new ScalaRecursiveElementVisitor() {
           override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
-            te.replace(createTypeElementFromText(tpe.canonicalCodeText(te), te)(using te))
+            te.replace(createTypeElementFromText(tpe.canonicalCodeText(te), ScalaFeaturesProvider.forPsiOrDefault(te))(using te))
           }
         })
         Seq(copy.getText)

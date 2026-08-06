@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScInterleavedClauses
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSES, node) with ScParameters {
@@ -92,7 +93,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
           case Some(clause) =>
             clause.addParameter(param).parameters.last
           case _ =>
-            val clause = createClauseFromText(features = this)
+            val clause = createClauseFromText(features = ScalaFeaturesProvider.forPsiOrDefault(this))
             val newClause = clause.addParameter(param)
             super.add(clause)
             newClause.parameters.last

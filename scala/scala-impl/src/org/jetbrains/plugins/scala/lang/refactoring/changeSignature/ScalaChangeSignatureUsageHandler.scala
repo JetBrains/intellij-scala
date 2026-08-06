@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 import scala.collection.mutable
 
@@ -70,7 +70,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
-          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), element)(using element))
+          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), ScalaFeaturesProvider.forPsiOrDefault(element))(using element))
           typeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = element.nameContext match {
@@ -151,7 +151,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
               case None => NameSuggester.suggestNamesByType(param.paramType).head
             }
           paramsBuf = paramsBuf :+ paramName
-          arg.replaceExpression(createExpressionFromText(paramName, arg)(using arg.getManager), removeParenthesis = true)
+          arg.replaceExpression(createExpressionFromText(paramName, ScalaFeaturesProvider.forPsiOrDefault(arg))(using arg.getManager), removeParenthesis = true)
         }
         (paramsBuf, inv.getText)
       case _ =>
@@ -172,7 +172,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     val newFunExprText = s"$clause => $exprText"
 
     val replaced = expr.replaceExpression(
-      createExpressionFromText(newFunExprText, expr)(using expr.getManager),
+      createExpressionFromText(newFunExprText, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager),
       removeParenthesis = true
     ) match {
       case fn: ScFunctionExpr                      => fn
@@ -202,7 +202,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
     keywordToChange.foreach { kw =>
-      val defKeyword = createMethodFromText("def foo {}", named)(using named.getManager).children.find(_.textMatches("def")).get
+      val defKeyword = createMethodFromText("def foo {}", ScalaFeaturesProvider.forPsiOrDefault(named))(using named.getManager).children.find(_.textMatches("def")).get
       if (change.getNewParameters.nonEmpty) kw.replace(defKeyword)
     }
 

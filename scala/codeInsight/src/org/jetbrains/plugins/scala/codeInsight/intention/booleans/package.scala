@@ -9,7 +9,7 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 package object booleans {
 
@@ -36,12 +36,13 @@ package object booleans {
       case p => p
     }
 
+    val features = ScalaFeaturesProvider.forPsiOrDefault(infix)
     parent match {
       case prefix: ScPrefixExpr if prefix.operation.textMatches("!") =>
-        val newExpr = createExpressionFromText(text, infix)
+        val newExpr = createExpressionFromText(text, features)
         (parent.asInstanceOf[ScPrefixExpr], newExpr)
       case _ =>
-        val newExpr = createExpressionFromText("!(" + text + ")", infix)
+        val newExpr = createExpressionFromText("!(" + text + ")", features)
         (infix, newExpr)
     }
   }

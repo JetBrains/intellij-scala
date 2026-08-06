@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, Scal
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class LegacyStringFormattingInspection extends LocalInspectionTool {
 
@@ -32,7 +33,10 @@ object LegacyStringFormattingInspection {
 
     override protected def invoke(context: ActionContext, element: PsiElement, updater: ModPsiUpdater): Unit =
       AnyStringParser.parse(element).foreach { parts =>
-        val expression = createExpressionFromText(InterpolatedStringFormatter(ScInterpolatedStringLiteral.Kind.Standard).format(parts), element)(using context.project())
+        val expression = createExpressionFromText(
+          InterpolatedStringFormatter(ScInterpolatedStringLiteral.Kind.Standard).format(parts),
+          ScalaFeaturesProvider.forPsiOrDefault(element)
+        )(using context.project())
         element.replace(expression)
       }
   }

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 trait ScReference extends ScalaPsiElement with ScPolyResolvable {
@@ -328,7 +329,7 @@ trait ScReference extends ScalaPsiElement with ScPolyResolvable {
         case stRef: ScStableCodeReference =>
           stRef.replace(createReferenceFromText(refText))
         case ref: ScReferenceExpression =>
-          ref.replace(createExpressionFromText(refText, ref))
+          ref.replace(createExpressionFromText(refText, ScalaFeaturesProvider.forPsiOrDefault(ref)))
         case _ => null
       }
     }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDefinition, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createElementFromText, createNewLine, createReferenceFromText}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.uast.UastContextKt.toUElement
 import org.jetbrains.uast.generate.{UastCodeGenerationPlugin, UastElementFactory}
 import org.jetbrains.uast.{UElement, UExpression, UField, UMethod, UParameter, UQualifiedReferenceExpression, UReferenceExpression, UReturnExpression, UastUtils}
@@ -86,7 +86,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
           if (paramPsi == null) return null
 
           val psiElement = fieldSourceVariable.map { fieldPsi =>
-            val scParam = ScalaPsiElementFactory.createClassParameterFromText(fieldPsi.getText, constructor)
+            val scParam = ScalaPsiElementFactory.createClassParameterFromText(fieldPsi.getText, ScalaFeaturesProvider.forPsiOrDefault(constructor))
             scParam.getModifierList.setModifierProperty(ScalaTokenTypes.kFINAL.text, false)
             scParam.getActualDefaultExpression.foreach(_.delete())
             scParam.getNode.findChildByType(ScalaTokenTypes.tASSIGN).toOption.foreach(_.getPsi.delete())
@@ -101,7 +101,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
             case declaration@(_: ScValueDeclaration | _: ScVariableDeclaration) =>
               declaration.replace(
                 createElementFromText[ScValueOrVariableDefinition](
-                  s"${declaration.getText} = ${uParameter.getName}", constructor
+                  s"${declaration.getText} = ${uParameter.getName}", ScalaFeaturesProvider.forPsiOrDefault(constructor)
                 )
               ).toOption
             case _ => None
@@ -122,14 +122,14 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
             .append(" = ")
             .append(uParameter.getName)
 
-          createElementFromText[ScAssignment](assignmentBuilder.result(), fn)
+          createElementFromText[ScAssignment](assignmentBuilder.result(), ScalaFeaturesProvider.forPsiOrDefault(fn))
         }
 
         val psiElement = fn.body.map {
           case block: ScBlockExpr =>
             addToBlock(block, createAssignment, anchor, addBefore)
           case bodyExpr =>
-            val block = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr)
+            val block = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, ScalaFeaturesProvider.forPsiOrDefault(bodyExpr))
             val assignment = addToBlock(block, createAssignment, anchor, addBefore)
             bodyExpr.replace(block)
             assignment

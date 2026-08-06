@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 final class SimplifyBooleanInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
@@ -97,7 +97,7 @@ object SimplifyBooleanUtil {
       else {
         booleanConst(operand) match {
           case Some(bool: Boolean) =>
-            createExpressionFromText((!bool).toString, expr)(using expr.getManager)
+            createExpressionFromText((!bool).toString, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager)
           case None => expr
         }
       }
@@ -118,6 +118,7 @@ object SimplifyBooleanUtil {
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
     implicit val projectContext: ProjectContext = expr.projectContext
+    val features = ScalaFeaturesProvider.forPsiOrDefault(expr)
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {
@@ -130,7 +131,7 @@ object SimplifyBooleanUtil {
       case _ => (value, operation) match {
         case (true, "==") | (false, "!=") | (false, "^") | (true, "&&") | (true, "&") | (false, "||") | (false, "|") => expr.getText
         case (false, "==") | (true, "!=") | (true, "^") =>
-          val negated: ScPrefixExpr = createExpressionFromText("!a", expr).asInstanceOf[ScPrefixExpr]
+          val negated: ScPrefixExpr = createExpressionFromText("!a", features).asInstanceOf[ScPrefixExpr]
           val copyExpr = expr.copy.asInstanceOf[ScExpression]
           negated.operand.replaceExpression(copyExpr, removeParenthesis = true)
           negated.getText
@@ -141,6 +142,6 @@ object SimplifyBooleanUtil {
         case _ => throw new IllegalArgumentException("Wrong operation")
       }
     }
-    createExpressionFromText(text, expr)
+    createExpressionFromText(text, features)
   }
 }

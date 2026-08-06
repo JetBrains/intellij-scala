@@ -5,9 +5,9 @@ import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNam
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaFeaturesProvider}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -78,14 +78,14 @@ object TypeCheckCanBeMatchInspection {
         val matchedExprText = expr.getText
         val (caseClausesText, renameData) = buildCaseClausesText(ifStmt, isInstOfUnderFix, onlyFirst)
         val matchStmtText = s"$matchedExprText match { \n " + caseClausesText + "}"
-        val matchStmt = createElementFromText[ScMatch](matchStmtText, expr)
+        val matchStmt = createElementFromText[ScMatch](matchStmtText, ScalaFeaturesProvider.forPsiOrDefault(expr))
 
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
 
   private def adjustMatch(matchStmt: ScMatch)(implicit project: Project): Unit =
-    if (project.indentationBasedSyntaxEnabled(matchStmt)) {
+    if (project.indentationBasedSyntaxEnabled(ScalaFeaturesProvider.forPsiOrDefault(matchStmt))) {
       CodeStyleManager.getInstance(project).reformat(matchStmt)
       matchStmt.findFirstChildByType(ScalaTokenTypes.tLBRACE).foreach(_.delete())
       matchStmt.findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tRBRACE).foreach(_.delete())
@@ -168,7 +168,7 @@ object TypeCheckCanBeMatchInspection {
             val text = suggestedNames.head
             for {
               expression <- asInstOfEverywhere
-              newExpr = createExpressionFromText(text, expression)
+              newExpr = createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(expression))
             } IntentionPreviewUtils.write { () =>
               expression.replaceExpression(newExpr, removeParenthesis = true)
             }
@@ -179,7 +179,7 @@ object TypeCheckCanBeMatchInspection {
       } else {
         IntentionPreviewUtils.write(() => definition.get.delete())
         val text = definedName.get
-        val newExpr = createExpressionFromText(text, ifStmt)
+        val newExpr = createExpressionFromText(text, ScalaFeaturesProvider.forPsiOrDefault(ifStmt))
         IntentionPreviewUtils.write { () =>
           for {
             expression <- asInstOfEverywhere

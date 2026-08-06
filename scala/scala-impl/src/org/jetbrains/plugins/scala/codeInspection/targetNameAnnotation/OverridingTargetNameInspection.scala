@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 
@@ -137,7 +138,7 @@ class OverridingWithDifferentTargetNameInspection extends OverridingTargetNameIn
       superExtName <- targetNameAnnotationExternalName(superElement)
     } yield new AbstractFixOnPsiElement(ScalaInspectionBundle.message("fix.targetname.annotation"), listOwner) {
       override protected def doApplyFix(element: ScModifierListOwner)(implicit project: Project): Unit = {
-        val newAnnotationParam = ScalaPsiElementFactory.createExpressionFromText(s""""$superExtName"""", element)
+        val newAnnotationParam = ScalaPsiElementFactory.createExpressionFromText(s""""$superExtName"""", ScalaFeaturesProvider.forPsiOrDefault(element))
         firstAnnotationParam.replace(newAnnotationParam)
       }
     }

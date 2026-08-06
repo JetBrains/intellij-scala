@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 final class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
@@ -112,7 +112,7 @@ object StringToMultilineStringIntention {
       noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
     )
     val newLiteralText = s"$prefix$Quotes$content$Quotes"
-    val newLiteral = createExpressionFromText(newLiteralText, literal)
+    val newLiteral = createExpressionFromText(newLiteralText, ScalaFeaturesProvider.forPsiOrDefault(literal))
     val replaced = literal.replace(newLiteral).asInstanceOf[ScStringLiteral]
     addMargins(replaced, interpolatorLength = prefix.length)
   }
@@ -176,7 +176,7 @@ object StringToMultilineStringIntention {
       noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
     )
     val newLiteralText = s"$prefix$Quote$content$Quote"
-    val newLiteral = createExpressionFromText(newLiteralText, literal)
+    val newLiteral = createExpressionFromText(newLiteralText, ScalaFeaturesProvider.forPsiOrDefault(literal))
     elementToReplace.replace(newLiteral)
     fixCaretPosition(prefix.length)
   }

@@ -4,7 +4,6 @@ import com.intellij.patterns.{PatternCondition, PsiJavaPatterns, PsiMethodPatter
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 class ConstructorCallArgumentPattern(
@@ -18,7 +17,7 @@ class ConstructorCallArgumentPattern(
 
   override def accepts(host: ScalaPsiElement, context: ProcessingContext): Boolean = {
     val constrPattern: PsiMethodPattern = if (host.newCollectionsFramework) constrPattern1 else constrPattern2
-    ScalaElementPatternImpl.isConstructorCallArgument(host, context, index, constrPattern, host.isScala3)
+    ScalaElementPatternImpl.isConstructorCallArgument(host, context, index, constrPattern, host.features.isScala3)
   }
 
   private def constructorPattern(useNewCollectionFramework: Boolean): PsiMethodPattern = {

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 
 class AddTypeToReferencePattern extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
@@ -15,7 +15,7 @@ class AddTypeToReferencePattern extends AbstractTransformer {
       if !e.nextSibling.exists(_.textMatches(":")) =>
 
       appendTypeAnnotation(t, e, { annotation =>
-        val typedPattern = createPatternFromText(e.getText + ": " + annotation.getText, e)
+        val typedPattern = createPatternFromText(e.getText + ": " + annotation.getText, ScalaFeaturesProvider.forPsiOrDefault(e))
         e.replace(typedPattern).getLastChild.getFirstChild
       })
   }

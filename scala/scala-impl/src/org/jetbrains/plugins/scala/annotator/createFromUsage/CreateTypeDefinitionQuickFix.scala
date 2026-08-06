@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, isUnitTestMode}
 
 abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
@@ -86,7 +87,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createSyntheticDefinitionForPreview = {
     val text = s"${kind.keyword} $name"
-    val file = createScalaFileFromText(text, ref)
+    val file = createScalaFileFromText(text, ScalaFeaturesProvider.forPsiOrDefault(ref))
     val definition = PsiTreeUtil.findChildOfType(file, classOf[ScTypeDefinition])
     //afterCreationWork(definition, editor)
     val fileType = ScalaFileType.INSTANCE
@@ -281,7 +282,7 @@ final class CreateAnnotationClassQuickFix(ref: ScReference)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.annotation.class")
 
   override protected def afterCreationWork(td: ScTypeDefinition)(editor: Editor): Unit = {
-    createTypeElementFromText("scala.annotation.StaticAnnotation", td) match {
+    createTypeElementFromText("scala.annotation.StaticAnnotation", ScalaFeaturesProvider.forPsiOrDefault(td)) match {
       case ScSimpleTypeElement(ScReference(staticAnnotation: ScTypeDefinition)) =>
         org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil.addExtendsTo(td, staticAnnotation)
       case _ =>

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import java.awt.Point
 import javax.swing.JList
@@ -167,7 +168,7 @@ object MakeExplicitAction {
                               (onExpression: PartialFunction[(ScExpression, PsiElement), Unit])
                               (implicit project: Project, editor: Editor): Unit = {
     def doReplace(): Unit = {
-      val replacement = createExpressionFromText(replacementText, expression)
+      val replacement = createExpressionFromText(replacementText, ScalaFeaturesProvider.forPsiOrDefault(expression))
 
       IntentionPreviewUtils.write { () =>
         val methodCall = expression.replace(replacement).asInstanceOf[ScMethodCall]

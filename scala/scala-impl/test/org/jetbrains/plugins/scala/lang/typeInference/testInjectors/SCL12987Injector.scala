@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class SCL12987Injector extends InterpolatedStringMacroTypeProvider {
   /**
@@ -29,7 +30,7 @@ class SCL12987Injector extends InterpolatedStringMacroTypeProvider {
   override def inferExpressionType(pat: ScInterpolatedStringLiteral): TypeResult = {
     val resultingType = pat.getStringParts.mkString.split(':').last
     ScalaPsiElementFactory
-      .createTypeElementFromText(resultingType, pat)(using pat)
+      .createTypeElementFromText(resultingType, ScalaFeaturesProvider.forPsiOrDefault(pat))(using pat)
       .`type`()
   }
 }

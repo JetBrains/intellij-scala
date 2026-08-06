@@ -11,12 +11,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -48,7 +49,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     if (expr != null && expr.isValid) {
       buildReplacement(expr).foreach { case (replacementText, start) =>
         IntentionPreviewUtils.write { () =>
-          expr.replace(createExpressionFromText(replacementText, element)(using element.getManager))
+          expr.replace(createExpressionFromText(replacementText, ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getManager))
           editor.getCaretModel.moveToOffset(start)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

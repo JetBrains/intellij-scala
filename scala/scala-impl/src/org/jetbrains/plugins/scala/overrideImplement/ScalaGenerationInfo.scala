@@ -10,7 +10,6 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, types}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
@@ -19,9 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, types}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -55,7 +55,7 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
       case member: ScExtensionMember =>
         myMember = insertExtension(member, templDef, anchor, typeAdjuster)
       case ScAliasMember(alias, substitutor, _) =>
-        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(using alias.getManager, Context(anchor))
+        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, ScalaFeaturesProvider.forPsiOrDefault(aClass), comment)(using alias.getManager, Context(anchor))
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)
@@ -260,7 +260,7 @@ object ScalaGenerationInfo {
       signature,
       needsOverrideModifier,
       body,
-      td,
+      ScalaFeaturesProvider.forPsiOrDefault(td),
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
       withAnnotation = false
     )(using method.getManager)
@@ -289,7 +289,7 @@ object ScalaGenerationInfo {
 
     val newExtension = createOverrideImplementExtensionMethods(
       extensionMethodConstructionInfos,
-      ScalaFeatures.forPsiOrDefault(td),
+      ScalaFeaturesProvider.forPsiOrDefault(td),
       wrapMultipleExtensionsWithBraces = !td.containingFile.exists(_.useIndentationBasedSyntax),
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
     )(using extension.getManager)
@@ -327,7 +327,7 @@ object ScalaGenerationInfo {
       case _ => ???
     }
 
-    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, anchor, comment)(using value.getManager)
+    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, ScalaFeaturesProvider.forPsiOrDefault(anchor), comment)(using value.getManager)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
     m
   }

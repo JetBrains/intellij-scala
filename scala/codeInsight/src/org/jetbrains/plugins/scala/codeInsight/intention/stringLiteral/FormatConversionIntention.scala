@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
@@ -52,7 +53,7 @@ sealed abstract class FormatConversionIntention[P <: StringParser](
       case _ => return
     }
     val stringFormatted = formatter.format(parts)
-    val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted, element)(using element.getProject)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted, ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getProject)
     target.replace(replacement) match {
       case literal: ScStringLiteral if literal.isMultiLineString =>
         MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)
@@ -131,11 +132,12 @@ object FormatConversionIntention {
       val formattedString = formatter.format(parts)
 
       import ScalaPsiElementFactory.createExpressionFromText
-      val formattedStringExpr0 = createExpressionFromText(formattedString, element)
+      val features = ScalaFeaturesProvider.forPsiOrDefault(element)
+      val formattedStringExpr0 = createExpressionFromText(formattedString, features)
       val formattedStringExpr1 = removeUnnecessaryParentheses(formattedStringExpr0)
       val formattedStringExpr2 =
         if (needToWrapConcatenationWithBracketsIn(target))
-          createExpressionFromText("(" + formattedStringExpr1.getText + ")", element)
+          createExpressionFromText("(" + formattedStringExpr1.getText + ")", features)
         else
           formattedStringExpr1
 
@@ -177,7 +179,7 @@ object FormatConversionIntention {
         formattedStringExpr
       else {
         val newFormattedString = removeChars(formattedStringExpr.getText, offsetsToRemove)
-        ScalaPsiElementFactory.createExpressionFromText(newFormattedString, formattedStringExpr)
+        ScalaPsiElementFactory.createExpressionFromText(newFormattedString, ScalaFeaturesProvider.forPsiOrDefault(formattedStringExpr))
       }
     }
 

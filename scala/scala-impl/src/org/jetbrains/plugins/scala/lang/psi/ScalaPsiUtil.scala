@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaFeaturesProvider, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import java.{util => ju}
@@ -989,7 +989,7 @@ object ScalaPsiUtil {
         expr.getParent match {
           case ScParenthesisedExpr(_) =>
             val text = expr.getText
-            val dummyFile = createScalaFileFromText(text, expr)(using expr.getManager)
+            val dummyFile = createScalaFileFromText(text, ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager)
             dummyFile.firstChild match {
               case Some(newExpr: ScExpression) => !newExpr.textMatches(text)
               case _ => true
@@ -1753,7 +1753,7 @@ object ScalaPsiUtil {
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext
 
-    val block = createElementFromText[PsiElement]("(_)", element)
+    val block = createElementFromText[PsiElement]("(_)", ScalaFeaturesProvider.forPsiOrDefault(element))
 
     for (lBrace <- element.findFirstChildByType(ScalaTokenTypes.tLBRACE)) {
       lBrace.replace(block.getFirstChild)
@@ -2128,10 +2128,9 @@ object ScalaPsiUtil {
     if (block.isEnclosedByBraces) blockCopy
     else {
       val exprs = blockCopy.statements ++ blockCopy.caseClauses
-      ScalaPsiElementFactory.createBlockWithGivenExpressions(exprs, block)
+      ScalaPsiElementFactory.createBlockWithGivenExpressions(exprs, ScalaFeaturesProvider.forPsiOrDefault(block))
     }
   }
-
 
   @tailrec
   def isUncheckedExpr(expr: ScExpression): Boolean = expr match {

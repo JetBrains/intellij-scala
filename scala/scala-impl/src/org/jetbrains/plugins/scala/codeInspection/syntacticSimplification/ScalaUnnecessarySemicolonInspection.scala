@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool with DumbAware {
   override def isEnabledByDefault: Boolean = false
@@ -28,7 +29,7 @@ final class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool with
               val whitespaceOffset = nextLeaf.endOffset
               val offset = element.startOffset
               val textWithoutSemicolon = removeChar(file.charSequence, offset)
-              val newFile = createScalaFileFromText(textWithoutSemicolon, element)(using element.getManager)
+              val newFile = createScalaFileFromText(textWithoutSemicolon, ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getManager)
               var elem1 = file.findElementAt(offset - 1)
               var elem2 = newFile.findElementAt(offset - 1)
               while (elem1 != null && elem1.endOffset <= offset && elem2 != null) {

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction with DumbAware {
 
@@ -45,7 +46,7 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
 
       val newStmtText = s"if ($condText) {\n do $bodyText while ($condText)\n}"
 
-      val newStmt = createExpressionFromText(newStmtText, element)(using element.getManager)
+      val newStmt = createExpressionFromText(newStmtText, ScalaFeaturesProvider.forPsiOrDefault(element))(using element.getManager)
 
       IntentionPreviewUtils.write { () =>
         whileStmt.replaceExpression(newStmt, removeParenthesis = true)

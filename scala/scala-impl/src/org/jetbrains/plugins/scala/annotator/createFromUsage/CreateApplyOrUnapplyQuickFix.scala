@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.chaining.scalaUtilChainingOps
@@ -44,7 +44,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     val holder = anchor.getParent
     val hasMembers = holder.children.containsInstanceOf[ScMember]
 
-    val entity = holder.addAfter(createElementFromText(text, block), anchor)
+    val entity = holder.addAfter(createElementFromText(text, ScalaFeaturesProvider.forPsiOrDefault(block)), anchor)
     if (hasMembers) holder.addAfter(createNewLine(), entity)
 
     entity

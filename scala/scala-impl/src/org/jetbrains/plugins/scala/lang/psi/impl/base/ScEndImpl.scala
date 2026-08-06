@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Name
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
   override def begin: Option[ScBegin] = this.parentsInFile.findByType[ScBegin]
@@ -31,7 +32,7 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
 
   // Enable Rename and Find Usages, but don't highlight the reference as usage, SCL-19675
   override def resolve(): PsiElement = if (!tag.isIdentifier) null else {
-    val target = ScalaPsiElementFactory.createScalaFileFromText(s"class $Name", this)(using this).typeDefinitions.head
+    val target = ScalaPsiElementFactory.createScalaFileFromText(s"class $Name", ScalaFeaturesProvider.forPsiOrDefault(this))(using this).typeDefinitions.head
     target.context = this
     target
   }

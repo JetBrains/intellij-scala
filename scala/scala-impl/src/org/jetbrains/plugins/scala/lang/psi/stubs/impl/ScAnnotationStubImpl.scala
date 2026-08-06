@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class ScAnnotationStubImpl(parent: StubElement[? <: PsiElement],
                            elementType: IElementType,
@@ -20,7 +21,7 @@ class ScAnnotationStubImpl(parent: StubElement[? <: PsiElement],
   override def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {
       case (context, _) =>
-        val annotation = ScalaPsiElementFactory.createAnAnnotation(annotationText, context)(using getProject)
+        val annotation = ScalaPsiElementFactory.createAnAnnotation(annotationText, ScalaFeaturesProvider.forPsiOrDefault(context))(using getProject)
         val annotationExpr = annotation.annotationExpr
         annotationExpr.context = context
         Some(annotationExpr)

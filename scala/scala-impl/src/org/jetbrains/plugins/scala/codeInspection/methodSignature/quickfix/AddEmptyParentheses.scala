@@ -4,6 +4,7 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 final class AddEmptyParentheses(function: ScFunction)
   extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("empty.parentheses"), function) with DumbAware {
@@ -11,6 +12,6 @@ final class AddEmptyParentheses(function: ScFunction)
   override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {
     import ScalaPsiElementFactory.createClauseFromText
-    function.paramClauses.addClause(createClauseFromText(features = function))
+    function.paramClauses.addClause(createClauseFromText(features = ScalaFeaturesProvider.forPsiOrDefault(function)))
   }
 }

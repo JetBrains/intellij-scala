@@ -3,16 +3,17 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.util.matching.Regex
 
@@ -85,7 +86,7 @@ object FunctionTupleSyntacticSugarInspection {
         }
         ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, ScalaFeaturesProvider.forPsiOrDefault(typeElement)))
     }
   }
 
@@ -119,7 +120,7 @@ object FunctionTupleSyntacticSugarInspection {
         val arrow = ScalaPsiUtil.functionArrow(using project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, ScalaFeaturesProvider.forPsiOrDefault(typeElement)))
     }
   }
 }

@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaFeaturesProvider}
 
 import scala.annotation.tailrec
 
@@ -412,7 +412,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _: CompletionProcessor =>
         case _ =>
           proc.execute(
-            createParameterFromText(refName + ": Any", ref),
+            createParameterFromText(refName + ": Any", ScalaFeaturesProvider.forPsiOrDefault(ref)),
             ScalaResolveState.withNamedParam
           )
       }

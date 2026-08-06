@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.overrideImplement
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
@@ -111,7 +112,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       case ScSignatureClause.TermClause(clause) => paramClauseApplicationText(clause)
     }.mkString
 
-    createExpressionFromText(s"$dText.$methodName$signatureArguments", context)(using prototype.getManager)
+    createExpressionFromText(s"$dText.$methodName$signatureArguments", ScalaFeaturesProvider.forPsiOrDefault(context))(using prototype.getManager)
   }
 
   private def delegateText(delegate: ClassMember): String = {

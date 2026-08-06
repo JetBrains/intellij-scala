@@ -4,11 +4,8 @@ import com.intellij.lang.Language
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaVersion}
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.util.BitMaskStorage
-
-import scala.language.implicitConversions
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaVersion}
 
 /**
  * The trait describes the features of the language that affect file parsing rules.
@@ -350,7 +347,7 @@ object ScalaFeatures {
       hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
     )
 
-  val CreatedWithScalaFeatures: Key[ScalaFeatures] =
+  private val CreatedWithScalaFeatures: Key[ScalaFeatures] =
     Key.create[ScalaFeatures]("created.with.scala.features")
 
   def getAttachedScalaFeatures(file: PsiFile): Option[ScalaFeatures] =
@@ -358,41 +355,6 @@ object ScalaFeatures {
 
   def setAttachedScalaFeatures(file: PsiFile, features: ScalaFeatures): Unit =
     file.putUserData(CreatedWithScalaFeatures, features)
-
-  private def forPsi(psi: PsiElement): Option[ScalaFeatures] = {
-    val containingFile = Option(psi.getContainingFile)
-    containingFile.map(forFile)
-  }
-
-  /**
-   * @note It may happen that psi element (and containing psi file),
-   *       that is being passed as a context to some `ScalaPsiElementFactory` method is already synthetic.
-   *       In this case we just use ScalaFeatures stored in/attached to containing file userdata.
-   *       However not all synthetic/non-physical files are created by ScalaPsiElementFactory.
-   *       That's why we need to fallback to features extracted from module
-   *       Examples:
-   *        - temp files, created for intention preview
-   *        - in-memory files created in light unit tests
-   */
-  @inline
-  private def forFile(file: PsiFile): ScalaFeatures = {
-    val featuresAttached =
-      if (!file.isPhysical)
-        getAttachedScalaFeatures(file)
-      else
-        None
-    val featuresAttachedOrFromModule = featuresAttached.orElse(file.module.map(_.features))
-    val result = featuresAttachedOrFromModule.getOrElse(if (file.isScala3File) defaultScala3 else default)
-    result
-  }
-
-  implicit def forPsiOrDefault(@Nullable psi: PsiElement): ScalaFeatures = {
-    val delegate =
-      if (psi eq null) ScalaFeatures.default
-      else             forPsi(psi).getOrElse(default)
-
-    PsiContextFeatures(psi, delegate)
-  }
 
   def forParserTests(version: ScalaVersion): ScalaFeatures =
     default.copy(

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider}
 
 object ConvertibleToMethodValueInspection {
   val inspectionName: String = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
@@ -170,7 +170,7 @@ class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, 
 
   override protected def doApplyFix(scExpr: ScExpression)
                                    (implicit project: Project): Unit = {
-    val newExpr = createExpressionFromText(replacement, expr)
+    val newExpr = createExpressionFromText(replacement, ScalaFeaturesProvider.forPsiOrDefault(expr))
     scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

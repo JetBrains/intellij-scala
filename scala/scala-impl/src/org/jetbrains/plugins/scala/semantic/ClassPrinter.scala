@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{GeneratedClassTag, Keywords, isIdentifier}
 
 import scala.annotation.tailrec
@@ -70,7 +70,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         else Seq.empty
       // TODO Don't add "Foo.this." in class parents, see ScalaTypePresentation.innerTypeText, SCL-25555
       if (parentClauses.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") +
-        (classParent.map(textOf(_, parens = 1)) ++ parentClauses.map(textOfConstructorInvocation(_, indent, emptyParens = false))).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ").replace(name + ".this.", "")
+        (classParent.map(textOf(_, parens = 1)) ++ parentClauses.map(textOfConstructorInvocation(_, indent, emptyParens = false))).mkString(if (cls.features.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ").replace(name + ".this.", "")
     }
 
     val derivations = {

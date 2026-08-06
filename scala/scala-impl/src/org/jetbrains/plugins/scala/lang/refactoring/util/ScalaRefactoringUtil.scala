@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, T
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaFeaturesProvider}
 
 import java.awt.Component
 import java.util.Collections
@@ -188,7 +188,7 @@ object ScalaRefactoringUtil {
     val rangeText = file.charSequence.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, ArraySeq[ScType])] = {
-      val expr = createOptionExpressionFromText(rangeText, file)(using file.getManager)
+      val expr = createOptionExpressionFromText(rangeText, ScalaFeaturesProvider.forPsiOrDefault(file))(using file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
@@ -261,7 +261,7 @@ object ScalaRefactoringUtil {
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
-    def liftMethod = createExpressionFromText(expr.getText + " _", expr)(using expr.getManager)
+    def liftMethod = createExpressionFromText(expr.getText + " _", ScalaFeaturesProvider.forPsiOrDefault(expr))(using expr.getManager)
 
     @tailrec
     def needToLift(srr: ScalaResolveResult): Boolean = srr match {

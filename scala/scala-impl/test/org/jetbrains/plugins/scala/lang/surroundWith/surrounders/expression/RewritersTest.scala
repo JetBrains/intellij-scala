@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScIf, ScMatch, ScTry, ScWhile}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.reflect.ClassTag
@@ -24,7 +24,7 @@ class RewritersTest extends ScalaLightCodeInsightFixtureTestCase {
     val file = configureFromFileText(text)
     val result = file.children.collectFirst {
       case expr: E =>
-        operation(expr)(expr.projectContext, expr)
+        operation(expr)(expr.projectContext, ScalaFeaturesProvider.forPsiOrDefault(expr))
     }.orNull
 
     assertNotNull(result)

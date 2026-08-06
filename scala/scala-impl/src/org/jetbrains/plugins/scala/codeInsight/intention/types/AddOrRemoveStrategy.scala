@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScUndersco
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy(editor) {
 
@@ -33,7 +34,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
     pattern match {
       case p: ScTypedPattern =>
 
-        val newPattern = createPatternFromText(p.name, pattern)
+        val newPattern = createPatternFromText(p.name, ScalaFeaturesProvider.forPsiOrDefault(pattern))
         pattern.replace(newPattern)
 
         true
@@ -41,7 +42,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
         val copy = pattern.copy().asInstanceOf[ScTypedPatternLike]
         copy.findFirstChildByType(ScalaTokenTypes.tCOLON).fold(false) { colon =>
           copy.getNode.removeRange(colon.getNode, null)
-          val newPattern = createPatternFromText(copy.getText, pattern)
+          val newPattern = createPatternFromText(copy.getText, ScalaFeaturesProvider.forPsiOrDefault(pattern))
           pattern.replace(newPattern)
           true
         }
@@ -63,7 +64,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
         val text = clause.getText
         text.startsWith("(") && text.endsWith(")")
       }.map {
-      (_, createClauseForFunctionExprFromText(newParameter.getText, parameter))
+      (_, createClauseForFunctionExprFromText(newParameter.getText, ScalaFeaturesProvider.forPsiOrDefault(parameter)))
     }
 
     val (element, replacement) = pair.getOrElse {
